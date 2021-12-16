@@ -36,10 +36,20 @@ public class SeverGeoObjectJsonAdapters
 {
   public static class ServerGeoObjectSerializer implements JsonSerializer<ServerGeoObjectIF>
   {
+    private Date startDate;
+    
+    private Date endDate;
+    
+    public ServerGeoObjectSerializer(Date startDate, Date endDate)
+    {
+      this.startDate = startDate;
+      this.endDate = endDate;
+    }
+    
     @Override
     public JsonElement serialize(ServerGeoObjectIF sgo, Type typeOfSrc, JsonSerializationContext context)
     {
-      return context.serialize(sgo.toGeoObject());
+      return context.serialize(sgo.toGeoObject(this.startDate, this.endDate));
     }
   }
 

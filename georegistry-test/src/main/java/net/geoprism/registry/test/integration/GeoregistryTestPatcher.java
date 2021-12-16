@@ -20,6 +20,7 @@ package net.geoprism.registry.test.integration;
 
 import net.geoprism.build.GeoprismDatabaseBuilder;
 import net.geoprism.build.GeoprismDatabaseBuilderIF;
+import net.geoprism.registry.test.CambodiaTestDataset;
 
 public class GeoregistryTestPatcher extends GeoprismDatabaseBuilder implements GeoprismDatabaseBuilderIF
 {
@@ -28,7 +29,8 @@ public class GeoregistryTestPatcher extends GeoprismDatabaseBuilder implements G
   {
     super.runWithRequest();
     
-    AndroidIntegrationTestDatabaseBuilder.main(new String[] {});
+//    AndroidIntegrationTestDatabaseBuilder.main(new String[] {});
+    CambodiaTestDataset.main(new String[] {});
   }
   
   @Override

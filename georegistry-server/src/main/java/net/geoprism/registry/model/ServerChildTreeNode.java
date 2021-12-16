@@ -78,7 +78,7 @@ public class ServerChildTreeNode extends ServerTreeNode
     final GeoObjectRelationshipPermissionServiceIF relPermServ = ServiceFactory.getGeoObjectRelationshipPermissionService();
     final GeoObjectPermissionServiceIF goPermServ = ServiceFactory.getGeoObjectPermissionService();
     
-    GeoObject go = this.getGeoObject().toGeoObject();
+    GeoObject go = this.getGeoObject().toGeoObject(this.getStartDate(), this.getEndDate());
     HierarchyType ht = this.getHierarchyType() != null ? this.getHierarchyType().getType() : null;
 
     ChildTreeNode node = new ChildTreeNode(go, ht);

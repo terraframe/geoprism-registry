@@ -33,13 +33,13 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 
-import junit.framework.Assert;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
@@ -105,10 +105,10 @@ public class ConversionTest
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testDate.getName(), calendar.getTime());
 
-    ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
+    ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     // Get the object with the custom attribute
-    GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, testGo.getCode(), this.testData.STATE.getCode());
+    GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, testGo.getCode(), this.testData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     Assert.assertNotNull(result);
     Assert.assertEquals(geoObj.getValue(testDate.getName()), result.getValue(testDate.getName()));
@@ -160,10 +160,10 @@ public class ConversionTest
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testBoolean.getName(), new Boolean(true));
 
-    ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
+    ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     // Get the object with the custom attribute
-    GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, testGo.getCode(), this.testData.STATE.getCode());
+    GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, testGo.getCode(), this.testData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     Assert.assertNotNull(result);
     Assert.assertEquals(geoObj.getValue(testBoolean.getName()), result.getValue(testBoolean.getName()));
@@ -211,10 +211,10 @@ public class ConversionTest
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testFloat.getName(), new Double(234.2));
 
-    ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
+    ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     // Get the object with the custom attribute
-    GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, testGo.getCode(), this.testData.STATE.getCode());
+    GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, testGo.getCode(), this.testData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     Assert.assertNotNull(result);
     Assert.assertEquals(geoObj.getValue(testFloat.getName()), result.getValue(testFloat.getName()));
@@ -262,10 +262,10 @@ public class ConversionTest
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testInteger.getName(), new Long(123));
 
-    ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
+    ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     // Get the object with the custom attribute
-    GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, testGo.getCode(), this.testData.STATE.getCode());
+    GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, testGo.getCode(), this.testData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     Assert.assertNotNull(result);
     Assert.assertEquals(geoObj.getValue(testInteger.getName()), result.getValue(testInteger.getName()));
@@ -312,10 +312,10 @@ public class ConversionTest
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
     geoObj.setValue(testCharacter.getName(), "ABC");
 
-    ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
+    ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     // Get the object with the custom attribute
-    GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, testGo.getCode(), this.testData.STATE.getCode());
+    GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, testGo.getCode(), this.testData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     Assert.assertNotNull(result);
     Assert.assertEquals(geoObj.getValue(testCharacter.getName()), result.getValue(testCharacter.getName()));
@@ -372,10 +372,10 @@ public class ConversionTest
       geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
       geoObj.setValue(testTerm.getName(), term.getCode());
 
-      ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
+      ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
       // Get the object with the custom attribute
-      GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, testGo.getCode(), this.testData.STATE.getCode());
+      GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, testGo.getCode(), this.testData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
       Assert.assertNotNull(result);
       Iterator<String> expected = (Iterator<String>) geoObj.getValue(testTerm.getName());
@@ -427,13 +427,13 @@ public class ConversionTest
     geoObj.setDisplayLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
 
-    geoObj = ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
+    geoObj = ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
     geoObj.setDisplayLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "New Label");
 
-    geoObj = ServiceFactory.getRegistryService().updateGeoObject(sessionId, geoObj.toJSON().toString());
+    geoObj = ServiceFactory.getRegistryService().updateGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     // Get the object with the custom attribute
-    GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, testGo.getCode(), this.testData.STATE.getCode());
+    GeoObject result = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, testGo.getCode(), this.testData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
     Assert.assertNotNull(result);
     Assert.assertEquals("New Label", geoObj.getLocalizedDisplayLabel());

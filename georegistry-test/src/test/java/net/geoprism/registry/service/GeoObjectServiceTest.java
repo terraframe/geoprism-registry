@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.service;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
@@ -35,10 +37,12 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.session.Request;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
@@ -98,7 +102,7 @@ public class GeoObjectServiceTest
     for (TestUserInfo user : allowedUsers)
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
-        GeoObject geoObj = adapter.getGeoObject(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
+        GeoObject geoObj = adapter.getGeoObject(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
         FastTestDataset.CAMBODIA.assertEquals(geoObj);
 
@@ -115,7 +119,7 @@ public class GeoObjectServiceTest
     for (TestUserInfo user : allowedUsers)
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
-        GeoObject geoObj = adapter.getGeoObject(FastTestDataset.PROV_CENTRAL_PRIVATE.getRegistryId(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode());
+        GeoObject geoObj = adapter.getGeoObject(FastTestDataset.PROV_CENTRAL_PRIVATE.getRegistryId(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
         
         FastTestDataset.PROV_CENTRAL_PRIVATE.assertEquals(geoObj);
@@ -132,7 +136,7 @@ public class GeoObjectServiceTest
       try
       {
         FastTestDataset.runAsUser(user, (request, adapter) -> {
-          adapter.getGeoObject(FastTestDataset.PROV_CENTRAL_PRIVATE.getRegistryId(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode());
+          adapter.getGeoObject(FastTestDataset.PROV_CENTRAL_PRIVATE.getRegistryId(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
         
           Assert.fail();
         });
@@ -153,7 +157,7 @@ public class GeoObjectServiceTest
     for (TestUserInfo user : allowedUsers)
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
-        GeoObject geoObj = adapter.getGeoObjectByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
+        GeoObject geoObj = adapter.getGeoObjectByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
         Assert.assertEquals(true, geoObj.getExists());
@@ -184,7 +188,7 @@ public class GeoObjectServiceTest
     for (TestUserInfo user : allowedUsers)
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
-        GeoObject geoObj = adapter.getGeoObjectByCode(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode());
+        GeoObject geoObj = adapter.getGeoObjectByCode(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
         Assert.assertEquals(true, geoObj.getExists());
@@ -198,7 +202,7 @@ public class GeoObjectServiceTest
       try
       {
         FastTestDataset.runAsUser(user, (request, adapter) -> {
-          adapter.getGeoObjectByCode(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode());
+          adapter.getGeoObjectByCode(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
       
           Assert.fail();
         });
@@ -223,7 +227,7 @@ public class GeoObjectServiceTest
 
     try
     {
-      testData.adapter.createGeoObject(geoObj.toJSON().toString());
+      testData.adapter.createGeoObject(geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
       Assert.fail("Able to create a GeoObject with a wrong geometry type");
     }
@@ -244,7 +248,7 @@ public class GeoObjectServiceTest
       TestDataSet.runAsUser(user, (request, adapter) -> {
         TestDataSet.populateAdapterIds(user, adapter);
 
-        GeoObject returned = adapter.createGeoObject(TEST_GO.newGeoObject(adapter).toJSON().toString());
+        GeoObject returned = adapter.createGeoObject(TEST_GO.newGeoObject(adapter).toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
         TEST_GO.assertEquals(returned);
 
@@ -264,7 +268,7 @@ public class GeoObjectServiceTest
         
         try
         {
-          adapter.createGeoObject(TEST_GO.newGeoObject(ServiceFactory.getAdapter()).toJSON().toString());
+          adapter.createGeoObject(TEST_GO.newGeoObject(ServiceFactory.getAdapter()).toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
           Assert.fail();
         }
@@ -274,6 +278,29 @@ public class GeoObjectServiceTest
         }
       });
     }
+  }
+  
+  @Test
+  public void testCreateGeoObjectNoDate()
+  {
+    TestDataSet.runAsUser(FastTestDataset.USER_CGOV_RA, (request, adapter) -> {
+      TestDataSet.populateAdapterIds(FastTestDataset.USER_CGOV_RA, adapter);
+
+      GeoObject returned = adapter.createGeoObject(TEST_GO.newGeoObject(adapter).toJSON().toString(), null, null);
+
+      TEST_GO.assertEquals(returned);
+
+      Assert.assertEquals(true, returned.getExists());
+      
+      Calendar cal = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+      cal.clear();
+      cal.setTime(new Date());
+      cal.add(Calendar.HOUR, -1);
+      Date startDate = cal.getTime();
+
+      TEST_GO.assertApplied(startDate, ValueOverTime.INFINITY_END_DATE);
+      TEST_GO.delete();
+    });
   }
   
   @Test
@@ -287,7 +314,7 @@ public class GeoObjectServiceTest
       TestDataSet.runAsUser(user, (request, adapter) -> {
         TestDataSet.populateAdapterIds(user, adapter);
 
-        GeoObject returned = adapter.createGeoObject(TEST_GO_PRIVATE.newGeoObject(adapter).toJSON().toString());
+        GeoObject returned = adapter.createGeoObject(TEST_GO_PRIVATE.newGeoObject(adapter).toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
         TEST_GO_PRIVATE.assertEquals(returned);
 
@@ -324,7 +351,7 @@ public class GeoObjectServiceTest
         
         try
         {
-          adapter.createGeoObject(TEST_GO_PRIVATE.newGeoObject(ServiceFactory.getAdapter()).toJSON().toString());
+          adapter.createGeoObject(TEST_GO_PRIVATE.newGeoObject(ServiceFactory.getAdapter()).toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
           Assert.fail();
         }
@@ -336,7 +363,7 @@ public class GeoObjectServiceTest
     }
   }
 
-  private void updateGO(TestRegistryAdapterClient adapter, TestGeoObjectInfo go)
+  private void updateGO(TestRegistryAdapterClient adapter, TestGeoObjectInfo go, Date startDate, Date endDate)
   {
     go.setWkt(TestDataSet.WKT_POLYGON_2);
     go.setDisplayLabel("Some new value");
@@ -344,7 +371,7 @@ public class GeoObjectServiceTest
     GeoObject update = go.fetchGeoObject();
     go.populate(update);
 
-    GeoObject returnedUpdate = adapter.updateGeoObject(update.toJSON().toString());
+    GeoObject returnedUpdate = adapter.updateGeoObject(update.toJSON().toString(), startDate, endDate);
 
     go.assertEquals(returnedUpdate);
 
@@ -363,7 +390,7 @@ public class GeoObjectServiceTest
       go.apply();
 
       TestDataSet.runAsUser(user, (request, adapter) -> {
-        updateGO(adapter, go);
+        updateGO(adapter, go, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
       });
 
       go.delete();
@@ -380,7 +407,7 @@ public class GeoObjectServiceTest
       TestDataSet.runAsUser(user, (request, adapter) -> {
         try
         {
-          updateGO(adapter, go);
+          updateGO(adapter, go, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
           Assert.fail();
         }
@@ -390,6 +417,19 @@ public class GeoObjectServiceTest
         }
       });
     }
+  }
+  
+  @Test
+  public void testUpdateGeoObjectNoDate()
+  {
+    TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY);
+    go.apply();
+
+    TestDataSet.runAsUser(FastTestDataset.USER_CGOV_RA, (request, adapter) -> {
+      updateGO(adapter, go, null, null);
+    });
+
+    go.delete();
   }
   
   @Test
@@ -404,7 +444,7 @@ public class GeoObjectServiceTest
       go.apply();
 
       TestDataSet.runAsUser(user, (request, adapter) -> {
-        updateGO(adapter, go);
+        updateGO(adapter, go, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
       });
 
       go.delete();
@@ -421,7 +461,7 @@ public class GeoObjectServiceTest
       TestDataSet.runAsUser(user, (request, adapter) -> {
         try
         {
-          updateGO(adapter, go);
+          updateGO(adapter, go, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
           Assert.fail();
         }
@@ -455,7 +495,7 @@ public class GeoObjectServiceTest
   @Test
   public void testGetGeoObjectSuggestions()
   {
-    JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode(), null);
+    JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), FastTestDataset.CAMBODIA.getCode(), null, null, FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode());
 
     Assert.assertEquals(2, results.size());
 
@@ -471,7 +511,7 @@ public class GeoObjectServiceTest
   @Test
   public void testGetGeoObjectSuggestionsOnDate()
   {
-    JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+    JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), FastTestDataset.CAMBODIA.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode());
 
     Assert.assertEquals(2, results.size());
 
@@ -487,7 +527,7 @@ public class GeoObjectServiceTest
   @Test
   public void testGetGeoObjectSuggestionsNoParent()
   {
-    JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), null, null, null, null);
+    JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), null, null, null, null, null);
 
     Assert.assertEquals(2, results.size());
 
@@ -503,7 +543,7 @@ public class GeoObjectServiceTest
   @Test
   public void testGetGeoObjectSuggestionsNoParentOnDate()
   {
-    JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), null, null, null, TestDataSet.DEFAULT_OVER_TIME_DATE);
+    JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), null, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, null, null);
 
     Assert.assertEquals(2, results.size());
 
@@ -529,7 +569,7 @@ public class GeoObjectServiceTest
     geoObj.setCode(FastTestDataset.CAMBODIA.getCode());
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, FastTestDataset.CAMBODIA.getDisplayLabel());
     geoObj.setUid(UUID.randomUUID().toString());
-    testData.adapter.createGeoObject(geoObj.toJSON().toString());
+    testData.adapter.createGeoObject(geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
   }
 
   /**
@@ -540,10 +580,10 @@ public class GeoObjectServiceTest
   public void testUnissuedIdUpdate()
   {
     // Update
-    GeoObject waGeoObj = testData.adapter.getGeoObject(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
+    GeoObject waGeoObj = testData.adapter.getGeoObject(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
     waGeoObj.setWKTGeometry(FastTestDataset.CAMBODIA.getWkt());
     waGeoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, FastTestDataset.CAMBODIA.getDisplayLabel());
     waGeoObj.setUid(UUID.randomUUID().toString());
-    testData.adapter.updateGeoObject(waGeoObj.toJSON().toString());
+    testData.adapter.updateGeoObject(waGeoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
   }
 }

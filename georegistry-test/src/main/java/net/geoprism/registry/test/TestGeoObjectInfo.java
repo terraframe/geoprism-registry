@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.aspectj.weaver.patterns.HasThisTypePatternTriedToSneakInSomeGenericOrParameterizedTypePatternMatchingStuffAnywhereVisitor;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
@@ -137,6 +138,16 @@ public class TestGeoObjectInfo
       throw new UnsupportedOperationException("Add a default geometry if you want to use this geometry type.");
     }
   }
+  
+  public void setExists(boolean exists)
+  {
+    this.exists = exists;
+  }
+  
+  public boolean getExists()
+  {
+    return this.exists;
+  }
 
   public void setCode(String code)
   {
@@ -237,7 +248,7 @@ public class TestGeoObjectInfo
   @Request
   public GeoObject fetchGeoObject()
   {
-    return this.getServerObject().toGeoObject();
+    return this.getServerObject().toGeoObject(TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
   }
 
   @Request
@@ -376,6 +387,7 @@ public class TestGeoObjectInfo
     Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoObj.getGeometry().toText()));
     Assert.assertEquals(this.getDisplayLabel(), geoObj.getLocalizedDisplayLabel());
     this.getGeoObjectType().assertEquals(geoObj.getType());
+    Assert.assertEquals(this.getExists(), geoObj.getExists());
 
     // Assert.assertEquals(status.code, geoObj.getStatus().getCode());
   }
@@ -462,7 +474,7 @@ public class TestGeoObjectInfo
 
     if (date == null)
     {
-      return service.apply(this.newGeoObject(ServiceFactory.getAdapter()), this.isNew, false);
+      return service.apply(this.newGeoObject(ServiceFactory.getAdapter()), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, this.isNew, false);
     }
 
     return service.apply(this.newGeoObjectOverTime(ServiceFactory.getAdapter()), this.isNew, false);
@@ -626,15 +638,24 @@ public class TestGeoObjectInfo
   }
 
   /**
+   * Don't use this method. Specify your date range.
+   */
+  @Request
+  public void assertApplied()
+  {
+    this.assertApplied(TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+  }
+  
+  /**
    * Asserts that the GeoObject that this test wrapper represents has been
    * applied and exists in the database with all attributes set to the values
    * that this test object contains.
    */
   @Request
-  public void assertApplied()
+  public void assertApplied(Date startDate, Date endDate)
   {
     ServerGeoObjectIF serverGO = this.getServerObject();
 
-    this.assertEquals(serverGO.toGeoObject());
+    this.assertEquals(serverGO.toGeoObject(startDate, endDate));
   }
 }

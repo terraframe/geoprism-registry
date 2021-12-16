@@ -31,6 +31,7 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.json.JSONException;
 
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
@@ -73,6 +74,9 @@ public class GeoObjectEditorControllerNoOverTime
   @Transaction
   private GeoObject applyInTransaction(String sessionId, String sPtn, String sGo, Boolean isNew, String masterListId)
   {
+    final Date startDate = new Date();
+    final Date endDate = ValueOverTime.INFINITY_END_DATE;
+    
     GeoObject go;
 
     Map<String, String> roles = Session.getCurrentSession().getUserRoles();
@@ -110,23 +114,23 @@ public class GeoObjectEditorControllerNoOverTime
 
       ParentTreeNode ptn = ParentTreeNode.fromJSON(sPtn.toString(), ServiceFactory.getAdapter());
 
-      applyChangeRequest(sessionId, request, ptn, isNew, base, sequence);
+      applyChangeRequest(sessionId, request, ptn, isNew, base, sequence, startDate, endDate);
     }
     else
     {
 
       if (!isNew)
       {
-        go = RegistryService.getInstance().updateGeoObject(sessionId, sGo.toString());
+        go = RegistryService.getInstance().updateGeoObject(sessionId, sGo.toString(), startDate, endDate);
       }
       else
       {
-        go = RegistryService.getInstance().createGeoObject(sessionId, sGo.toString());
+        go = RegistryService.getInstance().createGeoObject(sessionId, sGo.toString(), startDate, endDate);
       }
 
       ParentTreeNode ptn = ParentTreeNode.fromJSON(sPtn.toString(), ServiceFactory.getAdapter());
 
-      applyPtn(sessionId, ptn);
+      applyPtn(sessionId, ptn, startDate, endDate);
 
       // Update the master list record
       if (masterListId != null)
@@ -150,10 +154,10 @@ public class GeoObjectEditorControllerNoOverTime
     return null;
   }
 
-  public void applyPtn(String sessionId, ParentTreeNode ptn)
+  public void applyPtn(String sessionId, ParentTreeNode ptn, Date startDate, Date endDate)
   {
     GeoObject child = ptn.getGeoObject();
-    List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false, null).getParents();
+    List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false, startDate, endDate).getParents();
 
     // Remove all existing relationships which aren't what we're trying to
     // create
@@ -196,7 +200,7 @@ public class GeoObjectEditorControllerNoOverTime
     }
   }
 
-  public void applyChangeRequest(String sessionId, ChangeRequest request, ParentTreeNode ptn, boolean isNew, Instant base, int sequence)
+  public void applyChangeRequest(String sessionId, ChangeRequest request, ParentTreeNode ptn, boolean isNew, Instant base, int sequence, Date startDate, Date endDate)
   {
     GeoObject child = ptn.getGeoObject();
 
@@ -204,7 +208,7 @@ public class GeoObjectEditorControllerNoOverTime
 
     if (!isNew)
     {
-      childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false, null).getParents();
+      childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false, startDate, endDate).getParents();
 
       // Remove all existing relationships which aren't what we're trying to
       // create

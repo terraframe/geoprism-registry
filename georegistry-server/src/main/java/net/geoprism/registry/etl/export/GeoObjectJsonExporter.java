@@ -204,7 +204,7 @@ public class GeoObjectJsonExporter
     }
     else if (this.format.equals(GeoObjectExportFormat.JSON_CGR))
     {
-      builder.registerTypeAdapter(VertexServerGeoObject.class, new SeverGeoObjectJsonAdapters.ServerGeoObjectSerializer());
+      builder.registerTypeAdapter(VertexServerGeoObject.class, new SeverGeoObjectJsonAdapters.ServerGeoObjectSerializer(this.since, null));
       builder.registerTypeAdapter(GeoObject.class, new GeoObjectJsonAdapters.GeoObjectSerializer());
     }
     // else if (this.format.equals(GeoObjectExportFormat.JSON_DHIS2))

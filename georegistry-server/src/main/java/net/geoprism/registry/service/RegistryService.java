@@ -399,7 +399,7 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public GeoObject getGeoObject(String sessionId, String uid, String geoObjectTypeCode)
+  public GeoObject getGeoObject(String sessionId, String uid, String geoObjectTypeCode, Date startDate, Date endDate)
   {
     ServerGeoObjectIF object = this.service.getGeoObject(uid, geoObjectTypeCode);
 
@@ -417,14 +417,14 @@ public class RegistryService
 
     ServerGeoObjectType type = object.getType();
 
-    GeoObject geoObject = object.toGeoObject();
+    GeoObject geoObject = object.toGeoObject(startDate, endDate);
     geoObject.setWritable(pService.canCreateCR(type.getOrganization().getCode(), type));
 
     return geoObject;
   }
 
   @Request(RequestType.SESSION)
-  public GeoObject getGeoObjectByCode(String sessionId, String code, String typeCode)
+  public GeoObject getGeoObjectByCode(String sessionId, String code, String typeCode, Date startDate, Date endDate)
   {
     ServerGeoObjectIF object = service.getGeoObjectByCode(code, typeCode);
 
@@ -443,27 +443,27 @@ public class RegistryService
 
     ServiceFactory.getGeoObjectPermissionService().enforceCanRead(object.getType().getOrganization().getCode(), object.getType());
 
-    return object.toGeoObject();
+    return object.toGeoObject(startDate, endDate);
   }
 
   @Request(RequestType.SESSION)
-  public GeoObject createGeoObject(String sessionId, String jGeoObj)
+  public GeoObject createGeoObject(String sessionId, String jGeoObj, Date startDate, Date endDate)
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
-    ServerGeoObjectIF object = service.apply(geoObject, true, false);
+    ServerGeoObjectIF object = service.apply(geoObject, startDate, endDate, true, false);
 
-    return object.toGeoObject();
+    return object.toGeoObject(startDate, endDate);
   }
 
   @Request(RequestType.SESSION)
-  public GeoObject updateGeoObject(String sessionId, String jGeoObj)
+  public GeoObject updateGeoObject(String sessionId, String jGeoObj, Date startDate, Date endDate)
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
-    ServerGeoObjectIF object = service.apply(geoObject, false, false);
+    ServerGeoObjectIF object = service.apply(geoObject, startDate, endDate, false, false);
 
-    return object.toGeoObject();
+    return object.toGeoObject(startDate, endDate);
   }
 
   @Request(RequestType.SESSION)
@@ -482,26 +482,31 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive)
+  public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive, Date startDate, Date endDate)
   {
     ServerGeoObjectIF object = this.service.getGeoObject(parentUid, parentGeoObjectTypeCode);
 
-    ServerChildTreeNode node = object.getChildGeoObjects(childrenTypes, recursive);
+    if (startDate != null)
+    {
+      object.setDate(startDate);
+    }
+    
+    ServerChildTreeNode node = object.getChildGeoObjects(childrenTypes, recursive, startDate, endDate);
 
     return node.toNode(true);
   }
 
   @Request(RequestType.SESSION)
-  public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive, Date forDate)
+  public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive, Date startDate, Date endDate)
   {
     ServerGeoObjectIF object = this.service.getGeoObject(childId, childGeoObjectTypeCode);
 
-    if (forDate != null)
+    if (startDate != null)
     {
-      object.setDate(forDate);
+      object.setDate(startDate);
     }
 
-    return object.getParentGeoObjects(parentTypes, recursive).toNode(true);
+    return object.getParentGeoObjects(parentTypes, recursive, startDate, endDate).toNode(true);
   }
 
   public ServerGeoObjectQuery createQuery(String typeCode)
@@ -1211,11 +1216,11 @@ ORDER BY $filteredLabel ASC LIMIT 10
   // }
 
   @Request(RequestType.SESSION)
-  public JsonArray getHierarchiesForGeoObject(String sessionId, String code, String typeCode)
+  public JsonArray getHierarchiesForGeoObject(String sessionId, String code, String typeCode, Date startDate, Date endDate)
   {
     ServerGeoObjectIF geoObject = this.service.getGeoObjectByCode(code, typeCode);
 
-    return geoObject.getHierarchiesForGeoObject();
+    return geoObject.getHierarchiesForGeoObject(startDate, endDate);
   }
 
   @Request(RequestType.SESSION)
@@ -1317,26 +1322,26 @@ ORDER BY $filteredLabel ASC LIMIT 10
   }
 
   @Request(RequestType.SESSION)
-  public List<GeoObject> search(String sessionId, String typeCode, String text, Date date)
+  public List<GeoObject> search(String sessionId, String typeCode, String text, Date startDate, Date endDate)
   {
     List<GeoObject> objects = new LinkedList<GeoObject>();
 
-    if (date == null)
+    if (startDate == null)
     {
-      date = ValueOverTime.INFINITY_END_DATE;
+      startDate = ValueOverTime.INFINITY_END_DATE;
     }
 
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-    ServerGeoObjectQuery query = this.service.createQuery(type, date);
-    query.setRestriction(new ServerSynonymRestriction(text, date));
+    ServerGeoObjectQuery query = this.service.createQuery(type, startDate);
+    query.setRestriction(new ServerSynonymRestriction(text, startDate));
     query.setLimit(20);
 
     List<ServerGeoObjectIF> results = query.getResults();
 
     for (ServerGeoObjectIF result : results)
     {
-      objects.add(result.toGeoObject());
+      objects.add(result.toGeoObject(startDate, endDate));
     }
 
     return objects;

@@ -38,6 +38,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.mvc.AbstractResponseSerializer;
 import com.runwaysdk.mvc.AbstractRestResponse;
 import com.runwaysdk.mvc.ResponseIF;
@@ -120,17 +121,9 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return set;
   }
 
-  public JsonArray getGeoObjectSuggestions(String text, String type, String parent, String parentTypeCode, String hierarchy, Date date)
+  public JsonArray getGeoObjectSuggestions(String text, String type, String parent, Date startDate, Date endDate, String parentTypeCode, String hierarchy)
   {
-    String sDate = null;
-    if (date != null)
-    {
-      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-      sDate = format.format(date);
-    }
-
-    return JsonParser.parseString(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, parentTypeCode, hierarchy, sDate, sDate))).getAsJsonArray();
+    return JsonParser.parseString(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, parentTypeCode, hierarchy, stringifyDate(startDate), stringifyDate(endDate)))).getAsJsonArray();
   }
 
   public AttributeType createAttributeType(String geoObjectTypeCode, String attributeTypeJSON)
@@ -168,9 +161,9 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return responseToGeoObjectType(this.controller.updateGeoObjectType(clientRequest, gtJSON));
   }
 
-  public GeoObject getGeoObject(String registryId, String code)
+  public GeoObject getGeoObject(String registryId, String code, Date startDate, Date endDate)
   {
-    return responseToGeoObject(this.controller.getGeoObject(this.clientRequest, registryId, code));
+    return responseToGeoObject(this.controller.getGeoObject(this.clientRequest, registryId, code, stringifyDate(startDate), stringifyDate(endDate)));
   }
 
   public GeoObjectOverTime getGeoObjectOverTime(String registryId, String typeCode)
@@ -178,9 +171,9 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return responseToGeoObjectOverTime(this.controller.getGeoObjectOverTime(clientRequest, registryId, typeCode));
   }
 
-  public GeoObject getGeoObjectByCode(String code, String typeCode)
+  public GeoObject getGeoObjectByCode(String code, String typeCode, Date startDate, Date endDate)
   {
-    return responseToGeoObject(this.controller.getGeoObjectByCode(this.clientRequest, code, typeCode));
+    return responseToGeoObject(this.controller.getGeoObjectByCode(this.clientRequest, code, typeCode, stringifyDate(startDate), stringifyDate(endDate)));
   }
 
   public GeoObjectOverTime getGeoObjectOverTimeByCode(String code, String typeCode)
@@ -188,9 +181,16 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return responseToGeoObjectOverTime(this.controller.getGeoObjectOverTimeByCode(clientRequest, code, typeCode));
   }
 
-  public GeoObject createGeoObject(String jGeoObj)
+  public GeoObject createGeoObject(String jGeoObj, Date startDate, Date endDate)
   {
-    return responseToGeoObject(this.controller.createGeoObject(this.clientRequest, jGeoObj));
+    try
+    {
+      return responseToGeoObject(this.controller.createGeoObject(this.clientRequest, jGeoObj, stringifyDate(startDate), stringifyDate(endDate)));
+    }
+    catch (ParseException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
   }
 
   public GeoObjectOverTime createGeoObjectOverTime(String jGeoObj)
@@ -198,9 +198,16 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return responseToGeoObjectOverTime(this.controller.createGeoObjectOverTime(this.clientRequest, jGeoObj));
   }
 
-  public GeoObject updateGeoObject(String jGeoObj)
+  public GeoObject updateGeoObject(String jGeoObj, Date startDate, Date endDate)
   {
-    return responseToGeoObject(this.controller.updateGeoObject(this.clientRequest, jGeoObj));
+    try
+    {
+      return responseToGeoObject(this.controller.updateGeoObject(this.clientRequest, jGeoObj, stringifyDate(startDate), stringifyDate(endDate)));
+    }
+    catch (ParseException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
   }
 
   public GeoObjectOverTime updateGeoObjectOverTime(String jGeoObj)
@@ -244,20 +251,20 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return (JsonArray) response.serialize();
   }
 
-  public ChildTreeNode getChildGeoObjects(String parentId, String parentTypeCode, String[] childrenTypes, boolean recursive)
+  public ChildTreeNode getChildGeoObjects(String parentId, String parentTypeCode, Date startDate, Date endDate, String[] childrenTypes, boolean recursive)
   {
     String saChildrenTypes = this.serialize(childrenTypes);
 
-    return responseToChildTreeNode(this.controller.getChildGeoObjects(this.clientRequest, parentId, parentTypeCode, saChildrenTypes, recursive));
+    return responseToChildTreeNode(this.controller.getChildGeoObjects(this.clientRequest, parentId, parentTypeCode, stringifyDate(startDate), stringifyDate(endDate), saChildrenTypes, recursive));
   }
 
-  public ParentTreeNode getParentGeoObjects(String childId, String childTypeCode, String[] parentTypes, boolean recursive, String date)
+  public ParentTreeNode getParentGeoObjects(String childId, String childTypeCode, Date startDate, Date endDate, String[] parentTypes, boolean recursive)
   {
     String saParentTypes = this.serialize(parentTypes);
 
     try
     {
-      return responseToParentTreeNode(this.controller.getParentGeoObjects(this.clientRequest, childId, childTypeCode, saParentTypes, recursive, date));
+      return responseToParentTreeNode(this.controller.getParentGeoObjects(this.clientRequest, childId, childTypeCode, stringifyDate(startDate), stringifyDate(endDate), saParentTypes, recursive));
     }
     catch (ParseException e)
     {
@@ -353,6 +360,20 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     JsonObject termObj = JsonParser.parseString(responseToString(resp)).getAsJsonObject();
 
     return Term.fromJSON(termObj);
+  }
+  
+  private String stringifyDate(Date date)
+  {
+    String sDate = null;
+    
+    if (date != null)
+    {
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+      sDate = format.format(date);
+    }
+    
+    return sDate;
   }
 
   protected String[] responseToStringArray(ResponseIF resp)
