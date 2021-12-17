@@ -131,7 +131,7 @@ public class LocationInformation
 
     for (ServerChildTreeNode node : nodes)
     {
-      GeoObject geoObject = node.getGeoObject().toGeoObject(date, date);
+      GeoObject geoObject = node.getGeoObject().toGeoObject(date);
       this.children.add(geoObject);
     }
   }

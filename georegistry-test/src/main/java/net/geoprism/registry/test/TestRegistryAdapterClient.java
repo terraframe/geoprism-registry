@@ -161,9 +161,9 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return responseToGeoObjectType(this.controller.updateGeoObjectType(clientRequest, gtJSON));
   }
 
-  public GeoObject getGeoObject(String registryId, String code, Date startDate, Date endDate)
+  public GeoObject getGeoObject(String registryId, String code, Date date)
   {
-    return responseToGeoObject(this.controller.getGeoObject(this.clientRequest, registryId, code, stringifyDate(startDate), stringifyDate(endDate)));
+    return responseToGeoObject(this.controller.getGeoObject(this.clientRequest, registryId, code, stringifyDate(date)));
   }
 
   public GeoObjectOverTime getGeoObjectOverTime(String registryId, String typeCode)
@@ -171,9 +171,9 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return responseToGeoObjectOverTime(this.controller.getGeoObjectOverTime(clientRequest, registryId, typeCode));
   }
 
-  public GeoObject getGeoObjectByCode(String code, String typeCode, Date startDate, Date endDate)
+  public GeoObject getGeoObjectByCode(String code, String typeCode, Date date)
   {
-    return responseToGeoObject(this.controller.getGeoObjectByCode(this.clientRequest, code, typeCode, stringifyDate(startDate), stringifyDate(endDate)));
+    return responseToGeoObject(this.controller.getGeoObjectByCode(this.clientRequest, code, typeCode, stringifyDate(date)));
   }
 
   public GeoObjectOverTime getGeoObjectOverTimeByCode(String code, String typeCode)
@@ -251,20 +251,20 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return (JsonArray) response.serialize();
   }
 
-  public ChildTreeNode getChildGeoObjects(String parentId, String parentTypeCode, Date startDate, Date endDate, String[] childrenTypes, boolean recursive)
+  public ChildTreeNode getChildGeoObjects(String parentId, String parentTypeCode, Date date, String[] childrenTypes, boolean recursive)
   {
     String saChildrenTypes = this.serialize(childrenTypes);
 
-    return responseToChildTreeNode(this.controller.getChildGeoObjects(this.clientRequest, parentId, parentTypeCode, stringifyDate(startDate), stringifyDate(endDate), saChildrenTypes, recursive));
+    return responseToChildTreeNode(this.controller.getChildGeoObjects(this.clientRequest, parentId, parentTypeCode, stringifyDate(date), saChildrenTypes, recursive));
   }
 
-  public ParentTreeNode getParentGeoObjects(String childId, String childTypeCode, Date startDate, Date endDate, String[] parentTypes, boolean recursive)
+  public ParentTreeNode getParentGeoObjects(String childId, String childTypeCode, Date date, String[] parentTypes, boolean recursive)
   {
     String saParentTypes = this.serialize(parentTypes);
 
     try
     {
-      return responseToParentTreeNode(this.controller.getParentGeoObjects(this.clientRequest, childId, childTypeCode, stringifyDate(startDate), stringifyDate(endDate), saParentTypes, recursive));
+      return responseToParentTreeNode(this.controller.getParentGeoObjects(this.clientRequest, childId, childTypeCode, stringifyDate(date), saParentTypes, recursive));
     }
     catch (ParseException e)
     {

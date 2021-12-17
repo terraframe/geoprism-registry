@@ -157,7 +157,7 @@ public class GeoObjectEditorControllerNoOverTime
   public void applyPtn(String sessionId, ParentTreeNode ptn, Date startDate, Date endDate)
   {
     GeoObject child = ptn.getGeoObject();
-    List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false, startDate, endDate).getParents();
+    List<ParentTreeNode> childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false, startDate).getParents();
 
     // Remove all existing relationships which aren't what we're trying to
     // create
@@ -208,7 +208,7 @@ public class GeoObjectEditorControllerNoOverTime
 
     if (!isNew)
     {
-      childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false, startDate, endDate).getParents();
+      childDbParents = RegistryService.getInstance().getParentGeoObjects(sessionId, child.getUid(), child.getType().getCode(), null, false, startDate).getParents();
 
       // Remove all existing relationships which aren't what we're trying to
       // create

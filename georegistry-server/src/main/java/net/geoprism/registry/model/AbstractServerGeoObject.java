@@ -34,7 +34,7 @@ import net.geoprism.registry.service.ServiceFactory;
 public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
 {
 
-  public JsonArray getHierarchiesForGeoObject(Date startDate, Date endDate)
+  public JsonArray getHierarchiesForGeoObject(Date date)
   {
     ServerGeoObjectType geoObjectType = this.getType();
 
@@ -50,7 +50,7 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
         // Note: Ordered ancestors always includes self
         Collection<?> uniParents = GeoEntityUtil.getOrderedAncestors(root, geoObjectType.getUniversal(), sType.getUniversalType());
 
-        ParentTreeNode ptnAncestors = this.getParentGeoObjects(null, true, startDate, endDate).toNode(true);
+        ParentTreeNode ptnAncestors = this.getParentGeoObjects(null, true, date).toNode(true);
 
         if (uniParents.size() > 1)
         {

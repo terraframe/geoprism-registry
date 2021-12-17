@@ -158,12 +158,6 @@ public class UpdateAttributeViewJsonAdapters
         startDate = src.oldStartDate;
       }
       
-      Date endDate = src.newEndDate;
-      if (endDate == null)
-      {
-        endDate = src.oldEndDate;
-      }
-      
       JsonObject jo = context.serialize(src).getAsJsonObject();
       
       VertexServerGeoObject newParent = src.getNewValueAsGO();
@@ -237,16 +231,16 @@ public class UpdateAttributeViewJsonAdapters
       {
         newParent = cr.getGeoObject();
         
-        sptns = newParent.getParentsForHierarchy(sht, true, startDate, endDate);
+        sptns = newParent.getParentsForHierarchy(sht, true, startDate);
       }
       else
       {
         JsonObject parent = new JsonObject();
         parent.addProperty(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENT_TEXT, newParent.getDisplayLabel().getValue() + " : " + newParent.getCode());
-        parent.add(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENT_GEOOBJECT, newParent.toGeoObject(startDate, endDate).toJSON());
+        parent.add(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENT_GEOOBJECT, newParent.toGeoObject(startDate).toJSON());
         parents.add(newParent.getType().getCode(), parent);
         
-        sptns = newParent.getParentsForHierarchy(sht, true, startDate, endDate);
+        sptns = newParent.getParentsForHierarchy(sht, true, startDate);
       }
       
       List<GeoObjectType> parentTypes = cType.getTypeAncestors(sht, false);
@@ -278,7 +272,7 @@ public class UpdateAttributeViewJsonAdapters
             if (match != null)
             {
               final ServerGeoObjectIF sGeoObject = match.getGeoObject();
-              final GeoObject geoObject = sGeoObject.toGeoObject(startDate, endDate);
+              final GeoObject geoObject = sGeoObject.toGeoObject(startDate);
               geoObject.setGeometry(null);
               
               JsonObject pObject = new JsonObject();

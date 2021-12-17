@@ -45,7 +45,7 @@ public interface ServerGeoObjectIF
   
   public ServerGeoObjectType getType();
 
-  public GeoObject toGeoObject(Date startDate, Date endDate);
+  public GeoObject toGeoObject(Date date);
 
   public GeoObjectOverTime toGeoObjectOverTime();
 
@@ -105,11 +105,11 @@ public interface ServerGeoObjectIF
 
   public String bbox(Date date);
 
-  public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive, Date startDate, Date endDate);
+  public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive, Date date);
 
-  public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive, Date startDate, Date endDate);
+  public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive, Date date);
 
-  public ServerParentTreeNode getParentsForHierarchy(ServerHierarchyType hierarchy, Boolean recursive, Date startDate, Date endDate);
+  public ServerParentTreeNode getParentsForHierarchy(ServerHierarchyType hierarchy, Boolean recursive, Date date);
 
   public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive);
 
@@ -141,7 +141,7 @@ public interface ServerGeoObjectIF
 
   public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents);
 
-  public JsonArray getHierarchiesForGeoObject(Date startDate, Date endDate);
+  public JsonArray getHierarchiesForGeoObject(Date date);
 
   public void setDate(Date date);
 

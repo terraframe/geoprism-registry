@@ -58,7 +58,7 @@ public class LocationService
     return results.stream().collect(() -> new LinkedList<GeoObject>(), (list, element) -> {
       ServerGeoObjectType type = element.getType();
 
-      GeoObject geoObject = element.toGeoObject(date, date);
+      GeoObject geoObject = element.toGeoObject(date);
       geoObject.setWritable(pService.canCreateCR(type.getOrganization().getCode(), type));
 
       list.add(geoObject);
@@ -125,7 +125,7 @@ public class LocationService
 
         for (VertexServerGeoObject child : children)
         {
-          information.addChild(child.toGeoObject(date, date));
+          information.addChild(child.toGeoObject(date));
         }
 
       }

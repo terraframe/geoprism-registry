@@ -218,12 +218,12 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     ServerGeoObjectIF target = strategy.newInstance();
     target.setDate(view.getDate());
-    target.populate(source.toGeoObject(view.getDate(), view.getDate()), view.getDate(), view.getDate());
+    target.populate(source.toGeoObject(view.getDate()), view.getDate(), view.getDate());
     target.setCode(view.getTargetCode());
     target.setDisplayLabel(view.getLabel());
     target.apply(false);
 
-    final ServerParentTreeNode sNode = source.getParentGeoObjects(null, false, view.getDate(), view.getDate());
+    final ServerParentTreeNode sNode = source.getParentGeoObjects(null, false, view.getDate());
 
     final List<ServerParentTreeNode> sParents = sNode.getParents();
 

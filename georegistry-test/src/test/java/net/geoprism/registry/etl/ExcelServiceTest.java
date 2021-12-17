@@ -340,7 +340,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(object);
     Assert.assertEquals("Test", object.getLocalizedDisplayLabel());
@@ -384,7 +384,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(object);
     Assert.assertEquals(new Long(123), object.getValue(testInteger.getName()));
@@ -484,7 +484,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
@@ -521,7 +521,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(object);
     Assert.assertEquals(new Boolean(true), object.getValue(testBoolean.getName()));
@@ -596,7 +596,7 @@ public class ExcelServiceTest
       geoObj.setValue(testBoolean.getName(), true);
 
       ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, true, false);
-      geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+      geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
       InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -633,7 +633,7 @@ public class ExcelServiceTest
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
     ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, true, false);
-    geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -662,11 +662,11 @@ public class ExcelServiceTest
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     String sessionId = testData.clientRequest.getSessionId();
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertEquals("0001", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { USATestData.STATE.getCode() }, false, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { USATestData.STATE.getCode() }, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -707,7 +707,7 @@ public class ExcelServiceTest
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
     ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, true, false);
-    geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
@@ -736,11 +736,11 @@ public class ExcelServiceTest
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     String sessionId = testData.clientRequest.getSessionId();
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertEquals("0001", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { USATestData.STATE.getCode() }, false, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { USATestData.STATE.getCode() }, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -855,7 +855,7 @@ public class ExcelServiceTest
       Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
       String sessionId = testData.clientRequest.getSessionId();
-      GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+      GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
       Assert.assertEquals("0001", object.getCode());
     }
@@ -895,7 +895,7 @@ public class ExcelServiceTest
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     String sessionId = testData.clientRequest.getSessionId();
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertEquals("0001", object.getCode());
   }
@@ -1000,7 +1000,7 @@ public class ExcelServiceTest
     {
       try
       {
-        ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "000" + i, USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+        ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "000" + i, USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
         Assert.fail("Was able to fectch GeoObject with code [000" + i + "], which should not have been imported.");
       }
@@ -1012,7 +1012,7 @@ public class ExcelServiceTest
 
     for (int i = 3; i < 11; ++i)
     {
-      GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "000" + i, USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+      GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "000" + i, USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
       Assert.assertNotNull(object);
       Assert.assertEquals("Test", object.getLocalizedDisplayLabel());

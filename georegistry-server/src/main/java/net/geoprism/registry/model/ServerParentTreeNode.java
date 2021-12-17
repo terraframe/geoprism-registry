@@ -103,7 +103,7 @@ public class ServerParentTreeNode extends ServerTreeNode
 
   public ParentTreeNode toNode(boolean enforcePermissions)
   {
-    GeoObject geoObject = this.getGeoObject().toGeoObject(this.getStartDate(), this.getEndDate());
+    GeoObject geoObject = this.getGeoObject().toGeoObject(this.getStartDate());
     HierarchyType ht = this.getHierarchyType() != null ? this.getHierarchyType().getType() : null;
 
     ParentTreeNode node = new ParentTreeNode(geoObject, ht);

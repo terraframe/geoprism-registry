@@ -248,7 +248,7 @@ public class TestGeoObjectInfo
   @Request
   public GeoObject fetchGeoObject()
   {
-    return this.getServerObject().toGeoObject(TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    return this.getServerObject().toGeoObject(TestDataSet.DEFAULT_OVER_TIME_DATE);
   }
 
   @Request
@@ -643,7 +643,7 @@ public class TestGeoObjectInfo
   @Request
   public void assertApplied()
   {
-    this.assertApplied(TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    this.assertApplied(TestDataSet.DEFAULT_OVER_TIME_DATE);
   }
   
   /**
@@ -652,10 +652,10 @@ public class TestGeoObjectInfo
    * that this test object contains.
    */
   @Request
-  public void assertApplied(Date startDate, Date endDate)
+  public void assertApplied(Date startDate)
   {
     ServerGeoObjectIF serverGO = this.getServerObject();
 
-    this.assertEquals(serverGO.toGeoObject(startDate, endDate));
+    this.assertEquals(serverGO.toGeoObject(startDate));
   }
 }
