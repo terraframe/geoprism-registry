@@ -1,13 +1,19 @@
 <ng-template #versionDetail let-version='version' let-entry="entry">
-    <div class="row" style="margin-bottom: 5px;">
+    <div class="row" style="margin-bottom:5px;line-height:40px;">
         <div class="col-md-9" style="vertical-align: middle;">
 
             <span class="clickable" (click)="version.collapsed = !version.collapsed"
                 [attr.aria-expanded]="!version.collapsed">
+                
+                <i *ngIf="!version.collapsed" class="arrow right"></i>
+                <i *ngIf="version.collapsed" class="arrow down"></i>
+                
                 <span class="h4">
                     <localize key="list.type.version"></localize> {{version.versionNumber}}
                 </span>
-                <localize key="list.type.date.generated"></localize>: {{version.createDate}}
+                <span style="margin-left:10px;color:grey;">
+                    <localize key="list.type.date.generated"></localize>: {{version.createDate}}
+                </span>
             </span>
         </div>
         <div class="col-md-3" style="text-align: right;">
@@ -20,8 +26,9 @@
             </button>
         </div>
     </div>
-    <div class="row" style="margin-bottom: 5px;" [collapse]="!version.collapsed">
-        <ul>
+    
+    <div class="row" style="margin-bottom:5px;" [collapse]="!version.collapsed">
+        <ul style="list-style:none;">
             <li>
                 <a *ngIf="(version.isMember || version.listMetadata.visibility === 'PUBLIC')"
                     [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">
@@ -83,24 +90,25 @@
     </div>
 
     <div *ngFor="let entry of list.entries" class="row" style="margin-bottom: 5px;">
-        <div class="col-md-10">
+        <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-body">
                     <div class="row">
-                        <div class="col-md-9">
-                            {{entry.period}}
+                        <div class="col-md-12">
+                            <h3>{{entry.period}}</h3>
                         </div>
                     </div>
 
-                    <div *ngIf="list.write" style="margin-top: 30px; margin-bottom: 30px;" class="row">
+                    <div *ngIf="list.write" style="margin-bottom: 30px;" class="row">
                         <div class="col-md-6">
                             <div>
-                                <button type="submit" (click)="onCreate(entry)" class="btn btn-primary" role="button">
+                                <button type="submit" (click)="onCreate(entry)" class="btn btn-primary" style="margin:0;" role="button">
                                     <localize key="list.type.new.version"></localize>
                                 </button>
                             </div>
                         </div>
                     </div>
+                    
                     <div *ngIf="list.write || isRC" class="row" style="margin-bottom: 5px;">
                         <div class="col-md-9" style="vertical-align: middle;">
                             <span class="h4">
@@ -117,11 +125,9 @@
                             </ng-container>
                         </ng-container>
                         <div class="row" style="margin-bottom: 5px;">
-                            <div class="col-md-9" style="vertical-align: middle;">
-                            </div>
-                            <div class="col-md-3" style="text-align: right;">
+                            <div class="col-md-12" style="text-align: left;">
                                 <button *ngIf="entry.versions.length > 1" type="submit" (click)="toggleVersions(entry)"
-                                    class="btn btn-primary" role="button">
+                                    class="btn btn-default" role="button">
                                     <localize *ngIf="!entry.showAll" key="list.type.see.versions"></localize>
                                     <localize *ngIf="entry.showAll" key="list.type.hide.versions"></localize>
                                 </button>

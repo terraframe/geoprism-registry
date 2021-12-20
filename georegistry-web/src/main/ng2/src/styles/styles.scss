@@ -27,7 +27,7 @@ body{
 .new-admin-design-main {
     height: 100%;
     overflow-y: auto;
-overflow-x: hidden;
+    overflow-x: hidden;
 }
 
 *{
@@ -89,12 +89,17 @@ a:hover{
 	text-decoration:none;
 	outline: none;
 	cursor: pointer;
-	color: #23527c;
+//	color: #23527c;
+    color: #6BA542;
+    color: var(--theme-submit-button-color);
 }
-a:active{
+a:active,
+a.active{
 	text-decoration:none;
 	background-color:transparent;
-	color: #23527c;
+//	color: #23527c;
+	color: #6BA542;
+    color: var(--theme-submit-button-color);
 }
 a.link-active {
 	color: #00bfff;

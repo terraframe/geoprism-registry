@@ -8,7 +8,7 @@
 
         <div class="row">
 
-            <nav class="col-md-3 hierarchy-sidebar">
+            <nav class="col-md-3 list-sidebar">
                 <div class="sidebar-section-content">
                     <ul *ngFor="let typeByOrg of typesByOrg;" class="list-group">
                         <div>
@@ -16,7 +16,6 @@
                             <div class="got-org-label-wrapper">
                                 <h3>{{typeByOrg.org.label.localizedValue}}</h3>
                             </div>
-                            <hr>
 
                             <li class="list-group-item got-li-item" *ngFor="let type of typeByOrg.types"
                                 [id]="type.code">

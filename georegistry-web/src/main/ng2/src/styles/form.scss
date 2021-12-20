@@ -56,6 +56,12 @@ form input.form-control {
   outline:none;
   box-shadow:none;
 }
+textarea.form-control {
+  border:1px solid;
+  border-color: #767676; /* IE fallback */
+  border-color: var(--theme-input-text-border);
+  border-radius: 5px;
+}
 
 input:focus,
 input.form-control:focus,

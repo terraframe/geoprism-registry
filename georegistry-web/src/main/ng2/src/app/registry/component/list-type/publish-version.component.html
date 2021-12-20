@@ -343,20 +343,34 @@
 
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="form-group button-row" style="text-align: center;">
+                            <div class="label-holder"></div>
+                        
+                            <div class="holder">
+                              <div class="form-group" style="text-align: center;">
 
-                                <a [routerLink]="" (click)="handleTab('LIST')"
-                                    [ngClass]="tab === 'LIST' ? 'cr-filter-link-active' : ''"
-                                    style="border-bottom: 1px solid;">
-                                    <localize key="list.type.list"></localize>
-                                </a>
-                                <a [routerLink]="" (click)="handleTab('GEOSPATIAL')"
-                                    [ngClass]="tab === 'GEOSPATIAL' ? 'cr-filter-link-active' : ''"
-                                    style="margin-left: 5px;border-bottom:1px solid;">
-                                    <localize key="list.type.geospatial"></localize>
-                                </a>
+<!--                                 <a [routerLink]="" (click)="handleTab('LIST')" -->
+<!--                                     [ngClass]="tab === 'LIST' ? 'cr-filter-link-active' : ''" -->
+<!--                                     style="border-bottom: 1px solid;"> -->
+<!--                                     <localize key="list.type.list"></localize> -->
+<!--                                 </a> -->
+<!--                                 <a [routerLink]="" (click)="handleTab('GEOSPATIAL')" -->
+<!--                                     [ngClass]="tab === 'GEOSPATIAL' ? 'cr-filter-link-active' : ''" -->
+<!--                                     style="margin-left: 5px;border-bottom:1px solid;"> -->
+<!--                                     <localize key="list.type.geospatial"></localize> -->
+<!--                                 </a> -->
+                                
+                                <div class="btn-group geobject-editor-tab-holder">
+                                    <label class="btn full-width-radio-button" style="width:50%;" [ngClass]="tab === 'LIST' ? 'active' : ''" (click)="handleTab('LIST')"> 
+                                      <span style="display:inline-block; width:90%;"><localize key="list.type.list"></localize></span>
+                                    </label> 
+                                    <label class="btn full-width-radio-button" style="width:50%;" [ngClass]="tab === 'GEOSPATIAL' ? 'active' : ''" (click)="handleTab('GEOSPATIAL')"> 
+                                      <span style="display:inline-block; width:90%;"><localize key="list.type.geospatial"></localize></span>
+                                    </label> 
+                                  </div>
+                                  
+                                </div>
+                              </div>
 
-                            </div>
                             <hr style="border-top:solid 3px #6BA542" />
 
                         </div>
