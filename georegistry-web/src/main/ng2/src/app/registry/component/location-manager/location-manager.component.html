@@ -15,7 +15,7 @@
           </div>
           <div class="col-md-7" *ngIf="searchEnabled">
             <div class="input-group">
-              <input type="text" class="form-control" (keyup.enter)="search()" [(ngModel)]="state.text" name="text">
+              <input type="text" class="form-control" [placeholder]="'explorer.search.placeholder' | localize" (keyup.enter)="search()" [(ngModel)]="state.text" name="text">
               <span class="input-group-btn">
                 <button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="search()">
                   <span class="glyphicon glyphicon-search" aria-hidden="true"></span>

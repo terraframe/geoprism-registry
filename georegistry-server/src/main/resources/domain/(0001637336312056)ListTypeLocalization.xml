@@ -254,6 +254,14 @@
           <attribute name="defaultLocale" value="Search Results" />
         </attributeStruct>
       </object>                        
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.search.placeholder">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.search.placeholder" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Search for Geo-Objects to edit" />
+        </attributeStruct>
+      </object>                        
+      
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.viewOnMap">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="masterlist.viewOnMap" />

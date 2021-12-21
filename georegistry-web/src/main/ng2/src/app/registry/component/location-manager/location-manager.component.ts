@@ -14,7 +14,7 @@ import { MapService, RegistryService, GeometryService } from "@registry/service"
 import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@shared/component";
 
-import { LocalizationService } from "@shared/service";
+import { AuthService, LocalizationService } from "@shared/service";
 import { ContextLayer, LayerRecord } from "@registry/model/list-type";
 import { GRAPH_LAYER, LayerEvent } from "./layer-panel.component";
 import { ListTypeService } from "@registry/service/list-type.service";
@@ -22,7 +22,7 @@ import { timeout } from "d3-timer";
 import { Subscription } from "rxjs";
 import { SelectTypeModalComponent } from "./select-type-modal.component";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; 
+import { GeoRegistryConfiguration } from "@core/model/registry";
 declare let registry: GeoRegistryConfiguration;
 
 const SELECTED_COLOR = "#800000";
@@ -141,7 +141,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         private listService: ListTypeService,
         private mapService: MapService,
         private geomService: GeometryService,
-        private lService: LocalizationService) { }
+        private lService: LocalizationService,
+        private authService: AuthService) { }
 
     ngOnInit(): void {
 
@@ -149,7 +150,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.handleParameterChange(params);
         });
 
-        this.searchEnabled = registry.searchEnabled;
+        this.searchEnabled = registry.searchEnabled && (this.authService.isRC(false) || this.authService.isRM() || this.authService.isRA());
     }
 
     ngOnDestroy(): void {
