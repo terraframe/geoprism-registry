@@ -171,6 +171,7 @@ export class LayerRecord {
     forDate?: string;
 
     // Attributes required for the list row properties panel
+    typeLabel?: LocalizedValue;
     version?: string;
     attributes?: any[];
     data?: Object;

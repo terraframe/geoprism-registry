@@ -531,10 +531,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         createMdAttributeFromAttributeType(metadata, attributeType, type, locales);
       }
     }
-    
-    if ( (type.getGeometryType().equals(GeometryType.MULTIPOINT) || type.getGeometryType().equals(GeometryType.POINT)) 
-         && masterlist.getIncludeLatLong()
-        )
+
+    if ( ( type.getGeometryType().equals(GeometryType.MULTIPOINT) || type.getGeometryType().equals(GeometryType.POINT) ) && masterlist.getIncludeLatLong())
     {
       MdAttributeFloatDAO mdAttributeLatitude = MdAttributeFloatDAO.newInstance();
       mdAttributeLatitude.setValue(MdAttributeFloatInfo.NAME, "latitude");
@@ -549,7 +547,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       mdAttributeLatitude.setValue(MdAttributeFloatInfo.LENGTH, "12");
       mdAttributeLatitude.setValue(MdAttributeFloatInfo.DECIMAL, "8");
       mdAttributeLatitude.apply();
-      
+
       MdAttributeFloatDAO mdAttributeLongitude = MdAttributeFloatDAO.newInstance();
       mdAttributeLongitude.setValue(MdAttributeFloatInfo.NAME, "longitude");
       mdAttributeLongitude.setStructValue(MdAttributeFloatInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Longitude");
@@ -1065,30 +1063,28 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           }
         }
       }
-      
-      if ( type.getGeometryType().equals(GeometryType.MULTIPOINT) || type.getGeometryType().equals(GeometryType.POINT) 
-           && listType.getIncludeLatLong()
-          )
+
+      if (type.getGeometryType().equals(GeometryType.MULTIPOINT) || type.getGeometryType().equals(GeometryType.POINT) && listType.getIncludeLatLong())
       {
         Geometry geom = vertexGo.getGeometry();
-        
+
         if (geom instanceof MultiPoint)
         {
           MultiPoint mp = (MultiPoint) geom;
-          
+
           Coordinate[] coords = mp.getCoordinates();
-          
+
           Coordinate firstCoord = coords[0];
-          
+
           this.setValue(business, "latitude", String.valueOf(firstCoord.y));
           this.setValue(business, "longitude", String.valueOf(firstCoord.x));
         }
         else if (geom instanceof Point)
         {
           Point point = (Point) geom;
-          
+
           Coordinate firstCoord = point.getCoordinate();
-          
+
           this.setValue(business, "latitude", String.valueOf(firstCoord.y));
           this.setValue(business, "longitude", String.valueOf(firstCoord.x));
         }
@@ -1889,6 +1885,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     JsonObject record = new JsonObject();
     record.addProperty("recordType", "LIST");
     record.addProperty("version", this.getOid());
+    record.add("typeLabel", LocalizedValueConverter.convert(this.getListType().getDisplayLabel()).toJSON());
     record.add("attributes", this.getAttributesAsJson());
 
     try (OIterator<Business> iterator = query.getIterator())
