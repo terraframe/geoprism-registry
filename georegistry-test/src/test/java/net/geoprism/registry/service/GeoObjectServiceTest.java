@@ -102,7 +102,7 @@ public class GeoObjectServiceTest
 
         FastTestDataset.CAMBODIA.assertEquals(geoObj);
 
-        Assert.assertEquals(true, geoObj.getExists());
+        Assert.assertEquals(false, geoObj.getExists());
       });
     }
   }
@@ -120,7 +120,7 @@ public class GeoObjectServiceTest
         
         FastTestDataset.PROV_CENTRAL_PRIVATE.assertEquals(geoObj);
 
-        Assert.assertEquals(true, geoObj.getExists());
+        Assert.assertEquals(false, geoObj.getExists());
       });
     }
 
@@ -156,7 +156,7 @@ public class GeoObjectServiceTest
         GeoObject geoObj = adapter.getGeoObjectByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
-        Assert.assertEquals(true, geoObj.getExists());
+        Assert.assertEquals(false, geoObj.getExists());
       });
     }
   }
@@ -187,7 +187,7 @@ public class GeoObjectServiceTest
         GeoObject geoObj = adapter.getGeoObjectByCode(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode());
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
-        Assert.assertEquals(true, geoObj.getExists());
+        Assert.assertEquals(false, geoObj.getExists());
       });
     }
 
@@ -248,7 +248,7 @@ public class GeoObjectServiceTest
 
         TEST_GO.assertEquals(returned);
 
-        Assert.assertEquals(true, returned.getExists());
+        Assert.assertEquals(false, returned.getExists());
 
         TEST_GO.assertApplied();
         TEST_GO.delete();
@@ -291,7 +291,7 @@ public class GeoObjectServiceTest
 
         TEST_GO_PRIVATE.assertEquals(returned);
 
-        Assert.assertEquals(true, returned.getExists());
+        Assert.assertEquals(false, returned.getExists());
 
         TEST_GO_PRIVATE.assertApplied();
         TEST_GO_PRIVATE.delete();
