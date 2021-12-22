@@ -25,12 +25,12 @@
 # NEXUS_ADMIN_PASSWORD
 # release_adapter, release_georegistry, tag_platform, tag_cloud, release_github
 
-if [ "$release_adapter" == "true" ]; then
+#if [ "$release_adapter" == "true" ]; then
   #if curl -f -s --head "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/com/cgr/adapter/cgradapter-common/$CGR_RELEASE_VERSION/cgradapter-common-$CGR_RELEASE_VERSION.war" | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null; then
   #  echo "The release version $CGR_RELEASE_VERSION has already been deployed! Please ensure you are releasing the correct version."
   #  exit 1
   #fi
-fi
+#fi
 
 git config --global user.name "$GIT_TF_BUILDER_USERNAME"
 git config --global user.email builder@terraframe.com
