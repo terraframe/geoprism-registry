@@ -32,3 +32,13 @@ For information about contributing (tickets or code) to this project see the [co
 
 ## Latest Unit Test Results
 https://s3-us-west-2.amazonaws.com/terraframe-sites/cgr-site/surefire-report.html
+
+
+## Artifacts
+
+[![Hosted By: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=for-the-badge)](https://cloudsmith.io/~terraframe/repos/geoprism-registry/packages/detail/maven/georegistry-web/0.17.5/a=noarch;xg=net.geoprism/#versions)
+
+Package repository hosting is graciously provided by  [Cloudsmith](https://cloudsmith.com).
+Cloudsmith is the only fully hosted, cloud-native, universal package management solution, that
+enables your organization to create, store and share packages in any format, to any place, with total
+confidence.
