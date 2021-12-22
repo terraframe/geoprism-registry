@@ -142,17 +142,11 @@ if [ "$release_georegistry" == "true" ]; then
   git add -A
   git diff-index --quiet HEAD || git commit -m 'Preparing dependencies for next development iteration.'
   git push
+else
+  mkdir -p $WORKSPACE/geoprism-registry/georegistry-web/target && wget -nv -O $WORKSPACE/geoprism-registry/georegistry-web/target/georegistry.war "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war"
 fi
 
 if [ "$release_docker" == "true" ]; then
-  cd $WORKSPACE
-  ([ -d geoprism-registry ] && rm -rf geoprism-registry) || true
-  git clone -b dockerize git@github.com:terraframe/geoprism-registry.git # TODO : Change branch here to master
-
-  mkdir -p geoprism-registry/georegistry-web/target
-  
-  wget -nv https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O geoprism-registry/georegistry-web/target/georegistry.war
-
   cd $WORKSPACE/geoprism-registry/src/build/docker/georegistry
   ./build.sh
   ./release.sh
