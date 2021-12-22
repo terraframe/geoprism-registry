@@ -72,8 +72,8 @@ else
   if [ "$tag" == "latest" ]; then
     # As far as I can tell Cloudsmith doesn't support fetching the latest version of an artifact from their REST API. So we're using Maven dependency:copy plugin.
     mkdir -p $WORKSPACE/georegistry/georegistry-web/target/artifact-download
-    cp $WORKSPACE/georegistry/src/build/shell/artifact-download.pom.xml target/artifact-download/pom.xml
-    cd target/artifact-download
+    cp $WORKSPACE/georegistry/src/build/shell/artifact-download.pom.xml $WORKSPACE/georegistry/georegistry-web/target/artifact-download/pom.xml
+    cd $WORKSPACE/georegistry/georegistry-web/target/artifact-download
     
     mvn dependency:copy -Dartifact=net.geoprism:georegistry-web:LATEST:war -DoutputDirectory=../ -Dmdep.stripVersion=true
   else
