@@ -76,6 +76,7 @@ else
     cd $WORKSPACE/georegistry/georegistry-web/target/artifact-download
     
     mvn dependency:copy -Dartifact=net.geoprism:georegistry-web:LATEST:war -DoutputDirectory=../ -Dmdep.stripVersion=true
+    mv ../georegistry-web.war ../georegistry.war
   else
     mkdir -p $WORKSPACE/georegistry/georegistry-web/target && wget -nv -O $WORKSPACE/georegistry/georegistry-web/target/georegistry.war "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$tag/georegistry-web-$tag.war"
   fi
