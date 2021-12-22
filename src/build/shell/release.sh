@@ -166,7 +166,7 @@ if [ "$tag_cloud" == "true" ]; then
 fi
 
 if [ "$release_github" == "true" ]; then
-  cd $WORKSPACE
+  cd $WORKSPACE/georegistry
   
   gh config set prompt disabled
   
