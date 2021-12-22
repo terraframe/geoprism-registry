@@ -75,7 +75,7 @@ else
     cp $WORKSPACE/georegistry/src/build/shell/artifact-download.pom.xml target/artifact-download/pom.xml
     cd target/artifact-download
     
-    mvn dependency:copy -Dartifact=net.geoprism:georegistry:LATEST:war -DoutputDirectory=../ -Dmdep.stripVersion=true
+    mvn dependency:copy -Dartifact=net.geoprism:georegistry-web:LATEST:war -DoutputDirectory=../ -Dmdep.stripVersion=true
   else
     mkdir -p $WORKSPACE/georegistry/georegistry-web/target && wget -nv -O $WORKSPACE/georegistry/georegistry-web/target/georegistry.war "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$tag/georegistry-web-$tag.war"
   fi
