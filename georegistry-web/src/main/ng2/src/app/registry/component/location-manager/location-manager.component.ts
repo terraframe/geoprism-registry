@@ -19,7 +19,7 @@ import { ContextLayer, LayerRecord } from "@registry/model/list-type";
 import { GRAPH_LAYER, LayerEvent } from "./layer-panel.component";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { timeout } from "d3-timer";
-import { Subscription } from "rxjs";
+import { Observable, Observer, Subscription } from "rxjs";
 import { SelectTypeModalComponent } from "./select-type-modal.component";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
@@ -56,7 +56,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         text: string,
         currentText: string,
         date: string,
-        currentDate: string
+        currentDate: string,
+        featureText?: string
     } = { text: '', currentText: '', date: '', currentDate: '' }
 
     /*
@@ -127,8 +128,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     // Flag denoting if the map in loaded and initialized     
     ready: boolean = false;
 
+    // Flag denoting if the map in loaded and initialized     
+    searchFeatures: boolean = false;
+
     // Flag denoting if the search and results panel is enabled at all
     searchEnabled: boolean = true;
+
+    typeahead: Observable<any> = null;
 
     @ViewChild("simpleEditControl") simpleEditControl: IControl;
 
@@ -151,6 +157,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
 
         this.searchEnabled = registry.searchEnabled && (this.authService.isRC(false) || this.authService.isRM() || this.authService.isRA());
+
+        this.typeahead = new Observable((observer: Observer<any>) => {
+            this.handleFeatureSearch(observer);
+        });
+
     }
 
     ngOnDestroy(): void {
@@ -259,6 +270,52 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.changeMode(mode);
             this.setPanel(showPanel);
         }
+    }
+
+    handleFeatureSearch(observer: Observer<any>): void {
+
+        const localeProperty = 'displayLabel_' + navigator.language.toLowerCase();
+
+        // Search features
+        if (this.ready && this.map != null && this.state.featureText != null) {
+            const value = this.state.featureText.toLocaleLowerCase();
+            const features = this.map.queryRenderedFeatures().filter(feature => {
+                if (feature.source !== GRAPH_LAYER) {
+                    const localizedName = feature.properties[localeProperty];
+
+                    let name = localizedName != null && localizedName.length > 0 ? localizedName : feature.properties.displayLabel;
+                    name = name.toLowerCase();
+                    const code = feature.properties.code.toLowerCase();
+
+                    if (name.includes(value) || code.includes(value)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }).filter((value, index, self) => self.findIndex(feature => {
+                return feature.source === value.source && feature.properties.uid === value.properties.uid;
+            }) === index).map(feature => {
+                const localizedName = feature.properties[localeProperty];
+
+                let name = localizedName != null && localizedName.length > 0 ? localizedName : feature.properties.displayLabel;
+
+                const index = this.layers.findIndex(l => l.oid === feature.source);
+                const layer = this.layers[index];
+
+                return {
+                    id: feature.properties.uid,
+                    code: feature.properties.code,
+                    layer: layer,
+                    name: name,
+                    feature: feature
+                }
+            }).sort((a, b) => (a.name > b.name) ? 1 : -1);
+
+            observer.next(features);
+
+        }
+
     }
 
     setPanel(showPanel: boolean): void {
@@ -468,6 +525,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
             ]
         });
+    }
+
+    onToggleSearch(): void {
+        this.searchFeatures = !this.searchFeatures;
     }
 
     search(): void {
@@ -824,6 +885,31 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
 
         this.layers.push(layer);
+    }
+
+    onFeatureSelect(event: any): void {
+        if (!this.isEdit) {
+
+            this.state.featureText = event.item.name;
+
+            const feature = event.item.feature;
+
+            var geometry = feature.toJSON().geometry;
+            const bounds = bbox(geometry as AllGeoJSON) as LngLatBoundsLike;
+
+            let padding = 50;
+            let maxZoom = 20;
+
+            this.map.fitBounds(bounds, { padding: padding, animate: true, maxZoom: maxZoom });
+
+            if (feature.properties.uid != null) {
+                this.router.navigate([], {
+                    relativeTo: this.route,
+                    queryParams: { type: null, code: null, version: feature.source, uid: feature.properties.uid },
+                    queryParamsHandling: 'merge', // remove to replace all query params by provided
+                });
+            }
+        }
     }
 
 

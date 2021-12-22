@@ -1,3 +1,18 @@
+<ng-template #customItemTemplate let-model="item" let-index="index">
+  <h5>{{model.name }} : {{ model.code }}</h5>
+  <h6>
+    {{model.layer.label}} - {{ model.layer.forDate }}
+    (
+    <span *ngIf="model.layer.versionNumber !== 0">
+      <localize key="list.type.version"></localize>
+      {{model.layer.versionNumber}}
+    </span>
+    <localize *ngIf="model.layer.versionNumber === 0" key="list.type.working.version"></localize>
+    )
+  </h6>
+</ng-template>
+
+
 <div class="">
   <cgr-header></cgr-header>
   <loading-bar></loading-bar>
@@ -8,21 +23,43 @@
     <div class="row">
       <article class="panel-toggle" style="width: 40%; background-color: white;">
         <div class="row">
-          <div class="col-md-4" *ngIf="searchEnabled">
-            <date-field [(value)]="state.date" label="" [inputName]="'date'" [allowInfinity]="false"
-              [allowFutureDates]="false" [required]="false" [placement]="'right'" style="display:inline-grid;">
-            </date-field>
+          <div class="col-md-2">
+            <button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="onToggleSearch()">
+              <span *ngIf="searchFeatures">Search Graph</span>
+              <span *ngIf="!searchFeatures">Search features</span>
+            </button>
           </div>
-          <div class="col-md-7" *ngIf="searchEnabled">
-            <div class="input-group">
-              <input type="text" class="form-control" [placeholder]="'explorer.search.placeholder' | localize" (keyup.enter)="search()" [(ngModel)]="state.text" name="text">
-              <span class="input-group-btn">
-                <button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="search()">
-                  <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                </button>
-              </span>
+
+          <ng-container *ngIf="searchEnabled && !searchFeatures">
+            <div class="col-md-4">
+              <date-field [(value)]="state.date" label="" [inputName]="'date'" [allowInfinity]="false"
+                [allowFutureDates]="false" [required]="false" [placement]="'right'" style="display:inline-grid;">
+              </date-field>
             </div>
-          </div>
+            <div class="col-md-5">
+              <div class="input-group">
+                <input type="text" class="form-control" [placeholder]="'explorer.search.placeholder' | localize"
+                  (keyup.enter)="search()" [(ngModel)]="state.text" name="text">
+                <span class="input-group-btn">
+                  <button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="search()">
+                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                  </button>
+                </span>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="searchFeatures">
+            <div class="col-md-9">
+              <div>
+                <input type="text" class="form-control" placeholder="Search features" [(ngModel)]="state.featureText"
+                  name="featureText" [disabled]="isEdit" [typeaheadAsync]="true" [typeahead]="typeahead"
+                  [typeaheadItemTemplate]="customItemTemplate" (typeaheadOnSelect)="onFeatureSelect($event)"
+                  [typeaheadMinLength]="1" [typeaheadWaitMs]="300" [typeaheadOptionsLimit]="20">
+              </div>
+            </div>
+          </ng-container>
+
 
           <div class="col-md-1">
             <div class="layer-toggle">
@@ -67,8 +104,8 @@
           <div *ngIf="record.recordType === 'GEO_OBJECT'" class="row">
             <div class="col-md-12">
               <feature-panel [type]="record.type" [code]="record.code" [forDate]="record.forDate" [readOnly]="false"
-                (modeChange)="onModeChange($event)" (panelCancel)="clearRecord()"
-                (panelSubmit)="onPanelSubmit($event)"></feature-panel>
+                (modeChange)="onModeChange($event)" (panelCancel)="clearRecord()" (panelSubmit)="onPanelSubmit($event)">
+              </feature-panel>
             </div>
           </div>
           <div *ngIf="record.recordType === 'LIST'" class="row">
