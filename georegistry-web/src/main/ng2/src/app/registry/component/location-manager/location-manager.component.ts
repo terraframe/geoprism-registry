@@ -894,13 +894,19 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             const feature = event.item.feature;
 
-            var geometry = feature.toJSON().geometry;
-            const bounds = bbox(geometry as AllGeoJSON) as LngLatBoundsLike;
+            if (feature.properties.uid != null) {
+                this.listService.getBounds(feature.source, feature.properties.uid).then(bounds => {
+                    if (bounds && Array.isArray(bounds)) {
 
-            let padding = 50;
-            let maxZoom = 20;
+                        let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 
-            this.map.fitBounds(bounds, { padding: padding, animate: true, maxZoom: maxZoom });
+                        this.map.fitBounds(llb, { padding: 50, animate: true, maxZoom: 20 });
+                    }
+                }).catch((err: HttpErrorResponse) => {
+                    this.error(err);
+                });
+            }
+
 
             if (feature.properties.uid != null) {
                 this.router.navigate([], {

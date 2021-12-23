@@ -347,9 +347,9 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getBounds(String sessionId, String oid)
+  public JsonArray getBounds(String sessionId, String oid, String uid)
   {
-    return ListTypeVersion.get(oid).bbox();
+    return ListTypeVersion.get(oid).bbox(uid);
   }
 
   @Request(RequestType.SESSION)

@@ -115,6 +115,7 @@ import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.gis.geoserver.GeoserverFacade;
+import net.geoprism.gis.geoserver.MapLayerException;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.command.GeoserverCreateWMSCommand;
 import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
@@ -1577,21 +1578,44 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     return query;
   }
 
-  public JsonArray bbox()
+  public JsonArray bbox(String uid)
   {
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
 
-    double[] geometry = GeoserverFacade.getBBOX(mdBusiness.getTableName());
+    String tableName = mdBusiness.getTableName();
 
-    if (geometry != null)
+    // collect all the views and extend the bounding box
+    ValueQuery union = new ValueQuery(new QueryFactory());
+    union.SELECT(union.aSQLClob(GeoserverFacade.GEOM_COLUMN, GeoserverFacade.GEOM_COLUMN, GeoserverFacade.GEOM_COLUMN));
+    union.FROM(tableName, tableName);
+
+    if (uid != null && uid.length() > 0)
     {
+      MdAttributeConcreteDAOIF attribute = mdBusiness.definesAttribute(DefaultAttribute.UID.getName());
+      String columName = attribute.getColumnName();
+      union.WHERE(union.aSQLCharacter(columName, columName).EQ(uid));
+    }
+
+    ValueQuery collected = new ValueQuery(union.getQueryFactory());
+    collected.SELECT(collected.aSQLAggregateClob("collected", "st_collect(" + GeoserverFacade.GEOM_COLUMN + ")", "collected"));
+    collected.FROM("(" + union.getSQL() + ")", "unioned");
+
+    ValueQuery outer = new ValueQuery(union.getQueryFactory());
+    outer.SELECT(union.aSQLAggregateDouble("minx", "st_xmin(collected)"), union.aSQLAggregateDouble("miny", "st_ymin(collected)"), union.aSQLAggregateDouble("maxx", "st_xmax(collected)"), union.aSQLAggregateDouble("maxy", "st_ymax(collected)"));
+
+    outer.FROM("(" + collected.getSQL() + ")", "collected");
+
+    try (OIterator<? extends ValueObject> iter = outer.getIterator())
+    {
+      ValueObject o = iter.next();
+
       try
       {
         JsonArray bboxArr = new JsonArray();
-        bboxArr.add(geometry[0]);
-        bboxArr.add(geometry[1]);
-        bboxArr.add(geometry[2]);
-        bboxArr.add(geometry[3]);
+        bboxArr.add(Double.parseDouble(o.getValue("minx")));
+        bboxArr.add(Double.parseDouble(o.getValue("miny")));
+        bboxArr.add(Double.parseDouble(o.getValue("maxx")));
+        bboxArr.add(Double.parseDouble(o.getValue("maxy")));
 
         return bboxArr;
       }
@@ -1600,8 +1624,11 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         throw new ProgrammingErrorException(ex);
       }
     }
-
-    return null;
+    catch (Exception e)
+    {
+      return null;
+      // throw new NoLayerDataException();
+    }
   }
 
   public JsonArray values(String value, String attributeName, String valueAttribute, String filterJson)

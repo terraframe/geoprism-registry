@@ -280,9 +280,9 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "bounds")
-  public ResponseIF getGeoObjectBounds(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF getGeoObjectBounds(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "uid") String uid)
   {
-    JsonArray bounds = this.service.getBounds(request.getSessionId(), oid);
+    JsonArray bounds = this.service.getBounds(request.getSessionId(), oid, uid);
 
     if (bounds != null)
     {
