@@ -61,28 +61,6 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     super();
   }
 
-  public static Date parseDate(String sDate)
-  {
-    Date date = null;
-
-    if (sDate != null && sDate.length() > 0)
-    {
-      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-      try
-      {
-        date = format.parse(sDate);
-      }
-      catch (ParseException e)
-      {
-        throw new ProgrammingErrorException(e);
-      }
-    }
-    
-    return date;
-  }
-  
   public static String formatIso8601(Date date, boolean includeTime)
   {
     if (date == null)
@@ -134,7 +112,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     return null;
   }
-
+  
   public static Date parseDate(String date)
   {
     if (date != null && date.length() > 0)

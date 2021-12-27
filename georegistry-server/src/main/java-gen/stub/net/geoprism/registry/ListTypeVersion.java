@@ -1044,7 +1044,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
       for (ServerHierarchyType hierarchy : hierarchiesOfSubTypes)
       {
-        ServerParentTreeNode node = go.getParentsForHierarchy(hierarchy, false);
+        ServerParentTreeNode node = go.getParentsForHierarchy(hierarchy, false, this.getForDate());
         List<ServerParentTreeNode> parents = node.getParents();
 
         if (parents.size() > 0)
