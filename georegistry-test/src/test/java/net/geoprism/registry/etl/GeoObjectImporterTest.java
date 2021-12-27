@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -251,7 +251,7 @@ public class GeoObjectImporterTest
     Assert.assertEquals(new Long(3), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(object);
     Assert.assertEquals("Test", object.getLocalizedDisplayLabel());
@@ -310,7 +310,7 @@ public class GeoObjectImporterTest
 
     try
     {
-      ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+      ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
       Assert.fail();
     }
@@ -414,7 +414,7 @@ public class GeoObjectImporterTest
     Assert.assertEquals(new Long(2), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(object);
     Assert.assertEquals("Test", object.getLocalizedDisplayLabel());
@@ -431,7 +431,7 @@ public class GeoObjectImporterTest
 
     Assert.assertEquals(expected, geometry);
 
-    GeoObject coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), USATestData.CO_D_ONE.getCode(), USATestData.DISTRICT.getCode());
+    GeoObject coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), USATestData.CO_D_ONE.getCode(), USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Double cd1_lat = new Double(80);
     Double cd1_lon = new Double(110);

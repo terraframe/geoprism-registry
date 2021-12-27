@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -56,7 +56,7 @@ public class LocationService
     return results.stream().collect(() -> new LinkedList<GeoObject>(), (list, element) -> {
       ServerGeoObjectType type = element.getType();
 
-      GeoObject geoObject = element.toGeoObject();
+      GeoObject geoObject = element.toGeoObject(date);
       geoObject.setWritable(pService.canCreateCR(type.getOrganization().getCode(), type));
 
       list.add(geoObject);
@@ -123,7 +123,7 @@ public class LocationService
 
         for (VertexServerGeoObject child : children)
         {
-          information.addChild(child.toGeoObject());
+          information.addChild(child.toGeoObject(date));
         }
 
       }

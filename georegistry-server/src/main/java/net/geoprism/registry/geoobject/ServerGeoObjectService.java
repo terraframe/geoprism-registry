@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -129,7 +129,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   }
 
   @Transaction
-  public ServerGeoObjectIF apply(GeoObject object, boolean isNew, boolean isImport)
+  public ServerGeoObjectIF apply(GeoObject object, Date startDate, Date endDate, boolean isNew, boolean isImport)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(object.getType());
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
@@ -144,13 +144,14 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     }
 
     ServerGeoObjectIF geoObject = strategy.constructFromGeoObject(object, isNew);
+    geoObject.setDate(startDate);
 
     if (!isNew)
     {
       geoObject.lock();
     }
 
-    geoObject.populate(object);
+    geoObject.populate(object, startDate, endDate);
 
     try
     {
@@ -217,12 +218,12 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     ServerGeoObjectIF target = strategy.newInstance();
     target.setDate(view.getDate());
-    target.populate(source.toGeoObject());
+    target.populate(source.toGeoObject(view.getDate()), view.getDate(), view.getDate());
     target.setCode(view.getTargetCode());
     target.setDisplayLabel(view.getLabel());
     target.apply(false);
 
-    final ServerParentTreeNode sNode = source.getParentGeoObjects(null, false);
+    final ServerParentTreeNode sNode = source.getParentGeoObjects(null, false, view.getDate());
 
     final List<ServerParentTreeNode> sParents = sNode.getParents();
 

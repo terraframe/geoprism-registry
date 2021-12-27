@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -19,6 +19,7 @@
 package net.geoprism.registry.view;
 
 import java.lang.reflect.Type;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -124,13 +125,13 @@ public class LocationInformation
     this.children.add(child);
   }
 
-  public void setChildren(List<ServerChildTreeNode> nodes)
+  public void setChildren(List<ServerChildTreeNode> nodes, Date date)
   {
     this.children = new LinkedList<GeoObject>();
 
     for (ServerChildTreeNode node : nodes)
     {
-      GeoObject geoObject = node.getGeoObject().toGeoObject();
+      GeoObject geoObject = node.getGeoObject().toGeoObject(date);
       this.children.add(geoObject);
     }
   }

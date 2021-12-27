@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -178,7 +178,7 @@ public class AttributeClassificationTest
         GeoObject object = TEST_GO.newGeoObject(adapter);
         object.setValue(testClassification.getName(), CODE);
 
-        GeoObject returned = adapter.createGeoObject(object.toJSON().toString());
+        GeoObject returned = adapter.createGeoObject(object.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
         Assert.assertEquals(CODE, returned.getAttribute(testClassification.getName()).getValue());
 

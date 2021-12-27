@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -29,6 +29,7 @@ import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
 public class HierarchyChangeTest
@@ -72,14 +73,14 @@ public class HierarchyChangeTest
     String cd1TypeCode = USATestData.CO_D_ONE.getCode();
 
     ServerGeoObjectIF geoobject = new VertexGeoObjectStrategy(USATestData.DISTRICT.getServerObject()).getGeoObjectByCode(cd1TypeCode);
-    ServerParentTreeNode parents = geoobject.getParentGeoObjects(null, false);
+    ServerParentTreeNode parents = geoobject.getParentGeoObjects(null, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertEquals(1, parents.getParents().size());
 
     ServiceFactory.getHierarchyService().removeFromHierarchy(sessionId, hierarchyCode, countryTypeCode, stateTypeCode, true);
 
     ServerGeoObjectIF test = new VertexGeoObjectStrategy(USATestData.DISTRICT.getServerObject()).getGeoObjectByCode(cd1TypeCode);
-    ServerParentTreeNode tParents = test.getParentGeoObjects(null, false);
+    ServerParentTreeNode tParents = test.getParentGeoObjects(null, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertEquals(0, tParents.getParents().size());
   }

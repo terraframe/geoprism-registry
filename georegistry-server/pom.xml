@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
     This file is part of Geoprism Registry(tm).
 
@@ -24,7 +24,7 @@
 	<parent>
 		<groupId>net.geoprism</groupId>
 		<artifactId>georegistry</artifactId>
-    <version>0.17.2-SNAPSHOT</version>
+    <version>0.17.6-SNAPSHOT</version>
 	</parent>
 	<artifactId>georegistry-server</artifactId>
 	<packaging>jar</packaging>
@@ -35,7 +35,7 @@
 	<properties>
 		<!-- We need this property because it facilitates replacement via the Jenkins formal release job. -->
 		<hapifhir_version>5.0.2</hapifhir_version>
-		<cgr.adapter.version>0.17.2-SNAPSHOT</cgr.adapter.version>
+		<cgr.adapter.version>0.17.6-SNAPSHOT</cgr.adapter.version>
 	</properties>
 
 	<dependencies>
@@ -104,21 +104,21 @@
       <groupId>javax.websocket</groupId>
       <artifactId>javax.websocket-api</artifactId>
       <version>1.1</version>
-    </dependency>		
+    </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
-      <version>2.13.1</version>
+      <version>2.17.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>2.13.1</version>
+      <version>2.17.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>
-      <version>2.13.1</version>
+      <version>2.17.0</version>
     </dependency>
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
