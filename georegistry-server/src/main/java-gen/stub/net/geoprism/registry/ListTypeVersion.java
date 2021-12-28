@@ -115,11 +115,11 @@ import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.gis.geoserver.GeoserverFacade;
-import net.geoprism.gis.geoserver.MapLayerException;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.command.GeoserverCreateWMSCommand;
 import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.curation.CurationService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.masterlist.ListTypeAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
@@ -1304,6 +1304,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       object.add(ListTypeVersion.ATTRIBUTES, this.getAttributesAsJson());
     }
+    
+    object.add("curation", new CurationService().getListCurationInfo(this));
 
     return object;
   }
