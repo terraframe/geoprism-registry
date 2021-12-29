@@ -8,7 +8,7 @@
       
       <mdBusiness name="net.geoprism.registry.curation.ListCurationHistory" extends="com.runwaysdk.system.scheduler.JobHistory" exported="false">
         <attributes>
-          <reference name="version" type="net.geoprism.registry.ListTypeVersion" label="List Type Version" required="true"/>
+          <reference name="version" type="net.geoprism.registry.ListTypeVersion" label="List Type Version" required="false"/>
         </attributes>
       </mdBusiness>
       

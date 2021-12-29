@@ -14,7 +14,10 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
+import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
+import com.runwaysdk.system.scheduler.MockScheduler;
+import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListTypeEntry;
@@ -26,7 +29,9 @@ import net.geoprism.registry.curation.CurationProblem.CurationResolution;
 import net.geoprism.registry.curation.GeoObjectProblem.GeoObjectProblemType;
 import net.geoprism.registry.service.ListTypeTest;
 import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
+import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.test.curation.CurationControllerWrapper;
 
@@ -60,6 +65,11 @@ public class CurationTest
     
     TestDataSet.deleteAllSchedulerData();
     TestDataSet.deleteAllListData();
+    
+    if (!SchedulerManager.initialized())
+    {
+      SchedulerManager.start();
+    }
   }
   
   @AfterClass
@@ -113,7 +123,6 @@ public class CurationTest
     
     entry = ListTypeEntry.create(list, TestDataSet.DEFAULT_OVER_TIME_DATE);
     
-//    entry.publish(ListTypeTest.createVersionMetadata().toString());
     entry.createVersion(ListTypeTest.createVersionMetadata()).publishNoAuth();
 
     List<ListTypeVersion> versions = entry.getVersions();
@@ -126,7 +135,9 @@ public class CurationTest
     job.setRunAsUser(TestDataSet.USER_ADMIN.getGeoprismUser());
     job.apply();
     
-    history = new ListCurationHistory();
+    history = (ListCurationHistory) job.createNewHistory();
+    history.appLock();
+    history.clearStatus();
     history.addStatus(AllJobStatus.RUNNING);
     history.setVersion(version);
     history.apply();
@@ -168,7 +179,7 @@ public class CurationTest
         
         Assert.assertEquals(AllJobStatus.RUNNING.name(), details.get("status").getAsString());
         Assert.assertEquals(GeoRegistryUtil.formatDate(history.getCreateDate(), false), details.get("lastRun").getAsString());
-        Assert.assertEquals(history.getOid(), details.get("historyId").getAsString());
+        Assert.assertEquals(historyId, details.get("historyId").getAsString());
         Assert.assertEquals(job.getOid(), details.get("jobId").getAsString());
         Assert.assertFalse(details.has("exception"));
         Assert.assertEquals(TestDataSet.ADMIN_USER_NAME, details.get("lastRunBy").getAsString());
@@ -252,5 +263,117 @@ public class CurationTest
         }
       });
     }
+  }
+  
+  @Test
+  @Request
+  public void testCurator() throws Throwable
+  {
+    TestGeoObjectInfo noGeomGo = testData.newTestGeoObjectInfo("curationJobTest-NoGeom", FastTestDataset.PROVINCE);
+    noGeomGo.setWkt(null);
+    noGeomGo.apply();
+    
+    version.publishNoAuth();
+    
+    ListCurationHistory history = (ListCurationHistory) job.createNewHistory();
+    history.appLock();
+    history.clearStatus();
+    history.addStatus(AllJobStatus.RUNNING);
+    history.setVersion(version);
+    history.apply();
+    
+    ExecutionContext context = MockScheduler.executeJob(job, history);
+    
+    ListCurationHistory hist = (ListCurationHistory) context.getHistory();
+    
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
+    
+    Long count = version.buildQuery(null).getCount();
+    
+    Assert.assertEquals(count, hist.getWorkTotal());
+    Assert.assertEquals(count, hist.getWorkProgress());
+    
+    List<? extends CurationProblem> problems = hist.getAllCurationProblems();
+    
+    Assert.assertEquals(1, problems.size());
+    
+    CurationProblem problem = problems.get(0);
+    
+    Assert.assertTrue(problem.getAffectedRows() != null && problem.getAffectedRows() != "");
+    Assert.assertEquals(CurationResolution.UNRESOLVED.name(), problem.getResolution());
+    Assert.assertEquals(GeoObjectProblemType.NO_GEOMETRY.name(), problem.getProblemType());
+    
+    Assert.assertEquals(history.getOid(), problem.getHistory().getOid());
+    
+    Assert.assertTrue(problem instanceof GeoObjectProblem);
+    
+    GeoObjectProblem goProblem = (GeoObjectProblem) problem;
+    
+    Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), goProblem.getTypeCode());
+    Assert.assertEquals(noGeomGo.getCode(), goProblem.getGoCode());
+  }
+  
+  @Test
+  public void testCurate() throws Throwable
+  {
+    Object[] setup = setUpTestCurate();
+    final TestGeoObjectInfo noGeomGo = (TestGeoObjectInfo) setup[0];
+    final String listTypeVersionId = (String) setup[1];
+    
+    FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request, adapter) -> {
+      
+      final CurationControllerWrapper controller = new CurationControllerWrapper(adapter, request);
+      
+      JsonObject joHistory = controller.curate(listTypeVersionId);
+      
+      try
+      {
+        waitUntilSuccess(joHistory);
+      }
+      catch (Throwable e)
+      {
+        throw new RuntimeException(e);
+      }
+      
+      JsonObject page = controller.page(joHistory.get("historyId").getAsString(), false, 10, 1);
+      
+      JsonArray results = page.get("results").getAsJsonArray();
+      
+      Assert.assertEquals(1, results.size());
+      
+      for (int i = 0; i < results.size(); ++i)
+      {
+        JsonObject problem = results.get(i).getAsJsonObject();
+        
+        Assert.assertTrue(problem.get("affectedRows").getAsString() != null && problem.get("affectedRows").getAsString() != "");
+        Assert.assertEquals(joHistory.get("historyId").getAsString(), problem.get("historyId").getAsString());
+        Assert.assertEquals(CurationResolution.UNRESOLVED.name(), problem.get("resolution").getAsString());
+        Assert.assertEquals(GeoObjectProblemType.NO_GEOMETRY.name(), problem.get("type").getAsString());
+        Assert.assertTrue(problem.get("id").getAsString() != null && problem.get("id").getAsString() != "");
+        Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), problem.get("typeCode").getAsString());
+        Assert.assertEquals(noGeomGo.getCode(), problem.get("goCode").getAsString());
+      }
+      
+    });
+  }
+  
+  @Request
+  private Object[] setUpTestCurate() throws Throwable
+  {
+    TestGeoObjectInfo noGeomGo = testData.newTestGeoObjectInfo("curationJobTest-NoGeom", FastTestDataset.PROVINCE);
+    noGeomGo.setWkt(null);
+    noGeomGo.apply();
+    
+    version.publishNoAuth();
+    
+    return new Object[] { noGeomGo, version.getOid() };
+  }
+  
+  @Request
+  private void waitUntilSuccess(JsonObject joHistory) throws Throwable
+  {
+    ListCurationHistory history = ListCurationHistory.get(joHistory.get("historyId").getAsString());
+    
+    SchedulerTestUtils.waitUntilStatus(history.getOid(), AllJobStatus.SUCCESS);
   }
 }
