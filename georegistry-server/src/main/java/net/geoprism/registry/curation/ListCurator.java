@@ -13,6 +13,9 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.curation.CurationProblem.CurationResolution;
 import net.geoprism.registry.curation.GeoObjectProblem.GeoObjectProblemType;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 public class ListCurator
 {
@@ -66,6 +69,11 @@ public class ListCurator
         history.appLock();
         history.setWorkProgress(history.getWorkProgress() + 1);
         history.apply();
+        
+        if (history.getWorkProgress() % 100 == 0)
+        {
+          NotificationFacade.queue(new GlobalNotificationMessage(MessageType.CURATION_JOB_CHANGE, null));
+        }
       }
     }
     finally
