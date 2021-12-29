@@ -47,13 +47,16 @@
         </grant>
       </role>
       <role roleName="cgr.RegistryMaintainer">
-        <grant>      
+        <grant>
           <mdBusinessPermission type="net.geoprism.registry.curation.CurationProblem">
             <operation name="ALL" />
-          </mdBusinessPermission>          
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.curation.GeoObjectProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
           <mdRelationshipPermission type="net.geoprism.registry.curation.ListCurationHistory">
             <operation name="ALL" />
-          </mdRelationshipPermission>     
+          </mdRelationshipPermission>
           <mdBusinessPermission type="net.geoprism.registry.curation.ListCurationJob">
             <operation name="ALL" />
           </mdBusinessPermission>
@@ -66,6 +69,7 @@
       <object key="net.geoprism.registry.curation.ListCurationJob" type="com.runwaysdk.system.metadata.MdBusiness"></object>
       <object key="net.geoprism.registry.curation.ListCurationHistory" type="com.runwaysdk.system.metadata.MdBusiness"></object>
       <object key="net.geoprism.registry.curation.CurationProblem" type="com.runwaysdk.system.metadata.MdBusiness"></object>
+      <object key="net.geoprism.registry.curation.GeoObjectProblem" type="com.runwaysdk.system.metadata.MdBusiness"></object>
     </delete>
   </undoIt>
 </version>

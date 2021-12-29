@@ -173,21 +173,7 @@ public class ListTypeTest
   @Request
   public void cleanUpExtra()
   {
-    ListTypeQuery query = new ListTypeQuery(new QueryFactory());
-
-    OIterator<? extends ListType> it = query.getIterator();
-
-    try
-    {
-      while (it.hasNext())
-      {
-        it.next().delete();
-      }
-    }
-    finally
-    {
-      it.close();
-    }
+    TestDataSet.deleteAllListData();
   }
 
   @Test
@@ -1063,7 +1049,7 @@ public class ListTypeTest
     return builder.buildJSON();
   }
 
-  private JsonObject createVersionMetadata()
+  public static JsonObject createVersionMetadata()
   {
     JsonObject metadata = new JsonObject();
     metadata.add("description", new LocalizedValue("Test").toJSON());

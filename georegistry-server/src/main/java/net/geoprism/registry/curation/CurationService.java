@@ -18,80 +18,38 @@
  */
 package net.geoprism.registry.curation;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.commongeoregistry.adapter.Optional;
-import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.commongeoregistry.adapter.metadata.RegistryRole;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.business.rbac.RoleDAOIF;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
-import com.runwaysdk.controller.MultipartFileParameter;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.VaultFile;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
-import com.runwaysdk.system.scheduler.JobHistory;
-import com.runwaysdk.system.scheduler.JobHistoryRecord;
 
-import net.geoprism.DataUploader;
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
-import net.geoprism.registry.Organization;
-import net.geoprism.registry.etl.DataImportJob;
-import net.geoprism.registry.etl.ImportError;
-import net.geoprism.registry.etl.ImportErrorQuery;
-import net.geoprism.registry.etl.ImportHistory;
-import net.geoprism.registry.etl.ImportHistoryQuery;
-import net.geoprism.registry.etl.ImportStage;
-import net.geoprism.registry.etl.ParentReferenceProblem;
-import net.geoprism.registry.etl.TermReferenceProblem;
-import net.geoprism.registry.etl.ValidationProblem;
-import net.geoprism.registry.etl.ValidationProblemQuery;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
-import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
-import net.geoprism.registry.etl.export.DataExportJob;
-import net.geoprism.registry.etl.export.ExportError;
-import net.geoprism.registry.etl.export.ExportErrorQuery;
-import net.geoprism.registry.etl.export.ExportHistory;
-import net.geoprism.registry.etl.upload.ImportConfiguration;
-import net.geoprism.registry.geoobject.ServerGeoObjectService;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
-import net.geoprism.registry.service.GeoSynonymService;
-import net.geoprism.registry.service.RegistryIdService;
-import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class CurationService
 {
   public JsonObject getListCurationInfo(ListTypeVersion version)
   {
-    ListType listType = version.getListType();
-    ServerGeoObjectType serverGOT = listType.getGeoObjectType();
+    final ListType listType = version.getListType();
+    final ServerGeoObjectType serverGOT = listType.getGeoObjectType();
+    final String orgCode = listType.getOrganization().getCode();
+    
+    this.checkPermissions(orgCode, serverGOT);
     
     JsonObject json = new JsonObject();
     
@@ -119,7 +77,6 @@ public class CurationService
     }
     
     final RolePermissionService perms = ServiceFactory.getRolePermissionService();
-    final String orgCode = listType.getOrganization().getCode();
     boolean hasRunPermission = perms.isSRA() || perms.isRA(orgCode) || perms.isRM(orgCode, serverGOT);
     
     json.addProperty("canRun", !isRunning && hasRunPermission);
@@ -128,38 +85,107 @@ public class CurationService
   }
   
   @Request(RequestType.SESSION)
-  public JsonObject getCurationResults(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
+  public JsonObject details(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
-//    ImportErrorQuery query = new ImportErrorQuery(new QueryFactory());
-//
-//    query.WHERE(query.getHistory().EQ(historyId));
-//
-//    if (onlyUnresolved)
-//    {
-//      query.WHERE(query.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
-//    }
-//
-//    query.ORDER_BY(query.getRowIndex(), SortOrder.ASC);
-//
-//    query.restrictRows(pageSize, pageNumber);
-//
+    final ListCurationHistory hist = ListCurationHistory.get(historyId);
+    final ListTypeVersion version = hist.getVersion();
+    final ListType listType = version.getListType();
+    final ListCurationJob job = (ListCurationJob) hist.getAllJob().getAll().get(0);
+    final GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
+    final ServerGeoObjectType serverGOT = listType.getGeoObjectType();
+    final String orgCode = listType.getOrganization().getCode();
+    
+    this.checkPermissions(orgCode, serverGOT);
+
+    JsonObject jo = this.serializeHistory(hist, user, job);
+
+    jo.add("page", this.page(sessionId, historyId, onlyUnresolved, pageSize, pageNumber));
+
+    return jo;
+  }
+  
+  @Request(RequestType.SESSION)
+  public JsonObject page(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
+  {
+    final ListCurationHistory hist = ListCurationHistory.get(historyId);
+    final ListTypeVersion version = hist.getVersion();
+    final ListType listType = version.getListType();
+    final ServerGeoObjectType serverGOT = listType.getGeoObjectType();
+    final String orgCode = listType.getOrganization().getCode();
+    
+    this.checkPermissions(orgCode, serverGOT);
+    
+    CurationProblemQuery query = new CurationProblemQuery(new QueryFactory());
+
+    query.WHERE(query.getHistory().EQ(historyId));
+
+    if (onlyUnresolved)
+    {
+      query.WHERE(query.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
+    }
+
+    query.ORDER_BY(query.getAffectedRows(), SortOrder.ASC);
+
+    query.restrictRows(pageSize, pageNumber);
+
     JsonObject page = new JsonObject();
-//    page.addProperty("count", query.getCount());
-//    page.addProperty("pageNumber", query.getPageNumber());
-//    page.addProperty("pageSize", query.getPageSize());
-//
-//    JsonArray ja = new JsonArray();
-//
-//    OIterator<? extends ImportError> it = query.getIterator();
-//    while (it.hasNext())
-//    {
-//      ImportError err = it.next();
-//
-//      ja.add(err.toJson());
-//    }
-//
-//    page.add("results", ja);
-//
+    page.addProperty("count", query.getCount());
+    page.addProperty("pageNumber", query.getPageNumber());
+    page.addProperty("pageSize", query.getPageSize());
+
+    JsonArray ja = new JsonArray();
+
+    OIterator<? extends CurationProblem> it = query.getIterator();
+    while (it.hasNext())
+    {
+      CurationProblem err = it.next();
+
+      ja.add(err.toJson());
+    }
+
+    page.add("results", ja);
+
     return page;
+  }
+  
+  protected JsonObject serializeHistory(ListCurationHistory hist, GeoprismUser user, ExecutableJob job)
+  {
+    JsonObject jo = new JsonObject();
+
+    jo.addProperty("status", hist.getStatus().get(0).name());
+    jo.addProperty("lastRun", GeoRegistryUtil.formatDate(hist.getCreateDate(), false));
+    jo.addProperty("lastRunBy", user.getUsername());
+    jo.addProperty("historyId", hist.getOid());
+    jo.addProperty("jobId", job.getOid());
+
+    if (hist.getStatus().get(0).equals(AllJobStatus.FAILURE) && hist.getErrorJson().length() > 0)
+    {
+      JsonObject exception = new JsonObject();
+
+      exception.add("type", JsonParser.parseString(hist.getErrorJson()).getAsJsonObject().get("type"));
+      exception.addProperty("message", hist.getLocalizedError(Session.getCurrentLocale()));
+
+      jo.add("exception", exception);
+    }
+
+    return jo;
+  }
+  
+  private void checkPermissions(String orgCode, ServerGeoObjectType type)
+  {
+    RolePermissionService perms = ServiceFactory.getRolePermissionService();
+
+    if (perms.isRA())
+    {
+      perms.enforceRA(orgCode);
+    }
+    else if (perms.isRM())
+    {
+      perms.enforceRM(orgCode, type);
+    }
+    else
+    {
+      perms.enforceRM();
+    }
   }
 }
