@@ -231,6 +231,11 @@ public class TestGeoObjectInfo
 
   public Geometry getGeometry()
   {
+    if (this.getWkt() == null)
+    {
+      return null;
+    }
+    
     try
     {
       final WKTReader reader = new WKTReader(new GeometryFactory());

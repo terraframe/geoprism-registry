@@ -1,5 +1,7 @@
 package net.geoprism.registry.curation;
 
+import java.util.List;
+
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
@@ -45,6 +47,16 @@ public class ListCurationHistory extends ListCurationHistoryBase
     {
       it.close();
     }
+  }
+  
+  public List<? extends CurationProblem> getAllCurationProblems()
+  {
+    CurationProblemQuery query = new CurationProblemQuery(new QueryFactory());
+    query.WHERE(query.getHistory().EQ(this));
+
+    OIterator<? extends CurationProblem> it = query.getIterator();
+
+    return it.getAll();
   }
   
 }

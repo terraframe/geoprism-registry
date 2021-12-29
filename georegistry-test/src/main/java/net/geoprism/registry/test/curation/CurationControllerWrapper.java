@@ -27,5 +27,10 @@ public class CurationControllerWrapper extends TestControllerWrapper
   {
     return JsonParser.parseString(responseToString(this.controller.page(this.clientRequest, historyId, onlyUnresolved, pageSize, pageNumber))).getAsJsonObject();
   }
+  
+  public JsonObject curate(String listTypeVersionId)
+  {
+    return JsonParser.parseString(responseToString(this.controller.curate(this.clientRequest, listTypeVersionId))).getAsJsonObject();
+  }
 
 }

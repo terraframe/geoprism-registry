@@ -31,8 +31,16 @@ public class CurationController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "page")
   public ResponseIF page(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "onlyUnresolved") Boolean onlyUnresolved, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
   {
-    JsonObject details = this.service.page(request.getSessionId(), historyId, onlyUnresolved, pageSize, pageNumber);
+    JsonObject page = this.service.page(request.getSessionId(), historyId, onlyUnresolved, pageSize, pageNumber);
     
-    return new RestBodyResponse(details.toString());
+    return new RestBodyResponse(page.toString());
+  }
+  
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "curate")
+  public ResponseIF curate(ClientRequestIF request, @RequestParamter(name = "listTypeVersionId") String listTypeVersionId)
+  {
+    JsonObject serializedHistory = this.service.curate(request.getSessionId(), listTypeVersionId);
+    
+    return new RestBodyResponse(serializedHistory.toString());
   }
 }
