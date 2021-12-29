@@ -1,4 +1,4 @@
-import { LocalizedValue } from "@shared/model/core";
+import { LocalizedValue, PageResult } from "@shared/model/core";
 import { GeoObjectType } from "./registry";
 
 export class ListTypeByType {
@@ -143,7 +143,7 @@ export class ListTypeVersion extends ListVersionMetadata {
     versionNumber: number;
     subtypes?: { label: string, code: string }[];
     collapsed?: boolean;
-    curation?:any;
+    curation?: any;
 }
 
 export class ContextLayer {
@@ -176,4 +176,27 @@ export class LayerRecord {
     version?: string;
     attributes?: any[];
     data?: Object;
+}
+
+export class CurationProblem {
+    affectedRows: string;
+    resolution: string;
+    historyId: string;
+    type: string;
+    id: string;
+    typeCode?: string;
+    code?: string;
+}
+
+export class CurationJob {
+    status: string;
+    lastRun: string;
+    lastRunBy: string;
+    historyId: string;
+    jobId: string;
+    exception?: {
+        type: string,
+        message: string
+    };
+    page?: PageResult<CurationProblem>
 }

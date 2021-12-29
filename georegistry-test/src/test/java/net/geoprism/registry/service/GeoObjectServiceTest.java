@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -56,17 +56,17 @@ public class GeoObjectServiceTest
 {
   protected static FastTestDataset      testData;
 
-  public static final TestGeoObjectInfo TEST_GO = new TestGeoObjectInfo("GOSERV_TEST_GO", FastTestDataset.COUNTRY);
-  
+  public static final TestGeoObjectInfo TEST_GO         = new TestGeoObjectInfo("GOSERV_TEST_GO", FastTestDataset.COUNTRY);
+
   public static final TestGeoObjectInfo TEST_GO_PRIVATE = new TestGeoObjectInfo("GOSERV_TEST_GO_PRIVATE", FastTestDataset.PROVINCE_PRIVATE);
-  
+
   @BeforeClass
   public static void setUpClass()
   {
     testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
   }
-  
+
   @AfterClass
   public static void cleanUpClass()
   {
@@ -106,11 +106,11 @@ public class GeoObjectServiceTest
 
         FastTestDataset.CAMBODIA.assertEquals(geoObj);
 
-        Assert.assertEquals(false, geoObj.getExists());
+        Assert.assertEquals(true, geoObj.getExists());
       });
     }
   }
-  
+
   @Test
   public void testGetPrivateGeoObject()
   {
@@ -121,23 +121,22 @@ public class GeoObjectServiceTest
       FastTestDataset.runAsUser(user, (request, adapter) -> {
         GeoObject geoObj = adapter.getGeoObject(FastTestDataset.PROV_CENTRAL_PRIVATE.getRegistryId(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-        
         FastTestDataset.PROV_CENTRAL_PRIVATE.assertEquals(geoObj);
 
-        Assert.assertEquals(false, geoObj.getExists());
+        Assert.assertEquals(true, geoObj.getExists());
       });
     }
 
     // Disallowed Users
     TestUserInfo[] disllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
-  
+
     for (TestUserInfo user : disllowedUsers)
     {
       try
       {
         FastTestDataset.runAsUser(user, (request, adapter) -> {
           adapter.getGeoObject(FastTestDataset.PROV_CENTRAL_PRIVATE.getRegistryId(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
-        
+
           Assert.fail();
         });
       }
@@ -160,26 +159,26 @@ public class GeoObjectServiceTest
         GeoObject geoObj = adapter.getGeoObjectByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
-        Assert.assertEquals(false, geoObj.getExists());
+        Assert.assertEquals(true, geoObj.getExists());
       });
     }
   }
-  
+
   @Test
   @Request
   public void testCodeStripWhitespace()
   {
     TEST_GO.apply();
-    
+
     ServerGeoObjectIF serverGo = TEST_GO.getServerObject();
-    
+
     serverGo.setCode("\t" + serverGo.getCode() + " ");
-    
+
     serverGo.apply(false);
-    
+
     Assert.assertEquals(TEST_GO.getCode(), TEST_GO.getServerObject().getCode());
   }
-  
+
   @Test
   public void testGetPrivateGeoObjectByCode()
   {
@@ -191,7 +190,7 @@ public class GeoObjectServiceTest
         GeoObject geoObj = adapter.getGeoObjectByCode(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
-        Assert.assertEquals(false, geoObj.getExists());
+        Assert.assertEquals(true, geoObj.getExists());
       });
     }
 
@@ -203,7 +202,7 @@ public class GeoObjectServiceTest
       {
         FastTestDataset.runAsUser(user, (request, adapter) -> {
           adapter.getGeoObjectByCode(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
-      
+
           Assert.fail();
         });
       }
@@ -252,7 +251,7 @@ public class GeoObjectServiceTest
 
         TEST_GO.assertEquals(returned);
 
-        Assert.assertEquals(false, returned.getExists());
+        Assert.assertEquals(true, returned.getExists());
 
         TEST_GO.assertApplied();
         TEST_GO.delete();
@@ -265,7 +264,7 @@ public class GeoObjectServiceTest
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
         TestDataSet.populateAdapterIds(user, adapter);
-        
+
         try
         {
           adapter.createGeoObject(TEST_GO.newGeoObject(ServiceFactory.getAdapter()).toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
@@ -279,7 +278,7 @@ public class GeoObjectServiceTest
       });
     }
   }
-  
+
   @Test
   public void testCreateGeoObjectNoDate()
   {
@@ -291,7 +290,7 @@ public class GeoObjectServiceTest
       TEST_GO.assertEquals(returned);
 
       Assert.assertEquals(true, returned.getExists());
-      
+
       Calendar cal = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
       cal.clear();
       cal.setTime(new Date());
@@ -302,7 +301,7 @@ public class GeoObjectServiceTest
       TEST_GO.delete();
     });
   }
-  
+
   @Test
   public void testCreatePrivateGeoObject()
   {
@@ -318,7 +317,7 @@ public class GeoObjectServiceTest
 
         TEST_GO_PRIVATE.assertEquals(returned);
 
-        Assert.assertEquals(false, returned.getExists());
+        Assert.assertEquals(true, returned.getExists());
 
         TEST_GO_PRIVATE.assertApplied();
         TEST_GO_PRIVATE.delete();
@@ -334,13 +333,13 @@ public class GeoObjectServiceTest
       go.apply();
 
       TestDataSet.runAsUser(user, (request, adapter) -> {
-        
+
         if (TestDataSet.populateAdapterIds(user, adapter))
         {
           try
           {
             adapter.newGeoObjectInstance(FastTestDataset.PROVINCE_PRIVATE.getCode());
-            
+
             Assert.fail("Expected an error");
           }
           catch (GeoObjectTypeNotFoundException ex)
@@ -348,7 +347,7 @@ public class GeoObjectServiceTest
             // Expected
           }
         }
-        
+
         try
         {
           adapter.createGeoObject(TEST_GO_PRIVATE.newGeoObject(ServiceFactory.getAdapter()).toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
@@ -418,7 +417,7 @@ public class GeoObjectServiceTest
       });
     }
   }
-  
+
   @Test
   public void testUpdateGeoObjectNoDate()
   {
@@ -431,7 +430,7 @@ public class GeoObjectServiceTest
 
     go.delete();
   }
-  
+
   @Test
   public void testUpdatePrivateGeoObject()
   {
@@ -507,7 +506,7 @@ public class GeoObjectServiceTest
     // orientdb inconsistencies
     Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
   }
-  
+
   @Test
   public void testGetGeoObjectSuggestionsOnDate()
   {
@@ -539,7 +538,7 @@ public class GeoObjectServiceTest
     // orientdb inconsistencies
     Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
   }
-  
+
   @Test
   public void testGetGeoObjectSuggestionsNoParentOnDate()
   {
@@ -555,7 +554,7 @@ public class GeoObjectServiceTest
     // orientdb inconsistencies
     Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
   }
-  
+
   /**
    * Test to make sure we can't just provide random ids, they actually have to
    * be issued by our id service
