@@ -66,13 +66,6 @@ public class CurationService
       if (history.getStatus().contains(AllJobStatus.RUNNING))
       {
         isRunning = true;
-
-        Progress progress = ProgressService.get(history.getOid());
-
-        if (progress != null)
-        {
-          json.add("progress", progress.toJson());
-        }
       }
 
       json.addProperty("lastRun", GeoRegistryUtil.formatDate(history.getCreateDate(), false));
