@@ -10,11 +10,11 @@
     </h2>
     <hr>
 
-    <div class="row" *ngIf="inProgressTasks.results.length > 0">
+    <div class="row" *ngIf="inProgressTasks.resultSet.length > 0">
       <div class="col-md-12">
         <div class="content-wrapper">
           <div
-            *ngFor="let task of inProgressTasks.results | paginate: { id: 'inProgressTasks', itemsPerPage: inProgressTasks.pageSize, currentPage: inProgressTasks.pageNumber, totalItems: inProgressTasks.count }"
+            *ngFor="let task of inProgressTasks.resultSet | paginate: { id: 'inProgressTasks', itemsPerPage: inProgressTasks.pageSize, currentPage: inProgressTasks.pageNumber, totalItems: inProgressTasks.count }"
             class="panel panel-default">
             <div class="panel-heading">
               <h4>{{task.title}}</h4>
@@ -52,7 +52,7 @@
               </div>
             </div>
           </div>
-          <div *ngIf="inProgressTasks.results.length > 0" class="solid-table-footer">
+          <div *ngIf="inProgressTasks.resultSet.length > 0" class="solid-table-footer">
             <pagination-controls id="inProgressTasks" (pageChange)="onInProgressTasksPageChange($event)">
             </pagination-controls>
           </div>
@@ -75,9 +75,9 @@
 
     <div class="row">
       <div class="col-md-12">
-        <div class="content-wrapper" *ngIf="isViewAllOpen && completedTasks.results.length > 0">
+        <div class="content-wrapper" *ngIf="isViewAllOpen && completedTasks.resultSet.length > 0">
           <div
-            *ngFor="let task of completedTasks.results | paginate: { id: 'completedTasks', itemsPerPage: completedTasks.pageSize, currentPage: completedTasks.pageNumber, totalItems: completedTasks.count }"
+            *ngFor="let task of completedTasks.resultSet | paginate: { id: 'completedTasks', itemsPerPage: completedTasks.pageSize, currentPage: completedTasks.pageNumber, totalItems: completedTasks.count }"
             class="panel panel-default">
             <div class="panel-heading">
               <h4>{{task.title}}</h4>
@@ -121,12 +121,12 @@
               </div>
             </div>
           </div>
-          <div *ngIf="completedTasks.results.length > 0" class="solid-table-footer">
+          <div *ngIf="completedTasks.resultSet.length > 0" class="solid-table-footer">
             <pagination-controls id="completedTasks" (pageChange)="onCompletedTasksPageChange($event)">
             </pagination-controls>
           </div>
         </div>
-        <div class="content-wrapper" *ngIf="completedTasks.results.length === 0 && isViewAllOpen">
+        <div class="content-wrapper" *ngIf="completedTasks.resultSet.length === 0 && isViewAllOpen">
           <p style="font-style:italic;color:grey;">
             <localize key="tasks.no.completed.tasks.message"></localize>
           </p>

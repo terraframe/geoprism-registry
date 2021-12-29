@@ -1304,7 +1304,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       object.add(ListTypeVersion.ATTRIBUTES, this.getAttributesAsJson());
     }
-    
+
     object.add("curation", new CurationService().getListCurationInfo(this));
 
     return object;
@@ -1814,9 +1814,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       }
     }
 
-    OIterator<Business> iterator = query.getIterator(pageSize, pageNumber);
-
-    try
+    try (OIterator<Business> iterator = query.getIterator(pageSize, pageNumber))
     {
       while (iterator.hasNext())
       {
@@ -1882,10 +1880,6 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
         results.add(object);
       }
-    }
-    finally
-    {
-      iterator.close();
     }
 
     JsonObject page = new JsonObject();

@@ -8,7 +8,8 @@ import { PageResult } from "@shared/model/core";
 
 import { ImportConfiguration } from "@registry/model/io";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/registry";
+declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class ChangeRequestService {

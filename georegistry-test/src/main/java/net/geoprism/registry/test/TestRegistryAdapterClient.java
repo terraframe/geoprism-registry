@@ -148,7 +148,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
 
   public GeoObject getGeoObjectByCode(String code, String typeCode, Date date)
   {
-    return this.getGeoObjectByCode(code, typeCode, date);
+    return this.controller.getGeoObjectByCode(code, typeCode, date);
   }
 
   public GeoObjectOverTime getGeoObjectOverTimeByCode(String code, String typeCode)

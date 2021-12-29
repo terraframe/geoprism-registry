@@ -22,6 +22,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.metadata.DefaultSerializer;
@@ -60,6 +62,8 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
+import net.geoprism.registry.view.JsonSerializable;
+import net.geoprism.registry.view.Page;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -214,23 +218,12 @@ public class ListTypeService
     // query.ORDER_BY(ihq.get(sortAttr), order);
     query.restrictRows(pageSize, pageNumber);
 
-    JsonArray results = new JsonArray();
-
     try (OIterator<? extends ListTypeJob> it = query.getIterator())
     {
-      while (it.hasNext())
-      {
-        results.add(it.next().toJson());
-      }
+      List<JsonSerializable> results = new LinkedList<>(it.getAll());
+
+      return new Page<JsonSerializable>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
     }
-
-    JsonObject page = new JsonObject();
-    page.addProperty("count", query.getCount());
-    page.addProperty("pageNumber", query.getPageNumber());
-    page.addProperty("pageSize", query.getPageSize());
-    page.add("results", results);
-
-    return page;
   }
 
   @Request(RequestType.SESSION)

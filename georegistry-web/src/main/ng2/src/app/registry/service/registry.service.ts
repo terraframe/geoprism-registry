@@ -25,13 +25,13 @@ import { finalize } from "rxjs/operators";
 
 import {
     GeoObject, GeoObjectType, AttributeType, Term, ParentTreeNode,
-    ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, PaginationPage,
+    ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob,
 } from "@registry/model/registry";
 
 import { HierarchyType } from "@registry/model/hierarchy";
 import { Progress } from "@shared/model/progress";
 
-import { Organization, LocaleView } from "@shared/model/core";
+import { Organization, LocaleView, PageResult } from "@shared/model/core";
 import { EventService } from "@shared/service";
 
 import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
@@ -361,7 +361,7 @@ export class RegistryService {
             .toPromise();
     }
 
-    getScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<PaginationPage> {
+    getScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<PageResult<any>> {
         let params: HttpParams = new HttpParams();
         params = params.set("pageSize", pageSize.toString());
         params = params.set("pageNumber", pageNumber.toString());
@@ -369,11 +369,11 @@ export class RegistryService {
         params = params.set("isAscending", isAscending.toString());
 
         return this.http
-            .get<PaginationPage>(registry.contextPath + "/etl/get-active", { params: params })
+            .get<PageResult<any>>(registry.contextPath + "/etl/get-active", { params: params })
             .toPromise();
     }
 
-    getCompletedScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<PaginationPage> {
+    getCompletedScheduledJobs(pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<PageResult<any>> {
         let params: HttpParams = new HttpParams();
         params = params.set("pageSize", pageSize.toString());
         params = params.set("pageNumber", pageNumber.toString());
@@ -381,7 +381,7 @@ export class RegistryService {
         params = params.set("isAscending", isAscending.toString());
 
         return this.http
-            .get<PaginationPage>(registry.contextPath + "/etl/get-completed", { params: params })
+            .get<PageResult<any>>(registry.contextPath + "/etl/get-completed", { params: params })
             .toPromise();
     }
 

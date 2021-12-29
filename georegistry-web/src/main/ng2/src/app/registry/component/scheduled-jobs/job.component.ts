@@ -16,6 +16,7 @@ import { LocalizationService, AuthService } from "@shared/service";
 import { ModalTypes } from "@shared/model/modal";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
+import { PageResult } from "@shared/model/core";
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -30,11 +31,11 @@ export class JobComponent implements OnInit {
     allSelected: boolean = false;
     historyId: string = "";
 
-    page: any = {
+    page: PageResult<any> = {
         count: 0,
         pageNumber: 1,
         pageSize: 10,
-        results: []
+        resultSet: []
     };
 
     timeCounter: number = 0;
@@ -88,11 +89,11 @@ export class JobComponent implements OnInit {
     }
 
     onProblemResolved(problem: any): void {
-        for (let i = 0; i < this.page.results.length; ++i) {
-            let pageConflict = this.page.results[i];
+        for (let i = 0; i < this.page.resultSet.length; ++i) {
+            let pageConflict = this.page.resultSet[i];
 
             if (pageConflict.id === problem.id) {
-                this.page.results.splice(i, 1);
+                this.page.resultSet.splice(i, 1);
             }
         }
     }
@@ -174,8 +175,8 @@ export class JobComponent implements OnInit {
             } else if (this.job.stage === "VALIDATION_RESOLVE") {
                 this.page = this.job.problems;
 
-                for (let i = 0; i < this.page.results.length; ++i) {
-                    let problem = this.page.results[i];
+                for (let i = 0; i < this.page.resultSet.length; ++i) {
+                    let problem = this.page.resultSet[i];
 
                     if (problem.type === "RowValidationProblem") {
                         this.hasRowValidationProblem = true;
@@ -198,7 +199,7 @@ export class JobComponent implements OnInit {
     toggleAll(): void {
         this.allSelected = !this.allSelected;
 
-        this.job.importErrors.results.forEach(row => {
+        this.job.importErrors.resultSet.forEach(row => {
             row.selected = this.allSelected;
         });
     }
@@ -218,7 +219,7 @@ export class JobComponent implements OnInit {
     }
 
     onResolveScheduledJob(historyId: string): void {
-        if (this.page.results.length === 0) {
+        if (this.page.resultSet.length === 0) {
             this.service.resolveScheduledJob(historyId).then(response => {
                 this.router.navigate(["/registry/scheduled-jobs"]);
             }).catch((err: HttpErrorResponse) => {

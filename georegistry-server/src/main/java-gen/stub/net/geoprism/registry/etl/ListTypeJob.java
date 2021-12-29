@@ -4,7 +4,9 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.system.scheduler.QuartzRunwayJob;
 import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
-public abstract class ListTypeJob extends ListTypeJobBase
+import net.geoprism.registry.view.JsonSerializable;
+
+public abstract class ListTypeJob extends ListTypeJobBase implements JsonSerializable
 {
   private static final long serialVersionUID = 1050690354;
 
@@ -13,7 +15,7 @@ public abstract class ListTypeJob extends ListTypeJobBase
     super();
   }
 
-  public abstract JsonObject toJson();
+  public abstract JsonObject toJSON();
 
   @Override
   protected QuartzRunwayJob createQuartzRunwayJob()

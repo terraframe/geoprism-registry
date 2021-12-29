@@ -198,7 +198,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
     if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
     {
-//      new GeoserverCreateWMSCommand(this).doIt();
+      // new GeoserverCreateWMSCommand(this).doIt();
     }
   }
 
@@ -691,7 +691,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
     if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
     {
-//      new GeoserverRemoveWMSCommand(this).doIt();
+      // new GeoserverRemoveWMSCommand(this).doIt();
     }
   }
 
@@ -1679,9 +1679,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       }
     }
 
-    OIterator<Business> iterator = query.getIterator(pageSize, pageNumber);
-
-    try
+    try (OIterator<Business> iterator = query.getIterator(pageSize, pageNumber);)
     {
       while (iterator.hasNext())
       {
@@ -1746,10 +1744,6 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
         results.add(object);
       }
-    }
-    finally
-    {
-      iterator.close();
     }
 
     JsonObject page = new JsonObject();

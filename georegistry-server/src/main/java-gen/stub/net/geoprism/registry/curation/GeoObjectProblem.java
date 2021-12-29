@@ -18,9 +18,9 @@ public class GeoObjectProblem extends GeoObjectProblemBase
   }
   
   @Override
-  public JsonObject toJson()
+  public JsonObject toJSON()
   {
-    JsonObject json = super.toJson();
+    JsonObject json = super.toJSON();
     
     json.addProperty("typeCode", this.getTypeCode());
     json.addProperty("goCode", this.getGoCode());

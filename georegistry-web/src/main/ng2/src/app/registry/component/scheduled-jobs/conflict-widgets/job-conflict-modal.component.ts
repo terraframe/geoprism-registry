@@ -5,10 +5,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { ScheduledJobOverview } from "@registry/model/registry";
 
-import { RegistryService, IOService } from "@registry/service";
-
 import { ErrorHandler } from "@shared/component";
-import { LocalizationService } from "@shared/service";
 
 @Component({
     selector: "job-conflict-modal",
@@ -29,7 +26,7 @@ export class JobConflictModalComponent implements OnInit {
     readonly: boolean = false;
     edit: boolean = false;
 
-    constructor(private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef) {
+    constructor(public bsModalRef: BsModalRef) {
         this.onConflictAction = new Subject();
     }
 

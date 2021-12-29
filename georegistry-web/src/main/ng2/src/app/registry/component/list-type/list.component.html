@@ -49,7 +49,21 @@
         </div>
 
         <div class="row form-group">
-            <div class="col-md-12">
+            <div class="col-md-4">
+                <div *ngIf="list.working && isWritable" class="button-holder pull-left">
+                    <span style="vertical-align:middle;display:inline-block;">
+
+                        Date of last validation
+                        : <span class="date-string-display">
+                            {{list.curation.lastDate != null ? formatDate(list.curation.lastDate) : 'N/A'}}
+                        </span>
+                    </span>
+                    <button type="submit" class="btn btn-primary" role="button" (click)="onRunCuration()">
+                        Run Curation
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-8">
                 <div class="button-holder pull-right">
 
                     <span *ngIf="isWritable" class="clickable" style="vertical-align:middle;display:inline-block;">
@@ -75,32 +89,11 @@
                         <localize key="masterlist.viewOnMap"></localize>
                     </button>
 
-                    <!--
-
                     <button *ngIf="list.working && isWritable && !list.isAbstract" type="submit"
                         [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, !isWritable, list.forDate, (!isWritable || list.isAbstract), '__NEW__', 'ML' + (isPublished ? 'T' : 'F') + list.oid]"
                         routerLinkActive="active" class="btn btn-primary" role="button">
                         <localize key="masterlist.newGeoObject"></localize>
                     </button>
-
-                    <span class="dropdown" *ngIf="list.working && isWritable && list.isAbstract">
-                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            <localize key="masterlist.newGeoObject"></localize>
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li>
-                                <localize style="padding-left:10px;" key="masterlist.newGeoObject.selectASubtype">
-                                </localize>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li *ngFor="let subtype of list.subtypes"><a
-                                    [routerLink]="['/registry/dataset-location-manager', list.oid, subtype.code, !isWritable, list.forDate, (!isWritable || list.isAbstract), '__NEW__', 'ML' + (isPublished ? 'T' : 'F') + list.oid]"
-                                    routerLinkActive="active">{{subtype.label}}</a></li>
-                        </ul>
-                    </span>
--->
 
                     <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
                         <localize *ngIf="filter.length === 0" key="io.export.allrows"></localize>

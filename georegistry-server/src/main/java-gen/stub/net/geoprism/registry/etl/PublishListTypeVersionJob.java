@@ -19,7 +19,7 @@ public class PublishListTypeVersionJob extends PublishListTypeVersionJobBase
   
 
   @Override
-  public JsonObject toJson()
+  public JsonObject toJSON()
   {
     return this.getVersion().toJSON(false);
   }

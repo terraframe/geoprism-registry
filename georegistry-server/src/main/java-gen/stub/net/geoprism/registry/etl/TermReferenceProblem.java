@@ -52,9 +52,9 @@ public class TermReferenceProblem extends TermReferenceProblemBase
   }
 
   @Override
-  public JsonObject toJson()
+  public JsonObject toJSON()
   {
-    JsonObject object = super.toJson();
+    JsonObject object = super.toJSON();
     
     object.addProperty("label", this.getLabel());
     object.addProperty("parentCode", this.getParentCode());

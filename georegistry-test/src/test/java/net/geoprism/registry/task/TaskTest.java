@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.task;
 
@@ -30,8 +30,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -39,6 +37,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
@@ -224,13 +224,13 @@ public class TaskTest
     }
   }
 
-  private JSONObject getTaskByName(String name, JSONArray array)
+  private JsonObject getTaskByName(String name, JsonArray array)
   {
-    for (int i = 0; i < array.length(); ++i)
+    for (int i = 0; i < array.size(); ++i)
     {
-      JSONObject jo = array.getJSONObject(i);
+      JsonObject jo = array.get(i).getAsJsonObject();
 
-      if (jo.getString("templateKey").equals(name))
+      if (jo.get("templateKey").getAsString().equals(name))
       {
         return jo;
       }
@@ -254,43 +254,43 @@ public class TaskTest
 
     createInstanceData(chineseSession.getSessionId());
 
-    JSONObject chinaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONArray("results"));
-    Assert.assertNotNull(chinaJO.getString("id"));
-    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.getString("status"));
+    JsonObject chinaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).get("resultSet").getAsJsonArray());
+    Assert.assertNotNull(chinaJO.get("id").getAsString());
+    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.get("status").getAsString());
     // Assert.assertTrue(dateMin.before(parseDate(chinaJO.getString("createDate"))));
     // Assert.assertTrue(dateMax.after(parseDate(chinaJO.getString("createDate"))));
-    Assert.assertTrue(chinaJO.isNull("completedDate"));
-    Assert.assertEquals("区 D1 Chinese已拆分。 您必须将孩子重新分配给新父母。", chinaJO.getString("msg"));
-    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CHINESE), chinaJO.getString("title"));
+    Assert.assertTrue(chinaJO.get("completedDate").isJsonNull());
+    Assert.assertEquals("区 D1 Chinese已拆分。 您必须将孩子重新分配给新父母。", chinaJO.get("msg").getAsString());
+    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CHINESE), chinaJO.get("title").getAsString());
 
     System.out.println(chinaJO);
 
-    JSONObject koreaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(koreanSession.getSessionId()).getJSONArray("results"));
-    Assert.assertNotNull(koreaJO.getString("id"));
-    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), koreaJO.getString("status"));
+    JsonObject koreaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(koreanSession.getSessionId()).get("resultSet").getAsJsonArray());
+    Assert.assertNotNull(koreaJO.get("id").getAsString());
+    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), koreaJO.get("status").getAsString());
     // Assert.assertTrue(dateMin.before(parseDate(koreaJO.getString("createDate"))));
     // Assert.assertTrue(dateMax.after(parseDate(koreaJO.getString("createDate"))));
-    Assert.assertTrue(koreaJO.isNull("completedDate"));
-    Assert.assertEquals("지구 D1 Korean이 (가) 분할되었습니다. 새 부모에게 자녀를 재 할당해야합니다.", koreaJO.getString("msg"));
-    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.KOREAN), koreaJO.getString("title"));
+    Assert.assertTrue(koreaJO.get("completedDate").isJsonNull());
+    Assert.assertEquals("지구 D1 Korean이 (가) 분할되었습니다. 새 부모에게 자녀를 재 할당해야합니다.", koreaJO.get("msg").getAsString());
+    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.KOREAN), koreaJO.get("title").getAsString());
 
-    JSONObject canadaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(canadaSession.getSessionId()).getJSONArray("results"));
-    Assert.assertNotNull(canadaJO.getString("id"));
-    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), canadaJO.getString("status"));
+    JsonObject canadaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(canadaSession.getSessionId()).get("resultSet").getAsJsonArray());
+    Assert.assertNotNull(canadaJO.get("id").getAsString());
+    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), canadaJO.get("status").getAsString());
     // Assert.assertTrue(dateMin.before(parseDate(canadaJO.getString("createDate"))));
     // Assert.assertTrue(dateMax.after(parseDate(canadaJO.getString("createDate"))));
-    Assert.assertTrue(canadaJO.isNull("completedDate"));
-    Assert.assertEquals("Oh no! The district eh D1 Canada has split. You must reassign the children with new parents eh.", canadaJO.getString("msg"));
-    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CANADA), canadaJO.getString("title"));
+    Assert.assertTrue(canadaJO.get("completedDate").isJsonNull());
+    Assert.assertEquals("Oh no! The district eh D1 Canada has split. You must reassign the children with new parents eh.", canadaJO.get("msg").getAsString());
+    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CANADA), canadaJO.get("title").getAsString());
 
-    JSONObject italianJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(italianSession.getSessionId()).getJSONArray("results"));
-    Assert.assertNotNull(italianJO.getString("id"));
-    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), italianJO.getString("status"));
+    JsonObject italianJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(italianSession.getSessionId()).get("resultSet").getAsJsonArray());
+    Assert.assertNotNull(italianJO.get("id").getAsString());
+    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), italianJO.get("status").getAsString());
     // Assert.assertTrue(dateMin.before(parseDate(italianJO.getString("createDate"))));
     // Assert.assertTrue(dateMax.after(parseDate(italianJO.getString("createDate"))));
-    Assert.assertTrue(italianJO.isNull("completedDate"));
-    Assert.assertEquals("The district D1 has split. You must reassign the children with new parents.", italianJO.getString("msg"));
-    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(MdAttributeLocalInfo.DEFAULT_LOCALE), italianJO.getString("title"));
+    Assert.assertTrue(italianJO.get("completedDate").isJsonNull());
+    Assert.assertEquals("The district D1 has split. You must reassign the children with new parents.", italianJO.get("msg").getAsString());
+    Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(MdAttributeLocalInfo.DEFAULT_LOCALE), italianJO.get("title").getAsString());
   }
 
   @Test
@@ -308,14 +308,14 @@ public class TaskTest
 
     createInstanceData(chineseSession.getSessionId());
 
-    JSONObject chinaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONArray("results"));
-    Assert.assertTrue(chinaJO.isNull("completedDate"));
-    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.getString("status"));
+    JsonObject chinaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).get("resultSet").getAsJsonArray());
+    Assert.assertTrue(chinaJO.get("completedDate").isJsonNull());
+    Assert.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.get("status").getAsString());
 
-    TaskService.completeTask(chineseSession.getSessionId(), chinaJO.getString("id"));
-    JSONObject chinaJO2 = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONArray("results"));
+    TaskService.completeTask(chineseSession.getSessionId(), chinaJO.get("id").getAsString());
+    JsonObject chinaJO2 = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).get("resultSet").getAsJsonArray());
 
-    Task t = Task.get(chinaJO2.getString("id"));
+    Task t = Task.get(chinaJO2.get("id").getAsString());
     Assert.assertEquals(TaskStatus.RESOLVED.name(), t.getStatus());
 
     // Assert.assertTrue(dateMin.before(parseDate(chinaJO2.getString("completedDate"))));
@@ -328,13 +328,13 @@ public class TaskTest
   {
     createInstanceData(chineseSession.getSessionId());
 
-    JSONObject chinaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONArray("results"));
+    JsonObject chinaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).get("resultSet").getAsJsonArray());
 
-    TaskService.deleteTask(chineseSession.getSessionId(), chinaJO.getString("id"));
+    TaskService.deleteTask(chineseSession.getSessionId(), chinaJO.get("id").getAsString());
 
     try
     {
-      Task.get(chinaJO.getString("id"));
+      Task.get(chinaJO.get("id").getAsString());
       Assert.fail();
     }
     catch (DataNotFoundException e)

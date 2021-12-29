@@ -1,6 +1,6 @@
 /* eslint-disable no-use-before-define */
 /* eslint-disable padded-blocks */
-import { LocalizedValue } from "@shared/model/core";
+import { LocalizedValue, PageResult } from "@shared/model/core";
 import { LocalizationService } from "@shared/service";
 import { ImportConfiguration } from "./io";
 import { GovernanceStatus, ConflictType } from "./constants";
@@ -270,13 +270,6 @@ export class ManageGeoObjectTypeModalState {
     termOption: any;
 }
 
-export class PaginationPage {
-    pageNumber: number;
-    count: number;
-    pageSize: number;
-    results: any[];
-}
-
 export class AbstractScheduledJob {
     jobId: string;
     historyId: string;
@@ -295,9 +288,9 @@ export class ScheduledJob extends AbstractScheduledJob {
     importedRecords: number;
     exportedRecords: number;
     configuration: ImportConfiguration;
-    importErrors: PaginationPage;
-    exportErrors: PaginationPage;
-    problems: PaginationPage;
+    importErrors: PageResult<any>;
+    exportErrors: PageResult<any>;
+    problems: PageResult<any>;
     fileName: string;
 }
 

@@ -164,7 +164,7 @@ public class CurationTest
         Assert.assertTrue(page.has("count"));
         Assert.assertTrue(page.has("pageNumber"));
         Assert.assertTrue(page.has("pageSize"));
-        Assert.assertTrue(page.has("results"));
+        Assert.assertTrue(page.has("resultSet"));
         
         Assert.assertEquals(AllJobStatus.RUNNING.name(), details.get("status").getAsString());
         Assert.assertEquals(GeoRegistryUtil.formatDate(history.getCreateDate(), false), details.get("lastRun").getAsString());
@@ -214,8 +214,8 @@ public class CurationTest
         Assert.assertEquals(10, page.get("pageSize").getAsInt());
         Assert.assertEquals(1, page.get("count").getAsInt());
         
-        Assert.assertTrue(page.has("results"));
-        JsonArray results = page.get("results").getAsJsonArray();
+        Assert.assertTrue(page.has("resultSet"));
+        JsonArray results = page.get("resultSet").getAsJsonArray();
         Assert.assertEquals(1, results.size());
         
         for (int i = 0; i < results.size(); ++i)

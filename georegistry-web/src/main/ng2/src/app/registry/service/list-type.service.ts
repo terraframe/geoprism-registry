@@ -6,7 +6,8 @@ import { EventService } from "@shared/service";
 import { ContextList, LayerRecord, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
 import { Observable } from "rxjs";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/registry"; import { PageResult } from "@shared/model/core";
+declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class ListTypeService {
@@ -267,6 +268,39 @@ export class ListTypeService {
 
         return this.http
             .get<number[]>(registry.contextPath + "/list-type/bounds", { params: params })
+            .toPromise();
+    }
+
+    getCurationInfo(version: ListTypeVersion, onlyUnresolved: boolean, pageNumber: number, pageSize: number): Promise<PageResult<any>> {
+
+        let params: HttpParams = new HttpParams();
+        params = params.set("historyId", version.curation.curationId);
+        params = params.set("onlyUnresolved", onlyUnresolved.toString());
+        params = params.set("pageSize", pageSize.toString());
+        params = params.set("pageNumber", pageNumber.toString());
+
+        this.eventService.start();
+
+
+        return this.http.get<PageResult<any>>(registry.contextPath + "/curation/details", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+    createCurationJob(version: ListTypeVersion): Promise<any> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return this.http
+            .post<any>(registry.contextPath + "/curation/apply", JSON.stringify({ oid: version.oid }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
             .toPromise();
     }
 

@@ -56,9 +56,9 @@ public class RowValidationProblem extends RowValidationProblemBase
   }
 
   @Override
-  public JsonObject toJson()
+  public JsonObject toJSON()
   {
-    JsonObject object = super.toJson();
+    JsonObject object = super.toJSON();
     
     JsonObject errJson = JsonParser.parseString(this.getExceptionJson()).getAsJsonObject();
     

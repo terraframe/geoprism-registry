@@ -63,9 +63,9 @@ public class ParentReferenceProblem extends ParentReferenceProblemBase
   }
 
   @Override
-  public JsonObject toJson()
+  public JsonObject toJSON()
   {
-    JsonObject object = super.toJson();
+    JsonObject object = super.toJSON();
     
     ServerGeoObjectType type = ServerGeoObjectType.get(this.getTypeCode());
     

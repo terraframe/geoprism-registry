@@ -349,10 +349,6 @@ export class ListComponent implements OnInit, OnDestroy {
         event.preventDefault();
     }
 
-    error(err: HttpErrorResponse): void {
-        this.message = ErrorHandler.getMessageFromError(err);
-    }
-
     onGotoMap(result: any): void {
 
         const params: any = { layers: JSON.stringify([this.list.oid]) };
@@ -365,5 +361,13 @@ export class ListComponent implements OnInit, OnDestroy {
         this.router.navigate(['/registry/location-manager'], {
             queryParams: params,
         });
+    }
+    
+    onRunCuration(): void {
+    }
+
+
+    error(err: HttpErrorResponse): void {
+        this.message = ErrorHandler.getMessageFromError(err);
     }
 }

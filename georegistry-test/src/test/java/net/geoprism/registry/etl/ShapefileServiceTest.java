@@ -754,7 +754,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
     JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
-    JSONArray results = page.getJSONArray("results");
+    JSONArray results = page.getJSONArray("resultSet");
     Assert.assertEquals(1, results.length());
 
     // Ensure the geo objects were not created
@@ -834,7 +834,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
     JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
-    JSONArray results = page.getJSONArray("results");
+    JSONArray results = page.getJSONArray("resultSet");
     Assert.assertEquals(1, results.length());
 
     // Assert the values of the problem
@@ -983,7 +983,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
     JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
-    JSONArray results = page.getJSONArray("results");
+    JSONArray results = page.getJSONArray("resultSet");
     Assert.assertEquals(1, results.length());
 
     // Ensure the geo objects were not created
@@ -1036,7 +1036,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(1, parents.size());
 
     JSONObject page2 = new JSONObject(new ETLService().getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
-    JSONArray results2 = page2.getJSONArray("results");
+    JSONArray results2 = page2.getJSONArray("resultSet");
     Assert.assertEquals(0, results2.length());
     Assert.assertEquals(0, page2.getInt("count"));
   }
@@ -1173,7 +1173,7 @@ public class ShapefileServiceTest
 
     JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
 
-    Assert.assertEquals(0, json.getJSONArray("results").length());
+    Assert.assertEquals(0, json.getJSONArray("resultSet").length());
   }
 
   @Test

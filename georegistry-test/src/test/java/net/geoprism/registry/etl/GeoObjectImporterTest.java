@@ -281,7 +281,7 @@ public class GeoObjectImporterTest
 
     JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
 
-    Assert.assertEquals(0, json.getJSONArray("results").length());
+    Assert.assertEquals(0, json.getJSONArray("resultSet").length());
   }
 
   @Test
@@ -336,7 +336,7 @@ public class GeoObjectImporterTest
 
     JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
 
-    Assert.assertEquals(2, json.getJSONArray("results").length());
+    Assert.assertEquals(2, json.getJSONArray("resultSet").length());
   }
   
   /**
@@ -385,7 +385,7 @@ public class GeoObjectImporterTest
 
     JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist2.getOid(), false, 100, 1).toString());
 
-    Assert.assertEquals(10, json.getJSONArray("results").length());
+    Assert.assertEquals(10, json.getJSONArray("resultSet").length());
   }
 
   @Test
@@ -444,7 +444,7 @@ public class GeoObjectImporterTest
 
     JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
 
-    Assert.assertEquals(1, json.getJSONArray("results").length());
+    Assert.assertEquals(1, json.getJSONArray("resultSet").length());
   }
   
   @Test
@@ -477,7 +477,7 @@ public class GeoObjectImporterTest
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
     JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
-    JSONArray errors = json.getJSONArray("results");
+    JSONArray errors = json.getJSONArray("resultSet");
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(2), hist.getWorkTotal());
@@ -589,7 +589,7 @@ public class GeoObjectImporterTest
     Assert.assertEquals(format.format(endDate), jo.getJSONObject("configuration").getString("endDate"));
 
     JSONObject importErrors = jo.getJSONObject("importErrors");
-    JSONArray results = importErrors.getJSONArray("results");
+    JSONArray results = importErrors.getJSONArray("resultSet");
 
     Assert.assertEquals(1, results.length());
   }

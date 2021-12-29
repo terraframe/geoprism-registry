@@ -115,6 +115,7 @@ import { PublishVersionComponent } from "./component/list-type/publish-version.c
 import { ExportFormatModalComponent } from "./component/list-type/export-format-modal.component";
 import { RecordPanelComponent } from "./component/location-manager/record-panel.component";
 import { SelectTypeModalComponent } from "./component/location-manager/select-type-modal.component";
+import { CurationJobComponent } from "./component/curation/curation-job.component";
 
 @NgModule({
     imports: [
@@ -221,7 +222,9 @@ import { SelectTypeModalComponent } from "./component/location-manager/select-ty
         ListsForTypeComponent,
         ListTypeComponent,
         ListComponent,
-        PublishVersionComponent
+        PublishVersionComponent,
+        // Curation
+        CurationJobComponent
     ],
     providers: [
         MapService,

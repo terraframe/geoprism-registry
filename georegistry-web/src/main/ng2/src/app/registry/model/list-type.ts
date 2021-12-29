@@ -143,6 +143,7 @@ export class ListTypeVersion extends ListVersionMetadata {
     versionNumber: number;
     subtypes?: { label: string, code: string }[];
     collapsed?: boolean;
+    curation?:any;
 }
 
 export class ContextLayer {

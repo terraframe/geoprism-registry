@@ -812,7 +812,7 @@ public class ExcelServiceTest
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
     JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
-    JSONArray results = page.getJSONArray("results");
+    JSONArray results = page.getJSONArray("resultSet");
     Assert.assertEquals(1, results.length());
 
     // Ensure the geo objects were not created
@@ -927,7 +927,7 @@ public class ExcelServiceTest
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
     JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
-    JSONArray results = page.getJSONArray("results");
+    JSONArray results = page.getJSONArray("resultSet");
     Assert.assertEquals(1, results.length());
 
     // Assert the values of the problem
@@ -1024,7 +1024,7 @@ public class ExcelServiceTest
 
     JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
 
-    Assert.assertEquals(0, json.getJSONArray("results").length());
+    Assert.assertEquals(0, json.getJSONArray("resultSet").length());
   }
 
   private JSONObject getTestConfiguration(InputStream istream, ExcelService service, AttributeType attributeTerm, ImportStrategy strategy)

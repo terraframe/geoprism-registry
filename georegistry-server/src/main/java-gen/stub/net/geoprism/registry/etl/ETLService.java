@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -23,7 +23,9 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
@@ -69,6 +71,8 @@ import net.geoprism.registry.service.GeoSynonymService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.view.JsonWrapper;
+import net.geoprism.registry.view.Page;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class ETLService
@@ -297,33 +301,22 @@ public class ETLService
     ihq.restrictRows(pageSize, pageNumber);
     ihq.ORDER_BY(ihq.get(sortAttr), isAscending ? SortOrder.ASC : SortOrder.DESC);
 
-    JsonObject page = new JsonObject();
-    page.addProperty("count", ihq.getCount());
-    page.addProperty("pageNumber", ihq.getPageNumber());
-    page.addProperty("pageSize", ihq.getPageSize());
-
-    OIterator<? extends ImportHistory> it = ihq.getIterator();
-
-    while (it.hasNext())
+    try (OIterator<? extends ImportHistory> it = ihq.getIterator())
     {
-      ImportHistory hist = it.next();
-      DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
+      List<JsonWrapper> results = it.getAll().stream().map(hist -> {
+        DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
+        GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
 
-      GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
+        return new JsonWrapper(serializeHistory(hist, user, job));
+      }).collect(Collectors.toList());
 
-      ja.add(serializeHistory(hist, user, job));
+      return new Page<JsonWrapper>(ihq.getCount(), ihq.getPageNumber(), ihq.getPageSize(), results).toJSON();
     }
-
-    page.add("results", ja);
-
-    return page;
   }
 
   @Request(RequestType.SESSION)
   public JsonObject getCompletedImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
-    JsonArray ja = new JsonArray();
-
     QueryFactory qf = new QueryFactory();
     ImportHistoryQuery ihq = new ImportHistoryQuery(qf);
     ihq.WHERE(ihq.getStatus().containsExactly(AllJobStatus.SUCCESS).OR(ihq.getStatus().containsExactly(AllJobStatus.FAILURE)).OR(ihq.getStatus().containsExactly(AllJobStatus.CANCELED)));
@@ -333,26 +326,17 @@ public class ETLService
     ihq.restrictRows(pageSize, pageNumber);
     ihq.ORDER_BY(ihq.get(sortAttr), isAscending ? SortOrder.ASC : SortOrder.DESC);
 
-    JsonObject page = new JsonObject();
-    page.addProperty("count", ihq.getCount());
-    page.addProperty("pageNumber", ihq.getPageNumber());
-    page.addProperty("pageSize", ihq.getPageSize());
-
-    OIterator<? extends ImportHistory> it = ihq.getIterator();
-
-    while (it.hasNext())
+    try (OIterator<? extends ImportHistory> it = ihq.getIterator())
     {
-      ImportHistory hist = it.next();
-      DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
+      List<JsonWrapper> results = it.getAll().stream().map(hist -> {
+        DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
+        GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
 
-      GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
+        return new JsonWrapper(serializeHistory(hist, user, job));
+      }).collect(Collectors.toList());
 
-      ja.add(serializeHistory(hist, user, job));
+      return new Page<JsonWrapper>(ihq.getCount(), ihq.getPageNumber(), ihq.getPageSize(), results).toJSON();
     }
-
-    page.add("results", ja);
-
-    return page;
   }
 
   public static String formatDate(Date date)
@@ -432,24 +416,13 @@ public class ETLService
 
     query.restrictRows(pageSize, pageNumber);
 
-    JsonObject page = new JsonObject();
-    page.addProperty("count", query.getCount());
-    page.addProperty("pageNumber", query.getPageNumber());
-    page.addProperty("pageSize", query.getPageSize());
-
-    JsonArray ja = new JsonArray();
-
-    OIterator<? extends ImportError> it = query.getIterator();
-    while (it.hasNext())
+    try (OIterator<? extends ImportError> it = query.getIterator())
     {
-      ImportError err = it.next();
+      List<ImportError> results = new LinkedList<>(it.getAll());
 
-      ja.add(err.toJson());
+      return new Page<ImportError>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
     }
 
-    page.add("results", ja);
-
-    return page;
   }
 
   @Request(RequestType.SESSION)
@@ -468,31 +441,12 @@ public class ETLService
       vpq.WHERE(vpq.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
     }
 
-    JsonObject page = new JsonObject();
-    page.addProperty("count", vpq.getCount());
-    page.addProperty("pageNumber", vpq.getPageNumber());
-    page.addProperty("pageSize", vpq.getPageSize());
-
-    JsonArray jaVP = new JsonArray();
-
-    OIterator<? extends ValidationProblem> it = vpq.getIterator();
-    try
+    try (OIterator<? extends ValidationProblem> it = vpq.getIterator())
     {
-      while (it.hasNext())
-      {
-        ValidationProblem vp = it.next();
+      List<ValidationProblem> results = new LinkedList<>(it.getAll());
 
-        jaVP.add(vp.toJson());
-      }
+      return new Page<ValidationProblem>(vpq.getCount(), vpq.getPageNumber(), vpq.getPageSize(), results).toJSON();
     }
-    finally
-    {
-      it.close();
-    }
-
-    page.add("results", jaVP);
-
-    return page;
   }
 
   @Request(RequestType.SESSION)
@@ -508,22 +462,12 @@ public class ETLService
 
     query.restrictRows(pageSize, pageNumber);
 
-    JsonObject page = new JsonObject();
-    page.addProperty("count", query.getCount());
-    page.addProperty("pageNumber", query.getPageNumber());
-    page.addProperty("pageSize", query.getPageSize());
-
-    OIterator<? extends ExportError> it = query.getIterator();
-    while (it.hasNext())
+    try (OIterator<? extends ExportError> it = query.getIterator())
     {
-      ExportError err = it.next();
+      List<ExportError> results = new LinkedList<>(it.getAll());
 
-      ja.add(err.toJson());
+      return new Page<ExportError>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
     }
-
-    page.add("results", ja);
-
-    return page;
   }
 
   // @Request(RequestType.SESSION)
@@ -693,14 +637,14 @@ public class ETLService
       String parentTreeNode = config.get("parentTreeNode").toString();
       String geoObject = config.get("geoObject").toString();
       Boolean isNew = config.get("isNew").getAsBoolean();
-      
+
       GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), geoObject);
 
       if (isNew)
       {
         go.setUid(RegistryIdService.getInstance().next());
         geoObject = go.toJSON().toString();
-        
+
         new ServerGeoObjectService().createGeoObject(sessionId, parentTreeNode, geoObject, null, null);
       }
       else

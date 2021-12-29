@@ -4,21 +4,23 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.curation;
 
-import com.google.gson.JsonArray;
+import java.util.LinkedList;
+import java.util.List;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.query.OIterator;
@@ -40,6 +42,7 @@ import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.view.Page;
 
 public class CurationService
 {
@@ -48,42 +51,42 @@ public class CurationService
     final ListType listType = version.getListType();
     final ServerGeoObjectType serverGOT = listType.getGeoObjectType();
     final String orgCode = listType.getOrganization().getCode();
-    
+
     this.checkPermissions(orgCode, serverGOT);
-    
+
     JsonObject json = new JsonObject();
-    
+
     ListCurationHistory history = ListCurationJob.getMostRecent(version.getOid());
-    
+
     boolean isRunning = false;
-    
+
     if (history != null)
     {
       if (history.getStatus().contains(AllJobStatus.RUNNING))
       {
         isRunning = true;
-        
+
         Progress progress = ProgressService.get(history.getOid());
-        
+
         if (progress != null)
         {
           json.add("progress", progress.toJson());
         }
       }
-      
+
       json.addProperty("lastRun", GeoRegistryUtil.formatDate(history.getCreateDate(), false));
-      
+
       json.addProperty("curationId", history.getOid());
     }
-    
+
     final RolePermissionService perms = ServiceFactory.getRolePermissionService();
     boolean hasRunPermission = perms.isSRA() || perms.isRA(orgCode) || perms.isRM(orgCode, serverGOT);
-    
+
     json.addProperty("canRun", !isRunning && hasRunPermission);
-    
+
     return json;
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject details(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
@@ -94,7 +97,7 @@ public class CurationService
     final GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
     final ServerGeoObjectType serverGOT = listType.getGeoObjectType();
     final String orgCode = listType.getOrganization().getCode();
-    
+
     this.checkPermissions(orgCode, serverGOT);
 
     JsonObject jo = this.serializeHistory(hist, user, job);
@@ -103,7 +106,7 @@ public class CurationService
 
     return jo;
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject page(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
@@ -112,9 +115,9 @@ public class CurationService
     final ListType listType = version.getListType();
     final ServerGeoObjectType serverGOT = listType.getGeoObjectType();
     final String orgCode = listType.getOrganization().getCode();
-    
+
     this.checkPermissions(orgCode, serverGOT);
-    
+
     CurationProblemQuery query = new CurationProblemQuery(new QueryFactory());
 
     query.WHERE(query.getHistory().EQ(historyId));
@@ -128,26 +131,14 @@ public class CurationService
 
     query.restrictRows(pageSize, pageNumber);
 
-    JsonObject page = new JsonObject();
-    page.addProperty("count", query.getCount());
-    page.addProperty("pageNumber", query.getPageNumber());
-    page.addProperty("pageSize", query.getPageSize());
-
-    JsonArray ja = new JsonArray();
-
-    OIterator<? extends CurationProblem> it = query.getIterator();
-    while (it.hasNext())
+    try (OIterator<? extends CurationProblem> it = query.getIterator())
     {
-      CurationProblem err = it.next();
+      List<CurationProblem> results = new LinkedList<>(it.getAll());
 
-      ja.add(err.toJson());
+      return new Page<CurationProblem>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
     }
-
-    page.add("results", ja);
-
-    return page;
   }
-  
+
   protected JsonObject serializeHistory(ListCurationHistory hist, GeoprismUser user, ExecutableJob job)
   {
     JsonObject jo = new JsonObject();
@@ -170,7 +161,7 @@ public class CurationService
 
     return jo;
   }
-  
+
   private void checkPermissions(String orgCode, ServerGeoObjectType type)
   {
     RolePermissionService perms = ServiceFactory.getRolePermissionService();
