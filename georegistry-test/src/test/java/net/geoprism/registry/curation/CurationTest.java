@@ -148,7 +148,6 @@ public class CurationTest
     
     curationProblem = new GeoObjectProblem();
     curationProblem.setHistory(history);
-    curationProblem.setAffectedRows("1");
     curationProblem.setResolution(CurationResolution.UNRESOLVED.name());
     curationProblem.setProblemType(GeoObjectProblemType.NO_GEOMETRY.name());
     curationProblem.setTypeCode(FastTestDataset.PROVINCE.getCode());
@@ -232,7 +231,6 @@ public class CurationTest
         for (int i = 0; i < results.size(); ++i)
         {
           JsonObject problem = results.get(0).getAsJsonObject();
-          Assert.assertEquals("1", problem.get("affectedRows").getAsString());
           Assert.assertEquals(historyId, problem.get("historyId").getAsString());
           Assert.assertEquals(CurationResolution.UNRESOLVED.name(), problem.get("resolution").getAsString());
           Assert.assertEquals(GeoObjectProblemType.NO_GEOMETRY.name(), problem.get("type").getAsString());
@@ -299,7 +297,6 @@ public class CurationTest
     
     CurationProblem problem = problems.get(0);
     
-    Assert.assertTrue(problem.getAffectedRows() != null && problem.getAffectedRows() != "");
     Assert.assertEquals(CurationResolution.UNRESOLVED.name(), problem.getResolution());
     Assert.assertEquals(GeoObjectProblemType.NO_GEOMETRY.name(), problem.getProblemType());
     
@@ -337,7 +334,7 @@ public class CurationTest
       
       JsonObject page = controller.page(joHistory.get("historyId").getAsString(), false, 10, 1);
       
-      JsonArray results = page.get("results").getAsJsonArray();
+      JsonArray results = page.get("resultSet").getAsJsonArray();
       
       Assert.assertEquals(1, results.size());
       
@@ -345,7 +342,6 @@ public class CurationTest
       {
         JsonObject problem = results.get(i).getAsJsonObject();
         
-        Assert.assertTrue(problem.get("affectedRows").getAsString() != null && problem.get("affectedRows").getAsString() != "");
         Assert.assertEquals(joHistory.get("historyId").getAsString(), problem.get("historyId").getAsString());
         Assert.assertEquals(CurationResolution.UNRESOLVED.name(), problem.get("resolution").getAsString());
         Assert.assertEquals(GeoObjectProblemType.NO_GEOMETRY.name(), problem.get("type").getAsString());

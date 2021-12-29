@@ -108,7 +108,7 @@ public class ListCurationJob extends ListCurationJobBase
     history.addStatus(AllJobStatus.NEW);
     history.apply();
 
-//    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
 
     return history;
   }

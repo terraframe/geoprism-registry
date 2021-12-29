@@ -56,7 +56,6 @@ public class ListCurator
         {
           GeoObjectProblem problem = new GeoObjectProblem();
           problem.setHistory(history);
-          problem.setAffectedRows(String.valueOf(history.getWorkProgress() + 1));
           problem.setResolution(CurationResolution.UNRESOLVED.name());
           problem.setProblemType(GeoObjectProblemType.NO_GEOMETRY.name());
           problem.setTypeCode(type.getCode());

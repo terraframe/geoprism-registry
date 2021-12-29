@@ -128,7 +128,7 @@ public class CurationService
       query.WHERE(query.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
     }
 
-    query.ORDER_BY(query.getAffectedRows(), SortOrder.ASC);
+    query.ORDER_BY(query.getProblemType(), SortOrder.ASC);
 
     query.restrictRows(pageSize, pageNumber);
 
@@ -168,6 +168,8 @@ public class CurationService
     jo.addProperty("lastRunBy", user.getUsername());
     jo.addProperty("historyId", hist.getOid());
     jo.addProperty("jobId", job.getOid());
+    jo.addProperty("workProgres", hist.getWorkProgress());
+    jo.addProperty("workTotal", hist.getWorkTotal());
 
     if (hist.getStatus().get(0).equals(AllJobStatus.FAILURE) && hist.getErrorJson().length() > 0)
     {

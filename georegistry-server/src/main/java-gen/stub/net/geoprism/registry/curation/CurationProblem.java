@@ -21,7 +21,6 @@ public class CurationProblem extends CurationProblemBase implements JsonSerializ
   {
     JsonObject json = new JsonObject();
 
-    json.addProperty("affectedRows", this.getAffectedRows());
     json.addProperty("resolution", this.getResolution());
     json.addProperty("historyId", this.getHistory().getOid());
     json.addProperty("type", this.getProblemType());
