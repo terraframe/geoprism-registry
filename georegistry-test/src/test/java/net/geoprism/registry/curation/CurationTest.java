@@ -317,40 +317,69 @@ public class CurationTest
     final TestGeoObjectInfo noGeomGo = (TestGeoObjectInfo) setup[0];
     final String listTypeVersionId = (String) setup[1];
     
-    FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request, adapter) -> {
-      
-      final CurationControllerWrapper controller = new CurationControllerWrapper(adapter, request);
-      
-      JsonObject joHistory = controller.curate(listTypeVersionId);
-      
-      try
-      {
-        waitUntilSuccess(joHistory);
-      }
-      catch (Throwable e)
-      {
-        throw new RuntimeException(e);
-      }
-      
-      JsonObject page = controller.page(joHistory.get("historyId").getAsString(), false, 10, 1);
-      
-      JsonArray results = page.get("resultSet").getAsJsonArray();
-      
-      Assert.assertEquals(1, results.size());
-      
-      for (int i = 0; i < results.size(); ++i)
-      {
-        JsonObject problem = results.get(i).getAsJsonObject();
+    // Allowed Users
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM };
+
+    for (TestUserInfo user : allowedUsers)
+    {
+      FastTestDataset.runAsUser(user, (request, adapter) -> {
         
-        Assert.assertEquals(joHistory.get("historyId").getAsString(), problem.get("historyId").getAsString());
-        Assert.assertEquals(CurationResolution.UNRESOLVED.name(), problem.get("resolution").getAsString());
-        Assert.assertEquals(GeoObjectProblemType.NO_GEOMETRY.name(), problem.get("type").getAsString());
-        Assert.assertTrue(problem.get("id").getAsString() != null && problem.get("id").getAsString() != "");
-        Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), problem.get("typeCode").getAsString());
-        Assert.assertEquals(noGeomGo.getCode(), problem.get("goCode").getAsString());
-      }
-      
-    });
+        final CurationControllerWrapper controller = new CurationControllerWrapper(adapter, request);
+        
+        JsonObject joHistory = controller.curate(listTypeVersionId);
+        
+        try
+        {
+          waitUntilSuccess(joHistory);
+        }
+        catch (Throwable e)
+        {
+          throw new RuntimeException(e);
+        }
+        
+        JsonObject page = controller.page(joHistory.get("historyId").getAsString(), false, 10, 1);
+        
+        JsonArray results = page.get("resultSet").getAsJsonArray();
+        
+        Assert.assertEquals(1, results.size());
+        
+        for (int i = 0; i < results.size(); ++i)
+        {
+          JsonObject problem = results.get(i).getAsJsonObject();
+          
+          Assert.assertEquals(joHistory.get("historyId").getAsString(), problem.get("historyId").getAsString());
+          Assert.assertEquals(CurationResolution.UNRESOLVED.name(), problem.get("resolution").getAsString());
+          Assert.assertEquals(GeoObjectProblemType.NO_GEOMETRY.name(), problem.get("type").getAsString());
+          Assert.assertTrue(problem.get("id").getAsString() != null && problem.get("id").getAsString() != "");
+          Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), problem.get("typeCode").getAsString());
+          Assert.assertEquals(noGeomGo.getCode(), problem.get("goCode").getAsString());
+        }
+        
+      });
+    }
+    
+    // Disallowed Users
+    TestUserInfo[] disallowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM };
+
+    for (TestUserInfo user : disallowedUsers)
+    {
+      FastTestDataset.runAsUser(user, (request, adapter) -> {
+        
+        final CurationControllerWrapper controller = new CurationControllerWrapper(adapter, request);
+        
+        try
+        {
+          controller.curate(listTypeVersionId);
+          
+          Assert.fail("Expected to get an exception.");
+        }
+        catch (SmartExceptionDTO e)
+        {
+          Assert.assertTrue(OrganizationRAException.CLASS.equals(e.getType()) || OrganizationRMException.CLASS.equals(e.getType()));
+        }
+        
+      });
+    }
   }
   
   @Request
