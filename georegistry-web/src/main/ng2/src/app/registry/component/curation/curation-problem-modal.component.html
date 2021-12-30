@@ -7,12 +7,80 @@
         </h2>
     </div>
     <!-- <div class="col-md-12 order-md-1"> -->
-    <form #form="ngForm" class="modal-form">
+    <form #form="ngForm" class="modal-form" *ngIf="problem != null">
 
         <fieldset>
+
+            <div class="">
+                <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+
+                <!-- <div class="col-md-12 order-md-1"> -->
+
+                <!-- <div class="row">
             
-            <import-problem-widget (onProblemResolved)="onProblemResolvedListener(problem)" [problem]="problem" [job]="job"></import-problem-widget>
-            
+                    <h2>
+                        Review: {{job.fileName}} problem
+                    </h2>
+                </div> -->
+                <div *ngIf="problem && job" class="row" style="background: #F4F4F4;
+                                                    border-radius: 10px;
+                                                    margin-bottom: 20px;
+                                                    margin-top: 20px;
+                                                    padding: 10px;">
+                    <div class="col-md-6">
+                        <div class="wrapper">
+
+                            <i style="position: absolute;font-size: 55px;" class="fa fa-file" aria-hidden="true"></i>
+                            <p style="padding-left: 60px;">
+                                <span style="display: block;">
+                                    <localize key="importproblem.uploaded.by.label"></localize>: {{job.lastRunBy}}
+                                </span>
+                                <span style="display: block;">
+                                    <localize key="importproblem.started.date.label"></localize>:
+                                    <span class="date-string-display" style="margin-left:5px;">
+                                        {{formatDate(job.lastRun)}}
+                                    </span>
+                                </span>
+                            </p>
+
+                        </div>
+                    </div>
+                    <div class="col-md-6"></div>
+                </div>
+
+                <div class="row" style="background: #F4F4F4;
+                                        border-radius: 10px;
+                                        margin-bottom: 20px;
+                                        margin-top: 20px;
+                                        padding: 10px;">
+                    <div class="col-md-12">
+
+                        <div class="row equal" style="display: flex;display: -webkit-flex;flex-wrap: wrap;">
+                            <div class="col-md-6" style="padding-right: 5px;">
+                                <div style="background: white;border-radius: 10px;padding: 10px;height: 100%;">
+                                    <h4><strong>
+                                            <localize key="etl.problem.header.problem"></localize>
+                                        </strong></h4>
+                                    <p style="font-style: italic;">{{getFriendlyProblemType(problem.type)}}
+                                    </p>
+
+                                </div>
+                            </div>
+                            <div class="col-md-6" style="padding-left: 5px;">
+                                <div
+                                    style="background: white;border-radius: 10px;padding: 10px;height: 100%;text-align: center;">
+                                    <button style="width: 90%;" type="submit" (click)="onEditGeoObject()"
+                                        class="btn btn-primary" role="button">
+                                        <localize key="scheduledjobs.editGeoObject"></localize>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
             <div class="row-holder">
                 <!-- <div class="label-holder"></div> -->
                 <div class="">

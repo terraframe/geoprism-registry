@@ -18,6 +18,7 @@ import { JobConflictModalComponent } from "../scheduled-jobs/conflict-widgets/jo
 import { PageResult } from "@shared/model/core";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { CurationJob, CurationProblem, ListTypeVersion } from "@registry/model/list-type";
+import { CurationProblemModalComponent } from "./curation-problem-modal.component";
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -105,61 +106,21 @@ export class CurationJobComponent implements OnInit {
     }
 
     getFriendlyProblemType(probType: string): string {
-        if (probType === "net.geoprism.registry.io.ParentCodeException") {
-            return this.localizeService.decode("scheduledjobs.job.problem.type.parent.lookup");
-        }
-
-        if (probType === "net.geoprism.registry.io.PostalCodeLocationException") {
-            return this.localizeService.decode("scheduledjobs.job.problem.type.postal.code.lookup");
-        }
-
-        if (probType === "net.geoprism.registry.io.AmbiguousParentException") {
-            return this.localizeService.decode("scheduledjobs.job.problem.type.multi.parent.lookup");
-        }
-
-        if (probType === "net.geoprism.registry.io.InvalidGeometryException") {
-            return this.localizeService.decode("scheduledjobs.job.problem.type.invalid.geom.lookup");
-        }
-
-        if (probType === "net.geoprism.registry.DataNotFoundException") {
-            return this.localizeService.decode("scheduledjobs.job.problem.type.datanotfound");
-        }
-
-        if (probType === "net.geoprism.registry.geoobject.ImportOutOfRangeException") {
-            return this.localizeService.decode("scheduledjobs.job.problem.type.importOutOfRange");
-        }
-
-        if (
-            probType === "net.geoprism.registry.roles.CreateGeoObjectPermissionException" ||
-            probType === "net.geoprism.registry.roles.WriteGeoObjectPermissionException" ||
-            probType === "net.geoprism.registry.roles.DeleteGeoObjectPermissionException" ||
-            probType === "net.geoprism.registry.roles.ReadGeoObjectPermissionException"
-        ) {
-            return this.localizeService.decode("scheduledjobs.job.problem.type.permission");
-        }
-
-        // if(probType === "net.geoprism.registry.io.TermValueException"){
-        //   return this.localizeService.decode( "scheduledjobs.job.problem.type.postal.code.lookup" );
-        // }
-
-        if (
-            probType === "com.runwaysdk.dataaccess.DuplicateDataException" ||
-            probType === "net.geoprism.registry.DuplicateGeoObjectException" ||
-            probType === "net.geoprism.registry.DuplicateGeoObjectCodeException"
-        ) {
-            return this.localizeService.decode("scheduledjobs.job.problem.type.duplicate.data.lookup");
+        if (probType === "NO_GEOMETRY") {
+            // return this.localizeService.decode("scheduledjobs.job.problem.type.parent.lookup");
+            return 'Missing geometry';
         }
 
         return probType;
     }
 
     onEdit(problem: CurationProblem): void {
-        this.bsModalRef = this.modalService.show(JobConflictModalComponent, {
+        this.bsModalRef = this.modalService.show(CurationProblemModalComponent, {
             animated: true,
             backdrop: true,
             ignoreBackdropClick: true
         });
-        this.bsModalRef.content.init(problem, this.job, (result: any) => {
+        this.bsModalRef.content.init(this.version, problem, this.job, (result: any) => {
             if (result.action === "RESOLVED") {
                 this.onProblemResolved(result.data);
             }
@@ -181,14 +142,6 @@ export class CurationJobComponent implements OnInit {
                 this.error(err);
             });
         }
-    }
-
-    onViewAllActiveJobs(): void {
-
-    }
-
-    onViewAllCompleteJobs(): void {
-
     }
 
     toggleAll(): void {

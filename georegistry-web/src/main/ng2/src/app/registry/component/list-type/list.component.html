@@ -53,12 +53,12 @@
                 <div *ngIf="list.working && isWritable" class="button-holder pull-left">
                     <span style="vertical-align:middle;display:inline-block;">
                         Date of last validation :
-                        <span *ngIf="list.curation.lastDate == null" class="date-string-display">
+                        <span *ngIf="list.curation.lastRun == null" class="date-string-display">
                             N/A
                         </span>
-                        <a *ngIf="list.curation.lastDate != null" class="date-string-display"
-                            [routerLink]="['/registry/curation-job', list.oid]" routerLinkActive="active">
-                            {{formatDate(list.curation.lastDate)}}
+                        <a *ngIf="list.curation.lastRun != null" [routerLink]="['/registry/curation-job', list.oid]"
+                            routerLinkActive="active">
+                            {{formatDate(list.curation.lastRun)}}
                         </a>
                     </span>
                     <button type="submit" class="btn btn-primary" role="button" (click)="onRunCuration()">
@@ -93,8 +93,7 @@
                     </button>
 
                     <button *ngIf="list.working && isWritable && !list.isAbstract" type="submit"
-                        [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, !isWritable, list.forDate, (!isWritable || list.isAbstract), '__NEW__', 'ML' + (isPublished ? 'T' : 'F') + list.oid]"
-                        routerLinkActive="active" class="btn btn-primary" role="button">
+                        (click)="onNewGeoObject()" class="btn btn-primary" role="button">
                         <localize key="masterlist.newGeoObject"></localize>
                     </button>
 

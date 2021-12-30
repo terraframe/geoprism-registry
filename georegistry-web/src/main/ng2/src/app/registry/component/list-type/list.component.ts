@@ -309,13 +309,15 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     onNewGeoObject(): void {
-        let editModal = this.modalService.show(GeoObjectEditorComponent, { backdrop: true, ignoreBackdropClick: true });
-        // editModal.content.fetchGeoObject( data.code, this.list.typeCode );
-        editModal.content.configureAsNew(this.list.typeCode, this.list.forDate, this.list.isGeometryEditable);
-        editModal.content.setListId(this.list.oid);
-        editModal.content.setOnSuccessCallback(() => {
-            // Refresh the page
-            this.onPageChange(this.page.pageNumber);
+        const params: any = {
+            layers: JSON.stringify([this.list.oid]),
+            type: this.list.typeCode,
+            code: '__NEW__'
+        };
+
+
+        this.router.navigate(['/registry/location-manager'], {
+            queryParams: params,
         });
     }
 
@@ -362,11 +364,11 @@ export class ListComponent implements OnInit, OnDestroy {
             queryParams: params,
         });
     }
-    
+
     onRunCuration(): void {
         this.service.createCurationJob(this.list).then(job => {
             this.router.navigate(['/registry/curation-job', this.list.oid]);
-    
+
         })
     }
 

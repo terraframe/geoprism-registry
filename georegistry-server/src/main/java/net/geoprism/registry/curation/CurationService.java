@@ -132,7 +132,7 @@ public class CurationService
       return new Page<CurationProblem>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
     }
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject curate(String sessionId, String listTypeVersionId)
   {
@@ -140,18 +140,18 @@ public class CurationService
     final ListType listType = version.getListType();
     final ServerGeoObjectType serverGOT = listType.getGeoObjectType();
     final String orgCode = listType.getOrganization().getCode();
-    
+
     this.checkPermissions(orgCode, serverGOT);
-    
+
     ListCurationJob job = new ListCurationJob();
     job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
     job.apply();
 
     ListCurationHistory history = job.start(version);
-    
+
     return this.serializeHistory(history, GeoprismUser.get(job.getRunAsUser().getOid()), job);
   }
-  
+
   protected JsonObject serializeHistory(ListCurationHistory hist, GeoprismUser user, ExecutableJob job)
   {
     JsonObject jo = new JsonObject();
@@ -161,7 +161,7 @@ public class CurationService
     jo.addProperty("lastRunBy", user.getUsername());
     jo.addProperty("historyId", hist.getOid());
     jo.addProperty("jobId", job.getOid());
-    jo.addProperty("workProgres", hist.getWorkProgress());
+    jo.addProperty("workProgress", hist.getWorkProgress());
     jo.addProperty("workTotal", hist.getWorkTotal());
 
     if (hist.getStatus().get(0).equals(AllJobStatus.FAILURE) && hist.getErrorJson().length() > 0)

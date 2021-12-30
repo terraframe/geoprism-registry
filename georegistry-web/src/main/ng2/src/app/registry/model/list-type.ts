@@ -179,13 +179,12 @@ export class LayerRecord {
 }
 
 export class CurationProblem {
-    affectedRows: string;
     resolution: string;
     historyId: string;
     type: string;
     id: string;
     typeCode?: string;
-    code?: string;
+    goCode?: string;
     selected?: boolean;
 }
 
@@ -195,6 +194,8 @@ export class CurationJob {
     lastRunBy: string;
     historyId: string;
     jobId: string;
+    workTotal:number;
+    workProgress:number;
     exception?: {
         type: string,
         message: string
