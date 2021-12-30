@@ -128,7 +128,7 @@ export class GeoObjectEditorComponent implements OnInit {
 
         this.geoObject = new GeoObjectOverTime(this.geoObjectType, importError.object.geoObject.attributes);
 
-        this.submitFunction = (geoObject, hierarchies) => {
+        this.submitFunction = (geoObject, hierarchies, attributeEditor) => {
             let config = {
                 historyId: historyId,
                 importErrorId: importError.id,
@@ -149,38 +149,6 @@ export class GeoObjectEditorComponent implements OnInit {
         };
     }
 
-    public configureFromProblem(props: { typeCode: string, code: string, isNew: boolean, historyId: string, problemId: string }, isGeometryEditable: boolean) {
-        const typeCode = props.typeCode;
-        const code = props.code;
-        this.isNewGeoObject = props.isNew;
-        this.isGeometryEditable = isGeometryEditable;
-
-        this.fetchGeoObject(code, typeCode);
-        this.fetchGeoObjectType(typeCode);
-        this.fetchHierarchies(code, typeCode);
-        this.fetchLocales();
-
-
-        this.submitFunction = () => {
-            let config = {
-                historyId: props.historyId,
-                importErrorId: props.problemId,
-                resolution: "APPLY_GEO_OBJECT",
-                parentTreeNode: this.hierarchies,
-                geoObject: this.geoObject,
-                isNew: props.isNew
-            };
-
-            this.registryService.submitErrorResolve(config)
-                .then(() => {
-                    if (this.onSuccessCallback != null) {
-                        this.onSuccessCallback();
-                    }
-                }).catch((err: HttpErrorResponse) => {
-                    this.error(err);
-                });
-        };
-    }
 
 
 
@@ -285,7 +253,7 @@ export class GeoObjectEditorComponent implements OnInit {
                     });
                     */
         } else {
-            this.submitFunction(this.geoObject, this.hierarchies);
+            this.submitFunction(this.geoObject, this.hierarchies, this.attributeEditor);
         }
     }
 

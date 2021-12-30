@@ -223,23 +223,12 @@ public class CurationService
 
     if (resolution.equals(ErrorResolution.APPLY_GEO_OBJECT.name()))
     {
-      String parentTreeNode = config.get("parentTreeNode").toString();
-      String geoObject = config.get("geoObject").toString();
-
-      GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), geoObject);
-
-      Geometry geometry = go.getGeometry(version.getForDate());
-
-      System.out.println(geoObject);
+      String geoObjectCode = config.get("code").getAsString();
+      String geoObjectTypeCode = config.get("typeCode").getAsString();
+      String actions = config.get("actions").getAsJsonArray().toString();
 
       ServerGeoObjectService service = new ServerGeoObjectService();
-
-      ServerGeoObjectIF serverGO = service.apply(go, false, false);
-      final ServerGeoObjectType type = serverGO.getType();
-
-      ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, parentTreeNode);
-
-      serverGO.setParents(ptnOt);
+      service.updateGeoObjectInTrans(geoObjectCode, geoObjectTypeCode, actions, version.getOid(), null);
 
       err.appLock();
       err.setResolution(resolution);

@@ -54,24 +54,28 @@ export class CurationProblemModalComponent {
 
         editModal.content.configureAsExisting(this.problem.goCode, this.problem.typeCode, this.version.forDate, true);
         editModal.content.setMasterListId(this.version.oid);
-        editModal.content.submitFunction = (geoObject, hierarchies) => {
-            // console.log(geoObject);
-            // console.log(hierarchies);
-            let config = {
-                historyId: this.job.historyId,
-                problemId: this.problem.id,
-                resolution: "APPLY_GEO_OBJECT",
-                parentTreeNode: hierarchies,
-                geoObject: geoObject,
-                isNew: false
-            };
+        editModal.content.submitFunction = (geoObject, hierarchies, attributeEditor) => {
 
-            this.service.submitErrorResolve(config).then(() => {
-                // this.callback.next({ action: "RESOLVED", data: this.problem });
-                editModal.hide();
-            }).catch((err: HttpErrorResponse) => {
-                editModal.content.error(err);
-            });
+            // THERE HAS TO BE A BETTER WAY TO DO THIS
+            if (attributeEditor.changeRequest != null) {
+                const changeRequest = attributeEditor.changeRequest;
+
+                let config = {
+                    historyId: this.job.historyId,
+                    problemId: this.problem.id,
+                    resolution: "APPLY_GEO_OBJECT",
+                    code: this.problem.goCode,
+                    typeCode: this.problem.typeCode,
+                    actions: changeRequest.actions,
+                };
+
+                this.service.submitErrorResolve(config).then(() => {
+                    // this.callback.next({ action: "RESOLVED", data: this.problem });
+                    editModal.hide();
+                }).catch((err: HttpErrorResponse) => {
+                    editModal.content.error(err);
+                });
+            }
         };
 
         editModal.content.setOnSuccessCallback(() => {
