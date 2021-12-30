@@ -9,6 +9,7 @@ import { ErrorHandler } from "@shared/component";
 import { CurationJob, CurationProblem, ListTypeVersion } from "@registry/model/list-type";
 import { GeoObjectEditorComponent } from "../geoobject-editor/geoobject-editor.component";
 import { DateService } from "@shared/service";
+import { ListTypeService } from "@registry/service/list-type.service";
 
 @Component({
     selector: "curation-problem-modal",
@@ -26,7 +27,7 @@ export class CurationProblemModalComponent {
     readonly: boolean = false;
     edit: boolean = false;
 
-    constructor(public bsModalRef: BsModalRef, private modalService: BsModalService, private dateService: DateService) {
+    constructor(public service: ListTypeService, public bsModalRef: BsModalRef, private modalService: BsModalService, private dateService: DateService) {
     }
 
     init(version: ListTypeVersion, problem: CurationProblem, job: CurationJob, callback: Observer<any>): void {
@@ -46,13 +47,33 @@ export class CurationProblemModalComponent {
     }
 
     onEditGeoObject(): void {
-        let editModal = this.modalService.show(GeoObjectEditorComponent, {
+        const editModal = this.modalService.show(GeoObjectEditorComponent, {
             backdrop: true,
             ignoreBackdropClick: true
         });
 
         editModal.content.configureAsExisting(this.problem.goCode, this.problem.typeCode, this.version.forDate, true);
         editModal.content.setMasterListId(this.version.oid);
+        editModal.content.submitFunction = (geoObject, hierarchies) => {
+            // console.log(geoObject);
+            // console.log(hierarchies);
+            let config = {
+                historyId: this.job.historyId,
+                problemId: this.problem.id,
+                resolution: "APPLY_GEO_OBJECT",
+                parentTreeNode: hierarchies,
+                geoObject: geoObject,
+                isNew: false
+            };
+
+            this.service.submitErrorResolve(config).then(() => {
+                // this.callback.next({ action: "RESOLVED", data: this.problem });
+                editModal.hide();
+            }).catch((err: HttpErrorResponse) => {
+                editModal.content.error(err);
+            });
+        };
+
         editModal.content.setOnSuccessCallback(() => {
             this.onProblemResolvedListener(this.problem);
             this.bsModalRef.hide();

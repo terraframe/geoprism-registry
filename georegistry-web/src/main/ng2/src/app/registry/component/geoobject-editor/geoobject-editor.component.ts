@@ -128,13 +128,13 @@ export class GeoObjectEditorComponent implements OnInit {
 
         this.geoObject = new GeoObjectOverTime(this.geoObjectType, importError.object.geoObject.attributes);
 
-        this.submitFunction = () => {
+        this.submitFunction = (geoObject, hierarchies) => {
             let config = {
                 historyId: historyId,
                 importErrorId: importError.id,
                 resolution: "APPLY_GEO_OBJECT",
-                parentTreeNode: this.hierarchies,
-                geoObject: this.geoObject,
+                parentTreeNode: hierarchies,
+                geoObject: geoObject,
                 isNew: importError.object.isNew
             };
 
@@ -148,6 +148,41 @@ export class GeoObjectEditorComponent implements OnInit {
                 });
         };
     }
+
+    public configureFromProblem(props: { typeCode: string, code: string, isNew: boolean, historyId: string, problemId: string }, isGeometryEditable: boolean) {
+        const typeCode = props.typeCode;
+        const code = props.code;
+        this.isNewGeoObject = props.isNew;
+        this.isGeometryEditable = isGeometryEditable;
+
+        this.fetchGeoObject(code, typeCode);
+        this.fetchGeoObjectType(typeCode);
+        this.fetchHierarchies(code, typeCode);
+        this.fetchLocales();
+
+
+        this.submitFunction = () => {
+            let config = {
+                historyId: props.historyId,
+                importErrorId: props.problemId,
+                resolution: "APPLY_GEO_OBJECT",
+                parentTreeNode: this.hierarchies,
+                geoObject: this.geoObject,
+                isNew: props.isNew
+            };
+
+            this.registryService.submitErrorResolve(config)
+                .then(() => {
+                    if (this.onSuccessCallback != null) {
+                        this.onSuccessCallback();
+                    }
+                }).catch((err: HttpErrorResponse) => {
+                    this.error(err);
+                });
+        };
+    }
+
+
 
     // Configures the widget to be used in an "Edit Existing" context
     public configureAsExisting(code: string, typeCode: string, dateStr: string, isGeometryEditable: boolean): void {
@@ -237,20 +272,20 @@ export class GeoObjectEditorComponent implements OnInit {
         this.bsModalRef.hide();
 
         if (this.submitFunction == null) {
-        /*
-            this.registryService.applyGeoObjectEdit(this.hierarchies, this.goSubmit, this.isNewGeoObject, this.masterListId, this.notes)
-                .then(() => {
-
-                    if (this.onSuccessCallback != null) {
-                        this.onSuccessCallback();
-                    }
-
-                }).catch((err: HttpErrorResponse) => {
-                    this.error(err);
-                });
-                */
+            /*
+                this.registryService.applyGeoObjectEdit(this.hierarchies, this.goSubmit, this.isNewGeoObject, this.masterListId, this.notes)
+                    .then(() => {
+    
+                        if (this.onSuccessCallback != null) {
+                            this.onSuccessCallback();
+                        }
+    
+                    }).catch((err: HttpErrorResponse) => {
+                        this.error(err);
+                    });
+                    */
         } else {
-            this.submitFunction();
+            this.submitFunction(this.geoObject, this.hierarchies);
         }
     }
 

@@ -9,6 +9,7 @@ import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
+import com.runwaysdk.mvc.RestResponse;
 
 @Controller(url = "curation")
 public class CurationController
@@ -43,4 +44,13 @@ public class CurationController
     
     return new RestBodyResponse(serializedHistory.toString());
   }
+  
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "problem-resolve")
+  public ResponseIF submitProblemResolution(ClientRequestIF request, @RequestParamter(name = "config") String config)
+  {
+    this.service.submitProblemResolution(request.getSessionId(), config);
+    
+    return new RestResponse();
+  }
+  
 }

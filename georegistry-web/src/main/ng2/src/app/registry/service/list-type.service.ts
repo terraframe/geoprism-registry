@@ -316,7 +316,22 @@ export class ListTypeService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/curation/curate", JSON.stringify({ listTypeVersionId: version.oid }), { headers: headers })
+            .post<CurationJob>(registry.contextPath + "/curation/curate", JSON.stringify({ listTypeVersionId: version.oid }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+    submitErrorResolve(config: any): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return this.http
+            .post<void>(registry.contextPath + "/curation/problem-resolve", JSON.stringify({ config: config }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

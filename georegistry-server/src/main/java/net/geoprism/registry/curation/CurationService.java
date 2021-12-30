@@ -21,8 +21,11 @@ package net.geoprism.registry.curation;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
@@ -31,19 +34,21 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
+import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
-import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
-import net.geoprism.registry.progress.Progress;
-import net.geoprism.registry.progress.ProgressService;
+import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.Page;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class CurationService
 {
@@ -194,4 +199,56 @@ public class CurationService
       perms.enforceRM();
     }
   }
+
+  @Request(RequestType.SESSION)
+  public void submitProblemResolution(String sessionId, String json)
+  {
+    submitProblemResolutionInTrans(sessionId, json);
+  }
+
+  @Transaction
+  private void submitProblemResolutionInTrans(String sessionId, String json)
+  {
+    JsonObject config = JsonParser.parseString(json).getAsJsonObject();
+
+    ListCurationHistory hist = ListCurationHistory.get(config.get("historyId").getAsString());
+    ListTypeVersion version = hist.getVersion();
+
+    // this.checkPermissions(hist.getOrganization().getCode(),
+    // hist.getServerGeoObjectType());
+
+    CurationProblem err = CurationProblem.get(config.get("problemId").getAsString());
+
+    String resolution = config.get("resolution").getAsString();
+
+    if (resolution.equals(ErrorResolution.APPLY_GEO_OBJECT.name()))
+    {
+      String parentTreeNode = config.get("parentTreeNode").toString();
+      String geoObject = config.get("geoObject").toString();
+
+      GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), geoObject);
+
+      Geometry geometry = go.getGeometry(version.getForDate());
+
+      System.out.println(geoObject);
+
+      ServerGeoObjectService service = new ServerGeoObjectService();
+
+      ServerGeoObjectIF serverGO = service.apply(go, false, false);
+      final ServerGeoObjectType type = serverGO.getType();
+
+      ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, parentTreeNode);
+
+      serverGO.setParents(ptnOt);
+
+      err.appLock();
+      err.setResolution(resolution);
+      err.apply();
+    }
+    else
+    {
+      throw new UnsupportedOperationException("Invalid import resolution [" + resolution + "].");
+    }
+  }
+
 }
