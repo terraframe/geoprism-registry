@@ -11,7 +11,6 @@ package net.geoprism.registry.curation;
 public abstract class CurationProblemBase extends com.runwaysdk.business.Business
 {
   public final static String CLASS = "net.geoprism.registry.curation.CurationProblem";
-  public static java.lang.String AFFECTEDROWS = "affectedRows";
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
@@ -32,34 +31,6 @@ public abstract class CurationProblemBase extends com.runwaysdk.business.Busines
   public CurationProblemBase()
   {
     super();
-  }
-  
-  public String getAffectedRows()
-  {
-    return getValue(AFFECTEDROWS);
-  }
-  
-  public void validateAffectedRows()
-  {
-    this.validateAttribute(AFFECTEDROWS);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getAffectedRowsMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.curation.CurationProblem.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(AFFECTEDROWS);
-  }
-  
-  public void setAffectedRows(String value)
-  {
-    if(value == null)
-    {
-      setValue(AFFECTEDROWS, "");
-    }
-    else
-    {
-      setValue(AFFECTEDROWS, value);
-    }
   }
   
   public java.util.Date getCreateDate()

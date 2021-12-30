@@ -15,7 +15,6 @@
       <mdBusiness name="net.geoprism.registry.curation.CurationProblem" exported="false" publish="false">
         <attributes>
           <text name="problemType" label="Problem Type" />
-          <text name="affectedRows" label="Affected Rows" description="A comma separated list of rows to which this problem applies." />
           <text name="resolution" defaultValue="UNRESOLVED"/>
           <reference name="history" type="net.geoprism.registry.curation.ListCurationHistory" required="true" label="history"/>
         </attributes>

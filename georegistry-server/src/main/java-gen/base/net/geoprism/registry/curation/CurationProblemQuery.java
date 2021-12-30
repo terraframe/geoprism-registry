@@ -38,23 +38,7 @@ public  class CurationProblemQuery extends com.runwaysdk.query.GeneratedBusiness
   {
     return net.geoprism.registry.curation.CurationProblem.CLASS;
   }
-  public com.runwaysdk.query.SelectableChar getAffectedRows()
-  {
-    return getAffectedRows(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.curation.CurationProblem.AFFECTEDROWS, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.curation.CurationProblem.AFFECTEDROWS, alias, displayLabel);
-
-  }
+  
   public com.runwaysdk.query.SelectableMoment getCreateDate()
   {
     return getCreateDate(null);
@@ -413,9 +397,6 @@ public  class CurationProblemQuery extends com.runwaysdk.query.GeneratedBusiness
   public interface CurationProblemQueryReferenceIF extends com.runwaysdk.query.SelectableReference
   {
 
-    public com.runwaysdk.query.SelectableChar getAffectedRows();
-    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias);
-    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getCreateDate();
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias);
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias, String displayLabel);
@@ -496,23 +477,6 @@ public  class CurationProblemQuery extends com.runwaysdk.query.GeneratedBusiness
       return this.NE(curationProblem.getOid());
     }
 
-  public com.runwaysdk.query.SelectableChar getAffectedRows()
-  {
-    return getAffectedRows(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.curation.CurationProblem.AFFECTEDROWS, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.curation.CurationProblem.AFFECTEDROWS, alias, displayLabel);
-
-  }
   public com.runwaysdk.query.SelectableMoment getCreateDate()
   {
     return getCreateDate(null);
@@ -812,9 +776,6 @@ public  class CurationProblemQuery extends com.runwaysdk.query.GeneratedBusiness
   public interface CurationProblemQueryMultiReferenceIF extends com.runwaysdk.query.SelectableMultiReference
   {
 
-    public com.runwaysdk.query.SelectableChar getAffectedRows();
-    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias);
-    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getCreateDate();
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias);
     public com.runwaysdk.query.SelectableMoment getCreateDate(String alias, String displayLabel);
@@ -944,23 +905,7 @@ public  class CurationProblemQuery extends com.runwaysdk.query.GeneratedBusiness
 
       return this.containsExactly(itemIdArray);
   }
-  public com.runwaysdk.query.SelectableChar getAffectedRows()
-  {
-    return getAffectedRows(null);
-
-  }
  
-  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.curation.CurationProblem.AFFECTEDROWS, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.curation.CurationProblem.AFFECTEDROWS, alias, displayLabel);
-
-  }
   public com.runwaysdk.query.SelectableMoment getCreateDate()
   {
     return getCreateDate(null);
