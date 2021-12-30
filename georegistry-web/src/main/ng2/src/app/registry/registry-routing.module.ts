@@ -18,6 +18,7 @@ import { MaintainerGuard, ContributerGuard, AuthGuard } from "../shared/service/
 import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
 import { ListTypeManagerComponent } from "./component/list-type/list-type-manager.component";
 import { ListComponent } from "./component/list-type/list.component";
+import { CurationJobComponent } from "./component/curation/curation-job.component";
 
 const routes: Routes = [
     {
@@ -93,6 +94,11 @@ const routes: Routes = [
     {
         path: 'sync/details/:config/:oid',
         component: SyncDetailsComponent,
+        canActivate: [MaintainerGuard]
+    },
+    {
+        path: 'curation-job/:oid',
+        component: CurationJobComponent,
         canActivate: [MaintainerGuard]
     },
     {

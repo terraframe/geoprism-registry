@@ -364,6 +364,10 @@ export class ListComponent implements OnInit, OnDestroy {
     }
     
     onRunCuration(): void {
+        this.service.createCurationJob(this.list).then(job => {
+            this.router.navigate(['/registry/curation-job', this.list.oid]);
+    
+        })
     }
 
 

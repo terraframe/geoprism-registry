@@ -116,6 +116,7 @@ import { ExportFormatModalComponent } from "./component/list-type/export-format-
 import { RecordPanelComponent } from "./component/location-manager/record-panel.component";
 import { SelectTypeModalComponent } from "./component/location-manager/select-type-modal.component";
 import { CurationJobComponent } from "./component/curation/curation-job.component";
+import { CurationProblemModalComponent } from "./component/curation/curation-problem-modal.component";
 
 @NgModule({
     imports: [
@@ -224,7 +225,8 @@ import { CurationJobComponent } from "./component/curation/curation-job.componen
         ListComponent,
         PublishVersionComponent,
         // Curation
-        CurationJobComponent
+        CurationJobComponent,
+        CurationProblemModalComponent
     ],
     providers: [
         MapService,
@@ -271,7 +273,8 @@ import { CurationJobComponent } from "./component/curation/curation-job.componen
         TransitionEventModalComponent,
         ListTypePublishModalComponent,
         PublishVersionComponent,
-        SelectTypeModalComponent
+        SelectTypeModalComponent,
+        CurationProblemModalComponent
     ]
 })
 export class RegistryModule { }

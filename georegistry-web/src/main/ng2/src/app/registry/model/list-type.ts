@@ -186,6 +186,7 @@ export class CurationProblem {
     id: string;
     typeCode?: string;
     code?: string;
+    selected?: boolean;
 }
 
 export class CurationJob {

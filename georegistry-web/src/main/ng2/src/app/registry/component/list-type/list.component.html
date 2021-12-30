@@ -52,11 +52,14 @@
             <div class="col-md-4">
                 <div *ngIf="list.working && isWritable" class="button-holder pull-left">
                     <span style="vertical-align:middle;display:inline-block;">
-
-                        Date of last validation
-                        : <span class="date-string-display">
-                            {{list.curation.lastDate != null ? formatDate(list.curation.lastDate) : 'N/A'}}
+                        Date of last validation :
+                        <span *ngIf="list.curation.lastDate == null" class="date-string-display">
+                            N/A
                         </span>
+                        <a *ngIf="list.curation.lastDate != null" class="date-string-display"
+                            [routerLink]="['/registry/curation-job', list.oid]" routerLinkActive="active">
+                            {{formatDate(list.curation.lastDate)}}
+                        </a>
                     </span>
                     <button type="submit" class="btn btn-primary" role="button" (click)="onRunCuration()">
                         Run Curation

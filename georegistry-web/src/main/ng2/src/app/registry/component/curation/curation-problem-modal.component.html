@@ -1,0 +1,30 @@
+<div class="modal-body">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+    <div class="text-center">
+        <h2>
+            <localize key="scheduledjobs.problemdetail.modal.title"></localize>
+        </h2>
+    </div>
+    <!-- <div class="col-md-12 order-md-1"> -->
+    <form #form="ngForm" class="modal-form">
+
+        <fieldset>
+            
+            <import-problem-widget (onProblemResolved)="onProblemResolvedListener(problem)" [problem]="problem" [job]="job"></import-problem-widget>
+            
+            <div class="row-holder">
+                <!-- <div class="label-holder"></div> -->
+                <div class="">
+                    <div class="button-holder">
+                        <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+                            <localize key="io.back"></localize>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+    </form>
+    <!-- </div> -->
+</div>
