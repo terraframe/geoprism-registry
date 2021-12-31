@@ -302,7 +302,7 @@ public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.schedule
     return isModified(ORGANIZATION);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.etl.ImportStageDTO> getStage()
   {
     return (java.util.List<net.geoprism.registry.etl.ImportStageDTO>) com.runwaysdk.transport.conversion.ConversionFacade.convertEnumDTOsFromEnumNames(getRequest(), net.geoprism.registry.etl.ImportStageDTO.CLASS, getEnumNames(STAGE));

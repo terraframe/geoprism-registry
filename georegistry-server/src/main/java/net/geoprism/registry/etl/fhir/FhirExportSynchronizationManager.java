@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.fhir;
 
@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.io.Writer;
 import java.util.SortedSet;
 
 import org.apache.commons.io.FileUtils;
@@ -42,7 +41,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import net.geoprism.gis.geoserver.SessionPredicate;
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.etl.ExportJobHasErrors;
 import net.geoprism.registry.etl.FhirSyncExportConfig;
 import net.geoprism.registry.etl.FhirSyncLevel;
@@ -90,11 +89,11 @@ public class FhirExportSynchronizationManager
         history.setExportedRecords(exportCount);
         history.apply();
 
-        MasterListVersion version = MasterListVersion.get(level.getVersionId());
+        ListTypeVersion version = ListTypeVersion.get(level.getVersionId());
 
         FhirDataPopulator populator = FhirFactory.getPopulator(level.getImplementation());
 
-        MasterListFhirExporter exporter = new MasterListFhirExporter(version, connection, populator, true);
+        ListTypeFhirExporter exporter = new ListTypeFhirExporter(version, connection, populator, true);
         long results = exporter.export();
 
         exportCount += results;
@@ -232,11 +231,11 @@ public class FhirExportSynchronizationManager
         throw new ProgrammingErrorException("Unexpected level number [" + level.getLevel() + "].");
       }
 
-      MasterListVersion version = MasterListVersion.get(level.getVersionId());
+      ListTypeVersion version = ListTypeVersion.get(level.getVersionId());
 
       FhirDataPopulator populator = FhirFactory.getPopulator(level.getImplementation());
 
-      MasterListFhirExporter exporter = new MasterListFhirExporter(version, connection, populator, false);
+      ListTypeFhirExporter exporter = new ListTypeFhirExporter(version, connection, populator, false);
       exporter.populateBundle(bundle);
 
       expectedLevel++;

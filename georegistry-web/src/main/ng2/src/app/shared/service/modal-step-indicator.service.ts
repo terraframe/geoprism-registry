@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
 import { Step, StepConfig } from "@shared/model/modal";
 
-declare let acp: string;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class ModalStepIndicatorService {

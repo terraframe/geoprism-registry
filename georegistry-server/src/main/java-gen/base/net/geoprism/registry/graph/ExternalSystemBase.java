@@ -171,7 +171,7 @@ public abstract class ExternalSystemBase extends com.runwaysdk.business.graph.Ve
     super.removeChild(geoVertex, "net.geoprism.registry.graph.ExternalID");
   }
 
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.graph.GeoVertex> getExternalIDChildGeoVertexs()
   {
     return super.getChildren("net.geoprism.registry.graph.ExternalID", net.geoprism.registry.graph.GeoVertex.class);

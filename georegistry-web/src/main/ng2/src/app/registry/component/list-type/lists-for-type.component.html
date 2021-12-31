@@ -1,0 +1,95 @@
+<ng-container>
+    <div class="heading">
+        <h2>
+            {{listByType.orgLabel}} : {{listByType.typeLabel}}
+        </h2>
+    </div>
+    <div class="subheading">
+        <h3>
+            <localize key="list.type.heading"></localize>
+        </h3>
+    </div>
+    <hr />
+    <div *ngIf="listByType.write" style="margin-top:30px;margin-bottom:30px;" class="row">
+        <div class="col-md-6">
+            <div>
+                <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
+                    <localize key="list.type.button.create"></localize>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div *ngFor="let list of listByType.lists; let i = index;" class="row" style="margin-bottom: 5px;">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-9" style="vertical-align:middle;line-height:40px;">
+                            <i *ngIf="list.listType === 'single'" class="fa fa-table" aria-hidden="true"></i>
+                            <span *ngIf="list.listType !== 'single'" class="fa-stack fa-lg">
+                                <i class="fa fa-table fa-stack-2x"></i>
+                                <i class="fa fa-table fa-stack-1x second-stacked-el" style="margin-left:8px;margin-top:-4px;"></i>
+                            </span>
+
+                            <a [routerLink]="'/registry/master-lists'" [queryParams]="{typeCode:listByType.typeCode, listId: list.oid}" routerLinkActive="active" style="font-size:18px;">
+                                {{list.displayLabel.localizedValue}}
+                            </a>
+                        </div>
+                        <div class="col-md-3" style="text-align: right;">
+                            <button type="submit" (click)="onEdit(list)" class="btn btn-default" role="button">
+                                <localize key="masterlist.button.metadata"></localize>
+                            </button>
+                            <button *ngIf="list.write" type="submit" (click)="onDelete(list)" class="btn btn-danger"
+                                role="button">
+                                <localize key="modal.button.delete"></localize>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="list.listType === 'single'">
+                        <div class="col-md-12">
+                            <ul class="unstyled-list">
+                                <li>
+                                    <localize key="list.type.valid.on"></localize>: {{list.validOn}}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="list.listType === 'incremental'">
+                        <div class="col-md-12">
+                            <ul class="unstyled-list">
+                                <li>
+                                    <localize key="data.property.label.publishingStartDate"></localize>:
+                                    {{list.publishingStartDate}}
+                                </li>
+                                <li>
+                                    <localize key="data.property.label.frequency"></localize>: {{list.frequency}}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="list.listType === 'interval'">
+                        <div class="col-md-12">
+                            <localize key="list.type.valid.on"></localize>:
+                            <ul class="unstyled-list">
+                                <li *ngFor="let interval of list.intervalJson">
+                                    {{interval.startDate}} - {{interval.endDate}}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p style="color: #707070;">{{list.description.localizedValue}}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <div *ngIf="listByType.lists.length === 0" style="font-style:italic;">
+        <localize key="list.type.no.lists.message"></localize>
+    </div>
+
+</ng-container>

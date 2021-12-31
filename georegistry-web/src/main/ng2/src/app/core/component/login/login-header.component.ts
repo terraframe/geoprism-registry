@@ -23,7 +23,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from '@shared/component';
 import { HubService } from '@core/service/hub.service';
 
-declare var acp:string;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component({
   selector: 'login-header',
@@ -34,7 +34,7 @@ export class LoginHeaderComponent {
   context:string;
   
   constructor(private hubService: HubService) {
-    this.context = acp;
+    this.context = registry.contextPath;
   }
   
   public error(err: HttpErrorResponse): void {

@@ -7,7 +7,7 @@ import { LocationInformation } from "@registry/model/location-manager";
 import { EventService } from "@shared/service";
 import { GeoObject } from "@registry/model/registry";
 
-declare let acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class MapService {
@@ -34,7 +34,7 @@ export class MapService {
         this.eventService.start();
 
         return this.http
-            .get<LocationInformation>(acp + "/registrylocation/roots", { params: params })
+            .get<LocationInformation>(registry.contextPath + "/registrylocation/roots", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -52,7 +52,7 @@ export class MapService {
         this.eventService.start();
 
         return this.http
-            .get<{ type: string, features: GeoObject[] }>(acp + "/registrylocation/search", { params: params })
+            .get<{ type: string, features: GeoObject[] }>(registry.contextPath + "/registrylocation/search", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

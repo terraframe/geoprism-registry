@@ -42,7 +42,7 @@ import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.InvalidRegistryIdException;
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
@@ -370,7 +370,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       // Update the master list record
       if (masterListId != null)
       {
-        MasterListVersion.get(masterListId).publishRecord(serverGO);
+        ListTypeVersion.get(masterListId).publishRecord(serverGO);
       }
 
       JsonObject resp = new JsonObject();
@@ -439,7 +439,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       
       if (masterListId != null)
       {
-        MasterListVersion.get(masterListId).updateRecord(go);
+        ListTypeVersion.get(masterListId).updateRecord(go);
       }
 
       JsonObject resp = new JsonObject();

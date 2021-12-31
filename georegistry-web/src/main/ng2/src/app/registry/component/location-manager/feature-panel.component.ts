@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from "@angular/core";
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, OnChanges, SimpleChanges } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 
@@ -12,7 +12,7 @@ import { ErrorModalComponent, ErrorHandler } from "@shared/component";
     templateUrl: "./feature-panel.component.html",
     styleUrls: ["./dataset-location-manager.css"]
 })
-export class FeaturePanelComponent implements OnInit {
+export class FeaturePanelComponent implements OnInit, OnChanges {
 
     MODE = {
         VERSIONS: "VERSIONS",
@@ -41,7 +41,7 @@ export class FeaturePanelComponent implements OnInit {
     @Output() featureChange = new EventEmitter<GeoObjectOverTime>();
     @Output() modeChange = new EventEmitter<boolean>();
     @Output() panelCancel = new EventEmitter<void>();
-    @Output() panelSubmit = new EventEmitter<{isChangeRequest:boolean, geoObject?: any, changeRequestId?: string}>();
+    @Output() panelSubmit = new EventEmitter<{ isChangeRequest: boolean, geoObject?: any, changeRequestId?: string }>();
 
     _isValid: boolean = true;
 
@@ -76,7 +76,13 @@ export class FeaturePanelComponent implements OnInit {
         this.isMaintainer = this.authService.isSRA() || this.authService.isOrganizationRA(this.type.organizationCode) || this.authService.isGeoObjectTypeOrSuperRM(this.type);
         this.mode = "ATTRIBUTES";
 
-//        this.isEdit = !this.readOnly;
+        //        this.isEdit = !this.readOnly;
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if(changes.type != null || changes.code != null) {
+            this.refresh();
+        }
     }
 
     setValid(valid: boolean): void {
@@ -89,22 +95,25 @@ export class FeaturePanelComponent implements OnInit {
 
     updateCode(code: string): void {
         this._code = code;
+    }
+
+    refresh(): void {
         this.postGeoObject = null;
         this.preGeoObject = null;
         this.hierarchies = null;
 
-        if (code != null && this.type != null) {
-            if (code !== "__NEW__") {
+        if (this._code != null && this.type != null) {
+            if (this._code !== "__NEW__") {
                 this.isNew = false;
 
-                this.service.getGeoObjectOverTime(code, this.type.code).then(geoObject => {
+                this.service.getGeoObjectOverTime(this._code, this.type.code).then(geoObject => {
                     this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
                     this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
                 });
 
-                this.service.getHierarchiesForGeoObject(code, this.type.code).then((hierarchies: HierarchyOverTime[]) => {
+                this.service.getHierarchiesForGeoObject(this._code, this.type.code).then((hierarchies: HierarchyOverTime[]) => {
                     this.hierarchies = hierarchies;
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
@@ -136,8 +145,8 @@ export class FeaturePanelComponent implements OnInit {
 
     canSubmit(): boolean {
         return this.isValid() &&
-          (this.isMaintainer || (this.reason && this.reason.trim().length > 0)) &&
-          (this.isNew || (this.attributeEditor && this.attributeEditor.getChangeRequestEditor().hasChanges()));
+            (this.isMaintainer || (this.reason && this.reason.trim().length > 0)) &&
+            (this.isNew || (this.attributeEditor && this.attributeEditor.getChangeRequestEditor().hasChanges()));
     }
 
     onSubmit(): void {

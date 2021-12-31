@@ -10,7 +10,7 @@ import { SynchronizationConfig, ExportScheduledJob } from '@registry/model/regis
 import { SynchronizationConfigService } from '@registry/service';
 import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
-declare var acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component({
   selector: 'synchronization-config',
@@ -41,7 +41,7 @@ export class SynchronizationConfigComponent implements OnInit {
       this.onPageChange(1);
     });
 
-    let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + acp;
+    let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + registry.contextPath;
 
     this.notifier = webSocket(baseUrl + '/websocket/notify');
     this.notifier.subscribe(message => {
@@ -72,7 +72,7 @@ export class SynchronizationConfigComponent implements OnInit {
 
   onGenerateFile(): void {
 
-    window.open(acp + '/synchronization-config/generate-file?oid=' + encodeURIComponent(this.config.oid));
+    window.open(registry.contextPath + '/synchronization-config/generate-file?oid=' + encodeURIComponent(this.config.oid));
   }
 
   onPageChange(pageNumber: number): void {

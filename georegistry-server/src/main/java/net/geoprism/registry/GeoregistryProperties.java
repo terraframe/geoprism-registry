@@ -71,6 +71,11 @@ public class GeoregistryProperties
     return font;
   }
   
+  public static Boolean isSearchEnabled()
+  {
+    return Singleton.INSTANCE.props.getBoolean("cgr.search.enabled", true);
+  }
+  
   public static List<String> getCorsWhitelist()
   {
     String whitelist = Singleton.INSTANCE.props.getString("cgr.cors.whitelist", "");

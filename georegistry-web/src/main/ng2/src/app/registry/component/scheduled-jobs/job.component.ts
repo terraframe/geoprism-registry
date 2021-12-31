@@ -15,7 +15,8 @@ import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService, AuthService } from "@shared/service";
 import { ModalTypes } from "@shared/model/modal";
 
-declare let acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry";
+declare let registry: GeoRegistryConfiguration;
 
 @Component({
     selector: "job",
@@ -65,7 +66,7 @@ export class JobComponent implements OnInit {
 
         this.onPageChange(1);
 
-        let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + acp;
+        let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + registry.contextPath;
 
         this.notifier = webSocket(baseUrl + "/websocket/notify");
         this.notifier.subscribe(message => {

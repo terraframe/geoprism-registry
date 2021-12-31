@@ -111,7 +111,7 @@ public abstract class AbstractActionBase extends com.runwaysdk.business.Business
     }
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.action.AllGovernanceStatus> getApprovalStatus()
   {
     return (java.util.List<net.geoprism.registry.action.AllGovernanceStatus>) getEnumValues(APPROVALSTATUS);
@@ -612,19 +612,19 @@ public abstract class AbstractActionBase extends com.runwaysdk.business.Business
     removeAllChildren(vaultFile, net.geoprism.registry.action.ActionHasDocument.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends com.runwaysdk.system.VaultFile> getAllDocument()
   {
     return (com.runwaysdk.query.OIterator<? extends com.runwaysdk.system.VaultFile>) getChildren(net.geoprism.registry.action.ActionHasDocument.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.ActionHasDocument> getAllDocumentRel()
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.ActionHasDocument>) getChildRelationships(net.geoprism.registry.action.ActionHasDocument.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.ActionHasDocument> getDocumentRel(com.runwaysdk.system.VaultFile vaultFile)
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.ActionHasDocument>) getRelationshipsWithChild(vaultFile, net.geoprism.registry.action.ActionHasDocument.CLASS);
@@ -640,19 +640,19 @@ public abstract class AbstractActionBase extends com.runwaysdk.business.Business
     removeAllParents(changeRequest, net.geoprism.registry.action.HasActionRelationship.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.ChangeRequest> getAllRequest()
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.ChangeRequest>) getParents(net.geoprism.registry.action.HasActionRelationship.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.HasActionRelationship> getAllRequestRel()
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.HasActionRelationship>) getParentRelationships(net.geoprism.registry.action.HasActionRelationship.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.HasActionRelationship> getRequestRel(net.geoprism.registry.action.ChangeRequest changeRequest)
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.HasActionRelationship>) getRelationshipsWithParent(changeRequest, net.geoprism.registry.action.HasActionRelationship.CLASS);

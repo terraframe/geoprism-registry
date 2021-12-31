@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -66,7 +66,6 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdClassDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdGraphClassDAO;
-import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.json.RunwayJsonAdapters;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.SupportedLocaleIF;
@@ -112,15 +111,12 @@ import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.permission.UserPermissionService.CGRPermissionAction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
-import net.geoprism.registry.query.ServerLookupRestriction;
 import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.query.graph.AbstractVertexRestriction;
-import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class RegistryService
@@ -982,27 +978,18 @@ public class RegistryService
 
   /*
    * 
-select $filteredLabel,*
-from province0
-let $dateLabel = first(displayLabel_cot[(date('2020-05-01', 'yyyy-MM-dd') BETWEEN startDate AND endDate) AND (date('2020-05-01', 'yyyy-MM-dd') BETWEEN startDate AND endDate)]),
-$filteredLabel = COALESCE($dateLabel.value.defaultLocale)
-where (
-  displayLabel_cot CONTAINS (
-    (date('2020-05-01', 'yyyy-MM-dd') BETWEEN startDate AND endDate)
-    AND (date('2020-05-01', 'yyyy-MM-dd') BETWEEN startDate AND endDate)
-    AND COALESCE(value.defaultLocale).toLowerCase() LIKE '%' + 'a' + '%'
-  )
-  OR code.toLowerCase() LIKE '%' + 'a' + '%'
-)
-AND invalid=false
-AND (
-  exists_cot CONTAINS (
-    (date('2020-05-01', 'yyyy-MM-dd') BETWEEN startDate AND endDate)
-    AND (date('2020-05-01', 'yyyy-MM-dd') BETWEEN startDate AND endDate)
-    AND value=true
-  )
-)
-ORDER BY $filteredLabel ASC LIMIT 10
+   * select $filteredLabel,* from province0 let $dateLabel =
+   * first(displayLabel_cot[(date('2020-05-01', 'yyyy-MM-dd') BETWEEN startDate
+   * AND endDate) AND (date('2020-05-01', 'yyyy-MM-dd') BETWEEN startDate AND
+   * endDate)]), $filteredLabel = COALESCE($dateLabel.value.defaultLocale) where
+   * ( displayLabel_cot CONTAINS ( (date('2020-05-01', 'yyyy-MM-dd') BETWEEN
+   * startDate AND endDate) AND (date('2020-05-01', 'yyyy-MM-dd') BETWEEN
+   * startDate AND endDate) AND COALESCE(value.defaultLocale).toLowerCase() LIKE
+   * '%' + 'a' + '%' ) OR code.toLowerCase() LIKE '%' + 'a' + '%' ) AND
+   * invalid=false AND ( exists_cot CONTAINS ( (date('2020-05-01', 'yyyy-MM-dd')
+   * BETWEEN startDate AND endDate) AND (date('2020-05-01', 'yyyy-MM-dd')
+   * BETWEEN startDate AND endDate) AND value=true ) ) ORDER BY $filteredLabel
+   * ASC LIMIT 10
    */
   @Request(RequestType.SESSION)
   public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String parentTypeCode, String hierarchyCode, Date startDate, Date endDate)
@@ -1012,7 +999,7 @@ ORDER BY $filteredLabel ASC LIMIT 10
     ServerHierarchyType ht = hierarchyCode != null ? ServerHierarchyType.get(hierarchyCode) : null;
 
     final ServerGeoObjectType parentType = ServerGeoObjectType.get(parentTypeCode);
-    
+
     List<String> conditions = new ArrayList<String>();
 
     StringBuilder statement = new StringBuilder();
@@ -1025,14 +1012,14 @@ ORDER BY $filteredLabel ASC LIMIT 10
     }
     statement.append("), ");
     statement.append("$filteredLabel = " + AbstractVertexRestriction.localize("$dateLabel.value") + " ");
-    
+
     statement.append("where ");
 
     // Must be a child of parent type
     if (parentTypeCode != null && parentTypeCode.length() > 0)
     {
       StringBuilder parentCondition = new StringBuilder();
-      
+
       parentCondition.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')");
 
       if (startDate != null && endDate != null)
@@ -1041,7 +1028,7 @@ ORDER BY $filteredLabel ASC LIMIT 10
       }
 
       parentCondition.append(".inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
-      
+
       conditions.add(parentCondition.toString());
     }
 
@@ -1049,7 +1036,7 @@ ORDER BY $filteredLabel ASC LIMIT 10
     if (text != null && text.length() > 0)
     {
       StringBuilder textCondition = new StringBuilder();
-      
+
       textCondition.append("(displayLabel_cot CONTAINS (");
 
       if (startDate != null && endDate != null)
@@ -1059,19 +1046,19 @@ ORDER BY $filteredLabel ASC LIMIT 10
 
       textCondition.append(AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
       textCondition.append(")");
-      
+
       textCondition.append(" OR code.toLowerCase() LIKE '%' + :text + '%')");
-      
+
       conditions.add(textCondition.toString());
     }
 
     // Must not be invalid
     conditions.add("invalid=false");
-    
+
     // Must exist at date
     {
       StringBuilder existCondition = new StringBuilder();
-      
+
       existCondition.append("(exists_cot CONTAINS (");
 
       if (startDate != null && endDate != null)
@@ -1081,10 +1068,10 @@ ORDER BY $filteredLabel ASC LIMIT 10
 
       existCondition.append("value=true");
       existCondition.append("))");
-      
+
       conditions.add(existCondition.toString());
     }
-    
+
     statement.append(StringUtils.join(conditions, " AND "));
 
     statement.append(" ORDER BY $filteredLabel ASC LIMIT 10");
@@ -1107,11 +1094,11 @@ ORDER BY $filteredLabel ASC LIMIT 10
     }
 
     @SuppressWarnings("unchecked")
-    List<HashMap<String,Object>> results = (List<HashMap<String,Object>>) ((Object) query.getResults());
+    List<HashMap<String, Object>> results = (List<HashMap<String, Object>>) ( (Object) query.getResults() );
 
     JsonArray array = new JsonArray();
 
-    for (HashMap<String,Object> row : results)
+    for (HashMap<String, Object> row : results)
     {
       ServerGeoObjectType rowType = ServerGeoObjectType.get((MdVertexDAOIF) MdGraphClassDAO.getMdGraphClassByTableName((String) row.get("clazz")));
 

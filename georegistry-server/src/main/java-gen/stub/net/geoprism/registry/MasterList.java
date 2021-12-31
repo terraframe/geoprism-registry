@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -286,12 +286,12 @@ public class MasterList extends MasterListBase
       if (frequencies.contains(ChangeFrequency.ANNUAL))
       {
         Calendar end = getEndOfYear(endDate);
-        
+
         if (end.getTime().after(today))
         {
           end.add(Calendar.YEAR, -1);
         }
-        
+
         Calendar calendar = getEndOfYear(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
@@ -304,12 +304,12 @@ public class MasterList extends MasterListBase
       else if (frequencies.contains(ChangeFrequency.BIANNUAL))
       {
         Calendar end = getEndOfHalfYear(endDate);
-        
+
         while (end.getTime().after(today))
         {
           end.add(Calendar.MONTH, -6);
         }
-        
+
         Calendar calendar = getEndOfHalfYear(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
@@ -323,12 +323,12 @@ public class MasterList extends MasterListBase
       else if (frequencies.contains(ChangeFrequency.QUARTER))
       {
         Calendar end = getEndOfQuarter(endDate);
-        
+
         while (end.getTime().after(today))
         {
           end.add(Calendar.MONTH, -3);
         }
-        
+
         Calendar calendar = getEndOfQuarter(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
@@ -342,12 +342,12 @@ public class MasterList extends MasterListBase
       else if (frequencies.contains(ChangeFrequency.MONTHLY))
       {
         Calendar end = getEndOfMonth(endDate);
-        
+
         while (end.getTime().after(today))
         {
           end.add(Calendar.MONTH, -1);
         }
-        
+
         Calendar calendar = getEndOfMonth(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
@@ -608,12 +608,12 @@ public class MasterList extends MasterListBase
       if (range != null)
       {
         Date endDate = range.getSecond();
-        
+
         if (endDate.after(new Date()))
         {
           endDate = new Date();
         }
-        
+
         List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
 
         for (Date date : dates)

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -52,6 +52,10 @@ import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
@@ -213,7 +217,7 @@ public class ShapefileImporter implements FormatSpecificImporterIF
    *          Log file writer
    * @throws InvocationTargetException
    * @throws IOException
-   * @throws InterruptedException 
+   * @throws InterruptedException
    */
   @Request
   private void process(ImportStage stage, File shp) throws InvocationTargetException, IOException, InterruptedException
@@ -297,7 +301,8 @@ public class ShapefileImporter implements FormatSpecificImporterIF
         }
       }
     }
-    catch(Throwable t) {
+    catch (Throwable t)
+    {
       t.printStackTrace();
     }
     finally
@@ -308,7 +313,20 @@ public class ShapefileImporter implements FormatSpecificImporterIF
 
   public Geometry getGeometry(FeatureRow row)
   {
-    Object geometry = ( (SimpleFeatureRow) row ).getFeature().getDefaultGeometry();
+    Geometry geometry = (Geometry) ( (SimpleFeatureRow) row ).getFeature().getDefaultGeometry();
+
+    if (geometry instanceof Point)
+    {
+      return new GeometryFactory().createMultiPoint(new Point[] { (Point) geometry });
+    }
+    else if (geometry instanceof Polygon)
+    {
+      return new GeometryFactory().createMultiPolygon(new Polygon[] { (Polygon) geometry });
+    }
+    else if (geometry instanceof LineString)
+    {
+      return new GeometryFactory().createMultiLineString(new LineString[] { (LineString) geometry });
+    }
 
     return (Geometry) geometry;
   }

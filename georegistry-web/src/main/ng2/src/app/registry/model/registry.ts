@@ -347,58 +347,6 @@ export class Step {
     status?: string;
 }
 
-export class MasterList {
-    oid: string;
-    typeCode: string;
-    typeLabel?: LocalizedValue;
-    displayLabel: LocalizedValue;
-    code: string;
-    representativityDate: string;
-    publishingStartDate?: string;
-    publishDate: string;
-    descriptionLocal: LocalizedValue;
-    processLocal: LocalizedValue;
-    progressLocal: LocalizedValue;
-    accessConstraintsLocal: LocalizedValue;
-    useConstraintsLocal: LocalizedValue;
-    acknowledgementsLocal: LocalizedValue;
-    disclaimerLocal: LocalizedValue;
-    contactName: string;
-    organization: string;
-    telephoneNumber: string;
-    email: string;
-    hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
-    leaf: boolean;
-    frequency: string;
-    isMaster: boolean;
-    visibility: string;
-    write?: boolean;
-    read?: boolean;
-    exploratory?: boolean;
-    versions?: MasterListVersion[];
-    subtypes?: { label: string, code: string }[];
-    subtypeHierarchies?: any[];
-}
-
-export class MasterListVersion {
-    displayLabel: string;
-    oid: string;
-    typeCode: string;
-    orgCode: string;
-    masterlist: string;
-    forDate: string;
-    createDate: string;
-    publishDate: string;
-    attributes: any[];
-    isGeometryEditable: boolean;
-    locales?: string[];
-    shapefile?: boolean;
-    isAbstract?: boolean;
-    superTypeCode?: string;
-    refreshProgress?: any;
-    subtypes?: { label: string, code: string }[];
-}
-
 export class HierarchyOverTime {
     code: string;
     label: string;
@@ -426,24 +374,6 @@ export class HierarchyOverTimeEntryParent {
     goCode?: string;
 }
 
-export class MasterListView {
-    label: string;
-    oid: string;
-    createDate: string;
-    lastUpdateDate: string;
-    isMaster: boolean;
-    write: boolean;
-    read: boolean;
-    visibility: string;
-}
-
-export class MasterListByOrg {
-    oid: string;
-    code: string;
-    label: string;
-    write: boolean;
-    lists: MasterListView[];
-}
 
 export class SynchronizationConfig {
     oid?: string;
@@ -466,17 +396,4 @@ export class OrgSyncInfo {
 
 export class ExportScheduledJob extends AbstractScheduledJob {
     stepConfig?: StepConfig;
-}
-
-export class ContextLayer {
-    oid: string;
-    displayLabel: string;
-    active: boolean;
-    enabled: boolean;
-}
-
-export class ContextLayerGroup {
-    oid: string;
-    displayLabel: string;
-    contextLayers: ContextLayer[];
 }
