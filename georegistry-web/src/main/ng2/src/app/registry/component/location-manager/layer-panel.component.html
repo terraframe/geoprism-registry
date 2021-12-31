@@ -8,32 +8,44 @@
   )
 </ng-template>
 
-<div class="layer-toggle">
+<div class="layer-toggle" style="max-height:calc(100vh - 175px);overflow:auto;">
 
-  <i class="fa fa-bars" (click)="baselayerIconHover = !baselayerIconHover"
-    style="vertical-align: middle; font-size: 18px; color: black;"></i>
+  <div style="text-align: right;">
+    <i class="fa fa-bars" (click)="baselayerIconHover = !baselayerIconHover"
+      style="vertical-align: middle; font-size: 18px; color: black;"></i>
+  </div>
 
   <div *ngIf="!baselayerIconHover && layers.length > 0">
     <div style="margin-bottom: 10px;">
       <h4>
         <localize key="explorer.layers"></localize>
       </h4>
-      <div class="list-group">
-        <div *ngFor="let layer of layers" class="list-group-item">
+      <div class="list-group" cdkDropList (cdkDropListDropped)="drop($event)">
+        <div *ngFor="let layer of layers" class="list-group-item" style="padding:5px;" cdkDrag>
 
-          <input type="checkbox" [checked]="layer.active" (change)="toggleActive(layer)" style="margin-left: 10px;">
-          {{layer.label}} <span *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER">- {{ layer.forDate }}</span>
-          <ng-container *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
-            [ngTemplateOutletContext]="{layer:layer}">
-          </ng-container>
-          <div class="fa fa-square-o" [ngStyle]="{'background-color': layer.color}"> </div>
-          <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i>
-          <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i>
-          <i *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
-          <i *ngIf="layer.versionNumber === 0 && !layer.isAbstract" class="fa fa-plus" aria-hidden="true"
-            (click)="onCreate(layer)"></i>
+            <div class="layer-toggle-wrapper" style="cursor:move;">
+            
+              <div class="custom-placeholder" *cdkDragPlaceholder></div>
+              
+              <i class="fa fa-arrows" style="font-size:15px;color: grey;margin-right: 3px;" aria-hidden="true"></i>
+              <boolean-field [value]="layer.active" [label]="layer.label" [disable]="false" (change)="toggleActive(layer)" style="line-height:0;" ></boolean-field>
+              
+              <div class="label-wrapper">
+                <span *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER">- {{ layer.forDate }}</span>
+                <ng-container *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
+                  [ngTemplateOutletContext]="{layer:layer}">
+                </ng-container>
+                <div class="layer-legend-square" [ngStyle]="{'background-color': layer.color}" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"> </div>
+<!--                 <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i> -->
+<!--                 <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i> -->
+                <i *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
+                <i *ngIf="layer.versionNumber === 0 && !layer.isAbstract" class="fa fa-plus" aria-hidden="true"
+                  (click)="onCreate(layer)"></i>
+              </div>
+            </div>
         </div>
       </div>
+      
     </div>
   </div>
 
@@ -81,7 +93,7 @@
         </div>
         <div *ngIf="lists.length > 0" class="row">
           <div class="col-md-12">
-            <p class="h.6 font-italic"><localize key="explorer.search.note"></localize></p>
+            <p style="font-style:italic;color:grey;"><localize key="explorer.search.note"></localize></p>
           </div>
         </div>
 
@@ -90,18 +102,22 @@
             <div class="list-group">
               <div *ngFor="let list of lists">
                 <div *ngIf="list.versions.length > 0" class="list-group-item" style="border: none;">
-                  <h4><a (click)="list.open = !list.open">{{ list.label }}</a></h4>
+                
+                  <h4><a (click)="list.open = !list.open"><i class="fa fa-chevron-right" [ngClass]="{'fa-chevron-down' : list.open, 'fa-chevron-right' : !list.open}" style="font-size:14px;"></i>{{ list.label }}</a></h4>
                   <div *ngIf="list.open" class="list-group">
                     <div *ngFor="let version of list.versions">
 
-                      <input type="checkbox" [checked]="version.enabled" (change)="onToggleLayer(version, list)"
-                        style="margin-left: 10px;">
-                      {{ version.forDate }}
-                      <ng-container *ngIf="version.oid !== CONSTANT.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
-                        [ngTemplateOutletContext]="{layer:version}">
-                      </ng-container>
-                      <div *ngIf="version.color != null" class="fa fa-square-o"
-                        [ngStyle]="{'background-color': version.color}"> </div>
+                        <div class="layer-toggle-wrapper">
+                            <boolean-field [value]="version.enabled" [label]="version.forDate" [disable]="false" (change)="onToggleLayer(version, list)" style="line-height:0;"></boolean-field>
+                        
+                            <div class="label-wrapper">
+                              <ng-container *ngIf="version.oid !== CONSTANT.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
+                                [ngTemplateOutletContext]="{layer:version}">
+                              </ng-container>
+                              <div *ngIf="version.color != null" class="layer-legend-square" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"
+                                [ngStyle]="{'background-color': version.color}"> </div>
+                            </div>
+                        </div>           
                     </div>
                   </div>
                 </div>

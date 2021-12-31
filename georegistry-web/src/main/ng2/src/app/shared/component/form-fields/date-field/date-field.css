@@ -32,7 +32,8 @@ p.warning-text.display-current-value {
 /* } */
 
 .date-input-element {
-	width: auto;
+/* 	width: auto; */
+    width: 100%;
 }
 .date-input-element.full-width {
 	width: 100%;

@@ -13,6 +13,7 @@ import { ProgressbarModule } from "ngx-bootstrap/progressbar";
 import { CollapseModule } from "ngx-bootstrap/collapse";
 import { TabsModule } from "ngx-bootstrap/tabs";
 import { DndModule } from "ngx-drag-drop";
+import { DragDropModule } from "@angular/cdk/drag-drop";
 
 import { ImportTypesModalComponent } from './component/hierarchy/modals/import-types-modal.component';
 import { LocalizedInputComponent } from "./component/form-fields/localized-input/localized-input.component";
@@ -135,6 +136,7 @@ import { SelectTypeModalComponent } from "./component/location-manager/select-ty
         SharedModule,
         RegistryRoutingModule,
         DndModule,
+        DragDropModule,
         AccordionModule.forRoot()
     ],
     declarations: [

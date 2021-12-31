@@ -3,6 +3,6 @@
     <span></span>
   </div>
   
-  <label *ngIf="label.length > 0" class="checkbox-label">{{label}}</label>
-  <label *ngIf="localizeLabelKey.length > 0" class="checkbox-label"><localize key="{{localizeLabelKey}}"></localize></label>
+  <label *ngIf="label && label.length > 0" class="checkbox-label">{{label}}</label>
+  <label *ngIf="localizeLabelKey && localizeLabelKey.length > 0" class="checkbox-label"><localize key="{{localizeLabelKey}}"></localize></label>
 </div>

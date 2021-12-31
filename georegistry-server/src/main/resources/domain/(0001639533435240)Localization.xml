@@ -1,0 +1,52 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+    
+        <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.button.create">
+            <attribute name="storeTag" value="UIText" />
+            <attribute name="storeKey" value="list.type.button.create" />
+            <attributeStruct name="storeValue">
+              <attribute name="defaultLocale" value="Add" />
+            </attributeStruct>
+          </object>
+          
+          <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.no.lists.message">
+            <attribute name="storeTag" value="UIText" />
+            <attribute name="storeKey" value="list.type.no.lists.message" />
+            <attributeStruct name="storeValue">
+              <attribute name="defaultLocale" value="No lists have been created yet." />
+            </attributeStruct>
+          </object>
+          
+          <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.layers">
+            <attribute name="storeTag" value="UIText" />
+            <attribute name="storeKey" value="explorer.layers" />
+            <attributeStruct name="storeValue">
+              <attribute name="defaultLocale" value="Layers" />
+            </attributeStruct>
+          </object>
+          
+          <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.search.search.map.features">
+            <attribute name="storeTag" value="UIText" />
+            <attribute name="storeKey" value="explorer.search.search.map.features" />
+            <attributeStruct name="storeValue">
+              <attribute name="defaultLocale" value="Search map" />
+            </attributeStruct>
+          </object>
+          
+          <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.search.search.graph">
+            <attribute name="storeTag" value="UIText" />
+            <attribute name="storeKey" value="explorer.search.search.graph" />
+            <attributeStruct name="storeValue">
+              <attribute name="defaultLocale" value="Search working" />
+            </attributeStruct>
+          </object>
+          
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

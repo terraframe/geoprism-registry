@@ -7,6 +7,8 @@ import { LocalizationService } from "@shared/service";
 import * as ColorGen from "color-generator";
 import { Subscription } from "rxjs";
 
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+
 export const GRAPH_LAYER = 'graph';
 
 export class LayerEvent {
@@ -20,6 +22,16 @@ export class LayerEvent {
     styleUrls: ["./location-manager.css"]
 })
 export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
+    
+    draggable = {
+        // note that data is handled with JSON.stringify/JSON.parse
+        // only set simple data or POJO's as methods will be lost 
+        data: "myDragData",
+        effectAllowed: "all",
+        disable: false,
+        handle: false
+    };
+      
     // Hack to allow the constant to be used in the html
     CONSTANT = {
         GRAPH_LAYER: GRAPH_LAYER
@@ -372,7 +384,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         this.baseLayerChange.emit(layer);
     }
 
-    moveLayer(layer: ContextLayer, offset: number): void {
+    moveLayerIncrementally(layer: ContextLayer, offset: number): void {
         const index = this.layers.findIndex(l => l.oid === layer.oid);
         const target = (index + offset);
 
@@ -389,6 +401,23 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
                 queryParamsHandling: 'merge', // remove to replace all query params by provided
             });
         }
+    }
+    
+    moveLayer(oldLayers: ContextLayer[]): void {
+
+        let layers = oldLayers.map(l => l.oid);
+
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { layers: JSON.stringify(layers) },
+            queryParamsHandling: 'merge', // remove to replace all query params by provided
+        });
+    }
+    
+    drop(event: CdkDragDrop<string[]>) {
+        let oldLayers = JSON.parse(JSON.stringify(this.layers));
+        moveItemInArray(oldLayers, event.previousIndex, event.currentIndex);
+        this.moveLayer(oldLayers);
     }
 
 }
