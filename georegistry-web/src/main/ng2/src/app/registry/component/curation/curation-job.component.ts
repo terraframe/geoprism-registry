@@ -1,20 +1,16 @@
 import { Component, OnInit } from "@angular/core";
-import { Router, ActivatedRoute } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import { HttpErrorResponse } from "@angular/common/http";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
-import { RegistryService, IOService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
-import { ScheduledJob } from "@registry/model/registry";
 
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService, AuthService } from "@shared/service";
-import { ModalTypes } from "@shared/model/modal";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
-import { JobConflictModalComponent } from "../scheduled-jobs/conflict-widgets/job-conflict-modal.component";
 import { PageResult } from "@shared/model/core";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { CurationJob, CurationProblem, ListTypeVersion } from "@registry/model/list-type";
@@ -29,7 +25,6 @@ declare let registry: GeoRegistryConfiguration;
 export class CurationJobComponent implements OnInit {
 
     message: string = null;
-    allSelected: boolean = false;
 
     version: ListTypeVersion;
     job: CurationJob;
@@ -58,8 +53,8 @@ export class CurationJobComponent implements OnInit {
     notifier: WebSocketSubject<{ type: string, message: string }>;
 
     constructor(public service: ListTypeService, private modalService: BsModalService,
-        private router: Router, private route: ActivatedRoute, private dateService: DateService,
-        private localizeService: LocalizationService, authService: AuthService, public ioService: IOService) {
+        private route: ActivatedRoute, private dateService: DateService,
+        private localizeService: LocalizationService, authService: AuthService) {
         this.isAdmin = authService.isAdmin();
         this.isMaintainer = this.isAdmin || authService.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
@@ -96,7 +91,7 @@ export class CurationJobComponent implements OnInit {
         return JSON.stringify(obj);
     }
 
-    onProblemResolved(problem: any): void {
+    onProblemResolved(problem: CurationProblem): void {
 
         const index = this.page.resultSet.findIndex(p => p.id === problem.id);
 
@@ -121,18 +116,30 @@ export class CurationJobComponent implements OnInit {
             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(this.version, problem, this.job, (result: any) => {
-            if (result.action === "RESOLVED") {
-                this.onProblemResolved(result.data);
-            }
+            // if (result.action === "RESOLVED") {
+                // this.onProblemResolved(result.data);
+            // }
         });
     }
+
+
+    toggleResolution(problem: CurationProblem): void {
+        const resolution = problem.resolution != null ? null : 'APPLY_GEO_OBJECT';
+
+        this.service.setResolution(problem, resolution).then(() => {
+            problem.resolution = resolution;
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
 
     onPageChange(pageNumber: any): void {
         if (this.version != null) {
 
             this.message = null;
 
-            this.service.getCurationInfo(this.version, true, pageNumber, this.page.pageSize).then(response => {
+            this.service.getCurationInfo(this.version, false, pageNumber, this.page.pageSize).then(response => {
                 this.job = response;
 
                 if (this.job.status === "SUCCESS") {
@@ -143,70 +150,6 @@ export class CurationJobComponent implements OnInit {
             });
         }
     }
-
-    toggleAll(): void {
-        this.allSelected = !this.allSelected;
-
-        this.job.page.resultSet.forEach(row => {
-            row.selected = this.allSelected;
-        });
-    }
-
-    onResolveScheduledJob(historyId: string): void {
-        // if (this.page.resultSet.length === 0) {
-        //     // this.service.resolveScheduledJob(historyId).then(response => {
-        //     //     this.router.navigate(["/registry/scheduled-jobs"]);
-        //     // }).catch((err: HttpErrorResponse) => {
-        //     //     this.error(err);
-        //     // });
-        // } else {
-        //     this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-        //         animated: true,
-        //         backdrop: true,
-        //         ignoreBackdropClick: true
-        //     });
-
-        //     if (this.job.stage === "VALIDATION_RESOLVE") {
-        //         this.bsModalRef.content.message = this.localizeService.decode("etl.import.resume.modal.validationDescription");
-        //         this.bsModalRef.content.submitText = this.localizeService.decode("etl.import.resume.modal.validationButton");
-        //     } else {
-        //         this.bsModalRef.content.message = this.localizeService.decode("etl.import.resume.modal.importDescription");
-        //         this.bsModalRef.content.submitText = this.localizeService.decode("etl.import.resume.modal.importButton");
-        //     }
-
-        //     this.bsModalRef.content.type = ModalTypes.danger;
-
-        //     this.bsModalRef.content.onConfirm.subscribe(data => {
-        //         this.service.resolveScheduledJob(historyId).then(response => {
-        //             this.router.navigate(["/registry/scheduled-jobs"]);
-        //         }).catch((err: HttpErrorResponse) => {
-        //             this.error(err);
-        //         });
-        //     });
-        // }
-    }
-
-    // onCancelScheduledJob(historyId: string): void {
-    //     this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-    //         animated: true,
-    //         backdrop: true,
-    //         ignoreBackdropClick: true
-    //     });
-
-    //     this.bsModalRef.content.message = this.localizeService.decode("etl.import.cancel.modal.description");
-    //     this.bsModalRef.content.submitText = this.localizeService.decode("etl.import.cancel.modal.button");
-
-    //     this.bsModalRef.content.type = ModalTypes.danger;
-
-    //     this.bsModalRef.content.onConfirm.subscribe(data => {
-    //         this.ioService.cancelImport(this.job.configuration).then(response => {
-    //             // this.bsModalRef.hide()
-    //             this.router.navigate(["/registry/scheduled-jobs"]);
-    //         }).catch((err: HttpErrorResponse) => {
-    //             this.error(err);
-    //         });
-    //     });
-    // }
 
     formatDate(date: string): string {
         return this.dateService.formatDateForDisplay(date);

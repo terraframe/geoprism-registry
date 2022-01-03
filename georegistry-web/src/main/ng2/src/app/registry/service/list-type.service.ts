@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
-import { ContextList, CurationJob, LayerRecord, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
+import { ContextList, CurationJob, CurationProblem, LayerRecord, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
 import { Observable } from "rxjs";
 
 import { GeoRegistryConfiguration } from "@core/model/registry"; import { PageResult } from "@shared/model/core";
@@ -332,6 +332,27 @@ export class ListTypeService {
 
         return this.http
             .post<void>(registry.contextPath + "/curation/problem-resolve", JSON.stringify({ config: config }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+    setResolution(problem: CurationProblem, resolution: string): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        const params: any = { problemId: problem.id };
+
+        if (resolution != null) {
+            params.resolution = resolution;
+        }
+
+        this.eventService.start();
+
+        return this.http
+            .post<void>(registry.contextPath + "/curation/set-resolution", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

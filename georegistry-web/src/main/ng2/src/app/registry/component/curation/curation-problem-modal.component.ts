@@ -1,9 +1,6 @@
 import { Component } from "@angular/core";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { Observer } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
-
-import { ScheduledJobOverview } from "@registry/model/registry";
 
 import { ErrorHandler } from "@shared/component";
 import { CurationJob, CurationProblem, ListTypeVersion } from "@registry/model/list-type";
@@ -22,7 +19,7 @@ export class CurationProblemModalComponent {
     version: ListTypeVersion;
     problem: CurationProblem;
     job: CurationJob;
-    callback: Observer<any>;
+    callback: Function;
 
     readonly: boolean = false;
     edit: boolean = false;
@@ -30,7 +27,7 @@ export class CurationProblemModalComponent {
     constructor(public service: ListTypeService, public bsModalRef: BsModalRef, private modalService: BsModalService, private dateService: DateService) {
     }
 
-    init(version: ListTypeVersion, problem: CurationProblem, job: CurationJob, callback: Observer<any>): void {
+    init(version: ListTypeVersion, problem: CurationProblem, job: CurationJob, callback: Function): void {
         this.version = version;
         this.problem = problem;
         this.job = job;
@@ -70,7 +67,7 @@ export class CurationProblemModalComponent {
                 };
 
                 this.service.submitErrorResolve(config).then(() => {
-                    // this.callback.next({ action: "RESOLVED", data: this.problem });
+                    this.callback({ action: "RESOLVED", data: this.problem });
                     editModal.hide();
                 }).catch((err: HttpErrorResponse) => {
                     editModal.content.error(err);
@@ -89,7 +86,7 @@ export class CurationProblemModalComponent {
     }
 
     onProblemResolvedListener(problem: CurationProblem): void {
-        this.callback.next({ action: "RESOLVED", data: problem });
+        this.callback({ action: "RESOLVED", data: problem });
     }
 
     onCancel(): void {

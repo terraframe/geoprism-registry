@@ -21,8 +21,6 @@ package net.geoprism.registry.curation;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -34,7 +32,6 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
-import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.GeoRegistryUtil;
@@ -42,13 +39,10 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
-import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
-import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.Page;
-import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class CurationService
 {
@@ -203,11 +197,11 @@ public class CurationService
   @Request(RequestType.SESSION)
   public void submitProblemResolution(String sessionId, String json)
   {
-    submitProblemResolutionInTrans(sessionId, json);
+    submitProblemResolution(json);
   }
 
   @Transaction
-  private void submitProblemResolutionInTrans(String sessionId, String json)
+  private void submitProblemResolution(String json)
   {
     JsonObject config = JsonParser.parseString(json).getAsJsonObject();
 
@@ -217,7 +211,8 @@ public class CurationService
     // this.checkPermissions(hist.getOrganization().getCode(),
     // hist.getServerGeoObjectType());
 
-    CurationProblem err = CurationProblem.get(config.get("problemId").getAsString());
+    // CurationProblem err =
+    // CurationProblem.get(config.get("problemId").getAsString());
 
     String resolution = config.get("resolution").getAsString();
 
@@ -230,6 +225,29 @@ public class CurationService
       ServerGeoObjectService service = new ServerGeoObjectService();
       service.updateGeoObjectInTrans(geoObjectCode, geoObjectTypeCode, actions, version.getOid(), null);
 
+      // err.appLock();
+      // err.setResolution(resolution);
+      // err.apply();
+    }
+    else
+    {
+      throw new UnsupportedOperationException("Invalid import resolution [" + resolution + "].");
+    }
+  }
+
+  @Request(RequestType.SESSION)
+  public void setResolution(String sessionId, String problemId, String resolution)
+  {
+    setResolution(problemId, resolution);
+  }
+
+  @Transaction
+  private void setResolution(String problemId, String resolution)
+  {
+    CurationProblem err = CurationProblem.get(problemId);
+
+    if (resolution == null || resolution.equals(ErrorResolution.APPLY_GEO_OBJECT.name()))
+    {
       err.appLock();
       err.setResolution(resolution);
       err.apply();
