@@ -185,6 +185,7 @@ export class CurationProblem {
     id: string;
     typeCode?: string;
     goCode?: string;
+    goUid?: string;
     selected?: boolean;
 }
 
@@ -194,8 +195,8 @@ export class CurationJob {
     lastRunBy: string;
     historyId: string;
     jobId: string;
-    workTotal:number;
-    workProgress:number;
+    workTotal: number;
+    workProgress: number;
     exception?: {
         type: string,
         message: string

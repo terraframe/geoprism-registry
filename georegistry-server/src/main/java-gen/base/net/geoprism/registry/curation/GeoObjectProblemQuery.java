@@ -1,6 +1,6 @@
 package net.geoprism.registry.curation;
 
-@com.runwaysdk.business.ClassSignature(hash = 2000795523)
+@com.runwaysdk.business.ClassSignature(hash = 317270859)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -72,6 +72,23 @@ public  class GeoObjectProblemQuery extends net.geoprism.registry.curation.Curat
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.curation.GeoObjectProblem.TYPECODE, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getUid()
+  {
+    return getUid(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getUid(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.curation.GeoObjectProblem.UID, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getUid(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.curation.GeoObjectProblem.UID, alias, displayLabel);
+
+  }
   /**  
    * Returns an iterator of Business objects that match the query criteria specified
    * on this query object. 
@@ -110,6 +127,9 @@ public  class GeoObjectProblemQuery extends net.geoprism.registry.curation.Curat
     public com.runwaysdk.query.SelectableChar getTypeCode();
     public com.runwaysdk.query.SelectableChar getTypeCode(String alias);
     public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getUid();
+    public com.runwaysdk.query.SelectableChar getUid(String alias);
+    public com.runwaysdk.query.SelectableChar getUid(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.curation.GeoObjectProblem geoObjectProblem);
 
@@ -179,6 +199,23 @@ public  class GeoObjectProblemQuery extends net.geoprism.registry.curation.Curat
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.curation.GeoObjectProblem.TYPECODE, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getUid()
+  {
+    return getUid(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getUid(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.curation.GeoObjectProblem.UID, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getUid(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.curation.GeoObjectProblem.UID, alias, displayLabel);
+
+  }
   }
 
 /**
@@ -194,6 +231,9 @@ public  class GeoObjectProblemQuery extends net.geoprism.registry.curation.Curat
     public com.runwaysdk.query.SelectableChar getTypeCode();
     public com.runwaysdk.query.SelectableChar getTypeCode(String alias);
     public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getUid();
+    public com.runwaysdk.query.SelectableChar getUid(String alias);
+    public com.runwaysdk.query.SelectableChar getUid(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.curation.GeoObjectProblem ... geoObjectProblem);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.curation.GeoObjectProblem ... geoObjectProblem);
@@ -310,6 +350,23 @@ public  class GeoObjectProblemQuery extends net.geoprism.registry.curation.Curat
   public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.curation.GeoObjectProblem.TYPECODE, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getUid()
+  {
+    return getUid(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getUid(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.curation.GeoObjectProblem.UID, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getUid(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.curation.GeoObjectProblem.UID, alias, displayLabel);
 
   }
   }

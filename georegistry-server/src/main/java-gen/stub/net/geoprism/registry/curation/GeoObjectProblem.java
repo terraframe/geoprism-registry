@@ -24,6 +24,7 @@ public class GeoObjectProblem extends GeoObjectProblemBase
     
     json.addProperty("typeCode", this.getTypeCode());
     json.addProperty("goCode", this.getGoCode());
+    json.addProperty("goUid", this.getUid());
     
     return json;
   }

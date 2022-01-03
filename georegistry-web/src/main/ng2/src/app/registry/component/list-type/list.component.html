@@ -55,6 +55,7 @@
                         Date of last validation :
                         <span *ngIf="list.curation.lastRun == null" class="date-string-display">
                             N/A
+                            <localize key="list.type.na"></localize>
                         </span>
                         <a *ngIf="list.curation.lastRun != null" [routerLink]="['/registry/curation-job', list.oid]"
                             routerLinkActive="active">
@@ -62,7 +63,7 @@
                         </a>
                     </span>
                     <button type="submit" class="btn btn-primary" role="button" (click)="onRunCuration()">
-                        Run Curation
+                        <localize key="list.type.run.curation"></localize>
                     </button>
                 </div>
             </div>

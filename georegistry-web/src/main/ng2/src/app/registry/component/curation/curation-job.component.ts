@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import { HttpErrorResponse } from "@angular/common/http";
@@ -52,7 +52,7 @@ export class CurationJobComponent implements OnInit {
 
     notifier: WebSocketSubject<{ type: string, message: string }>;
 
-    constructor(public service: ListTypeService, private modalService: BsModalService,
+    constructor(private router: Router, public service: ListTypeService, private modalService: BsModalService,
         private route: ActivatedRoute, private dateService: DateService,
         private localizeService: LocalizationService, authService: AuthService) {
         this.isAdmin = authService.isAdmin();
@@ -102,29 +102,42 @@ export class CurationJobComponent implements OnInit {
 
     getFriendlyProblemType(probType: string): string {
         if (probType === "NO_GEOMETRY") {
-            // return this.localizeService.decode("scheduledjobs.job.problem.type.parent.lookup");
-            return 'Missing geometry';
+            return this.localizeService.decode("list.type.no.geometry");
+        }
+        else if (probType === "INVALID_GEOMETRY") {
+            return this.localizeService.decode("list.type.invalid.geometry");
         }
 
         return probType;
     }
 
     onEdit(problem: CurationProblem): void {
-        this.bsModalRef = this.modalService.show(CurationProblemModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
+        // this.bsModalRef = this.modalService.show(CurationProblemModalComponent, {
+        //     animated: true,
+        //     backdrop: true,
+        //     ignoreBackdropClick: true
+        // });
+        // this.bsModalRef.content.init(this.version, problem, this.job, (result: any) => {
+        //     // if (result.action === "RESOLVED") {
+        //     // this.onProblemResolved(result.data);
+        //     // }
+        // });
+
+        const params: any = {
+            layers: JSON.stringify([this.version.oid]),
+            version: this.version.oid,
+            uid: problem.goUid
+        };
+
+        this.router.navigate(['/registry/location-manager'], {
+            queryParams: params,
         });
-        this.bsModalRef.content.init(this.version, problem, this.job, (result: any) => {
-            // if (result.action === "RESOLVED") {
-                // this.onProblemResolved(result.data);
-            // }
-        });
+
     }
 
-
     toggleResolution(problem: CurationProblem): void {
-        const resolution = problem.resolution != null ? null : 'APPLY_GEO_OBJECT';
+        const resolution = (problem.resolution == null || problem.resolution.length === 0 || problem.resolution === 'UNRESOLVED') ?
+            'APPLY_GEO_OBJECT' : 'UNRESOLVED';
 
         this.service.setResolution(problem, resolution).then(() => {
             problem.resolution = resolution;

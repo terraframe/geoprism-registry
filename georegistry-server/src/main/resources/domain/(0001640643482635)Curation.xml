@@ -23,7 +23,8 @@
       <mdBusiness name="net.geoprism.registry.curation.GeoObjectProblem" extends="net.geoprism.registry.curation.CurationProblem">
         <attributes>
           <text name="typeCode" label="ServerGeoObjectType" />
-          <text name="goCode" label="ServerGeoObjectType" />
+          <text name="goCode" label="GeoObject Code" />
+          <text name="uid" label="GeoObject UID" />          
         </attributes>
       </mdBusiness>
     </create>
@@ -65,10 +66,10 @@
   </doIt>
   <undoIt>
     <delete>
-      <object key="net.geoprism.registry.curation.ListCurationJob" type="com.runwaysdk.system.metadata.MdBusiness"></object>
-      <object key="net.geoprism.registry.curation.ListCurationHistory" type="com.runwaysdk.system.metadata.MdBusiness"></object>
       <object key="net.geoprism.registry.curation.CurationProblem" type="com.runwaysdk.system.metadata.MdBusiness"></object>
       <object key="net.geoprism.registry.curation.GeoObjectProblem" type="com.runwaysdk.system.metadata.MdBusiness"></object>
+      <object key="net.geoprism.registry.curation.ListCurationHistory" type="com.runwaysdk.system.metadata.MdBusiness"></object>
+      <object key="net.geoprism.registry.curation.ListCurationJob" type="com.runwaysdk.system.metadata.MdBusiness"></object>
     </delete>
   </undoIt>
 </version>

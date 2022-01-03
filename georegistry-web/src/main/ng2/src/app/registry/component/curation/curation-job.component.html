@@ -24,7 +24,7 @@
               <strong>{{version.label}}</strong>
             </span>
             <span style="display: block;">
-              Job started by:
+              <localize key="list.type.job.started.by"></localize>
               {{job.lastRunBy}}
             </span>
             <span style="display: block;">
@@ -41,7 +41,7 @@
         <div>
 
           <h5><b>{{job.workProgress}}
-              Validated out of
+            <localize key="list.type.validated.out.of"></localize>
               {{job.workTotal}}
               <localize key="scheduledjobs.job.imported.total.label"></localize>
             </b></h5>
@@ -51,47 +51,6 @@
         </div>
       </div>
       <div class="col-md-5 order-md-1">
-        <!--
-
-                  <div *ngIf="page.resultSet.length == 0 && job && job.stage === 'VALIDATION_RESOLVE'" style="display:block; margin: 10px;text-align: right;">
-                    <span style="display:block; margin-bottom:10px;">
-                      <localize key="scheduledjobs.validation.problems.complete.msg"></localize>
-                    </span>
-                    <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">
-                      <localize key="scheduledjobs.reimport.button"></localize>
-                    </button>
-                  </div>
-                  
-                  <div *ngIf="page.resultSet.length == 0 && job && job.stage === 'IMPORT_RESOLVE'" style="display:block; margin:10px;text-align: right;">
-                    <span style="display:block; margin-bottom:10px;">
-                      <localize key="scheduledjobs.import.problems.complete.msg"></localize>
-                    </span>
-                    <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">
-                      <localize key="scheduledjobs.complete.import.button"></localize>
-                    </button>
-                  </div>
-      
-                  <div *ngIf="page && page.resultSet != null && page.resultSet.length > 0 && !hasRowValidationProblem" class="button-holder" style="display:block; margin:10px;text-align: right;">
-                      <button type="submit" (click)="onResolveScheduledJob(job.historyId)" class="btn btn-primary" role="button">
-                        <localize *ngIf="job && job.stage === 'VALIDATION_RESOLVE'" key="etl.import.resume.openModal"></localize>
-                        <span *ngIf="job && job.stage === 'IMPORT_RESOLVE'">
-                          <localize key="scheduledjobs.complete.import.button"></localize>
-                        </span>
-                      </button>
-                  </div>
-                  
-                  <div *ngIf="hasRowValidationProblem"class="button-holder" style="display:block; margin:10px;">
-                    <button type="submit" (click)="onReuploadAndResume(job.historyId)" class="btn btn-primary" role="button">
-                        <span>
-                          <localize key="scheduledjobs.reupload.resume.button"></localize>
-                        </span>
-                      </button>
-                  </div>
-                  
-                  <div *ngIf="page && page.resultSet != null && page.resultSet.length > 0 && job.stage === 'VALIDATION_RESOLVE'" class="button-holder" style="display:block; margin:10px;">
-                      <button type="button" (click)="onCancelScheduledJob(job.historyId)" class="btn btn-danger" role="button"><localize key="etl.import.cancel.openModal"></localize></button>
-                  </div>
-                  -->
       </div>
     </div>
     <div *ngIf="page && page.resultSet.length > 0" class="row">
@@ -106,7 +65,7 @@
                   <localize key="scheduledjobs.import.table.problem.type.header"></localize>
                 </th>
                 <th class="label-column">
-                  Geo-Object Code
+                  <localize key="data.property.label.code"></localize>
                 </th>
                 <th class="label-column">
 
@@ -128,7 +87,7 @@
                     <localize key="scheduledjobs.fix.problem.button"></localize>
                   </button>
                   <boolean-field [value]="row.resolution === 'APPLY_GEO_OBJECT'" (change)="toggleResolution(row)"
-                    label="Is problem resolved"></boolean-field>
+                    [label]="'list.type.problem.resolved' | localize"></boolean-field>
 
                 </td>
               </tr>
@@ -142,5 +101,11 @@
         </ul>
       </div>
     </div>
+    <div *ngIf="page && page.resultSet.length === 0" class="row">
+      <div class="col-md-12 order-md-1">
+        <localize key="list.type.validation.empty"></localize>
+      </div>
+    </div>
+
   </div>
 </div>

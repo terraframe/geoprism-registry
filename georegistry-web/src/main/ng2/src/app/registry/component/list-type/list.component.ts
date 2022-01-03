@@ -300,12 +300,12 @@ export class ListComponent implements OnInit, OnDestroy {
     onPublish(): void {
         this.message = null;
 
-        this.service.publishList(this.list.oid).toPromise()
-            .then((historyOid: string) => {
-                this.isRefreshing = true;
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
+        this.service.publishList(this.list.oid).toPromise().then((historyOid: string) => {
+            this.isRefreshing = true;
+            this.list.curation = {};
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
     }
 
     onNewGeoObject(): void {
@@ -371,7 +371,6 @@ export class ListComponent implements OnInit, OnDestroy {
 
         })
     }
-
 
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);

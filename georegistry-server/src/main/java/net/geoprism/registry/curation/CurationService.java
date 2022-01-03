@@ -246,7 +246,7 @@ public class CurationService
   {
     CurationProblem err = CurationProblem.get(problemId);
 
-    if (resolution == null || resolution.equals(ErrorResolution.APPLY_GEO_OBJECT.name()))
+    if (ErrorResolution.valueOf(resolution) != null)
     {
       err.appLock();
       err.setResolution(resolution);

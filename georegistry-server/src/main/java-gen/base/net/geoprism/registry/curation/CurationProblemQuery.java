@@ -1,6 +1,6 @@
 package net.geoprism.registry.curation;
 
-@com.runwaysdk.business.ClassSignature(hash = 778152560)
+@com.runwaysdk.business.ClassSignature(hash = -1875790673)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -38,7 +38,6 @@ public  class CurationProblemQuery extends com.runwaysdk.query.GeneratedBusiness
   {
     return net.geoprism.registry.curation.CurationProblem.CLASS;
   }
-  
   public com.runwaysdk.query.SelectableMoment getCreateDate()
   {
     return getCreateDate(null);
@@ -905,7 +904,6 @@ public  class CurationProblemQuery extends com.runwaysdk.query.GeneratedBusiness
 
       return this.containsExactly(itemIdArray);
   }
- 
   public com.runwaysdk.query.SelectableMoment getCreateDate()
   {
     return getCreateDate(null);

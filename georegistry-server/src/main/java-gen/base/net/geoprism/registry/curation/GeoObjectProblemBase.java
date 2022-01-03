@@ -1,6 +1,6 @@
 package net.geoprism.registry.curation;
 
-@com.runwaysdk.business.ClassSignature(hash = -2096134324)
+@com.runwaysdk.business.ClassSignature(hash = -1928968286)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -13,7 +13,8 @@ public abstract class GeoObjectProblemBase extends net.geoprism.registry.curatio
   public final static String CLASS = "net.geoprism.registry.curation.GeoObjectProblem";
   public static java.lang.String GOCODE = "goCode";
   public static java.lang.String TYPECODE = "typeCode";
-  private static final long serialVersionUID = -2096134324;
+  public static java.lang.String UID = "uid";
+  private static final long serialVersionUID = -1928968286;
   
   public GeoObjectProblemBase()
   {
@@ -73,6 +74,34 @@ public abstract class GeoObjectProblemBase extends net.geoprism.registry.curatio
     else
     {
       setValue(TYPECODE, value);
+    }
+  }
+  
+  public String getUid()
+  {
+    return getValue(UID);
+  }
+  
+  public void validateUid()
+  {
+    this.validateAttribute(UID);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getUidMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.curation.GeoObjectProblem.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(UID);
+  }
+  
+  public void setUid(String value)
+  {
+    if(value == null)
+    {
+      setValue(UID, "");
+    }
+    else
+    {
+      setValue(UID, value);
     }
   }
   

@@ -120,6 +120,7 @@ import net.geoprism.registry.command.GeoserverCreateWMSCommand;
 import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.curation.CurationService;
+import net.geoprism.registry.curation.ListCurationHistory;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.masterlist.ListTypeAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
@@ -821,6 +822,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
       // Delete tile cache
       ListTileCache.deleteTiles(this);
+      
+      ListCurationHistory.deleteAll(this);
 
       MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
       mdBusiness.deleteAllRecords();
@@ -901,6 +904,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
         this.setPublishDate(new Date());
         this.apply();
+        
 
         return this.toJSON(true).toString();
       }

@@ -1,6 +1,6 @@
 package net.geoprism.registry.curation;
 
-@com.runwaysdk.business.ClassSignature(hash = 1633928633)
+@com.runwaysdk.business.ClassSignature(hash = -1286260168)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -26,7 +26,7 @@ public abstract class CurationProblemBase extends com.runwaysdk.business.Busines
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = 1633928633;
+  private static final long serialVersionUID = -1286260168;
   
   public CurationProblemBase()
   {
