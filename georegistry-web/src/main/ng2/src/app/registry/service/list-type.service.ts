@@ -279,13 +279,8 @@ export class ListTypeService {
         params = params.set("pageSize", pageSize.toString());
         params = params.set("pageNumber", pageNumber.toString());
 
-        this.eventService.start();
-
 
         return this.http.get<CurationJob>(registry.contextPath + "/curation/details", { params: params })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
             .toPromise();
     }
 

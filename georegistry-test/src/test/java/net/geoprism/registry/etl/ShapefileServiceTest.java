@@ -367,7 +367,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
-    Assert.assertEquals(false, object.getExists());
+    Assert.assertEquals(true, object.getExists());
   }
 
   @Test
