@@ -647,16 +647,26 @@ div.row-holder .rad-area {
 }
 
 .check-block{
-	padding: 5px 0;
-	float:left;
+//	padding: 5px 0;
+//	float:left;
+//    display: inline-block;
 }
+.check-block {
+    padding: 0;
+    display: inline-flex;
+}
+.check-block.chk-area {
+    display: inline-flex;
+}
+ 
 .chk-area,
 .rad-area{
 	border:2px solid #a6a6a6;
 	// margin:7px 11px 0 0;
-	float:left;
+//	float:left;
 	width:20px;
 	height:20px;
+	
 }
 .chk-area:hover,
 .rad-area:hover{

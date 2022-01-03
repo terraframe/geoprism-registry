@@ -20,60 +20,66 @@
 
   <div id="app-container" class="container-fluid">
 
-    <div class="row">
-      <article class="panel-toggle" style="width: 40%; background-color: white;">
-        <div class="row">
-          <div class="col-md-2">
-            <button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="onToggleSearch()">
-              <span *ngIf="searchFeatures">Search Graph</span>
-              <span *ngIf="!searchFeatures">Search features</span>
-            </button>
-          </div>
-
-          <ng-container *ngIf="searchEnabled && !searchFeatures">
-            <div class="col-md-4">
-              <date-field [(value)]="state.date" label="" [inputName]="'date'" [allowInfinity]="false"
-                [allowFutureDates]="false" [required]="false" [placement]="'right'" style="display:inline-grid;">
-              </date-field>
+    <div class="row" style="position: absolute;top: 0;bottom: 0;left: 10px;right: 10px;height: 100%;">
+        <div class="col-md-5" style="z-index:999;padding-bottom: 10px;" [style.background]="showPanel ? 'white' : 'transparent'">
+          <article class="panel-toggle">
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="radio" style="display:inline-block;">
+                      <input type="radio" name="userActive" [value]="false" [(ngModel)]="searchFeatures">
+                      <span><localize key="explorer.search.search.graph"></localize></span>
+                    </label>
+                    <label class="radio" style="display:inline-block;margin-left:10px;">
+                      <input type="radio" name="userActive" [value]="true" [(ngModel)]="searchFeatures" [disabled]="(layers.length < 1)">
+                      <span><localize key="explorer.search.search.map.features"></localize></span>
+                    </label>
+                    
+                    <div style="float:right;">
+                        <i class="fa clickable" [ngClass]="{'fa-compress':showPanel, 'fa-expand':!showPanel}"
+                        (click)="!isEdit && togglePanel()" style="vertical-align: middle; font-size: 18px; color: black;"></i>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-5">
-              <div class="input-group">
-                <input type="text" class="form-control" [placeholder]="'explorer.search.placeholder' | localize"
-                  (keyup.enter)="search()" [(ngModel)]="state.text" name="text">
-                <span class="input-group-btn">
-                  <button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="search()">
-                    <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                  </button>
-                </span>
-              </div>
+            <div class="row">
+              <ng-container *ngIf="searchEnabled && !searchFeatures">
+                <div class="col-md-4">
+                  <date-field [(value)]="state.date" label="" [inputName]="'date'" [allowInfinity]="false"
+                    [allowFutureDates]="false" [required]="false" [placement]="'right'" style="display:inline-grid;">
+                  </date-field>
+                </div>
+                <div class="col-md-8">
+                  <div class="input-group">
+                    <input type="text" class="form-control" [placeholder]="'explorer.search.placeholder' | localize"
+                      (keyup.enter)="search()" [(ngModel)]="state.text" name="text">
+                    <span class="input-group-btn">
+                      <button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="search()">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+              </ng-container>
+    
+              <ng-container *ngIf="searchFeatures">
+                <div class="col-md-12">
+                  <div>
+                    <input type="text" class="form-control" placeholder="Search features" [(ngModel)]="state.featureText"
+                      name="featureText" [disabled]="isEdit" [typeaheadAsync]="true" [typeahead]="typeahead"
+                      [typeaheadItemTemplate]="customItemTemplate" (typeaheadOnSelect)="onFeatureSelect($event)"
+                      [typeaheadMinLength]="1" [typeaheadWaitMs]="300" [typeaheadOptionsLimit]="20">
+                  </div>
+                </div>
+              </ng-container>
+    
             </div>
-          </ng-container>
-
-          <ng-container *ngIf="searchFeatures">
-            <div class="col-md-9">
-              <div>
-                <input type="text" class="form-control" placeholder="Search features" [(ngModel)]="state.featureText"
-                  name="featureText" [disabled]="isEdit" [typeaheadAsync]="true" [typeahead]="typeahead"
-                  [typeaheadItemTemplate]="customItemTemplate" (typeaheadOnSelect)="onFeatureSelect($event)"
-                  [typeaheadMinLength]="1" [typeaheadWaitMs]="300" [typeaheadOptionsLimit]="20">
-              </div>
-            </div>
-          </ng-container>
-
-
-          <div class="col-md-1">
-            <div class="layer-toggle">
-              <i class="fa" [ngClass]="{'fa-arrow-left':showPanel, 'fa-arrow-right':!showPanel}"
-                (click)="!isEdit && togglePanel()" style="vertical-align: middle; font-size: 18px; color: black;"></i>
-            </div>
-          </div>
+          </article>
         </div>
-        <hr *ngIf="showPanel">
-      </article>
+      </div>
 
 
+    <div class="row">
       <div *ngIf="showPanel" id="navigator-left-sidebar" class="col-md-5 lw-inner-col"
-        style="height: calc(100vh - 245px);overflow-y: auto; margin-top: 100px;">
+        style="height: calc(100vh - 144px);overflow-y: auto;">
 
         <ng-container *ngIf="mode === MODE.SEARCH && searchEnabled">
 

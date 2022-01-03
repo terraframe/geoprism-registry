@@ -27,7 +27,7 @@ ENV POSTGRES_PORT=5432
 RUN mkdir -p $CATALINA_HOME/wars
 
 # Embedded Geoserver
-RUN wget -nv -O $CATALINA_HOME/wars/geoserver.war "http://nexus.terraframe.com/service/local/repositories/allrepos/content/org/geoserver/geoserver/$GEOSERVER_VERSION/geoserver-$GEOSERVER_VERSION.war"
+RUN wget -nv -O $CATALINA_HOME/wars/geoserver.war "https://dl.cloudsmith.io/public/terraframe/public/maven/org/geoserver/geoserver/$GEOSERVER_VERSION/geoserver-$GEOSERVER_VERSION.war"
 RUN mkdir -p $CATALINA_HOME/webapps/geoserver && cd $CATALINA_HOME/webapps/geoserver && $JAVA_HOME/bin/jar xf $CATALINA_HOME/wars/geoserver.war
 
 # Copy CGR WAR

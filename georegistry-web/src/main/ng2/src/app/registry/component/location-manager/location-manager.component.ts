@@ -646,12 +646,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             // Highlight the feature on the map
-            this.map.setFeatureState(this.feature = {
-                source: GRAPH_LAYER,
-                id: uid
-            }, {
-                hover: true
-            });
+            if(this.feature){
+                this.map.setFeatureState(this.feature = {
+                    source: GRAPH_LAYER,
+                    id: uid
+                }, {
+                    hover: true
+                });
+            }
 
             this.mode = this.MODE.VIEW;
 

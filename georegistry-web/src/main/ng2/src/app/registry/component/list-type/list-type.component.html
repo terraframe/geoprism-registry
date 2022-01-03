@@ -5,8 +5,7 @@
             <span class="clickable" (click)="version.collapsed = !version.collapsed"
                 [attr.aria-expanded]="!version.collapsed">
                 
-                <i *ngIf="!version.collapsed" class="arrow right"></i>
-                <i *ngIf="version.collapsed" class="arrow down"></i>
+                <i class="fa fa-chevron-right" [ngClass]="{'fa-chevron-down' : version.collapsed, 'fa-chevron-right' : !version.collapsed}" style="font-size:14px;"></i>
                 
                 <span class="h4">
                     <localize key="list.type.version"></localize> {{version.versionNumber}}
