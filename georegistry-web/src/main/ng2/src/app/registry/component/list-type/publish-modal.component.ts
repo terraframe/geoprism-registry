@@ -110,7 +110,7 @@ export class ListTypePublishModalComponent implements OnInit {
                     spatialRepresentation: '',
                     referenceSystem: '',
                     reportSpecification: '',
-                    distributionFormat: '',                       
+                    distributionFormat: '',
                 }
 
             };
@@ -182,11 +182,11 @@ export class ListTypePublishModalComponent implements OnInit {
         }
         else if (this.list.listType === 'interval') {
             this.valid = this.list.intervalJson.map(interval => {
-                return (interval.startDate != null && interval.startDate.length > 0) && (interval.endDate != null && interval.endDate.length > 0);
-            }).reduce((a, b) => a && b);
+                return ((interval.startDate != null && interval.startDate.length > 0)
+                    && (interval.endDate != null && interval.endDate.length > 0)
+                    && !this.dateService.after(interval.startDate, interval.endDate));
 
-            console.log(this.list.intervalJson);
-            console.log(this.valid);
+            }).reduce((a, b) => a && b);
         }
         else {
             this.valid = true;

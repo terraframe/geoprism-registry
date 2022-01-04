@@ -56,7 +56,7 @@
                     </button>
                     <span style="vertical-align:middle;display:inline-block;font-style: italic;margin-left: 5px;color: grey;">
                         <span *ngIf="list.curation.lastRun == null" class="date-string-display">
-                            <localize key="list.type.na"></localize>
+                            <localize key="list.type.run.na"></localize>
                         </span>
                         <a *ngIf="list.curation.lastRun != null" [routerLink]="['/registry/curation-job', list.oid]"
                             routerLinkActive="active">
