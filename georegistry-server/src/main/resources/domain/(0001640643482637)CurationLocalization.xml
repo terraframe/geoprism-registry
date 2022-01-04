@@ -64,6 +64,13 @@
           <attribute name="defaultLocale" value="Date of last validation :" />
         </attributeStruct>
       </object>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.bad.interval.dates">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.bad.interval.dates" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="There is a problem with the specified date ranges" />
+        </attributeStruct>
+      </object>      
     </createOrUpdate>
   </doIt>
   <undoIt>

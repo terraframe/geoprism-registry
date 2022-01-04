@@ -586,6 +586,9 @@
                                         role="button" style="margin:15px 0;">
                                         <localize key="changeovertime.manageVersions.summaryKey.NEW"></localize>
                                     </button>
+                                    <div *ngIf="!valid" style="float:none;" class="inline-error-message">
+                                        <localize key="list.type.bad.interval.dates"></localize>
+                                    </div>
                                 </div>
                             </div>
                         </div>
