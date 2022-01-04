@@ -1,7 +1,6 @@
-/* #hierarchy-tree-container { */
-/* 	height: 100%; */
-/*     overflow-y: auto; */
-/* } */
+#hierarchy-tree-container {
+	padding-top: 110px;
+}
 
 .location-management-widget-section {
 	margin: 5px 0;

@@ -51,25 +51,25 @@
         <div class="row form-group">
             <div class="col-md-4">
                 <div *ngIf="list.working && isWritable" class="button-holder pull-left">
-                    <span style="vertical-align:middle;display:inline-block;">
-                        <localize key="list.type.last.validation.date"></localize>
+                    <button type="submit" class="btn btn-primary" role="button" (click)="onRunCuration()" style="margin-left:0;">
+                        <localize key="list.type.run.curation"></localize>
+                    </button>
+                    <span style="vertical-align:middle;display:inline-block;font-style: italic;margin-left: 5px;color: grey;">
                         <span *ngIf="list.curation.lastRun == null" class="date-string-display">
                             <localize key="list.type.na"></localize>
                         </span>
                         <a *ngIf="list.curation.lastRun != null" [routerLink]="['/registry/curation-job', list.oid]"
                             routerLinkActive="active">
+                            <localize key="list.type.last.validation.date"></localize>
                             {{formatDate(list.curation.lastRun)}}
                         </a>
                     </span>
-                    <button type="submit" class="btn btn-primary" role="button" (click)="onRunCuration()">
-                        <localize key="list.type.run.curation"></localize>
-                    </button>
                 </div>
             </div>
             <div class="col-md-8">
                 <div class="button-holder pull-right">
 
-                    <span *ngIf="isWritable" class="clickable" style="vertical-align:middle;display:inline-block;">
+                    <span *ngIf="isWritable" class="clickable" style="vertical-align:middle;display:inline-block;line-height:0;">
                         <boolean-field [(value)]="showInvalid" (change)="onShowInvalidChange()"
                             [localizeLabelKey]="'masterlist.showInvalid'"></boolean-field>
                     </span>
