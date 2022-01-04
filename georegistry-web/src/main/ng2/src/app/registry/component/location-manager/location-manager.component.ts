@@ -23,6 +23,7 @@ import { Observable, Observer, Subscription } from "rxjs";
 import { SelectTypeModalComponent } from "./select-type-modal.component";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
+import { config } from "process";
 declare let registry: GeoRegistryConfiguration;
 
 const SELECTED_COLOR = "#800000";
@@ -172,7 +173,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     ngAfterViewInit() {
         const layer = this.baseLayers[0];
 
-        this.map = new Map({
+        const mapConfig: any = {
             container: "map",
             style: {
                 version: 8,
@@ -201,7 +202,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             zoom: 2,
             attributionControl: false,
             center: [-78.880453, 42.897852]
-        });
+        };
+
+        if (this.params.bounds != null && this.params.bounds.length > 0) {
+            mapConfig.bounds = new LngLatBounds(JSON.parse(this.params.bounds));
+        }
+
+
+        this.map = new Map(mapConfig);
 
         this.map.on("load", () => {
             this.ready = true;
@@ -370,6 +378,23 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.map.on("click", (event: any) => {
             this.handleMapClickEvent(event);
         });
+
+        this.map.on('moveend', (event: any) => {
+            const bounds: LngLatBounds = this.map.getBounds();
+            const array = bounds.toArray();
+
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { bounds: JSON.stringify(array) },
+                queryParamsHandling: 'merge', // remove to replace all query params by provided
+            });
+        });
+
+        // if (this.params.bounds != null && this.params.bounds.length > 0) {
+        //     const bounds = JSON.parse(this.params.bounds);
+
+        //     this.map.fitBounds(new LngLatBounds(bounds), { animate: false });
+        // }
 
         this.handleParameterChange(this.params);
     }
@@ -646,7 +671,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             // Highlight the feature on the map
-            if(this.feature){
+            if (this.feature) {
                 this.map.setFeatureState(this.feature = {
                     source: GRAPH_LAYER,
                     id: uid
