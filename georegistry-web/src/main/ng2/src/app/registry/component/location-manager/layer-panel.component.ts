@@ -178,7 +178,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
             // OR the search dates have been updated, so a new search must be performed.
 
             this.handleSearch().then(lists => {
-                layers.forEach(oid => {
+                layers.reverse().forEach(oid => {
                     lists.forEach(list => {
                         list.versions.filter(v => v.oid === oid).forEach(v => {
                             this.toggleLayer(v, list);

@@ -52,9 +52,8 @@
             <div class="col-md-4">
                 <div *ngIf="list.working && isWritable" class="button-holder pull-left">
                     <span style="vertical-align:middle;display:inline-block;">
-                        Date of last validation :
+                        <localize key="list.type.last.validation.date"></localize>
                         <span *ngIf="list.curation.lastRun == null" class="date-string-display">
-                            N/A
                             <localize key="list.type.na"></localize>
                         </span>
                         <a *ngIf="list.curation.lastRun != null" [routerLink]="['/registry/curation-job', list.oid]"

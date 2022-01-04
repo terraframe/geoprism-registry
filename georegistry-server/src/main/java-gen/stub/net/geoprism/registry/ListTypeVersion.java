@@ -822,7 +822,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
       // Delete tile cache
       ListTileCache.deleteTiles(this);
-      
+
       ListCurationHistory.deleteAll(this);
 
       MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
@@ -904,7 +904,6 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
         this.setPublishDate(new Date());
         this.apply();
-        
 
         return this.toJSON(true).toString();
       }
@@ -1309,7 +1308,14 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       object.add(ListTypeVersion.ATTRIBUTES, this.getAttributesAsJson());
     }
 
-    object.add("curation", new CurationService().getListCurationInfo(this));
+    if (this.getWorking() && masterlist.doesActorHaveWritePermission())
+    {
+      object.add("curation", new CurationService().getListCurationInfo(this));
+    }
+    else
+    {
+      object.add("curation", new JsonObject());
+    }
 
     return object;
   }
