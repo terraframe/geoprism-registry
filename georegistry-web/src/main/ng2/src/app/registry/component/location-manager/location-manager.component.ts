@@ -59,7 +59,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         date: string,
         currentDate: string,
         featureText?: string
-    } = { text: '', currentText: '', date: '', currentDate: '' }
+    } = { text: "", currentText: "", date: "", currentDate: "" }
 
     /*
      * Currently selected record
@@ -126,10 +126,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     */
     subscription: Subscription;
 
-    // Flag denoting if the map in loaded and initialized     
+    // Flag denoting if the map in loaded and initialized
     ready: boolean = false;
 
-    // Flag denoting if the map in loaded and initialized     
+    // Flag denoting if the map in loaded and initialized
     searchFeatures: boolean = false;
 
     // Flag denoting if the search and results panel is enabled at all
@@ -152,7 +152,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         private authService: AuthService) { }
 
     ngOnInit(): void {
-
         this.subscription = this.route.queryParams.subscribe(params => {
             this.handleParameterChange(params);
         });
@@ -162,7 +161,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.typeahead = new Observable((observer: Observer<any>) => {
             this.handleFeatureSearch(observer);
         });
-
     }
 
     ngOnDestroy(): void {
@@ -207,7 +205,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (this.params.bounds != null && this.params.bounds.length > 0) {
             mapConfig.bounds = new LngLatBounds(JSON.parse(this.params.bounds));
         }
-        
+
         this.map = new Map(mapConfig);
 
         this.map.on("load", () => {
@@ -222,24 +220,22 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     /**
-    * 
+    *
     * Method responsible for parsing the state from the URL parameters and determining if
     * the model of the widget needs to be updated or not.
-    *  
+    *
     * */
     handleParameterChange(params: Params): void {
         this.params = params;
 
         if (this.ready) {
-
             let mode = this.MODE.SEARCH;
             let showPanel = false;
 
             if (this.params != null) {
-
                 // Handle parameters for searching for a geo object
                 if (this.params.text != null) {
-                    if (this.params.text != this.state.currentText || this.params.date != this.state.currentDate) {
+                    if (this.params.text !== this.state.currentText || this.params.date !== this.state.currentDate) {
                         this.state.text = this.params.text;
                         this.state.date = this.params.date;
 
@@ -251,8 +247,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 // Handle parameters for selecting a geo object
                 if (this.params.type != null && this.params.code != null) {
-
-                    if (this.record == null || this.record.type == null || this.record.type.code != this.params.type || this.record.code != this.params.code) {
+                    if (this.record == null || this.record.type == null || this.record.type.code !== this.params.type || this.record.code !== this.params.code) {
                         this.handleSelect(this.params.type, this.params.code, this.params.uid);
                     }
 
@@ -262,16 +257,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 // Handle parameters for select a record from a context layer
                 if (this.params.version != null && this.params.uid != null) {
-
-                    if (this.record == null || this.feature == null || this.feature.source != this.params.version || this.feature.id != this.params.uid) {
+                    if (this.record == null || this.feature == null || this.feature.source !== this.params.version || this.feature.id !== this.params.uid) {
                         this.handleRecord(this.params.version, this.params.uid);
-
                     }
 
                     showPanel = true;
                     mode = this.MODE.VIEW;
                 }
-
             }
 
             this.changeMode(mode);
@@ -280,8 +272,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     handleFeatureSearch(observer: Observer<any>): void {
-
-        const localeProperty = 'displayLabel_' + navigator.language.toLowerCase();
+        const localeProperty = "displayLabel_" + navigator.language.toLowerCase();
 
         // Search features
         if (this.ready && this.map != null && this.state.featureText != null) {
@@ -289,7 +280,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             const features = this.map.queryRenderedFeatures().filter(feature => {
                 if (feature.source !== GRAPH_LAYER) {
                     const localizedName = feature.properties[localeProperty];
-
                     let name = localizedName != null && localizedName.length > 0 ? localizedName : feature.properties.displayLabel;
                     name = name.toLowerCase();
                     const code = feature.properties.code.toLowerCase();
@@ -320,9 +310,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }).sort((a, b) => (a.name > b.name) ? 1 : -1);
 
             observer.next(features);
-
         }
-
     }
 
     setPanel(showPanel: boolean): void {
@@ -332,7 +320,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             timeout(() => {
                 this.map.resize();
             }, 1);
-
         }
     }
 
@@ -378,14 +365,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.handleMapClickEvent(event);
         });
 
-        this.map.on('moveend', (event: any) => {
+        this.map.on("moveend", (event: any) => {
             const bounds: LngLatBounds = this.map.getBounds();
             const array = bounds.toArray();
 
             this.router.navigate([], {
                 relativeTo: this.route,
                 queryParams: { bounds: JSON.stringify(array) },
-                queryParamsHandling: 'merge', // remove to replace all query params by provided
+                queryParamsHandling: "merge" // remove to replace all query params by provided
             });
         });
 
@@ -401,7 +388,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     onZoomTo(oid: string): void {
         this.listService.getBounds(oid).then(bounds => {
             if (bounds && Array.isArray(bounds)) {
-
                 let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 
                 this.map.fitBounds(llb, { padding: 50, animate: true, maxZoom: 20 });
@@ -413,17 +399,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     onCreate(layer: ContextLayer): void {
         if (!this.isEdit) {
-
             this.listService.getVersion(layer.oid).then(version => {
                 if (!version.isAbstract) {
                     this.select({
                         properties: {
                             type: version.typeCode,
-                            code: '__NEW__'
+                            code: "__NEW__"
                         }
                     }, null);
-                }
-                else {
+                } else {
                     this.bsModalRef = this.modalService.show(SelectTypeModalComponent, {
                         animated: true,
                         backdrop: true,
@@ -433,7 +417,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         this.select({
                             properties: {
                                 type: typeCode,
-                                code: '__NEW__'
+                                code: "__NEW__"
                             }
                         }, null);
                     });
@@ -452,12 +436,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 if (feature.properties.uid != null) {
                     if (feature.source === GRAPH_LAYER) {
                         this.select(feature, null);
-                    }
-                    else {
+                    } else {
                         this.router.navigate([], {
                             relativeTo: this.route,
                             queryParams: { type: null, code: null, version: feature.source, uid: feature.properties.uid },
-                            queryParamsHandling: 'merge', // remove to replace all query params by provided
+                            queryParamsHandling: "merge" // remove to replace all query params by provided
                         });
                     }
                 }
@@ -510,7 +493,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     addLayers(): void {
-
         this.layers.forEach(cLayer => {
             this.addLayer(cLayer);
         });
@@ -559,7 +541,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.router.navigate([], {
             relativeTo: this.route,
             queryParams: { text: this.state.text, date: this.state.date, type: null, code: null, version: null, uid: null },
-            queryParamsHandling: 'merge', // remove to replace all query params by provided
+            queryParamsHandling: "merge" // remove to replace all query params by provided
         });
     }
 
@@ -572,12 +554,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.showPanel = true;
 
             if (this.data.length > 0) {
-                (<any>this.map.getSource(GRAPH_LAYER)).setData(data);
+                (<any> this.map.getSource(GRAPH_LAYER)).setData(data);
             }
 
             this.setData(data.features);
-
-
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -612,10 +592,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     handleRecord(list: string, uid: string): void {
-
         // Get the feature data from the server and populate the left-hand panel
         this.listService.record(list, uid).then(record => {
-
             if (this.feature != null) {
                 this.map.removeFeatureState(this.feature);
             }
@@ -623,7 +601,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             // Highlight the feature on the map
             this.map.setFeatureState(this.feature = {
                 source: list,
-                sourceLayer: 'context',
+                sourceLayer: "context",
                 id: uid
             }, {
                 hover: true
@@ -632,12 +610,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.mode = this.MODE.VIEW;
             this.record = record;
 
-            if (this.record.recordType === 'GEO_OBJECT') {
+            if (this.record.recordType === "GEO_OBJECT") {
                 this.geomService.destroy(false);
 
                 this.geomService.initialize(this.map, record.type.geometryType, false);
             }
-
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -647,7 +624,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.router.navigate([], {
             relativeTo: this.route,
             queryParams: { type: null, code: null, version: null, uid: null },
-            queryParamsHandling: 'merge', // remove to replace all query params by provided
+            queryParamsHandling: "merge" // remove to replace all query params by provided
         });
     }
 
@@ -656,13 +633,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.router.navigate([], {
                 relativeTo: this.route,
                 queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null },
-                queryParamsHandling: 'merge', // remove to replace all query params by provided
+                queryParamsHandling: "merge" // remove to replace all query params by provided
             });
         }
     }
 
     handleSelect(type: string, code: string, uid: string) {
-
         // Highlight the feature on the map
         this.service.getGeoObjectTypes([type], null).then(types => {
             if (this.feature != null) {
@@ -683,18 +659,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             const type = types[0];
             this.record = {
-                recordType: 'GEO_OBJECT',
+                recordType: "GEO_OBJECT",
                 type: type,
                 code: code,
                 forDate: this.state.currentDate
             };
 
-            if (this.record.recordType === 'GEO_OBJECT') {
+            if (this.record.recordType === "GEO_OBJECT") {
                 this.geomService.destroy(false);
 
                 this.geomService.initialize(this.map, this.record.type.geometryType, false);
             }
-
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -721,7 +696,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.map.moveLayer(layer.oid + "-polygon");
             this.map.moveLayer(layer.oid + "-points");
             this.map.moveLayer(layer.oid + "-label");
-        };
+        }
     }
 
     removeLayer(layer: ContextLayer): void {
@@ -741,18 +716,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     addLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
         if (layer.oid === GRAPH_LAYER) {
-
             if (this.ready) {
                 const source = layer.oid;
-                const prevLayer = otherLayer != null ? otherLayer.oid + '-polygon' : null;
+                const prevLayer = otherLayer != null ? otherLayer.oid + "-polygon" : null;
 
                 this.map.addSource(source, {
                     type: "geojson",
                     data: {
                         type: "FeatureCollection",
-                        features: this.data as any,
+                        features: this.data as any
                     },
-                    promoteId: 'uid'
+                    promoteId: "uid"
                 });
 
                 // Polygon layer
@@ -763,8 +737,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     layout: {},
                     paint: {
                         "fill-color": [
-                            'case',
-                            ['boolean', ['feature-state', 'hover'], false],
+                            "case",
+                            ["boolean", ["feature-state", "hover"], false],
                             SELECTED_COLOR,
                             layer.color
                         ],
@@ -784,8 +758,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     paint: {
                         "circle-radius": 10,
                         "circle-color": [
-                            'case',
-                            ['boolean', ['feature-state', 'hover'], false],
+                            "case",
+                            ["boolean", ["feature-state", "hover"], false],
                             SELECTED_COLOR,
                             layer.color
                         ],
@@ -815,22 +789,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         "text-size": 12
                     }
                 }, prevLayer);
-
             }
 
             this.layers.push(layer);
-        }
-        else {
+        } else {
             this.addVectorLayer(layer, otherLayer);
         }
     }
 
     addVectorLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
-
         if (this.ready) {
-
             const source = layer.oid;
-            const prevLayer = otherLayer != null ? otherLayer.oid + '-polygon' : null;
+            const prevLayer = otherLayer != null ? otherLayer.oid + "-polygon" : null;
 
             let protocol = window.location.protocol;
             let host = window.location.host;
@@ -838,7 +808,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.map.addSource(source, {
                 type: "vector",
                 tiles: [protocol + "//" + host + registry.contextPath + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: source }))],
-                promoteId: 'uid'
+                promoteId: "uid"
             });
 
             // Polygon layer
@@ -850,8 +820,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 layout: {},
                 paint: {
                     "fill-color": [
-                        'case',
-                        ['boolean', ['feature-state', 'hover'], false],
+                        "case",
+                        ["boolean", ["feature-state", "hover"], false],
                         SELECTED_COLOR,
                         layer.color
                     ],
@@ -872,8 +842,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 paint: {
                     "circle-radius": 10,
                     "circle-color": [
-                        'case',
-                        ['boolean', ['feature-state', 'hover'], false],
+                        "case",
+                        ["boolean", ["feature-state", "hover"], false],
                         SELECTED_COLOR,
                         layer.color
                     ],
@@ -915,7 +885,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     onFeatureSelect(event: any): void {
         if (!this.isEdit) {
-
             this.state.featureText = event.item.name;
 
             const feature = event.item.feature;
@@ -923,7 +892,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             if (feature.properties.uid != null) {
                 this.listService.getBounds(feature.source, feature.properties.uid).then(bounds => {
                     if (bounds && Array.isArray(bounds)) {
-
                         let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 
                         this.map.fitBounds(llb, { padding: 50, animate: true, maxZoom: 20 });
@@ -933,17 +901,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 });
             }
 
-
             if (feature.properties.uid != null) {
                 this.router.navigate([], {
                     relativeTo: this.route,
                     queryParams: { type: null, code: null, version: feature.source, uid: feature.properties.uid },
-                    queryParamsHandling: 'merge', // remove to replace all query params by provided
+                    queryParamsHandling: "merge" // remove to replace all query params by provided
                 });
             }
         }
     }
-
 
     error(err: HttpErrorResponse): void {
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

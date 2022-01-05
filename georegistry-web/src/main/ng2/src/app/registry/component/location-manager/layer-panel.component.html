@@ -11,7 +11,7 @@
 <div class="layer-toggle" style="max-height:calc(100vh - 175px);overflow:auto;">
 
   <div style="text-align: right;">
-    <i class="fa fa-bars" (click)="baselayerIconHover = !baselayerIconHover"
+    <i class="fa clickable" [ngClass]="{'fa-expand' : !baselayerIconHover, 'fa-compress' : baselayerIconHover}" (click)="baselayerIconHover = !baselayerIconHover"
       style="vertical-align: middle; font-size: 18px; color: black;"></i>
   </div>
 
@@ -51,7 +51,7 @@
 
   <div *ngIf="baselayerIconHover">
 
-    <div style="margin-bottom: 10px;">
+    <div *ngIf="baseLayers.length > 1" style="margin-bottom: 10px;">
       <h4>
         <localize key="explorer.base.layers.label"></localize>
       </h4>
@@ -63,8 +63,9 @@
         </label>
       </div>
     </div>
-    <hr>
+    
     <form class="modal-form" name="export-form">
+    
       <fieldset>
         <div class="row">
           <div class="col-md-4">
@@ -99,6 +100,9 @@
 
         <div class="row">
           <div class="col-md-12">
+            <h3>
+              <localize key="explorer.layers"></localize>
+            </h3>
             <div class="list-group">
               <div *ngFor="let list of lists">
                 <div *ngIf="list.versions.length > 0" class="list-group-item" style="border: none;">
