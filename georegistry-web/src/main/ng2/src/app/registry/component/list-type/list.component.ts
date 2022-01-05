@@ -40,6 +40,8 @@ export class ListComponent implements OnInit, OnDestroy {
     sort = { attribute: "code", order: "ASC" };
     isRefreshing: boolean = false;
     isWritable: boolean = false;
+    isRM: boolean = false;
+
     listAttrs: any[];
 
     showInvalid = false;
@@ -75,6 +77,7 @@ export class ListComponent implements OnInit, OnDestroy {
             const typeCode = this.list.superTypeCode != null ? this.list.superTypeCode : this.list.typeCode;
 
             this.isWritable = this.authService.isGeoObjectTypeRC(orgCode, typeCode);
+            this.isRM = this.authService.isGeoObjectTypeRM(orgCode, typeCode);
 
             this.onPageChange(1);
 
@@ -371,6 +374,8 @@ export class ListComponent implements OnInit, OnDestroy {
     onRunCuration(): void {
         this.service.createCurationJob(this.list).then(job => {
             this.router.navigate(["/registry/curation-job", this.list.oid]);
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
         });
     }
 
