@@ -644,7 +644,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             // Highlight the feature on the map
-            if (this.feature) {
+            if (this.feature && code !== "__NEW__") {
                 this.map.setFeatureState(this.feature = {
                     source: GRAPH_LAYER,
                     id: uid
