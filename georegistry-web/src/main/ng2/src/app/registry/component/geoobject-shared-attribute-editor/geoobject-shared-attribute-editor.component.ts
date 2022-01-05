@@ -67,7 +67,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     tabIndex: number = 0;
 
     // The current state of the GeoObject in the GeoRegistry
-//    @Input() action: Action = null;
+    //    @Input() action: Action = null;
 
     changeRequestEditor: ChangeRequestEditor;
 
@@ -194,19 +194,35 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     shouldForceSetExist() {
-        let isNew = this.changeRequestEditor.changeRequest.isNew;
+        if (!this.readOnly) {
+            if (this.isNew) {
+                const action: CreateGeoObjectAction = this.changeRequestEditor.changeRequest.actions[0] as CreateGeoObjectAction;
 
-        if (isNew && !this.readOnly && this.postGeoObject.attributes["exists"]) {
-            let values = this.postGeoObject.attributes["exists"].values;
+                let values = action.geoObjectJson.attributes["exists"].values;
 
-            if (values && values.length > 0) {
-                let value = values[0];
+                if (values && values.length > 0) {
+                    let value = values[0];
 
-                return value.startDate == null || value.endDate == null || value.value === undefined || value.value === null;
+                    return value.startDate == null || value.endDate == null || value.value === undefined || value.value === null;
+                }
+            } else {
+                let isNew = this.changeRequestEditor.changeRequest.isNew;
+
+                if (isNew && !this.readOnly && this.postGeoObject.attributes["exists"]) {
+                    let values = this.postGeoObject.attributes["exists"].values;
+
+                    if (values && values.length > 0) {
+                        let value = values[0];
+
+                        return value.startDate == null || value.endDate == null || value.value === undefined || value.value === null;
+                    }
+                }
+
+                return isNew && !this.readOnly;
             }
         }
 
-        return isNew && !this.readOnly;
+        return !this.readOnly;
     }
 
     getAttribute(name: string): AttributeType {
@@ -294,14 +310,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             let existsEditor = this.changeRequestEditor.getEditorForAttribute(existsAttribute);
 
             return (Object.prototype.hasOwnProperty.call(invalid, "isValid") && !invalid.isValid) ||
-            !existsEditor.isValid();
+                !existsEditor.isValid();
         }
 
         return false;
     }
 
     public isValid(): boolean {
-        let allValid:boolean = true;
+        let allValid: boolean = true;
 
         this.geoObjectType.attributes.forEach(att => {
             if (att.isValid != null && !att.isValid) {

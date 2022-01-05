@@ -5,7 +5,8 @@ import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { GeoObjectType, GeoObjectOverTime, AttributeType, HierarchyOverTime } from "@registry/model/registry";
 import { RegistryService, GeometryService } from "@registry/service";
 import { AuthService } from "@shared/service";
-import { ErrorModalComponent, ErrorHandler } from "@shared/component";
+import { ErrorHandler } from "@shared/component";
+import { CreateGeoObjectAction } from "@registry/model/crtable";
 
 @Component({
     selector: "feature-panel",
@@ -29,14 +30,9 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
 
     @Input() readOnly: boolean = false;
 
-    // eslint-disable-next-line accessor-pairs
-    @Input() set code(value: string) {
-        this.updateCode(value);
-    }
+    @Input() code: string;
 
     @ViewChild("attributeEditor") attributeEditor;
-
-    _code: string = null;
 
     @Output() featureChange = new EventEmitter<GeoObjectOverTime>();
     @Output() modeChange = new EventEmitter<boolean>();
@@ -80,7 +76,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if(changes.type != null || changes.code != null) {
+        if (changes.type != null || changes.code != null) {
             this.refresh();
         }
     }
@@ -94,7 +90,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
     }
 
     updateCode(code: string): void {
-        this._code = code;
+        this.code = code;
     }
 
     refresh(): void {
@@ -102,18 +98,18 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
         this.preGeoObject = null;
         this.hierarchies = null;
 
-        if (this._code != null && this.type != null) {
-            if (this._code !== "__NEW__") {
+        if (this.code != null && this.type != null) {
+            if (this.code !== "__NEW__") {
                 this.isNew = false;
 
-                this.service.getGeoObjectOverTime(this._code, this.type.code).then(geoObject => {
+                this.service.getGeoObjectOverTime(this.code, this.type.code).then(geoObject => {
                     this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
                     this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
                 });
 
-                this.service.getHierarchiesForGeoObject(this._code, this.type.code).then((hierarchies: HierarchyOverTime[]) => {
+                this.service.getHierarchiesForGeoObject(this.code, this.type.code).then((hierarchies: HierarchyOverTime[]) => {
                     this.hierarchies = hierarchies;
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
@@ -135,11 +131,11 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
     onCancelInternal(): void {
         this.panelCancel.emit();
 
-        // if (this._code === '__NEW__') {
+        // if (this.code === '__NEW__') {
         //    this.updateCode(null);
         // }
         // else {
-        //    this.updateCode(this._code);
+        //    this.updateCode(this.code);
         // }
     }
 
@@ -151,20 +147,30 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
 
     onSubmit(): void {
         if (this.isNew) {
-            this.service.applyGeoObjectCreate(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
+            const action: CreateGeoObjectAction = this.attributeEditor.getActions()[0];
+
+            this.service.applyGeoObjectCreate(action.parentJson, action.geoObjectJson, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
                 if (!applyInfo.isChangeRequest) {
                     this.featureChange.emit(this.postGeoObject);
-                    this.updateCode(this._code);
                 }
                 this.panelSubmit.emit(applyInfo);
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
+
+
+            // this.service.applyGeoObjectCreate(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
+            //     if (!applyInfo.isChangeRequest) {
+            //         this.featureChange.emit(this.postGeoObject);
+            //     }
+            //     this.panelSubmit.emit(applyInfo);
+            // }).catch((err: HttpErrorResponse) => {
+            //     this.error(err);
+            // });
         } else {
             this.service.applyGeoObjectEdit(this.postGeoObject.attributes.code, this.type.code, this.attributeEditor.getActions(), this.datasetId, this.reason).then((applyInfo: any) => {
                 if (!applyInfo.isChangeRequest) {
                     this.featureChange.emit(this.postGeoObject);
-                    this.updateCode(this._code);
                 }
                 this.panelSubmit.emit(applyInfo);
             }).catch((err: HttpErrorResponse) => {
