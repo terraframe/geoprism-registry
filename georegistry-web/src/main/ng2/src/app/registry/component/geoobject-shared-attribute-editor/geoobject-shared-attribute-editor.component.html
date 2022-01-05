@@ -14,17 +14,17 @@
   <!-- <div class="label-holder"></div> -->
   <div class="col-md-12">
     <div class="btn-group geobject-editor-tab-holder">
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 0, disabled: shouldForceSetExist()}" (click)="changePage(0);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 0}" (click)="changePage(0);"> 
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabZero"></localize></span>
         <div class="errorSpan"><span *ngIf="hasErrors(0)" class="tabHasErrors"></span></div>
         <span class="changeSpan"><span *ngIf="hasChanges(0)" class="tabHasChanges"></span></span>
       </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 1, disabled: shouldForceSetExist()}" (click)="changePage(1);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 1}" (click)="changePage(1);"> 
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabOne"></localize></span>
         <div class="errorSpan"><span *ngIf="hasErrors(1)" class="tabHasErrors"></span></div>
         <span class="changeSpan"><span *ngIf="hasChanges(1)" class="tabHasChanges"></span></span>
       </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2, disabled: shouldForceSetExist()}" (click)="changePage(2);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2}" (click)="changePage(2);"> 
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabTwo"></localize></span>
         <div class="errorSpan"><span *ngIf="hasErrors(2)" class="tabHasErrors"></span></div>
         <span class="changeSpan"><span *ngIf="hasChanges(2)" class="tabHasChanges"></span></span>

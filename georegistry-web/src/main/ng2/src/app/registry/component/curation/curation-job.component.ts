@@ -7,14 +7,13 @@ import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
 import { DateService } from "@shared/service/date.service";
 
-import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
+import { ErrorHandler } from "@shared/component";
 import { LocalizationService, AuthService } from "@shared/service";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
 import { PageResult } from "@shared/model/core";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { CurationJob, CurationProblem, ListTypeVersion } from "@registry/model/list-type";
-import { CurationProblemModalComponent } from "./curation-problem-modal.component";
 import { Subscription } from "rxjs";
 
 declare let registry: GeoRegistryConfiguration;
@@ -64,14 +63,12 @@ export class CurationJobComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-
         const oid = this.route.snapshot.params["oid"];
         this.service.getVersion(oid).then(version => {
             this.version = version;
 
             this.onPageChange(1);
-        })
-
+        });
 
         let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + registry.contextPath;
 
@@ -100,7 +97,6 @@ export class CurationJobComponent implements OnInit, OnDestroy {
     }
 
     onProblemResolved(problem: CurationProblem): void {
-
         const index = this.page.resultSet.findIndex(p => p.id === problem.id);
 
         if (index !== -1) {
@@ -111,8 +107,7 @@ export class CurationJobComponent implements OnInit, OnDestroy {
     getFriendlyProblemType(probType: string): string {
         if (probType === "NO_GEOMETRY") {
             return this.localizeService.decode("list.type.no.geometry");
-        }
-        else if (probType === "INVALID_GEOMETRY") {
+        } else if (probType === "INVALID_GEOMETRY") {
             return this.localizeService.decode("list.type.invalid.geometry");
         }
 
@@ -137,15 +132,15 @@ export class CurationJobComponent implements OnInit, OnDestroy {
             uid: problem.goUid
         };
 
-        this.router.navigate(['/registry/location-manager'], {
-            queryParams: params,
+        this.router.navigate(["/registry/location-manager"], {
+            queryParams: params
         });
-
     }
 
     toggleResolution(problem: CurationProblem): void {
-        const resolution = (problem.resolution == null || problem.resolution.length === 0 || problem.resolution === 'UNRESOLVED') ?
-            'APPLY_GEO_OBJECT' : 'UNRESOLVED';
+        const resolution = (problem.resolution == null || problem.resolution.length === 0 || problem.resolution === "UNRESOLVED")
+            ? "APPLY_GEO_OBJECT"
+            : "UNRESOLVED";
 
         this.service.setResolution(problem, resolution).then(() => {
             problem.resolution = resolution;
@@ -154,10 +149,8 @@ export class CurationJobComponent implements OnInit, OnDestroy {
         });
     }
 
-
     onPageChange(pageNumber: any): void {
         if (this.version != null) {
-
             this.message = null;
 
             this.service.getCurationInfo(this.version, false, pageNumber, this.page.pageSize).then(response => {

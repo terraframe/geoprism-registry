@@ -317,12 +317,11 @@ export class ListComponent implements OnInit, OnDestroy {
         const params: any = {
             layers: JSON.stringify([this.list.oid]),
             type: this.list.typeCode,
-            code: '__NEW__'
+            code: "__NEW__"
         };
 
-
-        this.router.navigate(['/registry/location-manager'], {
-            queryParams: params,
+        this.router.navigate(["/registry/location-manager"], {
+            queryParams: params
         });
     }
 
@@ -357,7 +356,6 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     onGotoMap(result: any): void {
-
         const params: any = { layers: JSON.stringify([this.list.oid]) };
 
         if (result != null) {
@@ -365,19 +363,19 @@ export class ListComponent implements OnInit, OnDestroy {
             params.uid = result.uid;
         }
 
-        this.router.navigate(['/registry/location-manager'], {
-            queryParams: params,
+        this.router.navigate(["/registry/location-manager"], {
+            queryParams: params
         });
     }
 
     onRunCuration(): void {
         this.service.createCurationJob(this.list).then(job => {
-            this.router.navigate(['/registry/curation-job', this.list.oid]);
-
-        })
+            this.router.navigate(["/registry/curation-job", this.list.oid]);
+        });
     }
 
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);
     }
+
 }
