@@ -10,7 +10,8 @@ import { SynchronizationConfig, ExportScheduledJob } from '@registry/model/regis
 import { SynchronizationConfigService } from '@registry/service';
 import { ErrorHandler } from '@shared/component/error-handler/error-handler';
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/registry"; import { Subscription } from 'rxjs';
+declare let registry: GeoRegistryConfiguration;
 
 @Component({
   selector: 'synchronization-config',
@@ -30,6 +31,7 @@ export class SynchronizationConfigComponent implements OnInit {
   };
 
   notifier: WebSocketSubject<{ type: string, content: any }>;
+  subscription: Subscription = null;
 
   constructor(private service: SynchronizationConfigService, private lService: LocalizationService, private route: ActivatedRoute) { }
 
@@ -44,7 +46,7 @@ export class SynchronizationConfigComponent implements OnInit {
     let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + registry.contextPath;
 
     this.notifier = webSocket(baseUrl + '/websocket/notify');
-    this.notifier.subscribe(message => {
+    this.subscription = this.notifier.subscribe(message => {
       if (message.type === 'DATA_EXPORT_JOB_CHANGE') {
         this.onPageChange(this.page.pageNumber);
       }
@@ -52,6 +54,10 @@ export class SynchronizationConfigComponent implements OnInit {
   }
 
   ngOnDestroy() {
+
+    if (this.subscription != null) {
+      this.subscription.unsubscribe();
+    }
 
     if (this.notifier != null) {
       this.notifier.complete();

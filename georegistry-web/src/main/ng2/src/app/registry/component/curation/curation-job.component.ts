@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
@@ -15,6 +15,8 @@ import { PageResult } from "@shared/model/core";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { CurationJob, CurationProblem, ListTypeVersion } from "@registry/model/list-type";
 import { CurationProblemModalComponent } from "./curation-problem-modal.component";
+import { Subscription } from "rxjs";
+
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -22,7 +24,7 @@ declare let registry: GeoRegistryConfiguration;
     templateUrl: "./curation-job.component.html",
     styleUrls: []
 })
-export class CurationJobComponent implements OnInit {
+export class CurationJobComponent implements OnInit, OnDestroy {
 
     message: string = null;
 
@@ -51,6 +53,7 @@ export class CurationJobComponent implements OnInit {
     hasRowValidationProblem: boolean = false;
 
     notifier: WebSocketSubject<{ type: string, message: string }>;
+    subscription: Subscription = null;
 
     constructor(private router: Router, public service: ListTypeService, private modalService: BsModalService,
         private route: ActivatedRoute, private dateService: DateService,
@@ -73,7 +76,7 @@ export class CurationJobComponent implements OnInit {
         let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + registry.contextPath;
 
         this.notifier = webSocket(baseUrl + "/websocket/notify");
-        this.notifier.subscribe(message => {
+        this.subscription = this.notifier.subscribe(message => {
             if (message.type === "CURATION_JOB_CHANGE") {
                 this.onPageChange(this.page.pageNumber);
             }
@@ -81,6 +84,11 @@ export class CurationJobComponent implements OnInit {
     }
 
     ngOnDestroy() {
+        if (this.subscription != null) {
+            this.subscription.unsubscribe();
+        }
+
+        this.notifier.complete();
     }
 
     formatAffectedRows(rows: string) {

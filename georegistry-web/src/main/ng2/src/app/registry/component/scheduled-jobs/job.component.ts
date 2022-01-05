@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
@@ -17,6 +17,7 @@ import { ModalTypes } from "@shared/model/modal";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
 import { PageResult } from "@shared/model/core";
+import { Subscription } from "rxjs";
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -24,7 +25,7 @@ declare let registry: GeoRegistryConfiguration;
     templateUrl: "./job.component.html",
     styleUrls: ["./scheduled-jobs.css"]
 })
-export class JobComponent implements OnInit {
+export class JobComponent implements OnInit, OnDestroy {
 
     message: string = null;
     job: ScheduledJob;
@@ -53,6 +54,7 @@ export class JobComponent implements OnInit {
     hasRowValidationProblem: boolean = false;
 
     notifier: WebSocketSubject<{ type: string, message: string }>;
+    subscription: Subscription = null;
 
     constructor(public service: RegistryService, private modalService: BsModalService,
         private router: Router, private route: ActivatedRoute, private dateService: DateService,
@@ -70,7 +72,7 @@ export class JobComponent implements OnInit {
         let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + registry.contextPath;
 
         this.notifier = webSocket(baseUrl + "/websocket/notify");
-        this.notifier.subscribe(message => {
+        this.subscription = this.notifier.subscribe(message => {
             if (message.type === "IMPORT_JOB_CHANGE") {
                 this.onPageChange(this.page.pageNumber);
             }
@@ -78,6 +80,11 @@ export class JobComponent implements OnInit {
     }
 
     ngOnDestroy() {
+        if (this.subscription != null) {
+            this.subscription.unsubscribe();
+        }
+
+        this.notifier.complete();
     }
 
     formatAffectedRows(rows: string) {
@@ -118,7 +125,7 @@ export class JobComponent implements OnInit {
         if (probType === "net.geoprism.registry.DataNotFoundException") {
             return this.localizeService.decode("scheduledjobs.job.problem.type.datanotfound");
         }
-        
+
         if (probType === "net.geoprism.registry.geoobject.ImportOutOfRangeException") {
             return this.localizeService.decode("scheduledjobs.job.problem.type.importOutOfRange");
         }

@@ -3,7 +3,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
-import { Observable } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
 import { DateService } from "@shared/service/date.service";
@@ -52,6 +52,7 @@ export class ListComponent implements OnInit, OnDestroy {
     public searchPlaceholder = "";
 
     notifier: WebSocketSubject<{ type: string, content: any }>;
+    subscription: Subscription = null;
 
     constructor(
         private router: Router,
@@ -85,7 +86,7 @@ export class ListComponent implements OnInit, OnDestroy {
         let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + registry.contextPath;
 
         this.notifier = webSocket(baseUrl + "/websocket/progress/" + oid);
-        this.notifier.subscribe(message => {
+        this.subscription = this.notifier.subscribe(message => {
             if (message.content != null) {
                 this.handleProgressChange(message.content);
             } else {
@@ -95,6 +96,10 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
+        if (this.subscription != null) {
+            this.subscription.unsubscribe();
+        }
+
         this.notifier.complete();
     }
 

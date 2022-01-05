@@ -207,8 +207,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (this.params.bounds != null && this.params.bounds.length > 0) {
             mapConfig.bounds = new LngLatBounds(JSON.parse(this.params.bounds));
         }
-
-
+        
         this.map = new Map(mapConfig);
 
         this.map.on("load", () => {
