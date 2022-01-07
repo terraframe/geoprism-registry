@@ -40,6 +40,8 @@ export class ListComponent implements OnInit, OnDestroy {
     sort = { attribute: "code", order: "ASC" };
     isRefreshing: boolean = false;
     isWritable: boolean = false;
+    isRM: boolean = false;
+
     listAttrs: any[];
 
     showInvalid = false;
@@ -75,6 +77,7 @@ export class ListComponent implements OnInit, OnDestroy {
             const typeCode = this.list.superTypeCode != null ? this.list.superTypeCode : this.list.typeCode;
 
             this.isWritable = this.authService.isGeoObjectTypeRC(orgCode, typeCode);
+            this.isRM = this.authService.isGeoObjectTypeRM(orgCode, typeCode);
 
             this.onPageChange(1);
 
@@ -317,12 +320,11 @@ export class ListComponent implements OnInit, OnDestroy {
         const params: any = {
             layers: JSON.stringify([this.list.oid]),
             type: this.list.typeCode,
-            code: '__NEW__'
+            code: "__NEW__"
         };
 
-
-        this.router.navigate(['/registry/location-manager'], {
-            queryParams: params,
+        this.router.navigate(["/registry/location-manager"], {
+            queryParams: params
         });
     }
 
@@ -357,7 +359,6 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     onGotoMap(result: any): void {
-
         const params: any = { layers: JSON.stringify([this.list.oid]) };
 
         if (result != null) {
@@ -365,19 +366,21 @@ export class ListComponent implements OnInit, OnDestroy {
             params.uid = result.uid;
         }
 
-        this.router.navigate(['/registry/location-manager'], {
-            queryParams: params,
+        this.router.navigate(["/registry/location-manager"], {
+            queryParams: params
         });
     }
 
     onRunCuration(): void {
         this.service.createCurationJob(this.list).then(job => {
-            this.router.navigate(['/registry/curation-job', this.list.oid]);
-
-        })
+            this.router.navigate(["/registry/curation-job", this.list.oid]);
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
     }
 
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);
     }
+
 }

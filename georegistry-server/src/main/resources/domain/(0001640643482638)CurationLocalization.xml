@@ -71,6 +71,13 @@
           <attribute name="defaultLocale" value="There is a problem with the specified date ranges" />
         </attributeStruct>
       </object>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="curation.job.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="curation.job.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Curation report" />
+        </attributeStruct>
+      </object>      
     </createOrUpdate>
   </doIt>
   <undoIt>

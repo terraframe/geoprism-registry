@@ -7,7 +7,7 @@
 
     <div class="py-5">
       <h2>
-        <localize key="scheduledjobs.details.title"></localize>
+        <localize key="curation.job.title"></localize>
       </h2>
     </div>
     <div *ngIf="job" class="row" style="background: #F4F4F4;
@@ -101,7 +101,7 @@
         </ul>
       </div>
     </div>
-    <div *ngIf="page && page.resultSet.length === 0" class="row">
+    <div *ngIf="job && job.status === 'SUCCESS' && page && page.resultSet.length === 0" class="row">
       <div class="col-md-12 order-md-1">
         <localize key="list.type.validation.empty"></localize>
       </div>

@@ -50,7 +50,7 @@
 
         <div class="row form-group">
             <div class="col-md-4">
-                <div *ngIf="list.working && isWritable" class="button-holder pull-left">
+                <div *ngIf="list.working && isRM" class="button-holder pull-left">
                     <button type="submit" class="btn btn-primary" role="button" (click)="onRunCuration()" style="margin-left:0;">
                         <localize key="list.type.run.curation"></localize>
                     </button>

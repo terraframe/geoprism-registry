@@ -17,7 +17,7 @@ import { Subject } from "rxjs";
 export class ListsForTypeComponent implements OnInit, OnDestroy {
 
     @Input() listByType: ListTypeByType = null;
-    @Output() error = new EventEmitter<HttpErrorResponse>();    
+    @Output() error = new EventEmitter<HttpErrorResponse>();
     /*
      * Observable subject for ListType changes.  Called when an update is successful
      */
@@ -37,14 +37,12 @@ export class ListsForTypeComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.onListTypeChange = new Subject();
         this.onListTypeChange.subscribe(() => {
-
             // Refresh
             this.service.listForType(this.listByType.typeCode).then(listByType => {
                 this.listByType = listByType;
             }).catch((err: HttpErrorResponse) => {
                 this.error.emit(err);
             });
-    
         });
     }
 
@@ -81,7 +79,6 @@ export class ListsForTypeComponent implements OnInit, OnDestroy {
         this.bsModalRef.content.type = "danger";
 
         this.bsModalRef.content.onConfirm.subscribe(data => {
-
             this.service.remove(list).then(response => {
                 this.listByType.lists = this.listByType.lists.filter((value, index, arr) => {
                     return value.oid !== list.oid;

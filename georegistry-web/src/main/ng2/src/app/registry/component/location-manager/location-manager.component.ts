@@ -24,7 +24,6 @@ import { Observable, Observer, Subscription } from "rxjs";
 import { SelectTypeModalComponent } from "./select-type-modal.component";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
-import { config } from "process";
 declare let registry: GeoRegistryConfiguration;
 
 const SELECTED_COLOR = "#800000";
@@ -53,7 +52,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      * Search results from the server
      */
     data: GeoObject[] = [];
-
 
     state: {
         text: string,
@@ -318,7 +316,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     layer: layer,
                     name: name,
                     feature: feature
-                }
+                };
             }).sort((a, b) => (a.name > b.name) ? 1 : -1);
 
             observer.next(features);
@@ -661,7 +659,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             // Highlight the feature on the map
-            if (this.feature) {
+            if (this.feature && code !== "__NEW__") {
                 this.map.setFeatureState(this.feature = {
                     source: GRAPH_LAYER,
                     id: uid
