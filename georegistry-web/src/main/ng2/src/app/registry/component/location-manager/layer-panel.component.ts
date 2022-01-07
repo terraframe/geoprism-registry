@@ -48,7 +48,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     @Output() zoomTo = new EventEmitter<ContextLayer>();
     @Output() create = new EventEmitter<ContextLayer>();
 
-    baselayerIconHover = false;
+    @Input() baselayerIconHover: boolean = false;
 
     lists: ContextList[] = [];
     layers: ContextLayer[] = [];

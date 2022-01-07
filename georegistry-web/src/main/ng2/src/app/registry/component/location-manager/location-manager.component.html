@@ -143,7 +143,7 @@
 
           <article class="base-layer-panel" [ngClass]="{'second-map-button' : searchEnabled && !showPanel}">
             <layer-panel (layerChange)="onLayerChange($event)" (reorder)="onReorderLayers($event)"
-              (zoomTo)="onZoomTo($event.oid)" (create)="onCreate($event)"
+              (zoomTo)="onZoomTo($event.oid)" (create)="onCreate($event)" [baselayerIconHover]="(this.pageMode === 'EXPLORER')"
               [includeGraphLayer]="data != null && data.length > 0">
             </layer-panel>
           </article>

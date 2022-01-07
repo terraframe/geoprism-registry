@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from "@angular/core";
 import {Location} from '@angular/common';
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, Params, Router, RoutesRecognized } from "@angular/router";
 import { Map, LngLatBoundsLike, NavigationControl, AttributionControl, IControl, LngLatBounds } from "mapbox-gl";
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
@@ -36,6 +36,8 @@ const SELECTED_COLOR = "#800000";
 })
 export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestroy {
 
+    pageMode: string = "";
+    
     coordinate: {
         longitude: number,
         latitude: number
@@ -150,7 +152,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         private geomService: GeometryService,
         private lService: LocalizationService,
         private authService: AuthService,
-        private location: Location) { this.location = location; }
+        private location: Location) { 
+            this.location = location; 
+        }
 
     ngOnInit(): void {
         this.subscription = this.route.queryParams.subscribe(params => {
@@ -268,9 +272,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     mode = this.MODE.VIEW;
                 }
                 
+                if (this.params.pageContext) {
+                    this.pageMode = this.params.pageContext;
+                }
+                
                 // Keep the sidebar open if toggling a context layer when the sidebar is already open.
                 // This only happens on a fresh page load when sidebar is open (no search results or obj focus)
-                if (this.showPanel) {
+                if (this.showPanel && this.pageMode === "EXPLORER") {
                     showPanel = true;
                 }
                 

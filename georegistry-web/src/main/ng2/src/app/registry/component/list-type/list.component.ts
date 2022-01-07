@@ -364,6 +364,7 @@ export class ListComponent implements OnInit, OnDestroy {
         if (result != null) {
             params.version = this.list.oid;
             params.uid = result.uid;
+            params.pageContext = "DATA";
         }
 
         this.router.navigate(["/registry/location-manager"], {
