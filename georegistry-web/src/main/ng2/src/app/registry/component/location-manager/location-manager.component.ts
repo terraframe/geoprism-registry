@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from "@angular/core";
+import {Location} from '@angular/common';
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { Map, LngLatBoundsLike, NavigationControl, AttributionControl, IControl, LngLatBounds } from "mapbox-gl";
 
@@ -30,6 +31,7 @@ const SELECTED_COLOR = "#800000";
 
 @Component({
     selector: "location-manager",
+    providers: [Location],
     templateUrl: "./location-manager.component.html",
     styleUrls: ["./location-manager.css"]
 })
@@ -90,7 +92,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     *  Flag to indicate if the left handle panel should be displayed or not
      */
     showPanel: boolean = false;
-
+    
     layers: ContextLayer[] = [];
 
     backReference: string;
@@ -149,7 +151,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         private mapService: MapService,
         private geomService: GeometryService,
         private lService: LocalizationService,
-        private authService: AuthService) { }
+        private authService: AuthService,
+        private location: Location) { this.location = location; }
 
     ngOnInit(): void {
         this.subscription = this.route.queryParams.subscribe(params => {
@@ -199,12 +202,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             },
             zoom: 2,
             attributionControl: false,
-            center: [-78.880453, 42.897852]
+            center: [-41.44427718989905, 41.897852]
         };
 
         if (this.params.bounds != null && this.params.bounds.length > 0) {
             mapConfig.bounds = new LngLatBounds(JSON.parse(this.params.bounds));
         }
+        
+        mapConfig.logoPosition = "bottom-right";
 
         this.map = new Map(mapConfig);
 
@@ -264,7 +269,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     showPanel = true;
                     mode = this.MODE.VIEW;
                 }
-            }
+                
+                // Keep the sidebar open if toggling a context layer when the sidebar is already open.
+                // This only happens on a fresh page load when sidebar is open (no search results or obj focus)
+                if (this.showPanel) {
+                    showPanel = true;
+                }
+                
+            } 
 
             this.changeMode(mode);
             this.setPanel(showPanel);
@@ -316,17 +328,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     setPanel(showPanel: boolean): void {
         if (this.showPanel !== showPanel) {
             this.showPanel = showPanel;
-
+            
             timeout(() => {
                 this.map.resize();
             }, 1);
         }
+
     }
 
     togglePanel(): void {
         this.setPanel(!this.showPanel);
     }
-
+    
     changeMode(mode: number): void {
         this.mode = mode;
 
@@ -358,8 +371,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.addLayers();
 
         // Add zoom and rotation controls to the map.
-        this.map.addControl(new NavigationControl({ visualizePitch: true }), "bottom-right");
-        this.map.addControl(new AttributionControl({ compact: true }), "bottom-right");
+        this.map.addControl(new NavigationControl({ visualizePitch: true }), "top-right");
+        this.map.addControl(new AttributionControl({ compact: true }), "top-right");
 
         this.map.on("click", (event: any) => {
             this.handleMapClickEvent(event);
@@ -369,11 +382,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             const bounds: LngLatBounds = this.map.getBounds();
             const array = bounds.toArray();
 
-            this.router.navigate([], {
+            let url = this.router.createUrlTree([], {
                 relativeTo: this.route,
                 queryParams: { bounds: JSON.stringify(array) },
                 queryParamsHandling: "merge" // remove to replace all query params by provided
-            });
+            }).toString();
+
+            this.location.go(url);
         });
 
         // if (this.params.bounds != null && this.params.bounds.length > 0) {
