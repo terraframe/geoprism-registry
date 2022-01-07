@@ -71,6 +71,11 @@ export class HubComponent implements OnInit {
 
 
     open( application: Application ): void {
+        
+        if (application.url.includes("location-manager")) {
+            application.url = application.url + "?pageContext=EXPLORER";
+        }
+        
         window.location.href = this.context + '/' + application.url;
     }
 

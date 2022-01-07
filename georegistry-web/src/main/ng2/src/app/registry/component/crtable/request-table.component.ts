@@ -301,7 +301,7 @@ export class RequestTableComponent {
 
                     if (object != null) {
                         this.router.navigate(["/registry/location-manager"], {
-                            queryParams: { text: object.attributes.code, date: this.todayString, type: object.geoObjectType.code, code: object.attributes.code, uid: object.attributes.uid }
+                            queryParams: { text: object.attributes.code, date: this.todayString, type: object.geoObjectType.code, code: object.attributes.code, uid: object.attributes.uid, pageContext: 'DATA' }
                         });
                         // this.router.navigate(["/registry/location-manager", object.attributes.uid, object.geoObjectType.code, this.todayString, true]);
                     } else {
@@ -310,7 +310,7 @@ export class RequestTableComponent {
 
                         if (object != null && type != null) {
                             this.router.navigate(["/registry/location-manager"], {
-                                queryParams: { text: object.attributes.code, date: this.todayString, type: type.code, code: object.attributes.code, uid: object.attributes.uid }
+                                queryParams: { text: object.attributes.code, date: this.todayString, type: type.code, code: object.attributes.code, uid: object.attributes.uid, pageContext: 'DATA' }
                             });
 
                             // this.router.navigate(["/registry/location-manager", object.attributes.uid, type.code, this.todayString, true]);
