@@ -29,7 +29,7 @@
            <!-- We cannot use the dataset-location-manager here because it pulls the tiles from the dataset (list) and we don't have a dataset. -->
            <!-- <a *ngIf="preGeoObject && forDate" [routerLink]="['/registry/dataset-location-manager', '123', preGeoObject.attributes.type, 'false', dateStr, preGeoObject.attributes.code, 'true']" -->
           
-           <a *ngIf="geoObject && forDate" [routerLink]="['/registry/location-manager', geoObject.attributes.uid, geoObject.attributes.type, dateStr, 'true', 'CR']">
+           <a *ngIf="geoObject && forDate" [routerLink]="['/registry/location-manager']" [queryParams]="{type:geoObject.attributes.type, uid:geoObject.attributes.uid}">
             <button class="btn btn-primary" style="width:100%;"><localize key="change.request.open.geoobject.in.editor.link.btn"></localize></button>
           </a>
           <button *ngIf="!(geoObject && forDate)" disabled="true" class="btn btn-primary" style="width:100%;"><localize key="change.request.open.geoobject.in.editor.link.btn"></localize></button>

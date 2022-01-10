@@ -45,6 +45,18 @@ export class DateService {
         type: ConflictType.TIME_RANGE
     };
 
+    public parentDoesNotExist: ConflictMessage = {
+        severity: "ERROR",
+        message: this.localizationService.decode("changeovertime.manageVersions.parentDoesNotExist"),
+        type: ConflictType.MISSING_REFERENCE
+    }
+
+    public invalidParent: ConflictMessage = {
+        severity: "ERROR",
+        message: this.localizationService.decode("changeovertime.manageVersions.invalidParent"),
+        type: ConflictType.MISSING_REFERENCE
+    }
+
     // eslint-disable-next-line no-useless-constructor
     constructor(private localizationService: LocalizationService) { }
 
@@ -206,6 +218,17 @@ export class DateService {
         let dEnd: Date = this.getDateFromDateString(endDate);
 
         return dTest >= dStart && dTest <= dEnd;
+    }
+
+    public after(in1: string | Date, in2: string | Date) {
+        if (in1 == null || in2 == null) {
+            return false;
+        }
+
+        let date1: Date = in1 instanceof Date ? in1 : this.getDateFromDateString(in1);
+        let date2: Date = in2 instanceof Date ? in2 : this.getDateFromDateString(in2);
+
+        return date1 > date2;
     }
 
     public addDay(amount: number, date: string): string {

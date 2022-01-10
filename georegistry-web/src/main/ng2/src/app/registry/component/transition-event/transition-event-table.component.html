@@ -20,7 +20,7 @@
         <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
       </label>
       <date-field [(value)]="dateCondition.startDate" [classNames]="['form-control']" label="" (change)="filterChange()"
-        [inputName]="'startDateFilter'" [allowFutureDates]="false" name="startDateFilter" [required]="false">
+        [inputName]="'startDateFilter'" [allowFutureDates]="false" name="startDateFilter" [required]="false" customStyles="width:100%; height:40px;">
       </date-field>
     </span>
     <span class="col-md-4">
@@ -28,7 +28,13 @@
         <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
       </label>
       <date-field [(value)]="dateCondition.endDate" [classNames]="['form-control']" label="" (change)="filterChange()"
-        [inputName]="'endDateFilter'" [allowFutureDates]="false" name="endDateFilter" [required]="false"></date-field>
+        [inputName]="'endDateFilter'" [allowFutureDates]="false" name="endDateFilter" [required]="false" customStyles="width:100%; height:40px;"></date-field>
+    </span>
+  </div>
+  <div class="row">
+    <span class="col-md-4"></span>
+    <span class="col-md-8 error-message" style="text-align:center;" *ngIf="dateService.after(dateCondition.startDate, dateCondition.endDate)">
+      <localize key="manage.versions.startdate.later.enddate.message"></localize>
     </span>
   </div>
 
@@ -85,7 +91,7 @@
           </ng-template>
         </tbody>
       </table>
-      <div style="margin-top: 30px; margin-bottom: 30px;" class="row">
+      <div *ngIf="!this.readOnly" style="margin-top: 30px; margin-bottom: 30px;" class="row">
         <div class="col-md-6">
           <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
             <localize key="hierarchy.management.button.create"></localize>

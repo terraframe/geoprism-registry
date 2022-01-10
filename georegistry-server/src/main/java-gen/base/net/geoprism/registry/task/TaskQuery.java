@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.task;
 
-@com.runwaysdk.business.ClassSignature(hash = -1840916198)
+@com.runwaysdk.business.ClassSignature(hash = -887590597)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -294,6 +294,23 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.task.Task.SITEMASTER, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getSourceOid()
+  {
+    return getSourceOid(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getSourceOid(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.task.Task.SOURCEOID, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getSourceOid(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.task.Task.SOURCEOID, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getStatus()
@@ -614,6 +631,9 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getSiteMaster();
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias);
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getSourceOid();
+    public com.runwaysdk.query.SelectableChar getSourceOid(String alias);
+    public com.runwaysdk.query.SelectableChar getSourceOid(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getStatus();
     public com.runwaysdk.query.SelectableChar getStatus(String alias);
     public com.runwaysdk.query.SelectableChar getStatus(String alias, String displayLabel);
@@ -891,6 +911,23 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.task.Task.SITEMASTER, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getSourceOid()
+  {
+    return getSourceOid(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getSourceOid(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.task.Task.SOURCEOID, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getSourceOid(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.task.Task.SOURCEOID, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getStatus()
@@ -1176,6 +1213,9 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getSiteMaster();
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias);
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getSourceOid();
+    public com.runwaysdk.query.SelectableChar getSourceOid(String alias);
+    public com.runwaysdk.query.SelectableChar getSourceOid(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getStatus();
     public com.runwaysdk.query.SelectableChar getStatus(String alias);
     public com.runwaysdk.query.SelectableChar getStatus(String alias, String displayLabel);
@@ -1474,6 +1514,23 @@ public  class TaskQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.task.Task.SITEMASTER, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getSourceOid()
+  {
+    return getSourceOid(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getSourceOid(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.task.Task.SOURCEOID, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getSourceOid(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.task.Task.SOURCEOID, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getStatus()

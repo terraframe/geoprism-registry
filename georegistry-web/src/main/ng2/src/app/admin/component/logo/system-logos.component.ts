@@ -35,7 +35,7 @@ import { SystemLogoService } from '@admin/service/system-logo.service';
 
 import { ErrorHandler } from '@shared/component';
 
-declare let acp: string;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component({
   
@@ -58,7 +58,7 @@ export class SystemLogosComponent implements OnInit {
     private changeDetectorRef: ChangeDetectorRef
     ) {
 
-    this.context = acp as string;
+    this.context = registry.contextPath;
   }
 
   ngOnInit(): void {

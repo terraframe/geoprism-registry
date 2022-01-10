@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -31,7 +31,7 @@ import org.hl7.fhir.r4.model.Organization;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.localization.LocalizationFacade;
 
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListTypeVersion;
 
 public class BasicFhirDataPopulator implements FhirDataPopulator
 {
@@ -42,7 +42,7 @@ public class BasicFhirDataPopulator implements FhirDataPopulator
   }
 
   @Override
-  public void configure(FhirConnection context, MasterListVersion version, boolean resolveIds)
+  public void configure(FhirConnection context, ListTypeVersion version, boolean resolveIds)
   {
   }
 
@@ -50,12 +50,12 @@ public class BasicFhirDataPopulator implements FhirDataPopulator
   public void populate(Business row, Facility facility)
   {
     Organization org = facility.getOrganization();
-    org.addAlias(row.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + MasterListVersion.DEFAULT_LOCALE));
+    org.addAlias(row.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + ListTypeVersion.DEFAULT_LOCALE));
 
     Location location = facility.getLocation();
     location.setMode(LocationMode.INSTANCE);
     location.setStatus(LocationStatus.ACTIVE);
-    location.addAlias(row.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + MasterListVersion.DEFAULT_LOCALE));
+    location.addAlias(row.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + ListTypeVersion.DEFAULT_LOCALE));
 
     Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
 

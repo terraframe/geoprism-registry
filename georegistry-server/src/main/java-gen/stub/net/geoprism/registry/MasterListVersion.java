@@ -1,20 +1,20 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -58,6 +58,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.wololo.jts2geojson.GeoJSONWriter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -122,7 +123,7 @@ import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.scheduler.ExecutableJob;
-import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.gis.geoserver.GeoserverFacade;
@@ -134,14 +135,8 @@ import net.geoprism.registry.etl.PublishMasterListVersionJob;
 import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
-import net.geoprism.registry.etl.fhir.FhirConnection;
-import net.geoprism.registry.etl.fhir.FhirConnectionFactory;
-import net.geoprism.registry.etl.fhir.FhirDataPopulator;
-import net.geoprism.registry.etl.fhir.FhirFactory;
-import net.geoprism.registry.etl.fhir.MasterListFhirExporter;
-import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.masterlist.MasterListAttributeComparator;
+import net.geoprism.registry.masterlist.ListTypeAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -155,7 +150,7 @@ import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
 
-public class MasterListVersion extends MasterListVersionBase
+public class MasterListVersion extends MasterListVersionBase implements TableEntity
 {
   private static final long serialVersionUID = -351397872;
 
@@ -203,7 +198,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
     {
-      new GeoserverCreateWMSCommand(this).doIt();
+      // new GeoserverCreateWMSCommand(this).doIt();
     }
   }
 
@@ -696,7 +691,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
     {
-      new GeoserverRemoveWMSCommand(this).doIt();
+      // new GeoserverRemoveWMSCommand(this).doIt();
     }
   }
 
@@ -756,15 +751,6 @@ public class MasterListVersion extends MasterListVersionBase
     }
 
     return file;
-  }
-
-  public void exportToFhir(FhirExternalSystem system, String implementation)
-  {
-    FhirDataPopulator populator = FhirFactory.getPopulator(implementation);
-    FhirConnection connection = FhirConnectionFactory.get(system);
-
-    MasterListFhirExporter exporter = new MasterListFhirExporter(this, connection, populator, true);
-    exporter.export();
   }
 
   public InputStream downloadShapefile()
@@ -1034,7 +1020,7 @@ public class MasterListVersion extends MasterListVersionBase
 
       for (ServerHierarchyType hierarchy : hierarchiesOfSubTypes)
       {
-        ServerParentTreeNode node = go.getParentsForHierarchy(hierarchy, false);
+        ServerParentTreeNode node = go.getParentsForHierarchy(hierarchy, false, this.getForDate());
         List<ServerParentTreeNode> parents = node.getParents();
 
         if (parents.size() > 0)
@@ -1346,7 +1332,7 @@ public class MasterListVersion extends MasterListVersionBase
       MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(mdBusinessId);
       List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered();
 
-      Collections.sort(mdAttributes, new MasterListAttributeComparator(attributesOrder, mdAttributes));
+      Collections.sort(mdAttributes, new ListTypeAttributeComparator(attributesOrder, mdAttributes));
 
       MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
@@ -1476,12 +1462,12 @@ public class MasterListVersion extends MasterListVersionBase
     BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
 
     Map<MdAttributeConcreteDAOIF, Condition> conditionMap = this.buildQueryConditionsFromFilter(filterJson, null, query, mdBusiness);
-    
+
     for (Condition condition : conditionMap.values())
     {
       query.WHERE(condition);
     }
-    
+
     return query;
   }
 
@@ -1511,7 +1497,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     return null;
   }
-  
+
   public JsonArray values(String value, String attributeName, String valueAttribute, String filterJson)
   {
     DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
@@ -1530,7 +1516,7 @@ public class MasterListVersion extends MasterListVersionBase
     vQuery.FROM(query);
 
     Map<MdAttributeConcreteDAOIF, Condition> conditionMap = this.buildQueryConditionsFromFilter(filterJson, attributeName, query, mdBusiness);
-    
+
     for (Condition condition : conditionMap.values())
     {
       vQuery.WHERE(condition);
@@ -1565,16 +1551,16 @@ public class MasterListVersion extends MasterListVersionBase
 
     return results;
   }
-  
+
   private Map<MdAttributeConcreteDAOIF, Condition> buildQueryConditionsFromFilter(String filterJson, String ignoreAttribute, ComponentQuery query, MdBusinessDAOIF mdBusiness)
   {
     Map<MdAttributeConcreteDAOIF, Condition> conditionMap = new HashMap<MdAttributeConcreteDAOIF, Condition>();
-    
+
     if (filterJson != null && filterJson.length() > 0)
     {
       DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
       filterFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-      
+
       JsonArray filters = JsonParser.parseString(filterJson).getAsJsonArray();
 
       for (int i = 0; i < filters.size(); i++)
@@ -1582,33 +1568,33 @@ public class MasterListVersion extends MasterListVersionBase
         JsonObject filter = filters.get(i).getAsJsonObject();
 
         String attribute = filter.get("attribute").getAsString();
-        
+
         if (ignoreAttribute == null || !attribute.equals(ignoreAttribute))
         {
           MdAttributeConcreteDAOIF mdAttr = mdBusiness.definesAttribute(attribute);
-          
+
           BasicCondition condition = null;
-          
+
           if (mdAttr instanceof MdAttributeMomentDAOIF)
           {
             JsonObject jObject = filter.get("value").getAsJsonObject();
-  
+
             try
             {
               if (jObject.has("start") && !jObject.get("start").isJsonNull())
               {
                 String date = jObject.get("start").getAsString();
-  
+
                 if (date.length() > 0)
                 {
                   condition = query.aDateTime(attribute).GE(filterFormat.parse(date));
                 }
               }
-  
+
               if (jObject.has("end") && !jObject.get("end").isJsonNull())
               {
                 String date = jObject.get("end").getAsString();
-  
+
                 if (date.length() > 0)
                 {
                   condition = query.aDateTime(attribute).LE(filterFormat.parse(date));
@@ -1623,18 +1609,18 @@ public class MasterListVersion extends MasterListVersionBase
           else if (mdAttr instanceof MdAttributeBooleanDAOIF)
           {
             String value = filter.get("value").getAsString();
-  
+
             Boolean bVal = Boolean.valueOf(value);
-  
+
             condition = ( (AttributeBoolean) query.get(attribute) ).EQ(bVal);
           }
           else
           {
             String value = filter.get("value").getAsString();
-  
+
             condition = query.get(attribute).EQ(value);
           }
-          
+
           if (condition != null)
           {
             if (conditionMap.containsKey(mdAttr))
@@ -1649,12 +1635,17 @@ public class MasterListVersion extends MasterListVersionBase
         }
       }
     }
-    
+
     return conditionMap;
   }
 
-  public JsonObject data(Integer pageNumber, Integer pageSize, String filterJson, String sort)
+  public JsonObject data(Integer pageNumber, Integer pageSize, String filterJson, String sort, Boolean includeGeometries)
   {
+    if (includeGeometries == null)
+    {
+      includeGeometries = Boolean.FALSE;
+    }
+
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
@@ -1688,9 +1679,7 @@ public class MasterListVersion extends MasterListVersionBase
       }
     }
 
-    OIterator<Business> iterator = query.getIterator(pageSize, pageNumber);
-
-    try
+    try (OIterator<Business> iterator = query.getIterator(pageSize, pageNumber);)
     {
       while (iterator.hasNext())
       {
@@ -1699,14 +1688,18 @@ public class MasterListVersion extends MasterListVersionBase
 
         MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-        if (mdGeometry instanceof MdAttributePointDAOIF)
+        if (includeGeometries)
         {
-          Point point = (Point) row.getObjectValue(mdGeometry.definesAttribute());
+          Geometry geom = (Geometry) row.getObjectValue(mdGeometry.definesAttribute());
 
-          if (point != null)
+          if (geom != null)
           {
-            object.addProperty("longitude", point.getX());
-            object.addProperty("latitude", point.getY());
+            GeoJSONWriter gw = new GeoJSONWriter();
+            org.wololo.geojson.Geometry gJSON = gw.write(geom);
+
+            JsonObject geojson = JsonParser.parseString(gJSON.toString()).getAsJsonObject();
+
+            object.add("geometry", geojson);
           }
         }
         object.addProperty(ORIGINAL_OID, row.getValue(ORIGINAL_OID));
@@ -1751,10 +1744,6 @@ public class MasterListVersion extends MasterListVersionBase
 
         results.add(object);
       }
-    }
-    finally
-    {
-      iterator.close();
     }
 
     JsonObject page = new JsonObject();

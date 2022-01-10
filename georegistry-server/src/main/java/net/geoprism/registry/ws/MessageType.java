@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -19,5 +19,5 @@
 package net.geoprism.registry.ws;
 
 public enum MessageType {
-  PUBLISH_JOB_CHANGE, DATA_EXPORT_JOB_CHANGE, IMPORT_JOB_CHANGE, PROGRESS
+  PUBLISH_JOB_CHANGE, DATA_EXPORT_JOB_CHANGE, IMPORT_JOB_CHANGE, PROGRESS, CURATION_JOB_CHANGE
 }

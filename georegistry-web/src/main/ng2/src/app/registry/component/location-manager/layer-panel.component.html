@@ -1,45 +1,136 @@
+<ng-template #versionDetail let-layer='layer'>
+  (
+  <span *ngIf="layer.versionNumber !== 0">
+    <localize key="list.type.version"></localize>
+    {{layer.versionNumber}}
+  </span>
+  <localize *ngIf="layer.versionNumber === 0" key="list.type.working.version"></localize>
+  )
+</ng-template>
 
-<div class="layer-toggle" (mouseenter)="baselayerIconHover = true" (mouseleave)="baselayerIconHover = false">
+<div class="layer-toggle" style="max-height:calc(100vh - 175px);overflow:auto;">
 
-  <i class="fa fa-bars" *ngIf="!baselayerIconHover" style="vertical-align: middle; font-size: 18px; color: black;"></i>
-  <div [hidden]="!baselayerIconHover">
+  <div style="text-align: right;">
+    <i class="fa clickable" [ngClass]="{'fa-expand' : !baselayerIconHover, 'fa-compress' : baselayerIconHover}" (click)="baselayerIconHover = !baselayerIconHover"
+      style="vertical-align: middle; font-size: 18px; color: black;"></i>
+  </div>
 
+  <div *ngIf="!baselayerIconHover && layers.length > 0">
     <div style="margin-bottom: 10px;">
+      <h4>
+        <localize key="explorer.layers"></localize>
+      </h4>
+      <div class="list-group" cdkDropList (cdkDropListDropped)="drop($event)">
+        <div *ngFor="let layer of layers" class="list-group-item" style="padding:5px;" cdkDrag>
+
+            <div class="layer-toggle-wrapper" style="cursor:move;">
+            
+              <div class="custom-placeholder" *cdkDragPlaceholder></div>
+              
+              <i class="fa fa-arrows" style="font-size:15px;color: grey;margin-right: 3px;" aria-hidden="true"></i>
+              <boolean-field [value]="layer.active" [label]="layer.label" [disable]="false" (change)="toggleActive(layer)" style="line-height:0;" ></boolean-field>
+              
+              <div class="label-wrapper">
+                <span *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER">- {{ layer.forDate }}</span>
+                <ng-container *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
+                  [ngTemplateOutletContext]="{layer:layer}">
+                </ng-container>
+                <div class="layer-legend-square" [ngStyle]="{'background-color': layer.color}" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"> </div>
+<!--                 <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i> -->
+<!--                 <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i> -->
+                <i *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
+                <i *ngIf="layer.versionNumber === 0 && !layer.isAbstract" class="fa fa-plus" aria-hidden="true"
+                  (click)="onCreate(layer)"></i>
+              </div>
+            </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div *ngIf="baselayerIconHover">
+
+    <div *ngIf="baseLayers.length > 1" style="margin-bottom: 10px;">
       <h4>
         <localize key="explorer.base.layers.label"></localize>
       </h4>
       <div class="row-form" *ngFor="let baseLayer of baseLayers">
-        <input class="layer-toggle-input" type='radio' name='baselayers' [value]='baseLayer.id' [checked]="baseLayer.selected" (change)="toggleBaseLayer(baseLayer)">
-        <label class="layer-toggle-label"><localize [key]="baseLayer.label"></localize></label>
+        <input class="layer-toggle-input" type='radio' name='baselayers' [value]='baseLayer.id'
+          [checked]="baseLayer.selected" (change)="toggleBaseLayer(baseLayer)">
+        <label class="layer-toggle-label">
+          <localize [key]="baseLayer.label"></localize>
+        </label>
       </div>
     </div>
-    <div>
-      <div *ngIf="hasEnabledContextLayers()">
-        <h4>
-          <localize key="explorer.context.layers.label"></localize>
-        </h4>
-        <div class="list-group">
-          <div *ngFor="let cLayerGroup of contextLayerGroups;">
-            <div *ngIf="groupHasEnabledContextLayers(cLayerGroup.oid)" class="list-group-item" style="border: none;">
-              <label>{{ cLayerGroup.displayLabel }}</label>
-              <div class="list-group">
-                <div *ngFor="let cLayer of cLayerGroup.contextLayers">
-                  <div class="list-group-item" style="border: none;" *ngIf="cLayer.enabled">
-                    <input type="checkbox" [checked]="cLayer.active" (click)="toggleContextLayer(cLayer)"> {{ cLayer.displayLabel }} <i class="fa fa-times delete-btn clickable" aria-hidden="true" (click)="removeContextLayer(cLayer)"></i>
+    
+    <form class="modal-form" name="export-form">
+    
+      <fieldset>
+        <div class="row">
+          <div class="col-md-4">
+            <label><localize key="io.startDate"></localize></label>
+          </div>
+          <div class="col-md-4">
+            <label><localize key="io.endDate"></localize></label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <date-field [(value)]="form.startDate" [classNames]="['form-control']" label="" inputName="startDate"
+              [allowFutureDates]="false" name="startDate"></date-field>
+          </div>
+          <div class="col-md-4">
+            <date-field [(value)]="form.endDate" [classNames]="['form-control']" label="" inputName="endDate"
+              [allowFutureDates]="false" name="endDate"></date-field>
+          </div>
+          <div class="col-md-4">
+            <button type="button" (click)="onConfirm()" class="btn btn-primary" role="button">
+              <span>
+                <localize key="modal.button.submit"></localize>
+              </span>
+            </button>
+          </div>
+        </div>
+        <div *ngIf="lists.length > 0" class="row">
+          <div class="col-md-12">
+            <p style="font-style:italic;color:grey;"><localize key="explorer.search.note"></localize></p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <h3>
+              <localize key="explorer.layers"></localize>
+            </h3>
+            <div class="list-group">
+              <div *ngFor="let list of lists">
+                <div *ngIf="list.versions.length > 0" class="list-group-item" style="border: none;">
+                
+                  <h4><a (click)="list.open = !list.open"><i class="fa fa-chevron-right" [ngClass]="{'fa-chevron-down' : list.open, 'fa-chevron-right' : !list.open}" style="font-size:14px;"></i>{{ list.label }}</a></h4>
+                  <div *ngIf="list.open" class="list-group">
+                    <div *ngFor="let version of list.versions">
+
+                        <div class="layer-toggle-wrapper">
+                            <boolean-field [value]="version.enabled" [label]="version.forDate" [disable]="false" (change)="onToggleLayer(version, list)" style="line-height:0;"></boolean-field>
+                        
+                            <div class="label-wrapper">
+                              <ng-container *ngIf="version.oid !== CONSTANT.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
+                                [ngTemplateOutletContext]="{layer:version}">
+                              </ng-container>
+                              <div *ngIf="version.color != null" class="layer-legend-square" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"
+                                [ngStyle]="{'background-color': version.color}"> </div>
+                            </div>
+                        </div>           
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
-      </div>
+      </fieldset>
+    </form>
 
-      <button class="btn btn-primary" (click)="addContextLayerModal()">+ <localize key="explorer.add.context.layer.button.label"></localize></button>
-    </div>
 
   </div>
-
-</div>
-
-

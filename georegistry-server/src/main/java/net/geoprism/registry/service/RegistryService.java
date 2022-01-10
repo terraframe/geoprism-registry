@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -21,6 +21,7 @@ package net.geoprism.registry.service;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,8 +62,10 @@ import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdClassDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdGraphClassDAO;
 import com.runwaysdk.json.RunwayJsonAdapters;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.SupportedLocaleIF;
@@ -108,15 +111,12 @@ import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.permission.UserPermissionService.CGRPermissionAction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
-import net.geoprism.registry.query.ServerLookupRestriction;
 import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.query.graph.AbstractVertexRestriction;
-import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class RegistryService
@@ -395,7 +395,7 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public GeoObject getGeoObject(String sessionId, String uid, String geoObjectTypeCode)
+  public GeoObject getGeoObject(String sessionId, String uid, String geoObjectTypeCode, Date date)
   {
     ServerGeoObjectIF object = this.service.getGeoObject(uid, geoObjectTypeCode);
 
@@ -413,14 +413,14 @@ public class RegistryService
 
     ServerGeoObjectType type = object.getType();
 
-    GeoObject geoObject = object.toGeoObject();
+    GeoObject geoObject = object.toGeoObject(date);
     geoObject.setWritable(pService.canCreateCR(type.getOrganization().getCode(), type));
 
     return geoObject;
   }
 
   @Request(RequestType.SESSION)
-  public GeoObject getGeoObjectByCode(String sessionId, String code, String typeCode)
+  public GeoObject getGeoObjectByCode(String sessionId, String code, String typeCode, Date date)
   {
     ServerGeoObjectIF object = service.getGeoObjectByCode(code, typeCode);
 
@@ -439,27 +439,27 @@ public class RegistryService
 
     ServiceFactory.getGeoObjectPermissionService().enforceCanRead(object.getType().getOrganization().getCode(), object.getType());
 
-    return object.toGeoObject();
+    return object.toGeoObject(date);
   }
 
   @Request(RequestType.SESSION)
-  public GeoObject createGeoObject(String sessionId, String jGeoObj)
+  public GeoObject createGeoObject(String sessionId, String jGeoObj, Date startDate, Date endDate)
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
-    ServerGeoObjectIF object = service.apply(geoObject, true, false);
+    ServerGeoObjectIF object = service.apply(geoObject, startDate, endDate, true, false);
 
-    return object.toGeoObject();
+    return object.toGeoObject(startDate);
   }
 
   @Request(RequestType.SESSION)
-  public GeoObject updateGeoObject(String sessionId, String jGeoObj)
+  public GeoObject updateGeoObject(String sessionId, String jGeoObj, Date startDate, Date endDate)
   {
     GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
 
-    ServerGeoObjectIF object = service.apply(geoObject, false, false);
+    ServerGeoObjectIF object = service.apply(geoObject, startDate, endDate, false, false);
 
-    return object.toGeoObject();
+    return object.toGeoObject(startDate);
   }
 
   @Request(RequestType.SESSION)
@@ -485,26 +485,31 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive)
+  public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive, Date date)
   {
     ServerGeoObjectIF object = this.service.getGeoObject(parentUid, parentGeoObjectTypeCode);
 
-    ServerChildTreeNode node = object.getChildGeoObjects(childrenTypes, recursive);
+    if (date != null)
+    {
+      object.setDate(date);
+    }
+    
+    ServerChildTreeNode node = object.getChildGeoObjects(childrenTypes, recursive, date);
 
     return node.toNode(true);
   }
 
   @Request(RequestType.SESSION)
-  public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive, Date forDate)
+  public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive, Date date)
   {
     ServerGeoObjectIF object = this.service.getGeoObject(childId, childGeoObjectTypeCode);
 
-    if (forDate != null)
+    if (date != null)
     {
-      object.setDate(forDate);
+      object.setDate(date);
     }
 
-    return object.getParentGeoObjects(parentTypes, recursive).toNode(true);
+    return object.getParentGeoObjects(parentTypes, recursive, date).toNode(true);
   }
 
   public ServerGeoObjectQuery createQuery(String typeCode)
@@ -978,6 +983,21 @@ public class RegistryService
     }
   }
 
+  /*
+   * 
+   * select $filteredLabel,* from province0 let $dateLabel =
+   * first(displayLabel_cot[(date('2020-05-01', 'yyyy-MM-dd') BETWEEN startDate
+   * AND endDate) AND (date('2020-05-01', 'yyyy-MM-dd') BETWEEN startDate AND
+   * endDate)]), $filteredLabel = COALESCE($dateLabel.value.defaultLocale) where
+   * ( displayLabel_cot CONTAINS ( (date('2020-05-01', 'yyyy-MM-dd') BETWEEN
+   * startDate AND endDate) AND (date('2020-05-01', 'yyyy-MM-dd') BETWEEN
+   * startDate AND endDate) AND COALESCE(value.defaultLocale).toLowerCase() LIKE
+   * '%' + 'a' + '%' ) OR code.toLowerCase() LIKE '%' + 'a' + '%' ) AND
+   * invalid=false AND ( exists_cot CONTAINS ( (date('2020-05-01', 'yyyy-MM-dd')
+   * BETWEEN startDate AND endDate) AND (date('2020-05-01', 'yyyy-MM-dd')
+   * BETWEEN startDate AND endDate) AND value=true ) ) ORDER BY $filteredLabel
+   * ASC LIMIT 10
+   */
   @Request(RequestType.SESSION)
   public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String parentTypeCode, String hierarchyCode, Date startDate, Date endDate)
   {
@@ -985,125 +1005,118 @@ public class RegistryService
 
     ServerHierarchyType ht = hierarchyCode != null ? ServerHierarchyType.get(hierarchyCode) : null;
 
-    final List<ServerGeoObjectIF> results;
-//    if (parentTypeCode == null || parentTypeCode.length() == 0)
-//    {
-//      final VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, startDate);
-//      query.setRestriction(new ServerLookupRestriction(text, startDate, parentCode, ht));
-//      query.setLimit(10);
-//
-//      results = query.getResults();
-//    }
-//    else
-//    {
-      final ServerGeoObjectType parentType = ServerGeoObjectType.get(parentTypeCode);
-      
-      List<String> conditions = new ArrayList<String>();
+    final ServerGeoObjectType parentType = ServerGeoObjectType.get(parentTypeCode);
 
-      StringBuilder statement = new StringBuilder();
-      statement.append("select from " + type.getMdVertex().getDBClassName() + " where ");
+    List<String> conditions = new ArrayList<String>();
 
-      // Must be a child of parent type
-      if (parentTypeCode != null && parentTypeCode.length() > 0)
-      {
-        StringBuilder parentCondition = new StringBuilder();
-        
-        parentCondition.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')");
-  
-        if (startDate != null && endDate != null)
-        {
-          parentCondition.append("[(:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate)]");
-        }
-  
-        parentCondition.append(".inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
-        
-        conditions.add(parentCondition.toString());
-      }
+    StringBuilder statement = new StringBuilder();
+    statement.append("select $filteredLabel,@class as clazz,* from " + type.getMdVertex().getDBClassName() + " ");
+    
+    statement.append("let $dateLabel = first(displayLabel_cot");
+    if (startDate != null && endDate != null)
+    {
+      statement.append("[(:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate)]");
+    }
+    statement.append("), ");
+    statement.append("$filteredLabel = " + AbstractVertexRestriction.localize("$dateLabel.value") + " ");
 
-      // Must have display label we expect
-      if (text != null && text.length() > 0)
-      {
-        StringBuilder textCondition = new StringBuilder();
-        
-        textCondition.append("(displayLabel_cot CONTAINS (");
-  
-        if (startDate != null && endDate != null)
-        {
-          textCondition.append("  (:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate) AND ");
-        }
-  
-        textCondition.append(AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
-        textCondition.append(")");
-        
-        textCondition.append(" OR code.toLowerCase() LIKE '%' + :text + '%')");
-        
-        conditions.add(textCondition.toString());
-      }
+    statement.append("where ");
 
-      // Must not be invalid
-      conditions.add("invalid=false");
-      
-      // Must exist at date
-      {
-        StringBuilder existCondition = new StringBuilder();
-        
-        existCondition.append("(exists_cot CONTAINS (");
-  
-        if (startDate != null && endDate != null)
-        {
-          existCondition.append("  (:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate) AND ");
-        }
-  
-        existCondition.append("value=true");
-        existCondition.append("))");
-        
-        conditions.add(existCondition.toString());
-      }
-      
-      statement.append(StringUtils.join(conditions, " AND "));
+    // Must be a child of parent type
+    if (parentTypeCode != null && parentTypeCode.length() > 0)
+    {
+      StringBuilder parentCondition = new StringBuilder();
 
-      statement.append(" ORDER BY location.code ASC LIMIT 10");
-
-      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+      parentCondition.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')");
 
       if (startDate != null && endDate != null)
       {
-        query.setParameter("startDate", startDate);
-        query.setParameter("endDate", endDate);
+        parentCondition.append("[(:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate)]");
       }
 
-      if (text != null)
+      parentCondition.append(".inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
+
+      conditions.add(parentCondition.toString());
+    }
+
+    // Must have display label we expect
+    if (text != null && text.length() > 0)
+    {
+      StringBuilder textCondition = new StringBuilder();
+
+      textCondition.append("(displayLabel_cot CONTAINS (");
+
+      if (startDate != null && endDate != null)
       {
-        query.setParameter("text", text.toLowerCase().trim());
-      }
-      else
-      {
-        query.setParameter("text", text);
+        textCondition.append("  (:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate) AND ");
       }
 
-      List<VertexObject> voResults = query.getResults();
+      textCondition.append(AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
+      textCondition.append(")");
 
-      results = new ArrayList<ServerGeoObjectIF>();
-      for (VertexObject result : voResults)
+      textCondition.append(" OR code.toLowerCase() LIKE '%' + :text + '%')");
+
+      conditions.add(textCondition.toString());
+    }
+
+    // Must not be invalid
+    conditions.add("invalid=false");
+
+    // Must exist at date
+    {
+      StringBuilder existCondition = new StringBuilder();
+
+      existCondition.append("(exists_cot CONTAINS (");
+
+      if (startDate != null && endDate != null)
       {
-        results.add(new VertexServerGeoObject(type, result, startDate));
+        existCondition.append("  (:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate) AND ");
       }
-//    }
+
+      existCondition.append("value=true");
+      existCondition.append("))");
+
+      conditions.add(existCondition.toString());
+    }
+
+    statement.append(StringUtils.join(conditions, " AND "));
+
+    statement.append(" ORDER BY $filteredLabel ASC LIMIT 10");
+
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+
+    if (startDate != null && endDate != null)
+    {
+      query.setParameter("startDate", startDate);
+      query.setParameter("endDate", endDate);
+    }
+
+    if (text != null)
+    {
+      query.setParameter("text", text.toLowerCase().trim());
+    }
+    else
+    {
+      query.setParameter("text", text);
+    }
+
+    @SuppressWarnings("unchecked")
+    List<HashMap<String, Object>> results = (List<HashMap<String, Object>>) ( (Object) query.getResults() );
 
     JsonArray array = new JsonArray();
 
-    for (ServerGeoObjectIF object : results)
+    for (HashMap<String, Object> row : results)
     {
-      ServerGeoObjectType objectType = object.getType();
+      ServerGeoObjectType rowType = ServerGeoObjectType.get((MdVertexDAOIF) MdGraphClassDAO.getMdGraphClassByTableName((String) row.get("clazz")));
 
-      if (ServiceFactory.getGeoObjectPermissionService().canRead(objectType.getOrganization().getCode(), objectType))
+      if (ServiceFactory.getGeoObjectPermissionService().canRead(rowType.getOrganization().getCode(), rowType))
       {
         JsonObject result = new JsonObject();
-        result.addProperty("id", object.getRunwayId());
-        result.addProperty("name", object.getDisplayLabel().getValue());
-        result.addProperty(GeoObject.CODE, object.getCode());
-        result.addProperty(GeoObject.UID, object.getUid());
-        result.addProperty("typeCode", objectType.getCode());
+        result.addProperty("id", (String) row.get("oid"));
+        result.addProperty("name", (String) row.get("$filteredLabel"));
+        result.addProperty(GeoObject.CODE, (String) row.get("code"));
+        result.addProperty(GeoObject.UID, (String) row.get("uuid"));
+        result.addProperty("typeCode", rowType.getCode());
 
         array.add(result);
       }
@@ -1197,11 +1210,11 @@ public class RegistryService
   // }
 
   @Request(RequestType.SESSION)
-  public JsonArray getHierarchiesForGeoObject(String sessionId, String code, String typeCode)
+  public JsonArray getHierarchiesForGeoObject(String sessionId, String code, String typeCode, Date date)
   {
     ServerGeoObjectIF geoObject = this.service.getGeoObjectByCode(code, typeCode);
 
-    return geoObject.getHierarchiesForGeoObject();
+    return geoObject.getHierarchiesForGeoObject(date);
   }
 
   @Request(RequestType.SESSION)
@@ -1322,7 +1335,7 @@ public class RegistryService
 
     for (ServerGeoObjectIF result : results)
     {
-      objects.add(result.toGeoObject());
+      objects.add(result.toGeoObject(date));
     }
 
     return objects;

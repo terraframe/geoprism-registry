@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+# Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 #
 # This file is part of Geoprism Registry(tm).
 #
@@ -70,9 +70,15 @@ if [ "$build_artifact" == "true" ]; then
   mvn clean deploy -B -Djavax.net.ssl.trustStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/tomcat.truststore -Djavax.net.ssl.trustStorePassword=2v8hVW2rPFncN6m -Djavax.net.ssl.keyStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/keystore.ks -Djavax.net.ssl.keyStorePassword=2v8hVW2rPFncN6m
 else
   if [ "$tag" == "latest" ]; then
-    mkdir -p $WORKSPACE/georegistry/georegistry-web/target && wget -nv -O $WORKSPACE/georegistry/georegistry-web/target/georegistry.war "http://nexus.terraframe.com/service/local/artifact/maven/redirect?r=allrepos&g=net.geoprism&a=georegistry-web&p=war&v=LATEST"
+    # As far as I can tell Cloudsmith doesn't support fetching the latest version of an artifact from their REST API. So we're using Maven dependency:copy plugin.
+    mkdir -p $WORKSPACE/georegistry/georegistry-web/target/artifact-download
+    cp $WORKSPACE/georegistry/src/build/shell/artifact-download.pom.xml $WORKSPACE/georegistry/georegistry-web/target/artifact-download/pom.xml
+    cd $WORKSPACE/georegistry/georegistry-web/target/artifact-download
+    
+    mvn dependency:copy -Dartifact=net.geoprism:georegistry-web:LATEST:war -DoutputDirectory=../ -Dmdep.stripVersion=true
+    mv ../georegistry-web.war ../georegistry.war
   else
-    mkdir -p $WORKSPACE/georegistry/georegistry-web/target && wget -nv -O $WORKSPACE/georegistry/georegistry-web/target/georegistry.war "http://nexus.terraframe.com/service/local/artifact/maven/redirect?r=allrepos&g=net.geoprism&a=georegistry-web&p=war&v=$tag"
+    mkdir -p $WORKSPACE/georegistry/georegistry-web/target && wget -nv -O $WORKSPACE/georegistry/georegistry-web/target/georegistry.war "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$tag/georegistry-web-$tag.war"
   fi
 fi
 

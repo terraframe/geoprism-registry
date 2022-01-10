@@ -24,7 +24,7 @@
                             </thead> 
                             <tbody> 
                                 <!-- <tr *ngFor="let job of jobs; let i = index;">  -->
-                                <tr *ngFor="let job of activeJobsPage.results | paginate: { id: 'activeJobs', itemsPerPage: activeJobsPage.pageSize, currentPage: activeJobsPage.pageNumber, totalItems: activeJobsPage.count }" >
+                                <tr *ngFor="let job of activeJobsPage.resultSet | paginate: { id: 'activeJobs', itemsPerPage: activeJobsPage.pageSize, currentPage: activeJobsPage.pageNumber, totalItems: activeJobsPage.count }" >
                                     <td style="vertical-align: middle;">
                                         <div class="wrapper">
                                             <i style="position: absolute;font-size: 40px;" class="fa fa-file" aria-hidden="true"></i>
@@ -67,7 +67,7 @@
 
                             </tbody> 
                         </table>
-                        <div *ngIf="activeJobsPage.results.length > 0" class="solid-table-footer">
+                        <div *ngIf="activeJobsPage.resultSet.length > 0" class="solid-table-footer">
                             <pagination-controls id="activeJobs" (pageChange)="onActiveJobsPageChange($event)"></pagination-controls>
                         </div>
                     </div>
@@ -79,30 +79,30 @@
 	                          <th style="width:40%;border-bottom: none;">
 	                            <localize style="line-height: 40px;" key="scheduledjobs.completedjobs.table.header"></localize>                                      
 	                          </th>
-	                          <th *ngIf="completeJobsPage.results.length > 0" style="width:15%;border-bottom: none;">
+	                          <th *ngIf="completeJobsPage.resultSet.length > 0" style="width:15%;border-bottom: none;">
 	                            <localize style="line-height: 40px;" key="scheduledjobs.status"></localize>                   
 	                          </th>
-	                          <th *ngIf="completeJobsPage.results.length > 0" style="width:15%;border-bottom: none;">
+	                          <th *ngIf="completeJobsPage.resultSet.length > 0" style="width:15%;border-bottom: none;">
                               <localize style="line-height: 40px;" key="scheduledjobs.importedRecords"></localize>                   
                             </th>
-                            <th *ngIf="completeJobsPage.results.length > 0" style="width:15%;border-bottom: none;">
+                            <th *ngIf="completeJobsPage.resultSet.length > 0" style="width:15%;border-bottom: none;">
                               <localize style="line-height: 40px;" key="scheduledjobs.importStartDate"></localize>                   
                             </th>
-                            <th *ngIf="completeJobsPage.results.length > 0" style="width:15%;border-bottom: none;">
+                            <th *ngIf="completeJobsPage.resultSet.length > 0" style="width:15%;border-bottom: none;">
                               <localize style="line-height: 40px;" key="scheduledjobs.importEndDate"></localize>                   
                             </th>
-	                          <th *ngIf="completeJobsPage.results.length < 1" style="border-bottom: none; width:15%">
+	                          <th *ngIf="completeJobsPage.resultSet.length < 1" style="border-bottom: none; width:15%">
 	                            <button type="submit" (click)="onViewAllCompleteJobs()" class="btn btn-default pull-right" role="button">
 	                              <localize key="scheduledjobs.view.completed.jobs.button"></localize>
 	                            </button>
 	                          </th>
-	                          <th *ngIf="completeJobsPage.results.length > 0" style="border-bottom: none; width:0%">
+	                          <th *ngIf="completeJobsPage.resultSet.length > 0" style="border-bottom: none; width:0%">
                             </th>
 	                        </tr> 
 	                      </thead> 
 	                      <tbody> 
 	                      <!-- <tr *ngFor="let job of completedJobs; let i = index;">  -->
-	                      <tr *ngFor="let job of completeJobsPage.results | paginate: { id: 'completeJobs', itemsPerPage: completeJobsPage.pageSize, currentPage: completeJobsPage.pageNumber, totalItems: completeJobsPage.count }" >
+	                      <tr *ngFor="let job of completeJobsPage.resultSet | paginate: { id: 'completeJobs', itemsPerPage: completeJobsPage.pageSize, currentPage: completeJobsPage.pageNumber, totalItems: completeJobsPage.count }" >
 	                        <td style="width:40%; vertical-align: middle;">
 	                          <div class="wrapper">
                               <i class="fa fa-file" style="position: absolute;" aria-hidden="true"></i>
@@ -135,7 +135,7 @@
 	                      </tbody> 
 	                    </table>
 	
-	                    <div *ngIf="completeJobsPage.results.length > 0" class="solid-table-footer">
+	                    <div *ngIf="completeJobsPage.resultSet.length > 0" class="solid-table-footer">
                         <pagination-controls id="completeJobs" (pageChange)="onCompleteJobsPageChange($event)"></pagination-controls>
 	                    </div>
                     </div>

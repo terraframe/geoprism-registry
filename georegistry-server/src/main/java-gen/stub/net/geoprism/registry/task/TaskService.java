@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -18,11 +18,11 @@
  */
 package net.geoprism.registry.task;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.constants.MdAttributeDateTimeUtil;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -41,49 +41,50 @@ import com.runwaysdk.system.RolesQuery;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.registry.etl.ETLService;
 import net.geoprism.registry.task.Task.TaskStatus;
+import net.geoprism.registry.view.JsonWrapper;
+import net.geoprism.registry.view.Page;
 
 public class TaskService
 {
-  public static JSONObject getTasksForCurrentUser(String sessionId)
+  public static JsonObject getTasksForCurrentUser(String sessionId)
   {
     return TaskService.getTasksForCurrentUser(sessionId, "createDate", 1, Integer.MAX_VALUE, null);
   }
-  
+
   @Request(RequestType.SESSION)
-  public static JSONObject getTasksForCurrentUser(String sessionId, String orderBy, int pageNum, int pageSize, String whereStatus)
+  public static JsonObject getTasksForCurrentUser(String sessionId, String orderBy, int pageNum, int pageSize, String whereStatus)
   {
     QueryFactory qf = new QueryFactory();
-    
+
     ValueQuery vq = new ValueQuery(qf);
-    
+
     TaskHasRoleQuery thrq = new TaskHasRoleQuery(vq);
-    
+
     TaskQuery tq = new TaskQuery(vq);
     vq.WHERE(thrq.getParent().EQ(tq));
-    
+
     if (whereStatus != null)
     {
       vq.WHERE(tq.getStatus().EQ(whereStatus));
     }
-    
+
     RolesQuery rq = new RolesQuery(vq);
     vq.WHERE(thrq.getChild().EQ(rq));
-    
-    
+
     Condition cond = null;
-//    Map<String, String> roles = Session.getCurrentSession().getUserRoles();
+    // Map<String, String> roles = Session.getCurrentSession().getUserRoles();
     Set<RoleDAOIF> roles = Session.getCurrentSession().getUser().assignedRoles();
-    
-//    for (String roleName : roles.keySet())
+
+    // for (String roleName : roles.keySet())
     for (RoleDAOIF role : roles)
     {
       String roleName = role.getRoleName();
-      
+
       if (roleName.equals(DefaultConfiguration.ADMIN))
       {
         continue;
       }
-      
+
       if (cond == null)
       {
         cond = rq.getRoleName().EQ(roleName);
@@ -93,15 +94,15 @@ public class TaskService
         cond = cond.OR(rq.getRoleName().EQ(roleName));
       }
     }
-    
+
     vq.WHERE(cond);
-    
+
     LocalizedValueStoreQuery lvsqTemplate = new LocalizedValueStoreQuery(vq);
     vq.WHERE(tq.getTemplate().EQ(lvsqTemplate));
-    
+
     LocalizedValueStoreQuery lvsqTitle = new LocalizedValueStoreQuery(vq);
     vq.WHERE(tq.getTitle().EQ(lvsqTitle));
-    
+
     vq.SELECT(tq.getOid("oid"));
     vq.SELECT(lvsqTemplate.getStoreKey("templateKey"));
     vq.SELECT(tq.getMessage().localize("msg"));
@@ -109,41 +110,28 @@ public class TaskService
     vq.SELECT(tq.getStatus("status"));
     vq.SELECT(tq.getCreateDate("createDate"));
     vq.SELECT(tq.getLastUpdateDate("completedDate"));
-    
+
     vq.ORDER_BY(tq.get(orderBy), SortOrder.DESC);
     vq.restrictRows(pageSize, pageNum);
-    
-    
-    
-    JSONObject page = new JSONObject();
-    
-    page.put("count", vq.getCount());
-    page.put("pageNumber", pageNum);
-    page.put("pageSize", pageSize);
-    
-    JSONArray results = new JSONArray();
-    
-    OIterator<ValueObject> it = vq.getIterator();
-    
-    while (it.hasNext())
+
+
+    try (OIterator<ValueObject> it = vq.getIterator())
     {
-      ValueObject vo = it.next();
-      
-      JSONObject jo = new JSONObject();
-      jo.put("id", vo.getValue("oid"));
-      jo.put("templateKey", vo.getValue("templateKey"));
-      jo.put("msg", vo.getValue("msg"));
-      jo.put("title", vo.getValue("title"));
-      jo.put("status", vo.getValue("status"));
-      jo.put("createDate", ETLService.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("createDate"))));
-      jo.put("completedDate", vo.getValue("status").equals(TaskStatus.RESOLVED.name()) ? ETLService.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("completedDate"))) : null);
-      
-      results.put(jo);
+      List<JsonWrapper> results = it.getAll().stream().map(vo -> {
+        JsonObject jo = new JsonObject();
+        jo.addProperty("id", vo.getValue("oid"));
+        jo.addProperty("templateKey", vo.getValue("templateKey"));
+        jo.addProperty("msg", vo.getValue("msg"));
+        jo.addProperty("title", vo.getValue("title"));
+        jo.addProperty("status", vo.getValue("status"));
+        jo.addProperty("createDate", ETLService.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("createDate"))));
+        jo.addProperty("completedDate", vo.getValue("status").equals(TaskStatus.RESOLVED.name()) ? ETLService.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("completedDate"))) : null);
+
+        return new JsonWrapper(jo);
+      }).collect(Collectors.toList());
+
+      return new Page<JsonWrapper>(vq.getCount(), pageNum, pageSize, results).toJSON();
     }
-    
-    page.put("results", results);
-    
-    return page;
   }
 
   @Request(RequestType.SESSION)
@@ -156,21 +144,22 @@ public class TaskService
   @Request(RequestType.SESSION)
   public static void completeTask(String sessionId, String id)
   {
-    Task t = Task.lock(id);
+    Task t = Task.get(id);
+    t.appLock();
     t.setStatus(TaskStatus.RESOLVED.name());
     t.apply();
   }
-  
+
   @Request(RequestType.SESSION)
   public static void setTaskStatus(String sessionId, String id, String status)
   {
-    if (!(status.equals(TaskStatus.RESOLVED.name())
-        || status.equals(TaskStatus.UNRESOLVED.name())))
+    if (! ( status.equals(TaskStatus.RESOLVED.name()) || status.equals(TaskStatus.UNRESOLVED.name()) ))
     {
       throw new ProgrammingErrorException("Invalid task status [" + status + "].");
     }
-    
-    Task t = Task.lock(id);
+
+    Task t = Task.get(id);
+    t.appLock();
     t.setStatus(status);
     t.apply();
   }

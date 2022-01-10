@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.action;
 
 @com.runwaysdk.business.ClassSignature(hash = 824408301)
@@ -73,7 +91,7 @@ public abstract class ChangeRequestBase extends com.runwaysdk.business.Business
     }
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.action.AllGovernanceStatus> getApprovalStatus()
   {
     return (java.util.List<net.geoprism.registry.action.AllGovernanceStatus>) getEnumValues(APPROVALSTATUS);
@@ -610,19 +628,19 @@ public abstract class ChangeRequestBase extends com.runwaysdk.business.Business
     removeAllChildren(abstractAction, net.geoprism.registry.action.HasActionRelationship.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.AbstractAction> getAllAction()
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.AbstractAction>) getChildren(net.geoprism.registry.action.HasActionRelationship.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.HasActionRelationship> getAllActionRel()
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.HasActionRelationship>) getChildRelationships(net.geoprism.registry.action.HasActionRelationship.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.HasActionRelationship> getActionRel(net.geoprism.registry.action.AbstractAction abstractAction)
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.HasActionRelationship>) getRelationshipsWithChild(abstractAction, net.geoprism.registry.action.HasActionRelationship.CLASS);
@@ -638,19 +656,19 @@ public abstract class ChangeRequestBase extends com.runwaysdk.business.Business
     removeAllChildren(vaultFile, net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends com.runwaysdk.system.VaultFile> getAllDocument()
   {
     return (com.runwaysdk.query.OIterator<? extends com.runwaysdk.system.VaultFile>) getChildren(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.ChangeRequestHasDocument> getAllDocumentRel()
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.ChangeRequestHasDocument>) getChildRelationships(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.ChangeRequestHasDocument> getDocumentRel(com.runwaysdk.system.VaultFile vaultFile)
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.ChangeRequestHasDocument>) getRelationshipsWithChild(vaultFile, net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);

@@ -9,7 +9,7 @@ import { ErrorHandler } from '@shared/component';
 
 import { ScheduledJob } from '@registry/model/registry';
 
-declare var acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component( {
     selector: 'reupload-modal',
@@ -54,7 +54,7 @@ export class ReuploadModalComponent {
     let options: FileUploaderOptions = {
       queueLimit: 1,
       removeAfterUpload: true,
-      url: acp + '/etl/reimport'
+      url: registry.contextPath + '/etl/reimport'
     };
     
     this.uploader = new FileUploader( options );

@@ -1,111 +1,139 @@
 <div class="new-admin-design-main">
   <cgr-header></cgr-header>
-  
+
   <div id="app-container" class="container">
-  
+
     <message></message>
 
     <h2>
       <localize key="tasks.openTasksTitle"></localize>
     </h2>
     <hr>
-  
-		<div class="row" *ngIf="inProgressTasks.results.length > 0">
+
+    <div class="row" *ngIf="inProgressTasks.resultSet.length > 0">
       <div class="col-md-12">
         <div class="content-wrapper">
-	        <div *ngFor="let task of inProgressTasks.results | paginate: { id: 'inProgressTasks', itemsPerPage: inProgressTasks.pageSize, currentPage: inProgressTasks.pageNumber, totalItems: inProgressTasks.count }" class="panel panel-default">
-	          <div class="panel-heading">
-	            <h4>{{upper(task.title)}}</h4>
-	          </div>
-	          
-	          <div class="panel-body">
-	            <div class="row">
-	             <div class="col-md-9">
-	              <label><localize key="tasks.taskMessage"></localize></label>
-	              <p style="margin-bottom:20px;">{{task.msg}}</p>
-	              <label style="margin-right:20px;"><localize key="tasks.createDateLabel"></localize></label>
-                  <span class="date-string-display">
-                      {{formatDate(task.createDate)}}
-                  </span>
-	             </div>
-	             <div class="col-md-3" style="min-height: 90px; display: flex; align-items: center;">
-                <label class="radio-inline radio">
-                  <input class="inline-radio-input" style="height:auto;" type="radio" checked id="{{task.id}}-inProgress" name="{{task.id}}-inProgress" value="true">
-                  <span><localize key="tasks.open"></localize></span>
-                </label>
-                
-                <label class="radio-inline radio">
-                  <input class="inline-radio-input" style="margin-left:15px;height:auto;" (click)="onCompleteTask(task)" type="radio" id="{{task.id}}-completed" name="{{task.id}}-completed" value="false">
-                  <span><localize key="tasks.complete"></localize></span>
-                </label>
-	             </div>
-	            </div>
-	          </div>
-	        </div>
-	        <div *ngIf="inProgressTasks.results.length > 0" class="solid-table-footer">
-            <pagination-controls id="inProgressTasks" (pageChange)="onInProgressTasksPageChange($event)"></pagination-controls>
-          </div>
-        </div>
-      </div>
-		</div>
-		
-		
-		<div class="row">
-		<h2 class="col-md-9">
-      <localize key="tasks.completedTasksTitle"></localize>
-    </h2>
-    <button class="col-md-3" style="margin-top:20px;" type="submit" (click)="onViewAllCompletedTasks()" class="btn btn-default pull-right" role="button">
-      <localize key="tasks.viewCompletedTasksButton"></localize>
-    </button>
-    </div>
-    <hr>
-  
-    <div class="row" >
-      <div class="col-md-12">
-        <div class="content-wrapper" *ngIf="isViewAllOpen && completedTasks.results.length > 0">
-          <div *ngFor="let task of completedTasks.results | paginate: { id: 'completedTasks', itemsPerPage: completedTasks.pageSize, currentPage: completedTasks.pageNumber, totalItems: completedTasks.count }" class="panel panel-default">
+          <div
+            *ngFor="let task of inProgressTasks.resultSet | paginate: { id: 'inProgressTasks', itemsPerPage: inProgressTasks.pageSize, currentPage: inProgressTasks.pageNumber, totalItems: inProgressTasks.count }"
+            class="panel panel-default">
             <div class="panel-heading">
-              <h4>{{upper(task.title)}}</h4>
+              <h4>{{task.title}}</h4>
             </div>
-            
+
             <div class="panel-body">
               <div class="row">
-               <div class="col-md-9">
-                <label><localize key="tasks.taskMessage"></localize></label>
-                <p style="margin-bottom:20px;">{{task.msg}}</p>
-                <label style="margin-right:20px;"><localize key="tasks.createDateLabel"></localize></label>
-                <span class="date-string-display" style="margin-right:30px;">
-                   {{formatDate(task.createDate)}}
-                </span>
-                <label style="margin-right:20px;"><localize key="tasks.completeDateLabel"></localize></label>
-                <span class="date-string-display" >
-                   {{formatDate(task.completedDate)}}
-                </span>
-               </div>
-               <div class="col-md-3" style="min-height: 90px; display: flex; align-items: center;">
+                <div class="col-md-9">
+                  <p style="margin-bottom:20px;">{{task.msg}}</p>
+                  <label style="margin-right:20px;">
+                    <localize key="tasks.createDateLabel"></localize>
+                  </label>
+                  <span class="date-string-display">
+                    {{formatDate(task.createDate)}}
+                  </span>
+                </div>
+                <div class="col-md-3" style="min-height: 90px; display: flex; align-items: center;">
+                  <label class="radio-inline radio">
+                    <input class="inline-radio-input" style="height:auto;" type="radio" checked
+                      id="{{task.id}}-inProgress" name="{{task.id}}-inProgress" value="true">
+                    <span>
+                      <localize key="tasks.open"></localize>
+                    </span>
+                  </label>
 
-                <label class="radio-inline radio">
-                  <input class="inline-radio-input" style="height:auto;" type="radio" (click)="onMoveTaskToInProgress(task)" id="{{task.id}}-inProgress" name="{{task.id}}-inProgress" value="true">
-                  <span><localize key="tasks.open"></localize></span>
-                </label>
-                <label class="radio-inline radio">
-                  <input class="inline-radio-input" style="margin-left:15px;height:auto;" checked type="radio" id="{{task.id}}-completed" name="{{task.id}}-completed" value="false">
-                  <span><localize key="tasks.complete"></localize></span>
-                </label>
-               </div>
+                  <label class="radio-inline radio">
+                    <input class="inline-radio-input" style="margin-left:15px;height:auto;"
+                      (click)="onCompleteTask(task)" type="radio" id="{{task.id}}-completed"
+                      name="{{task.id}}-completed" value="false">
+                    <span>
+                      <localize key="tasks.complete"></localize>
+                    </span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
-          <div *ngIf="completedTasks.results.length > 0" class="solid-table-footer">
-            <pagination-controls id="completedTasks" (pageChange)="onCompletedTasksPageChange($event)"></pagination-controls>
+          <div *ngIf="inProgressTasks.resultSet.length > 0" class="solid-table-footer">
+            <pagination-controls id="inProgressTasks" (pageChange)="onInProgressTasksPageChange($event)">
+            </pagination-controls>
           </div>
-        </div>
-        <div class="content-wrapper" *ngIf="completedTasks.results.length === 0 && isViewAllOpen">
-          <p style="font-style:italic;color:grey;"><localize key="tasks.no.completed.tasks.message"></localize></p>
         </div>
       </div>
     </div>
 
 
-	</div>
+    <div class="row">
+      <h2 class="col-md-9">
+        <localize key="tasks.completedTasksTitle"></localize>
+      </h2>
+      <button class="col-md-3" style="margin-top:20px;" type="submit" (click)="onToggleCompletedTasks()"
+        class="btn btn-default pull-right" role="button">
+        <localize *ngIf="!isViewAllOpen" key="tasks.viewCompletedTasksButton"></localize>
+        <localize *ngIf="isViewAllOpen" key="tasks.hideCompletedTasksButton"></localize>
+      </button>
+    </div>
+    <hr>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="content-wrapper" *ngIf="isViewAllOpen && completedTasks.resultSet.length > 0">
+          <div
+            *ngFor="let task of completedTasks.resultSet | paginate: { id: 'completedTasks', itemsPerPage: completedTasks.pageSize, currentPage: completedTasks.pageNumber, totalItems: completedTasks.count }"
+            class="panel panel-default">
+            <div class="panel-heading">
+              <h4>{{task.title}}</h4>
+            </div>
+
+            <div class="panel-body">
+              <div class="row">
+                <div class="col-md-9">
+                  <p style="margin-bottom:20px;">{{task.msg}}</p>
+                  <label style="margin-right:20px;">
+                    <localize key="tasks.createDateLabel"></localize>
+                  </label>
+                  <span class="date-string-display" style="margin-right:30px;">
+                    {{formatDate(task.createDate)}}
+                  </span>
+                  <label style="margin-right:20px;">
+                    <localize key="tasks.completeDateLabel"></localize>
+                  </label>
+                  <span class="date-string-display">
+                    {{formatDate(task.completedDate)}}
+                  </span>
+                </div>
+                <div class="col-md-3" style="min-height: 90px; display: flex; align-items: center;">
+
+                  <label class="radio-inline radio">
+                    <input class="inline-radio-input" style="height:auto;" type="radio"
+                      (click)="onMoveTaskToInProgress(task)" [id]="task.id+ '-inProgress'" [name]="task.id+ '-inProgress'"
+                      value="true">
+                    <span>
+                      <localize key="tasks.open"></localize>
+                    </span>
+                  </label>
+                  <label class="radio-inline radio">
+                    <input class="inline-radio-input" style="margin-left:15px;height:auto;" checked type="radio"
+                    [id]="task.id+ '-completed'" [name]="task.id+ '-completed'" value="false">
+                    <span>
+                      <localize key="tasks.complete"></localize>
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="completedTasks.resultSet.length > 0" class="solid-table-footer">
+            <pagination-controls id="completedTasks" (pageChange)="onCompletedTasksPageChange($event)">
+            </pagination-controls>
+          </div>
+        </div>
+        <div class="content-wrapper" *ngIf="completedTasks.resultSet.length === 0 && isViewAllOpen">
+          <p style="font-style:italic;color:grey;">
+            <localize key="tasks.no.completed.tasks.message"></localize>
+          </p>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
 </div>

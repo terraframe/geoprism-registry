@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.task;
 
-@com.runwaysdk.business.ClassSignature(hash = -95759119)
+@com.runwaysdk.business.ClassSignature(hash = 1317728900)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -43,11 +43,12 @@ public abstract class TaskBase extends com.runwaysdk.business.Business
   public static java.lang.String OWNER = "owner";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
+  public static java.lang.String SOURCEOID = "sourceOid";
   public static java.lang.String STATUS = "status";
   public static java.lang.String TEMPLATE = "template";
   public static java.lang.String TITLE = "title";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = -95759119;
+  private static final long serialVersionUID = 1317728900;
   
   public TaskBase()
   {
@@ -367,6 +368,34 @@ public abstract class TaskBase extends com.runwaysdk.business.Business
     return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(SITEMASTER);
   }
   
+  public String getSourceOid()
+  {
+    return getValue(SOURCEOID);
+  }
+  
+  public void validateSourceOid()
+  {
+    this.validateAttribute(SOURCEOID);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getSourceOidMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.task.Task.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(SOURCEOID);
+  }
+  
+  public void setSourceOid(String value)
+  {
+    if(value == null)
+    {
+      setValue(SOURCEOID, "");
+    }
+    else
+    {
+      setValue(SOURCEOID, value);
+    }
+  }
+  
   public String getStatus()
   {
     return getValue(STATUS);
@@ -530,19 +559,19 @@ public abstract class TaskBase extends com.runwaysdk.business.Business
     removeAllChildren(roles, net.geoprism.registry.task.TaskHasRole.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends com.runwaysdk.system.Roles> getAllRole()
   {
     return (com.runwaysdk.query.OIterator<? extends com.runwaysdk.system.Roles>) getChildren(net.geoprism.registry.task.TaskHasRole.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.task.TaskHasRole> getAllRoleRel()
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.task.TaskHasRole>) getChildRelationships(net.geoprism.registry.task.TaskHasRole.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.task.TaskHasRole> getRoleRel(com.runwaysdk.system.Roles roles)
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.task.TaskHasRole>) getRelationshipsWithChild(roles, net.geoprism.registry.task.TaskHasRole.CLASS);

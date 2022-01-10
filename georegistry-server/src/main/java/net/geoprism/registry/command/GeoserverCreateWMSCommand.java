@@ -1,20 +1,20 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.command;
 
@@ -23,16 +23,16 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.dataaccess.Command;
 
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.TableEntity;
 import net.geoprism.registry.service.WMSService;
 
 public class GeoserverCreateWMSCommand implements Command
 {
-  private Logger            log = LoggerFactory.getLogger(GeoserverCreateWMSCommand.class);
+  private Logger      log = LoggerFactory.getLogger(GeoserverCreateWMSCommand.class);
 
-  private MasterListVersion version;
+  private TableEntity version;
 
-  public GeoserverCreateWMSCommand(MasterListVersion version)
+  public GeoserverCreateWMSCommand(TableEntity version)
   {
     this.version = version;
   }
@@ -42,7 +42,7 @@ public class GeoserverCreateWMSCommand implements Command
    */
   public void doIt()
   {
-    log.info("Creating WMS for MasterListVersion [" + this.version.getOid() + "]");
+    log.info("Creating WMS for TableEntity [" + this.version.getOid() + "]");
 
     new WMSService().createGeoServerLayer(version, false);
   }

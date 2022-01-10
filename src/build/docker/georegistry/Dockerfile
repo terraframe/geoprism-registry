@@ -1,3 +1,22 @@
+#
+# Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+#
+# This file is part of Geoprism Registry(tm).
+#
+# Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+#
+
 FROM tomcat:8.5-jdk8-openjdk
 
 ENV CGR_VERSION=LATEST
@@ -8,7 +27,7 @@ ENV POSTGRES_PORT=5432
 RUN mkdir -p $CATALINA_HOME/wars
 
 # Embedded Geoserver
-RUN wget -nv -O $CATALINA_HOME/wars/geoserver.war "http://nexus.terraframe.com/service/local/repositories/allrepos/content/org/geoserver/geoserver/$GEOSERVER_VERSION/geoserver-$GEOSERVER_VERSION.war"
+RUN wget -nv -O $CATALINA_HOME/wars/geoserver.war "https://dl.cloudsmith.io/public/terraframe/public/maven/org/geoserver/geoserver/$GEOSERVER_VERSION/geoserver-$GEOSERVER_VERSION.war"
 RUN mkdir -p $CATALINA_HOME/webapps/geoserver && cd $CATALINA_HOME/webapps/geoserver && $JAVA_HOME/bin/jar xf $CATALINA_HOME/wars/geoserver.war
 
 # Copy CGR WAR

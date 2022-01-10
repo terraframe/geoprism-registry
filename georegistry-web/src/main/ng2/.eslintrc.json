@@ -32,7 +32,8 @@
         "accessor-pairs": ["error", { "getWithoutSet": true }],
         "angular/timeout-service": 0,
         "dot-notation": "off",
-        "no-trailing-spaces": ["error"]
+        "no-trailing-spaces": ["error"],
+        "no-useless-constructor": "off"
     },
     "globals": {
         "angular": true

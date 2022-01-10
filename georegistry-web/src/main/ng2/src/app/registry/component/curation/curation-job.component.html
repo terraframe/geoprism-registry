@@ -1,0 +1,111 @@
+<div class="new-admin-design-main">
+  <cgr-header></cgr-header>
+  <loading-bar></loading-bar>
+
+  <div id="app-container" class="container-fluid">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+    <div class="py-5">
+      <h2>
+        <localize key="curation.job.title"></localize>
+      </h2>
+    </div>
+    <div *ngIf="job" class="row" style="background: #F4F4F4;
+                                border-radius: 15px;
+                                margin-bottom: 20px;
+                                margin-top: 20px;
+                                padding: 10px;">
+      <div class="col-md-4 order-md-1">
+        <div class="wrapper">
+
+          <i style="position: absolute;font-size: 55px;" class="fa fa-file" aria-hidden="true"></i>
+          <p style="padding-left: 60px;">
+            <span style="display: block;">
+              <strong>{{version.label}}</strong>
+            </span>
+            <span style="display: block;">
+              <localize key="list.type.job.started.by"></localize>
+              {{job.lastRunBy}}
+            </span>
+            <span style="display: block;">
+              <localize key="scheduledjobs.job.started.label"></localize>
+              <span class="date-string-display">
+                {{formatDate(job.lastRun)}}
+              </span>
+            </span>
+          </p>
+
+        </div>
+      </div>
+      <div class="col-md-3 order-md-1">
+        <div>
+
+          <h5><b>{{job.workProgress}}
+            <localize key="list.type.validated.out.of"></localize>
+              {{job.workTotal}}
+              <localize key="scheduledjobs.job.imported.total.label"></localize>
+            </b></h5>
+          <h5>{{job.workTotal - job.workProgress}} <localize key="scheduledjobs.job.remaining.label"></localize>
+          </h5>
+
+        </div>
+      </div>
+      <div class="col-md-5 order-md-1">
+      </div>
+    </div>
+    <div *ngIf="page && page.resultSet.length > 0" class="row">
+      <div class="col-md-12 order-md-1" *ngIf="job">
+
+        <ul class="list-group">
+
+          <table class="list-table table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th class="label-column">
+                  <localize key="scheduledjobs.import.table.problem.type.header"></localize>
+                </th>
+                <th class="label-column">
+                  <localize key="data.property.label.code"></localize>
+                </th>
+                <th class="label-column">
+
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let row of page.resultSet | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
+                <td class="label-column" style="vertical-align: middle;">
+                  <p>{{getFriendlyProblemType(row.type)}}</p>
+                </td>
+                <td class="label-column" style="vertical-align: middle;">
+                  <p>{{row.goCode}}</p>
+                </td>
+                <td class="label-column" *ngIf="isAdmin || isMaintainer" style="text-align: right;">
+                  <button *ngIf="row.resolution !=='APPLY_GEO_OBJECT' " type="submit" (click)="onEdit(row)"
+                    class="btn btn-link" role="button">
+                    <localize key="scheduledjobs.fix.problem.button"></localize>
+                  </button>
+                  <boolean-field [value]="row.resolution === 'APPLY_GEO_OBJECT'" (change)="toggleResolution(row)"
+                    [label]="'list.type.problem.resolved' | localize" style="vertical-align:middle;line-height:0;"></boolean-field>
+
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="solid-table-footer">
+            <div *ngIf="page.resultSet.length > 0" class="solid-table-footer">
+              <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+            </div>
+          </div>
+        </ul>
+      </div>
+    </div>
+    <div *ngIf="job && job.status === 'SUCCESS' && page && page.resultSet.length === 0" class="row">
+      <div class="col-md-12 order-md-1">
+        <localize key="list.type.validation.empty"></localize>
+      </div>
+    </div>
+
+  </div>
+</div>

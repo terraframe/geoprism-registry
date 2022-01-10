@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -239,7 +239,7 @@ public class MasterListShapefileExporter
       File file = new File(directory, "metadata.xlsx");
       FileOutputStream fos = new FileOutputStream(file);
       
-      MasterListExcelExporter exporter = new MasterListExcelExporter(this.version, mdBusiness, mdAttributes, excelFilter, new MasterListExcelExporterSheet[] {MasterListExcelExporterSheet.DICTIONARY, MasterListExcelExporterSheet.METADATA});
+      MasterListExcelExporter exporter = new MasterListExcelExporter(this.version, mdBusiness, mdAttributes, excelFilter, this.columnNames, new MasterListExcelExporterSheet[] {MasterListExcelExporterSheet.DICTIONARY, MasterListExcelExporterSheet.METADATA});
 
       Workbook wb = exporter.createWorkbook();
       

@@ -1,0 +1,205 @@
+import { LocalizedValue, PageResult } from "@shared/model/core";
+import { GeoObjectType } from "./registry";
+
+export class ListTypeByType {
+
+    orgCode: string;
+    orgLabel: string;
+    typeCode: string;
+    typeLabel: string;
+    geometryType: string;
+    write: boolean;
+    private: boolean;
+    lists: ListType[];
+}
+
+export class ListMetadata {
+
+    label: LocalizedValue;
+    description: LocalizedValue;
+    process: LocalizedValue;
+    progress: LocalizedValue;
+    accessConstraints: LocalizedValue;
+    useConstraints: LocalizedValue;
+    acknowledgements: LocalizedValue;
+    disclaimer: LocalizedValue;
+    collectionDate: string;
+    originator: string;
+    contactName: string;
+    organization: string;
+    telephoneNumber: string;
+    email: string;
+
+    topicCategories?: string;
+    placeKeywords?: string;
+    updateFrequency?: string;
+    lineage?: string;
+    languages?: string;
+    scaleResolution?: string;
+    spatialRepresentation?: string;
+    referenceSystem?: string;
+    reportSpecification?: string;
+    distributionFormat?: string;
+}
+
+export class ListType {
+
+    oid?: string;
+    code: string;
+    organization: string;
+    listType: string;
+    write?: boolean;
+    read?: boolean;
+    exploratory?: boolean;
+    typeCode: string;
+    superTypeCode?: string;
+    typeLabel?: string;
+    typePrivate?: boolean;
+    displayLabel: LocalizedValue;
+    description: LocalizedValue;
+    subtypes?: { label: string, code: string }[];
+    subtypeHierarchies?: any[];
+    hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
+    includeLatLong?: boolean;
+
+    listMetadata: ListMetadata;
+    geospatialMetadata: ListMetadata;
+
+    // Attributes for the subtypes
+    validOn?: string;
+    publishingStartDate?: string;
+    frequency?: string;
+    intervalJson?: { startDate: string, endDate: string }[]
+
+    entries?: ListTypeEntry[];
+}
+
+export class ListTypeEntry {
+    displayLabel: string;
+    oid: string;
+    typeCode: string;
+    orgCode: string;
+    listType: string;
+    forDate: string;
+    wokring: ListTypeVersion;
+    versions?: ListTypeVersion[];
+    showAll?: boolean;
+}
+
+export class VersionMetadata {
+    master: boolean;
+    visibility: string;
+    label: LocalizedValue;
+    description: LocalizedValue;
+    process: LocalizedValue;
+    progress: LocalizedValue;
+    accessConstraints: LocalizedValue;
+    useConstraints: LocalizedValue;
+    acknowledgements: LocalizedValue;
+    disclaimer: LocalizedValue;
+    collectionDate: string;
+    originator: string;
+    contactName: string;
+    organization: string;
+    telephoneNumber: string;
+    email: string;
+
+    topicCategories?: string;
+    placeKeywords?: string;
+    updateFrequency?: string;
+    lineage?: string;
+    languages?: string;
+    scaleResolution?: string;
+    spatialRepresentation?: string;
+    referenceSystem?: string;
+    reportSpecification?: string;
+    distributionFormat?: string;
+}
+
+export class ListVersionMetadata {
+    oid?: string;
+    listMetadata?: VersionMetadata;
+    geospatialMetadata?: VersionMetadata;
+}
+
+export class ListTypeVersion extends ListVersionMetadata {
+    displayLabel: string;
+    typeCode: string;
+    orgCode: string;
+    listEntry: string;
+    listType: string;
+    forDate: string;
+    createDate: string;
+    publishDate: string;
+    attributes: any[];
+    isGeometryEditable: boolean;
+    locales?: string[];
+    shapefile?: boolean;
+    isAbstract?: boolean;
+    superTypeCode?: string;
+    refreshProgress?: any;
+    working: boolean;
+    isMember?: boolean;
+    versionNumber: number;
+    subtypes?: { label: string, code: string }[];
+    collapsed?: boolean;
+    curation?: any;
+}
+
+export class ContextLayer {
+    oid: string;
+    forDate: string;
+    versionNumber: number;
+    active?: boolean;
+    enabled?: boolean;
+    color?: string;
+    label?: string;
+}
+
+export class ContextList {
+    oid: string;
+    label: string;
+    versions: ContextLayer[];
+    open?: boolean;
+}
+
+export class LayerRecord {
+    recordType: string;
+
+    // Attributes required for the geo object properties panel
+    type?: GeoObjectType;
+    code?: string;
+    forDate?: string;
+
+    // Attributes required for the list row properties panel
+    typeLabel?: LocalizedValue;
+    version?: string;
+    attributes?: any[];
+    data?: Object;
+}
+
+export class CurationProblem {
+    resolution: string;
+    historyId: string;
+    type: string;
+    id: string;
+    typeCode?: string;
+    goCode?: string;
+    goUid?: string;
+    selected?: boolean;
+}
+
+export class CurationJob {
+    status: string;
+    lastRun: string;
+    lastRunBy: string;
+    historyId: string;
+    jobId: string;
+    workTotal: number;
+    workProgress: number;
+    exception?: {
+        type: string,
+        message: string
+    };
+    page?: PageResult<CurationProblem>
+}

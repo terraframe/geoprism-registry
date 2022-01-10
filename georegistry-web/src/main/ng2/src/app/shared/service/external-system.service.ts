@@ -4,7 +4,7 @@ import { finalize } from "rxjs/operators";
 import { EventService } from "@shared/service";
 import { ExternalSystem, PageResult } from "@shared/model/core";
 
-declare let acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class ExternalSystemService {
@@ -20,7 +20,7 @@ export class ExternalSystemService {
         this.eventService.start();
 
         return this.http
-            .get<PageResult<ExternalSystem>>(acp + "/external-system/get-all", { params: params })
+            .get<PageResult<ExternalSystem>>(registry.contextPath + "/external-system/get-all", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -34,7 +34,7 @@ export class ExternalSystemService {
         this.eventService.start();
 
         return this.http
-            .get<ExternalSystem>(acp + "/external-system/get", { params: params })
+            .get<ExternalSystem>(registry.contextPath + "/external-system/get", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -49,7 +49,7 @@ export class ExternalSystemService {
         this.eventService.start();
 
         return this.http
-            .post<ExternalSystem>(acp + "/external-system/apply", JSON.stringify({ system: system }), { headers: headers })
+            .post<ExternalSystem>(registry.contextPath + "/external-system/apply", JSON.stringify({ system: system }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -64,7 +64,7 @@ export class ExternalSystemService {
         this.eventService.start();
 
         return this.http
-            .post<{ oauth: boolean }>(acp + "/external-system/system-capabilities", JSON.stringify({ system: system }), { headers: headers })
+            .post<{ oauth: boolean }>(registry.contextPath + "/external-system/system-capabilities", JSON.stringify({ system: system }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -79,7 +79,7 @@ export class ExternalSystemService {
         this.eventService.start();
 
         return this.http
-            .post<any>(acp + "/external-system/remove", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<any>(registry.contextPath + "/external-system/remove", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -24,7 +24,9 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.JobHistory;
 
-public class ExportError extends ExportErrorBase
+import net.geoprism.registry.view.JsonSerializable;
+
+public class ExportError extends ExportErrorBase implements JsonSerializable
 {
   private static final long serialVersionUID = -1831328547;
   
@@ -33,7 +35,7 @@ public class ExportError extends ExportErrorBase
     super();
   }
   
-  public JsonObject toJson()
+  public JsonObject toJSON()
   {
     JsonObject jo = new JsonObject();
     

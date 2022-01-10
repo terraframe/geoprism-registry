@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.view;
 
 import java.io.IOException;
@@ -242,7 +260,7 @@ public class HistoricalRow implements JsonSerializable
     types.add(type);
     types.addAll(type.getSubtypes());
 
-    List<String> codes = types.stream().map(t -> type.getCode()).collect(Collectors.toList());
+    List<String> codes = types.stream().map(t -> t.getCode()).distinct().collect(Collectors.toList());
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT COUNT(*)");
@@ -278,7 +296,7 @@ public class HistoricalRow implements JsonSerializable
     types.add(type);
     types.addAll(type.getSubtypes());
 
-    List<String> codes = types.stream().map(t -> type.getCode()).collect(Collectors.toList());
+    List<String> codes = types.stream().map(t -> t.getCode()).distinct().collect(Collectors.toList());
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT " + eventAttribute.getColumnName() + "." + eventId.getColumnName() + " AS " + HistoricalRow.EVENT_ID);

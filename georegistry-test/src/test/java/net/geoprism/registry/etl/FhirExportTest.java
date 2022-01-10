@@ -1,20 +1,20 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.hl7.fhir.r4.model.Bundle;
@@ -35,7 +34,6 @@ import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.StringType;
-import org.hl7.fhir.r4.model.Type;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -48,9 +46,10 @@ import com.runwaysdk.session.Request;
 import com.vividsolutions.jts.io.geojson.GeoJsonWriter;
 
 import ca.uhn.fhir.context.FhirContext;
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.MasterListBuilder;
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeBuilder;
+import net.geoprism.registry.ListTypeEntry;
+import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.etl.fhir.BasicFhirConnection;
@@ -67,13 +66,13 @@ public class FhirExportTest
 {
   protected static USATestData           testData;
 
-  protected static MasterList            multiHierarchyList;
+  protected static ListType              multiHierarchyList;
 
-  protected static MasterListVersion     multiHierarchyVersion;
+  protected static ListTypeVersion       multiHierarchyVersion;
 
-  protected static MasterList            basicHierarchyList;
+  protected static ListType              basicHierarchyList;
 
-  protected static MasterListVersion     basicHierarchyVersion;
+  protected static ListTypeVersion       basicHierarchyVersion;
 
   protected SynchronizationConfigService syncService;
 
@@ -95,38 +94,36 @@ public class FhirExportTest
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     Date date = format.parse("2020-04-05");
 
-    MasterListBuilder.Hierarchy admin = new MasterListBuilder.Hierarchy();
+    ListTypeBuilder.Hierarchy admin = new ListTypeBuilder.Hierarchy();
     admin.setType(USATestData.HIER_ADMIN);
     admin.setParents(USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
 
-    MasterListBuilder.Hierarchy reportsTo = new MasterListBuilder.Hierarchy();
+    ListTypeBuilder.Hierarchy reportsTo = new ListTypeBuilder.Hierarchy();
     reportsTo.setType(USATestData.HIER_REPORTS_TO);
     reportsTo.setParents(USATestData.HEALTH_POST);
 
-    MasterListBuilder multiHierarchyBuilder = new MasterListBuilder();
+    ListTypeBuilder multiHierarchyBuilder = new ListTypeBuilder();
     multiHierarchyBuilder.setOrg(USATestData.ORG_NPS.getServerObject());
     multiHierarchyBuilder.setInfo(USATestData.HEALTH_STOP);
-    multiHierarchyBuilder.setVisibility(MasterList.PUBLIC);
-    multiHierarchyBuilder.setMaster(false);
     multiHierarchyBuilder.setHts(admin, reportsTo);
     multiHierarchyBuilder.setCode("TEST_MULTI");
 
     multiHierarchyList = multiHierarchyBuilder.build();
 
-    multiHierarchyVersion = multiHierarchyList.getOrCreateVersion(date, MasterListVersion.EXPLORATORY);
+    ListTypeEntry multiHierarchyEntry = multiHierarchyList.getOrCreateEntry(date);
+    multiHierarchyVersion = multiHierarchyEntry.getWorking();
     multiHierarchyVersion.publishNoAuth();
 
-    MasterListBuilder basicBuilder = new MasterListBuilder();
+    ListTypeBuilder basicBuilder = new ListTypeBuilder();
     basicBuilder.setOrg(USATestData.ORG_NPS.getServerObject());
     basicBuilder.setInfo(USATestData.HEALTH_STOP);
-    basicBuilder.setVisibility(MasterList.PUBLIC);
-    basicBuilder.setMaster(false);
     basicBuilder.setHts(admin);
     basicBuilder.setCode("TEST_BASIC");
 
     basicHierarchyList = basicBuilder.build();
 
-    basicHierarchyVersion = basicHierarchyList.getOrCreateVersion(date, MasterListVersion.EXPLORATORY);
+    ListTypeEntry basicHierarchyEntry = basicHierarchyList.getOrCreateEntry(date);
+    basicHierarchyVersion = basicHierarchyEntry.getWorking();
     basicHierarchyVersion.publishNoAuth();
   }
 
@@ -186,7 +183,7 @@ public class FhirExportTest
   }
 
   @Request
-  public static SynchronizationConfig createSyncConfig(ExternalSystem system, MasterList list, MasterListVersion version)
+  public static SynchronizationConfig createSyncConfig(ExternalSystem system, ListType list, ListTypeVersion version)
   {
     // Define reusable objects
     final ServerHierarchyType ht = USATestData.HIER_ADMIN.getServerObject();

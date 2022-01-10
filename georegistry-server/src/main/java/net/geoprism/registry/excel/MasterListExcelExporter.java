@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -26,6 +26,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -80,19 +81,32 @@ public class MasterListExcelExporter
   
   private MasterListExcelExporterSheet[]           includedSheets;
   
+  private Map<String, String>                      customAttributeLabels;
+  
   public static enum MasterListExcelExporterSheet
   {
     DATA,
     METADATA,
     DICTIONARY
   }
-
+  
   public MasterListExcelExporter(MasterListVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, String filterJson, MasterListExcelExporterSheet[] includedSheets)
+  {
+    initialize(version, mdBusiness, mdAttributes, filterJson, null, includedSheets);
+  }
+
+  public MasterListExcelExporter(MasterListVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, String filterJson, Map<String, String> customAttributeLabels, MasterListExcelExporterSheet[] includedSheets)
+  {
+    initialize(version, mdBusiness, mdAttributes, filterJson, customAttributeLabels, includedSheets);
+  }
+
+  private void initialize(MasterListVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, String filterJson, Map<String, String> customAttributeLabels, MasterListExcelExporterSheet[] includedSheets)
   {
     this.version = version;
     this.mdBusiness = mdBusiness;
     this.mdAttributes = mdAttributes;
     this.filterJson = filterJson;
+    this.customAttributeLabels = customAttributeLabels;
     
     if (includedSheets != null)
     {
@@ -105,7 +119,7 @@ public class MasterListExcelExporter
 
     this.list = version.getMasterlist();
   }
-
+  
   public MasterList getList()
   {
     return list;
@@ -160,7 +174,14 @@ public class MasterListExcelExporter
 
     for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
     {
-      this.createRow(sheet, locale, rowNumber++, mdAttribute, mdAttribute.getDescription(locale));
+      if (customAttributeLabels != null && this.customAttributeLabels.containsKey(mdAttribute.definesAttribute()))
+      {
+        this.createRow(sheet, rowNumber++, this.customAttributeLabels.get(mdAttribute.definesAttribute()), mdAttribute.getDescription(locale));
+      }
+      else
+      {
+        this.createRow(sheet, locale, rowNumber++, mdAttribute, mdAttribute.getDescription(locale));
+      }
     }
   }
 

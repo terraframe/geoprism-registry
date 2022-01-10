@@ -13,12 +13,15 @@ export class Transition {
     impact: string;
     typeUpdown?: string;
     typePart?: string;
+    order: number;
+    isNew: boolean;
 
 }
 
 export class TransitionEvent {
 
     oid?: string;
+    eventId?: string;
     beforeTypeCode: string;
     afterTypeCode: string;
     beforeTypeLabel?: string;

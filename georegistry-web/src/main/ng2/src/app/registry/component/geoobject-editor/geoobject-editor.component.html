@@ -1,72 +1,20 @@
 <div class="modal-body">
     
-    <form class="modal-form" style="overflow: visible;" #goForm="ngForm">
-        <!-- <div class="row-holder">
-            <div class="label-holder"><label><localize key="changeOverTime.forDate"></localize></label></div>
-            <div class="holder">
-                <input type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
-            </div>
-        </div> -->
-
-        <div class="row">
-            <div class="col-md-12">
-            
-                <div *ngIf="!areParentsValid" class="alert alert-danger" role="alert">
-                  <localize key="geoobject.editor.modal.parents.must.be.assigned.message"></localize>                
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <!-- <div class="label-holder"></div> -->
-            <div class="col-md-12">
-                <div class="btn-group geobject-editor-tab-holder">
-                    <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 0}" (click)="this.changePage(0);">
-                        <localize key="geoobject.editor.tabZero"></localize>
-                    </label>
-                    <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 1, error: !areParentsValid}" (click)="this.changePage(1);">
-                        <localize key="geoobject.editor.tabOne"></localize>
-                    </label>
-                    <label class="btn full-width-radio-button" [ngClass]="{active: this.tabIndex === 2, disabled: !isGeometryEditable}" (click)="isGeometryEditable && this.changePage(2);">
-                        <localize key="geoobject.editor.tabTwo"></localize>
-                    </label>
-                </div>
-            </div>
-        </div>
-
+    <form class="modal-form" style="overflow: visible;">
 
         <!-- Attributes tab -->
         <geoobject-shared-attribute-editor 
-            *ngIf="(this.tabIndex === 0 || this.tabIndex === 2) && this.geoObjectType && this.goPropertiesPre && this.goPropertiesPost"
+            *ngIf="this.geoObjectType && geoObject && hierarchies"
             #attributeEditor 
-            (valid)="this.onValidChange()" 
             [geoObjectType]="this.geoObjectType"
-            [preGeoObject]="this.goPropertiesPre" 
-            [postGeoObject]="this.goPropertiesPost" 
-            [forDate]="this.forDate" 
+            [postGeoObject]="this.geoObject" 
             [isNew]="this.isNewGeoObject"
-            [isEditingGeometries]="this.isEditingGeometries">
+            [isGeometryInlined]="true"
+            [hierarchies]="hierarchies"
+            [readOnly]="false">
         </geoobject-shared-attribute-editor>
 
-
-        <!-- Parents tab -->
-        <div *ngIf="this.tabIndex === 1 && this.hierarchies != null">
-          <cascading-geo-selector #parentSelector 
-            [isValid]="this.isValid" (valid)="this.onValidChange()"
-            [forDate]="this.forDate"             
-            [hierarchies]="this.hierarchies">
-          </cascading-geo-selector>
-        </div>
-
-         <!-- Geometry tab -->
-         <!--
-         <div class="row-holder">
-            <div class="label-holder"></div>
-            <div class="holder">
-              <geoobject-editor-map #geometryEditor *ngIf="this.tabIndex === 2" [geometryType]="this.geoObjectType.geometryType" [readOnly]="true" [preGeometry]="this.goGeometries.getVotAtDate(this.forDate, 'geometry', this.geoObjectType, this.localizeService).value" [bboxCode]="this.goGeometries.attributes.code" [bboxType]="this.geoObjectType.code"></geoobject-editor-map>
-            </div>
-        </div>
-        -->
-
+        <!--
         <div *ngIf="!isMaintainer" class="row-holder" style="padding-top: 10px;">
             <div class="label-holder"><label><localize key="change.request.action.detail.contributorNotes"></localize></label></div>
             <div class="holder text-left">
@@ -76,22 +24,15 @@
               </div>
             </div>
         </div>
+        -->
 
-         <div class="row-holder" style="margin-bottom: 20px;">
-            <div class="label-holder"><label><localize key="changeOverTime.forDate"></localize></label></div>
-            <div class="holder">
-                <input style="width:100%;" type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
-            </div>
-        </div>
-        
         <div class="row">
-            <!-- <div class="label-holder"></div> -->
             <div class="col-md-12">
                 <div class="button-holder text-left">
                     <button type="button" class="btn btn-default" (click)="cancel()">
                         <localize key="modal.button.cancel"></localize>
                     </button>
-                    <button type="submit" class="btn btn-primary" (click)="submit()" [disabled]="goForm.invalid || !this.isValid">
+                    <button type="submit" class="btn btn-primary" (click)="submit()" [disabled]="!canSubmit()">
                         <localize [key]="!isMaintainer ? 'change.request.page.title' : 'modal.button.submit'"></localize>
                     </button>
                 </div>

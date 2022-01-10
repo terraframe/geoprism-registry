@@ -10,7 +10,7 @@ import {
 
 import { LocalizedValue } from "@shared/model/core";
 import { LocalizationService, AuthService } from "@shared/service";
-import { GeometryService } from "@registry/service";
+import { GeometryService, RegistryService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 
 import { GeoObjectType, GeoObjectOverTime, AttributeType, Term, HierarchyOverTime } from "@registry/model/registry";
@@ -66,10 +66,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     tabIndex: number = 0;
 
-    isContributorOnly: boolean = false;
-
     // The current state of the GeoObject in the GeoRegistry
-//    @Input() action: Action = null;
+    //    @Input() action: Action = null;
 
     changeRequestEditor: ChangeRequestEditor;
 
@@ -92,6 +90,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     @Input() filterDate: string = null;
 
+    // used in context of a list where reference back to the list forDate is needed
+    @Input() forDate: string = null;
+    @Input() datasetId: string = null;
+
     // TODO : This was copy / pasted into manage-versions.component::onDateChange and ChangeRequestEditor::generateAttributeEditors
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "invalid", "exists"];
 
@@ -105,8 +107,9 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     showStabilityPeriods = false;
 
-    constructor(private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService) {
-        this.isContributorOnly = this.authService.isContributerOnly();
+    // eslint-disable-next-line no-useless-constructor
+    constructor(private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService, private registryService: RegistryService) {
+
     }
 
     ngOnInit(): void {
@@ -137,7 +140,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             }
         }
 
-        this.changeRequestEditor = new ChangeRequestEditor(this.changeRequest, this.postGeoObject, this.geoObjectType, this.hierarchies, this.geometryAttributeType, this.parentAttributeType, this.lService, this.dateService);
+        this.changeRequestEditor = new ChangeRequestEditor(this.changeRequest, this.postGeoObject, this.geoObjectType, this.hierarchies, this.geometryAttributeType, this.parentAttributeType, this.lService, this.dateService, this.registryService);
 
         if (this.shouldForceSetExist()) {
             this.changePage(3);
@@ -149,7 +152,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
         let got = this.changeRequest.current ? this.changeRequest.current.geoObjectType : this.postGeoObject.geoObjectType;
         let orgCode = got.organizationCode;
-        this.showStabilityPeriods = (this.authService.isSRA() || this.authService.isOrganizationRA(orgCode) || this.authService.isGeoObjectTypeOrSuperRM(got) || this.authService.isGeoObjectTypeOrSuperRC(got));
+
+        // Don't show the stability bar on the Change Requests page.
+        // Change Requests don't have oid when the page is loaded for non-change request use cases.
+        if (!this.changeRequest.oid) {
+            this.showStabilityPeriods = (this.authService.isSRA() || this.authService.isOrganizationRA(orgCode) || this.authService.isGeoObjectTypeOrSuperRM(got) || this.authService.isGeoObjectTypeOrSuperRC(got));
+        }
 
         this.showAllInstances = (this.changeRequestEditor.changeRequest.isNew || this.changeRequestEditor.changeRequest.type === "CreateGeoObject");
     }
@@ -186,19 +194,35 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     shouldForceSetExist() {
-        let isNew = this.changeRequestEditor.changeRequest.isNew;
+        if (!this.readOnly) {
+            if (this.isNew) {
+                const action: CreateGeoObjectAction = this.changeRequestEditor.changeRequest.actions[0] as CreateGeoObjectAction;
 
-        if (isNew && !this.readOnly && this.postGeoObject.attributes["exists"]) {
-            let values = this.postGeoObject.attributes["exists"].values;
+                let values = action.geoObjectJson.attributes["exists"].values;
 
-            if (values && values.length > 0) {
-                let value = values[0];
+                if (values && values.length > 0) {
+                    let value = values[0];
 
-                return value.startDate == null || value.endDate == null || value.value === undefined || value.value === null;
+                    return value.startDate == null || value.endDate == null || value.value === undefined || value.value === null;
+                }
+            } else {
+                let isNew = this.changeRequestEditor.changeRequest.isNew;
+
+                if (isNew && !this.readOnly && this.postGeoObject.attributes["exists"]) {
+                    let values = this.postGeoObject.attributes["exists"].values;
+
+                    if (values && values.length > 0) {
+                        let value = values[0];
+
+                        return value.startDate == null || value.endDate == null || value.value === undefined || value.value === null;
+                    }
+                }
+
+                return isNew && !this.readOnly;
             }
         }
 
-        return isNew && !this.readOnly;
+        return !this.readOnly;
     }
 
     getAttribute(name: string): AttributeType {
@@ -286,14 +310,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             let existsEditor = this.changeRequestEditor.getEditorForAttribute(existsAttribute);
 
             return (Object.prototype.hasOwnProperty.call(invalid, "isValid") && !invalid.isValid) ||
-            !existsEditor.isValid();
+                !existsEditor.isValid();
         }
 
         return false;
     }
 
     public isValid(): boolean {
-        let allValid:boolean = true;
+        let allValid: boolean = true;
 
         this.geoObjectType.attributes.forEach(att => {
             if (att.isValid != null && !att.isValid) {

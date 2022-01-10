@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -23,21 +23,14 @@ import com.runwaysdk.system.Roles;
 public class TaskHasRole extends TaskHasRoleBase
 {
   private static final long serialVersionUID = 1908834263;
-  
+
   public TaskHasRole(String parentOid, String childOid)
   {
     super(parentOid, childOid);
   }
-  
+
   public TaskHasRole(Task parent, Roles child)
   {
     this(parent.getOid(), child.getOid());
   }
-  
-  @Override
-  protected String buildKey()
-  {
-    return this.getParent().getKey() + "." + this.getChild().getKey();
-  }
-  
 }

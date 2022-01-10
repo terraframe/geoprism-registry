@@ -35,7 +35,7 @@ import { LocalizationService } from "@shared/service";
 
 import { VersionDiffView, Layer } from "./manage-versions-model";
 import { ControlContainer, NgForm } from "@angular/forms";
-import { Observable } from "rxjs";
+import { Observable, Observer } from "rxjs";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 import { HierarchyCREditor } from "./HierarchyCREditor";
@@ -276,7 +276,7 @@ export class ManageVersionsComponent implements OnInit {
             }
         }
 
-        return Observable.create((observer: any) => {
+        return new Observable((observer: Observer<Object>) => {
             if (parentCode == null) {
                 let loopI = index;
 

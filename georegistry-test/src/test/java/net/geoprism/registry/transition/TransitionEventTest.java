@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.transition;
 
 import java.io.IOException;
@@ -22,6 +40,7 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
@@ -33,6 +52,8 @@ import net.geoprism.registry.graph.transition.Transition.TransitionType;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.task.Task;
+import net.geoprism.registry.task.TaskQuery;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.view.HistoricalRow;
@@ -158,6 +179,8 @@ public class TransitionEventTest
   @Request
   public void testAddTransition()
   {
+    long beforeCount = new TaskQuery(new QueryFactory()).getCount();
+
     TransitionEvent event = new TransitionEvent();
 
     try
@@ -170,18 +193,94 @@ public class TransitionEventTest
       event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
       event.apply();
 
-      event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+      Transition transition = event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.DOWNGRADE, TransitionImpact.FULL);
+
+      Assert.assertEquals(6, Task.getTasks(transition.getOid()).size());
 
       List<Transition> transitions = event.getTransitions();
 
       Assert.assertEquals(1, transitions.size());
 
-      Transition transition = transitions.get(0);
+      transition = transitions.get(0);
       VertexServerGeoObject source = transition.getSourceVertex();
       VertexServerGeoObject target = transition.getTargetVertex();
 
       Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), source.getCode());
       Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), target.getCode());
+    }
+    finally
+    {
+      event.delete();
+    }
+
+    // Ensure that the unresolved tasks are deleted on event delete
+    Assert.assertEquals(beforeCount, new TaskQuery(new QueryFactory()).getCount());
+  }
+
+  @Test
+  @Request
+  public void testAddTransitionSameType()
+  {
+    long beforeCount = new TaskQuery(new QueryFactory()).getCount();
+
+    TransitionEvent event = new TransitionEvent();
+
+    try
+    {
+      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      event.setBeforeTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.setBeforeTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
+      event.apply();
+
+      Transition transition = event.addTransition(FastTestDataset.PROV_WESTERN.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+
+      Assert.assertEquals(3, Task.getTasks(transition.getOid()).size());
+
+      List<Transition> transitions = event.getTransitions();
+
+      Assert.assertEquals(1, transitions.size());
+
+      transition = transitions.get(0);
+      VertexServerGeoObject source = transition.getSourceVertex();
+      VertexServerGeoObject target = transition.getTargetVertex();
+
+      Assert.assertEquals(FastTestDataset.PROV_WESTERN.getCode(), source.getCode());
+      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), target.getCode());
+    }
+    finally
+    {
+      event.delete();
+    }
+
+    // Ensure that the unresolved tasks are deleted on event delete
+    Assert.assertEquals(beforeCount, new TaskQuery(new QueryFactory()).getCount());
+  }
+
+  @Test
+  @Request
+  public void testUpdateTransition()
+  {
+    TransitionEvent event = new TransitionEvent();
+
+    try
+    {
+      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setBeforeTypeOrgCode(FastTestDataset.COUNTRY.getOrganization().getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
+      event.apply();
+
+      Transition transition = event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+      transition.apply(event, transition.getOrder(), (VertexServerGeoObject) FastTestDataset.CAMBODIA.getServerObject(), (VertexServerGeoObject) FastTestDataset.PROV_WESTERN.getServerObject());
+
+      List<Task> tasks = Task.getTasks(transition.getOid());
+
+      Assert.assertEquals(6, tasks.size());
     }
     finally
     {
@@ -356,10 +455,10 @@ public class TransitionEventTest
       Assert.assertEquals("Event Date", header.getCell(1).getStringCellValue());
       Assert.assertEquals("Event Type", header.getCell(2).getStringCellValue());
       Assert.assertEquals("Description", header.getCell(3).getStringCellValue());
-      Assert.assertEquals("Before Type", header.getCell(4).getStringCellValue());
+      Assert.assertEquals("Before Type Code", header.getCell(4).getStringCellValue());
       Assert.assertEquals("Before Code", header.getCell(5).getStringCellValue());
       Assert.assertEquals("Before Label", header.getCell(6).getStringCellValue());
-      Assert.assertEquals("After Type", header.getCell(7).getStringCellValue());
+      Assert.assertEquals("After Type Code", header.getCell(7).getStringCellValue());
       Assert.assertEquals("After Code", header.getCell(8).getStringCellValue());
       Assert.assertEquals("After Label", header.getCell(9).getStringCellValue());
 

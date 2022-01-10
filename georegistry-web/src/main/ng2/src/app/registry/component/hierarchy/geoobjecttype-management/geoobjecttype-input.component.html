@@ -37,7 +37,7 @@
                     <label><localize key="geoObjectType.attr.visibility.label"></localize></label>
                 </div>
                 <div class="holder">
-                    <boolean-field [disable]="geoObjectType.superTypeCode" [(value)]="editGeoObjectType.isPrivate" [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
+                    <boolean-field [disable]="readOnly || geoObjectType.superTypeCode" [(value)]="editGeoObjectType.isPrivate" [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
                 </div>
             </div>
             
@@ -134,7 +134,7 @@
                               </table>
                           </div>
                           
-                          <i class="fa fa-plus clickable" style="font-size:20px;margin:10px 0 10px 0;" aria-hidden="true" (click)="defineAttributeModal()">
+                          <i *ngIf="!readOnly" class="fa fa-plus clickable" style="font-size:20px;margin:10px 0 10px 0;" aria-hidden="true" (click)="defineAttributeModal()">
                               <localize key="modal.button.add"></localize>
                           </i>
                         </div>

@@ -31,7 +31,7 @@ import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 
 import { LoginHeaderComponent } from './login-header.component';
 
-declare var acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component( {
     selector: 'login',
@@ -79,7 +79,7 @@ export class LoginComponent implements OnInit {
     }
 
     constructor( private service: SessionService, private hService: HubService, private modalService: BsModalService, private router: Router, private route: ActivatedRoute ) {
-        this.context = acp as string;
+        this.context = registry.contextPath;
     }
     
     public onClickDhis2(url: any): void {

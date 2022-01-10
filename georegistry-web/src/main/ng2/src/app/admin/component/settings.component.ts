@@ -40,7 +40,7 @@ import { LocalizationService, AuthService, ExternalSystemService, OrganizationSe
 import { SettingsService, SettingsInitView } from '@admin/service/settings.service';
 import { LocalizationManagerService } from '@admin/service/localization-manager.service';
 
-declare let acp: string;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component({
 	selector: 'settings',
@@ -121,7 +121,7 @@ export class SettingsComponent implements OnInit {
 
 	exportLocalization() {
 		//this.localizationManagerService.exportLocalization();
-		window.location.href = acp + "/localization/exportSpreadsheet";
+		window.location.href = registry.contextPath + "/localization/exportSpreadsheet";
 	}
 
 	public importLocalization(): void {

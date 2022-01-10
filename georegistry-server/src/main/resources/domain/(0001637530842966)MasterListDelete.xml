@@ -1,0 +1,34 @@
+<version
+  xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <delete>
+      <object
+        key="net.geoprism.registry.TileCache"
+        type="com.runwaysdk.system.metadata.MdBusiness" />
+      <object
+        key="net.geoprism.registry.etl.PublishMasterListVersionJob"
+        type="com.runwaysdk.system.metadata.MdBusiness" />
+      <object
+        key="net.geoprism.registry.etl.PublishMasterListJob"
+        type="com.runwaysdk.system.metadata.MdBusiness" />
+      <object
+        key="net.geoprism.registry.etl.MasterListJob"
+        type="com.runwaysdk.system.metadata.MdBusiness" />
+<!-- 
+      <object
+        key="net.geoprism.registry.MasterListAttributeGroup"
+        type="com.runwaysdk.system.metadata.MdBusiness"></object>
+ -->    
+      <object
+        key="net.geoprism.registry.MasterListVersion"
+        type="com.runwaysdk.system.metadata.MdBusiness"></object>
+      <object
+        key="net.geoprism.registry.MasterList"
+        type="com.runwaysdk.system.metadata.MdBusiness"></object>
+        
+    </delete>
+  </doIt>
+  <undoIt>
+  </undoIt>
+</version>

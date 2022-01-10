@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+# Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 #
 # This file is part of Geoprism Registry(tm).
 #
@@ -25,12 +25,12 @@
 # NEXUS_ADMIN_PASSWORD
 # release_adapter, release_georegistry, tag_platform, tag_cloud, release_github
 
-if [ "$release_adapter" == "true" ]; then
-  if curl -f -s --head "https://nexus.terraframe.com/service/local/artifact/maven/redirect?r=allrepos&g=com.cgr.adapter&a=cgradapter-common&p=jar&v=$CGR_RELEASE_VERSION" | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null; then
-    echo "The release version $CGR_RELEASE_VERSION has already been deployed! Please ensure you are releasing the correct version."
-    exit 1
-  fi
-fi
+#if [ "$release_adapter" == "true" ]; then
+  #if curl -f -s --head "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/com/cgr/adapter/cgradapter-common/$CGR_RELEASE_VERSION/cgradapter-common-$CGR_RELEASE_VERSION.war" | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null; then
+  #  echo "The release version $CGR_RELEASE_VERSION has already been deployed! Please ensure you are releasing the correct version."
+  #  exit 1
+  #fi
+#fi
 
 git config --global user.name "$GIT_TF_BUILDER_USERNAME"
 git config --global user.email builder@terraframe.com
@@ -76,6 +76,9 @@ if [ "$release_adapter" == "true" ]; then
   git checkout dev
   git merge master
   git push
+else
+  mkdir -p $WORKSPACE/common-geo-registry-adapter/java/common/target && wget -nv -O $WORKSPACE/common-geo-registry-adapter/java/common/target/cgradapter-common-$CGR_RELEASE_VERSION.jar "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/com/cgr/adapter/cgradapter-common/$CGR_RELEASE_VERSION/cgradapter-common-$CGR_RELEASE_VERSION.jar"
+  mkdir -p $WORKSPACE/common-geo-registry-adapter/java/android/cgradapter_android/target && wget -nv -O $WORKSPACE/common-geo-registry-adapter/java/android/cgradapter_android/target/cgradapter-android-$CGR_RELEASE_VERSION.aar "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/com/cgr/adapter/cgradapter-android/$CGR_RELEASE_VERSION/cgradapter-android-$CGR_RELEASE_VERSION.aar"
 fi
 
 if [ "$release_georegistry" == "true" ]; then
@@ -83,19 +86,13 @@ if [ "$release_georegistry" == "true" ]; then
   cd $WORKSPACE/georegistry
   
   # Georegistry : Hardcode dependent library versions (adapter)
-  cd $WORKSPACE
-  rm -rf builderdev
-  mkdir builderdev
-  cd builderdev
-  git clone -b master git@github.com:terraframe/geoprism-registry.git
-  cd geoprism-registry
   git checkout dev
   sed -i -E "s_<cgr.adapter.version>.*</cgr.adapter.version>_<cgr.adapter.version>$CGR_RELEASE_VERSION</cgr.adapter.version>_g" georegistry-server/pom.xml
   cd georegistry-web/src/main/ng2
   npm install
   node -v && npm -v
   node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
-  cd $WORKSPACE/builderdev/geoprism-registry
+  cd $WORKSPACE/georegistry
   git add -A
   git diff-index --quiet HEAD || git commit -m 'Preparing project for release.'
   git push
@@ -103,7 +100,6 @@ if [ "$release_georegistry" == "true" ]; then
   # Georegistry : License Headers
   cd $WORKSPACE/georegistry
   git checkout dev
-  git pull
   mvn license:format -B
   git add -A
   git diff-index --quiet HEAD || git commit -m 'License headers'
@@ -113,12 +109,8 @@ if [ "$release_georegistry" == "true" ]; then
   git push
   
   # Georegistry : Release
-  cd $WORKSPACE
-  rm -rf builderdev
-  mkdir builderdev
-  cd builderdev
-  git clone -b master git@github.com:terraframe/geoprism-registry.git
-  cd geoprism-registry
+  cd $WORKSPACE/georegistry
+  git checkout master
   mvn release:prepare -B -Dtag=$CGR_RELEASE_VERSION \
                    -DreleaseVersion=$CGR_RELEASE_VERSION \
                    -DdevelopmentVersion=$CGR_NEXT_VERSION
@@ -142,16 +134,11 @@ if [ "$release_georegistry" == "true" ]; then
   git add -A
   git diff-index --quiet HEAD || git commit -m 'Preparing dependencies for next development iteration.'
   git push
+else
+  mkdir -p $WORKSPACE/geoprism-registry/georegistry-web/target && wget -nv -O $WORKSPACE/geoprism-registry/georegistry-web/target/georegistry.war "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war"
 fi
 
 if [ "$release_docker" == "true" ]; then
-  cd $WORKSPACE
-  ([ -d geoprism-registry ] && rm -rf geoprism-registry) || true
-  git clone -b dockerize git@github.com:terraframe/geoprism-registry.git # TODO : Change branch here to master
-
-  mkdir -p geoprism-registry/georegistry-web/target
-  wget -nv https://nexus.terraframe.com/content/repositories/allrepos/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O geoprism-registry/georegistry-web/target/georegistry.war
-
   cd $WORKSPACE/geoprism-registry/src/build/docker/georegistry
   ./build.sh
   ./release.sh
@@ -183,9 +170,15 @@ if [ "$release_github" == "true" ]; then
   
   gh config set prompt disabled
   
-  wget https://nexus.terraframe.com/content/repositories/allrepos/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O georegistry-web-$CGR_RELEASE_VERSION.war
-  wget https://nexus.terraframe.com/content/repositories/allrepos/com/cgr/adapter/cgradapter-common/$CGR_RELEASE_VERSION/cgradapter-common-$CGR_RELEASE_VERSION.jar -O cgradapter-common-$CGR_RELEASE_VERSION.jar
-  wget https://nexus.terraframe.com/content/repositories/allrepos/com/cgr/adapter/cgradapter-android/$CGR_RELEASE_VERSION/cgradapter-android-$CGR_RELEASE_VERSION.aar -O cgradapter-android-$CGR_RELEASE_VERSION.aar
-  
+  # TODO : We really should be using the artifacts we compiled earlier.
+  sleep 180 # Cloudsmith takes a little bit to process the artifact before its downloadable.
+  wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O georegistry-web-$CGR_RELEASE_VERSION.war
+  wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/com/cgr/adapter/cgradapter-common/$CGR_RELEASE_VERSION/cgradapter-common-$CGR_RELEASE_VERSION.jar -O cgradapter-common-$CGR_RELEASE_VERSION.jar
+  wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/com/cgr/adapter/cgradapter-android/$CGR_RELEASE_VERSION/cgradapter-android-$CGR_RELEASE_VERSION.aar -O cgradapter-android-$CGR_RELEASE_VERSION.aar
   gh release create $CGR_RELEASE_VERSION "georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp" "cgradapter-common-$CGR_RELEASE_VERSION.jar#CGR Java Adapter" "cgradapter-android-$CGR_RELEASE_VERSION.aar#CGR Android Adapter"
+  
+  
+  # Use the artifacts we compiled earlier
+  # TODO : I cant figure out where gradle stores its aar after build
+  # gh release create $CGR_RELEASE_VERSION "georegistry/georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp" "common-geo-registry-adapter/java/common/target/cgradapter-common-$CGR_RELEASE_VERSION.jar#CGR Java Adapter" "common-geo-registry-adapter/java/android/cgradapter_android/target/cgradapter-android-$CGR_RELEASE_VERSION.aar#CGR Android Adapter"
 fi

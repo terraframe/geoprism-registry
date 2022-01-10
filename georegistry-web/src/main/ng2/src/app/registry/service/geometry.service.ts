@@ -5,9 +5,6 @@ import { Map, LngLat, LngLatBounds } from "mapbox-gl";
 
 import { Layer } from "../component/geoobject-shared-attribute-editor/manage-versions-model";
 
-// eslint-disable-next-line no-unused-vars
-declare let acp: any;
-
 /**
  * This is a generic service used for rendering layers from ValueOverTime objects
  */

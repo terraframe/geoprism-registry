@@ -1,20 +1,20 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.fhir;
 
@@ -38,20 +38,20 @@ import com.runwaysdk.business.Business;
 
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.util.BundleUtil;
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.etl.UnresolvableResourceException;
 import net.geoprism.registry.model.ServerHierarchyType;
 
 public abstract class AbstractFhirDataPopulator extends BasicFhirDataPopulator implements FhirDataPopulator
 {
-  private FhirConnection   context;
+  private FhirConnection      context;
 
-  private MasterListVersion   version;
+  private ListTypeVersion     version;
 
   private boolean             resolveIds;
 
-  private MasterList          list;
+  private ListType            list;
 
   private Map<String, String> identifiers;
 
@@ -67,20 +67,20 @@ public abstract class AbstractFhirDataPopulator extends BasicFhirDataPopulator i
   }
 
   @Override
-  public void configure(FhirConnection context, MasterListVersion version, boolean resolveIds)
+  public void configure(FhirConnection context, ListTypeVersion version, boolean resolveIds)
   {
     this.context = context;
     this.version = version;
     this.resolveIds = resolveIds;
-    this.list = this.version.getMasterlist();
+    this.list = this.version.getListType();
   }
 
-  public MasterList getList()
+  public ListType getList()
   {
     return list;
   }
 
-  public MasterListVersion getVersion()
+  public ListTypeVersion getVersion()
   {
     return version;
   }

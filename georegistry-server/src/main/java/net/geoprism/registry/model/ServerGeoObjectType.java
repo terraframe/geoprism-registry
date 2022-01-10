@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -95,7 +95,7 @@ import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.HierarchyRootException;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
-import net.geoprism.registry.MasterList;
+import net.geoprism.registry.ListType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.TypeInUseException;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
@@ -354,7 +354,7 @@ public class ServerGeoObjectType implements ServerElement
       }
     }
 
-    MasterList.markAllAsInvalid(null, this);
+    ListType.markAllAsInvalid(null, this);
 
     new SearchService().clear(this.getCode());
 
@@ -516,7 +516,7 @@ public class ServerGeoObjectType implements ServerElement
   {
     MdAttributeConcrete mdAttribute = ServerGeoObjectType.createMdAttributeFromAttributeType(this.mdBusiness, attributeType);
 
-    MasterList.createMdAttribute(this, attributeType);
+    ListType.createMdAttribute(this, attributeType);
 
     ( (MdVertexDAO) this.mdVertex ).copyAttribute(MdAttributeDAO.get(mdAttribute.getOid()));
 
@@ -571,7 +571,7 @@ public class ServerGeoObjectType implements ServerElement
 
       if (optional.isPresent())
       {
-        MasterList.deleteMdAttribute(this.universal, optional.get());
+        ListType.deleteMdAttribute(this.universal, optional.get());
       }
     }
 
@@ -880,6 +880,61 @@ public class ServerGeoObjectType implements ServerElement
     return hierarchyType;
   }
 
+  public boolean getIsPrivate()
+  {
+    return this.type.getIsPrivate();
+  }
+
+  public void setIsPrivate(Boolean isPrivate)
+  {
+    this.type.setIsPrivate(isPrivate);
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (obj instanceof ServerGeoObjectType)
+    {
+      return ( (ServerGeoObjectType) obj ).getCode().equals(this.getCode());
+    }
+    else if (obj instanceof GeoObjectType)
+    {
+      return ( (GeoObjectType) obj ).getCode().equals(this.getCode());
+    }
+
+    return false;
+  }
+
+  @Override
+  public String toString()
+  {
+    return GeoObjectTypeMetadata.sGetClassDisplayLabel() + " : " + this.getCode();
+  }
+
+  public String getMaintainerRoleName()
+  {
+    ServerGeoObjectType superType = this.getSuperType();
+
+    if (superType != null)
+    {
+      return superType.getMaintainerRoleName();
+    }
+
+    return RegistryRole.Type.getRM_RoleName(this.getOrganization().getCode(), this.getCode());
+  }
+
+  public String getAdminRoleName()
+  {
+    ServerGeoObjectType superType = this.getSuperType();
+
+    if (superType != null)
+    {
+      return superType.getOrganization().getRegistryAdminRoleName();
+    }
+
+    return this.getOrganization().getRegistryAdminRoleName();
+  }
+
   /**
    * Returns a {@link Universal} from the code value on the given
    * {@link GeoObjectType}.
@@ -985,37 +1040,6 @@ public class ServerGeoObjectType implements ServerElement
     }
 
     return ServiceFactory.getMetadataCache().getGeoObjectType(code).get();
-  }
-
-  public boolean getIsPrivate()
-  {
-    return this.type.getIsPrivate();
-  }
-
-  public void setIsPrivate(Boolean isPrivate)
-  {
-    this.type.setIsPrivate(isPrivate);
-  }
-
-  @Override
-  public boolean equals(Object obj)
-  {
-    if (obj instanceof ServerGeoObjectType)
-    {
-      return ( (ServerGeoObjectType) obj ).getCode().equals(this.getCode());
-    }
-    else if (obj instanceof GeoObjectType)
-    {
-      return ( (GeoObjectType) obj ).getCode().equals(this.getCode());
-    }
-
-    return false;
-  }
-
-  @Override
-  public String toString()
-  {
-    return GeoObjectTypeMetadata.sGetClassDisplayLabel() + " : " + this.getCode();
   }
 
   // public String buildRMRoleName()
@@ -1227,5 +1251,4 @@ public class ServerGeoObjectType implements ServerElement
 
     return null;
   }
-
 }

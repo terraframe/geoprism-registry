@@ -14,7 +14,7 @@ import { ShapefileModalComponent } from "./modals/shapefile-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
 import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
 
-declare let acp: string;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component({
 
@@ -191,9 +191,9 @@ export class DataImporterComponent implements OnInit {
             this.error(err);
         });
 
-        let getUrl = acp + "/excel/get-configuration";
+        let getUrl = registry.contextPath + "/excel/get-configuration";
         if (this.format === "SHAPEFILE") {
-            getUrl = acp + "/shapefile/get-shapefile-configuration";
+            getUrl = registry.contextPath + "/shapefile/get-shapefile-configuration";
 
             // this.showImportConfig = true; // show the upload widget if shapefile because external system from shapefile isn't supported
         }

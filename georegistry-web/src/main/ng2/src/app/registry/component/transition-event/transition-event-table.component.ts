@@ -74,29 +74,41 @@ export class TransitionEventTableComponent {
 
     bsModalRef: BsModalRef;
 
+    readOnly: boolean = true;
+
     // eslint-disable-next-line no-useless-constructor
-    constructor(private service: TransitionEventService, private modalService: BsModalService, private iService: IOService, private dateService: DateService, private authService: AuthService, private localizeService: LocalizationService) { }
+    constructor(private service: TransitionEventService, private modalService: BsModalService, private iService: IOService, public dateService: DateService, private authService: AuthService, private localizeService: LocalizationService) { }
 
     ngOnInit(): void {
+        this.readOnly = !this.authService.isSRA() && !this.authService.isRA() && !this.authService.isRM();
         this.refresh();
 
         this.attrConditions.push(this.dateCondition);
         this.attrConditions.push(this.beforeTypeCondition);
 
         this.iService.listGeoObjectTypes(false).then(types => {
-            let myOrgTypes = [];
-            for (let i = 0; i < types.length; ++i) {
-                const orgCode = types[i].orgCode;
-                const typeCode = types[i].superTypeCode != null ? types[i].superTypeCode : types[i].code;
-
-                if (this.authService.isGeoObjectTypeRM(orgCode, typeCode)) {
-                    myOrgTypes.push(types[i]);
-                }
-            }
-            this.types = myOrgTypes;
+            this.types = this.filterTypesBasedOnMyOrg(types);
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
+    }
+
+    filterTypesBasedOnMyOrg(types) {
+        let isSRA = this.authService.isSRA();
+        let myOrgTypes = [];
+        let myOrgs: string[] = this.authService.getMyOrganizations();
+
+        for (let i = 0; i < types.length; ++i) {
+            const type = types[i];
+            const orgCode = type.orgCode;
+            let myOrgIndex = myOrgs.indexOf(orgCode);
+
+            if (myOrgIndex !== -1 || isSRA) {
+                myOrgTypes.push(type);
+            }
+        }
+
+        return myOrgTypes;
     }
 
     refresh(pageNumber: number = 1): void {
@@ -131,7 +143,7 @@ export class TransitionEventTableComponent {
             backdrop: true,
             ignoreBackdropClick: true
         });
-        this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + transitionEvent.description.localizedValue + "]";
+        this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + transitionEvent.eventId + "]";
         this.bsModalRef.content.data = transitionEvent;
         this.bsModalRef.content.type = "DANGER";
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");

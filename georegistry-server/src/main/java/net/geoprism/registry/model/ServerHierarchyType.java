@@ -1,20 +1,20 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
@@ -68,7 +69,7 @@ import net.geoprism.registry.AbstractParentException;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.HierarchyMetadata;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
-import net.geoprism.registry.MasterList;
+import net.geoprism.registry.ListType;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
@@ -278,6 +279,11 @@ public class ServerHierarchyType implements ServerElement
     return this.entityRelationship.getDisplayLabel();
   }
 
+  public LocalizedValue getLabel()
+  {
+    return this.type.getLabel();
+  }
+
   public String getUniversalType()
   {
     return this.universalRelationship.definesType();
@@ -391,7 +397,8 @@ public class ServerHierarchyType implements ServerElement
 
     ( (MdEdgeDAO) this.getMdEdge() ).delete();
 
-    MasterList.markAllAsInvalid(this, null);
+    // MasterList.markAllAsInvalid(this, null);
+    ListType.markAllAsInvalid(this, null);
   }
 
   public void addToHierarchy(ServerGeoObjectType parentType, ServerGeoObjectType childType)
@@ -686,7 +693,8 @@ public class ServerHierarchyType implements ServerElement
 
     service.removeAllEdges(this, childType);
 
-    MasterList.markAllAsInvalid(this, childType);
+    // MasterList.markAllAsInvalid(this, childType);
+    ListType.markAllAsInvalid(this, childType);
 
     InheritedHierarchyAnnotation annotation = InheritedHierarchyAnnotation.get(childType.getUniversal(), this.universalRelationship);
 

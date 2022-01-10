@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -288,7 +288,7 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
     }
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.etl.ImportStage> getStage()
   {
     return (java.util.List<net.geoprism.registry.etl.ImportStage>) getEnumValues(STAGE);

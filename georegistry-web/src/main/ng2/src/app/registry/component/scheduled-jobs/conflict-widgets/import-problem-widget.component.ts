@@ -6,7 +6,7 @@ import { ScheduledJob, ImportError } from "@registry/model/registry";
 
 import { GeoObjectEditorComponent } from "../../geoobject-editor/geoobject-editor.component";
 
-import { RegistryService, IOService } from "@registry/service";
+import { RegistryService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService } from "@shared/service";
@@ -27,7 +27,7 @@ export class ImportProblemWidgetComponent implements OnInit {
     edit: boolean = false;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private service: RegistryService, private iService: IOService, private dateService: DateService,
+    constructor(private service: RegistryService, private dateService: DateService,
         private lService: LocalizationService, public bsModalRef: BsModalRef, private modalService: BsModalService
     ) { }
 

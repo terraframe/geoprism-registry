@@ -1,0 +1,397 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness name="net.geoprism.registry.ListType" isAbstract="true" label="List Type" generateController="false" publish="false">
+        <attributes>
+          <reference name="organization" label="Organization" required="false" type="net.geoprism.registry.Organization" />        
+          <reference name="universal" type="com.runwaysdk.system.gis.geo.Universal" required="true" label="Universal" />
+          <localChar name="displayLabel" label="Label" required="true" />
+          <localText name="description"/>          
+          <char name="code" label="Code" size="255" required="true" indexType="unique index" />
+          <text name="hierarchies" label="Hierarchies" />
+          <text name="subtypeHierarchies" label="Sub Type Hierarchies" />          
+          <boolean name="valid" label="Valid" />
+
+          <dateTime name="listCollectionDate"/>                    
+          <text name="listOriginator" label="Originator" />
+          <localText name="listLabel"/>
+          <localText name="listDescription"/>
+          <localText name="listProcess"/>
+          <localText name="listProgress"/>
+          <localText name="listAccessConstraints"/>
+          <localText name="listUseConstraints"/>
+          <localText name="listAcknowledgements"/>
+          <localText name="listDisclaimer"/>
+          <text name="listContactName" label="Contact name" />
+          <text name="listOrganization" label="Organization" />
+          <text name="listTelephoneNumber" label="Telephone Number" />
+          <text name="listEmail" label="Email Address" />          
+
+          <dateTime name="geospatialCollectionDate"/>                    
+          <text name="geospatialOriginator" label="Originator" />
+          <localText name="geospatialLabel"/>
+          <localText name="geospatialDescription"/>
+          <localText name="geospatialProcess"/>
+          <localText name="geospatialProgress"/>
+          <localText name="geospatialAccessConstraints"/>
+          <localText name="geospatialUseConstraints"/>
+          <localText name="geospatialAcknowledgements"/>
+          <localText name="geospatialDisclaimer"/>
+          <text name="geospatialContactName" label="Contact name" />
+          <text name="geospatialOrganization" label="Organization" />
+          <text name="geospatialTelephoneNumber" label="Telephone Number" />
+          <text name="geospatialEmail" label="Email Address" />                    
+          <text name="geospatialTopicCategories" label="Topic Categories" />
+          <text name="geospatialPlaceKeywords" label="Place Keywords" />
+          <text name="geospatialUpdateFrequency" label="Update Frequency" />
+          <text name="geospatialLineage" label="Lineage" />
+          <text name="geospatialLanguages" label="Languages" />
+          <text name="geospatialScaleResolution" label="Scale resolution" />
+          <text name="geospatialSpatialRepresentation" label="Spatial Representation" />
+          <text name="geospatialReferenceSystem" label="Reference System" />
+          <text name="geospatialReportSpecification" label="Report Specification" />
+          <text name="geospatialDistributionFormat" label="Distribution Format" />
+        </attributes>
+          <mdMethod name="createEntry" label="createEntry" static="false" returnType="net.geoprism.registry.ListTypeEntry">
+            <mdParameter name="forDate" label="forDate" order="0" type="java.util.Date" />
+          </mdMethod>        
+      </mdBusiness>
+      <mdBusiness name="net.geoprism.registry.SingleListType" extends="net.geoprism.registry.ListType" label="Single List Type" generateController="false">
+        <attributes>
+          <dateTime name="validOn" label="Valid On" />          
+        </attributes>
+      </mdBusiness>
+      <mdBusiness name="net.geoprism.registry.IncrementalListType" extends="net.geoprism.registry.ListType" label="Incremental List Type" generateController="false">
+        <attributes>
+          <enumeration name="frequency" label="Publishing frequency" required="false" type="net.geoprism.registry.ChangeFrequency" immutable="false" selectMultiple="false" />
+          <dateTime name="publishingStartDate" label="Publishing start date" />          
+        </attributes>
+      </mdBusiness>
+      <mdBusiness name="net.geoprism.registry.IntervalListType" extends="net.geoprism.registry.ListType" label="Interval List Type" generateController="false">
+        <attributes>
+          <text name="intervalJson" label="Interval" />          
+        </attributes>
+      </mdBusiness>
+      <mdBusiness name="net.geoprism.registry.ListTypeEntry" label="List Entry" generateController="false">
+        <attributes>
+          <reference name="listType" type="net.geoprism.registry.ListType" required="true" label="List Type" />
+          <dateTime name="forDate" label="For Date" required="true" immutable="true" />
+          <reference name="working" type="net.geoprism.registry.ListTypeVersion" required="false" label="Working" />          
+        </attributes> 
+        <mdMethod name="publish" label="publish" static="false" returnType="java.lang.String">
+            <mdParameter name="config" label="config" order="0" type="java.lang.String" />        
+        </mdMethod>        
+      </mdBusiness>
+      <mdBusiness name="net.geoprism.registry.ListTypeVersion" label="Entry Version" generateController="false">
+        <attributes>
+          <boolean name="working" label="Is working" required="true" description="Flag denoting if the version is a working version" />        
+          <reference name="listType" type="net.geoprism.registry.ListType" required="true" label="List Type" />        
+          <reference name="entry" type="net.geoprism.registry.ListTypeEntry" required="true" label="Master List" />
+          <reference name="mdBusiness" type="com.runwaysdk.system.metadata.MdBusiness" required="true" label="MdTable" />          
+          <dateTime name="forDate" label="For Date" required="true" immutable="true" />
+          <date name="publishDate" label="Publish Date" />
+          <integer name="versionNumber" label="Version Number" required="true" />
+          <boolean name="listMaster" label="Is Master" description="Flag denoting if the list is a master list" />
+          <char name="listVisibility" label="Visibility" size="255" required="false" />
+          <localText name="listDescription"/>          
+          
+          <dateTime name="listCollectionDate"/>                    
+          <text name="listOriginator" label="Originator" />
+          <localText name="listLabel"/>
+          <localText name="listProcess"/>
+          <localText name="listProgress"/>
+          <localText name="listAccessConstraints"/>
+          <localText name="listUseConstraints"/>
+          <localText name="listAcknowledgements"/>
+          <localText name="listDisclaimer"/>
+          <text name="listContactName" label="Contact name" />
+          <text name="listOrganization" label="Organization" />
+          <text name="listTelephoneNumber" label="Telephone Number" />
+          <text name="listEmail" label="Email Address" />          
+          
+          <boolean name="geospatialMaster" label="Is Master" description="Flag denoting if the geospatial is a master geospatial" />
+          <char name="geospatialVisibility" label="Visibility" size="255" required="false" />
+          <localText name="geospatialDescription"/>           
+          <dateTime name="geospatialCollectionDate"/>                    
+          <text name="geospatialOriginator" label="Originator" />
+          <localText name="geospatialLabel"/>
+          <localText name="geospatialProcess"/>
+          <localText name="geospatialProgress"/>
+          <localText name="geospatialAccessConstraints"/>
+          <localText name="geospatialUseConstraints"/>
+          <localText name="geospatialAcknowledgements"/>
+          <localText name="geospatialDisclaimer"/>
+          <text name="geospatialContactName" label="Contact name" />
+          <text name="geospatialOrganization" label="Organization" />
+          <text name="geospatialTelephoneNumber" label="Telephone Number" />
+          <text name="geospatialEmail" label="Email Address" />                    
+          <text name="geospatialTopicCategories" label="Topic Categories" />
+          <text name="geospatialPlaceKeywords" label="Place Keywords" />
+          <text name="geospatialUpdateFrequency" label="Update Frequency" />
+          <text name="geospatialLineage" label="Lineage" />
+          <text name="geospatialLanguages" label="Languages" />
+          <text name="geospatialScaleResolution" label="Scale resolution" />
+          <text name="geospatialSpatialRepresentation" label="Spatial Representation" />
+          <text name="geospatialReferenceSystem" label="Reference System" />
+          <text name="geospatialReportSpecification" label="Report Specification" />
+          <text name="geospatialDistributionFormat" label="Distribution Format" />
+                   
+        </attributes> 
+        <mdMethod name="publish" label="publish" static="false" returnType="java.lang.String" />        
+      </mdBusiness>
+      <mdBusiness name="net.geoprism.registry.ListTypeAttributeGroup" label="List Type Attribute Group" generateController="false" cacheAlgorithm="nothing">
+        <attributes>
+          <reference name="version" type="net.geoprism.registry.ListTypeVersion" required="true" label="Version" />
+          <reference name="sourceAttribute" type="com.runwaysdk.system.metadata.MdAttribute" required="true" label="Source" />
+          <reference name="targetAttribute" type="com.runwaysdk.system.metadata.MdAttribute" required="true" label="Target" />
+        </attributes>
+      </mdBusiness>    
+    
+      <mdBusiness name="net.geoprism.registry.etl.ListTypeJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" isAbstract="true" exported="false">
+        <attributes>
+          <reference name="listType" type="net.geoprism.registry.ListType" label="List Type" required="true"/>
+        </attributes>      
+      </mdBusiness>    
+      
+      <mdBusiness name="net.geoprism.registry.etl.PublishListTypeVersionJob" extends="net.geoprism.registry.etl.ListTypeJob" exported="false">
+        <attributes>
+          <reference name="version" type="net.geoprism.registry.ListTypeVersion" label="List Version" required="true"/>
+        </attributes>
+      </mdBusiness>
+      
+      
+      <mdBusiness name="net.geoprism.registry.ListTileCache">
+        <attributes>
+          <reference name="version" label="List Type Version" type="net.geoprism.registry.ListTypeVersion"  required="true"/>
+          <integer name="x" label="X" required="true"/>
+          <integer name="y" label="Y" required="true"/>
+          <integer name="z" label="z" required="true"/>
+          <blob name="tile" label="tile"/>          
+        </attributes>
+      </mdBusiness>
+      
+      <mdIndex type="net.geoprism.registry.ListTileCache" label="Cache Label" active="true" unique="true">
+        <attribute name="version" indexOrder="0"/>
+        <attribute name="x" indexOrder="1"/>
+        <attribute name="y" indexOrder="2"/>
+        <attribute name="z" indexOrder="3"/>
+      </mdIndex>   
+      
+      <mdException name="net.geoprism.registry.CannotDeletePublicListTypeException" 
+                   label="No Cannot Delete Public ListType Exception" 
+                   message="Unable to delete. The list type has a public version.">
+      </mdException>
+          
+    </create>
+    <permissions>
+      <method methodName="createEntry" type="net.geoprism.registry.ListType">
+        <assignedRole roleName="Administrator" />
+      </method>
+      <method methodName="publish" type="net.geoprism.registry.ListTypeEntry">
+        <assignedRole roleName="Administrator" />
+      </method>    
+      <method methodName="publish" type="net.geoprism.registry.ListTypeVersion">
+        <assignedRole roleName="Administrator" />
+      </method>    
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.etl.ListTypeJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListType">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeEntry">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.etl.PublishListTypeVersionJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>        
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeVersion">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeAttributeGroup">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.etl.ListTypeJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListType">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeEntry">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.etl.PublishListTypeVersionJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>        
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeVersion">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeAttributeGroup">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.ListType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>        
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeEntry">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeVersion">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeAttributeGroup">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.ListType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>        
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeEntry">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeVersion">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeAttributeGroup">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.ListType">
+            <mdMethodPermission methodName="createEntry">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeEntry">
+            <mdMethodPermission methodName="publish">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeVersion">
+            <mdMethodPermission methodName="publish">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.ListType">
+            <mdMethodPermission methodName="createEntry">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeEntry">
+            <mdMethodPermission methodName="publish">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeVersion">
+            <mdMethodPermission methodName="publish">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>          
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.ListType">
+            <mdMethodPermission methodName="createEntry">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeEntry">
+            <mdMethodPermission methodName="publish">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeVersion">
+            <mdMethodPermission methodName="publish">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>          
+        </grant>
+      </role>
+      <role roleName="PUBLIC">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.ListTileCache">
+            <operation name="ALL"/>
+          </mdBusinessPermission>
+        </grant>      
+      </role>    
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.ListTileCache">
+            <operation name="ALL"/>
+          </mdBusinessPermission>
+        </grant>
+      </role>      
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.ListTileCache">
+            <operation name="ALL"/>
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.ListTileCache">
+            <operation name="ALL"/>
+          </mdBusinessPermission>
+        </grant>
+      </role>      
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.ListTileCache" type="com.runwaysdk.system.metadata.MdBusiness" />    
+      <object key="net.geoprism.registry.etl.PublishListTypeVersionJob" type="com.runwaysdk.system.metadata.MdBusiness"/>    
+      <object key="net.geoprism.registry.etl.ListTypeJob" type="com.runwaysdk.system.metadata.MdBusiness"/>        
+      <object key="net.geoprism.registry.ListTypeAttributeGroup" type="com.runwaysdk.system.metadata.MdBusiness"></object>
+      <object key="net.geoprism.registry.ListTypeVersion" type="com.runwaysdk.system.metadata.MdBusiness"></object>
+      <object key="net.geoprism.registry.ListType" type="com.runwaysdk.system.metadata.MdBusiness"></object>
+    </delete>
+  </undoIt>
+</version>

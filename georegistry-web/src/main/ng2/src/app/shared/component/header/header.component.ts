@@ -7,8 +7,8 @@ import { AuthService, ProfileService, LocalizationService } from "@shared/servic
 
 import { RegistryRoleType, LocaleView } from "@shared/model/core";
 
-declare let acp: string;
-declare let registry: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; 
+declare let registry: GeoRegistryConfiguration;
 
 @Component({
 
@@ -36,7 +36,7 @@ export class CgrHeaderComponent {
         private service: AuthService,
         localizationService: LocalizationService
     ) {
-        this.context = acp;
+        this.context = registry.contextPath;
         this.isAdmin = service.isAdmin();
         this.isMaintainer = this.isAdmin || service.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
@@ -84,7 +84,8 @@ export class CgrHeaderComponent {
         } else if (item === "TASKS") {
             return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
         } else if (item === "EVENTS") {
-            return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
+            // return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
+            return true;
         } else if (item === "CONFIGS") {
             return this.service.hasExactRole(RegistryRoleType.RA);
         } else if (item === "SETTINGS") {
@@ -97,7 +98,7 @@ export class CgrHeaderComponent {
     logout(): void {
         sessionStorage.removeItem("locales");
 
-        window.location.href = acp + "/session/logout";
+        window.location.href = registry.contextPath + "/session/logout";
 
         //        this.sessionService.logout().then( response => {
         //            this.router.navigate( ['/login'] );

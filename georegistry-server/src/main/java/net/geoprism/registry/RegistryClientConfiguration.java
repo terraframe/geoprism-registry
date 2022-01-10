@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -173,13 +173,14 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     GeoprismApplication historicalEvents = new GeoprismApplication();
     historicalEvents.setId("historicalEvents");
     historicalEvents.setLabel(LocalizationFacadeDTO.getFromBundles(request, "historical.events"));
-    historicalEvents.setSrc("net/geoprism/images/settings.svg");
+    historicalEvents.setSrc("net/geoprism/images/historical-events.svg");
     historicalEvents.setUrl("cgr/manage#/registry/historical-events");
     historicalEvents.setDescription(LocalizationFacadeDTO.getFromBundles(request, "historical.events.description"));
     historicalEvents.addRole(RoleConstants.ADIM_ROLE);
     historicalEvents.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     historicalEvents.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     historicalEvents.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+    historicalEvents.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     applications.add(historicalEvents);
     
 

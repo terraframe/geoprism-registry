@@ -52,11 +52,8 @@ p.warning-text.display-current-value {
     background-color: orange;
 }
 
-.version-column-wrapper .manage-version-button {
+.manage-version-button {
     border: solid 1px lightgrey;
-}
-.version-column-wrapper.warning .manage-version-button {
- border-color: orange;
 }
 
 .has-changed {
@@ -74,3 +71,11 @@ p.warning-text.display-current-value {
  margin-bottom: 0;
 }
 
+td[disabled="true"] {
+     background: #f8f8f8;
+     cursor:not-allowed;
+}
+td[disabled="true"] i {
+     color: lightgrey;
+     cursor:not-allowed;
+}
