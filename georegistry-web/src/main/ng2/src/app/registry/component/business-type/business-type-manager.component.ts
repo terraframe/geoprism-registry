@@ -3,8 +3,6 @@ import { Router } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { RegistryService } from "@registry/service";
-
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService } from "@shared/service";
 import { BusinessTypeService } from "@registry/service/business-type.service";
@@ -75,7 +73,7 @@ export class BusinessTypeManagerComponent implements OnInit {
             this.bsModalRef.content.onBusinessTypeChange.subscribe(t => {
                 const index = org.types.findIndex((tt) => type.code === tt.code);
 
-                if(index !== -1) {
+                if (index !== -1) {
                     org.types[index] = t;
                 }
             });

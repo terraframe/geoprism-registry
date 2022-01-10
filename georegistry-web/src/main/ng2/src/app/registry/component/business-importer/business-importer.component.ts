@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ViewChildren, ElementRef, QueryList, ChangeDetectorRef } from "@angular/core";
+import { Component, OnInit, Input, ViewChild, ElementRef } from "@angular/core";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
 import { HttpErrorResponse } from "@angular/common/http";
@@ -12,8 +12,9 @@ import { ImportStrategy } from "@registry/model/constants";
 import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
 import { BusinessType } from "@registry/model/business-type";
 import { BusinessTypeService } from "@registry/service/business-type.service";
+import { GeoRegistryConfiguration } from "@core/model/registry";
 
-declare let acp: string;
+declare let registry: GeoRegistryConfiguration;
 
 @Component({
 
@@ -108,7 +109,6 @@ export class BusinessImporterComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-
         this.businessService.getAll().then(businessTypes => {
             this.businessTypes = businessTypes;
         });
@@ -174,7 +174,7 @@ export class BusinessImporterComponent implements OnInit {
             this.error(err);
         });
 
-        let getUrl = acp + "/excel/get-business-config";
+        let getUrl = registry.contextPath + "/excel/get-business-config";
 
         let options: FileUploaderOptions = {
             queueLimit: 1,
@@ -206,10 +206,10 @@ export class BusinessImporterComponent implements OnInit {
             const configuration = JSON.parse(response);
 
             configuration.hierarchy = this.hierarchyCode;
-            configuration.geoObjectType = {code: this.typeCode};
+            configuration.geoObjectType = { code: this.typeCode };
 
             this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });
-            this.bsModalRef.content.init(configuration, 'geoObjectType', true);
+            this.bsModalRef.content.init(configuration, "geoObjectType", true);
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
             const error = JSON.parse(response);
@@ -272,7 +272,6 @@ export class BusinessImporterComponent implements OnInit {
     onBack(): void {
         this.showImportConfig = false;
     }
-
 
     public error(err: any): void {
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

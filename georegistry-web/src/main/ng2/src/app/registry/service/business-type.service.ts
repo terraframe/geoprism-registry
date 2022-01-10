@@ -5,9 +5,9 @@ import { finalize } from "rxjs/operators";
 import { EventService } from "@shared/service";
 import { BusinessType, BusinessTypeByOrg } from "@registry/model/business-type";
 import { AttributeType } from "@registry/model/registry";
+import { GeoRegistryConfiguration } from "@core/model/registry";
 
-
-declare let acp: any;
+declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class BusinessTypeService {
@@ -20,7 +20,7 @@ export class BusinessTypeService {
 
         this.eventService.start();
 
-        return this.http.get<BusinessTypeByOrg[]>(acp + "/business-type/get-by-org", { params: params })
+        return this.http.get<BusinessTypeByOrg[]>(registry.contextPath + "/business-type/get-by-org", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -32,13 +32,12 @@ export class BusinessTypeService {
 
         this.eventService.start();
 
-        return this.http.get<BusinessType[]>(acp + "/business-type/get-all", { params: params })
+        return this.http.get<BusinessType[]>(registry.contextPath + "/business-type/get-all", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
             .toPromise();
     }
-
 
     apply(type: BusinessType): Promise<BusinessType> {
         let headers = new HttpHeaders({
@@ -48,7 +47,7 @@ export class BusinessTypeService {
         this.eventService.start();
 
         return this.http
-            .post<BusinessType>(acp + "/business-type/apply", JSON.stringify({ type: type }), { headers: headers })
+            .post<BusinessType>(registry.contextPath + "/business-type/apply", JSON.stringify({ type: type }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -63,7 +62,7 @@ export class BusinessTypeService {
         this.eventService.start();
 
         return this.http
-            .post<BusinessType>(acp + "/business-type/remove", JSON.stringify({ oid: type.oid }), { headers: headers })
+            .post<BusinessType>(registry.contextPath + "/business-type/remove", JSON.stringify({ oid: type.oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -78,7 +77,7 @@ export class BusinessTypeService {
         this.eventService.start();
 
         return this.http
-            .post<BusinessType>(acp + "/business-type/edit", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<BusinessType>(registry.contextPath + "/business-type/edit", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -93,7 +92,7 @@ export class BusinessTypeService {
         this.eventService.start();
 
         return this.http
-            .post<BusinessType>(acp + "/business-type/unlock", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<BusinessType>(registry.contextPath + "/business-type/unlock", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -108,7 +107,7 @@ export class BusinessTypeService {
         this.eventService.start();
 
         return this.http
-            .post<AttributeType>(acp + "/business-type/add-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
+            .post<AttributeType>(registry.contextPath + "/business-type/add-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -123,7 +122,7 @@ export class BusinessTypeService {
         this.eventService.start();
 
         return this.http
-            .post<AttributeType>(acp + "/business-type/update-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
+            .post<AttributeType>(registry.contextPath + "/business-type/update-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -138,10 +137,11 @@ export class BusinessTypeService {
         this.eventService.start();
 
         return this.http
-            .post<boolean>(acp + "/business-type/remove-attribute", JSON.stringify({ typeCode: typeCode, attributeName: attributeName }), { headers: headers })
+            .post<boolean>(registry.contextPath + "/business-type/remove-attribute", JSON.stringify({ typeCode: typeCode, attributeName: attributeName }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
             .toPromise();
     }
+
 }
