@@ -15,6 +15,12 @@ import { ProgressbarModule } from "ngx-bootstrap/progressbar";
 import { CollapseModule } from "ngx-bootstrap/collapse";
 import { BsDatepickerModule } from "ngx-bootstrap/datepicker";
 
+import { TableModule } from "primeng/table";
+import { SliderModule } from "primeng/slider";
+import { DropdownModule } from "primeng/dropdown";
+import { MultiSelectModule } from "primeng/multiselect";
+import { ButtonModule } from "primeng/button";
+
 import { ErrorModalComponent } from "./component/modals/error-modal.component";
 import { SuccessModalComponent } from "./component/modals/success-modal.component";
 import { ConfirmModalComponent } from "./component/modals/confirm-modal.component";
@@ -54,6 +60,7 @@ import { ModalStepIndicatorComponent } from "./component/modals/modal-step-indic
 import { ProfileComponent } from "./component/profile/profile.component";
 
 import "../rxjs-extensions";
+import { GenericTableComponent } from "./component/generic-table/generic-table.component";
 
 @NgModule({
     imports: [
@@ -71,7 +78,13 @@ import "../rxjs-extensions";
         ProgressbarModule,
         CollapseModule,
         NgxPaginationModule,
-        BsDatepickerModule.forRoot()
+        BsDatepickerModule.forRoot(),
+
+        TableModule,
+        SliderModule,
+        DropdownModule,
+        MultiSelectModule,
+        ButtonModule
     ],
     declarations: [
         LocalizeComponent,
@@ -93,7 +106,8 @@ import "../rxjs-extensions";
         CgrHeaderComponent,
         ProfileComponent,
         LocalizePipe,
-        PhonePipe
+        PhonePipe,
+        GenericTableComponent
     ],
     exports: [
         LocalizeComponent,
@@ -118,7 +132,8 @@ import "../rxjs-extensions";
         PhonePipe,
         CommonModule,
         FormsModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        GenericTableComponent
     ],
     entryComponents: [
         ErrorModalComponent,

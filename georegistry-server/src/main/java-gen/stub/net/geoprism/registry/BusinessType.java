@@ -12,7 +12,6 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
@@ -34,14 +33,11 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeGraphReferenceDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.MdGeoVertexInfo;
-import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
-import com.runwaysdk.system.gis.metadata.graph.MdGeoVertex;
 import com.runwaysdk.system.metadata.MdAttributeConcrete;
-import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.ontology.Classifier;
@@ -50,8 +46,10 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.query.graph.BusinessTypePageQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
+import net.geoprism.registry.view.Page;
 
 public class BusinessType extends BusinessTypeBase implements JsonSerializable
 {
@@ -276,7 +274,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
       mdGeoObject.setValue(MdAttributeGraphReferenceInfo.NAME, GEO_OBJECT);
       mdGeoObject.setStructValue(MdAttributeGraphReferenceInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "Geo Object");
       mdGeoObject.apply();
-      
+
       // DefaultAttribute.CODE
       MdAttributeCharacterDAO vertexCodeMdAttr = MdAttributeCharacterDAO.newInstance();
       vertexCodeMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.CODE.getName());
@@ -286,7 +284,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
       vertexCodeMdAttr.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdVertex.getOid());
       vertexCodeMdAttr.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
       vertexCodeMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.UNIQUE_INDEX.getOid());
-      vertexCodeMdAttr.apply();      
+      vertexCodeMdAttr.apply();
 
       businessType.setMdVertexId(mdVertex.getOid());
 
@@ -384,6 +382,11 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
     });
 
     return response;
+  }
+
+  public Page<JsonSerializable> data(JsonObject criteria)
+  {
+    return new BusinessTypePageQuery(this, criteria).getPage();
   }
 
 }

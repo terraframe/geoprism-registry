@@ -20,6 +20,7 @@ package net.geoprism.registry.controller;
 
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
@@ -53,7 +54,13 @@ public class BusinessTypeController
   {
     return new RestBodyResponse(service.getAll(request.getSessionId()));
   }
-  
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
+  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    return new RestBodyResponse(service.get(request.getSessionId(), oid));
+  }
+
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
   public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "type") String typeJSON)
   {
@@ -104,6 +111,14 @@ public class BusinessTypeController
     this.service.removeAttributeType(request.getSessionId(), typeCode, attributeName);
 
     return new RestResponse();
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF data(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "criteria") String criteria)
+  {
+    JsonObject page = this.service.data(request.getSessionId(), typeCode, criteria);
+
+    return new RestBodyResponse(page);
   }
 
 }

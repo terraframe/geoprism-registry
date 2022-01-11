@@ -1,0 +1,88 @@
+<div>
+	<p-table #dt [columns]="cols" [value]="page.resultSet" [autoLayout]="true" [scrollable]="true" [resizableColumns]="true" sortMode="multiple"
+		styleClass="p-datatable-gridlines" [lazy]="true" (onLazyLoad)="onPageChange($event)" [paginator]="true"
+		[totalRecords]="page.count" [rows]="page.pageSize" [loading]="loading"
+		[multiSortMeta]="config.sort != null ? [config.sort] : []" >
+
+		<ng-template pTemplate="colgroup" let-columns>
+			<colgroup>
+				<col *ngFor="let col of columns">
+			</colgroup>
+		</ng-template>
+
+		<ng-template pTemplate="header" let-columns>
+			<tr>
+				<th *ngFor="let col of columns" [pSortableColumn]="col.field"
+					[ngClass]="{'actions-col' : col.type === 'ACTIONS'}" pResizableColumn>
+					{{col.header}}
+					<p-sortIcon *ngIf="col.sortable" [field]="col.field" ariaLabel="Activate to sort"
+						style="float:right;" ariaLabelDesc="Activate to sort in descending order"
+						ariaLabelAsc="Activate to sort in ascending order">
+					</p-sortIcon>
+				</th>
+			</tr>
+			<tr>
+				<th *ngFor="let col of columns" [ngSwitch]="col.type">
+					<ng-container *ngIf="col.filter !== false">
+						<input *ngSwitchCase="'URL'" pInputText type="text" placeholder="Filter by URL..."
+							(input)="dt.filter($event.target.value, col.field, 'contains')">
+						<input *ngSwitchCase="'TEXT'" pInputText type="text" placeholder="Filter by text..."
+							(input)="dt.filter($event.target.value, col.field, 'contains')">
+						<input *ngSwitchCase="'NUMBER'" pInputText type="number" placeholder="Filter by number..."
+							(input)="dt.filter($event.target.value, col.field, 'equals')">
+						<p-dropdown *ngSwitchCase="'BOOLEAN'" appendTo="body" [options]="booleanOptions"
+							placeholder="Filter by category..."
+							(onChange)="dt.filter($event.value.value, col.field, 'equals')" optionLabel="label"
+							optionValue="value" [virtualScroll]="true"></p-dropdown>
+					</ng-container>
+				</th>
+			</tr>
+		</ng-template>
+
+		<ng-template pTemplate="body" let-rowData let-columns="columns">
+			<tr>
+				<td *ngFor="let col of columns" [ngSwitch]="getColumnType(rowData, col)" class="ui-resizable-column"
+					[ngClass]="{'actions-col' : col.type === 'ACTIONS'}">
+					<ng-container *ngSwitchCase="'URL'">
+						<a [routerLink]="['/' + col.baseUrl + '/' + rowData[col.urlField]]">
+							{{rowData[col.field]}}
+						</a>
+					</ng-container>
+					<ng-container *ngSwitchCase="'ACTIONS'">
+						<a *ngIf="config.view" class="fa fa-eye ico-edit" (click)="onClick('view', rowData, col)"
+							[title]="'View ' + config.label"></a>
+						<a *ngIf="config.edit" class="fa fa-pencil-alt ico-edit" (click)="onClick('edit', rowData, col)"
+							[title]="'Edit ' + config.label"></a>
+						<a *ngIf="config.remove" class="fa fa-trash-alt ico-remove"
+							(click)="onClick('remove', rowData, col)" [title]="'Remove ' + config.label"></a>
+					</ng-container>
+					<ng-container *ngSwitchCase="'CONSTANT'">
+						<a *ngIf="rowData[col.field] != null" (click)="onClick('custom', rowData, col)">
+							{{col.text}}
+						</a>
+					</ng-container>
+					<ng-container *ngSwitchCase="'BOOLEAN'">
+						<localize *ngIf="rowData[col.field]" key="change.request.boolean.option.true"></localize>
+						<localize *ngIf="!rowData[col.field]" key="change.request.boolean.option.false"></localize>
+					</ng-container>
+					<ng-container *ngSwitchCase="'NONE'">
+					</ng-container>
+					<ng-container *ngSwitchDefault>
+						{{rowData[col.field]}}
+					</ng-container>
+				</td>
+			</tr>
+		</ng-template>
+		<!-- 		<ng-template pTemplate="paginatorleft"> -->
+		<!-- 			<p-button *ngIf="config.create" type="button" icon="pi pi-plus" [style]="{'border':'solid 1px'}" -->
+		<!-- 				styleClass="p-button-text" [label]="'Add new ' + config.label" (click)="onClick('create', null, null)"> -->
+		<!-- 			</p-button> -->
+		<!-- 		</ng-template> -->
+	</p-table>
+
+	<div style="width:100%;text-align:right;">
+		<button *ngIf="config.create" (click)="onClick('create', null, null)" style="margin: 10px 0 0;"
+			class="btn btn-primary">Add new {{config.label}}</button>
+	</div>
+
+</div>

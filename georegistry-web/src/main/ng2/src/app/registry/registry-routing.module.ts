@@ -15,13 +15,13 @@ import { SyncDetailsComponent } from "./component/synchronization-config/details
 import { LocationManagerComponent } from "./component/location-manager/location-manager.component";
 
 import { MaintainerGuard, ContributerGuard, AuthGuard } from "../shared/service/guard.service";
-import { TransitionEventTableComponent } from "./component/transition-event/transition-event-table.component";
 import { BusinessTypeManagerComponent } from "./component/business-type/business-type-manager.component";
 import { BusinessImporterComponent } from "./component/business-importer/business-importer.component";
 import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
 import { ListTypeManagerComponent } from "./component/list-type/list-type-manager.component";
 import { ListComponent } from "./component/list-type/list.component";
 import { CurationJobComponent } from "./component/curation/curation-job.component";
+import { BusinessTableComponent } from "./component/business-table/business-table.component";
 
 const routes: Routes = [
     {
@@ -95,12 +95,12 @@ const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
-        path: 'sync/details/:config/:oid',
+        path: "sync/details/:config/:oid",
         component: SyncDetailsComponent,
         canActivate: [MaintainerGuard]
     },
     {
-        path: 'curation-job/:oid',
+        path: "curation-job/:oid",
         component: CurationJobComponent,
         canActivate: [MaintainerGuard]
     },
@@ -119,6 +119,12 @@ const routes: Routes = [
         component: BusinessImporterComponent,
         canActivate: [AuthGuard]
     },
+    {
+        path: "business-type/:oid",
+        component: BusinessTableComponent,
+        canActivate: [AuthGuard]
+    }
+
 ];
 
 @NgModule({

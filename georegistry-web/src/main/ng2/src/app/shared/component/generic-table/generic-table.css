@@ -1,0 +1,31 @@
+.ngx-pagination .current {
+    background: #6BA542 !important; /* IE fallback */
+    background: var(--theme-submit-button-color) !important;
+}
+
+:host ::ng-deep .ui-dropdown {
+    width: 100%;
+}
+
+/* :host ::ng-deep body .ui-dropdown-panel .ui-dropdown-items .ui-dropdown-item.ui-state-highlight,  */
+/* :host ::ng-deep body .ui-dropdown-panel .ui-dropdown-items .ui-dropdown-item-group.ui-state-highlight { */
+/*     background-color: #007276; */
+/* } */
+
+:host ::ng-deep body .ui-paginator .ui-paginator-pages .ui-paginator-page.ui-state-active {
+  background-color: red;
+}
+
+.actions-col {
+    width: 100px;
+    text-align: center;
+}
+
+td,
+th {
+    width: 200px;
+}
+
+.ui-table-scrollable-header.ui-widget-header {
+        overflow:visible;
+    } 

@@ -63,6 +63,13 @@ public class BusinessTypeService
   }
 
   @Request(RequestType.SESSION)
+  public JsonObject get(String sessionId, String oid)
+  {
+    BusinessType type = BusinessType.get(oid);
+    return type.toJSON(true);
+  }
+
+  @Request(RequestType.SESSION)
   public void remove(String sessionId, String oid)
   {
     BusinessType type = BusinessType.get(oid);
@@ -160,6 +167,14 @@ public class BusinessTypeService
     // got, got.getIsPrivate());
 
     got.removeAttribute(attributeName);
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonObject data(String sessionId, String businessTypeCode, String json)
+  {
+    BusinessType got = BusinessType.getByCode(businessTypeCode);
+
+    return got.data(JsonParser.parseString(json).getAsJsonObject()).toJSON();
   }
 
 }

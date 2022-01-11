@@ -42,7 +42,7 @@
                         <tbody>
                             <tr *ngFor="let type of org.types; let i = index;" class="clickable">
                                 <td style="width: 70%; vertical-align: middle;">
-                                  <a (click)="onView(type)" routerLinkActive="active">
+                                  <a [routerLink]="'/registry/business-type/' + type.oid" routerLinkActive="active">
                                     {{type.displayLabel.localizedValue}}
                                   </a>
                                 </td>

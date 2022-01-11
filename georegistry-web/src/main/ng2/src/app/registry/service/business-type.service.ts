@@ -6,11 +6,13 @@ import { EventService } from "@shared/service";
 import { BusinessType, BusinessTypeByOrg } from "@registry/model/business-type";
 import { AttributeType } from "@registry/model/registry";
 import { GeoRegistryConfiguration } from "@core/model/registry";
+import { GenericTableService } from "@shared/model/generic-table";
+import { PageResult } from "@shared/model/core";
 
 declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
-export class BusinessTypeService {
+export class BusinessTypeService implements GenericTableService {
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
@@ -33,6 +35,19 @@ export class BusinessTypeService {
         this.eventService.start();
 
         return this.http.get<BusinessType[]>(registry.contextPath + "/business-type/get-all", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+    get(oid: string): Promise<BusinessType> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("oid", oid);
+
+        this.eventService.start();
+
+        return this.http.get<BusinessType>(registry.contextPath + "/business-type/get", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -141,6 +156,16 @@ export class BusinessTypeService {
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
+            .toPromise();
+    }
+
+    page(criteria: Object, pageConfig: any): Promise<PageResult<Object>> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("criteria", JSON.stringify(criteria));
+        params = params.set("typeCode", pageConfig.typeCode);
+
+        return this.http
+            .get<PageResult<Object>>(registry.contextPath + "/business-type/data", { params: params })
             .toPromise();
     }
 

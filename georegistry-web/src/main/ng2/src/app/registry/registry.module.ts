@@ -15,7 +15,7 @@ import { TabsModule } from "ngx-bootstrap/tabs";
 import { DndModule } from "ngx-drag-drop";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 
-import { ImportTypesModalComponent } from './component/hierarchy/modals/import-types-modal.component';
+import { ImportTypesModalComponent } from "./component/hierarchy/modals/import-types-modal.component";
 import { LocalizedInputComponent } from "./component/form-fields/localized-input/localized-input.component";
 import { LocalizedTextComponent } from "./component/form-fields/localized-text/localized-text.component";
 import { HierarchyComponent } from "./component/hierarchy/hierarchy.component";
@@ -66,8 +66,8 @@ import { RowValidationProblemWidgetComponent } from "./component/scheduled-jobs/
 import { StepIndicatorComponent } from "./component/scheduled-jobs/step-indicator.component";
 import { ImportProblemWidgetComponent } from "./component/scheduled-jobs/conflict-widgets/import-problem-widget.component";
 import { TaskViewerComponent } from "./component/task-viewer/task-viewer.component";
-import { FhirExportSynchronizationConfigComponent } from './component/synchronization-config/fhir-export-synchronization-config.component';
-import { Dhis2SynchronizationConfigComponent } from './component/synchronization-config/dhis2-synchronization-config.component';
+import { FhirExportSynchronizationConfigComponent } from "./component/synchronization-config/fhir-export-synchronization-config.component";
+import { Dhis2SynchronizationConfigComponent } from "./component/synchronization-config/dhis2-synchronization-config.component";
 import { SynchronizationConfigManagerComponent } from "./component/synchronization-config/synchronization-config-manager.component";
 import { SynchronizationConfigModalComponent } from "./component/synchronization-config/synchronization-config-modal.component";
 import { SynchronizationConfigComponent } from "./component/synchronization-config/synchronization-config.component";
@@ -96,6 +96,7 @@ import { TransitionEventService } from "./service/transition-event.service";
 import { TransitionEventTableComponent } from "./component/transition-event/transition-event-table.component";
 import { TransitionEventModalComponent } from "./component/transition-event/transition-event-modal.component";
 import { BusinessTypeManagerComponent } from "./component/business-type/business-type-manager.component";
+import { BusinessTableComponent } from "./component/business-table/business-table.component";
 import { BusinessTypeService } from "./service/business-type.service";
 import { CreateBusinessTypeModalComponent } from "./component/business-type/modals/create-business-type-modal.component";
 import { ManageBusinessTypeModalComponent } from "./component/business-type/modals/manage-business-type-modal.component";
@@ -219,10 +220,13 @@ import { CurationProblemModalComponent } from "./component/curation/curation-pro
         GeometryPanelComponent,
         TransitionEventTableComponent,
         TransitionEventModalComponent,
+        // Business Type components
         BusinessTypeManagerComponent,
         CreateBusinessTypeModalComponent,
         ManageBusinessTypeModalComponent,
         BusinessImporterComponent,
+        BusinessTableComponent,
+        // Historical report components
         HistoricalReportComponent,
         HistoricalEventModuleComponent,
         RecordPanelComponent,
