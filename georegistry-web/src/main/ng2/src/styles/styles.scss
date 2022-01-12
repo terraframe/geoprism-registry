@@ -178,6 +178,8 @@ i.clickable.fa:hover,
 i.clickable.fa:focus,
 .clickable:hover,
 .clickable:focus {
+    fill: #6BA542; /* IE fallback */
+    fill: var(--theme-submit-button-color);
     color: #6BA542; /* IE fallback */
     color: var(--theme-submit-button-color);
     cursor: pointer;
@@ -883,30 +885,6 @@ tree-loading-component {
 }
 
 
-/*
- * Navigator styling
- */
-.map-view-port {
-  height: calc(100vh - 145px);
-//   width: calc(75vw - 10px);
-//   margin: 0;
-}
-
-.base-layer-panel{
-  position:absolute;
-  top: 10px;
-  right: 10px;
-  z-index:2;
-  padding:5px;
-}
-
-
-.site-explorer-list {
-  padding: 20px;
-  height: calc(100vh - 106px);
-  overflow-y: auto;
-  overflow-x: hidden;
-}
 
 /*
  * Hierarchy Styling (which can't be put in the compnent because it touches other components)

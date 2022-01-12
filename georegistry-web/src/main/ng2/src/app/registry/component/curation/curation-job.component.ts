@@ -129,7 +129,8 @@ export class CurationJobComponent implements OnInit, OnDestroy {
         const params: any = {
             layers: JSON.stringify([this.version.oid]),
             version: this.version.oid,
-            uid: problem.goUid
+            uid: problem.goUid,
+            pageContext: 'DATA'
         };
 
         this.router.navigate(["/registry/location-manager"], {

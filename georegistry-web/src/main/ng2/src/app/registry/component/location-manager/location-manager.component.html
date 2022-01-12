@@ -20,57 +20,73 @@
 
   <div id="app-container" class="container-fluid">
 
-    <div class="row" style="position: absolute;top: 0;bottom: 0;left: 10px;right: 10px;height: 100%;">
+    <div *ngIf="searchEnabled" class="row" style="position: absolute;top: 0;bottom: 0;left: 10px;right: 10px;height: 100%;">
         <div class="col-md-5" style="z-index:999;padding-bottom: 10px;" [style.background]="showPanel ? 'white' : 'transparent'">
-          <article class="panel-toggle">
-            <div class="row">
-                <div class="col-md-12">
-                    <label class="radio" style="display:inline-block;">
-                      <input type="radio" name="userActive" [value]="false" [(ngModel)]="searchFeatures">
-                      <span><localize key="explorer.search.search.graph"></localize></span>
-                    </label>
-                    <label class="radio" style="display:inline-block;margin-left:10px;">
-                      <input type="radio" name="userActive" [value]="true" [(ngModel)]="searchFeatures" [disabled]="(layers.length < 1)">
-                      <span><localize key="explorer.search.search.map.features"></localize></span>
-                    </label>
-                    
-                    <div style="float:right;">
-                        <i class="fa clickable" [ngClass]="{'fa-compress':showPanel, 'fa-expand':!showPanel}"
-                        (click)="!isEdit && togglePanel()" style="vertical-align: middle; font-size: 18px; color: black;"></i>
-                    </div>
-                </div>
+        
+          <div *ngIf="!showPanel" class="map-button clickable" (click)="!isEdit && togglePanel()">
+            <div class="map-button-icon">
+                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
             </div>
-            <div class="row">
-              <ng-container *ngIf="searchEnabled && !searchFeatures">
-                <div class="col-md-4">
-                  <date-field [(value)]="state.date" label="" [inputName]="'date'" [allowInfinity]="false"
-                    [allowFutureDates]="false" [required]="false" [placement]="'right'" style="display:inline-grid;">
-                  </date-field>
-                </div>
-                <div class="col-md-8">
-                  <div class="input-group">
-                    <input type="text" class="form-control" [placeholder]="'explorer.search.placeholder' | localize"
-                      (keyup.enter)="search()" [(ngModel)]="state.text" name="text">
-                    <span class="input-group-btn">
-                      <button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="search()">
-                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                      </button>
-                    </span>
+          </div>
+       
+          <article class="panel-toggle" *ngIf="showPanel">
+            
+            <div >
+              <div class="row">
+                  <div class="col-md-12">
+                      <label class="radio" style="display:inline-block;">
+                        <input type="radio" name="userActive" [value]="false" [(ngModel)]="searchFeatures">
+                        <span><localize key="explorer.search.search.graph"></localize></span>
+                      </label>
+                      <label class="radio" style="display:inline-block;margin-left:10px;">
+                        <input type="radio" name="userActive" [value]="true" [(ngModel)]="searchFeatures" [disabled]="(layers.length < 1)">
+                        <span><localize key="explorer.search.search.map.features"></localize></span>
+                      </label>
+                      
+                      <div style="float:right;">
+                          <i class="fa fa-compress clickable" (click)="!isEdit && togglePanel()" 
+                          style="vertical-align: middle; font-size: 18px; color: black;"></i>
+                      </div>
                   </div>
-                </div>
-              </ng-container>
-    
-              <ng-container *ngIf="searchFeatures">
-                <div class="col-md-12">
-                  <div>
-                    <input type="text" class="form-control" placeholder="Search features" [(ngModel)]="state.featureText"
-                      name="featureText" [disabled]="isEdit" [typeaheadAsync]="true" [typeahead]="typeahead"
-                      [typeaheadItemTemplate]="customItemTemplate" (typeaheadOnSelect)="onFeatureSelect($event)"
-                      [typeaheadMinLength]="1" [typeaheadWaitMs]="300" [typeaheadOptionsLimit]="20">
+              </div>
+              <div class="row">
+                <!-- 
+                    Search features from the working versions of lists
+                -->
+                <ng-container *ngIf="searchEnabled && !searchFeatures">
+                  <div class="col-md-4">
+                    <date-field [(value)]="state.date" label="" [inputName]="'date'" [allowInfinity]="false"
+                      [allowFutureDates]="false" [required]="false" [placement]="'right'" style="display:inline-grid;">
+                    </date-field>
                   </div>
-                </div>
-              </ng-container>
-    
+                  <div class="col-md-8">
+                    <div class="input-group">
+                      <input type="text" class="form-control" [placeholder]="'explorer.search.placeholder' | localize"
+                        (keyup.enter)="search()" [(ngModel)]="state.text" name="text">
+                      <span class="input-group-btn">
+                        <button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="search()">
+                          <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                        </button>
+                      </span>
+                    </div>
+                  </div>
+                </ng-container>
+      
+                <!-- 
+                    Search features that are rendered in the map 
+                -->
+                <ng-container *ngIf="searchFeatures">
+                  <div class="col-md-12">
+                    <div>
+                      <input type="text" class="form-control" placeholder="Search features" [(ngModel)]="state.featureText"
+                        name="featureText" [disabled]="isEdit" [typeaheadAsync]="true" [typeahead]="typeahead"
+                        [typeaheadItemTemplate]="customItemTemplate" (typeaheadOnSelect)="onFeatureSelect($event)"
+                        [typeaheadMinLength]="1" [typeaheadWaitMs]="300" [typeaheadOptionsLimit]="20">
+                    </div>
+                  </div>
+                </ng-container>
+      
+              </div>
             </div>
           </article>
         </div>
@@ -122,46 +138,17 @@
         </ng-container>
       </div>
 
-      <div [ngClass]="{'col-md-7':showPanel, 'col-md-12':!showPanel}" id="site-explorer-map">
+      <div [ngClass]="{'col-md-7':showPanel, 'col-md-12':!showPanel}" >
         <div class="row">
 
-          <article class="base-layer-panel">
+          <article class="base-layer-panel" [ngClass]="{'second-map-button' : searchEnabled && !showPanel}">
             <layer-panel (layerChange)="onLayerChange($event)" (reorder)="onReorderLayers($event)"
-              (zoomTo)="onZoomTo($event.oid)" (create)="onCreate($event)"
+              (zoomTo)="onZoomTo($event.oid)" (create)="onCreate($event)" [baselayerIconHover]="(this.pageMode === 'EXPLORER')"
               [includeGraphLayer]="data != null && data.length > 0">
             </layer-panel>
           </article>
 
           <div id="map" class="map-view-port"></div>
-          <!--           <simple-edit-control [visible]="editingControl != null" [editSessionEnabled]="editSessionEnabled" [save]="true" (editEmitter)="onMapSave()" #simpleEditControl></simple-edit-control> -->
-
-          <!-- <div *ngIf="editingControl && (record.type.geometryType === 'POINT' || record.type.geometryType === 'MULTIPOINT')"
-            style="position:absolute;top:185px;right:10px;color:white;">
-
-            <div>
-              <div><label>
-                  <localize key="geoobject.editor.geometry.latitude.label"></localize>
-                </label></div>
-              <div>
-                <div class="text-left">
-                  <input name="latitude" type="number" class="form-control" [(ngModel)]="coordinate.latitude"
-                    (change)="refreshDrawFromInput()" required />
-                </div>
-              </div>
-            </div>
-            <div>
-              <div><label>
-                  <localize key="geoobject.editor.geometry.longitude.label"></localize>
-                </label></div>
-              <div>
-                <div class="text-left">
-                  <input name="longitude" type="number" class="form-control" [(ngModel)]="coordinate.longitude"
-                    (change)="refreshDrawFromInput()" required />
-                </div>
-              </div>
-            </div>
-
-          </div> -->
 
         </div>
       </div>
