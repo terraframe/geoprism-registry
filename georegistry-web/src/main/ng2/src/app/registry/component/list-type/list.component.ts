@@ -39,7 +39,7 @@ export class ListComponent implements OnInit, OnDestroy {
     cols: GenericTableColumn[] = null;
     refresh: Subject<void>;
 
-    filters: any[] = [];
+    filters: { [s: string]: FilterMetadata; } = null;
 
     showInvalid = false;
 
@@ -102,6 +102,8 @@ export class ListComponent implements OnInit, OnDestroy {
                 this.handleProgressChange(message);
             }
         });
+
+        this.refresh = new Subject<void>();
     }
 
     ngOnDestroy() {
@@ -140,42 +142,36 @@ export class ListComponent implements OnInit, OnDestroy {
 
         this.list.attributes.forEach(attribute => {
             if (this.showInvalid || attribute.name !== "invalid") {
-                let type = "TEXT";
-                let sortable = true;
+                let column: GenericTableColumn = {
+                    header: attribute.label,
+                    field: attribute.name,
+                    type: "TEXT",
+                    sortable: true,
+                    filter: true
+                };
 
                 if (attribute.type === "date") {
-                    type = "DATE";
-                } else if (attribute.name === "invalid") {
-                    type = "BOOLEAN";
+                    column.type = "DATE";
+                } else if (attribute.name === "invalid" || attribute.type === "boolean") {
+                    column.type = "BOOLEAN";
+                } else if (attribute.type === "number") {
+                    column.type = "NUMBER";
+                } else if (attribute.type === "list") {
+                    column.type = "AUTOCOMPLETE";
+                    column.text = "";
+                    column.onComplete = () => {
+                        this.service.values(this.list.oid, column.text, attribute.name, this.filters).then(options => {
+                            column.results = options;
+                        }).catch((err: HttpErrorResponse) => {
+                            this.error(err);
+                        });
+                    };
                 }
 
-                this.cols.push({ header: attribute.label, field: attribute.name, type: type, sortable: sortable, filter: sortable });
+                this.cols.push(column);
             }
         });
     }
-
-    // setList(_list: ListTypeVersion): void {
-    //     this.list = _list;
-    //     this.listAttrs = this.calculateListAttributes();
-    // }
-
-    // getTypeaheadDataObservable(attribute: any): void {
-    //     return Observable.create((observer: any) => {
-    //         this.message = null;
-
-    //         // Get the valid values
-    //         this.service.values(this.list.oid, attribute.search, attribute.name, attribute.base, this.getFilter()).then(options => {
-    //             if (this.filter.findIndex(filt => filt.value === "null") === -1) {
-    //                 options.unshift({ label: "[" + this.localizeService.decode("list.emptyValue") + "]", value: "null" });
-    //             }
-    //             options.unshift({ label: "[" + this.localizeService.decode("masterlist.nofilter") + "]", value: null });
-
-    //             observer.next(options);
-    //         }).catch((err: HttpErrorResponse) => {
-    //             this.error(err);
-    //         });
-    //     });
-    // }
 
     handleProgressChange(progress: any): void {
         this.isRefreshing = (progress.current < progress.total);
@@ -220,49 +216,6 @@ export class ListComponent implements OnInit, OnDestroy {
     //     this.onPageChange(1);
     // }
 
-    // handleInputChange(attribute: any): void {
-    //     attribute.isCollapsed = true;
-
-    //     // Remove the current attribute filter if it exists
-    //     this.filter = this.filter.filter(f => f.attribute !== attribute.base);
-    //     this.selected = this.selected.filter(s => s !== attribute.base);
-
-    //     if (attribute.value != null && attribute.value !== "") {
-    //         const label = "[" + attribute.label + "] : " + "[" + attribute.value + "]";
-
-    //         this.filter.push({ attribute: attribute.base, value: attribute.value === "null" ? null : attribute.value, label: label });
-    //         this.selected.push(attribute.base);
-    //     }
-
-    //     this.onPageChange(1);
-    // }
-
-    // handleListChange(e: TypeaheadMatch, attribute: any): void {
-    //     attribute.value = e.item;
-    //     attribute.isCollapsed = true;
-
-    //     this.selected = this.selected.filter(s => s !== attribute.base);
-
-    //     this.list.attributes.forEach(attr => {
-    //         if (attr.base === attribute.base) {
-    //             attr.search = "";
-    //         }
-    //     });
-
-    //     if (attribute.value.value != null && attribute.value.value !== "") {
-    //         const label = "[" + attribute.label + "] : " + "[" + attribute.value.label + "]";
-
-    //         this.filter.push({ attribute: attribute.base, value: e.item.value, label: label });
-    //         this.selected.push(attribute.base);
-    //         attribute.search = e.item.label;
-    //     } else {
-    //         this.filter = this.filter.filter(f => f.attribute !== attribute.base);
-    //         attribute.search = "";
-    //     }
-
-    //     this.onPageChange(1);
-    // }
-
     // isFilterable(attribute: any): boolean {
     //     return attribute.type !== "none" && attribute.name !== "invalid" && (attribute.dependency.length === 0 || this.selected.indexOf(attribute.base) !== -1 || this.selected.filter(value => attribute.dependency.includes(value)).length > 0);
     // }
@@ -302,10 +255,12 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     onExport(): void {
-        const filters = [...this.filters];
+        const criteria = {
+            filters: this.filters != null ? { ...this.filters } : {}
+        };
 
         if (!this.showInvalid) {
-            filters.push({ attribute: "invalid", value: "false" });
+            criteria.filters["invalid"] = { value: false, matchMode: "equals" };
         }
 
         this.bsModalRef = this.modalService.show(ExportFormatModalComponent, {
@@ -315,15 +270,11 @@ export class ListComponent implements OnInit, OnDestroy {
         });
         this.bsModalRef.content.onFormat.subscribe(format => {
             if (format === "SHAPEFILE") {
-                window.location.href = registry.contextPath + "/list-type/export-shapefile?oid=" + this.list.oid + "&filter=" + encodeURIComponent(JSON.stringify(filters));
+                window.location.href = registry.contextPath + "/list-type/export-shapefile?oid=" + this.list.oid + "&criteria=" + encodeURIComponent(JSON.stringify(criteria));
             } else if (format === "EXCEL") {
-                window.location.href = registry.contextPath + "/list-type/export-spreadsheet?oid=" + this.list.oid + "&filter=" + encodeURIComponent(JSON.stringify(filters));
+                window.location.href = registry.contextPath + "/list-type/export-spreadsheet?oid=" + this.list.oid + "&criteria=" + encodeURIComponent(JSON.stringify(criteria));
             }
         });
-    }
-
-    changeTypeaheadLoading(attribute: any, loading: boolean): void {
-        attribute.loading = loading;
     }
 
     onWheel(event: WheelEvent): void {
@@ -356,17 +307,10 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     onFilter(event: LazyLoadEvent): void {
-        this.filters = [];
+        this.filters = null;
 
         if (event.filters != null) {
-            this.filters = Object.keys(event.filters).map(key => {
-                const filter: FilterMetadata = event.filters[key];
-                const index = this.list.attributes.findIndex(attr => attr.name === key);
-                const attribute = this.list.attributes[index];
-                const label = "[" + attribute.label + "] : " + "[" + filter.value + "]";
-
-                return { attribute: attribute.base, value: filter.value, label: label };
-            });
+            this.filters = event.filters;
         }
     }
 

@@ -43,6 +43,7 @@ import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -128,7 +129,7 @@ public class ListTypeFhirExporter
 
   public void populateBundle(Bundle bundle)
   {
-    BusinessQuery query = this.version.buildQuery(null);
+    BusinessQuery query = this.version.buildQuery(new JsonObject());
     query.ORDER_BY_DESC(query.aCharacter(DefaultAttribute.CODE.getName()));
 
     OIterator<Business> objects = query.getIterator();

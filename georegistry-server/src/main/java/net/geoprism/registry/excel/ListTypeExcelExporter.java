@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.excel;
 
@@ -43,6 +43,7 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -64,36 +65,33 @@ public class ListTypeExcelExporter
 {
   private static Logger                            logger = LoggerFactory.getLogger(GeoObjectExcelExporter.class);
 
-  private ListType                               list;
+  private ListType                                 list;
 
-  private ListTypeVersion                        version;
+  private ListTypeVersion                          version;
 
   private MdBusinessDAOIF                          mdBusiness;
 
   private List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
-  private String                                   filterJson;
+  private JsonObject                               criteria;
 
   private CellStyle                                boldStyle;
 
   private CellStyle                                dateStyle;
-  
-  private ListTypeExcelExporterSheet[]           includedSheets;
-  
-  public static enum ListTypeExcelExporterSheet
-  {
-    DATA,
-    METADATA,
-    DICTIONARY
+
+  private ListTypeExcelExporterSheet[]             includedSheets;
+
+  public static enum ListTypeExcelExporterSheet {
+    DATA, METADATA, DICTIONARY
   }
 
-  public ListTypeExcelExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, String filterJson, ListTypeExcelExporterSheet[] includedSheets)
+  public ListTypeExcelExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria)
   {
     this.version = version;
     this.mdBusiness = mdBusiness;
     this.mdAttributes = mdAttributes;
-    this.filterJson = filterJson;
-    
+    this.criteria = criteria;
+
     if (includedSheets != null)
     {
       this.includedSheets = includedSheets;
@@ -119,9 +117,9 @@ public class ListTypeExcelExporter
   public Workbook createWorkbook() throws IOException
   {
     LocaleUtil.setUserTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-    
+
     Workbook workbook = new XSSFWorkbook();
-    
+
     CreationHelper createHelper = workbook.getCreationHelper();
     Font font = workbook.createFont();
     font.setBold(true);
@@ -130,7 +128,7 @@ public class ListTypeExcelExporter
     this.boldStyle.setFont(font);
 
     this.dateStyle = workbook.createCellStyle();
-    
+
     DataFormat df = createHelper.createDataFormat();
     this.dateStyle.setDataFormat(df.getFormat("yyyy-mm-dd"));
 
@@ -189,7 +187,7 @@ public class ListTypeExcelExporter
     MdBusinessDAOIF metadata = MdBusinessDAO.getMdBusinessDAO(ListType.CLASS);
 
     int rowNumber = 0;
-    
+
     this.createRow(sheet, locale, metadata, rowNumber++, ListType.DISPLAYLABEL, this.list.getDisplayLabel().getValue());
     this.createRow(sheet, locale, metadata, rowNumber++, ListType.CODE, this.list.getCode());
     this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.publishDate"), stripTime(this.version.getPublishDate()));
@@ -212,7 +210,7 @@ public class ListTypeExcelExporter
     this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTTELEPHONENUMBER, this.list.getListTelephoneNumber());
     this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTEMAIL, this.list.getListEmail());
   }
-  
+
   private Date stripTime(Date date)
   {
     Calendar cal = Calendar.getInstance();
@@ -252,10 +250,10 @@ public class ListTypeExcelExporter
     {
       Cell valueCell = row.createCell(1);
       valueCell.setCellStyle(this.dateStyle);
-      valueCell.setCellValue((Date)value);
+      valueCell.setCellValue((Date) value);
     }
   }
-  
+
   private void createDataSheet(Workbook workbook)
   {
     Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(this.getList().getDisplayLabel().getValue()));
@@ -272,7 +270,7 @@ public class ListTypeExcelExporter
 
     int rownum = 1;
 
-    BusinessQuery query = this.version.buildQuery(this.filterJson);
+    BusinessQuery query = this.version.buildQuery(this.criteria);
     query.ORDER_BY_DESC(query.aCharacter(DefaultAttribute.CODE.getName()));
 
     OIterator<Business> objects = query.getIterator();

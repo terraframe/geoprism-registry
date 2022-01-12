@@ -20,6 +20,7 @@ import { SliderModule } from "primeng/slider";
 import { DropdownModule } from "primeng/dropdown";
 import { MultiSelectModule } from "primeng/multiselect";
 import { ButtonModule } from "primeng/button";
+import { AutoCompleteModule } from "primeng/autocomplete";
 
 import { ErrorModalComponent } from "./component/modals/error-modal.component";
 import { SuccessModalComponent } from "./component/modals/success-modal.component";
@@ -85,7 +86,8 @@ import { DateTextComponent } from "./component/date-text/date-text.component";
         SliderModule,
         DropdownModule,
         MultiSelectModule,
-        ButtonModule
+        ButtonModule,
+        AutoCompleteModule
     ],
     declarations: [
         LocalizeComponent,

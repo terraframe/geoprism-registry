@@ -3,7 +3,7 @@
 		[resizableColumns]="true" sortMode="multiple" styleClass="p-datatable-gridlines" [lazy]="true"
 		(onLazyLoad)="onPageChange($event)" [paginator]="true" [totalRecords]="page.count" [rows]="page.pageSize"
 		[loading]="loading" [multiSortMeta]="config.sort != null ? [config.sort] : []"
-		(onFilter)="handleFilter($event)" >
+		(onFilter)="handleFilter($event)">
 
 		<ng-template pTemplate="colgroup" let-columns>
 			<colgroup>
@@ -29,8 +29,13 @@
 							(input)="dt.filter($event.target.value, col.field, 'contains')">
 						<input *ngSwitchCase="'TEXT'" pInputText type="text"
 							(input)="dt.filter($event.target.value, col.field, 'contains')">
-						<input *ngSwitchCase="'NUMBER'" pInputText type="number"
+						<input *ngSwitchCase="'NUMBER'" pInputNumber type="number" step="any"
 							(input)="dt.filter($event.target.value, col.field, 'equals')">
+						<p-autoComplete *ngSwitchCase="'AUTOCOMPLETE'" appendTo="body" [(ngModel)]="col.text"
+							[suggestions]="col.results" (completeMethod)="onComplete(col, $event)"
+							(onSelect)="dt.filter(col.text, col.field, 'equals')"
+							(onClear)="dt.filter(col.text, col.field, 'equals')">
+						</p-autoComplete>
 						<p-dropdown *ngSwitchCase="'BOOLEAN'" appendTo="body" [options]="booleanOptions"
 							(onChange)="dt.filter($event.value.value, col.field, 'equals')" optionLabel="label"
 							optionValue="value" [virtualScroll]="true"></p-dropdown>
@@ -62,8 +67,10 @@
 						</a>
 					</ng-container>
 					<ng-container *ngSwitchCase="'BOOLEAN'">
-						<localize *ngIf="rowData[col.field]" key="change.request.boolean.option.true"></localize>
-						<localize *ngIf="!rowData[col.field]" key="change.request.boolean.option.false"></localize>
+						<localize *ngIf="rowData[col.field] === true" key="change.request.boolean.option.true">
+						</localize>
+						<localize *ngIf="rowData[col.field] === false" key="change.request.boolean.option.false">
+						</localize>
 					</ng-container>
 					<ng-container *ngSwitchCase="'NONE'">
 					</ng-container>

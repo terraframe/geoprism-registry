@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -112,7 +114,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     return null;
   }
-  
+
   public static Date parseDate(String date)
   {
     if (date != null && date.length() > 0)
@@ -207,22 +209,23 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   }
 
   @Transaction
-  public static InputStream exportListTypeShapefile(String oid, String filterJson)
+  public static InputStream exportListTypeShapefile(String oid, String json)
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
-    
+    JsonObject criteria = ( json != null ) ? JsonParser.parseString(json).getAsJsonObject() : new JsonObject();
+
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
-    
-    if (filterJson.contains("invalid"))
+
+    if (json.contains("invalid"))
     {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
     }
-    
+
     try
     {
-      ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, filterJson);
-      
+      ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, criteria);
+
       return exporter.export();
     }
     catch (IOException e)
@@ -230,24 +233,25 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
       throw new ProgrammingErrorException(e);
     }
   }
-  
+
   @Transaction
-  public static InputStream exportListTypeExcel(String oid, String filterJson)
+  public static InputStream exportListTypeExcel(String oid, String json)
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
-    
+    JsonObject criteria = ( json != null ) ? JsonParser.parseString(json).getAsJsonObject() : new JsonObject();
+
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
-    
-    if (filterJson.contains("invalid"))
+
+    if (json.contains("invalid"))
     {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
     }
-    
+
     try
     {
-      ListTypeExcelExporter exporter = new ListTypeExcelExporter(version, mdBusiness, mdAttributes, filterJson, null);
-      
+      ListTypeExcelExporter exporter = new ListTypeExcelExporter(version, mdBusiness, mdAttributes, null, criteria);
+
       return exporter.export();
     }
     catch (IOException e)
@@ -255,7 +259,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
       throw new ProgrammingErrorException(e);
     }
   }
-  
+
   @Authenticate
   public static void importTypes(String orgCode, InputStream istream)
   {

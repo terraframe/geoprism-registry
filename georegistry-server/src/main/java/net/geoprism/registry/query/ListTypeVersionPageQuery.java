@@ -80,8 +80,12 @@ public class ListTypeVersionPageQuery extends AbstractBusinessPageQuery<JsonSeri
         {
           String attributeName = mdAttribute.definesAttribute();
           Object value = row.getObjectValue(attributeName);
+          String rawValue = row.getValue(attributeName);
 
-          if (value != null)
+          // For some reason row.getObjectValue returns false for NULL boolean
+          // attributes. As such we need to also do a check to see if the raw
+          // value is not NULL
+          if (value != null && rawValue != null && rawValue.length() > 0)
           {
 
             if (value instanceof Double)

@@ -12,7 +12,7 @@ export class GenericTableConfig {
     edit?: boolean;
     create?: boolean;
     label: string;
-    sort?: {field: string, order: number};
+    sort?: { field: string, order: number };
 
 }
 
@@ -27,6 +27,8 @@ export class GenericTableColumn {
     text?: string
     filter?: boolean;
     columnType?: Function;
+    onComplete?: Function;
+    results?: any[];
 
 }
 

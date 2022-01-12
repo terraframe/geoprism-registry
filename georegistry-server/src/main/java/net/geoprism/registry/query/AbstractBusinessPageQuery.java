@@ -9,6 +9,7 @@ import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.query.AttributeBoolean;
+import com.runwaysdk.query.ComponentQuery;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
@@ -16,6 +17,7 @@ import com.runwaysdk.query.Selectable;
 import com.runwaysdk.query.SelectableBoolean;
 import com.runwaysdk.query.SelectableChar;
 import com.runwaysdk.query.SelectableMoment;
+import com.runwaysdk.query.ValueQuery;
 
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
@@ -52,7 +54,8 @@ public abstract class AbstractBusinessPageQuery<T extends JsonSerializable>
 
   public Page<T> getPage()
   {
-    BusinessQuery query = new QueryFactory().businessQuery(this.mdBusiness.definesType());
+    BusinessQuery query = this.getQuery();
+
     int pageSize = 10;
     int pageNumber = 1;
 
@@ -63,12 +66,34 @@ public abstract class AbstractBusinessPageQuery<T extends JsonSerializable>
       pageNumber = ( first / pageSize ) + 1;
     }
 
+    long count = query.getCount();
+
+    try (OIterator<? extends Business> iterator = query.getIterator(pageSize, pageNumber))
+    {
+      return new Page<T>(count, pageNumber, pageSize, this.getResults(iterator.getAll()));
+    }
+  }
+
+  public BusinessQuery getQuery()
+  {
+    BusinessQuery query = new QueryFactory().businessQuery(this.mdBusiness.definesType());
+
+    return getQuery(query, query);
+  }
+
+  public BusinessQuery getQuery(ValueQuery vQuery)
+  {
+    return getQuery(vQuery, new BusinessQuery(vQuery, mdBusiness.definesType()));
+  }
+
+  private BusinessQuery getQuery(ComponentQuery qQuery, BusinessQuery query)
+  {
     if (criteria.has("sortField") && criteria.has("sortOrder"))
     {
       String field = criteria.get("sortField").getAsString();
       SortOrder order = criteria.get("sortOrder").getAsInt() == 1 ? SortOrder.ASC : SortOrder.DESC;
 
-      query.ORDER_BY(query.getS(field), order);
+      qQuery.ORDER_BY(query.getS(field), order);
     }
     else if (criteria.has("multiSortMeta"))
     {
@@ -81,7 +106,7 @@ public abstract class AbstractBusinessPageQuery<T extends JsonSerializable>
         String field = sort.get("field").getAsString();
         SortOrder order = sort.get("order").getAsInt() == 1 ? SortOrder.ASC : SortOrder.DESC;
 
-        query.ORDER_BY(query.getS(field), order);
+        qQuery.ORDER_BY(query.getS(field), order);
       }
     }
 
@@ -130,115 +155,113 @@ public abstract class AbstractBusinessPageQuery<T extends JsonSerializable>
           }
           else if (attribute instanceof SelectableBoolean)
           {
-            query.WHERE( ( (AttributeBoolean) attribute ).EQ(Boolean.valueOf(value)));
+            qQuery.WHERE( ( (AttributeBoolean) attribute ).EQ(Boolean.valueOf(value)));
 
           }
           else if (mode.equals("contains"))
           {
             SelectableChar selectable = (SelectableChar) attribute;
 
-            query.WHERE(selectable.LIKEi("%" + value + "%"));
+            qQuery.WHERE(selectable.LIKEi("%" + value + "%"));
           }
           else if (mode.equals("equals"))
           {
-            query.WHERE(attribute.EQ(value));
+            qQuery.WHERE(attribute.EQ(value));
           }
         }
       }
     }
-
-    long count = query.getCount();
-
-    try (OIterator<? extends Business> iterator = query.getIterator(pageSize, pageNumber))
-    {
-      return new Page<T>(count, pageNumber, pageSize, this.getResults(iterator.getAll()));
-    }
+    return query;
   }
 
-//  private Map<MdAttributeConcreteDAOIF, Condition> buildQueryConditionsFromFilter(String filterJson, String ignoreAttribute, ComponentQuery query, MdBusinessDAOIF mdBusiness)
-//  {
-//    Map<MdAttributeConcreteDAOIF, Condition> conditionMap = new HashMap<MdAttributeConcreteDAOIF, Condition>();
-//
-//    if (filterJson != null && filterJson.length() > 0)
-//    {
-//      DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-//      filterFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-//
-//      JsonArray filters = JsonParser.parseString(filterJson).getAsJsonArray();
-//
-//      for (int i = 0; i < filters.size(); i++)
-//      {
-//        JsonObject filter = filters.get(i).getAsJsonObject();
-//
-//        String attribute = filter.get("attribute").getAsString();
-//
-//        if (ignoreAttribute == null || !attribute.equals(ignoreAttribute))
-//        {
-//          MdAttributeConcreteDAOIF mdAttr = mdBusiness.definesAttribute(attribute);
-//
-//          BasicCondition condition = null;
-//
-//          if (mdAttr instanceof MdAttributeMomentDAOIF)
-//          {
-//            JsonObject jObject = filter.get("value").getAsJsonObject();
-//
-//            try
-//            {
-//              if (jObject.has("start") && !jObject.get("start").isJsonNull())
-//              {
-//                String date = jObject.get("start").getAsString();
-//
-//                if (date.length() > 0)
-//                {
-//                  condition = query.aDateTime(attribute).GE(filterFormat.parse(date));
-//                }
-//              }
-//
-//              if (jObject.has("end") && !jObject.get("end").isJsonNull())
-//              {
-//                String date = jObject.get("end").getAsString();
-//
-//                if (date.length() > 0)
-//                {
-//                  condition = query.aDateTime(attribute).LE(filterFormat.parse(date));
-//                }
-//              }
-//            }
-//            catch (ParseException e)
-//            {
-//              throw new ProgrammingErrorException(e);
-//            }
-//          }
-//          else if (mdAttr instanceof MdAttributeBooleanDAOIF)
-//          {
-//            String value = filter.get("value").getAsString();
-//
-//            Boolean bVal = Boolean.valueOf(value);
-//
-//            condition = ( (AttributeBoolean) query.get(attribute) ).EQ(bVal);
-//          }
-//          else
-//          {
-//            String value = filter.get("value").getAsString();
-//
-//            condition = query.get(attribute).EQ(value);
-//          }
-//
-//          if (condition != null)
-//          {
-//            if (conditionMap.containsKey(mdAttr))
-//            {
-//              conditionMap.put(mdAttr, conditionMap.get(mdAttr).OR(condition));
-//            }
-//            else
-//            {
-//              conditionMap.put(mdAttr, condition);
-//            }
-//          }
-//        }
-//      }
-//    }
-//
-//    return conditionMap;
-//  }
+  // private Map<MdAttributeConcreteDAOIF, Condition>
+  // buildQueryConditionsFromFilter(String filterJson, String ignoreAttribute,
+  // ComponentQuery query, MdBusinessDAOIF mdBusiness)
+  // {
+  // Map<MdAttributeConcreteDAOIF, Condition> conditionMap = new
+  // HashMap<MdAttributeConcreteDAOIF, Condition>();
+  //
+  // if (filterJson != null && filterJson.length() > 0)
+  // {
+  // DateFormat filterFormat = new
+  // SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+  // filterFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+  //
+  // JsonArray filters = JsonParser.parseString(filterJson).getAsJsonArray();
+  //
+  // for (int i = 0; i < filters.size(); i++)
+  // {
+  // JsonObject filter = filters.get(i).getAsJsonObject();
+  //
+  // String attribute = filter.get("attribute").getAsString();
+  //
+  // if (ignoreAttribute == null || !attribute.equals(ignoreAttribute))
+  // {
+  // MdAttributeConcreteDAOIF mdAttr = mdBusiness.definesAttribute(attribute);
+  //
+  // BasicCondition condition = null;
+  //
+  // if (mdAttr instanceof MdAttributeMomentDAOIF)
+  // {
+  // JsonObject jObject = filter.get("value").getAsJsonObject();
+  //
+  // try
+  // {
+  // if (jObject.has("start") && !jObject.get("start").isJsonNull())
+  // {
+  // String date = jObject.get("start").getAsString();
+  //
+  // if (date.length() > 0)
+  // {
+  // condition = query.aDateTime(attribute).GE(filterFormat.parse(date));
+  // }
+  // }
+  //
+  // if (jObject.has("end") && !jObject.get("end").isJsonNull())
+  // {
+  // String date = jObject.get("end").getAsString();
+  //
+  // if (date.length() > 0)
+  // {
+  // condition = query.aDateTime(attribute).LE(filterFormat.parse(date));
+  // }
+  // }
+  // }
+  // catch (ParseException e)
+  // {
+  // throw new ProgrammingErrorException(e);
+  // }
+  // }
+  // else if (mdAttr instanceof MdAttributeBooleanDAOIF)
+  // {
+  // String value = filter.get("value").getAsString();
+  //
+  // Boolean bVal = Boolean.valueOf(value);
+  //
+  // condition = ( (AttributeBoolean) query.get(attribute) ).EQ(bVal);
+  // }
+  // else
+  // {
+  // String value = filter.get("value").getAsString();
+  //
+  // condition = query.get(attribute).EQ(value);
+  // }
+  //
+  // if (condition != null)
+  // {
+  // if (conditionMap.containsKey(mdAttr))
+  // {
+  // conditionMap.put(mdAttr, conditionMap.get(mdAttr).OR(condition));
+  // }
+  // else
+  // {
+  // conditionMap.put(mdAttr, condition);
+  // }
+  // }
+  // }
+  // }
+  // }
+  //
+  // return conditionMap;
+  // }
 }

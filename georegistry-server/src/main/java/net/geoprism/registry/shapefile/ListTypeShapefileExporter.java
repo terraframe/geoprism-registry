@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.shapefile;
 
@@ -58,6 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.kms.model.UnsupportedOperationException;
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.constants.VaultProperties;
@@ -110,14 +111,14 @@ public class ListTypeShapefileExporter
 
   private List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
-  private String                                   filterJson;
+  private JsonObject                               criteria;
 
-  public ListTypeShapefileExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, String filterJson)
+  public ListTypeShapefileExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, JsonObject criteria)
   {
     this.version = version;
     this.mdBusiness = mdBusiness;
     this.mdAttributes = mdAttributes;
-    this.filterJson = filterJson;
+    this.criteria = criteria;
     this.columnNames = new HashMap<String, String>();
 
     this.list = version.getListType();
@@ -224,22 +225,12 @@ public class ListTypeShapefileExporter
 
     mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
 
-    String excelFilter;
-    if (filterJson == null)
-    {
-      excelFilter = "[{attribute:invalid,value:false}]";
-    }
-    else
-    {
-      excelFilter = new String(filterJson);
-    }
-
     try
     {
       File file = new File(directory, "metadata.xlsx");
       FileOutputStream fos = new FileOutputStream(file);
 
-      ListTypeExcelExporter exporter = new ListTypeExcelExporter(this.version, mdBusiness, mdAttributes, excelFilter, new ListTypeExcelExporterSheet[] { ListTypeExcelExporterSheet.DICTIONARY, ListTypeExcelExporterSheet.METADATA });
+      ListTypeExcelExporter exporter = new ListTypeExcelExporter(this.version, mdBusiness, mdAttributes, new ListTypeExcelExporterSheet[] { ListTypeExcelExporterSheet.DICTIONARY, ListTypeExcelExporterSheet.METADATA }, criteria);
 
       Workbook wb = exporter.createWorkbook();
 
@@ -328,7 +319,7 @@ public class ListTypeShapefileExporter
     List<SimpleFeature> features = new ArrayList<SimpleFeature>();
     SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
 
-    BusinessQuery query = this.version.buildQuery(this.filterJson);
+    BusinessQuery query = this.version.buildQuery(this.criteria);
     query.ORDER_BY_DESC(query.aCharacter(DefaultAttribute.CODE.getName()));
 
     OIterator<Business> objects = query.getIterator();

@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
+import { FilterMetadata } from "primeng/api";
 
 import { EventService } from "@shared/service";
 import { ContextList, CurationJob, CurationProblem, LayerRecord, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
@@ -205,19 +206,18 @@ export class ListTypeService implements GenericTableService {
             .toPromise();
     }
 
-    values(oid: string, value: string, attributeName: string, valueAttribute: string, filter: { attribute: string, value: string }[]): Promise<{ label: string, value: string }[]> {
+    values(oid: string, value: string, attributeName: string, filters: { [s: string]: FilterMetadata }): Promise<string[]> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
 
         let params = {
             oid: oid,
-            attributeName: attributeName,
-            valueAttribute: valueAttribute
+            attributeName: attributeName
         } as any;
 
-        if (filter.length > 0) {
-            params.filter = filter;
+        if (filters != null) {
+            params.criteria = { filters: filters };
         }
 
         if (value != null && value.length > 0) {
@@ -225,7 +225,7 @@ export class ListTypeService implements GenericTableService {
         }
 
         return this.http
-            .post<{ label: string, value: string }[]>(registry.contextPath + "/list-type/values", JSON.stringify(params), { headers: headers })
+            .post<string[]>(registry.contextPath + "/list-type/values", JSON.stringify(params), { headers: headers })
             .toPromise();
     }
 

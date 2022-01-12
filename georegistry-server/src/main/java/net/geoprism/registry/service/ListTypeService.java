@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -385,21 +385,24 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray values(String sessionId, String oid, String value, String attributeName, String valueAttribute, String filterJson)
+  public JsonArray values(String sessionId, String oid, String value, String attributeName, String json)
   {
-    return ListTypeVersion.get(oid).values(value, attributeName, valueAttribute, filterJson);
+    ListTypeVersion version = ListTypeVersion.get(oid);
+    JsonObject criteria = ( json != null ) ? JsonParser.parseString(json).getAsJsonObject() : new JsonObject();
+
+    return version.values(value, attributeName, criteria);
   }
 
   @Request(RequestType.SESSION)
-  public InputStream exportShapefile(String sessionId, String oid, String filterJson)
+  public InputStream exportShapefile(String sessionId, String oid, String criteria)
   {
-    return GeoRegistryUtil.exportListTypeShapefile(oid, filterJson);
+    return GeoRegistryUtil.exportListTypeShapefile(oid, criteria);
   }
 
   @Request(RequestType.SESSION)
-  public InputStream exportSpreadsheet(String sessionId, String oid, String filterJson)
+  public InputStream exportSpreadsheet(String sessionId, String oid, String criteria)
   {
-    return GeoRegistryUtil.exportListTypeExcel(oid, filterJson);
+    return GeoRegistryUtil.exportListTypeExcel(oid, criteria);
   }
 
   @Request(RequestType.SESSION)

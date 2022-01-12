@@ -37,7 +37,7 @@ export class CurationProblemModalComponent {
     getFriendlyProblemType(probType: string): string {
         if (probType === "NO_GEOMETRY") {
             // return this.localizeService.decode("scheduledjobs.job.problem.type.parent.lookup");
-            return 'Missing geometry';
+            return "Missing geometry";
         }
 
         return probType;
@@ -52,7 +52,6 @@ export class CurationProblemModalComponent {
         editModal.content.configureAsExisting(this.problem.goCode, this.problem.typeCode, this.version.forDate, true);
         editModal.content.setMasterListId(this.version.oid);
         editModal.content.submitFunction = (geoObject, hierarchies, attributeEditor) => {
-
             // THERE HAS TO BE A BETTER WAY TO DO THIS
             if (attributeEditor.changeRequest != null) {
                 const changeRequest = attributeEditor.changeRequest;
@@ -63,7 +62,7 @@ export class CurationProblemModalComponent {
                     resolution: "APPLY_GEO_OBJECT",
                     code: this.problem.goCode,
                     typeCode: this.problem.typeCode,
-                    actions: changeRequest.actions,
+                    actions: changeRequest.actions
                 };
 
                 this.service.submitErrorResolve(config).then(() => {

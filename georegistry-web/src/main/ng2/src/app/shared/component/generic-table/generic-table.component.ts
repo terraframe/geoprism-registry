@@ -82,6 +82,10 @@ export class GenericTableComponent implements OnInit, OnDestroy {
         });
     }
 
+    onComplete(col: GenericTableColumn, event: LazyLoadEvent): void {
+        col.onComplete();
+    }
+
     getColumnType(row: Object, col: GenericTableColumn): string {
         if (col.columnType != null) {
             return col.columnType(row);
