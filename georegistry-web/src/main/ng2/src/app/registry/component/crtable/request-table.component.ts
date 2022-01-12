@@ -329,11 +329,11 @@ export class RequestTableComponent {
             // TODO : cr.statusLabel needs to be updated...
             /*
             cr.approvalStatus = "REJECTED";
-     
+
             let len = this.actions.length;
             for (let i = 0; i < len; ++i) {
                 let action: AbstractAction = this.actions[i];
-     
+
                 action.approvalStatus = "REJECTED";
             }
             */
@@ -474,10 +474,6 @@ export class RequestTableComponent {
         //   }
 
         return action;
-    }
-
-    formatDate(date: string): string {
-        return this.dateService.formatDateForDisplay(date);
     }
 
     getUsername(): string {

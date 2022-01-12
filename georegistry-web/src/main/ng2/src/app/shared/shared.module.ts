@@ -61,6 +61,7 @@ import { ProfileComponent } from "./component/profile/profile.component";
 
 import "../rxjs-extensions";
 import { GenericTableComponent } from "./component/generic-table/generic-table.component";
+import { DateTextComponent } from "./component/date-text/date-text.component";
 
 @NgModule({
     imports: [
@@ -107,7 +108,8 @@ import { GenericTableComponent } from "./component/generic-table/generic-table.c
         ProfileComponent,
         LocalizePipe,
         PhonePipe,
-        GenericTableComponent
+        GenericTableComponent,
+        DateTextComponent
     ],
     exports: [
         LocalizeComponent,
@@ -133,7 +135,8 @@ import { GenericTableComponent } from "./component/generic-table/generic-table.c
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        GenericTableComponent
+        GenericTableComponent,
+        DateTextComponent
     ],
     entryComponents: [
         ErrorModalComponent,

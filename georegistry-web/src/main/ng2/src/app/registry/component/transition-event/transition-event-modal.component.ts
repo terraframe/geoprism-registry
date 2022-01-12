@@ -279,10 +279,6 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         this.bsModalRef.hide();
     }
 
-    formatDate(date: string): string {
-        return this.dateService.formatDateForDisplay(date);
-    }
-
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);
     }

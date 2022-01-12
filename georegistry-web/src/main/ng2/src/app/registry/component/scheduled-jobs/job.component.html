@@ -30,7 +30,7 @@
                             <span style="display: block;">
                               <localize key="scheduledjobs.job.started.label"></localize>
                               <span class="date-string-display">
-                                    {{formatDate(job.createDate)}}
+                                <date-text [date]="job.createDate"></date-text>
                               </span>
                             </span>
                         </p>

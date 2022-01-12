@@ -114,10 +114,6 @@ export class RowValidationProblemWidgetComponent implements OnInit {
         });
     }
 
-    formatDate(date: string): string {
-        return this.dateService.formatDateForDisplay(date);
-    }
-
     onCancel(): void {
         this.bsModalRef.hide();
     }

@@ -256,10 +256,6 @@ export class ScheduledJobsComponent implements OnInit {
         });
     }
 
-    formatDate(date: string): string {
-        return this.dateService.formatDateForDisplay(date);
-    }
-
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);
     }

@@ -531,7 +531,7 @@
                         </div>
                         <div class="holder">
                             <span *ngIf="readonly" style="line-height: 40px;" class="date-string-display">
-                                {{formatDate(list.publishingStartDate)}}
+                            <date-text [date]="list.publishingStartDate"></date-text>
                             </span>
                             <date-field *ngIf="!readonly" [(value)]="list.publishingStartDate"
                                 [classNames]="['form-control']" label="" [inputName]="'publishingStartDate'"

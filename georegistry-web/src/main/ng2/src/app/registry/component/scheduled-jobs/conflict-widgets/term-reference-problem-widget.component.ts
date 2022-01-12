@@ -91,10 +91,6 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
         this.bsModalRef.hide();
     }
 
-    formatDate(date: string): string {
-        return this.dateService.formatDateForDisplay(date);
-    }
-
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);
     }

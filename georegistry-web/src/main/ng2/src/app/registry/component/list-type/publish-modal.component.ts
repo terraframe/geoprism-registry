@@ -202,10 +202,6 @@ export class ListTypePublishModalComponent implements OnInit {
     }
 
 
-    formatDate(date: string): string {
-        return this.dateService.formatDateForDisplay(date);
-    }
-
     handleTab(tab: string): void {
         this.tab = tab;
     }

@@ -281,10 +281,6 @@ export class JobComponent implements OnInit, OnDestroy {
         });
     }
 
-    formatDate(date: string): string {
-        return this.dateService.formatDateForDisplay(date);
-    }
-
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);
     }

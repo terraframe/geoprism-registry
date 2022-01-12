@@ -97,9 +97,4 @@ export class TaskViewerComponent implements OnInit {
             this.onCompletedTasksPageChange(1);
         }
     }
-
-    formatDate(date: string): string {
-        return this.dateService.formatDateForDisplay(date);
-    }
-
 }

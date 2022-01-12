@@ -5,7 +5,7 @@
     <div id="app-container" class="container-fluid">
         <ng-container *ngIf="businessType != null">
             <h2>{{businessType.displayLabel.localizedValue}}</h2>
-            <generic-table [cols]="cols" [config]="config" [refresh]="refresh" [pageConfig]="{typeCode: businessType.code}" (click)="onClick($event)"></generic-table>		
+            <generic-table [cols]="cols" [config]="config" [pageConfig]="{typeCode: businessType.code}" (click)="onClick($event)"></generic-table>		
         </ng-container>
     </div>
 </div>

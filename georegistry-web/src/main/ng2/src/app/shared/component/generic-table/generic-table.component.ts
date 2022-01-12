@@ -29,6 +29,7 @@ export class GenericTableComponent implements OnInit, OnDestroy {
     @Input() refresh: Subject<void>;
 
     @Output() click = new EventEmitter<TableEvent>();
+    @Output() onFilter = new EventEmitter<LazyLoadEvent>();
 
     loading: boolean = true;
 
@@ -87,6 +88,10 @@ export class GenericTableComponent implements OnInit, OnDestroy {
         }
 
         return col.type;
+    }
+
+    handleFilter(event: LazyLoadEvent): void {
+        this.onFilter.emit(event);
     }
 
 }

@@ -17,7 +17,7 @@
 		                </div>
 		                <div class="holder">
 		                    <span *ngIf="readonly" style="line-height: 40px;" class="date-string-display">
-		                        {{formatDate(event.eventDate)}}
+                            <date-text [date]="event.eventDate"></date-text>                            
 		                    </span>
 		                    <date-field *ngIf="!readonly" [(value)]="event.eventDate" [classNames]="['form-control']" label=""
 		                        [inputName]="'eventDate'" [allowFutureDates]="false" name="eventDate" [required]="true" (validChange)="validChange($event)"

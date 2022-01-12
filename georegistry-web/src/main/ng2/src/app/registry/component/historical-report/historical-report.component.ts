@@ -95,10 +95,6 @@ export class HistoricalReportComponent {
         window.location.href = registry.contextPath + "/transition-event/export-excel?" + params.toString();
     }
 
-    formatDate(date: string): string {
-        return this.dateService.formatDateForDisplay(date);
-    }
-
     checkDates(): any {
         setTimeout(() => {
             this.isValid = (this.data.startDate != null && this.data.endDate != null && !this.dateService.after(this.data.startDate, this.data.endDate));

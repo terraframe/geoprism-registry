@@ -38,7 +38,6 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONException;
-import org.wololo.jts2geojson.GeoJSONWriter;
 
 import com.amazonaws.services.kms.model.UnsupportedOperationException;
 import com.google.gson.JsonArray;
@@ -132,9 +131,12 @@ import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
+import net.geoprism.registry.query.ListTypeVersionPageQuery;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
+import net.geoprism.registry.view.JsonSerializable;
+import net.geoprism.registry.view.Page;
 
 public class ListTypeVersion extends ListTypeVersionBase implements TableEntity, LabeledVersion
 {
@@ -1784,122 +1786,14 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     return conditionMap;
   }
 
-  public JsonObject data(Integer pageNumber, Integer pageSize, String filterJson, String sort, Boolean includeGeometries)
+  public Page<JsonSerializable> data(JsonObject criteria, Boolean includeGeometries)
   {
     if (includeGeometries == null)
     {
       includeGeometries = Boolean.FALSE;
     }
 
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-    NumberFormat numberFormat = NumberFormat.getInstance(Session.getCurrentLocale());
-
-    JsonArray results = new JsonArray();
-
-    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
-    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributes();
-
-    BusinessQuery query = this.buildQuery(filterJson);
-
-    if (sort != null && sort.length() > 0)
-    {
-      JsonObject jObject = JsonParser.parseString(sort).getAsJsonObject();
-      String attribute = jObject.get("attribute").getAsString();
-      String order = jObject.get("order").getAsString();
-
-      if (order.equalsIgnoreCase("DESC"))
-      {
-        query.ORDER_BY_DESC(query.getS(attribute));
-      }
-      else
-      {
-        query.ORDER_BY_ASC(query.getS(attribute));
-      }
-
-      if (!attribute.equals(DefaultAttribute.CODE.getName()))
-      {
-        query.ORDER_BY_ASC(query.aCharacter(DefaultAttribute.CODE.getName()));
-      }
-    }
-
-    try (OIterator<Business> iterator = query.getIterator(pageSize, pageNumber))
-    {
-      while (iterator.hasNext())
-      {
-        Business row = iterator.next();
-        JsonObject object = new JsonObject();
-
-        MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-
-        if (includeGeometries)
-        {
-          Geometry geom = (Geometry) row.getObjectValue(mdGeometry.definesAttribute());
-
-          if (geom != null)
-          {
-            GeoJSONWriter gw = new GeoJSONWriter();
-            org.wololo.geojson.Geometry gJSON = gw.write(geom);
-
-            JsonObject geojson = JsonParser.parseString(gJSON.toString()).getAsJsonObject();
-
-            object.add("geometry", geojson);
-          }
-        }
-        object.addProperty(ORIGINAL_OID, row.getValue(ORIGINAL_OID));
-        object.addProperty(DefaultAttribute.UID.getName(), row.getValue(DefaultAttribute.UID.getName()));
-
-        for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
-        {
-          if (this.isValid(mdAttribute))
-          {
-            String attributeName = mdAttribute.definesAttribute();
-            Object value = row.getObjectValue(attributeName);
-
-            if (value != null)
-            {
-
-              if (value instanceof Double)
-              {
-                object.addProperty(mdAttribute.definesAttribute(), numberFormat.format((Double) value));
-              }
-              else if (value instanceof Number)
-              {
-                object.addProperty(mdAttribute.definesAttribute(), (Number) value);
-              }
-              else if (value instanceof Boolean)
-              {
-                object.addProperty(mdAttribute.definesAttribute(), (Boolean) value);
-              }
-              else if (value instanceof String)
-              {
-                object.addProperty(mdAttribute.definesAttribute(), (String) value);
-              }
-              else if (value instanceof Character)
-              {
-                object.addProperty(mdAttribute.definesAttribute(), (Character) value);
-              }
-              else if (value instanceof Date)
-              {
-                object.addProperty(mdAttribute.definesAttribute(), format.format((Date) value));
-              }
-            }
-          }
-        }
-
-        results.add(object);
-      }
-    }
-
-    JsonObject page = new JsonObject();
-    page.addProperty("pageNumber", pageNumber);
-    page.addProperty("pageSize", pageSize);
-    page.addProperty("filter", filterJson);
-    page.addProperty("count", query.getCount());
-    page.add("results", results);
-
-    return page;
+    return new ListTypeVersionPageQuery(this, criteria, includeGeometries).getPage();
   }
 
   public JsonObject record(String uid)

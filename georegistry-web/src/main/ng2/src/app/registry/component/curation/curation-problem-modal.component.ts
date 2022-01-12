@@ -81,10 +81,6 @@ export class CurationProblemModalComponent {
         });
     }
 
-    formatDate(date: string): string {
-        return this.dateService.formatDateForDisplay(date);
-    }
-
     onProblemResolvedListener(problem: CurationProblem): void {
         this.callback({ action: "RESOLVED", data: problem });
     }

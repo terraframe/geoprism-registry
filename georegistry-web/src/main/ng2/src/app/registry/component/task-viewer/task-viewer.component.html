@@ -28,7 +28,7 @@
                     <localize key="tasks.createDateLabel"></localize>
                   </label>
                   <span class="date-string-display">
-                    {{formatDate(task.createDate)}}
+                    <date-text [date]="task.createDate"></date-text>
                   </span>
                 </div>
                 <div class="col-md-3" style="min-height: 90px; display: flex; align-items: center;">

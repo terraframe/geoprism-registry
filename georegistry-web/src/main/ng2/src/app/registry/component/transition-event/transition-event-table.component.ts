@@ -173,10 +173,6 @@ export class TransitionEventTableComponent {
         });
     }
 
-    formatDate(date: string): string {
-        return this.dateService.formatDateForDisplay(date);
-    }
-
     public error(err: any): void {
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
     }

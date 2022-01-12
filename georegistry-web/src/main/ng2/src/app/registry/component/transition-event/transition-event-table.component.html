@@ -73,7 +73,7 @@
                 <a *ngIf="event.permissions.includes('DELETE')" (click)="deleteEvent($event, event)" class="fa fa-trash" aria-hidden="true"></a>
               </td>
               <td class="col-md-1">
-                <h5><strong>{{formatDate(event.eventDate)}}</strong></h5>
+                <h5><strong><date-text [date]="event.eventDate"></date-text></strong></h5>
               </td>
               <td class="col-md-4">
                 <h5><strong>{{event.description.localizedValue}}</strong></h5>

@@ -6,11 +6,13 @@ import { EventService } from "@shared/service";
 import { ContextList, CurationJob, CurationProblem, LayerRecord, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
 import { Observable } from "rxjs";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; import { PageResult } from "@shared/model/core";
+import { GeoRegistryConfiguration } from "@core/model/registry";
+import { PageResult } from "@shared/model/core";
+import { GenericTableService } from "@shared/model/generic-table";
 declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
-export class ListTypeService {
+export class ListTypeService implements GenericTableService {
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
@@ -66,7 +68,6 @@ export class ListTypeService {
             }))
             .toPromise();
     }
-
 
     apply(list: ListType): Promise<ListType> {
         let headers = new HttpHeaders({
@@ -128,7 +129,6 @@ export class ListTypeService {
             .toPromise();
     }
 
-
     removeVersion(list: ListTypeVersion): Promise<ListType> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
@@ -144,32 +144,46 @@ export class ListTypeService {
             .toPromise();
     }
 
-    data(oid: string, pageNumber: number, pageSize: number, filter: { attribute: string, value: string }[], sort: { attribute: string, order: string }): Promise<any> {
+    page(criteria: Object, pageConfig: any): Promise<PageResult<Object>> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
 
         let params = {
-            oid: oid,
-            sort: sort
+            oid: pageConfig.oid,
+            criteria: criteria
         } as any;
 
-        if (pageNumber != null) {
-            params.pageNumber = pageNumber;
-        }
-
-        if (pageSize != null) {
-            params.pageSize = pageSize;
-        }
-
-        if (filter.length > 0) {
-            params.filter = filter;
-        }
-
-        return this.http
-            .post<any>(registry.contextPath + "/list-type/data", JSON.stringify(params), { headers: headers })
+        return this.http.post<PageResult<Object>>(registry.contextPath + "/list-type/data", JSON.stringify(params), { headers: headers })
             .toPromise();
     }
+
+    // data(oid: string, pageNumber: number, pageSize: number, filter: { attribute: string, value: string }[], sort: { attribute: string, order: string }): Promise<any> {
+    //     let headers = new HttpHeaders({
+    //         "Content-Type": "application/json"
+    //     });
+
+    //     let params = {
+    //         oid: oid,
+    //         sort: sort
+    //     } as any;
+
+    //     if (pageNumber != null) {
+    //         params.pageNumber = pageNumber;
+    //     }
+
+    //     if (pageSize != null) {
+    //         params.pageSize = pageSize;
+    //     }
+
+    //     if (filter.length > 0) {
+    //         params.filter = filter;
+    //     }
+
+    //     return this.http
+    //         .post<any>(registry.contextPath + "/list-type/data", JSON.stringify(params), { headers: headers })
+    //         .toPromise();
+    // }
 
     record(oid: string, uid: string): Promise<LayerRecord> {
         let headers = new HttpHeaders({
@@ -183,7 +197,6 @@ export class ListTypeService {
 
         this.eventService.start();
 
-
         return this.http
             .post<LayerRecord>(registry.contextPath + "/list-type/record", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
@@ -191,7 +204,6 @@ export class ListTypeService {
             }))
             .toPromise();
     }
-
 
     values(oid: string, value: string, attributeName: string, valueAttribute: string, filter: { attribute: string, value: string }[]): Promise<{ label: string, value: string }[]> {
         let headers = new HttpHeaders({
@@ -272,21 +284,17 @@ export class ListTypeService {
     }
 
     getCurationInfo(version: ListTypeVersion, onlyUnresolved: boolean, pageNumber: number, pageSize: number): Promise<CurationJob> {
-
         let params: HttpParams = new HttpParams();
         params = params.set("historyId", version.curation.curationId);
         params = params.set("onlyUnresolved", onlyUnresolved.toString());
         params = params.set("pageSize", pageSize.toString());
         params = params.set("pageNumber", pageNumber.toString());
 
-
         return this.http.get<CurationJob>(registry.contextPath + "/curation/details", { params: params })
             .toPromise();
     }
 
-
     getCurationPage(version: ListTypeVersion, onlyUnresolved: boolean, pageNumber: number, pageSize: number): Promise<PageResult<any>> {
-
         let params: HttpParams = new HttpParams();
         params = params.set("historyId", version.curation.curationId);
         params = params.set("onlyUnresolved", onlyUnresolved.toString());
@@ -294,7 +302,6 @@ export class ListTypeService {
         params = params.set("pageNumber", pageNumber.toString());
 
         this.eventService.start();
-
 
         return this.http.get<PageResult<any>>(registry.contextPath + "/curation/page", { params: params })
             .pipe(finalize(() => {

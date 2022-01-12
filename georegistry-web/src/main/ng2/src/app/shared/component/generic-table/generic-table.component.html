@@ -1,8 +1,9 @@
 <div>
-	<p-table #dt [columns]="cols" [value]="page.resultSet" [autoLayout]="true" [scrollable]="true" [resizableColumns]="true" sortMode="multiple"
-		styleClass="p-datatable-gridlines" [lazy]="true" (onLazyLoad)="onPageChange($event)" [paginator]="true"
-		[totalRecords]="page.count" [rows]="page.pageSize" [loading]="loading"
-		[multiSortMeta]="config.sort != null ? [config.sort] : []" >
+	<p-table #dt [columns]="cols" [value]="page.resultSet" [autoLayout]="true" [scrollable]="true"
+		[resizableColumns]="true" sortMode="multiple" styleClass="p-datatable-gridlines" [lazy]="true"
+		(onLazyLoad)="onPageChange($event)" [paginator]="true" [totalRecords]="page.count" [rows]="page.pageSize"
+		[loading]="loading" [multiSortMeta]="config.sort != null ? [config.sort] : []"
+		(onFilter)="handleFilter($event)" >
 
 		<ng-template pTemplate="colgroup" let-columns>
 			<colgroup>
@@ -24,14 +25,13 @@
 			<tr>
 				<th *ngFor="let col of columns" [ngSwitch]="col.type">
 					<ng-container *ngIf="col.filter !== false">
-						<input *ngSwitchCase="'URL'" pInputText type="text" placeholder="Filter by URL..."
+						<input *ngSwitchCase="'URL'" pInputText type="text"
 							(input)="dt.filter($event.target.value, col.field, 'contains')">
-						<input *ngSwitchCase="'TEXT'" pInputText type="text" placeholder="Filter by text..."
+						<input *ngSwitchCase="'TEXT'" pInputText type="text"
 							(input)="dt.filter($event.target.value, col.field, 'contains')">
-						<input *ngSwitchCase="'NUMBER'" pInputText type="number" placeholder="Filter by number..."
+						<input *ngSwitchCase="'NUMBER'" pInputText type="number"
 							(input)="dt.filter($event.target.value, col.field, 'equals')">
 						<p-dropdown *ngSwitchCase="'BOOLEAN'" appendTo="body" [options]="booleanOptions"
-							placeholder="Filter by category..."
 							(onChange)="dt.filter($event.value.value, col.field, 'equals')" optionLabel="label"
 							optionValue="value" [virtualScroll]="true"></p-dropdown>
 					</ng-container>

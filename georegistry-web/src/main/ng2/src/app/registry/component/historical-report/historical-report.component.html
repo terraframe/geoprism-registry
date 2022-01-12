@@ -96,7 +96,7 @@
                 {{row.eventId}}
               </td>
               <td>
-                {{formatDate(row.eventDate)}}
+                <date-text [date]="row.eventDate"></date-text>
               </td>
               <td>
                 {{row.eventType}}
