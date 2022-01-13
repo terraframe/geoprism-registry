@@ -10,7 +10,7 @@
            [style]="customStyles ? customStyles : ''"
            name="{{inputName}}"
            type="text"
-           placeholder="YYYY-MM-DD"
+           [placeholder]="placeholder"
            [bsValue]="_value"
            [value]="_value | date: 'yyyy-MM-dd'"
            (bsValueChange)="toggle($event)"

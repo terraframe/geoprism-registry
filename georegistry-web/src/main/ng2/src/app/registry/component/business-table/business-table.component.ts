@@ -4,6 +4,7 @@ import { ActivatedRoute } from "@angular/router";
 import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { BusinessType } from "@registry/model/business-type";
+import { LocalizationService } from "@shared/service";
 
 @Component({
     selector: "business-table",
@@ -19,7 +20,7 @@ export class BusinessTableComponent implements OnInit {
     config: GenericTableConfig = null;
     cols: GenericTableColumn[] = [];
 
-    constructor(private service: BusinessTypeService, private route: ActivatedRoute) { }
+    constructor(private service: BusinessTypeService, private localizationService: LocalizationService, private route: ActivatedRoute) { }
 
     ngOnInit(): void {
         const oid = this.route.snapshot.paramMap.get("oid");
@@ -39,11 +40,18 @@ export class BusinessTableComponent implements OnInit {
                     type = "BOOLEAN";
                 } else if (attribute.type === "term") {
                     sortable = false;
+                } else if (attribute.type === "date") {
+                    type = "DATE";
                 }
 
                 this.cols.push({ header: attribute.label.localizedValue, field: attribute.code, type: type, sortable: sortable, filter: sortable });
             });
-            this.cols.push({ header: "Geo Object", field: "geoObject", type: "TEXT", sortable: true });
+            this.cols.push({
+                header: this.localizationService.decode("dropdown.select.geoobject.label"),
+                field: "geoObject",
+                type: "TEXT",
+                sortable: true
+            });
 
             // this.cols.push({ header: "", type: "ACTIONS", sortable: false });
 

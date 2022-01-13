@@ -6,12 +6,10 @@ import { BsDatepickerConfig, BsDatepickerDirective } from "ngx-bootstrap/datepic
 
 import { PRESENT } from "@registry/model/registry";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
-
 @Component({
     selector: "date-field",
     templateUrl: "./date-field.component.html",
-    styleUrls: ["./date-field.css"],
+    styleUrls: ["./date-field.css"]
 })
 
 export class DateFieldComponent {
@@ -30,12 +28,13 @@ export class DateFieldComponent {
     @Input() placement: string = "bottom";
     @Input() oldDate: string = null;
     @Input() title: string = "";
+    @Input() placeholder: string = "YYYY-MM-DD";
 
     _value: Date;
     // eslint-disable-next-line accessor-pairs
     @Input() set value(value) {
         if (value) {
-            this.setValue(value ? value : null);
+            this.setValue(value || null);
         }
     }
 
@@ -55,7 +54,6 @@ export class DateFieldComponent {
     constructor(private localizationService: LocalizationService, private bsDatepickerConfig: BsDatepickerConfig, private changeDetectorRef: ChangeDetectorRef, private dateService: DateService) {
         this.bsDatepickerConfig.dateInputFormat = "YYYY-MM-DD";
     }
-
 
     private setValue(value: string | number): void {
         // @ts-ignore
@@ -151,7 +149,7 @@ export class DateFieldComponent {
 
             this.change.emit();
             this.validChange.emit(this.valid);
-        }, 0)
+        }, 0);
     }
 
 }

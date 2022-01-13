@@ -1036,3 +1036,11 @@ td.clickable:focus {
 }
 
 
+.ui-table-scrollable-wrapper {
+	overflow: auto !important;
+	}
+	
+	
+	.ui-table-scrollable-header, .ui-table-scrollable-body, .ui-table-scrollable-footer {
+	overflow: visible !important;
+	}

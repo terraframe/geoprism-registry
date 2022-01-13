@@ -13,6 +13,7 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.query.OrderBy.SortOrder;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
@@ -68,18 +69,46 @@ public abstract class AbstractGraphPageQuery<K, T extends JsonSerializable>
 
           JsonObject filter = filters.get(attributeName).getAsJsonObject();
 
-          String value = filter.get("value").getAsString();
           String mode = filter.get("matchMode").getAsString();
 
-          if (mode.equals("contains"))
+          if (mode.equals("between"))
           {
-            parameters.put(attributeName, "%" + value + "%");
+            JsonObject value = filter.get("value").getAsJsonObject();
+
+            if (value.has("startDate") && !value.get("startDate").isJsonNull())
+            {
+              String date = value.get("startDate").getAsString();
+
+              if (date.length() > 0)
+              {
+                parameters.put(attributeName + "StartDate", GeoRegistryUtil.parseDate(date));
+
+                statement.append( ( ( i == 0 ) ? " WHERE " : " AND " ) + columnName + " >= :" + attributeName + "StartDate");
+              }
+            }
+
+            if (value.has("endDate") && !value.get("endDate").isJsonNull())
+            {
+              String date = value.get("endDate").getAsString();
+
+              if (date.length() > 0)
+              {
+                parameters.put(attributeName + "EndDate", GeoRegistryUtil.parseDate(date));
+
+                statement.append( ( ( i == 0 ) ? " WHERE " : " AND " ) + columnName + " <= :" + attributeName + "EndDate");
+              }
+            }
+
+          }
+          else if (mode.equals("contains"))
+          {
+            parameters.put(attributeName, "%" + filter.get("value").getAsString().toUpperCase() + "%");
 
             statement.append( ( ( i == 0 ) ? " WHERE " : " AND " ) + columnName + ".toUpperCase() LIKE :" + attributeName);
           }
           else if (mode.equals("equals"))
           {
-            parameters.put(attributeName, value);
+            parameters.put(attributeName, filter.get("value").getAsString());
 
             statement.append( ( ( i == 0 ) ? " WHERE " : " AND " ) + columnName + " = :" + attributeName);
           }
@@ -129,18 +158,46 @@ public abstract class AbstractGraphPageQuery<K, T extends JsonSerializable>
 
           JsonObject filter = filters.get(attributeName).getAsJsonObject();
 
-          String value = filter.get("value").getAsString();
           String mode = filter.get("matchMode").getAsString();
 
-          if (mode.equals("contains"))
+          if (mode.equals("between"))
           {
-            parameters.put(attributeName, "%" + value.toUpperCase() + "%");
+            JsonObject value = filter.get("value").getAsJsonObject();
+
+            if (value.has("startDate") && !value.get("startDate").isJsonNull())
+            {
+              String date = value.get("startDate").getAsString();
+
+              if (date.length() > 0)
+              {
+                parameters.put(attributeName + "StartDate", GeoRegistryUtil.parseDate(date));
+
+                statement.append( ( ( i == 0 ) ? " WHERE " : " AND " ) + columnName + " >= :" + attributeName + "StartDate");
+              }
+            }
+
+            if (value.has("endDate") && !value.get("endDate").isJsonNull())
+            {
+              String date = value.get("endDate").getAsString();
+
+              if (date.length() > 0)
+              {
+                parameters.put(attributeName + "EndDate", GeoRegistryUtil.parseDate(date));
+
+                statement.append( ( ( i == 0 ) ? " WHERE " : " AND " ) + columnName + " <= :" + attributeName + "EndDate");
+              }
+            }
+
+          }
+          else if (mode.equals("contains"))
+          {
+            parameters.put(attributeName, "%" + filter.get("value").getAsString().toUpperCase() + "%");
 
             statement.append( ( ( i == 0 ) ? " WHERE " : " AND " ) + columnName + ".toUpperCase() LIKE :" + attributeName);
           }
           else if (mode.equals("equals"))
           {
-            parameters.put(attributeName, value);
+            parameters.put(attributeName, filter.get("value").getAsString());
 
             statement.append( ( ( i == 0 ) ? " WHERE " : " AND " ) + columnName + " = :" + attributeName);
           }

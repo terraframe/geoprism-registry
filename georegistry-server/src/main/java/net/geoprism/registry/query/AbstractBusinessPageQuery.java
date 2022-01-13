@@ -8,7 +8,6 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.query.AttributeBoolean;
 import com.runwaysdk.query.ComponentQuery;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
@@ -19,6 +18,7 @@ import com.runwaysdk.query.SelectableChar;
 import com.runwaysdk.query.SelectableMoment;
 import com.runwaysdk.query.ValueQuery;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
@@ -124,48 +124,50 @@ public abstract class AbstractBusinessPageQuery<T extends JsonSerializable>
         if (attribute != null)
         {
           JsonObject filter = filters.get(attributeName).getAsJsonObject();
-
-          String value = filter.get("value").getAsString();
           String mode = filter.get("matchMode").getAsString();
 
           if (attribute instanceof SelectableMoment)
           {
-            // if (jObject.has("start") && !jObject.get("start").isJsonNull())
-            // {
-            // String date = jObject.get("start").getAsString();
-            //
-            // if (date.length() > 0)
-            // {
-            // condition =
-            // query.aDateTime(attribute).GE(filterFormat.parse(date));
-            // }
-            // }
-            //
-            // if (jObject.has("end") && !jObject.get("end").isJsonNull())
-            // {
-            // String date = jObject.get("end").getAsString();
-            //
-            // if (date.length() > 0)
-            // {
-            // condition =
-            // query.aDateTime(attribute).LE(filterFormat.parse(date));
-            // }
-            // }
+            JsonObject value = filter.get("value").getAsJsonObject();
 
+            if (value.has("startDate") && !value.get("startDate").isJsonNull())
+            {
+              String date = value.get("startDate").getAsString();
+
+              if (date.length() > 0)
+              {
+                qQuery.WHERE( ( (SelectableMoment) attribute ).GE(GeoRegistryUtil.parseDate(date)));
+              }
+            }
+
+            if (value.has("endDate") && !value.get("endDate").isJsonNull())
+            {
+              String date = value.get("endDate").getAsString();
+
+              if (date.length() > 0)
+              {
+                qQuery.WHERE( ( (SelectableMoment) attribute ).LE(GeoRegistryUtil.parseDate(date)));
+              }
+            }
           }
           else if (attribute instanceof SelectableBoolean)
           {
-            qQuery.WHERE( ( (AttributeBoolean) attribute ).EQ(Boolean.valueOf(value)));
+            String value = filter.get("value").getAsString();
 
+            qQuery.WHERE( ( (SelectableBoolean) attribute ).EQ(Boolean.valueOf(value)));
           }
           else if (mode.equals("contains"))
           {
+            String value = filter.get("value").getAsString();
+
             SelectableChar selectable = (SelectableChar) attribute;
 
             qQuery.WHERE(selectable.LIKEi("%" + value + "%"));
           }
           else if (mode.equals("equals"))
           {
+            String value = filter.get("value").getAsString();
+
             qQuery.WHERE(attribute.EQ(value));
           }
         }

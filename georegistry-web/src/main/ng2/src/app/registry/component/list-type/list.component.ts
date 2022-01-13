@@ -4,11 +4,9 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { LazyLoadEvent, FilterMetadata } from "primeng/api";
 
-import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
-import { Observable, Subject, Subscription } from "rxjs";
+import { Subject, Subscription } from "rxjs";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
-import { DateService } from "@shared/service/date.service";
 import { GeoObjectEditorComponent } from "../geoobject-editor/geoobject-editor.component";
 
 import { ErrorHandler } from "@shared/component";
@@ -58,7 +56,6 @@ export class ListComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         private service: ListTypeService,
         private pService: ProgressService,
-        private dateService: DateService,
         private modalService: BsModalService,
         private localizeService: LocalizationService,
         private authService: AuthService) {

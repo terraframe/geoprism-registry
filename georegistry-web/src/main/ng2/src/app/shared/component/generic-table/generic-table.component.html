@@ -31,6 +31,19 @@
 							(input)="dt.filter($event.target.value, col.field, 'contains')">
 						<input *ngSwitchCase="'NUMBER'" pInputNumber type="number" step="any"
 							(input)="dt.filter($event.target.value, col.field, 'equals')">
+						<ng-container *ngSwitchCase="'DATE'">
+							<date-field [(value)]="col.startDate" [classNames]="'search-input'"
+								(change)="dt.filter({startDate:col.startDate, endDate:col.endDate}, col.field, 'between')"
+								[allowInfinity]="false" [placement]="'bottom'" customStyles="font-size: 10px;"
+								[placeholder]="'generic.table.to.date' | localize">
+							</date-field>
+							<date-field [(value)]="col.endDate" [classNames]="'search-input'"
+								(change)="dt.filter({startDate:col.startDate, endDate:col.endDate}, col.field, 'between')"
+								[allowInfinity]="false" [placement]="'bottom'" customStyles="font-size: 10px;"
+								[placeholder]="'generic.table.from.date' | localize">
+							</date-field>
+
+						</ng-container>
 						<p-autoComplete *ngSwitchCase="'AUTOCOMPLETE'" appendTo="body" [(ngModel)]="col.text"
 							[suggestions]="col.results" (completeMethod)="onComplete(col, $event)"
 							(onSelect)="dt.filter(col.text, col.field, 'equals')"
@@ -73,6 +86,9 @@
 						</localize>
 					</ng-container>
 					<ng-container *ngSwitchCase="'NONE'">
+					</ng-container>
+					<ng-container *ngSwitchCase="'DATE'">
+						<date-text [date]="rowData[col.field]"></date-text>
 					</ng-container>
 					<ng-container *ngSwitchDefault>
 						{{rowData[col.field]}}

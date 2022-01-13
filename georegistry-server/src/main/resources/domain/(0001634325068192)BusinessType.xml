@@ -138,6 +138,37 @@
             value="Date" />
         </attributeStruct>
       </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="generic.table.to.date">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="generic.table.to.date" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="To YYYY-MM-DD" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="generic.table.from.date">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="generic.table.from.date" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="From YYYY-MM-DD" />
+        </attributeStruct>
+      </object>
+      
     </createOrUpdate>    
     <permissions>
       <role roleName="geoprism.admin.Administrator">
