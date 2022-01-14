@@ -19,6 +19,7 @@
 package net.geoprism.registry;
 
 import com.google.gson.JsonObject;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 
 public class SingleListType extends SingleListTypeBase
 {
@@ -48,6 +49,7 @@ public class SingleListType extends SingleListTypeBase
   }
 
   @Override
+  @Transaction
   public void createEntries()
   {
     if (!this.isValid())
