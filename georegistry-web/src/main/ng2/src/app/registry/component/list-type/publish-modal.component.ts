@@ -209,23 +209,43 @@ export class ListTypePublishModalComponent implements OnInit {
                 return d1 < d2 ? 1 : -1;
             });
 
-            // Check for gap
-            this.gap = false;
-
+            // Check for overlaps
             this.list.intervalJson.forEach((element, index) => {
                 if (index > 0) {
                     const future = this.list.intervalJson[index - 1];
 
-                    if (future.startDate && element.endDate) {
-                        let e1: any = new Date(element.endDate);
-                        let s2: any = new Date(future.startDate);
+                    if (future.startDate && future.endDate && element.startDate && element.endDate) {
+                        let s1: any = new Date(future.startDate);
+                        let e1: any = new Date(future.endDate);
+                        let s2: any = new Date(element.startDate);
+                        let e2: any = new Date(element.endDate);
 
-                        if (Utils.hasGap(e1.getTime(), s2.getTime())) {
-                            this.gap = true;
+                        if (Utils.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
+                            this.valid = false;
                         }
                     }
                 }
             });
+
+            if (this.valid) {
+                // Check for gap
+                this.gap = false;
+
+                this.list.intervalJson.forEach((element, index) => {
+                    if (index > 0) {
+                        const future = this.list.intervalJson[index - 1];
+
+                        if (future.startDate && element.endDate) {
+                            let e1: any = new Date(element.endDate);
+                            let s2: any = new Date(future.startDate);
+
+                            if (Utils.hasGap(e1.getTime(), s2.getTime())) {
+                                this.gap = true;
+                            }
+                        }
+                    }
+                });
+            }
         } else {
             this.valid = true;
         }

@@ -580,7 +580,7 @@
                                     </div>
                                     <div class="col-md-2">
                                         <i class="fa fa-times delete-btn clickable"
-                                            *ngIf="(!isNew && interval.readonly == null)"
+                                            *ngIf="(isNew || interval.readonly == null)"
                                             (click)="removeInterval(i)"
                                             [title]="'button.delete.helptext' | localize">
                                         </i>
