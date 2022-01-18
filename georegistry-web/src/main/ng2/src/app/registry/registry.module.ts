@@ -123,6 +123,9 @@ import { RecordPanelComponent } from "./component/location-manager/record-panel.
 import { SelectTypeModalComponent } from "./component/location-manager/select-type-modal.component";
 import { CurationJobComponent } from "./component/curation/curation-job.component";
 import { CurationProblemModalComponent } from "./component/curation/curation-problem-modal.component";
+import { ClassificationTypeManagerComponent } from "./component/classification-type/classification-type-manager.component";
+import { ClassificationTypePublishModalComponent } from "./component/classification-type/publish-modal.component";
+import { ClassificationTypeService } from "./service/classification-type.service";
 
 @NgModule({
     imports: [
@@ -240,7 +243,10 @@ import { CurationProblemModalComponent } from "./component/curation/curation-pro
         PublishVersionComponent,
         // Curation
         CurationJobComponent,
-        CurationProblemModalComponent
+        CurationProblemModalComponent,
+        // Classification
+        ClassificationTypeManagerComponent,
+        ClassificationTypePublishModalComponent
     ],
     providers: [
         MapService,
@@ -256,7 +262,8 @@ import { CurationProblemModalComponent } from "./component/curation/curation-pro
         SynchronizationConfigService,
         TransitionEventService,
         BusinessTypeService,
-        ListTypeService
+        ListTypeService,
+        ClassificationTypeService
     ],
     entryComponents: [
         AddChildToHierarchyModalComponent,
@@ -290,7 +297,8 @@ import { CurationProblemModalComponent } from "./component/curation/curation-pro
         ListTypePublishModalComponent,
         PublishVersionComponent,
         SelectTypeModalComponent,
-        CurationProblemModalComponent
+        CurationProblemModalComponent,
+        ClassificationTypePublishModalComponent
     ]
 })
 export class RegistryModule { }

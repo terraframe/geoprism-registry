@@ -35,15 +35,20 @@
                         <localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize
                             key="data.type.label.term"></localize>
                     </h4>
+                    <h4 class="sub-title" *ngIf="attribute.type === 'classification'">
+                        <localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize
+                            key="data.type.label.classification"></localize>
+                    </h4>
+
                 </div>
 
 
 
                 <fieldset>
 
-                    <attribute-input [disableCodeField]="true"
-                        [excludeDescription]="attribute.type === 'term' ? true : false"
-                        [isDecimal]="attribute.type === 'float' ? true : false" [(attribute)]="attribute">
+                    <attribute-input [isNew]="false"
+                        [excludeDescription]="attribute.type === 'term' ? true : false" [type]="attribute.type"
+                        [(attribute)]="attribute">
                     </attribute-input>
 
                     <!-- *ngIf="attribute.type === 'term' && isFormValid()" -->

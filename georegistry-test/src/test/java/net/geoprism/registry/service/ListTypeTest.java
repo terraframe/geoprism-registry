@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -49,8 +49,6 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
-import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.AbstractClassification;
 import com.vividsolutions.jts.geom.Geometry;
@@ -63,7 +61,6 @@ import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeBuilder;
 import net.geoprism.registry.ListTypeEntry;
-import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SingleListType;
@@ -73,6 +70,8 @@ import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.view.JsonSerializable;
+import net.geoprism.registry.view.Page;
 
 public class ListTypeTest
 {
@@ -575,16 +574,16 @@ public class ListTypeTest
 
           Assert.assertNotNull(mdTable);
 
-          JsonObject data = version.data(1, 100, null, null, includeGeometries);
+          Page<JsonSerializable> data = version.data(new JsonObject(), includeGeometries);
 
           // Entries should be HP_1, HP_2, HS_1, HS_2
-          Assert.assertEquals(4, data.get("count").getAsLong());
+          Assert.assertEquals(new Long(4), data.getCount());
 
-          JsonArray results = data.get("results").getAsJsonArray();
+          List<JsonSerializable> results = data.getResults();
 
           for (int i = 0; i < results.size(); i++)
           {
-            JsonObject result = results.get(i).getAsJsonObject();
+            JsonObject result = results.get(i).toJSON().getAsJsonObject();
 
             String code = result.get("code").getAsString();
             String reportsTo = result.get("usatestdatareportstocode").getAsString();

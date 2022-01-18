@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from "@angular/core";
+import { Component, Input, Output, EventEmitter, ChangeDetectorRef, OnChanges, SimpleChanges } from "@angular/core";
 import {
     trigger,
     state,
@@ -8,8 +8,8 @@ import {
 } from "@angular/animations";
 
 import { GeoObjectType, AttributeType } from "@registry/model/registry";
-import { HierarchyService } from "@registry/service";
-import { ErrorHandler } from "@shared/component";
+import { ClassificationTypeService } from "@registry/service/classification-type.service";
+import { ClassificationType } from "@registry/model/classification-type";
 
 @Component({
     selector: "attribute-input",
@@ -28,23 +28,22 @@ import { ErrorHandler } from "@shared/component";
         ])
     ]
 })
-export class AttributeInputComponent implements OnInit {
+export class AttributeInputComponent implements OnChanges {
 
-    @Input() disableCodeField: boolean = false;
+    @Input() isNew: boolean = false;
     @Input() excludeDescription: boolean = false;
-    @Input() isDecimal: boolean = false;
+    @Input() type: string = null;
     @Input() geoObjectType: GeoObjectType;
     @Input() attribute: AttributeType;
     @Output() attributeChange = new EventEmitter<AttributeType>();
     message: string = null;
 
     state: string = "none";
+    classifications: ClassificationType[] = [];
 
-    // eslint-disable-next-line no-useless-constructor
-    constructor(private hierarchyService: HierarchyService, private cdr: ChangeDetectorRef) { }
+    constructor(private service: ClassificationTypeService, private cdr: ChangeDetectorRef) { }
 
     ngOnInit(): void {
-
     }
 
     ngAfterViewInit() {
@@ -52,8 +51,12 @@ export class AttributeInputComponent implements OnInit {
         this.cdr.detectChanges();
     }
 
-    ngOnChanges() {
-
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes.type != null && this.attribute.type === "classification") {
+            this.service.page({}).then((page) => {
+                this.classifications = page.resultSet;
+            });
+        }
     }
 
     ngOnDestroy() {
@@ -87,11 +90,11 @@ export class AttributeInputComponent implements OnInit {
                 return false;
             }
 
-            if (this.isDecimal && (this.attribute.precision == null || this.attribute.precision.toString() == "")) {
+            if (this.type === "float" && (this.attribute.precision == null || this.attribute.precision.toString() === "")) {
                 return false;
             }
 
-            if (this.isDecimal && (this.attribute.scale == null || this.attribute.scale.toString() == "")) {
+            if (this.type === "float" && (this.attribute.scale == null || this.attribute.scale.toString() === "")) {
                 return false;
             }
 

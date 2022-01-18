@@ -34,13 +34,16 @@
                             <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'term'}" (click)="setAttribute('term')">
                                 <localize key="data.type.label.term"></localize>
                             </label>
+                            <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'classification'}" (click)="setAttribute('classification')">
+                                <localize key="data.type.label.classification"></localize>
+                            </label>
                         </div>
                     </div>
                 </div>
 
                 <fieldset>
 
-                    <attribute-input [disableCodeField]="false" [excludeDescription]="false" [isDecimal]="newAttribute.type === 'float' ? true : false" [(attribute)]="newAttribute"></attribute-input>
+                    <attribute-input [isNew]="true" [excludeDescription]="false" [type]="newAttribute.type" [(attribute)]="newAttribute"></attribute-input>
 
                     <div class="row">
                         <div class="col-md-12">

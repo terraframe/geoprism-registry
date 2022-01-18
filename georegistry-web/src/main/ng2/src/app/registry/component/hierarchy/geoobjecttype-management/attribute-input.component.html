@@ -1,4 +1,4 @@
-<div >
+<div>
   <div class="row-holder">
     <div class="label-holder">
       <label>
@@ -7,19 +7,21 @@
     </div>
     <div class="holder">
       <span class="text">
-        <input autofocus type="text" [disabled]="disableCodeField" [(ngModel)]="attribute.code" name="code" required geoObjectAttributeCode>
+        <input autofocus type="text" [disabled]="!isNew" [(ngModel)]="attribute.code" name="code" required
+          geoObjectAttributeCode>
       </span>
     </div>
   </div>
 
   <localized-input [(value)]="attribute.label" key="data.property.label.label"></localized-input>
-  <localized-text *ngIf="!excludeDescription" [(value)]="attribute.description" key="data.property.label.description"></localized-text>
+  <localized-text *ngIf="!excludeDescription" [(value)]="attribute.description" key="data.property.label.description">
+  </localized-text>
 
 
-  <div class="row-holder" *ngIf="isDecimal">
+  <div class="row-holder" *ngIf="type === 'float'">
     <div class="label-holder">
       <label>
-        <localize key="data.property.label.length"></localize>        
+        <localize key="data.property.label.length"></localize>
       </label>
     </div>
     <div class="holder">
@@ -29,16 +31,33 @@
     </div>
   </div>
 
-  <div class="row-holder" *ngIf="isDecimal">
+  <div class="row-holder" *ngIf="type === 'float'">
     <div class="label-holder">
       <label>
-        <localize key="data.property.label.decimal"></localize>      
+        <localize key="data.property.label.decimal"></localize>
       </label>
     </div>
     <div class="holder">
       <span class="text">
         <input type="text" [(ngModel)]="attribute.scale" name="scale" OnlyNumber="true" required>
       </span>
+    </div>
+  </div>
+
+  <div class="row-holder" *ngIf="type === 'classification'">
+    <div class="label-holder">
+      <label>
+        <localize key="data.property.label.classification"></localize>
+      </label>
+    </div>
+    <div class="holder">
+      <select class="select-area" name="classificationType" [(ngModel)]="attribute.classificationType" required
+        [disabled]="!isNew">
+        <option></option>
+        <option *ngFor="let classification of classifications" [value]="classification.type">
+          {{classification.displayLabel.localizedValue}}
+        </option>
+      </select>
     </div>
   </div>
 </div>

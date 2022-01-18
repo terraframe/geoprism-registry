@@ -211,8 +211,9 @@ export class AttributeType {
     isChangeOverTime?: boolean;
     precision?: number;
     scale?: number;
+    classificationType?: string;
     isValid?: boolean;
-    isValidReason?: {timeConflict: boolean, existConflict: boolean, dateField: boolean};
+    isValidReason?: { timeConflict: boolean, existConflict: boolean, dateField: boolean };
     isValidReasonHierarchy?: any;
 
     constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean) {
@@ -371,7 +372,6 @@ export class HierarchyOverTimeEntryParent {
     geoObject: GeoObject;
     goCode?: string;
 }
-
 
 export class SynchronizationConfig {
     oid?: string;

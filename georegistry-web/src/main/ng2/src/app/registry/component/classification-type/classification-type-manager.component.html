@@ -1,0 +1,47 @@
+<div class="new-admin-design-main">
+    <cgr-header></cgr-header>
+    <loading-bar></loading-bar>
+
+    <div id="app-container" class="container-fluid">
+
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+        <div class="row">
+
+            <nav class="col-md-3 list-sidebar">
+                <div class="sidebar-section-content">
+                    <ul class="list-group">
+
+
+                        <li class="list-group-item got-li-item" *ngFor="let type of page.resultSet" [id]="type.code">
+                            <a [routerLink]="'/registry/classification-type'" [queryParams]="{typeCode:type.code}"
+                                routerLinkActive="active">
+                                {{type.displayLabel.localizedValue}}
+                            </a>
+
+                            <span 
+                                style="position:absolute;right:10px;background:rgba(255,255,255,.7);top:50%;transform:translateY(-50%);">
+
+                                <i class="fa fa-times delete-btn clickable pull-right" (click)="onDelete(type)"
+                                    [title]="'button.delete.helptext' | localize">
+                                </i>
+                            </span>
+
+                            <span></span>
+                        </li>
+                        <li class="list-group-item got-li-item">
+                            <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
+                                <localize key="list.type.button.create"></localize>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="col-md-9 hierarchy-content">
+                <div id="overflow-div">
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

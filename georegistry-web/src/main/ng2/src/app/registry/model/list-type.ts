@@ -11,6 +11,7 @@ export class ListTypeByType {
     write: boolean;
     private: boolean;
     lists: ListType[];
+
 }
 
 export class ListMetadata {
@@ -40,6 +41,7 @@ export class ListMetadata {
     referenceSystem?: string;
     reportSpecification?: string;
     distributionFormat?: string;
+
 }
 
 export class ListType {
@@ -72,9 +74,11 @@ export class ListType {
     intervalJson?: { startDate: string, endDate: string }[]
 
     entries?: ListTypeEntry[];
+
 }
 
 export class ListTypeEntry {
+
     displayLabel: string;
     oid: string;
     typeCode: string;
@@ -84,9 +88,11 @@ export class ListTypeEntry {
     wokring: ListTypeVersion;
     versions?: ListTypeVersion[];
     showAll?: boolean;
+
 }
 
 export class VersionMetadata {
+
     master: boolean;
     visibility: string;
     label: LocalizedValue;
@@ -114,15 +120,19 @@ export class VersionMetadata {
     referenceSystem?: string;
     reportSpecification?: string;
     distributionFormat?: string;
+
 }
 
 export class ListVersionMetadata {
+
     oid?: string;
     listMetadata?: VersionMetadata;
     geospatialMetadata?: VersionMetadata;
+
 }
 
 export class ListTypeVersion extends ListVersionMetadata {
+
     displayLabel: string;
     typeCode: string;
     orgCode: string;
@@ -144,9 +154,11 @@ export class ListTypeVersion extends ListVersionMetadata {
     subtypes?: { label: string, code: string }[];
     collapsed?: boolean;
     curation?: any;
+
 }
 
 export class ContextLayer {
+
     oid: string;
     forDate: string;
     versionNumber: number;
@@ -154,16 +166,20 @@ export class ContextLayer {
     enabled?: boolean;
     color?: string;
     label?: string;
+
 }
 
 export class ContextList {
+
     oid: string;
     label: string;
     versions: ContextLayer[];
     open?: boolean;
+
 }
 
 export class LayerRecord {
+
     recordType: string;
 
     // Attributes required for the geo object properties panel
@@ -176,9 +192,11 @@ export class LayerRecord {
     version?: string;
     attributes?: any[];
     data?: Object;
+
 }
 
 export class CurationProblem {
+
     resolution: string;
     historyId: string;
     type: string;
@@ -187,9 +205,11 @@ export class CurationProblem {
     goCode?: string;
     goUid?: string;
     selected?: boolean;
+
 }
 
 export class CurationJob {
+
     status: string;
     lastRun: string;
     lastRunBy: string;
@@ -201,5 +221,7 @@ export class CurationJob {
         type: string,
         message: string
     };
+
     page?: PageResult<CurationProblem>
+
 }

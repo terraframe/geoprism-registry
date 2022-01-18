@@ -40,7 +40,7 @@ import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
 import com.runwaysdk.dataaccess.graph.GraphObjectDAO;
-import com.runwaysdk.dataaccess.metadata.MdClassDAO;
+import com.runwaysdk.dataaccess.metadata.MetadataDAO;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
@@ -194,7 +194,7 @@ public class LocalizedValueConverter
     return map.get(MdAttributeLocalInfo.DEFAULT_LOCALE).toString();
   }
 
-  public static void populate(MdClassDAO mdClass, String attributeName, LocalizedValue label)
+  public static void populate(MetadataDAO mdClass, String attributeName, LocalizedValue label)
   {
     AttributeLocal attributeLocal = (AttributeLocal) mdClass.getAttribute(attributeName);
     LocalStruct struct = (LocalStruct) BusinessFacade.get(attributeLocal.getStructDAO());
