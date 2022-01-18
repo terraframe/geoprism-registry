@@ -110,7 +110,7 @@ public abstract class ListType extends ListTypeBase
     super();
   }
 
-  protected abstract String formatVersionLabel(LabeledVersion version);
+  protected abstract JsonObject formatVersionLabel(LabeledVersion version);
 
   public abstract void createEntries();
 

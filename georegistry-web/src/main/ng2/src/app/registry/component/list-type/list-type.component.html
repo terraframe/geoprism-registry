@@ -4,9 +4,11 @@
 
             <span class="clickable" (click)="version.collapsed = !version.collapsed"
                 [attr.aria-expanded]="!version.collapsed">
-                
-                <i class="fa fa-chevron-right" [ngClass]="{'fa-chevron-down' : version.collapsed, 'fa-chevron-right' : !version.collapsed}" style="font-size:14px;"></i>
-                
+
+                <i class="fa fa-chevron-right"
+                    [ngClass]="{'fa-chevron-down' : version.collapsed, 'fa-chevron-right' : !version.collapsed}"
+                    style="font-size:14px;"></i>
+
                 <span class="h4">
                     <localize key="list.type.version"></localize> {{version.versionNumber}}
                 </span>
@@ -25,7 +27,7 @@
             </button>
         </div>
     </div>
-    
+
     <div class="row" style="margin-bottom:5px;" [collapse]="!version.collapsed">
         <ul style="list-style:none;">
             <li>
@@ -91,14 +93,15 @@
             </div>
             <div class="col-md-2">
                 <span *ngIf="list.listType === 'incremental'" class="float-right">
-                    <button type="submit" (click)="onCreateEntries()" class="btn btn-primary" style="margin-top: 7px;" role="button">
+                    <button type="submit" (click)="onCreateEntries()" class="btn btn-primary" style="margin-top: 7px;"
+                        role="button">
                         <localize key="list.type.create.entries"></localize>
                     </button>
-        
-                </span>                
+
+                </span>
             </div>
 
-        </div>    
+        </div>
     </div>
 
     <div *ngFor="let entry of list.entries" class="row" style="margin-bottom: 5px;">
@@ -107,20 +110,34 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <h3>{{entry.period}}</h3>
+                            <h3>
+                                <ng-container *ngIf="entry.period.type === 'text'">
+                                    {{entry.period.value}}
+                                </ng-container>
+                                <ng-container *ngIf="entry.period.type === 'date'">
+                                    <date-text [date]="entry.period.value"></date-text>
+                                </ng-container>
+                                <ng-container *ngIf="entry.period.type === 'range'">
+                                    <date-text [date]="entry.period.value.startDate"></date-text>
+                                    -
+                                    <date-text [date]="entry.period.value.endDate"></date-text>
+                                </ng-container>
+
+                            </h3>
                         </div>
                     </div>
 
                     <div *ngIf="list.write" style="margin-bottom: 30px;" class="row">
                         <div class="col-md-6">
                             <div>
-                                <button type="submit" (click)="onCreate(entry)" class="btn btn-primary" style="margin:0;" role="button">
+                                <button type="submit" (click)="onCreate(entry)" class="btn btn-primary"
+                                    style="margin:0;" role="button">
                                     <localize key="list.type.new.version"></localize>
                                 </button>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div *ngIf="list.write || isRC" class="row" style="margin-bottom: 5px;">
                         <div class="col-md-9" style="vertical-align: middle;">
                             <span class="h4">
