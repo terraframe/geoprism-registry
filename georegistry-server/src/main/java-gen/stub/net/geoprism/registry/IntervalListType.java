@@ -4,29 +4,30 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
+import java.util.Comparator;
 import java.util.Date;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.Pair;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
 public class IntervalListType extends IntervalListTypeBase
@@ -60,9 +61,10 @@ public class IntervalListType extends IntervalListTypeBase
     this.setIntervalJson(object.get(INTERVALJSON).getAsJsonArray().toString());
   }
 
-  public LinkedHashMap<Date, Date> getIntervals()
+  public List<Pair<Date, Date>> getIntervals()
   {
-    LinkedHashMap<Date, Date> map = new LinkedHashMap<Date, Date>();
+    List<Pair<Date, Date>> list = new LinkedList<Pair<Date, Date>>();
+
     JsonArray intervals = JsonParser.parseString(this.getIntervalJson()).getAsJsonArray();
 
     for (int i = 0; i < intervals.size(); i++)
@@ -71,27 +73,51 @@ public class IntervalListType extends IntervalListTypeBase
       Date startDate = GeoRegistryUtil.parseDate(interval.get(START_DATE).getAsString());
       Date endDate = GeoRegistryUtil.parseDate(interval.get(END_DATE).getAsString());
 
-      map.put(startDate, endDate);
+      list.add(new Pair<Date, Date>(startDate, endDate));
     }
 
-    return map;
+    list.sort(new Comparator<Pair<Date, Date>>()
+    {
+      @Override
+      public int compare(Pair<Date, Date> o1, Pair<Date, Date> o2)
+      {
+        int compareTo = o1.getFirst().compareTo(o2.getFirst());
+
+        if (compareTo == 0)
+        {
+          return o1.getSecond().compareTo(o2.getSecond());
+        }
+
+        return compareTo;
+      }
+
+    });
+
+    return list;
   }
 
   @Override
-  protected String formatVersionLabel(LabeledVersion version)
+  protected JsonObject formatVersionLabel(LabeledVersion version)
   {
     Date versionDate = version.getForDate();
-    LinkedHashMap<Date, Date> intervals = this.getIntervals();
-    Set<Entry<Date, Date>> entries = intervals.entrySet();
+    List<Pair<Date, Date>> intervals = this.getIntervals();
 
-    for (Entry<Date, Date> entry : entries)
+    for (Pair<Date, Date> interval : intervals)
     {
-      Date startDate = entry.getKey();
-      Date endDate = entry.getValue();
+      Date startDate = interval.getFirst();
+      Date endDate = interval.getSecond();
 
       if (GeoRegistryUtil.isBetweenInclusive(versionDate, startDate, endDate))
       {
-        return GeoRegistryUtil.formatDate(startDate, false) + " - " + GeoRegistryUtil.formatDate(endDate, false);
+        JsonObject range = new JsonObject();
+        range.addProperty("startDate", GeoRegistryUtil.formatDate(startDate, false));
+        range.addProperty("endDate", GeoRegistryUtil.formatDate(endDate, false));
+
+        JsonObject object = new JsonObject();
+        object.addProperty("type", "range");
+        object.add("value", range);
+
+        return object;
       }
     }
 
@@ -107,28 +133,36 @@ public class IntervalListType extends IntervalListTypeBase
       throw new InvalidMasterListException();
     }
 
-    this.getIntervals().forEach((startDate, endDate) -> {
-      this.getOrCreateEntry(endDate);
+    this.getIntervals().forEach((pair) -> {
+      Date startDate = pair.getFirst();
+
+      this.getOrCreateEntry(startDate);
     });
   }
 
   @Override
   public void apply()
   {
-    /*
-     * Changing the interval requires that any existing published version be
-     * deleted
-     */
-    if (!this.isNew() && this.isModified(IntervalListType.INTERVALJSON))
-    {
-      final List<ListTypeEntry> entries = this.getEntries();
+    List<Pair<Date, Date>> intervals = this.getIntervals();
 
-      for (ListTypeEntry entry : entries)
+    Iterator<Pair<Date, Date>> iterator = intervals.iterator();
+
+    Pair<Date, Date> prev = null;
+
+    while (iterator.hasNext())
+    {
+      Pair<Date, Date> pair = iterator.next();
+
+      if (prev != null && ( prev.getSecond().after(pair.getFirst()) || prev.getSecond().equals(pair.getFirst()) ))
       {
-        entry.delete();
+        throw new UnsupportedOperationException("No overlaps");
       }
+
+      prev = pair;
     }
 
     super.apply();
+
+    this.createEntries();
   }
 }
