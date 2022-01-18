@@ -85,6 +85,21 @@ export class ListTypeService implements GenericTableService {
             .toPromise();
     }
 
+    createEntries(oid: string): Promise<ListType> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return this.http
+            .post<ListType>(registry.contextPath + "/list-type/create-entries", JSON.stringify({ oid: oid }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
     remove(list: ListType): Promise<ListType> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"

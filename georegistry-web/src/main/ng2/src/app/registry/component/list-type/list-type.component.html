@@ -83,9 +83,22 @@
 <ng-container>
 
     <div class="heading">
-        <h2>
-            {{list.displayLabel.localizedValue}}
-        </h2>
+        <div class="row">
+            <div class="col-md-10">
+                <h2>
+                    {{list.displayLabel.localizedValue}}
+                </h2>
+            </div>
+            <div class="col-md-2">
+                <span *ngIf="list.listType === 'incremental'" class="float-right">
+                    <button type="submit" (click)="onCreateEntries()" class="btn btn-primary" style="margin-top: 7px;" role="button">
+                        <localize key="list.type.create.entries"></localize>
+                    </button>
+        
+                </span>                
+            </div>
+
+        </div>    
     </div>
 
     <div *ngFor="let entry of list.entries" class="row" style="margin-bottom: 5px;">

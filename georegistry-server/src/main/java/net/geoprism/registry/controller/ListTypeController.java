@@ -78,6 +78,14 @@ public class ListTypeController
     return new RestBodyResponse(response);
   }
 
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "create-entries")
+  public ResponseIF createEntries(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    JsonObject response = this.service.createEntries(request.getSessionId(), oid);
+
+    return new RestBodyResponse(response);
+  }
+
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove")
   public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
   {

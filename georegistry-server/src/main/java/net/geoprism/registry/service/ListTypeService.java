@@ -93,6 +93,17 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
+  public JsonObject createEntries(String sessionId, String oid)
+  {
+    ListType mList = ListType.get(oid);
+    mList.createEntries();
+
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
+    return mList.toJSON(true);
+  }
+
+  @Request(RequestType.SESSION)
   public void remove(String sessionId, String oid)
   {
     try
