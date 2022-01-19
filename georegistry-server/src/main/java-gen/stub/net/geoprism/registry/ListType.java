@@ -542,9 +542,7 @@ public abstract class ListType extends ListTypeBase
 
   public boolean doesActorHaveWritePermission()
   {
-    ServerGeoObjectType type = this.getGeoObjectType();
-
-    return ServiceFactory.getGeoObjectPermissionService().canWrite(type.getOrganization().getCode(), type);
+    return doesActorHaveWritePermissions(this.getGeoObjectType());
   }
 
   public boolean doesActorHaveExploratoryPermission()
@@ -556,7 +554,7 @@ public abstract class ListType extends ListTypeBase
       return ServiceFactory.getGeoObjectPermissionService().canRead(type.getOrganization().getCode(), type);
     }
 
-    return ServiceFactory.getGeoObjectPermissionService().canWrite(type.getOrganization().getCode(), type);
+    return doesActorHaveWritePermissions(type);
   }
 
   public boolean doesActorHaveReadPermission()
@@ -869,7 +867,7 @@ public abstract class ListType extends ListTypeBase
     object.addProperty("typeCode", type.getCode());
     object.addProperty("typeLabel", type.getLabel().getValue());
     object.addProperty("geometryType", type.getGeometryType().name());
-    object.addProperty("write", Organization.isRegistryAdmin(org) || Organization.isRegistryMaintainer(org));
+    object.addProperty("write", doesActorHaveWritePermissions(type));
     object.add("lists", lists);
 
     return object;
@@ -930,6 +928,11 @@ public abstract class ListType extends ListTypeBase
     {
       list.removeAttributeType(attributeType);
     }
+  }
+
+  private static boolean doesActorHaveWritePermissions(ServerGeoObjectType type)
+  {
+    return ServiceFactory.getGeoObjectPermissionService().canWrite(type.getOrganization().getCode(), type);
   }
 
 }
