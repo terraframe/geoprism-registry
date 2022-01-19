@@ -298,6 +298,7 @@ export class ScheduledJob extends AbstractScheduledJob {
     exportErrors: PageResult<any>;
     problems: PageResult<any>;
     fileName: string;
+    exception?: {type: string, message: string};
 }
 
 export class ScheduledJobOverview extends ScheduledJob {

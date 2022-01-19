@@ -83,8 +83,8 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
     object.addProperty(ListTypeVersion.LISTTYPE, listType.getOid());
     object.addProperty(ListTypeVersion.FORDATE, GeoRegistryUtil.formatDate(this.getForDate(), false));
     object.addProperty(ListTypeVersion.CREATEDATE, GeoRegistryUtil.formatDate(this.getCreateDate(), false));
-    object.addProperty(ListTypeVersion.PERIOD, listType.formatVersionLabel(this));
     object.addProperty(ListTypeVersion.WORKING, this.getWorkingOid());
+    object.add(ListTypeVersion.PERIOD, listType.formatVersionLabel(this));
 
     List<ListTypeVersion> versions = this.getVersions();
 

@@ -1278,13 +1278,13 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     object.addProperty(ListTypeVersion.LISTTYPE, masterlist.getOid());
     object.addProperty(ListTypeVersion.FORDATE, format.format(this.getForDate()));
     object.addProperty(ListTypeVersion.CREATEDATE, format.format(this.getCreateDate()));
-    object.addProperty(ListTypeVersion.PERIOD, masterlist.formatVersionLabel(this));
     object.addProperty(ListTypeVersion.VERSIONNUMBER, this.getVersionNumber());
     object.addProperty(ListTypeVersion.WORKING, this.getWorking());
     object.addProperty("isGeometryEditable", type.isGeometryEditable());
     object.addProperty("isAbstract", type.getIsAbstract());
     object.addProperty("shapefile", file.exists());
     object.addProperty("isMember", isMember);
+    object.add(ListTypeVersion.PERIOD, masterlist.formatVersionLabel(this));
     object.add(ListType.LIST_METADATA, this.toMetadataJSON("list"));
     object.add(ListType.GEOSPATIAL_METADATA, this.toMetadataJSON("geospatial"));
 

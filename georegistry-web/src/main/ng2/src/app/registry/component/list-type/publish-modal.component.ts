@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
+import { v4 as uuid } from "uuid";
 
 import { IOService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
@@ -10,6 +11,8 @@ import { ErrorHandler } from "@shared/component";
 import { LocalizationService } from "@shared/service";
 import { ListType, ListTypeByType } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
+import { PRESENT } from "@registry/model/registry";
+import Utils from "@registry/utility/Utils";
 
 @Component({
     selector: "list-type-publish-modal",
@@ -24,8 +27,7 @@ export class ListTypePublishModalComponent implements OnInit {
 
     list: ListType = null;
 
-    tab: string = 'LIST';
-
+    tab: string = "LIST";
 
     /*
      * List of geo object types from the system
@@ -41,6 +43,8 @@ export class ListTypePublishModalComponent implements OnInit {
 
     valid: boolean = true;
 
+    gap: boolean = false;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private service: ListTypeService,
@@ -53,7 +57,6 @@ export class ListTypePublishModalComponent implements OnInit {
     }
 
     init(listByType: ListTypeByType, onListTypeChange: Subject<ListType>, list?: ListType): void {
-
         this.onListTypeChange = onListTypeChange;
         this.readonly = !listByType.write;
 
@@ -61,10 +64,10 @@ export class ListTypePublishModalComponent implements OnInit {
             this.isNew = true;
             this.list = {
                 oid: null,
-                listType: 'single',
-                organization: '',
-                typeCode: '',
-                typeLabel: '',
+                listType: "single",
+                organization: "",
+                typeCode: "",
+                typeLabel: "",
                 displayLabel: this.lService.create(),
                 description: this.lService.create(),
                 code: "",
@@ -73,44 +76,44 @@ export class ListTypePublishModalComponent implements OnInit {
                 listMetadata: {
                     label: this.lService.create(),
                     description: this.lService.create(),
-                    originator: '',
-                    collectionDate: '',
+                    originator: "",
+                    collectionDate: "",
                     process: this.lService.create(),
                     progress: this.lService.create(),
                     accessConstraints: this.lService.create(),
                     useConstraints: this.lService.create(),
                     acknowledgements: this.lService.create(),
                     disclaimer: this.lService.create(),
-                    contactName: '',
-                    organization: '',
-                    telephoneNumber: '',
-                    email: '',
+                    contactName: "",
+                    organization: "",
+                    telephoneNumber: "",
+                    email: ""
                 },
                 geospatialMetadata: {
                     label: this.lService.create(),
                     description: this.lService.create(),
-                    originator: '',
-                    collectionDate: '',
+                    originator: "",
+                    collectionDate: "",
                     process: this.lService.create(),
                     progress: this.lService.create(),
                     accessConstraints: this.lService.create(),
                     useConstraints: this.lService.create(),
                     acknowledgements: this.lService.create(),
                     disclaimer: this.lService.create(),
-                    contactName: '',
-                    organization: '',
-                    telephoneNumber: '',
-                    email: '',
-                    topicCategories: '',
-                    placeKeywords: '',
-                    updateFrequency: '',
-                    lineage: '',
-                    languages: '',
-                    scaleResolution: '',
-                    spatialRepresentation: '',
-                    referenceSystem: '',
-                    reportSpecification: '',
-                    distributionFormat: '',
+                    contactName: "",
+                    organization: "",
+                    telephoneNumber: "",
+                    email: "",
+                    topicCategories: "",
+                    placeKeywords: "",
+                    updateFrequency: "",
+                    lineage: "",
+                    languages: "",
+                    scaleResolution: "",
+                    spatialRepresentation: "",
+                    referenceSystem: "",
+                    reportSpecification: "",
+                    distributionFormat: ""
                 }
 
             };
@@ -134,10 +137,16 @@ export class ListTypePublishModalComponent implements OnInit {
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
-        }
-        else {
+        } else {
             this.list = list;
             this.isNew = false;
+
+            if (this.list.listType === "interval") {
+                this.list.intervalJson.forEach(interval => {
+                    interval.readonly = interval.endDate !== PRESENT ? "BOTH" : "START";
+                    interval.oid = uuid();
+                });
+            }
         }
     }
 
@@ -153,17 +162,6 @@ export class ListTypePublishModalComponent implements OnInit {
         return false;
     }
 
-    onNewInterval(): void {
-        if (this.list.intervalJson == null) {
-            this.list.intervalJson = [];
-        }
-
-        this.list.intervalJson.push({
-            startDate: '',
-            endDate: ''
-        });
-    }
-
     onSubmit(): void {
         this.service.apply(this.list).then(response => {
             this.onListTypeChange.next(response);
@@ -173,22 +171,82 @@ export class ListTypePublishModalComponent implements OnInit {
         });
     }
 
-    handleDateChange(): void {
-        if (this.list.listType === 'single') {
-            this.valid = (this.list.validOn != null && this.list.validOn.length > 0);
+    onNewInterval(): void {
+        if (this.list.intervalJson == null) {
+            this.list.intervalJson = [];
         }
-        else if (this.list.listType === 'incremental') {
-            this.valid = (this.list.publishingStartDate != null && this.list.publishingStartDate.length > 0);
-        }
-        else if (this.list.listType === 'interval') {
-            this.valid = this.list.intervalJson.map(interval => {
-                return ((interval.startDate != null && interval.startDate.length > 0)
-                    && (interval.endDate != null && interval.endDate.length > 0)
-                    && !this.dateService.after(interval.startDate, interval.endDate));
 
+        this.list.intervalJson.push({
+            startDate: "",
+            endDate: "",
+            oid: uuid()
+        });
+    }
+
+    removeInterval(index: number): void {
+        this.list.intervalJson.splice(index, 1);
+
+        this.handleDateChange();
+    }
+
+    handleDateChange(): void {
+        if (this.list.listType === "single") {
+            this.valid = (this.list.validOn != null && this.list.validOn.length > 0);
+        } else if (this.list.listType === "incremental") {
+            this.valid = (this.list.publishingStartDate != null && this.list.publishingStartDate.length > 0);
+        } else if (this.list.listType === "interval") {
+            this.valid = this.list.intervalJson.map(interval => {
+                return ((interval.startDate != null && interval.startDate.length > 0) &&
+                    (interval.endDate != null && interval.endDate.length > 0) &&
+                    !this.dateService.after(interval.startDate, interval.endDate));
             }).reduce((a, b) => a && b);
-        }
-        else {
+
+            // Sort the entries
+            this.list.intervalJson = this.list.intervalJson.sort((a, b) => {
+                const d1: Date = new Date(a.startDate);
+                const d2: Date = new Date(b.startDate);
+
+                return d1 < d2 ? 1 : -1;
+            });
+
+            // Check for overlaps
+            this.list.intervalJson.forEach((element, index) => {
+                if (index > 0) {
+                    const future = this.list.intervalJson[index - 1];
+
+                    if (future.startDate && future.endDate && element.startDate && element.endDate) {
+                        let s1: any = new Date(future.startDate);
+                        let e1: any = new Date(future.endDate);
+                        let s2: any = new Date(element.startDate);
+                        let e2: any = new Date(element.endDate);
+
+                        if (Utils.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
+                            this.valid = false;
+                        }
+                    }
+                }
+            });
+
+            if (this.valid) {
+                // Check for gap
+                this.gap = false;
+
+                this.list.intervalJson.forEach((element, index) => {
+                    if (index > 0) {
+                        const future = this.list.intervalJson[index - 1];
+
+                        if (future.startDate && element.endDate) {
+                            let e1: any = new Date(element.endDate);
+                            let s2: any = new Date(future.startDate);
+
+                            if (Utils.hasGap(e1.getTime(), s2.getTime())) {
+                                this.gap = true;
+                            }
+                        }
+                    }
+                });
+            }
+        } else {
             this.valid = true;
         }
     }
@@ -200,7 +258,6 @@ export class ListTypePublishModalComponent implements OnInit {
     onCancel(): void {
         this.bsModalRef.hide();
     }
-
 
     handleTab(tab: string): void {
         this.tab = tab;

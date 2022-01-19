@@ -4,21 +4,22 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
 public class SingleListType extends SingleListTypeBase
@@ -29,7 +30,7 @@ public class SingleListType extends SingleListTypeBase
   {
     super();
   }
-  
+
   @Override
   public JsonObject toJSON(boolean includeEntries)
   {
@@ -61,9 +62,13 @@ public class SingleListType extends SingleListTypeBase
   }
 
   @Override
-  protected String formatVersionLabel(LabeledVersion version)
+  protected JsonObject formatVersionLabel(LabeledVersion version)
   {
-    return GeoRegistryUtil.formatDate(this.getValidOn(), false);
+    JsonObject object = new JsonObject();
+    object.addProperty("type", "date");
+    object.addProperty("value", GeoRegistryUtil.formatDate(this.getValidOn(), false));
+    
+    return object;
   }
 
 }

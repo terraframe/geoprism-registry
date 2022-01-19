@@ -59,10 +59,10 @@ import { LocalizeComponent } from "./component/localize/localize.component";
 import { ConvertKeyLabel } from "./component/localize/convert-key-label.component";
 import { ModalStepIndicatorComponent } from "./component/modals/modal-step-indicator.component";
 import { ProfileComponent } from "./component/profile/profile.component";
-
-import "../rxjs-extensions";
 import { GenericTableComponent } from "./component/generic-table/generic-table.component";
 import { DateTextComponent } from "./component/date-text/date-text.component";
+
+import "../rxjs-extensions";
 
 @NgModule({
     imports: [

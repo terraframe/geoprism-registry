@@ -190,6 +190,10 @@ export class JobComponent implements OnInit, OnDestroy {
                     }
                 }
             }
+
+            if (response.exception) {
+                this.error(response.exception);
+            }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -281,8 +285,7 @@ export class JobComponent implements OnInit, OnDestroy {
         });
     }
 
-    error(err: HttpErrorResponse): void {
+    error(err: any): void {
         this.message = ErrorHandler.getMessageFromError(err);
     }
-
 }

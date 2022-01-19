@@ -564,30 +564,40 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-5">
                                         <date-field [(value)]="interval.startDate" [classNames]="['form-control']"
-                                            label="" [inputName]="'startDate-' + i" [allowFutureDates]="false"
-                                            [required]="true" [disable]="readonly || !isNew"
+                                            label="" [inputName]="'startDate-' + interval.oid" [allowFutureDates]="false"
+                                            [required]="true" [disable]="readonly || (!isNew && interval.readonly != null)"
                                             (valueChange)="handleDateChange()"></date-field>
 
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-5">
                                         <date-field [(value)]="interval.endDate" [classNames]="['form-control']"
-                                            label="" [inputName]="'endDate-'+i" [allowFutureDates]="false"
-                                            [required]="true" [disable]="readonly || !isNew"
+                                            label="" [inputName]="'endDate-' + interval.oid" [allowInfinity]="true" [required]="true"
+                                            [disable]="readonly || (!isNew && interval.readonly == 'BOTH')"
                                             (valueChange)="handleDateChange()"></date-field>
 
+                                    </div>
+                                    <div class="col-md-2">
+                                        <i class="fa fa-times delete-btn clickable"
+                                            *ngIf="(isNew || interval.readonly == null)"
+                                            (click)="removeInterval(i)"
+                                            [title]="'button.delete.helptext' | localize">
+                                        </i>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row" *ngIf="!readonly && isNew">
+                            <div class="row" *ngIf="!readonly">
                                 <div class="col-md-12">
                                     <button type="button" (click)="onNewInterval()" class="btn btn-primary"
                                         role="button" style="margin:15px 0;">
                                         <localize key="changeovertime.manageVersions.summaryKey.NEW"></localize>
                                     </button>
-                                    <div *ngIf="!valid" style="float:none;" class="inline-error-message">
+                                    <div *ngIf="!valid" style="float:none;" class="error-message">
                                         <localize key="list.type.bad.interval.dates"></localize>
+                                    </div>
+                                    <div *ngIf="gap" style="float:none;" class="warning-text">
+                                        <localize key="manage.versions.gap.message"></localize>
                                     </div>
                                 </div>
                             </div>

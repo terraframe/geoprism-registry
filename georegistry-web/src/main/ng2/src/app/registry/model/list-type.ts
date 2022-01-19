@@ -71,7 +71,7 @@ export class ListType {
     validOn?: string;
     publishingStartDate?: string;
     frequency?: string;
-    intervalJson?: { startDate: string, endDate: string }[]
+    intervalJson?: { startDate: string, endDate: string, readonly?: string, oid?: string }[]
 
     entries?: ListTypeEntry[];
 
@@ -85,6 +85,11 @@ export class ListTypeEntry {
     orgCode: string;
     listType: string;
     forDate: string;
+    period?: {
+        type: string,
+        value: any
+    };
+
     wokring: ListTypeVersion;
     versions?: ListTypeVersion[];
     showAll?: boolean;
@@ -154,7 +159,10 @@ export class ListTypeVersion extends ListVersionMetadata {
     subtypes?: { label: string, code: string }[];
     collapsed?: boolean;
     curation?: any;
-
+    period?: {
+        type: string,
+        value: any
+    };
 }
 
 export class ContextLayer {
