@@ -44,7 +44,7 @@ if [ "$release_adapter" == "true" ]; then
   # CGR Adapter : License Headers
   git checkout master
   git pull
-  git merge dev
+  git merge origin/dev
   mvn license:format -B
   git add -A
   git diff-index --quiet HEAD || git commit -m 'License headers'
@@ -87,7 +87,7 @@ if [ "$release_georegistry" == "true" ]; then
   # Georegistry : Hardcode dependent library versions (adapter)
   git checkout master
   git pull
-  git merge dev
+  git merge origin/dev
   sed -i -E "s_<cgr.adapter.version>.*</cgr.adapter.version>_<cgr.adapter.version>$CGR_RELEASE_VERSION</cgr.adapter.version>_g" georegistry-server/pom.xml
   cd georegistry-web/src/main/ng2
   npm install
