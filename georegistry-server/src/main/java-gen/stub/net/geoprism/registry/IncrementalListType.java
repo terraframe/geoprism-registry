@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.runwaysdk.Pair;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
@@ -41,10 +42,9 @@ public class IncrementalListType extends IncrementalListTypeBase
   }
 
   @Override
-  protected String formatVersionLabel(LabeledVersion version)
+  protected JsonObject formatVersionLabel(LabeledVersion version)
   {
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    JsonObject object = new JsonObject();
 
     List<ChangeFrequency> frequency = this.getFrequency();
 
@@ -53,7 +53,8 @@ public class IncrementalListType extends IncrementalListTypeBase
       Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
       calendar.setTime(version.getForDate());
 
-      return Integer.toString(calendar.get(Calendar.YEAR));
+      object.addProperty("type", "text");
+      object.addProperty("value", Integer.toString(calendar.get(Calendar.YEAR)));
     }
     else if (frequency.contains(ChangeFrequency.BIANNUAL))
     {
@@ -62,7 +63,8 @@ public class IncrementalListType extends IncrementalListTypeBase
 
       int halfYear = ( calendar.get(Calendar.MONTH) / 6 ) + 1;
 
-      return "H" + halfYear + " " + Integer.toString(calendar.get(Calendar.YEAR));
+      object.addProperty("type", "text");
+      object.addProperty("value", "H" + halfYear + " " + Integer.toString(calendar.get(Calendar.YEAR)));
     }
     else if (frequency.contains(ChangeFrequency.QUARTER))
     {
@@ -71,7 +73,8 @@ public class IncrementalListType extends IncrementalListTypeBase
 
       int quarter = ( calendar.get(Calendar.MONTH) / 3 ) + 1;
 
-      return "Q" + quarter + " " + Integer.toString(calendar.get(Calendar.YEAR));
+      object.addProperty("type", "text");
+      object.addProperty("value", "Q" + quarter + " " + Integer.toString(calendar.get(Calendar.YEAR)));
     }
     else if (frequency.contains(ChangeFrequency.MONTHLY))
     {
@@ -86,10 +89,20 @@ public class IncrementalListType extends IncrementalListTypeBase
 
       Date endOfWeek = calendar.getTime();
 
-      return format.format(startOfWeek) + " - " + format.format(endOfWeek);
-    }
+      JsonObject range = new JsonObject();
+      range.addProperty("startDate", GeoRegistryUtil.formatDate(startOfWeek, false));
+      range.addProperty("endDate", GeoRegistryUtil.formatDate(endOfWeek, false));
 
-    return format.format(version.getForDate());
+      object.addProperty("type", "range");
+      object.add("value", range);
+    }
+    else
+    {
+      object.addProperty("type", "date");
+      object.addProperty("value", GeoRegistryUtil.formatDate(version.getForDate(), false));
+    }
+    
+    return object;
   }
 
   @Override

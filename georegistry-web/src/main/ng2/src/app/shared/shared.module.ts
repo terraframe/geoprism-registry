@@ -54,6 +54,7 @@ import { ModalStepIndicatorComponent } from "./component/modals/modal-step-indic
 import { ProfileComponent } from "./component/profile/profile.component";
 
 import "../rxjs-extensions";
+import { DateTextComponent } from "./component/date-text/date-text.component";
 
 @NgModule({
     imports: [
@@ -93,7 +94,8 @@ import "../rxjs-extensions";
         CgrHeaderComponent,
         ProfileComponent,
         LocalizePipe,
-        PhonePipe
+        PhonePipe,
+        DateTextComponent
     ],
     exports: [
         LocalizeComponent,
@@ -118,7 +120,8 @@ import "../rxjs-extensions";
         PhonePipe,
         CommonModule,
         FormsModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        DateTextComponent
     ],
     entryComponents: [
         ErrorModalComponent,

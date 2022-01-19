@@ -99,3 +99,8 @@ label.settings > span > i.fa.fa-cog {
   text-align: right;
   color: orange;
 }
+
+.warning-text{
+    color: orange;
+}
+
