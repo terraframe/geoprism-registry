@@ -62,6 +62,11 @@ if [ "$release_adapter" == "true" ]; then
                    -DdevelopmentVersion=$CGR_NEXT_VERSION
   mvn release:perform -B -DdryRun=$dry_run -Darguments="-Dmaven.javadoc.skip=true -Dmaven.site.skip=true"
   
+  if [ "$dry_run" == "true" ]; then
+    mvn versions:set -DnewVersion=$CGR_RELEASE_VERSION
+    mvn clean install
+  fi
+  
   # CGR Adapter : Gradle Android Release
   sed -i -E "s/implementation 'com.cgr.adapter:cgradapter-common:.*'/implementation 'com.cgr.adapter:cgradapter-common:$CGR_RELEASE_VERSION'/g" $WORKSPACE/adapter/java/android/cgradapter_android/build.gradle
   sed -i -E "s/VERSION_NAME=.*/VERSION_NAME=$CGR_RELEASE_VERSION/g" $WORKSPACE/adapter/java/android/gradle.properties
