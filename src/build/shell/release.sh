@@ -156,6 +156,7 @@ fi
 
 if [ "$release_docker" == "true" ]; then
   cd $WORKSPACE/georegistry/src/build/docker/georegistry
+  export tag=$CGR_RELEASE_VERSION
   ./build.sh
   
   if [ "$dry_run" == "false" ]; then
