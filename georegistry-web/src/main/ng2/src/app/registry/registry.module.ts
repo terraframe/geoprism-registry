@@ -13,12 +13,10 @@ import { ProgressbarModule } from "ngx-bootstrap/progressbar";
 import { CollapseModule } from "ngx-bootstrap/collapse";
 import { TabsModule } from "ngx-bootstrap/tabs";
 import { ImportTypesModalComponent } from "./component/hierarchy/modals/import-types-modal.component";
-import { ExportSystemModalComponent } from "./component/master-list/export-system-modal.component";
 
 import { DndModule } from "ngx-drag-drop";
 import { DragDropModule } from "@angular/cdk/drag-drop";
 
-import { ImportTypesModalComponent } from './component/hierarchy/modals/import-types-modal.component';
 import { LocalizedInputComponent } from "./component/form-fields/localized-input/localized-input.component";
 import { LocalizedTextComponent } from "./component/form-fields/localized-text/localized-text.component";
 import { HierarchyComponent } from "./component/hierarchy/hierarchy.component";
@@ -113,7 +111,6 @@ import { HistoricalReportComponent } from "./component/historical-report/histori
 import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
 
 import { NgxGraphModule } from "@swimlane/ngx-graph";
-import { DndModule } from "ngx-drag-drop";
 import { ListTypeManagerComponent } from "./component/list-type/list-type-manager.component";
 import { ListTypePublishModalComponent } from "./component/list-type/publish-modal.component";
 import { ListTypeService } from "./service/list-type.service";

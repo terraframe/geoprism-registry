@@ -33,6 +33,14 @@
             
             <div >
               <div class="row">
+                <div class="col-mid-12">
+                  <span *ngIf="record && record.recordType === 'GEO_OBJECT'" style="font-size:25px; margin-left:10px;">
+                    <i class="fa fa-map clickable" aria-hidden="true" (click)="visualizeRelationships(current, VISUALIZE_MODE.MAP, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
+                    <i class="fa fa-sitemap clickable" aria-hidden="true" (click)="visualizeRelationships(current, VISUALIZE_MODE.HIERARCHY, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="row">
                   <div class="col-md-12">
                       <label class="radio" style="display:inline-block;">
                         <input type="radio" name="userActive" [value]="false" [(ngModel)]="searchFeatures">
@@ -110,6 +118,7 @@
                       <div class="card-body">
                         <i class="fa fa-map-marker clickable" style="float:right;font-size:25px;" aria-hidden="true"
                           (click)="zoomToFeature(node, $event)" [title]="'explorer.zoom.label' | localize"></i>
+                        <i class="fa fa-sitemap clickable" style="float:right;font-size:25px;" aria-hidden="true" (click)="visualizeRelationships(node, VISUALIZE_MODE.HIERARCHY, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
                         <h4 class="clickable" style="word-break: break-all;" title="View Geo-Object details">
                           {{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
                       </div>
@@ -139,7 +148,7 @@
       </div>
 
       <div [ngClass]="{'col-md-7':showPanel, 'col-md-12':!showPanel}" >
-        <div class="row">
+        <div *ngIf="visualizeMode === VISUALIZE_MODE.MAP" class="row">
 
           <article class="base-layer-panel" [ngClass]="{'second-map-button' : searchEnabled && !showPanel}">
             <layer-panel (layerChange)="onLayerChange($event)" (reorder)="onReorderLayers($event)"
@@ -151,6 +160,27 @@
           <div id="map" class="map-view-port"></div>
 
         </div>
+        
+        <div *ngIf="visualizeMode === VISUALIZE_MODE.HIERARCHY && current" style="height: calc(100vh - 145px);" class="row">
+	        <hierarchy-visualizer
+	          [params]="{geoObject: current, hierarchyCode: visualizingHierarchy}"
+	          (changeGeoObject)="onChangeGeoObject($event)"
+	          (changeHierarchy)="visualizingHierarchy = $event.code"
+	        >
+	        
+	        </hierarchy-visualizer>
+	      </div>
+	      
+	      <!--
+	      <div *ngIf="visualizeMode === VISUALIZE_MODE.GRAPH && current" style="height: calc(100vh - 145px);" class="row">
+	        <graph-visualizer
+	          [geoObject]="current"
+	          (changeGeoObject)="onChangeGeoObject($event)"
+	        >
+	        
+	        </graph-visualizer>
+	      </div>
+	      -->
       </div>
     </div>
   </div>

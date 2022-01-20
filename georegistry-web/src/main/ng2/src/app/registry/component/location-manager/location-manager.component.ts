@@ -755,6 +755,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             // Relationship Viz TODO
             // this.location.replaceState("/registry/location-manager/" + this.current.properties.uid + "/" + this.current.properties.type + "/" + this.visualizeMode);
+
+            this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
+                this.current = geoObject;
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });

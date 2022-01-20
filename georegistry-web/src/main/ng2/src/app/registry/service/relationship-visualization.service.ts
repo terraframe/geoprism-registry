@@ -24,7 +24,7 @@ import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
 
-declare var acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class RelationshipVisualizationService {
@@ -41,7 +41,7 @@ export class RelationshipVisualizationService {
         this.eventService.start();
 
         return this.http
-            .get<any>(acp + "/relationship-visualization/hierarchy-data", { params: params })
+            .get<any>(registry.contextPath + "/relationship-visualization/hierarchy-data", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -56,7 +56,7 @@ export class RelationshipVisualizationService {
         this.eventService.start();
 
         return this.http
-            .get<any>(acp + "/relationship-visualization/graph-data", { params: params })
+            .get<any>(registry.contextPath + "/relationship-visualization/graph-data", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
