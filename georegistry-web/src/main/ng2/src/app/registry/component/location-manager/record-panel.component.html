@@ -1,0 +1,42 @@
+<div style="margin-top: 110px;">
+  <div class="row">
+    <div class="col-md-12">
+      <h3>{{record.typeLabel.localizedValue}}</h3>
+    </div>      
+  </div>
+
+  <form class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
+    <fieldset>
+      <div class="row">
+        <div class="col-md-12">
+          <span class="text"></span>
+          <ul class="list-group">
+            <li *ngFor="let attr of record.attributes let i = index" class="list-group-item"
+              style="text-align:left;border:none;padding:0;">
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 style="margin:0;">
+                    <span>
+                      {{attr.label}}
+                    </span>
+                  </h4>
+                </div>
+
+                <div class="panel-body">
+                  <input type="text" [(ngModel)]="record.data[attr.name]" [name]="'mod-' + attr.name" disabled="true">
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+  <div class="button-holder text-right" style="margin-bottom: 20px;">
+
+    <button type="button" class="btn btn-default" (click)="onClose()">
+      <localize key="modal.button.cancel"></localize>
+    </button>
+  </div>
+
+</div>

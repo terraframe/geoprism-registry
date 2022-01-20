@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -559,19 +559,19 @@ public abstract class TaskBase extends com.runwaysdk.business.Business
     removeAllChildren(roles, net.geoprism.registry.task.TaskHasRole.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends com.runwaysdk.system.Roles> getAllRole()
   {
     return (com.runwaysdk.query.OIterator<? extends com.runwaysdk.system.Roles>) getChildren(net.geoprism.registry.task.TaskHasRole.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.task.TaskHasRole> getAllRoleRel()
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.task.TaskHasRole>) getChildRelationships(net.geoprism.registry.task.TaskHasRole.CLASS);
   }
   
-  @SuppressWarnings("unchecked")
+  
   public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.task.TaskHasRole> getRoleRel(com.runwaysdk.system.Roles roles)
   {
     return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.task.TaskHasRole>) getRelationshipsWithChild(roles, net.geoprism.registry.task.TaskHasRole.CLASS);

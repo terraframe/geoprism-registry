@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -69,6 +69,11 @@ public class GeoregistryProperties
     String font = Singleton.INSTANCE.props.getString("custom.font", "");
     
     return font;
+  }
+  
+  public static Boolean isSearchEnabled()
+  {
+    return Singleton.INSTANCE.props.getBoolean("cgr.search.enabled", true);
   }
   
   public static List<String> getCorsWhitelist()

@@ -27,7 +27,7 @@ body{
 .new-admin-design-main {
     height: 100%;
     overflow-y: auto;
-overflow-x: hidden;
+    overflow-x: hidden;
 }
 
 *{
@@ -89,12 +89,17 @@ a:hover{
 	text-decoration:none;
 	outline: none;
 	cursor: pointer;
-	color: #23527c;
+//	color: #23527c;
+    color: #6BA542;
+    color: var(--theme-submit-button-color);
 }
-a:active{
+a:active,
+a.active{
 	text-decoration:none;
 	background-color:transparent;
-	color: #23527c;
+//	color: #23527c;
+	color: #6BA542;
+    color: var(--theme-submit-button-color);
 }
 a.link-active {
 	color: #00bfff;
@@ -169,6 +174,8 @@ i.clickable.fa:hover,
 i.clickable.fa:focus,
 .clickable:hover,
 .clickable:focus {
+    fill: #6BA542; /* IE fallback */
+    fill: var(--theme-submit-button-color);
     color: #6BA542; /* IE fallback */
     color: var(--theme-submit-button-color);
     cursor: pointer;
@@ -642,16 +649,26 @@ div.row-holder .rad-area {
 }
 
 .check-block{
-	padding: 5px 0;
-	float:left;
+//	padding: 5px 0;
+//	float:left;
+//    display: inline-block;
 }
+.check-block {
+    padding: 0;
+    display: inline-flex;
+}
+.check-block.chk-area {
+    display: inline-flex;
+}
+ 
 .chk-area,
 .rad-area{
 	border:2px solid #a6a6a6;
 	// margin:7px 11px 0 0;
-	float:left;
+//	float:left;
 	width:20px;
 	height:20px;
+	
 }
 .chk-area:hover,
 .rad-area:hover{
@@ -864,30 +881,6 @@ tree-loading-component {
 }
 
 
-/*
- * Navigator styling
- */
-.map-view-port {
-  height: calc(100vh - 145px);
-//   width: calc(75vw - 10px);
-//   margin: 0;
-}
-
-.base-layer-panel{
-  position:absolute;
-  top: 10px;
-  left: 10px;
-  z-index:2;
-  padding:5px;
-}
-
-
-.site-explorer-list {
-  padding: 20px;
-  height: calc(100vh - 106px);
-  overflow-y: auto;
-  overflow-x: hidden;
-}
 
 /*
  * Hierarchy Styling (which can't be put in the compnent because it touches other components)

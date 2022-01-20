@@ -21,10 +21,10 @@ import { Injectable } from "@angular/core";
 import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 
-import { PaginationPage } from "@registry/model/registry";
 import { EventService } from "@shared/service";
 
-declare let acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry";import { PageResult } from "@shared/model/core";
+ declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class TaskService {
@@ -32,7 +32,7 @@ export class TaskService {
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    getMyTasks(pageNum: number, pageSize: number, whereStatus: string): Promise<PaginationPage> {
+    getMyTasks(pageNum: number, pageSize: number, whereStatus: string): Promise<PageResult<any>> {
         let params: HttpParams = new HttpParams();
 
         params = params.set("orderBy", "createDate");
@@ -41,7 +41,7 @@ export class TaskService {
         params = params.set("whereStatus", whereStatus);
 
         return this.http
-            .get<PaginationPage>(acp + "/tasks/get", { params: params })
+            .get<PageResult<any>>(registry.contextPath + "/tasks/get", { params: params })
             .toPromise();
     }
 
@@ -53,7 +53,7 @@ export class TaskService {
         this.eventService.start();
 
         return this.http
-            .post<any>(acp + "/tasks/complete", JSON.stringify({ id: taskId }), { headers: headers })
+            .post<any>(registry.contextPath + "/tasks/complete", JSON.stringify({ id: taskId }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -68,7 +68,7 @@ export class TaskService {
         this.eventService.start();
 
         return this.http
-            .post<any>(acp + "/tasks/setTaskStatus", JSON.stringify({ id: taskId, status: status }), { headers: headers })
+            .post<any>(registry.contextPath + "/tasks/setTaskStatus", JSON.stringify({ id: taskId, status: status }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

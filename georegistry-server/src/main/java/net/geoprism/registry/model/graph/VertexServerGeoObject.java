@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -309,38 +309,27 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     LocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value, startDate, endDate);
   }
-
-  public void enforceAttributeSetWithinRange(String geoObjectLabel, String attributeLabel, Date startDate, Date endDate)
+  
+  public boolean existsAtRange(Date startDate, Date endDate)
   {
-    final SimpleDateFormat format = ValueOverTimeDTO.getTimeFormatter();
-
+    ValueOverTimeCollection votc = this.getValuesOverTime(DefaultAttribute.EXISTS.getName());
+    
+    if (startDate == null) // Null is treated as "latest"
+    {
+      if (votc.size() > 0)
+      {
+        return (boolean) votc.last().getValue();
+      }
+      else
+      {
+        return false;
+      }
+    }
+    
     if (endDate == null)
     {
       endDate = ValueOverTime.INFINITY_END_DATE;
     }
-
-    if (startDate == null)
-    {
-      ValueOutOfRangeException ex = new ValueOutOfRangeException();
-      ex.setGeoObject(geoObjectLabel);
-      ex.setAttribute(attributeLabel);
-      ex.setStartDate("null");
-
-      if (ValueOverTime.INFINITY_END_DATE.equals(endDate))
-      {
-        ex.setEndDate(LocalizationFacade.localize("changeovertime.present"));
-      }
-      else
-      {
-        ex.setEndDate(format.format(endDate));
-      }
-
-      throw ex;
-    }
-
-    ValueOverTimeCollection votc = this.getValuesOverTime(DefaultAttribute.EXISTS.getName());
-
-    boolean exists = false;
 
     for (ValueOverTime vot : votc)
     {
@@ -348,17 +337,32 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       {
         if ( ( vot.getStartDate() != null && vot.between(startDate) ) && ( vot.getEndDate() != null && vot.between(endDate) ))
         {
-          exists = true;
+          return true;
         }
       }
     }
+    
+    return false;
+  }
 
-    if (!exists)
+  public void enforceAttributeSetWithinRange(String geoObjectLabel, String attributeLabel, Date startDate, Date endDate)
+  {
+    if (!this.existsAtRange(startDate, endDate))
     {
+      final SimpleDateFormat format = ValueOverTimeDTO.getTimeFormatter();
+      
       ValueOutOfRangeException ex = new ValueOutOfRangeException();
       ex.setGeoObject(geoObjectLabel);
       ex.setAttribute(attributeLabel);
-      ex.setStartDate(format.format(startDate));
+      
+      if (startDate != null)
+      {
+        ex.setStartDate(format.format(startDate));
+      }
+      else
+      {
+        ex.setStartDate("null");
+      }
 
       if (ValueOverTime.INFINITY_END_DATE.equals(endDate))
       {
@@ -425,12 +429,6 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
   }
   
-  @Override
-  public void populate(GeoObject geoObject)
-  {
-    this.populate(geoObject, this.date, this.date);
-  }
-
   @SuppressWarnings("unchecked")
   @Override
   public void populate(GeoObject geoObject, Date startDate, Date endDate)
@@ -1260,21 +1258,21 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Override
-  public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive)
+  public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive, Date date)
   {
-    return internalGetChildGeoObjects(this, childrenTypes, recursive, null, this.date);
+    return internalGetChildGeoObjects(this, childrenTypes, recursive, null, date);
   }
 
   @Override
-  public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive)
+  public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive, Date date)
   {
-    return internalGetParentGeoObjects(this, parentTypes, recursive, null, this.date);
+    return internalGetParentGeoObjects(this, parentTypes, recursive, null, date);
   }
 
   @Override
-  public ServerParentTreeNode getParentsForHierarchy(ServerHierarchyType hierarchy, Boolean recursive)
+  public ServerParentTreeNode getParentsForHierarchy(ServerHierarchyType hierarchy, Boolean recursive, Date date)
   {
-    return internalGetParentGeoObjects(this, null, recursive, hierarchy, this.date);
+    return internalGetParentGeoObjects(this, null, recursive, hierarchy, date);
   }
 
   @Override
@@ -1501,31 +1499,18 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return Date.from(instant);
   }
 
-  private boolean isAfterOrEqual(LocalDate date1, LocalDate date2)
-  {
-    return date1.isAfter(date2) || date2.isEqual(date1);
-  }
-
-  private boolean isBeforeOrEqual(LocalDate date1, LocalDate date2)
-  {
-    return date1.isBefore(date2) || date2.isEqual(date1);
-  }
-
   @Override
   public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
   {
     this.getVertex().removeParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
   }
-
+  
   @Override
-  public GeoObject toGeoObject()
+  public GeoObject toGeoObject(Date date)
   {
     Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(type.getType());
 
     GeoObject geoObj = new GeoObject(type.getType(), type.getGeometryType(), attributeMap);
-
-    geoObj.setExists(false);
-    geoObj.setInvalid(false);
 
     Map<String, AttributeType> attributes = type.getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
@@ -1535,7 +1520,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       }
       else if (vertex.hasAttribute(attributeName))
       {
-        Object value = vertex.getObjectValue(attributeName, this.date);
+        Object value = vertex.getObjectValue(attributeName, date);
 
         if (value != null)
         {
@@ -1589,6 +1574,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     geoObj.setCode(vertex.getObjectValue(DefaultAttribute.CODE.getName()));
     geoObj.setGeometry(this.getGeometry());
     geoObj.setDisplayLabel(this.getDisplayLabel());
+    geoObj.setExists(this.getExists(date));
+    geoObj.setInvalid(this.getInvalid());
 
     if (vertex.isNew())// && !vertex.isAppliedToDB())
     {

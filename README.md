@@ -1,5 +1,5 @@
-## About The Geoprism Registry
-Geoprism Registry is the first implementation of <a href="https://github.com/terraframe/common-geo-registry-specification" target="_blank">the Common Geo-Registry (CGR) specification </a>. 
+## About
+Geoprism Registry is the first implementation of <a href="https://github.com/terraframe/common-geo-registry-specification" target="_blank">the Common Geo-Registry (CGR) specification </a>. The 
 
 ## Organizations Involved
 There are numerous organizations involved with designing, building, and testing the Geoprism Registry. The primary contributors are:
@@ -9,7 +9,7 @@ There are numerous organizations involved with designing, building, and testing 
 * <a href="https://clintonhealthaccess.org/" target="_blank">Clinton Health Access Initiative (CHAI)</a>
 * <a href="http://dsme.community/" target="_blank">Digital Solutions For Malaria Elimination (DSME)</a>
 
-## A more comprehensive ticket system and live roadmap can be found here (requires GitHub login):
+## A more comprehensive ticket system can be found here (requires GitHub login):
 *  <a href="https://app.zenhub.com/workspaces/geoprism-registry-5df81d4b734ff217d40b12a4/roadmap" target="_blank">Software Development Tickets on ZenHub</a>
 
 NOTE: This is synchronized with GitHub so it is as current as GitHub. This sytem simply adds some more higher level roadmap features on top of GitHub.
@@ -32,3 +32,13 @@ For information about contributing (tickets or code) to this project see the [co
 
 ## Latest Unit Test Results
 https://s3-us-west-2.amazonaws.com/terraframe-sites/cgr-site/surefire-report.html
+
+
+## Artifacts
+
+[![Hosted By: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=for-the-badge)](https://cloudsmith.io/~terraframe/repos/geoprism-registry/packages/)
+
+Package repository hosting is graciously provided by  [Cloudsmith](https://cloudsmith.com).
+Cloudsmith is the only fully hosted, cloud-native, universal package management solution, that
+enables your organization to create, store and share packages in any format, to any place, with total
+confidence.

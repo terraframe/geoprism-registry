@@ -1,81 +1,67 @@
 <div>
   <div @fadeInOut class="value-box">
-	  <div *ngIf="view" class="value-box-wrapper" [ngClass]="{'warning' : view.summaryKey && view.summaryKey !== 'UNMODIFIED'}" >
-		  <div *ngIf="view.summaryKey && view.summaryKey !== 'UNMODIFIED'" class="value-box-indicator">
-		    {{view.summaryKeyLocalized}}
-		  </div>
-		  
-		  <div class="inner-value">
-			  <div *ngIf="attributeType.type === 'boolean'">
+    <div *ngIf="view" class="value-box-wrapper" [ngClass]="{'warning' : view.summaryKey && view.summaryKey !== 'UNMODIFIED'}" >
+      <div *ngIf="view.summaryKey && view.summaryKey !== 'UNMODIFIED'" class="value-box-indicator">
+        {{view.summaryKeyLocalized}}
+      </div>
+      
+      <div class="inner-value">
+        <div *ngIf="attributeType.type === 'boolean'">
+          <div>
+	          <label class="radio radio-inline" style="padding-left:0;"> 
+	            <input class="inline-radio-input" type="radio" (change)="onValueChange()" [checked]="view.attributeCode === 'invalid' ? view.value === false : (view.value === true)" [value]="view.attributeCode === 'invalid' ? false : true" [(ngModel)]="changeRequestAttributeEditor.value" id="mod-{{geoObjectType.code}}-true" name="mod-{{geoObjectType.code}}-true" [disabled]="readonly"> 
+	            <span [ngClass]="{'has-changed': (view.oldValue && !isNew)}"><localize [key]="view.attributeCode === 'invalid' ? 'change.request.boolean.option.valid' : 'change.request.boolean.option.true'"></localize></span>
+	          </label> 
+	          <label class="radio radio-inline"> 
+	            <input class="inline-radio-input" type="radio" (change)="onValueChange()" [checked]="view.attributeCode === 'invalid' ? changeRequestAttributeEditor.value === true : changeRequestAttributeEditor.value === false" [value]="view.attributeCode === 'invalid' ? true : false" [(ngModel)]="changeRequestAttributeEditor.value" id="mod-{{geoObjectType.code}}-false" name="mod-{{geoObjectType.code}}-false" [disabled]="readonly"> 
+	            <span [ngClass]="{'has-changed': (view.oldValue && !isNew)}"><localize [key]="view.attributeCode === 'invalid' ? 'change.request.boolean.option.invalid' : 'change.request.boolean.option.false'"></localize></span>
+	          </label>
+	        </div>
+        </div>
         
-                <!-- Reversing the double negation -->
-                <div *ngIf="view.attributeCode === 'invalid'">
-                
-                     <label class="radio radio-inline" style="padding-left:0;"> 
-                        <input [ngClass]="{'has-changed': (view.oldValue && !isNew)}" (change)="onValueChange()" class="inline-radio-input" type="radio" [checked]="changeRequestAttributeEditor.value === false" [value]="false" [(ngModel)]="changeRequestAttributeEditor.value" id="mod-{{geoObjectType.code}}-false" name="mod-{{geoObjectType.code}}-false" [disabled]="readonly"> 
-                        <span [ngClass]="{'has-changed': (view.oldValue && !isNew)}"><localize key="change.request.boolean.option.true"></localize></span>
-                      </label>
-    			     <label class="radio radio-inline"> 
-    				    <input class="inline-radio-input" type="radio" (change)="onValueChange()" [checked]="view.value === true" [value]="true" [(ngModel)]="changeRequestAttributeEditor.value" id="mod-{{geoObjectType.code}}-true" name="mod-{{geoObjectType.code}}-true" [disabled]="readonly"> 
-    				    <span [ngClass]="{'has-changed': (view.oldValue && !isNew)}"><localize key="change.request.boolean.option.false"></localize></span>
-    				  </label> 
-                </div>
-                
-                <div *ngIf="view.attributeCode !== 'invalid'">
-                     <label class="radio radio-inline" style="padding-left:0;"> 
-                        <input class="inline-radio-input" type="radio" (change)="onValueChange()" [checked]="view.value === true" [value]="true" [(ngModel)]="changeRequestAttributeEditor.value" id="mod-{{geoObjectType.code}}-true" name="mod-{{geoObjectType.code}}-true" [disabled]="readonly"> 
-                        <span [ngClass]="{'has-changed': (view.oldValue && !isNew)}"><localize key="change.request.boolean.option.true"></localize></span>
-                      </label> 
-                      <label class="radio radio-inline"> 
-                        <input [ngClass]="{'has-changed': (view.oldValue && !isNew)}" (change)="onValueChange()" class="inline-radio-input" type="radio" [checked]="changeRequestAttributeEditor.value === false" [value]="false" [(ngModel)]="changeRequestAttributeEditor.value" id="mod-{{geoObjectType.code}}-false" name="mod-{{geoObjectType.code}}-false" [disabled]="readonly"> 
-                        <span [ngClass]="{'has-changed': (view.oldValue && !isNew)}"><localize key="change.request.boolean.option.false"></localize></span>
-                      </label>
-                </div>
-                
-			  </div>
-			  
-			  <div *ngIf="(view.oldValue !== null && view.oldValue !== undefined) && !isNew">
-			    <p class="warning-text display-current-value">
-			      <localize key="change.request.changed.value.prefix"></localize>&nbsp;
-                    <span *ngIf="view.attributeCode === 'invalid'">
-                        <span *ngIf="view.oldValue === false">
-                            <localize key="change.request.boolean.option.true"></localize>
-                        </span>
-                        <span *ngIf="view.oldValue === true">
-                            <localize key="change.request.boolean.option.false"></localize>
-                        </span>
-                    </span>
-                    
-                    <span *ngIf="view.attributeCode !== 'invalid'">
-                        {{ view.oldValue }}
-                    </span>
-			    </p>
-			  </div>
-		  </div>
-	  </div>
+        <div *ngIf="(view.oldValue !== null && view.oldValue !== undefined) && !isNew">
+          <p style="color: var(--theme-text-dark);" class="warning-text display-current-value">
+            <localize key="change.request.changed.value.prefix"></localize>&nbsp;
+            
+            <span *ngIf="attributeType.type === 'boolean'">
+	            <span *ngIf="view.attributeCode === 'invalid' ? (view.oldValue === false) : (view.oldValue === true)">
+                <localize [key]="view.attributeCode === 'invalid' ? 'change.request.boolean.option.valid' : 'change.request.boolean.option.true'"></localize>
+	            </span>
+	            <span *ngIf="view.attributeCode === 'invalid' ? (view.oldValue === true) : (view.oldValue === false)">
+                <localize [key]="view.attributeCode === 'invalid' ? 'change.request.boolean.option.invalid' : 'change.request.boolean.option.false'"></localize>
+	            </span>
+            </span>
+            
+            <span *ngIf="attributeType.type !== 'boolean'">
+                {{ view.oldValue }}
+            </span>
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
   
   
   <!-- TODO : This code copy/pasted from manage-versions.component.html -->
   <div *ngIf="changeRequest && !changeRequest.isNew" class="cr-maintainer-options">
-	  <div *ngIf="changeRequest.approvalStatus === 'PENDING' && changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && changeRequestAttributeEditor.editAction && changeRequestAttributeEditor.diff">
-	    <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.action.accept.btn.hover' | localize">
-	      <localize key="change.request.accept.btn"></localize>
-	    </button>
-	    <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'REJECTED'" type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.action.reject.btn.hover' | localize">
-	      <localize key="change.request.reject.btn"></localize>
-	    </button>
-	    <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'PENDING'" type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.action.pending.btn.hover' | localize">
-	      <localize key="change.request.pending.btn"></localize>
-	    </button>
-	  </div>              
-	  <div *ngIf="changeRequest.approvalStatus !== 'PENDING'">
-	    <strong style="color:#6BA542;" *ngIf="changeRequestAttributeEditor.editAction.approvalStatus === 'ACCEPTED'">
-	        <localize key="change.request.status.accepted"></localize>
-	    </strong>
-	    <strong style="color:#6d0400;" *ngIf="changeRequestAttributeEditor.editAction.approvalStatus === 'REJECTED'">
-	        <localize key="change.request.status.rejected"></localize>
-	    </strong>
-	  </div>
-	</div>
+    <div *ngIf="changeRequest.approvalStatus === 'PENDING' && changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && changeRequestAttributeEditor.editAction && changeRequestAttributeEditor.diff">
+      <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.action.accept.btn.hover' | localize">
+        <localize key="change.request.accept.btn"></localize>
+      </button>
+      <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'REJECTED'" type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.action.reject.btn.hover' | localize">
+        <localize key="change.request.reject.btn"></localize>
+      </button>
+      <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'PENDING'" type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.action.pending.btn.hover' | localize">
+        <localize key="change.request.pending.btn"></localize>
+      </button>
+    </div>              
+    <div *ngIf="changeRequest.approvalStatus !== 'PENDING'">
+      <strong style="color:#6BA542;" *ngIf="changeRequestAttributeEditor.editAction.approvalStatus === 'ACCEPTED'">
+          <localize key="change.request.status.accepted"></localize>
+      </strong>
+      <strong style="color:#6d0400;" *ngIf="changeRequestAttributeEditor.editAction.approvalStatus === 'REJECTED'">
+          <localize key="change.request.status.rejected"></localize>
+      </strong>
+    </div>
+  </div>
 </div>

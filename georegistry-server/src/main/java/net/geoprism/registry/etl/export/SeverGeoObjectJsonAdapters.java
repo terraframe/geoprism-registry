@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -36,10 +36,17 @@ public class SeverGeoObjectJsonAdapters
 {
   public static class ServerGeoObjectSerializer implements JsonSerializer<ServerGeoObjectIF>
   {
+    private Date date;
+    
+    public ServerGeoObjectSerializer(Date date)
+    {
+      this.date = date;
+    }
+    
     @Override
     public JsonElement serialize(ServerGeoObjectIF sgo, Type typeOfSrc, JsonSerializationContext context)
     {
-      return context.serialize(sgo.toGeoObject());
+      return context.serialize(sgo.toGeoObject(this.date));
     }
   }
 

@@ -9,7 +9,7 @@ import { EventService } from "./event.service";
 import { AuthService } from "./auth.service";
 import { User } from "@shared/model/user";
 
-declare let acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class SessionService {
@@ -25,7 +25,7 @@ export class SessionService {
         this.service.start();
 
         return this.http
-            .post<User>(acp + "/cgrsession/login", JSON.stringify({ username: username, password: password }), { headers: headers })
+            .post<User>(registry.contextPath + "/cgrsession/login", JSON.stringify({ username: username, password: password }), { headers: headers })
             .pipe(finalize(() => {
                 this.service.complete();
             }))
@@ -46,7 +46,7 @@ export class SessionService {
 
 
         return this.http
-            .post<void>(acp + "/session/logout", { headers: headers })
+            .post<void>(registry.contextPath + "/session/logout", { headers: headers })
             .pipe(finalize(() => {
                 this.service.complete();
             }))

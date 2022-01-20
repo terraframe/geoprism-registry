@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -19,8 +19,8 @@
 package net.geoprism.registry.controller;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
@@ -51,33 +51,33 @@ public class TaskController
     {
       pageSize = Integer.MAX_VALUE;
     }
-    
-    JSONObject jo = TaskService.getTasksForCurrentUser(request.getSessionId(), orderBy, pageNum, pageSize, whereStatus);
-    
+
+    JsonObject jo = TaskService.getTasksForCurrentUser(request.getSessionId(), orderBy, pageNum, pageSize, whereStatus);
+
     return new RestBodyResponse(jo.toString());
   }
-  
+
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF delete(ClientRequestIF request, @RequestParamter(name = "id") String id) throws JSONException
   {
     TaskService.deleteTask(request.getSessionId(), id);
-    
+
     return new RestResponse();
   }
-  
+
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF complete(ClientRequestIF request, @RequestParamter(name = "id") String id) throws JSONException
   {
     TaskService.completeTask(request.getSessionId(), id);
-    
+
     return new RestResponse();
   }
-  
+
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF setTaskStatus(ClientRequestIF request, @RequestParamter(name = "id") String id, @RequestParamter(name = "status") String status) throws JSONException
   {
     TaskService.setTaskStatus(request.getSessionId(), id, status);
-    
+
     return new RestResponse();
   }
 }

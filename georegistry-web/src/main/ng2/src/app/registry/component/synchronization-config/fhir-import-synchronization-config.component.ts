@@ -2,8 +2,8 @@ import { Component, OnInit, Input, OnDestroy, EventEmitter, Output } from '@angu
 import { Subject, Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { SynchronizationConfig, MasterList, MasterListView } from '@registry/model/registry';
-import { RegistryService, SynchronizationConfigService } from '@registry/service';
+import { SynchronizationConfig } from '@registry/model/registry';
+import { SynchronizationConfigService } from '@registry/service';
 
 interface FhirSyncLevel {
   masterListId: string;

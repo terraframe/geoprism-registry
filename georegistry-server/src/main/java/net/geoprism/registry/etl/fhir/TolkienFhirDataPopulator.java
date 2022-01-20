@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -32,8 +32,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 
@@ -55,11 +55,11 @@ public class TolkienFhirDataPopulator extends AbstractFhirDataPopulator implemen
   }
 
   @Override
-  public void configure(FhirConnection context, MasterListVersion version, boolean resolveIds)
+  public void configure(FhirConnection context, ListTypeVersion version, boolean resolveIds)
   {
     super.configure(context, version, resolveIds);
 
-    MasterList list = version.getMasterlist();
+    ListType list = version.getListType();
 
     JsonArray hierarchies = list.getHierarchiesAsJson();
 

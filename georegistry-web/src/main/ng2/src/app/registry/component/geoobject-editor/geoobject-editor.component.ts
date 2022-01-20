@@ -4,7 +4,7 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { DatePipe } from "@angular/common";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { ErrorHandler, ErrorModalComponent } from "@shared/component";
+import { ErrorHandler } from "@shared/component";
 
 import { RegistryService } from "@registry/service";
 import { LocalizationService, AuthService } from "@shared/service";
@@ -28,8 +28,6 @@ import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 export class GeoObjectEditorComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
-
-    isValid: boolean = false;
 
     isGeometryEditable: boolean;
 
@@ -55,13 +53,7 @@ export class GeoObjectEditorComponent implements OnInit {
      */
     @ViewChild("attributeEditor") attributeEditor;
 
-    arePropertiesValid: boolean = false;
-
-    // The current state of the GeoObject in the GeoRegistry
-    goPropertiesPre: GeoObjectOverTime;
-
-    // The state of the GeoObject after our edit has been applied
-    goPropertiesPost: GeoObjectOverTime;
+    geoObject: GeoObjectOverTime;
 
     //    /*
     //     * GeoObject Geometry Editor
@@ -70,31 +62,7 @@ export class GeoObjectEditorComponent implements OnInit {
     //
     //    areGeometriesValid: boolean = false;
 
-    /*
-     * GeoObject Cascading Parent Selector
-     */
-    @ViewChild("parentSelector") parentSelector;
-
-    areParentsValid: boolean = true;
-
     hierarchies: HierarchyOverTime[];
-
-    /*
-     * Date in which the modal is shown for
-     */
-    dateStr: string = null;
-
-    /*
-     * Date in which the modal is shown for
-     */
-    forDate: Date = null;
-
-    isEditingGeometries: boolean = false;
-
-    /*
-     * The final artifacts which will be submitted
-     */
-    private goSubmit: GeoObjectOverTime;
 
     constructor(private modalService: BsModalService, public bsModalRef: BsModalRef,
         private registryService: RegistryService, private localizeService: LocalizationService,
@@ -102,11 +70,6 @@ export class GeoObjectEditorComponent implements OnInit {
         this.isAdmin = authService.isAdmin();
         this.isMaintainer = this.isAdmin || authService.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
-
-        this.forDate = new Date();
-
-        const day = this.forDate.getUTCDate();
-        this.dateStr = this.forDate.getUTCFullYear() + "-" + (this.forDate.getUTCMonth() + 1) + "-" + (day < 10 ? "0" : "") + day;
     }
 
     ngOnInit(): void {
@@ -127,10 +90,6 @@ export class GeoObjectEditorComponent implements OnInit {
         this.masterListId = id;
     }
 
-    handleDateChange(): void {
-        this.forDate = new Date(Date.parse(this.dateStr));
-    }
-
     setOnSuccessCallback(func: Function) {
         this.onSuccessCallback = func;
     }
@@ -139,17 +98,13 @@ export class GeoObjectEditorComponent implements OnInit {
     // that it will be used to create a new GeoObject.
     public configureAsNew(typeCode: string, dateStr: string, isGeometryEditable: boolean) {
         this.isNewGeoObject = true;
-        this.dateStr = dateStr;
-        this.forDate = new Date(Date.parse(this.dateStr));
         this.isGeometryEditable = isGeometryEditable;
 
         this.fetchGeoObjectType(typeCode);
         this.fetchLocales();
 
         this.registryService.newGeoObjectOverTime(typeCode).then(retJson => {
-            this.goPropertiesPre = new GeoObjectOverTime(this.geoObjectType, retJson.geoObject.attributes);
-            this.goPropertiesPost = new GeoObjectOverTime(this.geoObjectType, JSON.parse(JSON.stringify(this.goPropertiesPre)).attributes);
-
+            this.geoObject = new GeoObjectOverTime(this.geoObjectType, retJson.geoObject.attributes);
             this.hierarchies = retJson.hierarchies;
         });
     }
@@ -158,8 +113,6 @@ export class GeoObjectEditorComponent implements OnInit {
     public configureFromImportError(importError: ImportError, historyId: string, dateStr: string, isGeometryEditable: boolean) {
         let typeCode = importError.object.geoObject.attributes.type;
         this.isNewGeoObject = importError.object.isNew;
-        this.dateStr = dateStr;
-        this.forDate = new Date(Date.parse(dateStr));
         this.isGeometryEditable = isGeometryEditable;
 
         this.fetchGeoObjectType(typeCode);
@@ -167,25 +120,21 @@ export class GeoObjectEditorComponent implements OnInit {
 
         if (importError.object != null && importError.object.parents != null && importError.object.parents.length > 0) {
             this.hierarchies = importError.object.parents;
-            this.areParentsValid = true;
         } else {
             this.registryService.newGeoObjectOverTime(typeCode).then(retJson => {
                 this.hierarchies = retJson.hierarchies;
             });
-            this.areParentsValid = false;
         }
 
-        // TODO : Maybe we should ask the server for the pre object, if it exists.
-        this.goPropertiesPre = new GeoObjectOverTime(this.geoObjectType, importError.object.geoObject.attributes);
-        this.goPropertiesPost = new GeoObjectOverTime(this.geoObjectType, importError.object.geoObject.attributes);
+        this.geoObject = new GeoObjectOverTime(this.geoObjectType, importError.object.geoObject.attributes);
 
-        this.submitFunction = () => {
+        this.submitFunction = (geoObject, hierarchies, attributeEditor) => {
             let config = {
                 historyId: historyId,
                 importErrorId: importError.id,
                 resolution: "APPLY_GEO_OBJECT",
-                parentTreeNode: this.hierarchies,
-                geoObject: this.goSubmit,
+                parentTreeNode: hierarchies,
+                geoObject: geoObject,
                 isNew: importError.object.isNew
             };
 
@@ -200,11 +149,12 @@ export class GeoObjectEditorComponent implements OnInit {
         };
     }
 
+
+
+
     // Configures the widget to be used in an "Edit Existing" context
     public configureAsExisting(code: string, typeCode: string, dateStr: string, isGeometryEditable: boolean): void {
         this.isNewGeoObject = false;
-        this.dateStr = dateStr;
-        this.forDate = new Date(Date.parse(this.dateStr));
         this.isGeometryEditable = isGeometryEditable;
 
         this.fetchGeoObject(code, typeCode);
@@ -215,15 +165,7 @@ export class GeoObjectEditorComponent implements OnInit {
 
     private fetchGeoObject(code: string, typeCode: string) {
         this.registryService.getGeoObjectOverTime(code, typeCode).then(geoObject => {
-            this.goPropertiesPre = new GeoObjectOverTime(this.geoObjectType, JSON.parse(JSON.stringify(geoObject)).attributes);
-            this.goPropertiesPost = new GeoObjectOverTime(this.geoObjectType, JSON.parse(JSON.stringify(this.goPropertiesPre)).attributes);
-            // this.goPropertiesPost = JSON.parse( JSON.stringify( this.goPropertiesPre ) );
-
-            this.goSubmit = this.goPropertiesPost;
-
-            //            this.areGeometriesValid = true;
-            this.arePropertiesValid = true;
-            this.isValid = true;
+            this.geoObject = new GeoObjectOverTime(this.geoObjectType, JSON.parse(JSON.stringify(geoObject)).attributes);
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -242,19 +184,16 @@ export class GeoObjectEditorComponent implements OnInit {
             .then(geoObjectType => {
                 this.geoObjectType = geoObjectType[0];
 
-                if (this.goPropertiesPre != null) {
-                    this.goPropertiesPre.geoObjectType = this.geoObjectType;
-                }
-                if (this.goPropertiesPost != null) {
-                    this.goPropertiesPost.geoObjectType = this.geoObjectType;
+                if (this.geoObject != null) {
+                    this.geoObject.geoObjectType = this.geoObjectType;
                 }
 
                 if (!this.geoObjectType.isGeometryEditable) {
                     //                    this.areGeometriesValid = true;
                 }
             }).catch((err: HttpErrorResponse) => {
+                // eslint-disable-next-line no-console
                 console.log(err);
-                //                this.error( err );
             });
     }
 
@@ -262,9 +201,6 @@ export class GeoObjectEditorComponent implements OnInit {
         this.registryService.getHierarchiesForGeoObject(code, typeTypeCode)
             .then((hierarchies: any) => {
                 this.hierarchies = hierarchies;
-
-                //                this.parentTreeNode = CascadingGeoSelector.staticGetParents( this.hierarchies );
-                this.areParentsValid = true;
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
@@ -287,52 +223,9 @@ export class GeoObjectEditorComponent implements OnInit {
             });
     }
 
-    public onValidChange() {
-        if (this.attributeEditor != null) {
-            this.arePropertiesValid = this.attributeEditor.getIsValid();
-        }
-        //        if ( this.geometryEditor != null ) {
-        //            this.areGeometriesValid = this.geometryEditor.getIsValid();
-        //        }
-        if (this.parentSelector != null) {
-            this.areParentsValid = this.parentSelector.getIsValid();
-        }
-
-        //        this.isValid = this.arePropertiesValid && this.areGeometriesValid && this.areParentsValid;
-        this.isValid = this.arePropertiesValid && this.areParentsValid;
-    }
-
-    changePage(nextPage: number, force: boolean = false): void {
-        if (nextPage === this.tabIndex && !force) {
-            return;
-        }
-
-        this.persistModelChanges();
-
-        this.tabIndex = nextPage;
-
-        this.onValidChange();
-
-        if (nextPage === 2) {
-            this.isEditingGeometries = true;
-        } else {
-            this.isEditingGeometries = false;
-        }
-    }
-
-    private persistModelChanges(): void {
-        if (this.attributeEditor != null) {
-            this.goPropertiesPost = this.attributeEditor.getGeoObject();
-        }
-        if (this.parentSelector != null) {
-            this.hierarchies = this.parentSelector.getHierarchies();
-        }
-
-        this.goSubmit = this.goPropertiesPost;
-
-        //        if ( this.parentTreeNode != null ) {
-        //            this.parentTreeNode.geoObject = this.goSubmit;
-        //        }
+    canSubmit(): boolean {
+        return this.attributeEditor && this.attributeEditor.isValid() &&
+            (this.isNewGeoObject || (this.attributeEditor && this.attributeEditor.getChangeRequestEditor().hasChanges()));
     }
 
     public error(err: HttpErrorResponse): void {
@@ -344,27 +237,23 @@ export class GeoObjectEditorComponent implements OnInit {
     }
 
     public submit(): void {
-        if (this.isValid) {
-            this.bsModalRef.hide();
+        this.bsModalRef.hide();
 
-            this.persistModelChanges();
-
-            if (this.submitFunction == null) {
+        if (this.submitFunction == null) {
             /*
                 this.registryService.applyGeoObjectEdit(this.hierarchies, this.goSubmit, this.isNewGeoObject, this.masterListId, this.notes)
                     .then(() => {
-
+    
                         if (this.onSuccessCallback != null) {
                             this.onSuccessCallback();
                         }
-
+    
                     }).catch((err: HttpErrorResponse) => {
                         this.error(err);
                     });
                     */
-            } else {
-                this.submitFunction();
-            }
+        } else {
+            this.submitFunction(this.geoObject, this.hierarchies, this.attributeEditor);
         }
     }
 

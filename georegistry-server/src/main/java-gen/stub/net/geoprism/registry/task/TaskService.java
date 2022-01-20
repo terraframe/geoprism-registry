@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -18,11 +18,11 @@
  */
 package net.geoprism.registry.task;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.constants.MdAttributeDateTimeUtil;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -41,16 +41,18 @@ import com.runwaysdk.system.RolesQuery;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.registry.etl.ETLService;
 import net.geoprism.registry.task.Task.TaskStatus;
+import net.geoprism.registry.view.JsonWrapper;
+import net.geoprism.registry.view.Page;
 
 public class TaskService
 {
-  public static JSONObject getTasksForCurrentUser(String sessionId)
+  public static JsonObject getTasksForCurrentUser(String sessionId)
   {
     return TaskService.getTasksForCurrentUser(sessionId, "createDate", 1, Integer.MAX_VALUE, null);
   }
 
   @Request(RequestType.SESSION)
-  public static JSONObject getTasksForCurrentUser(String sessionId, String orderBy, int pageNum, int pageSize, String whereStatus)
+  public static JsonObject getTasksForCurrentUser(String sessionId, String orderBy, int pageNum, int pageSize, String whereStatus)
   {
     QueryFactory qf = new QueryFactory();
 
@@ -112,35 +114,24 @@ public class TaskService
     vq.ORDER_BY(tq.get(orderBy), SortOrder.DESC);
     vq.restrictRows(pageSize, pageNum);
 
-    JSONObject page = new JSONObject();
 
-    page.put("count", vq.getCount());
-    page.put("pageNumber", pageNum);
-    page.put("pageSize", pageSize);
-
-    JSONArray results = new JSONArray();
-
-    OIterator<ValueObject> it = vq.getIterator();
-
-    while (it.hasNext())
+    try (OIterator<ValueObject> it = vq.getIterator())
     {
-      ValueObject vo = it.next();
+      List<JsonWrapper> results = it.getAll().stream().map(vo -> {
+        JsonObject jo = new JsonObject();
+        jo.addProperty("id", vo.getValue("oid"));
+        jo.addProperty("templateKey", vo.getValue("templateKey"));
+        jo.addProperty("msg", vo.getValue("msg"));
+        jo.addProperty("title", vo.getValue("title"));
+        jo.addProperty("status", vo.getValue("status"));
+        jo.addProperty("createDate", ETLService.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("createDate"))));
+        jo.addProperty("completedDate", vo.getValue("status").equals(TaskStatus.RESOLVED.name()) ? ETLService.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("completedDate"))) : null);
 
-      JSONObject jo = new JSONObject();
-      jo.put("id", vo.getValue("oid"));
-      jo.put("templateKey", vo.getValue("templateKey"));
-      jo.put("msg", vo.getValue("msg"));
-      jo.put("title", vo.getValue("title"));
-      jo.put("status", vo.getValue("status"));
-      jo.put("createDate", ETLService.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("createDate"))));
-      jo.put("completedDate", vo.getValue("status").equals(TaskStatus.RESOLVED.name()) ? ETLService.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("completedDate"))) : null);
+        return new JsonWrapper(jo);
+      }).collect(Collectors.toList());
 
-      results.put(jo);
+      return new Page<JsonWrapper>(vq.getCount(), pageNum, pageSize, results).toJSON();
     }
-
-    page.put("results", results);
-
-    return page;
   }
 
   @Request(RequestType.SESSION)

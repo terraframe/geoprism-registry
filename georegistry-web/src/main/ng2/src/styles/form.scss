@@ -56,6 +56,12 @@ form input.form-control {
   outline:none;
   box-shadow:none;
 }
+textarea.form-control {
+  border:1px solid;
+  border-color: #767676; /* IE fallback */
+  border-color: var(--theme-input-text-border);
+  border-radius: 5px;
+}
 
 input:focus,
 input.form-control:focus,
@@ -78,10 +84,10 @@ textarea.form-control:focus,
 input:active,
 textarea:active
 input.form-control:active{
-    border-color: inherit;
-    outline: 0;
-    -webkit-box-shadow: none;
-    box-shadow: none;
+//    border-color: inherit;
+//    outline: 0;
+//    -webkit-box-shadow: none;
+//    box-shadow: none;
 }
 
 
@@ -110,6 +116,7 @@ input[type="text"] {
 	width:100%;
 	margin:0;
     color:#969696;
+    min-height: 40px;
 }
 
 input[readonly],

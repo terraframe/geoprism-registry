@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -122,38 +122,38 @@ public class GeoObjectPermissionService extends UserPermissionService implements
         if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
-          
+
           if (op.equals(Operation.READ) && !type.getIsPrivate())
           {
             return true;
           }
-          
-          if ( roleOrgCode.equals(orgCode) )
+
+          if (roleOrgCode.equals(orgCode))
           {
-            if ( RegistryRole.Type.isRA_Role(roleName) )
+            if (RegistryRole.Type.isRA_Role(roleName))
             {
-                return true;
+              return true;
             }
-            else if ( RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isAC_Role(roleName) )
+            else if (RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isAC_Role(roleName))
             {
               String roleGotCode = RegistryRole.Type.parseGotCode(roleName);
-              
-              if ( type.getCode().equals(roleGotCode) )
+
+              if (type.getCode().equals(roleGotCode))
               {
-                if ( RegistryRole.Type.isRM_Role(roleName) )
+                if (RegistryRole.Type.isRM_Role(roleName))
                 {
                   return true;
                 }
-                else if ( RegistryRole.Type.isRC_Role(roleName)  )
+                else if (RegistryRole.Type.isRC_Role(roleName))
                 {
-                  if ( isChangeRequest || op.equals(Operation.READ) )
+                  if (isChangeRequest || op.equals(Operation.READ))
                   {
                     return true;
                   }
                 }
-                else if ( RegistryRole.Type.isAC_Role(roleName) )
+                else if (RegistryRole.Type.isAC_Role(roleName))
                 {
-                  if ( op.equals(Operation.READ) )
+                  if (op.equals(Operation.READ))
                   {
                     return true;
                   }
@@ -242,4 +242,13 @@ public class GeoObjectPermissionService extends UserPermissionService implements
     });
   }
 
+  public List<String> getMandateTypes(String orgCode)
+  {
+    List<ServerGeoObjectType> types = ServiceFactory.getMetadataCache().getAllGeoObjectTypes();
+
+    return types.stream().filter(type -> {
+      return GeoObjectPermissionService.this.canWriteCR(orgCode, type);
+    }).collect(() -> new LinkedList<String>(), (list, element) -> list.add(element.getCode()), (listA, listB) -> {
+    });
+  }
 }

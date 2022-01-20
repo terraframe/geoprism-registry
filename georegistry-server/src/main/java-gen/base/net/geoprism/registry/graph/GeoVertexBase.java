@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -216,7 +216,7 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     super.removeChild(geoVertex, "net.geoprism.registry.graph.Around");
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.graph.GeoVertex> getAroundChildGeoVertexs()
   {
     return super.getChildren("net.geoprism.registry.graph.Around",net.geoprism.registry.graph.GeoVertex.class);
@@ -232,7 +232,7 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     super.removeChild(geoVertexSynonym, "net.geoprism.registry.graph.GeoVertexHasSynonym");
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.graph.GeoVertexSynonym> getGeoVertexHasSynonymChildGeoVertexSynonyms()
   {
     return super.getChildren("net.geoprism.registry.graph.GeoVertexHasSynonym",net.geoprism.registry.graph.GeoVertexSynonym.class);
@@ -248,7 +248,7 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     super.removeChild(geoVertex, "net.geoprism.registry.graph.LocatedIn");
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.graph.GeoVertex> getLocatedInChildGeoVertexs()
   {
     return super.getChildren("net.geoprism.registry.graph.LocatedIn",net.geoprism.registry.graph.GeoVertex.class);
@@ -264,7 +264,7 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     super.removeParent(geoVertex, "net.geoprism.registry.graph.Around");
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.graph.GeoVertex> getAroundParentGeoVertexs()
   {
     return super.getParents("net.geoprism.registry.graph.Around", net.geoprism.registry.graph.GeoVertex.class);
@@ -280,7 +280,7 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     super.removeParent(externalSystem, "net.geoprism.registry.graph.ExternalID");
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.graph.ExternalSystem> getExternalIDParentExternalSystems()
   {
     return super.getParents("net.geoprism.registry.graph.ExternalID", net.geoprism.registry.graph.ExternalSystem.class);
@@ -296,7 +296,7 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     super.removeParent(geoVertex, "net.geoprism.registry.graph.LocatedIn");
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.graph.GeoVertex> getLocatedInParentGeoVertexs()
   {
     return super.getParents("net.geoprism.registry.graph.LocatedIn", net.geoprism.registry.graph.GeoVertex.class);

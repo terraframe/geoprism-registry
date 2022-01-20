@@ -7,7 +7,7 @@ import { EventService } from "@shared/service";
 
 import { Organization } from "@shared/model/core";
 
-declare var acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class OrganizationService {
@@ -19,7 +19,7 @@ export class OrganizationService {
         this.eventService.start();
 
         return this.http
-            .get<Organization[]>(acp + "/cgr/organizations/get-all")
+            .get<Organization[]>(registry.contextPath + "/cgr/organizations/get-all")
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -34,7 +34,7 @@ export class OrganizationService {
         this.eventService.start();
 
         return this.http
-            .post<Organization>(acp + "/cgr/orgainization/update", JSON.stringify({ json: json }), { headers: headers })
+            .post<Organization>(registry.contextPath + "/cgr/orgainization/update", JSON.stringify({ json: json }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -49,7 +49,7 @@ export class OrganizationService {
         this.eventService.start();
 
         return this.http
-            .post<any>(acp + "/cgr/orgainization/create", JSON.stringify({ json: json }), { headers: headers })
+            .post<any>(registry.contextPath + "/cgr/orgainization/create", JSON.stringify({ json: json }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -64,7 +64,7 @@ export class OrganizationService {
         this.eventService.start();
 
         return this.http
-            .post<any>(acp + "/cgr/orgainization/delete", JSON.stringify({ code: code }), { headers: headers })
+            .post<any>(registry.contextPath + "/cgr/orgainization/delete", JSON.stringify({ code: code }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

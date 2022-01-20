@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.google.gson.JsonObject;
@@ -30,6 +32,7 @@ import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.service.ServiceFactory;
 
 @Controller(url = "geoobject")
@@ -56,5 +59,31 @@ public class GeoObjectController
 //    return new InputStreamResponse(is, "application/json", "get-all.json");
     
     return new RestBodyResponse(jo.toString());
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "exists-at-range")
+  public ResponseIF doesGeoObjectExistAtRange(ClientRequestIF request, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "code") String code) throws ParseException
+  {
+    Date dStartDate = null;
+    if (startDate != null)
+    {
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+
+      dStartDate = format.parse(startDate);
+    }
+    
+    Date dEndDate = null;
+    if (endDate != null)
+    {
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+
+      dEndDate = format.parse(endDate);
+    }
+    
+    JsonObject stats = ServiceFactory.getGeoObjectService().doesGeoObjectExistAtRange(request.getSessionId(), dStartDate, dEndDate, typeCode, code);
+    
+    return new RestBodyResponse(stats.toString());
   }
 }

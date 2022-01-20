@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -42,7 +42,7 @@ import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.InvalidRegistryIdException;
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
@@ -144,6 +144,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     }
 
     ServerGeoObjectIF geoObject = strategy.constructFromGeoObject(object, isNew);
+    geoObject.setDate(startDate);
 
     if (!isNew)
     {
@@ -223,12 +224,12 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     ServerGeoObjectIF target = strategy.newInstance();
     target.setDate(view.getDate());
-    target.populate(source.toGeoObject());
+    target.populate(source.toGeoObject(view.getDate()), view.getDate(), view.getDate());
     target.setCode(view.getTargetCode());
     target.setDisplayLabel(view.getLabel());
     target.apply(false);
 
-    final ServerParentTreeNode sNode = source.getParentGeoObjects(null, false);
+    final ServerParentTreeNode sNode = source.getParentGeoObjects(null, false, view.getDate());
 
     final List<ServerParentTreeNode> sParents = sNode.getParents();
 
@@ -375,14 +376,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       // Update the master list record
       if (masterListId != null)
       {
-        // if (!isNew)
-        // {
-        // MasterListVersion.get(masterListId).updateRecord(serverGO);
-        // }
-        // else
-        // {
-        MasterListVersion.get(masterListId).publishRecord(serverGO);
-        // }
+        ListTypeVersion.get(masterListId).publishRecord(serverGO);
       }
 
       JsonObject resp = new JsonObject();
@@ -448,6 +442,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     if (perms.isSRA() || perms.isRA(orgCode) || perms.isRM(orgCode, type))
     {
       this.executeActions(type, go, jaActions);
+      
+      if (masterListId != null)
+      {
+        ListTypeVersion.get(masterListId).updateRecord(go);
+      }
 
       JsonObject resp = new JsonObject();
 
@@ -593,5 +592,18 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     }
 
     go.apply(false);
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonObject doesGeoObjectExistAtRange(String sessionId, Date startDate, Date endDate, String typeCode, String code)
+  {
+    VertexServerGeoObject vsgo = (VertexServerGeoObject) new ServerGeoObjectService().getGeoObjectByCode(code, typeCode);
+    
+    JsonObject jo = new JsonObject();
+    
+    jo.addProperty("exists", vsgo.existsAtRange(startDate, endDate));
+    jo.addProperty("invalid", vsgo.getInvalid());
+    
+    return jo;
   }
 }

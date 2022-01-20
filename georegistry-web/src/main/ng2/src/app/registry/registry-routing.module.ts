@@ -4,9 +4,6 @@ import { Routes, RouterModule } from "@angular/router";
 
 import { HierarchyComponent } from "./component/hierarchy/hierarchy.component";
 import { SubmitChangeRequestComponent } from "./component/submit-change-request/submit-change-request.component";
-import { MasterListManagerComponent } from "./component/master-list/master-list-manager.component";
-import { MasterListComponent } from "./component/master-list/master-list.component";
-import { MasterListViewComponent } from "./component/master-list/master-list-view.component";
 import { DataPageComponent } from "./component/data-page/data-page.component";
 import { ChangeRequestPageComponent } from "./component/change-request-page/change-request-page.component";
 import { ScheduledJobsComponent } from "./component/scheduled-jobs/scheduled-jobs.component";
@@ -16,10 +13,12 @@ import { SynchronizationConfigManagerComponent } from "./component/synchronizati
 import { SynchronizationConfigComponent } from "./component/synchronization-config/synchronization-config.component";
 import { SyncDetailsComponent } from "./component/synchronization-config/details.component";
 import { LocationManagerComponent } from "./component/location-manager/location-manager.component";
-import { DatasetLocationManagerComponent } from "./component/location-manager/dataset-location-manager.component";
 
 import { MaintainerGuard, ContributerGuard, AuthGuard } from "../shared/service/guard.service";
 import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
+import { ListTypeManagerComponent } from "./component/list-type/list-type-manager.component";
+import { ListComponent } from "./component/list-type/list.component";
+import { CurationJobComponent } from "./component/curation/curation-job.component";
 
 const routes: Routes = [
     {
@@ -49,7 +48,12 @@ const routes: Routes = [
     },
     {
         path: "master-lists",
-        component: MasterListManagerComponent,
+        component: ListTypeManagerComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: "master-list/:oid",
+        component: ListComponent,
         canActivate: [AuthGuard]
     },
     {
@@ -61,16 +65,6 @@ const routes: Routes = [
         path: "job/:oid",
         component: JobComponent,
         canActivate: [MaintainerGuard]
-    },
-    {
-        path: "master-list/:oid/:published",
-        component: MasterListComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: "master-list-view/:oid",
-        component: MasterListViewComponent,
-        canActivate: [AuthGuard]
     },
     {
         path: "change-request",
@@ -98,49 +92,19 @@ const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
-        path: "location-manager/:geoobjectuid/:geoobjecttypecode/:visualizeMode",
-        component: LocationManagerComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: "location-manager/:geoobjectuid/:geoobjecttypecode/:datestr/:hideSearchOptions",
-        component: LocationManagerComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: "location-manager/:geoobjectuid/:geoobjecttypecode/:datestr/:hideSearchOptions/:backReference",
-        component: LocationManagerComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: "dataset-location-manager/:datasetId/:typeCode/:readOnly/:date",
-        component: DatasetLocationManagerComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: "dataset-location-manager/:datasetId/:typeCode/:readOnly/:date/:code",
-        component: DatasetLocationManagerComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: "dataset-location-manager/:datasetId/:typeCode/:readOnly/:date/:code/:editOnly",
-        component: DatasetLocationManagerComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: "dataset-location-manager/:datasetId/:typeCode/:readOnly/:date/:code/:editOnly/:backReference",
-        component: DatasetLocationManagerComponent,
-        canActivate: [AuthGuard]
-    },
-    {
         path: 'sync/details/:config/:oid',
         component: SyncDetailsComponent,
         canActivate: [MaintainerGuard]
     },
     {
+        path: 'curation-job/:oid',
+        component: CurationJobComponent,
+        canActivate: [MaintainerGuard]
+    },
+    {
         path: "historical-events",
         component: HistoricalEventModuleComponent,
-        canActivate: [MaintainerGuard]
+        canActivate: [ContributerGuard]
     }
 ];
 

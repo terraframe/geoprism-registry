@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -45,7 +45,7 @@ public interface ServerGeoObjectIF
   
   public ServerGeoObjectType getType();
 
-  public GeoObject toGeoObject();
+  public GeoObject toGeoObject(Date date);
 
   public GeoObjectOverTime toGeoObjectOverTime();
 
@@ -105,11 +105,11 @@ public interface ServerGeoObjectIF
 
   public String bbox(Date date);
 
-  public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive);
+  public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive, Date date);
 
-  public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive);
+  public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive, Date date);
 
-  public ServerParentTreeNode getParentsForHierarchy(ServerHierarchyType hierarchy, Boolean recursive);
+  public ServerParentTreeNode getParentsForHierarchy(ServerHierarchyType hierarchy, Boolean recursive, Date date);
 
   public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive);
 
@@ -131,9 +131,7 @@ public interface ServerGeoObjectIF
 
   public void unlock();
 
-  public void populate(GeoObject geoObject);
-  
-  public void populate(GeoObject object, Date startDate, Date endDate);
+  public void populate(GeoObject geoObject, Date startDate, Date endDate);
 
   public void populate(GeoObjectOverTime goTime);
 
@@ -143,7 +141,7 @@ public interface ServerGeoObjectIF
 
   public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents);
 
-  public JsonArray getHierarchiesForGeoObject();
+  public JsonArray getHierarchiesForGeoObject(Date date);
 
   public void setDate(Date date);
 

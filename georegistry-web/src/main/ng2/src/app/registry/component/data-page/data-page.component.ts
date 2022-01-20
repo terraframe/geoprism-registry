@@ -2,10 +2,8 @@ import { Component, OnInit } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
-import { ErrorHandler, ErrorModalComponent } from "@shared/component";
+import { ErrorHandler } from "@shared/component";
 import { LocalizationService, AuthService } from "@shared/service";
-
-declare let acp: string;
 
 @Component({
 

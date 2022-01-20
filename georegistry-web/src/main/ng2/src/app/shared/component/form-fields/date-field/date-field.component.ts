@@ -6,7 +6,7 @@ import { BsDatepickerConfig, BsDatepickerDirective } from "ngx-bootstrap/datepic
 
 import { PRESENT } from "@registry/model/registry";
 
-declare let acp: string;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component({
     selector: "date-field",

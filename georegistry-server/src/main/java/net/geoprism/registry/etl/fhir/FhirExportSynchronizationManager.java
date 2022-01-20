@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.io.Writer;
 import java.util.SortedSet;
 
 import org.apache.commons.io.FileUtils;
@@ -42,7 +41,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import net.geoprism.gis.geoserver.SessionPredicate;
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.etl.ExportJobHasErrors;
 import net.geoprism.registry.etl.FhirSyncExportConfig;
 import net.geoprism.registry.etl.FhirSyncLevel;
@@ -90,11 +89,11 @@ public class FhirExportSynchronizationManager
         history.setExportedRecords(exportCount);
         history.apply();
 
-        MasterListVersion version = MasterListVersion.get(level.getVersionId());
+        ListTypeVersion version = ListTypeVersion.get(level.getVersionId());
 
         FhirDataPopulator populator = FhirFactory.getPopulator(level.getImplementation());
 
-        MasterListFhirExporter exporter = new MasterListFhirExporter(version, connection, populator, true);
+        ListTypeFhirExporter exporter = new ListTypeFhirExporter(version, connection, populator, true);
         long results = exporter.export();
 
         exportCount += results;
@@ -232,11 +231,11 @@ public class FhirExportSynchronizationManager
         throw new ProgrammingErrorException("Unexpected level number [" + level.getLevel() + "].");
       }
 
-      MasterListVersion version = MasterListVersion.get(level.getVersionId());
+      ListTypeVersion version = ListTypeVersion.get(level.getVersionId());
 
       FhirDataPopulator populator = FhirFactory.getPopulator(level.getImplementation());
 
-      MasterListFhirExporter exporter = new MasterListFhirExporter(version, connection, populator, false);
+      ListTypeFhirExporter exporter = new ListTypeFhirExporter(version, connection, populator, false);
       exporter.populateBundle(bundle);
 
       expectedLevel++;

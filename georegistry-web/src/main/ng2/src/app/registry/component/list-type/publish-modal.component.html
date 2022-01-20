@@ -1,0 +1,667 @@
+<ng-template #metadataDetail let-metadata='metadata' let-type="type">
+    <div class="row-holder" *ngFor="let localeValue of metadata.label.localeValues">
+        <div class="label-holder">
+            <label>
+                <localize key="masterlist.label"></localize>
+                <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
+                    </convert-key-label>)</span>
+            </label>
+        </div>
+        <div class="holder">
+            <input [(ngModel)]="localeValue.value" [name]="'metadata-displayLabel-' + localeValue.locale" type="text"
+                class="form-control" [disabled]="readonly" [required]="false" />
+        </div>
+    </div>
+    <div class="row-holder">
+        <div class="label-holder">
+            <label>
+                <localize key="list.type.originator"></localize>
+            </label>
+        </div>
+        <div class="holder">
+            <input [(ngModel)]="metadata.originator" name="originator" type="text" class="form-control"
+                [disabled]="readonly" />
+        </div>
+    </div>
+    <div class="row-holder">
+        <div class="label-holder">
+            <label>
+                <localize key="list.type.collection.date"></localize>
+            </label>
+        </div>
+        <div class="holder">
+            <date-field [(value)]="metadata.collectionDate" [classNames]="['form-control']" label=""
+                [inputName]="'collectionDate'" [allowFutureDates]="false" name="collectionDate" [disable]="readonly">
+            </date-field>
+        </div>
+    </div>
+    <div class="row-holder" *ngFor="let localeValue of metadata.description.localeValues">
+        <div class="label-holder">
+            <label>
+                <localize key="masterlist.listAbstract"></localize>
+                <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
+                    </convert-key-label>)</span>
+            </label>
+        </div>
+        <div class="holder">
+            <textarea [(ngModel)]="localeValue.value" name="'description-' + localeValue.locale" class="form-control"
+                [disabled]="readonly" [required]="false"></textarea>
+        </div>
+    </div>
+    <div class="row-holder" *ngFor="let localeValue of metadata.process.localeValues">
+        <div class="label-holder">
+            <label>
+                <localize key="masterlist.process"></localize>
+                <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
+                    </convert-key-label>)</span>
+            </label>
+        </div>
+        <div class="holder">
+            <textarea [(ngModel)]="localeValue.value" name="'process-' + localeValue.locale" class="form-control"
+                [disabled]="readonly" [required]="false"></textarea>
+        </div>
+    </div>
+    <div class="row-holder" *ngFor="let localeValue of metadata.progress.localeValues">
+        <div class="label-holder">
+            <label>
+                <localize key="masterlist.progress"></localize>
+                <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
+                    </convert-key-label>)</span>
+            </label>
+        </div>
+        <div class="holder">
+            <input [(ngModel)]="localeValue.value" [name]="'progress-' + localeValue.locale" type="text"
+                class="form-control" [disabled]="readonly" [required]="false" />
+        </div>
+    </div>
+    <div class="row-holder" *ngFor="let localeValue of metadata.accessConstraints.localeValues">
+        <div class="label-holder">
+            <label>
+                <localize key="masterlist.accessConstraints"></localize>
+                <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
+                    </convert-key-label>)</span>
+            </label>
+        </div>
+        <div class="holder">
+            <input [(ngModel)]="localeValue.value" [name]="'accessConstraints-' + localeValue.locale" type="text"
+                class="form-control" [disabled]="readonly" [required]="false" />
+        </div>
+    </div>
+    <div class="row-holder" *ngFor="let localeValue of metadata.useConstraints.localeValues">
+        <div class="label-holder">
+            <label>
+                <localize key="masterlist.useConstraints"></localize>
+                <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
+                    </convert-key-label>)</span>
+            </label>
+        </div>
+        <div class="holder">
+            <input [(ngModel)]="localeValue.value" [name]="'useConstraints-' + localeValue.locale" type="text"
+                class="form-control" [disabled]="readonly" [required]="false" />
+        </div>
+    </div>
+    <div class="row-holder" *ngFor="let localeValue of metadata.acknowledgements.localeValues">
+        <div class="label-holder">
+            <label>
+                <localize key="masterlist.acknowledgements"></localize>
+                <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
+                    </convert-key-label>)</span>
+            </label>
+        </div>
+        <div class="holder">
+            <textarea [(ngModel)]="localeValue.value" name="'acknowledgements-' + localeValue.locale"
+                class="form-control" [disabled]="readonly" [required]="false"></textarea>
+        </div>
+    </div>
+    <div class="row-holder" *ngFor="let localeValue of metadata.disclaimer.localeValues">
+        <div class="label-holder">
+            <label>
+                <localize key="masterlist.disclaimer"></localize>
+                <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
+                    </convert-key-label>)</span>
+            </label>
+        </div>
+        <div class="holder">
+            <textarea [(ngModel)]="localeValue.value" name="'disclaimer-' + localeValue.locale" class="form-control"
+                [disabled]="readonly" [required]="false"></textarea>
+        </div>
+    </div>
+    <ng-container *ngIf="type === 'geospatial'">
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.topicCategories"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <input [(ngModel)]="metadata.topicCategories" name="topicCategories" class="form-control"
+                    [disabled]="readonly" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.placeKeywords"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <input [(ngModel)]="metadata.placeKeywords" name="placeKeywords" class="form-control"
+                    [disabled]="readonly" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.updateFrequency"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <input [(ngModel)]="metadata.updateFrequency" name="updateFrequency" class="form-control"
+                    [disabled]="readonly" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.lineage"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <input [(ngModel)]="metadata.lineage" name="lineage" class="form-control" [disabled]="readonly" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.languages"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <input [(ngModel)]="metadata.languages" name="languages" class="form-control" [disabled]="readonly" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.scaleResolution"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <input [(ngModel)]="metadata.scaleResolution" name="scaleResolution" class="form-control"
+                    [disabled]="readonly" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.spatialRepresentation"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <select class="select-area" name="spatialRepresentation" [(ngModel)]="metadata.spatialRepresentation"
+                    [disabled]="readonly">
+                    <option></option>
+                    <option value="vector">
+                        <localize key="list.type.vector"></localize>
+                    </option>
+                </select>
+
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.referenceSystem"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <select class="select-area" name="referenceSystem" [(ngModel)]="metadata.referenceSystem"
+                    [disabled]="readonly">
+                    <option></option>
+                    <option value="EPSG4326">
+                        <localize key="list.type.epsg4326"></localize>
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.reportSpecification"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <input [(ngModel)]="metadata.reportSpecification" name="reportSpecification" type="reportSpecification"
+                    class="form-control" [disabled]="readonly" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.distributionFormat"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <select class="select-area" name="distributionFormat" [(ngModel)]="metadata.distributionFormat"
+                    [disabled]="readonly">
+                    <option></option>
+                    <option value="SHAPEFILE">
+                        <localize key="io.shapefile"></localize>
+                    </option>
+                </select>
+            </div>
+        </div>
+
+    </ng-container>
+
+
+    <div class="row-holder">
+        <div class="label-holder"></div>
+        <div class="holder">
+            <localize key="masterlist.contact"></localize>
+        </div>
+    </div>
+
+    <div class="row-holder">
+        <div class="label-holder">
+            <label>
+                <localize key="masterlist.contactName"></localize>
+            </label>
+        </div>
+        <div class="holder">
+            <input [(ngModel)]="metadata.contactName" name="contactName" type="text" class="form-control"
+                [disabled]="readonly" />
+        </div>
+    </div>
+    <div class="row-holder">
+        <div class="label-holder">
+            <label>
+                <localize key="masterlist.telephoneNumber"></localize>
+            </label>
+        </div>
+        <div class="holder">
+            <input [(ngModel)]="metadata.telephoneNumber" name="telephoneNumber" type="text" class="form-control"
+                [disabled]="readonly" />
+        </div>
+    </div>
+    <div class="row-holder">
+        <div class="label-holder">
+            <label>
+                <localize key="masterlist.email"></localize>
+            </label>
+        </div>
+        <div class="holder">
+            <input [(ngModel)]="metadata.email" name="email" type="email" class="form-control" [disabled]="readonly" />
+        </div>
+    </div>
+
+</ng-template>
+
+<div class="modal-body">
+    <ng-container *ngIf="list != null">
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+        <div class="heading text-center">
+            <h1 *ngIf="isNew">
+                <localize key="type.publish.title"></localize>
+            </h1>
+            <h1 *ngIf="!isNew">
+                {{list.displayLabel.localizedValue}}
+                <localize key="type.publish.view.title"></localize>
+            </h1>
+        </div>
+        <!-- <div class="col-md-12 order-md-1"> -->
+        <form #form="ngForm" class="modal-form" autocomplete="off">
+
+            <fieldset>
+                <div class="row-holder" style="text-align: center;">
+                    <label class="radio radio-inline" style="padding-left:0;">
+                        <input class="inline-radio-input" type="radio" [checked]="list.listType === 'single'"
+                            [value]="'single'" [(ngModel)]="list.listType" name="single"
+                            [disabled]="readonly || !isNew">
+                        <span>
+                            <localize key="list.type.single.date"></localize>
+                        </span>
+                    </label>
+
+                    <label class="radio radio-inline" style="padding-left:0;">
+                        <input class="inline-radio-input" type="radio" [checked]="list.listType === 'incremental'"
+                            [value]="'incremental'" [(ngModel)]="list.listType" name="incremental"
+                            [disabled]="readonly || !isNew">
+                        <span>
+                            <localize key="list.type.incremental.series"></localize>
+                        </span>
+                    </label>
+
+                    <label class="radio radio-inline" style="padding-left:0;">
+                        <input class="inline-radio-input" type="radio" [checked]="list.listType === 'interval'"
+                            [value]="'interval'" [(ngModel)]="list.listType" name="interval"
+                            [disabled]="readonly || !isNew">
+                        <span>
+                            <localize key="list.type.interval.series"></localize>
+                        </span>
+                    </label>
+
+                </div>
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            <localize key="masterlist.code"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <input [(ngModel)]="list.code" name="code" type="text" class="form-control"
+                            [disabled]="readonly || edit" required />
+                    </div>
+                </div>
+                <div class="row-holder" *ngFor="let localeValue of list.displayLabel.localeValues">
+                    <div class="label-holder">
+                        <label>
+                            <localize key="masterlist.label"></localize>
+                            <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
+                                </convert-key-label>)</span>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text"
+                            class="form-control" [disabled]="readonly"
+                            [required]="localeValue.locale === 'defaultLocale'" />
+                    </div>
+                </div>
+                <div class="row-holder" *ngFor="let localeValue of list.description.localeValues">
+                    <div class="label-holder">
+                        <label>
+                            <localize key="masterlist.listAbstract"></localize>
+                            <span style="color: #BABABA">
+                                &nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)
+                            </span>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <input [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="text"
+                            class="form-control" [disabled]="readonly"
+                            [required]="localeValue.locale === 'defaultLocale'" />
+                    </div>
+                </div>
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label for="typeCode">
+                            <localize key="io.geoObjectType"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <input [(ngModel)]="list.typeLabel" name="typeLabel" type="text" class="form-control"
+                            disabled />
+                    </div>
+                </div>
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label for="typeCode">
+                            <localize key="hierarchy.nodeTooltip.geoObjectTypeCode"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <input [(ngModel)]="list.typeCode" name="typeCode" type="text" class="form-control" disabled />
+                    </div>
+                </div>
+
+                <div *ngIf="list.includeLatLong !== undefined" class="row-holder">
+                    <div class="label-holder">
+                        <label for="typeCode">
+                            <localize key="list.type.includeLatLong"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <boolean-field [(value)]="list.includeLatLong" label="" [disable]="false"></boolean-field>
+                    </div>
+                </div>
+
+                <div class="row-holder" *ngIf="list.hierarchies.length > 0">
+                    <div class="label-holder"></div>
+                    <div class="holder">
+                        <localize key="listlist.parents"></localize>
+                    </div>
+                </div>
+
+                <div *ngFor="let hierarchy of list.hierarchies">
+                    <ng-container *ngIf="hierarchy.parents.length > 0">
+                        <div class="row-holder">
+                            <div class="label-holder">
+                                <label> {{hierarchy.label}} </label>
+                            </div>
+                            <div class="holder">
+                                <div class="row" *ngFor="let parent of hierarchy.parents">
+                                    <!-- <div class="holder"> -->
+
+                                    <div class="check-block" style="margin: 10px;">
+
+                                        <!-- To enable add: (click)="parent.selected = !parent.selected" -->
+                                        <div (click)="getIsDisabled($event) ? null : parent.selected = !parent.selected"
+                                            [ngClass]="{'chk-checked' : parent.selected, 'disabled' : readonly || edit}"
+                                            style="margin: 0;" class="jcf-unselectable chk-area" name="unique">
+                                            <span></span>
+                                        </div>
+
+                                        <label style="margin: 3px 10px;">{{parent.label}}</label>
+
+                                        <!-- <input [(ngModel)]="parent.selected" [name]="hierarchy.code + parent.code" type="checkbox" class="form-check" [disabled]="readonly || edit"/> -->
+                                    </div>
+                                    <!-- <div class="holder">{{parent.label}}</div> -->
+                                    <!-- </div> -->
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+
+                <div *ngIf="list.subtypeHierarchies.length > 0">
+                    <div class="row-holder">
+                        <div class="label-holder">
+                            <label>
+                                <localize key="listlist.subtypeHierarchies"></localize>
+                            </label>
+                        </div>
+                        <div class="holder">
+                            <div class="row" *ngFor="let hierarchy of list.subtypeHierarchies">
+                                <!-- <div class="holder"> -->
+
+                                <div class="check-block" style="margin: 10px;">
+
+                                    <!-- To enable add: (click)="parent.selected = !parent.selected" -->
+                                    <div (click)="getIsDisabled($event) ? null : hierarchy.selected = !hierarchy.selected"
+                                        [ngClass]="{'chk-checked' : hierarchy.selected, 'disabled' : readonly || edit}"
+                                        style="margin: 0;" class="jcf-unselectable chk-area" name="unique">
+                                        <span></span>
+                                    </div>
+
+                                    <label style="margin: 3px 10px;">{{hierarchy.label}}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row-holder" *ngIf="list.listType === 'single'">
+                    <div class="label-holder">
+                        <label for="validOn">
+                            <localize key="list.type.valid.on"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <date-field [(value)]="list.validOn" [classNames]="['form-control']" label=""
+                            [inputName]="'validOn'" [allowFutureDates]="false" name="listValidOn" [required]="true"
+                            [disable]="readonly || !isNew" (valueChange)="handleDateChange()"></date-field>
+                    </div>
+                </div>
+
+                <ng-container *ngIf="list.listType === 'incremental'">
+                    <div class="row-holder">
+                        <div class="label-holder">
+                            <label>
+                                <localize key="data.property.label.frequency"></localize>
+                            </label>
+                        </div>
+                        <div class="holder">
+                            <select class="select-area" name="frequency" [(ngModel)]="list.frequency"
+                                [disabled]="readonly || !isNew" required #frequency="ngModel">
+                                <option></option>
+                                <option value="ANNUAL">
+                                    <localize key="georegistry.frequency.annual"></localize>
+                                </option>
+                                <option value="BIANNUAL">
+                                    <localize key="georegistry.frequency.biannual"></localize>
+                                </option>
+                                <option value="QUARTER">
+                                    <localize key="georegistry.frequency.quarter"></localize>
+                                </option>
+                                <option value="MONTHLY">
+                                    <localize key="georegistry.frequency.monthly"></localize>
+                                </option>
+                            </select>
+                            <small *ngIf="(edit && frequency.dirty)" class="form-text text-danger">
+                                <localize key="listlist.change.frequency"></localize>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row-holder">
+                        <div class="label-holder">
+                            <label>
+                                <localize key="data.property.label.publishingStartDate"></localize>
+                            </label>
+                        </div>
+                        <div class="holder">
+                            <span *ngIf="readonly" style="line-height: 40px;" class="date-string-display">
+                                {{formatDate(list.publishingStartDate)}}
+                            </span>
+                            <date-field *ngIf="!readonly" [(value)]="list.publishingStartDate"
+                                [classNames]="['form-control']" label="" [inputName]="'publishingStartDate'"
+                                [allowFutureDates]="false" name="listPublishingStartDate" [required]="true"
+                                [disable]="readonly || !isNew" (valueChange)="handleDateChange()"></date-field>
+
+                        </div>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="list.listType === 'interval'">
+                    <div class="row-holder">
+                        <div class="label-holder">
+                            <label>
+                                <localize key="list.type.intervals"></localize>
+                            </label>
+                        </div>
+                        <div class="holder">
+                            <div *ngFor="let interval of list.intervalJson; let i = index;">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>
+                                            <localize key="io.startDate"></localize>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>
+                                            <localize key="io.endDate"></localize>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <date-field [(value)]="interval.startDate" [classNames]="['form-control']"
+                                            label="" [inputName]="'startDate-' + interval.oid" [allowFutureDates]="false"
+                                            [required]="true" [disable]="readonly || (!isNew && interval.readonly != null)"
+                                            (valueChange)="handleDateChange()"></date-field>
+
+                                    </div>
+                                    <div class="col-md-5">
+                                        <date-field [(value)]="interval.endDate" [classNames]="['form-control']"
+                                            label="" [inputName]="'endDate-' + interval.oid" [allowInfinity]="true" [required]="true"
+                                            [disable]="readonly || (!isNew && interval.readonly == 'BOTH')"
+                                            (valueChange)="handleDateChange()"></date-field>
+
+                                    </div>
+                                    <div class="col-md-2">
+                                        <i class="fa fa-times delete-btn clickable"
+                                            *ngIf="(isNew || interval.readonly == null)"
+                                            (click)="removeInterval(i)"
+                                            [title]="'button.delete.helptext' | localize">
+                                        </i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" *ngIf="!readonly">
+                                <div class="col-md-12">
+                                    <button type="button" (click)="onNewInterval()" class="btn btn-primary"
+                                        role="button" style="margin:15px 0;">
+                                        <localize key="changeovertime.manageVersions.summaryKey.NEW"></localize>
+                                    </button>
+                                    <div *ngIf="!valid" style="float:none;" class="error-message">
+                                        <localize key="list.type.bad.interval.dates"></localize>
+                                    </div>
+                                    <div *ngIf="gap" style="float:none;" class="warning-text">
+                                        <localize key="manage.versions.gap.message"></localize>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+
+
+                <div class="inner-col-content-wrapper" style="padding-top: 30px; margin-top: 10px;">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="label-holder"></div>
+
+                            <div class="holder">
+                                <div class="form-group" style="text-align: center;">
+
+                                    <div class="btn-group geobject-editor-tab-holder">
+                                        <label class="btn full-width-radio-button" style="width:50%;"
+                                            [ngClass]="tab === 'LIST' ? 'active' : ''" (click)="handleTab('LIST')">
+                                            <span style="display:inline-block; width:90%;">
+                                                <localize key="list.type.list"></localize>
+                                            </span>
+                                        </label>
+                                        <label class="btn full-width-radio-button" style="width:50%;"
+                                            [ngClass]="tab === 'GEOSPATIAL' ? 'active' : ''"
+                                            (click)="handleTab('GEOSPATIAL')">
+                                            <span style="display:inline-block; width:90%;">
+                                                <localize key="list.type.geospatial"></localize>
+                                            </span>
+                                        </label>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <hr style="border-top:solid 3px #6BA542" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <ng-container *ngIf="tab === 'LIST'" [ngTemplateOutlet]="metadataDetail"
+                                [ngTemplateOutletContext]="{metadata:list.listMetadata, type:'list'}">
+                            </ng-container>
+                            <ng-container *ngIf="tab === 'GEOSPATIAL'" [ngTemplateOutlet]="metadataDetail"
+                                [ngTemplateOutletContext]="{metadata:list.geospatialMetadata, type:'geospatial'}">
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+                <div class="row-holder">
+                    <div class="label-holder"></div>
+                    <div>
+                        <div class="button-holder">
+                            <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+                                <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
+                            </button>
+                            <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary"
+                                role="button" [disabled]="form.invalid || !valid">
+                                <localize key="io.submit"></localize>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+    </ng-container>
+</div>

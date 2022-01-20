@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -69,7 +69,7 @@ import net.geoprism.registry.AbstractParentException;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.HierarchyMetadata;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
-import net.geoprism.registry.MasterList;
+import net.geoprism.registry.ListType;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
@@ -397,7 +397,8 @@ public class ServerHierarchyType implements ServerElement
 
     ( (MdEdgeDAO) this.getMdEdge() ).delete();
 
-    MasterList.markAllAsInvalid(this, null);
+    // MasterList.markAllAsInvalid(this, null);
+    ListType.markAllAsInvalid(this, null);
   }
 
   public void addToHierarchy(ServerGeoObjectType parentType, ServerGeoObjectType childType)
@@ -692,7 +693,8 @@ public class ServerHierarchyType implements ServerElement
 
     service.removeAllEdges(this, childType);
 
-    MasterList.markAllAsInvalid(this, childType);
+    // MasterList.markAllAsInvalid(this, childType);
+    ListType.markAllAsInvalid(this, childType);
 
     InheritedHierarchyAnnotation annotation = InheritedHierarchyAnnotation.get(childType.getUniversal(), this.universalRelationship);
 

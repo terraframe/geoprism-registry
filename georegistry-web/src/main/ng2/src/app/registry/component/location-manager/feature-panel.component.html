@@ -1,7 +1,12 @@
-<div>
+<div style="padding-top:110px;">
+  <div class="row">
+    <div class="col-md-12">
+      <h3>{{type.label.localizedValue}}</h3>
+    </div>      
+  </div>
   <div *ngIf="mode == MODE.ATTRIBUTES && postGeoObject != null">
     <!-- Attributes tab -->
-    <geoobject-shared-attribute-editor  *ngIf="hierarchies"
+    <geoobject-shared-attribute-editor  *ngIf="hierarchies && postGeoObject"
       #attributeEditor 
       [geoObjectType]="type" 
       [postGeoObject]="postGeoObject" 

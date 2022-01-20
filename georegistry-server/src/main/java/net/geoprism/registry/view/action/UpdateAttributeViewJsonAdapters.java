@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -19,12 +19,12 @@
 package net.geoprism.registry.view.action;
 
 import java.lang.reflect.Type;
+import java.util.Date;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.google.gson.GsonBuilder;
@@ -35,7 +35,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
@@ -44,7 +43,6 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
@@ -154,6 +152,12 @@ public class UpdateAttributeViewJsonAdapters
       
       final ServerGeoObjectType cType = child.getType();
       
+      Date startDate = src.newStartDate;
+      if (startDate == null)
+      {
+        startDate = src.oldStartDate;
+      }
+      
       JsonObject jo = context.serialize(src).getAsJsonObject();
       
       VertexServerGeoObject newParent = src.getNewValueAsGO();
@@ -225,18 +229,18 @@ public class UpdateAttributeViewJsonAdapters
       
       if (newParent == null)
       {
-        newParent =cr.getGeoObject();
+        newParent = cr.getGeoObject();
         
-        sptns = newParent.getParentsForHierarchy(sht, true);
+        sptns = newParent.getParentsForHierarchy(sht, true, startDate);
       }
       else
       {
         JsonObject parent = new JsonObject();
         parent.addProperty(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENT_TEXT, newParent.getDisplayLabel().getValue() + " : " + newParent.getCode());
-        parent.add(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENT_GEOOBJECT, newParent.toGeoObject().toJSON());
+        parent.add(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENT_GEOOBJECT, newParent.toGeoObject(startDate).toJSON());
         parents.add(newParent.getType().getCode(), parent);
         
-        sptns = newParent.getParentsForHierarchy(sht, true);
+        sptns = newParent.getParentsForHierarchy(sht, true, startDate);
       }
       
       List<GeoObjectType> parentTypes = cType.getTypeAncestors(sht, false);
@@ -268,7 +272,7 @@ public class UpdateAttributeViewJsonAdapters
             if (match != null)
             {
               final ServerGeoObjectIF sGeoObject = match.getGeoObject();
-              final GeoObject geoObject = sGeoObject.toGeoObject();
+              final GeoObject geoObject = sGeoObject.toGeoObject(startDate);
               geoObject.setGeometry(null);
               
               JsonObject pObject = new JsonObject();

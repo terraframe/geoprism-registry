@@ -35,7 +35,7 @@
 		                <div class="holder">
 		                    <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text"
 		                        class="form-control" [disabled]="readonly"
-		                        [required]="localeValue.locale === 'defaultLocale'" />
+		                        [required]="false" />
 		                </div>
 		            </div>
 		
@@ -45,11 +45,11 @@
 		                        <localize key="transition.event.beforeType"></localize>
 		                    </label>
 		                </div>
-		                <div *ngIf="!readonly && types != null" class="holder">
+		                <div *ngIf="!readonly && beforeTypes != null" class="holder">
 		                    <select id="beforeTypeCode" name="beforeTypeCode" class="select-area" [(ngModel)]="event.beforeTypeCode"
 		                        (change)="onChange()" [disabled]="event.transitions.length > 0" required>
 		                        <option></option>
-		                        <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
+		                        <option *ngFor="let type of beforeTypes" [value]="type.code">{{type.label}}</option>
 		                    </select>
 		                </div>
 		                <div *ngIf="readonly" class="holder">
@@ -64,11 +64,11 @@
 		                        <localize key="transition.event.afterType"></localize>
 		                    </label>
 		                </div>
-		                <div *ngIf="!readonly && allTypes != null" class="holder">
+		                <div *ngIf="!readonly && afterTypes != null" class="holder">
 		                    <select id="afterTypeCode" name="afterTypeCode" class="select-area" [(ngModel)]="event.afterTypeCode"
 		                        (change)="onChange()" [disabled]="event.transitions.length > 0" required>
 		                        <option></option>
-		                        <option *ngFor="let type of allTypes" [value]="type.code">{{type.label}}</option>
+		                        <option *ngFor="let type of afterTypes" [value]="type.code">{{type.label}}</option>
 		                    </select>
 		                </div>
 		                <div *ngIf="readonly" class="holder">
@@ -90,40 +90,37 @@
             <div class="row-holder" *ngIf="event.beforeTypeCode != null && event.beforeTypeCode !== '' && event.afterTypeCode != null && event.afterTypeCode !== '' && event.eventDate != null && event.eventDate !== ''">
                     <table class="table" style="border-collapse: separate;">
                         <thead>
-	                         <tr style="height: 50px;color: grey;">
-	                         <th></th>
-	                         <th style="width: 35%; vertical-align: middle;"> <localize key="transition.event.before"></localize> </th>
-	                         <th style="width: 10%; vertical-align: middle;"> <localize key="transition.event.impact"></localize> </th>
-	                         <th style="width: 35%; vertical-align: middle;"> <localize key="transition.event.after"></localize> </th>
-	                         <th style="width: 10%; vertical-align: middle;"> <localize key="transition.event.type"></localize> </th>
-	                         <th style="width: 5%; vertical-align: middle;"></th>
-	                         <th style="width: 5%; vertical-align: middle;" *ngIf="!readonly"></th>
+	                        <tr style="height: 50px;color: grey;">
+		                        <th *ngIf="!readonly"></th>
+		                        <th style="width: 35%; vertical-align: middle;"> <localize key="transition.event.before"></localize> </th>
+		                        <th style="width: 10%; vertical-align: middle;"> <localize key="transition.event.impact"></localize> </th>
+		                        <th style="width: 35%; vertical-align: middle;"> <localize key="transition.event.after"></localize> </th>
+		                        <th style="width: 10%; vertical-align: middle;"> <localize key="transition.event.type"></localize> </th>
+		                        <th style="width: 5%; vertical-align: middle;"></th>
+		                        <th style="width: 5%; vertical-align: middle;" *ngIf="!readonly"></th>
 	                        </tr>
                         </thead>
                         <tbody class="dndList" id="transition-container"
-                          dndDropzone
-                          dndEffectAllowed="copyMove"
-                          (dndDrop)="onDrop($event)"
+                          [dndDropzone]="readonly ? null : true"
+                          [dndEffectAllowed]="readonly ? null : 'copyMove'"
+                          (dndDrop)="readonly ? null : onDrop($event)"
                         >
-                            <tr class="dndPlaceholder" dndPlaceholderRef>
+                            <tr *ngIf="!readonly" class="dndPlaceholder" dndPlaceholderRef>
                               <td colspan="7"></td>
                             </tr>
                         
                             <tr *ngFor="let transition of event.transitions; let i = index;" class="transition" style="height: 50px;" [attr.data-transOid]="transition.oid"
-                                [dndDraggable]="transition"
-                                [dndEffectAllowed]="draggable.effectAllowed"
-                                [dndDisableIf]="draggable.disable"
-													      (dndStart)="onDragStart($event)"
-													      (dndCopied)="onDraggableCopied($event)"
-													      (dndLinked)="onDraggableLinked($event)"
-													      (dndMoved)="onDraggableMoved($event)"
-													      (dndCanceled)="onDragCanceled($event)"
-													      (dndEnd)="onDragEnd($event)"
+                                [dndDraggable]="readonly ? null : transition"
+                                [dndEffectAllowed]="readonly ? null : draggable.effectAllowed"
+                                [dndDisableIf]="readonly ? null : draggable.disable"
+													      (dndStart)="readonly ? null : onDragStart($event)"
+													      (dndCopied)="readonly ? null : onDraggableCopied($event)"
+													      (dndLinked)="readonly ? null : onDraggableLinked($event)"
+													      (dndMoved)="readonly ? null : onDraggableMoved($event)"
+													      (dndCanceled)="readonly ? null : onDragCanceled($event)"
+													      (dndEnd)="readonly ? null : onDragEnd($event)"
                             >
-                                <td style="vertical-align: middle; text-align: center;">
-                                  <!--
-                                  <a dndHandle style="font-size:25px; color: black; cursor: move;" class="fa fa-bars"></a>
-                                  -->
+                                <td *ngIf="!readonly" style="vertical-align: middle; text-align: center;">
                                   <a style="font-size:25px; color: #969696; cursor: move;" class="fa fa-bars"></a>
                                 </td>
                                 <td>
@@ -131,7 +128,7 @@
                                         <input type="text" class="form-control" autocomplete="off"
                                             [name]="'transition.source-' + transition.oid + '-' + i" [disabled]="readonly" required
                                             [(ngModel)]="transition.sourceText" [typeaheadAsync]="true"
-                                            [typeahead]="getTypeAheadObservable(transition, this.event.beforeTypeCode, 'sourceText')"
+                                            [typeahead]="getTypeAheadObservable(true, transition, this.event.beforeTypeCode, 'sourceText')"
                                             (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'sourceText')"
                                             [typeaheadOptionsLimit]="7" [typeaheadItemTemplate]="customItemTemplate"
                                             [typeaheadMinLength]="0" [typeaheadWaitMs]="300" [container]="'#typeaheadParentS-' + i">
@@ -159,7 +156,7 @@
                                         <input type="text" class="form-control" autocomplete="off"
                                             [name]="'transition.target-' + transition.oid + '-' + i" [disabled]="readonly" required
                                             [(ngModel)]="transition.targetText" [typeaheadAsync]="true"
-                                            [typeahead]="getTypeAheadObservable(transition, this.event.afterTypeCode, 'targetText')"
+                                            [typeahead]="getTypeAheadObservable(false, transition, this.event.afterTypeCode, 'targetText')"
                                             (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'targetText')"
                                             [typeaheadOptionsLimit]="7" [typeaheadItemTemplate]="customItemTemplate"
                                             [typeaheadMinLength]="0" [typeaheadWaitMs]="300" [container]="'#typeaheadParentT-' + i">
@@ -179,9 +176,9 @@
                                         </span>
                                     </div>
                                 </td>
-                                <td style="vertical-align:middle;">
+                                <td *ngIf="transition.typePart || !transition.typeUpdown" style="vertical-align:middle;">
                                     <label *ngIf="!transition.typeUpdown">{{localizeTransitionType(transition.transitionType)}}</label>
-                                    <label *ngIf="transition.typeUpdown" style="min-width:80px;">{{localizeTransitionType(transition.typePart)}}</label>
+                                    <label *ngIf="transition.typePart" style="min-width:80px;">{{localizeTransitionType(transition.typePart)}}</label>
                                 </td>
                                 <td *ngIf="transition.typeUpdown">
                                     <select style="min-width:80px;" *ngIf="transition.typeUpdown" [name]="'transition.transitionType-updown-' + transition.oid + '-' + i" class="select-area"

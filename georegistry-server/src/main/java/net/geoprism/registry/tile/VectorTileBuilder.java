@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -64,14 +64,15 @@ import net.geoprism.ontology.UserDataConverter;
 import net.geoprism.ontology.VectorLayerPublisherIF;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.TableEntity;
 
 public class VectorTileBuilder implements VectorLayerPublisherIF
 {
-  private MasterListVersion version;
+  private TableEntity        version;
 
-  private Collection<Locale>      locales;
+  private Collection<Locale> locales;
 
-  public VectorTileBuilder(MasterListVersion version)
+  public VectorTileBuilder(TableEntity version)
   {
     this.version = version;
     this.locales = LocalizationFacade.getInstalledLocales();
@@ -89,6 +90,7 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
 
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT ge.oid");
+    sql.append(", ge.uid");    
     sql.append(", ge.code");
     sql.append(", ge." + labelColumn + " AS default_locale");
 
@@ -228,6 +230,7 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
         Map<String, String> data = new TreeMap<String, String>();
         data.put(GeoEntity.OID, resultSet.getString("oid"));
         data.put(DefaultAttribute.CODE.getName(), resultSet.getString("code"));
+        data.put(DefaultAttribute.UID.getName(), resultSet.getString("uid"));
         data.put(GeoEntity.DISPLAYLABEL, label);
 
         for (Locale locale : locales)

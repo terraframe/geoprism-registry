@@ -1,6 +1,6 @@
 <%--
 
-    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
     This file is part of Geoprism Registry(tm).
 
@@ -53,8 +53,12 @@
   </style>  
   
   <script>
-    window.acp = "<%=request.getContextPath()%>"; 
-    window.registry = {locale:'<%=request.getAttribute("locale")%>', locales:<%=request.getAttribute("ilocales")%>}; 
+    window.registry = {
+    		contextPath: "<%=request.getContextPath()%>",
+    		locale:'<%=request.getAttribute("locale")%>', 
+    		locales:<%=request.getAttribute("ilocales")%>,
+    		searchEnabled:<%=GeoregistryProperties.isSearchEnabled().toString()%>
+    }; 
     window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');   
     window.googleanalyticstoken = "<%=GeoregistryProperties.getGoogleAnalyticsToken()%>";
   </script>

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -286,12 +286,12 @@ public class MasterList extends MasterListBase
       if (frequencies.contains(ChangeFrequency.ANNUAL))
       {
         Calendar end = getEndOfYear(endDate);
-        
+
         if (end.getTime().after(today))
         {
           end.add(Calendar.YEAR, -1);
         }
-        
+
         Calendar calendar = getEndOfYear(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
@@ -304,12 +304,12 @@ public class MasterList extends MasterListBase
       else if (frequencies.contains(ChangeFrequency.BIANNUAL))
       {
         Calendar end = getEndOfHalfYear(endDate);
-        
+
         while (end.getTime().after(today))
         {
           end.add(Calendar.MONTH, -6);
         }
-        
+
         Calendar calendar = getEndOfHalfYear(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
@@ -323,12 +323,12 @@ public class MasterList extends MasterListBase
       else if (frequencies.contains(ChangeFrequency.QUARTER))
       {
         Calendar end = getEndOfQuarter(endDate);
-        
+
         while (end.getTime().after(today))
         {
           end.add(Calendar.MONTH, -3);
         }
-        
+
         Calendar calendar = getEndOfQuarter(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
@@ -342,12 +342,12 @@ public class MasterList extends MasterListBase
       else if (frequencies.contains(ChangeFrequency.MONTHLY))
       {
         Calendar end = getEndOfMonth(endDate);
-        
+
         while (end.getTime().after(today))
         {
           end.add(Calendar.MONTH, -1);
         }
-        
+
         Calendar calendar = getEndOfMonth(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
@@ -608,12 +608,12 @@ public class MasterList extends MasterListBase
       if (range != null)
       {
         Date endDate = range.getSecond();
-        
+
         if (endDate.after(new Date()))
         {
           endDate = new Date();
         }
-        
+
         List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
 
         for (Date date : dates)

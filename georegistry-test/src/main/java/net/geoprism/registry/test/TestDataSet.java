@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -87,6 +87,8 @@ import net.geoprism.ontology.ClassifierQuery;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.IdRecord;
 import net.geoprism.registry.IdRecordQuery;
+import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.UserInfo;
@@ -579,6 +581,26 @@ abstract public class TestDataSet
       {
         jobit.next().delete();
       }
+    }
+  }
+  
+  @Request
+  public static void deleteAllListData()
+  {
+    ListTypeQuery query = new ListTypeQuery(new QueryFactory());
+
+    OIterator<? extends ListType> it = query.getIterator();
+
+    try
+    {
+      while (it.hasNext())
+      {
+        it.next().delete();
+      }
+    }
+    finally
+    {
+      it.close();
     }
   }
   

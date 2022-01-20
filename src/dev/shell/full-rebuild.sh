@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+# Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 #
 # This file is part of Geoprism Registry(tm).
 #
@@ -41,7 +41,7 @@ set -ex
 
 # Set proper version of npm
 source ~/.nvm/nvm.sh
-nvm install lts/erbium
+nvm install v13.12.0
 
 # Update git
 cd $CGR_PROJECT
@@ -50,6 +50,7 @@ git fetch
 # Build front-end code
 cd $CGR_PROJECT/georegistry-web/src/main/ng2
 rm -rf node_modules
+rm package-lock.json
 npm install
 npm run build
 

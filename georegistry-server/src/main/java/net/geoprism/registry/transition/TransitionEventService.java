@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -63,7 +63,7 @@ public class TransitionEventService
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-    new GeoObjectPermissionService().enforceCanWrite(type.getOrganization().getCode(), type);
+    new GeoObjectPermissionService().enforceCanRead(type.getOrganization().getCode(), type);
 
     return HistoricalRow.getHistoricalReport(type, startDate, endDate, pageSize, pageNumber).toJSON();
   }

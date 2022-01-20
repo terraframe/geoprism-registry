@@ -22,7 +22,7 @@ import { DateService } from "@shared/service/date.service";
 
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 
-declare var acp: string;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component({
 
@@ -126,7 +126,7 @@ export class RequestTableComponent {
             this.toggleId = this.oid;
         }
 
-        let getUrl = acp + "/changerequest/upload-file-cr";
+        let getUrl = registry.contextPath + "/changerequest/upload-file-cr";
 
         let options: FileUploaderOptions = {
             queueLimit: 1,
@@ -219,7 +219,7 @@ export class RequestTableComponent {
     }
 
     onDownloadFile(request: ChangeRequest, fileOid: string): void {
-        window.location.href = acp + "/changerequest/download-file-cr?crOid=" + request.oid + "&" + "vfOid=" + fileOid;
+        window.location.href = registry.contextPath + "/changerequest/download-file-cr?crOid=" + request.oid + "&" + "vfOid=" + fileOid;
     }
 
     onDeleteFile(request: ChangeRequest, fileOid: string): void {
@@ -300,13 +300,20 @@ export class RequestTableComponent {
                     const object = this.getFirstGeoObjectInActions(request);
 
                     if (object != null) {
-                        this.router.navigate(["/registry/location-manager", object.attributes.uid, object.geoObjectType.code, this.todayString, true]);
+                        this.router.navigate(["/registry/location-manager"], {
+                            queryParams: { text: object.attributes.code, date: this.todayString, type: object.geoObjectType.code, code: object.attributes.code, uid: object.attributes.uid, pageContext: 'DATA' }
+                        });
+                        // this.router.navigate(["/registry/location-manager", object.attributes.uid, object.geoObjectType.code, this.todayString, true]);
                     } else {
                         let object = request.current.geoObject;
                         let type = request.current.geoObjectType;
 
                         if (object != null && type != null) {
-                            this.router.navigate(["/registry/location-manager", object.attributes.uid, type.code, this.todayString, true]);
+                            this.router.navigate(["/registry/location-manager"], {
+                                queryParams: { text: object.attributes.code, date: this.todayString, type: type.code, code: object.attributes.code, uid: object.attributes.uid, pageContext: 'DATA' }
+                            });
+
+                            // this.router.navigate(["/registry/location-manager", object.attributes.uid, type.code, this.todayString, true]);
                         }
                     }
                 });
@@ -322,11 +329,11 @@ export class RequestTableComponent {
             // TODO : cr.statusLabel needs to be updated...
             /*
             cr.approvalStatus = "REJECTED";
-
+     
             let len = this.actions.length;
             for (let i = 0; i < len; ++i) {
                 let action: AbstractAction = this.actions[i];
-
+     
                 action.approvalStatus = "REJECTED";
             }
             */
@@ -497,7 +504,7 @@ export class RequestTableComponent {
         this.isEditing = !this.isEditing;
     }
 
-    canEdit(request: ChangeRequest) : boolean {
+    canEdit(request: ChangeRequest): boolean {
         return (request.permissions.includes("WRITE_DETAILS") && this.isEditing);
     }
 

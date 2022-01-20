@@ -49,15 +49,9 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
      */
     onEventChange: Subject<TransitionEvent>;
 
-    /*
-     * All Geo-ObjectTypes in the system
-     */
-    allTypes: { label: string, code: string, orgCode: string, superTypeCode?: string }[] = [];
+    afterTypes: { label: string, code: string, orgCode: string, superTypeCode?: string }[] = [];
 
-    /*
-     * Types that we have write permission to
-     */
-    types: { label: string, code: string, orgCode: string, superTypeCode?: string }[] = [];
+    beforeTypes: { label: string, code: string, orgCode: string, superTypeCode?: string }[] = [];
 
     /*
      * List of geo object types from the system
@@ -83,17 +77,26 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         this.onEventChange = new Subject();
 
         this.iService.listGeoObjectTypes(false).then(types => {
+            let myOrgs: string[] = this.authService.getMyOrganizations();
             let myOrgTypes = [];
+            let afterTypes = [];
+            let isSRA = this.authService.isSRA();
             for (let i = 0; i < types.length; ++i) {
                 const orgCode = types[i].orgCode;
                 const typeCode = types[i].superTypeCode != null ? types[i].superTypeCode : types[i].code;
 
-                if (this.authService.isGeoObjectTypeRM(orgCode, typeCode)) {
-                    myOrgTypes.push(types[i]);
+                let myOrgIndex = myOrgs.indexOf(orgCode);
+
+                if (myOrgIndex !== -1 || isSRA) {
+                    afterTypes.push(types[i]);
+
+                    if (this.authService.isGeoObjectTypeRM(orgCode, typeCode)) {
+                        myOrgTypes.push(types[i]);
+                    }
                 }
             }
-            this.types = myOrgTypes;
-            this.allTypes = types;
+            this.beforeTypes = myOrgTypes;
+            this.afterTypes = afterTypes;
 
             this.readonly = this.readonly || this.event.permissions.indexOf("WRITE") === -1;
         }).catch((err: HttpErrorResponse) => {
@@ -159,7 +162,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
             targetType: "",
             transitionType: "",
             impact: "",
-            order: this.event.transitions.length - 1
+            order: this.event.transitions.length
         });
     }
 
@@ -187,10 +190,28 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         this.validChange();
     }
 
-    getTypeAheadObservable(transition: Transition, typeCode: string, property: string): Observable<any> {
+    getTypeAheadObservable(isSource: boolean, transition: Transition, typeCode: string, property: string): Observable<any> {
+        let date = isSource ? this.dateService.addDay(-1, this.event.eventDate) : this.event.eventDate;
         return new Observable((observer: any) => {
-            this.rService.getGeoObjectSuggestions(transition[property], typeCode, null, null, null, this.event.eventDate, this.event.eventDate).then(results => {
-                observer.next(results);
+            this.rService.getGeoObjectSuggestions(transition[property], typeCode, null, null, null, date, date).then(results => {
+                let filtered = results.filter(result => {
+                  let pair = {
+                    sourceCode: isSource ? result.code : transition.sourceCode,
+                    targetCode: isSource ? transition.targetCode : result.code
+                  };
+
+                  for (let i = 0; i < this.event.transitions.length; ++i) {
+                      let transition = this.event.transitions[i];
+
+                      if (transition.sourceCode === pair.sourceCode && transition.targetCode === pair.targetCode) {
+                          return false;
+                      }
+                  }
+
+                  return true;
+                });
+
+                observer.next(filtered);
             });
         });
     }
@@ -235,7 +256,6 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         setTimeout(() => {
             this.valid = (this.event.eventDate != null && this.event.eventDate.length > 0) &&
                 this.event.transitions.length > 0 &&
-                this.event.description != null &&
                 this.event.afterTypeCode != null &&
                 this.event.beforeTypeCode != null;
         }, 0);
@@ -301,30 +321,45 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                     updown = "DOWNGRADE";
                 }
 
-                if (sourceStats.source > 1) {
+                if (sourceStats.source === 1 && targetStats.target === 1) {
+                    trans.transitionType = "REASSIGN";
+                    trans.impact = "FULL";
+                } else if (sourceStats.source > 1) {
                     trans.impact = "PARTIAL";
-                    trans.transitionType = "SPLIT";
-                } else {
+
                     if (targetStats.target > 1) {
                         trans.transitionType = "MERGE";
                     } else {
-                        trans.transitionType = "REASSIGN";
+                        trans.transitionType = "SPLIT";
                     }
-
+                } else if (targetStats.target > 1) {
                     trans.impact = "FULL";
+                    trans.transitionType = "MERGE";
                 }
 
                 if (trans.sourceType !== trans.targetType) {
-                    trans.typeUpdown = updown;
-                    trans.typePart = trans.transitionType;
-                    trans.transitionType = trans.typeUpdown + "_" + trans.typePart;
+                    if (trans.transitionType === "REASSIGN") {
+                        trans.typeUpdown = updown;
+                        delete trans.typePart;
+                        trans.transitionType = trans.typeUpdown;
+                    } else {
+                        trans.typeUpdown = updown;
+                        trans.typePart = trans.transitionType;
+                        trans.transitionType = trans.typeUpdown + "_" + trans.typePart;
+                    }
+                } else {
+                    delete trans.typePart;
                 }
             }
         });
     }
 
     onChangeTypeUpdown(transition: any): void {
-        transition.transitionType = transition.typeUpdown + "_" + transition.typePart;
+        if (transition.typePart) {
+            transition.transitionType = transition.typeUpdown + "_" + transition.typePart;
+        } else {
+            transition.transitionType = transition.typeUpdown;
+        }
     }
 
     /* Drag Drop Transitions */

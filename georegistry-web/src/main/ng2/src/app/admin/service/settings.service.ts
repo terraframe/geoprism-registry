@@ -28,7 +28,7 @@ import { PageResult, Organization, ExternalSystem, LocaleView } from '@shared/mo
 
 import { User } from '@admin/model/account';
 
-declare var acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 export class SettingsInitView {
   organizations: Organization[];
@@ -47,7 +47,7 @@ export class SettingsService {
     this.eventService.start();
 
     return this.http
-      .get<SettingsInitView>(acp + '/cgr/init-settings')
+      .get<SettingsInitView>(registry.contextPath + '/cgr/init-settings')
       .pipe(finalize(() => {
         this.eventService.complete();
       }))

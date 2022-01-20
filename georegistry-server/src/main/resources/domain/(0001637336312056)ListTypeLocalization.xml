@@ -1,0 +1,298 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.date.generated">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.date.generated" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Date Generated" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.version">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.version" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Version" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.new.version">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.new.version" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="New Version" />
+        </attributeStruct>
+      </object>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.working.version">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.working.version" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Working Version" />
+        </attributeStruct>
+      </object>            
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.no.versions">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.no.versions" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="No Versions" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.see.versions">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.see.versions" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="See previous versions" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.hide.versions">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.hide.versions" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hide previous versions" />
+        </attributeStruct>
+      </object>                        
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.list">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.list" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="List" />
+        </attributeStruct>
+      </object>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.geospatial">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.geospatial" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geospatial" />
+        </attributeStruct>
+      </object>            
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.master">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.master" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Master" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.non.master">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.non.master" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Non-master" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.valid.on">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.valid.on" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Valid On" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.no.lists">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.no.lists" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="No lists created" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.heading">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.heading" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Lists and Spatial Data" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.intervals">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.intervals" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Intervals" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.interval.series">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.interval.series" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Interval series" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.incremental.series">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.incremental.series" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Incremental series" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.single.date">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.single.date" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Single date" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.collection.date">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.collection.date" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Collection Date" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.originator">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.originator" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Originator" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.versionMetadata">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.versionMetadata" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Version Metadata" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.topicCategories">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.topicCategories" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Topic Categories" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.placeKeywords">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.placeKeywords" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Place Keywords" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.updateFrequency">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.updateFrequency" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Update Frequency" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.lineage">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.lineage" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Lineage" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.languages">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.languages" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Languages" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.scaleResolution">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.scaleResolution" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Scale Resolution" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.spatialRepresentation">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.spatialRepresentation" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Spatial Representation Type" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.vector">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.vector" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Vector" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.referenceSystem">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.referenceSystem" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Reference System" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.type.epsg4326">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.epsg4326" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="EPSG 4326 (WGS 84)" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="reportSpecification">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.reportSpecification" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Report and Specification" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="distributionFormat">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.type.distributionFormat" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Distribution Format" />
+        </attributeStruct>
+      </object>                  
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.layers">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.layers" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Layers" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.search.note">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.search.note" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Note: Searching will reset the current context layers" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.search.layer">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.search.layer" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Search Results" />
+        </attributeStruct>
+      </object>                        
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.search.placeholder">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.search.placeholder" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Search for Geo-Objects to edit" />
+        </attributeStruct>
+      </object>                        
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.viewOnMap">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.viewOnMap" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View on map" />
+        </attributeStruct>
+      </object>                  
+      
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

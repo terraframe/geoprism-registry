@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -28,8 +28,8 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeVersion;
 
 public class FhirSyncLevel implements Comparable<FhirSyncLevel>
 {
@@ -63,8 +63,8 @@ public class FhirSyncLevel implements Comparable<FhirSyncLevel>
       {
         try
         {
-          MasterListVersion version = MasterListVersion.get(src.getVersionId());
-          MasterList list = version.getMasterlist();
+          ListTypeVersion version = ListTypeVersion.get(src.getVersionId());
+          ListType list = version.getListType();
 
           jo.addProperty("forDate", formatDate(version.getForDate()));
           jo.addProperty("typeLabel", list.getDisplayLabel().getValue());

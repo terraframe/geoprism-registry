@@ -28,7 +28,7 @@ import { AuthService } from '@shared/service';
 
 import { HubService } from '@core/service/hub.service';
 
-declare var acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component( {
     selector: 'hub',
@@ -51,7 +51,7 @@ export class HubComponent implements OnInit {
         private router: Router,
         private route: ActivatedRoute,
     ) {
-        this.context = acp as string;
+        this.context = registry.contextPath;
     }
 
     ngOnInit(): void {
@@ -71,6 +71,11 @@ export class HubComponent implements OnInit {
 
 
     open( application: Application ): void {
+        
+        if (application.url.includes("location-manager")) {
+            application.url = application.url + "?pageContext=EXPLORER";
+        }
+        
         window.location.href = this.context + '/' + application.url;
     }
 

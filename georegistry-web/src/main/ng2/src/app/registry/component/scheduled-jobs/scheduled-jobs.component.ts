@@ -6,12 +6,13 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { interval } from "rxjs";
 
 import { RegistryService, IOService } from "@registry/service";
-import { ScheduledJob, ScheduledJobOverview, PaginationPage } from "@registry/model/registry";
+import { ScheduledJob, ScheduledJobOverview } from "@registry/model/registry";
 
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService, AuthService } from "@shared/service";
 import { DateService } from "@shared/service/date.service";
 import { ModalTypes } from "@shared/model/modal";
+import { PageResult } from "@shared/model/core";
 
 @Component({
     selector: "scheduled-jobs",
@@ -22,18 +23,18 @@ export class ScheduledJobsComponent implements OnInit {
 
     message: string = null;
 
-    activeJobsPage: PaginationPage = {
+    activeJobsPage: PageResult<any> = {
         count: 0,
         pageNumber: 1,
         pageSize: 10,
-        results: []
+        resultSet: []
     };
 
-    completeJobsPage: PaginationPage = {
+    completeJobsPage: PageResult<any> = {
         count: 0,
         pageNumber: 1,
         pageSize: 10,
-        results: []
+        resultSet: []
     };
 
     /*
@@ -109,8 +110,8 @@ export class ScheduledJobsComponent implements OnInit {
         }
     }
 
-    formatStepConfig(page: PaginationPage): void {
-        page.results.forEach(job => {
+    formatStepConfig(page: PageResult<any>): void {
+        page.resultSet.forEach(job => {
             let stepConfig = {
                 steps: [
                     { label: this.localizeService.decode("scheduler.step.fileImport"), status: "COMPLETE" },
@@ -207,11 +208,11 @@ export class ScheduledJobsComponent implements OnInit {
             this.ioService.cancelImport(job.configuration).then(response => {
                 this.bsModalRef.hide();
 
-                for (let i = 0; i < this.activeJobsPage.results.length; ++i) {
-                    let activeJob = this.activeJobsPage.results[i];
+                for (let i = 0; i < this.activeJobsPage.resultSet.length; ++i) {
+                    let activeJob = this.activeJobsPage.resultSet[i];
 
                     if (activeJob.jobId === job.jobId) {
-                        this.activeJobsPage.results.splice(i, 1);
+                        this.activeJobsPage.resultSet.splice(i, 1);
                         break;
                     }
                 }
@@ -239,11 +240,11 @@ export class ScheduledJobsComponent implements OnInit {
             this.service.resolveScheduledJob(historyId).then(response => {
                 this.bsModalRef.hide();
 
-                for (let i = 0; i < this.activeJobsPage.results.length; ++i) {
-                    let activeJob = this.activeJobsPage.results[i];
+                for (let i = 0; i < this.activeJobsPage.resultSet.length; ++i) {
+                    let activeJob = this.activeJobsPage.resultSet[i];
 
                     if (activeJob.jobId === job.jobId) {
-                        this.activeJobsPage.results.splice(i, 1);
+                        this.activeJobsPage.resultSet.splice(i, 1);
                         break;
                     }
                 }

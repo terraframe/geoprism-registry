@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -55,7 +55,7 @@ public class FhirExportJob extends FhirExportJobBase
 
     FhirExternalSystem system = this.getExternalSystem();
 
-    this.getVersion().exportToFhir(system, this.getImplementation());
+//    this.getVersion().exportToFhir(system, this.getImplementation());
   }
 
   @Override

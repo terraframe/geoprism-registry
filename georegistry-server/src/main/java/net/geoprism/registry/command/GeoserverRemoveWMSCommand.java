@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -23,16 +23,16 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.dataaccess.Command;
 
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.TableEntity;
 import net.geoprism.registry.service.WMSService;
 
 public class GeoserverRemoveWMSCommand implements Command
 {
-  private Logger            log = LoggerFactory.getLogger(GeoserverRemoveWMSCommand.class);
+  private Logger      log = LoggerFactory.getLogger(GeoserverRemoveWMSCommand.class);
 
-  private MasterListVersion version;
+  private TableEntity version;
 
-  public GeoserverRemoveWMSCommand(MasterListVersion version)
+  public GeoserverRemoveWMSCommand(TableEntity version)
   {
     this.version = version;
   }
@@ -42,7 +42,7 @@ public class GeoserverRemoveWMSCommand implements Command
    */
   public void doIt()
   {
-    log.info("Removing WMS for MasterListVersion [" + this.version.getOid() + "]");
+    log.info("Removing WMS for TableEntity [" + this.version.getOid() + "]");
 
     new WMSService().deleteWMSLayer(version);
   }

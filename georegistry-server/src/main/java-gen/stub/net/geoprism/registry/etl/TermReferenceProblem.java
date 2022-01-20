@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -52,9 +52,9 @@ public class TermReferenceProblem extends TermReferenceProblemBase
   }
 
   @Override
-  public JsonObject toJson()
+  public JsonObject toJSON()
   {
-    JsonObject object = super.toJson();
+    JsonObject object = super.toJSON();
     
     object.addProperty("label", this.getLabel());
     object.addProperty("parentCode", this.getParentCode());

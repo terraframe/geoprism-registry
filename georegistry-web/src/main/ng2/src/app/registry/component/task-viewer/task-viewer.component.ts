@@ -3,9 +3,10 @@ import { DatePipe } from "@angular/common";
 
 import { TaskService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
-import { GeoObjectType, PaginationPage } from "@registry/model/registry";
+import { GeoObjectType } from "@registry/model/registry";
 
 import { LocalizationService } from "@shared/service";
+import { PageResult } from "@shared/model/core";
 
 @Component({
     selector: "task-viewer",
@@ -18,18 +19,18 @@ export class TaskViewerComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
 
-    inProgressTasks: PaginationPage = {
+    inProgressTasks: PageResult<any> = {
         count: 0,
         pageNumber: 1,
         pageSize: 10,
-        results: []
+        resultSet: []
     };
 
-    completedTasks: PaginationPage = {
+    completedTasks: PageResult<any> = {
         count: 0,
         pageNumber: 1,
         pageSize: 10,
-        results: []
+        resultSet: []
     };
 
     isViewAllOpen: boolean = false;
@@ -62,10 +63,10 @@ export class TaskViewerComponent implements OnInit {
         // this.isViewAllOpen = true;
 
         this.taskService.completeTask(task.id).then(() => {
-            const index = this.inProgressTasks.results.findIndex(t => t.id === task.id);
+            const index = this.inProgressTasks.resultSet.findIndex(t => t.id === task.id);
 
             if (index !== -1) {
-                this.inProgressTasks.results.splice(index, 1);
+                this.inProgressTasks.resultSet.splice(index, 1);
             }
 
             if(this.isViewAllOpen) {
@@ -78,14 +79,14 @@ export class TaskViewerComponent implements OnInit {
         this.isViewAllOpen = true;
 
         this.taskService.setTaskStatus(task.id, "UNRESOLVED").then(() => {
-            const index = this.completedTasks.results.findIndex(t => t.id === task.id);
+            const index = this.completedTasks.resultSet.findIndex(t => t.id === task.id);
 
             if (index !== -1) {
-                this.completedTasks.results.splice(index, 1);
+                this.completedTasks.resultSet.splice(index, 1);
             }
 
-            this.completedTasks.results.splice(index, 1);
-            this.inProgressTasks.results.push(task);
+            this.completedTasks.resultSet.splice(index, 1);
+            this.inProgressTasks.resultSet.push(task);
         });
     }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
@@ -15,25 +15,28 @@ import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService, AuthService } from "@shared/service";
 import { ModalTypes } from "@shared/model/modal";
 
-declare let acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry";
+import { PageResult } from "@shared/model/core";
+import { Subscription } from "rxjs";
+declare let registry: GeoRegistryConfiguration;
 
 @Component({
     selector: "job",
     templateUrl: "./job.component.html",
     styleUrls: ["./scheduled-jobs.css"]
 })
-export class JobComponent implements OnInit {
+export class JobComponent implements OnInit, OnDestroy {
 
     message: string = null;
     job: ScheduledJob;
     allSelected: boolean = false;
     historyId: string = "";
 
-    page: any = {
+    page: PageResult<any> = {
         count: 0,
         pageNumber: 1,
         pageSize: 10,
-        results: []
+        resultSet: []
     };
 
     timeCounter: number = 0;
@@ -51,6 +54,7 @@ export class JobComponent implements OnInit {
     hasRowValidationProblem: boolean = false;
 
     notifier: WebSocketSubject<{ type: string, message: string }>;
+    subscription: Subscription = null;
 
     constructor(public service: RegistryService, private modalService: BsModalService,
         private router: Router, private route: ActivatedRoute, private dateService: DateService,
@@ -65,10 +69,10 @@ export class JobComponent implements OnInit {
 
         this.onPageChange(1);
 
-        let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + acp;
+        let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + registry.contextPath;
 
         this.notifier = webSocket(baseUrl + "/websocket/notify");
-        this.notifier.subscribe(message => {
+        this.subscription = this.notifier.subscribe(message => {
             if (message.type === "IMPORT_JOB_CHANGE") {
                 this.onPageChange(this.page.pageNumber);
             }
@@ -76,6 +80,11 @@ export class JobComponent implements OnInit {
     }
 
     ngOnDestroy() {
+        if (this.subscription != null) {
+            this.subscription.unsubscribe();
+        }
+
+        this.notifier.complete();
     }
 
     formatAffectedRows(rows: string) {
@@ -87,11 +96,11 @@ export class JobComponent implements OnInit {
     }
 
     onProblemResolved(problem: any): void {
-        for (let i = 0; i < this.page.results.length; ++i) {
-            let pageConflict = this.page.results[i];
+        for (let i = 0; i < this.page.resultSet.length; ++i) {
+            let pageConflict = this.page.resultSet[i];
 
             if (pageConflict.id === problem.id) {
-                this.page.results.splice(i, 1);
+                this.page.resultSet.splice(i, 1);
             }
         }
     }
@@ -116,7 +125,7 @@ export class JobComponent implements OnInit {
         if (probType === "net.geoprism.registry.DataNotFoundException") {
             return this.localizeService.decode("scheduledjobs.job.problem.type.datanotfound");
         }
-        
+
         if (probType === "net.geoprism.registry.geoobject.ImportOutOfRangeException") {
             return this.localizeService.decode("scheduledjobs.job.problem.type.importOutOfRange");
         }
@@ -173,13 +182,17 @@ export class JobComponent implements OnInit {
             } else if (this.job.stage === "VALIDATION_RESOLVE") {
                 this.page = this.job.problems;
 
-                for (let i = 0; i < this.page.results.length; ++i) {
-                    let problem = this.page.results[i];
+                for (let i = 0; i < this.page.resultSet.length; ++i) {
+                    let problem = this.page.resultSet[i];
 
                     if (problem.type === "RowValidationProblem") {
                         this.hasRowValidationProblem = true;
                     }
                 }
+            }
+
+            if (response.exception) {
+                this.error(response.exception);
             }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
@@ -197,7 +210,7 @@ export class JobComponent implements OnInit {
     toggleAll(): void {
         this.allSelected = !this.allSelected;
 
-        this.job.importErrors.results.forEach(row => {
+        this.job.importErrors.resultSet.forEach(row => {
             row.selected = this.allSelected;
         });
     }
@@ -217,7 +230,7 @@ export class JobComponent implements OnInit {
     }
 
     onResolveScheduledJob(historyId: string): void {
-        if (this.page.results.length === 0) {
+        if (this.page.resultSet.length === 0) {
             this.service.resolveScheduledJob(historyId).then(response => {
                 this.router.navigate(["/registry/scheduled-jobs"]);
             }).catch((err: HttpErrorResponse) => {
@@ -276,7 +289,7 @@ export class JobComponent implements OnInit {
         return this.dateService.formatDateForDisplay(date);
     }
 
-    error(err: HttpErrorResponse): void {
+    error(err: any): void {
         this.message = ErrorHandler.getMessageFromError(err);
     }
 

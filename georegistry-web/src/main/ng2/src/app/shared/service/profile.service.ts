@@ -5,7 +5,7 @@ import { HttpHeaders, HttpClient } from "@angular/common/http";
 
 import { Profile } from "@shared/model/profile";
 
-declare let acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class ProfileService {
@@ -19,7 +19,7 @@ export class ProfileService {
         });
 
         return this.http
-            .post<Profile>(acp + "/registryaccount/get", { headers: headers })
+            .post<Profile>(registry.contextPath + "/registryaccount/get", { headers: headers })
             .toPromise();
     }
 
@@ -30,7 +30,7 @@ export class ProfileService {
         });
 
         return this.http
-            .post<Profile>(acp + "/registryaccount/apply", JSON.stringify({ account: profile }), { headers: headers })
+            .post<Profile>(registry.contextPath + "/registryaccount/apply", JSON.stringify({ account: profile }), { headers: headers })
             .toPromise();
     }
 
@@ -40,7 +40,7 @@ export class ProfileService {
         });
 
         return this.http
-            .post<void>(acp + "/registryaccount/unlock", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<void>(registry.contextPath + "/registryaccount/unlock", JSON.stringify({ oid: oid }), { headers: headers })
             .toPromise()
     }
 
@@ -50,7 +50,7 @@ export class ProfileService {
         });
 
         return this.http
-            .post<any>(acp + "/localization/set-locale", JSON.stringify({ locale: locale }), { headers: headers })
+            .post<any>(registry.contextPath + "/localization/set-locale", JSON.stringify({ locale: locale }), { headers: headers })
             .toPromise();
     }
 
@@ -61,7 +61,7 @@ export class ProfileService {
 
 
         return this.http
-            .post<Profile>(acp + "/registryaccount/getRolesForUser", { userOID: userOID }, { headers: headers })
+            .post<Profile>(registry.contextPath + "/registryaccount/getRolesForUser", { userOID: userOID }, { headers: headers })
             .toPromise();
     }
 

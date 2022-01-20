@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -93,7 +93,7 @@ import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.HierarchyRootException;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
-import net.geoprism.registry.MasterList;
+import net.geoprism.registry.ListType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.TypeInUseException;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
@@ -352,7 +352,7 @@ public class ServerGeoObjectType implements ServerElement
       }
     }
 
-    MasterList.markAllAsInvalid(null, this);
+    ListType.markAllAsInvalid(null, this);
 
     new SearchService().clear(this.getCode());
 
@@ -634,7 +634,7 @@ public class ServerGeoObjectType implements ServerElement
       // attributeTermType.setRootTerm(term);
     }
 
-    MasterList.createMdAttribute(this, attributeType);
+    ListType.createMdAttribute(this, attributeType);
 
     ( (MdVertexDAO) this.mdVertex ).copyAttribute(MdAttributeDAO.get(mdAttribute.getOid()));
 
@@ -689,7 +689,7 @@ public class ServerGeoObjectType implements ServerElement
 
       if (optional.isPresent())
       {
-        MasterList.deleteMdAttribute(this.universal, optional.get());
+        ListType.deleteMdAttribute(this.universal, optional.get());
       }
     }
 

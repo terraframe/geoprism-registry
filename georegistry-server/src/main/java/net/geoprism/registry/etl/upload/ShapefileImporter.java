@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -52,6 +52,10 @@ import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
@@ -213,7 +217,7 @@ public class ShapefileImporter implements FormatSpecificImporterIF
    *          Log file writer
    * @throws InvocationTargetException
    * @throws IOException
-   * @throws InterruptedException 
+   * @throws InterruptedException
    */
   @Request
   private void process(ImportStage stage, File shp) throws InvocationTargetException, IOException, InterruptedException
@@ -297,7 +301,8 @@ public class ShapefileImporter implements FormatSpecificImporterIF
         }
       }
     }
-    catch(Throwable t) {
+    catch (Throwable t)
+    {
       t.printStackTrace();
     }
     finally
@@ -308,7 +313,20 @@ public class ShapefileImporter implements FormatSpecificImporterIF
 
   public Geometry getGeometry(FeatureRow row)
   {
-    Object geometry = ( (SimpleFeatureRow) row ).getFeature().getDefaultGeometry();
+    Geometry geometry = (Geometry) ( (SimpleFeatureRow) row ).getFeature().getDefaultGeometry();
+
+    if (geometry instanceof Point)
+    {
+      return new GeometryFactory().createMultiPoint(new Point[] { (Point) geometry });
+    }
+    else if (geometry instanceof Polygon)
+    {
+      return new GeometryFactory().createMultiPolygon(new Polygon[] { (Polygon) geometry });
+    }
+    else if (geometry instanceof LineString)
+    {
+      return new GeometryFactory().createMultiLineString(new LineString[] { (LineString) geometry });
+    }
 
     return (Geometry) geometry;
   }

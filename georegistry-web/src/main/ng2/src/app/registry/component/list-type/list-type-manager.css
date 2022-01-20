@@ -1,0 +1,106 @@
+/* Accounting for the height of the header bar + a margin at the bottom */
+/* .new-admin-design-main {
+    height: calc(100% - 88px);
+} */
+
+.list-sidebar {
+    z-index: 999;
+    background: #f1f1f1;
+    transition: all 0.3s;
+    vertical-align: top;
+    height: calc(100vh - 144px);
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.list-group-item,
+li.list-group-item {
+    background-color: transparent;
+    padding: 3px 10px;
+}
+
+.cr-sort-arrow {
+	font-size: 14px;
+}
+
+.cr-filter-link-active,
+.cr-filter-link-active:active {
+	/* border: solid 1px #6BA542; */
+    border-radius: 10px;
+    background: #6BA542;
+    color: white;
+    font-weight: bold;
+    padding: 3px 15px 3px 15px;
+}
+.cr-filter-link-active:hover,
+.cr-filter-link-active:focus {
+	color:white;
+}
+
+.panel-body {
+    color: #333;
+    background-color: #f5f5f5;
+    border-color: #ddd;
+}
+
+.unstyled-list {
+    list-style: none;
+    padding: 0;
+    color: #707070;
+}
+
+.fa {
+    top: 5px;
+}
+.fa-stack {
+    width: 1.5em;
+}
+.fa-stack .fa {
+    text-align: left;
+}
+.second-stacked-el:before {
+    background:#f5f5f5;
+}
+
+
+.full-width-radio-button {
+      position: relative;
+}
+
+.full-width-radio-button .errorSpan, .changeSpan {
+    position: absolute;
+}
+
+label.settings > span > i.fa.fa-cog {
+    font-size: 15px;
+}
+
+.full-width-radio-button .errorSpan {
+    display: inline-block;
+    position: relative;
+}
+
+.full-width-radio-button .changeSpan {
+  right: 2.5px;
+}
+
+.full-width-radio-button .tabHasErrors:before {
+  content: ' \25CF';
+  font-size: 20px;
+  line-height:12px;
+  text-align: left;
+  color: red;
+}
+
+.full-width-radio-button .tabHasChanges:after {
+    content: ' \25CF';
+  font-size: 20px;
+  line-height:12px;
+  text-align: right;
+  color: orange;
+}
+
+.warning-text{
+    color: orange;
+}
+

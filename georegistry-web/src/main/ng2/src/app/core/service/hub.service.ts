@@ -22,7 +22,7 @@ import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
 
 import { Application } from '@shared/model/application';
 
-declare var acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class HubService {
@@ -36,7 +36,7 @@ export class HubService {
 		});
 
 		return this.http
-			.post<Application[]>(acp + '/menu/applications', { headers: headers })
+			.post<Application[]>(registry.contextPath + '/menu/applications', { headers: headers })
 			.toPromise();
 	}
 	
@@ -49,7 +49,7 @@ export class HubService {
     }
 
     return this.http
-      .get<any[]>(acp + '/cgr/oauth/get-public', { params: params })
+      .get<any[]>(registry.contextPath + '/cgr/oauth/get-public', { params: params })
       .toPromise();
   }
 }

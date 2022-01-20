@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -25,7 +25,9 @@ import com.runwaysdk.session.RequestType;
 
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.GeoserverService;
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeVersion;
+import net.geoprism.registry.TableEntity;
 
 public class WMSService
 {
@@ -37,32 +39,38 @@ public class WMSService
   @Request
   public void createAllWMSLayers(boolean forceGeneration)
   {
-    List<? extends MasterListVersion> versions = MasterListVersion.getAll(MasterListVersion.PUBLISHED);
+    List<? extends ListTypeVersion> versions = ListTypeVersion.getAll();
 
-    for (MasterListVersion version : versions)
+    for (ListTypeVersion version : versions)
     {
-      this.createGeoServerLayer(version, forceGeneration);
+      if (version.getGeospatialVisibility().equals(ListType.PUBLIC))
+      {
+        this.createGeoServerLayer(version, forceGeneration);
+      }
     }
   }
 
   @Request
   public void deleteAllWMSLayers()
   {
-    List<? extends MasterListVersion> versions = MasterListVersion.getAll(MasterListVersion.PUBLISHED);
+    List<? extends ListTypeVersion> versions = ListTypeVersion.getAll();
 
-    for (MasterListVersion version : versions)
+    for (ListTypeVersion version : versions)
     {
-      this.deleteWMSLayer(version);
+      if (version.getGeospatialVisibility().equals(ListType.PUBLIC))
+      {
+        this.deleteWMSLayer(version);
+      }
     }
   }
 
   @Request(RequestType.SESSION)
-  public void createWMSLayer(String sessionId, MasterListVersion version, boolean forceGeneration)
+  public void createWMSLayer(String sessionId, TableEntity version, boolean forceGeneration)
   {
     this.createGeoServerLayer(version, forceGeneration);
   }
 
-  public void createGeoServerLayer(MasterListVersion version, boolean forceGeneration)
+  public void createGeoServerLayer(TableEntity version, boolean forceGeneration)
   {
     String tableName = version.getMdBusiness().getTableName();
 
@@ -79,7 +87,7 @@ public class WMSService
     }
   }
 
-  public void deleteWMSLayer(MasterListVersion version)
+  public void deleteWMSLayer(TableEntity version)
   {
     String tableName = version.getMdBusiness().getTableName();
 

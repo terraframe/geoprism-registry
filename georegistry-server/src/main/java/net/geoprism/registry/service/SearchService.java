@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -314,7 +314,7 @@ public class SearchService
     statement.append(" FROM " + mdVertex.getDBClassName());
     statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", \"+" + label.getColumnName() + ":" + text + "*\") = true");
     statement.append(" OR :code = " + code.getColumnName() + ")");
-    
+
     if (date != null)
     {
       statement.append(" AND :date BETWEEN " + startDate.getColumnName() + " AND " + endDate.getColumnName());
@@ -335,7 +335,7 @@ public class SearchService
     List<ServerGeoObjectIF> list = new LinkedList<ServerGeoObjectIF>();
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
     query.setParameter("code", text);
-    
+
     if (date != null)
     {
       query.setParameter("date", date);
@@ -343,7 +343,7 @@ public class SearchService
 
     if (!service.isSRA() && service.hasSessionUser())
     {
-      List<String> vertexTypes = new GeoObjectPermissionService().getReadableTypes(service.getOrganization());
+      List<String> vertexTypes = new GeoObjectPermissionService().getMandateTypes(service.getOrganization());
       query.setParameter("vertexTypes", vertexTypes);
     }
 

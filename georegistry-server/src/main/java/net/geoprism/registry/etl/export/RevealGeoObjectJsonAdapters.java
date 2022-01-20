@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
  * This file is part of Geoprism Registry(tm).
  *
@@ -141,7 +141,7 @@ public class RevealGeoObjectJsonAdapters
 
     public static ServerGeoObjectIF getParent(ServerGeoObjectIF serverGo, String hierarchyCode)
     {
-      ServerParentTreeNode sptn = serverGo.getParentGeoObjects(null, false);
+      ServerParentTreeNode sptn = serverGo.getParentGeoObjects(null, false, null);
 
       List<ServerParentTreeNode> parents = sptn.getParents();
 

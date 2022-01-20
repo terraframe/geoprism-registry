@@ -1,0 +1,48 @@
+<div class="modal-body" tabindex="-1" role="dialog">
+    <div class="heading text-center">
+        <h1>
+            Export
+        </h1>
+    </div>
+
+    <form class="modal-form" name="export-form">
+        <fieldset>
+            <div class="row">
+                <div class="col-md-12">
+                    <label>
+                        <localize key="export-modal.message"></localize>
+                    </label>
+
+                    <select id="format" name="format" class="select-area" [(ngModel)]="format" required>
+                        <option></option>
+                        <option value="EXCEL">
+                            <localize key="io.spreadsheet"></localize>
+                        </option>
+                        <option value="SHAPEFILE">
+                            <localize key="io.shapefile"></localize>
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="button-holder">
+                        <button type="button" (click)="bsModalRef.hide()" class="btn btn-default" role="button"
+                            aria-disabled="false">
+                            <span>
+                                <localize key="modal.button.cancel"></localize>
+                            </span>
+                        </button>
+                        <button type="button" (click)="confirm()" [disabled]="format == null || format == ''"
+                            class="btn btn-primary" role="button">
+                            <span>
+                                <localize key="modal.button.submit"></localize>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>

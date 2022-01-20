@@ -9,7 +9,7 @@ import { HistoricalRow } from "@registry/model/transition-event";
 import { AuthService, DateService } from "@shared/service";
 import { IOService } from "@registry/service";
 
-declare let acp: string;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component({
 
@@ -57,9 +57,9 @@ export class HistoricalReportComponent {
     };
 
     data = {
-        type: '',
-        startDate: '',
-        endDate: ''
+        type: "",
+        startDate: "",
+        endDate: ""
     }
 
     types: { label: string, code: string }[] = [];
@@ -68,17 +68,11 @@ export class HistoricalReportComponent {
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private service: TransitionEventService, private iService: IOService, private authService: AuthService,
-        private dateService: DateService) { }
+        public dateService: DateService) { }
 
     ngOnInit(): void {
-
         this.iService.listGeoObjectTypes(true).then(types => {
-            this.types = types.filter(t => {
-                const orgCode = t.orgCode;
-                const typeCode = t.superTypeCode != null ? t.superTypeCode : t.code;
-
-                return this.authService.isGeoObjectTypeRM(orgCode, typeCode);
-            });
+            this.types = types;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -98,7 +92,7 @@ export class HistoricalReportComponent {
         params = params.set("startDate", this.data.startDate.toString());
         params = params.set("endDate", this.data.endDate.toString());
 
-        window.location.href = acp + "/transition-event/export-excel?" + params.toString();
+        window.location.href = registry.contextPath + "/transition-event/export-excel?" + params.toString();
     }
 
     formatDate(date: string): string {
@@ -107,7 +101,7 @@ export class HistoricalReportComponent {
 
     checkDates(): any {
         setTimeout(() => {
-            this.isValid = (this.data.startDate != null && this.data.endDate != null);
+            this.isValid = (this.data.startDate != null && this.data.endDate != null && !this.dateService.after(this.data.startDate, this.data.endDate));
         }, 0);
     }
 

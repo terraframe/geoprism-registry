@@ -6,7 +6,7 @@ import { finalize } from 'rxjs/operators';
 
 import { EventService } from '@shared/service'
 
-declare var acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class ForgotPasswordService {
@@ -21,7 +21,7 @@ export class ForgotPasswordService {
 		this.eventService.start();
 
 		return this.http
-			.post<void>(acp + '/forgotpassword/initiate', JSON.stringify({ username: username }), { headers: headers })
+			.post<void>(registry.contextPath + '/forgotpassword/initiate', JSON.stringify({ username: username }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
@@ -36,7 +36,7 @@ export class ForgotPasswordService {
 		this.eventService.start();
 
 		return this.http
-			.post<void>(acp + '/forgotpassword/complete', JSON.stringify({ newPassword: newPassword, token: token }), { headers: headers })
+			.post<void>(registry.contextPath + '/forgotpassword/complete', JSON.stringify({ newPassword: newPassword, token: token }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
