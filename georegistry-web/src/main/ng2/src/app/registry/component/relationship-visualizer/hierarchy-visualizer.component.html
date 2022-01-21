@@ -18,17 +18,23 @@
 
 			<div class="hierarchy-content" style="height:100%; width:100%;">
 				<div id="graph-container" style="height:100%; width:100%;">
-
           <ngx-graph *ngIf="data"
             class="chart-container"
             [view]="[width, height]"
             [links]="data.edges"
             [nodes]="data.verticies"
+            [layout]="layout"
+            [layoutSettings]="{orientation: 'TB'}"
+            [curve]="curve"
             [draggingEnabled]="false"
-            [layoutSettings]="{ orientation: 'TB' }"
             [panToNode$]="panToNode$"
             [update$]="update$"
           >
+            <ng-template #defsTemplate>
+					    <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+					      <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
+					    </svg:marker>
+					  </ng-template>
             <ng-template #nodeTemplate let-node>
 					    <svg:g (click)="onClickNode(node)" class="node">
 					      <svg:rect
@@ -40,11 +46,11 @@
 					      <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
                   {{node.label}}
                 </svg:text>
-                <!--
-                <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
-                  {{stringify(node.id)}}
-                </svg:text>
-                -->
+					    </svg:g>
+					  </ng-template>
+					  <ng-template #linkTemplate let-link>
+					    <svg:g class="edge">
+					      <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
 					    </svg:g>
 					  </ng-template>
           </ngx-graph>

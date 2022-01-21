@@ -10,6 +10,11 @@ import { HierarchyService, IOService } from "@registry/service";
 import { GeoObject } from "@registry/model/registry";
 import { Subject } from "rxjs";
 import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
+import { Layout } from "@swimlane/ngx-graph";
+
+import { DagreNodesOnlyLayout } from "./relationship-viz-layout";
+
+import * as shape from 'd3-shape';
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -50,6 +55,10 @@ export class HierarchyVisualizerComponent implements OnInit {
   panToNode$: Subject<string> = new Subject();
 
   update$: Subject<boolean> = new Subject();
+
+  public layout: Layout = new DagreNodesOnlyLayout();
+
+  public curve = shape.curveLinear;
 
   // eslint-disable-next-line no-useless-constructor
   constructor(private hierarchyService: HierarchyService, private modalService: BsModalService, private ioService: IOService,
