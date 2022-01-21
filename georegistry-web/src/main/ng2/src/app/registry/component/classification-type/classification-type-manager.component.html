@@ -19,15 +19,15 @@
                                 {{type.displayLabel.localizedValue}}
                             </a>
 
-                            <span 
+                            <span
                                 style="position:absolute;right:10px;background:rgba(255,255,255,.7);top:50%;transform:translateY(-50%);">
 
-                                <i class="fa fa-times delete-btn clickable pull-right" (click)="onDelete(type)"
-                                    [title]="'button.delete.helptext' | localize">
-                                </i>
+                                <a class="fa fa-pencil ico-edit" (click)="onEdit(type)"
+                                    [title]="'modal.button.edit' | localize"></a>
+                                <a class="fa fa-trash-o ico-remove" (click)="onDelete(type)"
+                                    [title]="'button.delete.helptext' | localize"></a>
                             </span>
 
-                            <span></span>
                         </li>
                         <li class="list-group-item got-li-item">
                             <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">

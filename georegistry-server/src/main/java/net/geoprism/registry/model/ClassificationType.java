@@ -8,6 +8,7 @@ import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
+import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -47,6 +48,11 @@ public class ClassificationType implements JsonSerializable
     return this.mdClassification.getValue(MdClassificationInfo.TYPE_NAME);
   }
 
+  public String getType()
+  {
+    return this.mdClassification.definesType();
+  }
+
   public String getOid()
   {
     return this.mdClassification.getOid();
@@ -57,19 +63,35 @@ public class ClassificationType implements JsonSerializable
     return LocalizedValueConverter.convert(this.mdClassification.getDisplayLabels());
   }
 
+  public LocalizedValue getDescription()
+  {
+    return LocalizedValueConverter.convert(this.mdClassification.getDescriptions());
+  }
+
   @Transaction
   public void delete()
   {
     this.mdClassification.getBusinessDAO().delete();
   }
 
+  public MdEdgeDAOIF getMdEdge()
+  {
+    return this.mdClassification.getReferenceMdEdgeDAO();
+  }
+
+  public MdVertexDAOIF getMdVertex()
+  {
+    return this.mdClassification.getReferenceMdVertexDAO();
+  }
+
   public JsonObject toJSON()
   {
     JsonObject object = new JsonObject();
     object.addProperty(MdClassificationInfo.OID, getOid());
-    object.addProperty(MdClassificationInfo.TYPE, this.mdClassification.definesType());
+    object.addProperty(MdClassificationInfo.TYPE, getType());
     object.addProperty(DefaultAttribute.CODE.getName(), this.getCode());
     object.add(MdClassificationInfo.DISPLAY_LABEL, this.getDisplayLabel().toJSON());
+    object.add(MdClassificationInfo.DESCRIPTION, this.getDescription().toJSON());
 
     String rootOid = this.mdClassification.getValue(MdClassificationInfo.ROOT);
 
@@ -117,33 +139,32 @@ public class ClassificationType implements JsonSerializable
   @Transaction
   public static ClassificationType apply(JsonObject json)
   {
-    ClassificationType classificationType = new ClassificationType();
+    MdClassificationDAO mdClassification = null;
 
     if (json.has(MdClassificationInfo.OID) && !json.get(MdClassificationInfo.OID).isJsonNull())
     {
       String oid = json.get(MdClassificationInfo.OID).getAsString();
-      classificationType.setMdClassification((MdClassificationDAOIF) MdClassificationDAO.get(oid));
+      mdClassification = (MdClassificationDAO) MdClassificationDAO.get(oid).getBusinessDAO();
     }
     else
     {
       String code = json.get(DefaultAttribute.CODE.getName()).getAsString();
 
-      MdClassificationDAO mdClassification = MdClassificationDAO.newInstance();
+      mdClassification = MdClassificationDAO.newInstance();
       mdClassification.setValue(MdClassificationInfo.PACKAGE, RegistryConstants.CLASSIFICATION_PACKAGE);
       mdClassification.setValue(MdClassificationInfo.TYPE_NAME, code);
       mdClassification.setValue(MdClassificationInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-
-      classificationType.setMdClassification(mdClassification);
     }
-
-    MdClassificationDAO mdClassification = (MdClassificationDAO) classificationType.getMdClassification().getBusinessDAO();
 
     LocalizedValue displayLabel = LocalizedValue.fromJSON(json.get(MdClassificationInfo.DISPLAY_LABEL).getAsJsonObject());
     LocalizedValueConverter.populate(mdClassification, MdClassificationInfo.DISPLAY_LABEL, displayLabel);
 
+    LocalizedValue description = LocalizedValue.fromJSON(json.get(MdClassificationInfo.DESCRIPTION).getAsJsonObject());
+    LocalizedValueConverter.populate(mdClassification, MdClassificationInfo.DESCRIPTION, description);
+
     mdClassification.apply();
 
-    return classificationType;
+    return new ClassificationType(mdClassification);
   }
 
   public static Page<ClassificationType> page(JsonObject criteria)
@@ -154,6 +175,13 @@ public class ClassificationType implements JsonSerializable
   public static ClassificationType get(String oid)
   {
     return new ClassificationType((MdClassificationDAOIF) MdClassificationDAO.get(oid));
+  }
+
+  public static ClassificationType getByType(String classificationType)
+  {
+    MdClassificationDAOIF mdClassification = (MdClassificationDAOIF) MdClassificationDAO.get(MdClassificationInfo.CLASS, classificationType);
+
+    return new ClassificationType(mdClassification);
   }
 
 }

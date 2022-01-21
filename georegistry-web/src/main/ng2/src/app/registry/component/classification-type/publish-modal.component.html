@@ -18,7 +18,7 @@
                 <div class="row-holder">
                     <div class="label-holder">
                         <label>
-                            <localize key="mastertype.code"></localize>
+                            Code
                         </label>
                     </div>
                     <div class="holder">
@@ -29,7 +29,7 @@
                 <div class="row-holder" *ngFor="let localeValue of type.displayLabel.localeValues">
                     <div class="label-holder">
                         <label>
-                            <localize key="mastertype.label"></localize>
+                            Label
                             <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
                                 </convert-key-label>)</span>
                         </label>
@@ -43,7 +43,7 @@
                 <div class="row-holder" *ngFor="let localeValue of type.description.localeValues">
                     <div class="label-holder">
                         <label>
-                            <localize key="mastertype.typeAbstract"></localize>
+                            Description
                             <span style="color: #BABABA">
                                 &nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)
                             </span>
