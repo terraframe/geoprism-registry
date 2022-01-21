@@ -126,17 +126,33 @@ public class IntervalListType extends IntervalListTypeBase
 
   @Override
   @Transaction
-  public void createEntries()
+  public void createEntries(JsonObject metadata)
   {
     if (!this.isValid())
     {
       throw new InvalidMasterListException();
     }
 
+    if (metadata == null)
+    {
+      List<ListTypeEntry> entries = this.getEntries();
+
+      if (entries.size() > 0)
+      {
+
+        ListTypeEntry entry = entries.get(0);
+        ListTypeVersion working = entry.getWorking();
+
+        metadata = working.toJSON(false);
+      }
+    }
+
+    final JsonObject object = metadata;
+
     this.getIntervals().forEach((pair) -> {
       Date startDate = pair.getFirst();
 
-      this.getOrCreateEntry(startDate);
+      this.getOrCreateEntry(startDate, object);
     });
   }
 
@@ -162,7 +178,5 @@ public class IntervalListType extends IntervalListTypeBase
     }
 
     super.apply();
-
-    this.createEntries();
   }
 }

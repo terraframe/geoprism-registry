@@ -55,6 +55,12 @@
 
   <repositories>
     <repository>
+      <id>central</id>
+      <name>central</name>
+      <url> https://repo1.maven.org/maven2/</url>
+      <layout>default</layout>
+    </repository>  
+    <repository>
       <id>terraframe-public</id>
       <url>https://dl.cloudsmith.io/public/terraframe/public/maven/</url>
       <releases>

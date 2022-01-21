@@ -34,6 +34,7 @@ import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.google.gson.JsonArray;
@@ -112,7 +113,7 @@ public abstract class ListType extends ListTypeBase
 
   protected abstract JsonObject formatVersionLabel(LabeledVersion version);
 
-  public abstract void createEntries();
+  public abstract void createEntries(JsonObject metadata);
 
   @Override
   @Transaction
@@ -123,14 +124,7 @@ public abstract class ListType extends ListTypeBase
       throw new InvalidMasterListCodeException("The list code has an invalid character");
     }
 
-    boolean isNew = this.isNew() && !this.isAppliedToDB();
-
     super.apply();
-
-    if (isNew)
-    {
-      this.createEntries();
-    }
   }
 
   @Override
@@ -140,6 +134,7 @@ public abstract class ListType extends ListTypeBase
     // Validate there are no public versions
     ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
     query.WHERE(query.getListType().EQ(this));
+    query.AND(query.getWorking().EQ(false));
     query.AND(OR.get(query.getListVisibility().EQ(ListType.PUBLIC), query.getGeospatialVisibility().EQ(ListType.PUBLIC)));
 
     long count = query.getCount();
@@ -313,8 +308,9 @@ public abstract class ListType extends ListTypeBase
     }
 
     // Parse the list metadata
-    this.parseMetadata("list", object.get(LIST_METADATA).getAsJsonObject());
-    this.parseMetadata("geospatial", object.get(GEOSPATIAL_METADATA).getAsJsonObject());
+    // this.parseMetadata("list", object.get(LIST_METADATA).getAsJsonObject());
+    // this.parseMetadata("geospatial",
+    // object.get(GEOSPATIAL_METADATA).getAsJsonObject());
   }
 
   private void parseMetadata(String prefix, JsonObject object)
@@ -429,7 +425,7 @@ public abstract class ListType extends ListTypeBase
     return object;
   }
 
-  private JsonObject toMetadataJSON(String prefix, LocaleSerializer serializer)
+  protected final JsonObject toMetadataJSON(String prefix, CustomSerializer serializer)
   {
     JsonObject object = new JsonObject();
     object.add("label", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Label")).toJSON(serializer));
@@ -490,11 +486,11 @@ public abstract class ListType extends ListTypeBase
   @Authenticate
   public ListTypeEntry createEntry(Date forDate)
   {
-    return ListTypeEntry.create(this, forDate);
+    return ListTypeEntry.create(this, forDate, null);
   }
 
   @Transaction
-  public ListTypeEntry getOrCreateEntry(Date forDate)
+  public ListTypeEntry getOrCreateEntry(Date forDate, JsonObject metadata)
   {
     if (!this.isValid())
     {
@@ -513,7 +509,7 @@ public abstract class ListType extends ListTypeBase
       }
     }
 
-    return ListTypeEntry.create(this, forDate);
+    return ListTypeEntry.create(this, forDate, metadata);
   }
 
   public ServerGeoObjectType getGeoObjectType()
@@ -736,7 +732,11 @@ public abstract class ListType extends ListTypeBase
       list.enforceActorHasPermission(Operation.CREATE);
     }
 
+    boolean isNew = list.isNew() && !list.isAppliedToDB();
+
     list.apply();
+
+    list.createEntries(isNew ? object : null);
 
     return list;
   }

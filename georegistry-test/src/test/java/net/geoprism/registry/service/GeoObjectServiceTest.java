@@ -325,7 +325,7 @@ public class GeoObjectServiceTest
     }
 
     // Disallowed Users
-    TestUserInfo[] disallowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC };
+    TestUserInfo[] disallowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC };
 
     for (TestUserInfo user : disallowedUsers)
     {
@@ -340,7 +340,7 @@ public class GeoObjectServiceTest
           {
             adapter.newGeoObjectInstance(FastTestDataset.PROVINCE_PRIVATE.getCode());
 
-            Assert.fail("Expected an error");
+            Assert.fail("Expected an error: " + user.getUsername());
           }
           catch (GeoObjectTypeNotFoundException ex)
           {

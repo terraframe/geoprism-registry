@@ -125,7 +125,7 @@ public class ListTypeInheritedHierarchyTest
 
       try
       {
-        ListTypeEntry entry = test.getOrCreateEntry(new Date());
+        ListTypeEntry entry = test.getOrCreateEntry(new Date(), null);
         ListTypeVersion version = entry.getWorking();
 
         try

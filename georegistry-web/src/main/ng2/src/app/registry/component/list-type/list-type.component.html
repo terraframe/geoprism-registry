@@ -9,8 +9,11 @@
                     [ngClass]="{'fa-chevron-down' : version.collapsed, 'fa-chevron-right' : !version.collapsed}"
                     style="font-size:14px;"></i>
 
-                <span class="h4">
+                <span class="h4" *ngIf="!version.working">
                     <localize key="list.type.version"></localize> {{version.versionNumber}}
+                </span>
+                <span class="h4" *ngIf="version.working">
+                    <localize key="list.type.working.version"></localize>
                 </span>
                 <span style="margin-left:10px;color:grey;">
                     <localize key="list.type.date.generated"></localize>: {{version.createDate}}
@@ -21,7 +24,7 @@
             <button type="submit" (click)="onEdit(entry, version)" class="btn btn-default" role="button">
                 <localize key="masterlist.button.metadata"></localize>
             </button>
-            <button *ngIf="list.write" type="submit" (click)="onDelete(entry, version)" class="btn btn-danger"
+            <button *ngIf="list.write && !version.working" type="submit" (click)="onDelete(entry, version)" class="btn btn-danger"
                 role="button">
                 <localize key="modal.button.delete"></localize>
             </button>
@@ -138,6 +141,8 @@
                         </div>
                     </div>
 
+                    <!--
+
                     <div *ngIf="list.write || isRC" class="row" style="margin-bottom: 5px;">
                         <div class="col-md-9" style="vertical-align: middle;">
                             <span class="h4">
@@ -147,15 +152,21 @@
                             </span>
                         </div>
                     </div>
-                    <ng-container *ngIf="entry.versions.length > 0">
+                    -->
+                    <ng-container [ngTemplateOutlet]="versionDetail"
+                        [ngTemplateOutletContext]="{entry:entry, version:entry.versions[entry.versions.length - 1]}">
+                    </ng-container>
+
+
+                    <ng-container *ngIf="entry.versions.length > 1">
                         <ng-container *ngFor="let version of entry.versions; let j = index;">
-                            <ng-container *ngIf="j === 0 || entry.showAll" [ngTemplateOutlet]="versionDetail"
+                            <ng-container *ngIf="j === 0 || (entry.showAll && j !== (entry.versions.length -1))" [ngTemplateOutlet]="versionDetail"
                                 [ngTemplateOutletContext]="{entry:entry, version:version}">
                             </ng-container>
                         </ng-container>
                         <div class="row" style="margin-bottom: 5px;">
                             <div class="col-md-12" style="text-align: left;">
-                                <button *ngIf="entry.versions.length > 1" type="submit" (click)="toggleVersions(entry)"
+                                <button *ngIf="entry.versions.length > 2" type="submit" (click)="toggleVersions(entry)"
                                     class="btn btn-default" role="button">
                                     <localize *ngIf="!entry.showAll" key="list.type.see.versions"></localize>
                                     <localize *ngIf="entry.showAll" key="list.type.hide.versions"></localize>
@@ -163,7 +174,7 @@
                             </div>
                         </div>
                     </ng-container>
-                    <div class="row" *ngIf="entry.versions.length === 0">
+                    <div class="row" *ngIf="entry.versions.length === 1">
                         <div class="col-md-12">
                             <localize key="list.type.no.versions"></localize>
                         </div>
