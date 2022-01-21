@@ -1206,8 +1206,16 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
   private void parseMetadata(String prefix, JsonObject object)
   {
-    this.setValue(prefix + "Visibility", object.get("visibility").getAsString());
-    this.setValue(prefix + "Master", object.get("master").getAsBoolean());
+    if (object.has("visibility"))
+    {
+      this.setValue(prefix + "Visibility", object.get("visibility").getAsString());
+    }
+
+    if (object.has("master"))
+    {
+      this.setValue(prefix + "Master", object.get("master").getAsBoolean());
+    }
+
     ( (LocalStruct) this.getStruct(prefix + "Label") ).setLocaleMap(LocalizedValue.fromJSON(object.get("label").getAsJsonObject()).getLocaleMap());
     ( (LocalStruct) this.getStruct(prefix + "Description") ).setLocaleMap(LocalizedValue.fromJSON(object.get("description").getAsJsonObject()).getLocaleMap());
     ( (LocalStruct) this.getStruct(prefix + "Process") ).setLocaleMap(LocalizedValue.fromJSON(object.get("process").getAsJsonObject()).getLocaleMap());
