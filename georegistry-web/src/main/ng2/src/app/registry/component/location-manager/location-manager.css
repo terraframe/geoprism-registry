@@ -1,3 +1,21 @@
+
+.visualize-mode-toggle {
+	position: absolute;
+	top: 156px;
+	z-index: 2;
+}
+
+.visualize-mode-toggle.map {
+  right: 37px;
+}
+.visualize-mode-toggle.hierarchy {
+  right: 6px;
+}
+
+.visualize-mode-toggle > i {
+	font-size: 25px;
+}
+
 #hierarchy-tree-container {
 	padding-top: 110px;
 }

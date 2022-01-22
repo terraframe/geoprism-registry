@@ -19,6 +19,11 @@
 
 
   <div id="app-container" class="container-fluid">
+  
+    <span *ngIf="record && record.recordType === 'GEO_OBJECT'" [ngClass]="{'hierarchy':visualizeMode === VISUALIZE_MODE.HIERARCHY, 'map':visualizeMode === VISUALIZE_MODE.MAP}" class="visualize-mode-toggle">
+      <i *ngIf="visualizeMode === VISUALIZE_MODE.HIERARCHY" class="visualize-mode-map fa fa-globe clickable" aria-hidden="true" (click)="visualizeRelationships(current, VISUALIZE_MODE.MAP, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
+      <i *ngIf="visualizeMode === VISUALIZE_MODE.MAP" class="visualize-mode-hierarchy fa fa-sitemap clickable" aria-hidden="true" (click)="visualizeRelationships(current, VISUALIZE_MODE.HIERARCHY, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
+    </span>
 
     <div *ngIf="searchEnabled" class="row" style="position: absolute;top: 0;bottom: 0;left: 10px;right: 10px;height: 100%;">
         <div class="col-md-5" style="z-index:999;padding-bottom: 10px;" [style.background]="showPanel ? 'white' : 'transparent'">
@@ -32,14 +37,6 @@
           <article class="panel-toggle" *ngIf="showPanel">
             
             <div >
-              <div class="row">
-                <div class="col-mid-12">
-                  <span *ngIf="record && record.recordType === 'GEO_OBJECT'" style="font-size:25px; margin-left:10px;">
-                    <i class="fa fa-map clickable" aria-hidden="true" (click)="visualizeRelationships(current, VISUALIZE_MODE.MAP, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
-                    <i class="fa fa-sitemap clickable" aria-hidden="true" (click)="visualizeRelationships(current, VISUALIZE_MODE.HIERARCHY, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
-                  </span>
-                </div>
-              </div>
               <div class="row">
                   <div class="col-md-12">
                       <label class="radio" style="display:inline-block;">
