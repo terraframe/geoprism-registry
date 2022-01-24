@@ -10,6 +10,8 @@ import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
+import com.runwaysdk.dataaccess.graph.VertexObjectDAOIF;
 import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.AbstractClassification;
@@ -82,6 +84,20 @@ public class ClassificationType implements JsonSerializable
   public MdVertexDAOIF getMdVertex()
   {
     return this.mdClassification.getReferenceMdVertexDAO();
+  }
+
+  public void setRoot(Classification classification)
+  {
+    MdClassificationDAO mdClassificationDAO = (MdClassificationDAO) this.mdClassification.getBusinessDAO();
+    mdClassificationDAO.setValue(MdClassificationInfo.ROOT, classification.getOid());
+    mdClassificationDAO.apply();
+  }
+
+  public Classification getRoot()
+  {
+    VertexObjectDAOIF root = this.mdClassification.getRoot();
+
+    return new Classification(this, VertexObject.instantiate((VertexObjectDAO) root));
   }
 
   public JsonObject toJSON()

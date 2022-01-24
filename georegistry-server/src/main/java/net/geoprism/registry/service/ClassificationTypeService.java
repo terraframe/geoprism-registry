@@ -41,6 +41,12 @@ public class ClassificationTypeService
   }
 
   @Request(RequestType.SESSION)
+  public JsonObject get(String sessionId, String classificationType)
+  {
+    return ClassificationType.getByType(classificationType).toJSON();
+  }
+
+  @Request(RequestType.SESSION)
   public JsonObject apply(String sessionId, JsonObject object)
   {
     ClassificationType classificationType = ClassificationType.apply(object);

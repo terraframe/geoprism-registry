@@ -53,9 +53,23 @@ public class Classification implements JsonSerializable
   }
 
   @Transaction
-  public void apply()
+  public void apply(Classification parent)
   {
+    boolean isNew = this.getVertex().isNew() && !this.getVertex().isAppliedToDb();
+
     this.getVertex().apply();
+
+    if (isNew)
+    {
+      if (parent != null)
+      {
+        this.addParent(parent);
+      }
+      else
+      {
+        this.type.setRoot(this);
+      }
+    }
   }
 
   @Transaction

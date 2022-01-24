@@ -10,7 +10,7 @@ import { ClassificationTypeService } from "@registry/service/classification-type
 
 @Component({
     selector: "classification-type-publish-modal",
-    templateUrl: "./publish-modal.component.html",
+    templateUrl: "./classification-type-publish-modal.component.html",
     styleUrls: ["./classification-type-manager.css"]
 })
 export class ClassificationTypePublishModalComponent implements OnInit, OnDestroy {

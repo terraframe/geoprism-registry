@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
@@ -57,6 +57,14 @@ export class ClassificationTypeService implements GenericTableService {
         } as any;
 
         return this.http.post<PageResult<ClassificationType>>(registry.contextPath + "/classification-type/page", JSON.stringify(params), { headers: headers })
+            .toPromise();
+    }
+
+    get(classificationType: string): Promise<ClassificationType> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("classificationType", classificationType);
+
+        return this.http.get<ClassificationType>(registry.contextPath + "/classification-type/get", { params: params })
             .toPromise();
     }
 

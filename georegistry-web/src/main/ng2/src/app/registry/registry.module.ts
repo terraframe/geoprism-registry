@@ -124,8 +124,11 @@ import { SelectTypeModalComponent } from "./component/location-manager/select-ty
 import { CurationJobComponent } from "./component/curation/curation-job.component";
 import { CurationProblemModalComponent } from "./component/curation/curation-problem-modal.component";
 import { ClassificationTypeManagerComponent } from "./component/classification-type/classification-type-manager.component";
-import { ClassificationTypePublishModalComponent } from "./component/classification-type/publish-modal.component";
 import { ClassificationTypeService } from "./service/classification-type.service";
+import { ClassificationTypePublishModalComponent } from "./component/classification-type/classification-type-publish-modal.component";
+import { ClassificationTypeComponent } from "./component/classification-type/classification-type.component";
+import { ClassificationPublishModalComponent } from "./component/classification-type/classification-publish-modal.component";
+import { ClassificationService } from "./service/classification.service";
 
 @NgModule({
     imports: [
@@ -246,7 +249,9 @@ import { ClassificationTypeService } from "./service/classification-type.service
         CurationProblemModalComponent,
         // Classification
         ClassificationTypeManagerComponent,
-        ClassificationTypePublishModalComponent
+        ClassificationTypePublishModalComponent,
+        ClassificationTypeComponent,
+        ClassificationPublishModalComponent
     ],
     providers: [
         MapService,
@@ -263,7 +268,8 @@ import { ClassificationTypeService } from "./service/classification-type.service
         TransitionEventService,
         BusinessTypeService,
         ListTypeService,
-        ClassificationTypeService
+        ClassificationTypeService,
+        ClassificationService
     ],
     entryComponents: [
         AddChildToHierarchyModalComponent,
@@ -298,7 +304,8 @@ import { ClassificationTypeService } from "./service/classification-type.service
         PublishVersionComponent,
         SelectTypeModalComponent,
         CurationProblemModalComponent,
-        ClassificationTypePublishModalComponent
+        ClassificationTypePublishModalComponent,
+        ClassificationPublishModalComponent
     ]
 })
 export class RegistryModule { }

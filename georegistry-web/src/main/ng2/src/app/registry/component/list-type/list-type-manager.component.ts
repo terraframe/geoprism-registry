@@ -9,7 +9,6 @@ import { Organization } from "@shared/model/core";
 import { GeoObjectType } from "@registry/model/registry";
 import { ListType, ListTypeByType } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
-import { Location } from "@angular/common";
 import { Subscription } from "rxjs";
 
 @Component({
@@ -31,26 +30,21 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
     constructor(
         private service: ListTypeService,
         private registryService: RegistryService,
-        private route: ActivatedRoute,
-        private location: Location) { }
+        private route: ActivatedRoute) { }
 
     ngOnInit(): void {
-
         this.subscription = this.route.queryParams.subscribe((params: Params) => {
             const typeCode = params.typeCode;
             const listId = params.listId;
 
             if (listId != null && listId.length > 0) {
-
                 this.service.entries(listId).then(current => {
                     this.current = current;
                     this.listByType = null;
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
                 });
-            }
-            else if (typeCode != null && typeCode.length > 0) {
-
+            } else if (typeCode != null && typeCode.length > 0) {
                 this.service.listForType(typeCode).then(listByType => {
                     this.listByType = listByType;
                     this.current = null;
@@ -68,7 +62,7 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
 
                 response.organizations.forEach(org => {
                     this.typesByOrg.push({ org: org, types: response.types.filter(t => t.organizationCode === org.code) });
-                })
+                });
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });

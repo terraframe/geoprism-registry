@@ -39,6 +39,7 @@
             </nav>
             <div class="col-md-9 hierarchy-content">
                 <div id="overflow-div">
+                    <classification-type *ngIf="classificationType != null" [classificationType]="classificationType"></classification-type>
                 </div>
             </div>
 

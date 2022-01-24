@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.controller;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.constants.ClientRequestIF;
@@ -30,47 +31,41 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
-import net.geoprism.registry.service.ClassificationTypeService;
+import net.geoprism.registry.service.ClassificationService;
 
-@Controller(url = "classification-type")
-public class ClassificationTypeController
+@Controller(url = "classification")
+public class ClassificationController
 {
-  private ClassificationTypeService service;
+  private ClassificationService service;
 
-  public ClassificationTypeController()
+  public ClassificationController()
   {
-    this.service = new ClassificationTypeService();
-  }
-
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "page")
-  public ResponseIF page(ClientRequestIF request, @RequestParamter(name = "criteria") String criteria)
-  {
-    return new RestBodyResponse(this.service.page(request.getSessionId(), criteria));
+    this.service = new ClassificationService();
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "classificationType") String classificationType)
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "classificationType") String classificationType, @RequestParamter(name = "parentCode") String parentCode, @RequestParamter(name = "classification") String classification, @RequestParamter(name = "isNew") Boolean isNew)
   {
-    JsonObject object = JsonParser.parseString(classificationType).getAsJsonObject();
+    JsonObject object = JsonParser.parseString(classification).getAsJsonObject();
 
-    JsonObject response = this.service.apply(request.getSessionId(), object);
+    JsonObject response = this.service.apply(request.getSessionId(), classificationType, parentCode, object, isNew);
 
     return new RestBodyResponse(response);
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove")
-  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "classificationType") String classificationType, @RequestParamter(name = "code") String code)
   {
-    this.service.remove(request.getSessionId(), oid);
+    this.service.remove(request.getSessionId(), classificationType, code);
 
     return new RestResponse();
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
-  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "classificationType") String classificationType)
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-children")
+  public ResponseIF getChildren(ClientRequestIF request, @RequestParamter(name = "classificationType") String classificationType, @RequestParamter(name = "code") String code)
   {
-    JsonObject response = this.service.get(request.getSessionId(), classificationType);
+    JsonArray children = this.service.getChildren(request.getSessionId(), classificationType, code);
 
-    return new RestBodyResponse(response);
+    return new RestBodyResponse(children);
   }
 }

@@ -124,6 +124,76 @@ public class ClassificationTest
 
   @Test
   @Request
+  public void testRemoveParent()
+  {
+    Classification parent = Classification.newInstance(type);
+    parent.setCode(PARENT_CODE);
+    parent.apply();
+
+    try
+    {
+      Classification child = Classification.newInstance(type);
+      child.setCode(CHILD_CODE);
+      child.apply();
+
+      try
+      {
+        child.addParent(parent);
+
+        Assert.assertEquals(1, child.getParents().size());
+
+        child.removeParent(parent);
+
+        Assert.assertEquals(0, child.getParents().size());
+      }
+      finally
+      {
+        child.delete();
+      }
+    }
+    finally
+    {
+      parent.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testRemoveChild()
+  {
+    Classification parent = Classification.newInstance(type);
+    parent.setCode(PARENT_CODE);
+    parent.apply();
+
+    try
+    {
+      Classification child = Classification.newInstance(type);
+      child.setCode(CHILD_CODE);
+      child.apply();
+
+      try
+      {
+        parent.addChild(child);
+
+        Assert.assertEquals(1, parent.getChildren().size());
+
+        parent.removeChild(child);
+
+        Assert.assertEquals(0, parent.getChildren().size());
+      }
+      finally
+      {
+        child.delete();
+      }
+    }
+    finally
+    {
+      parent.delete();
+    }
+  }
+
+  @Test
+  @Request
   public void testAddGetParent()
   {
     Classification parent = Classification.newInstance(type);

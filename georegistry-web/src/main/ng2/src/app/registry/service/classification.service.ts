@@ -1,0 +1,69 @@
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+import { finalize } from "rxjs/operators";
+
+import { EventService } from "@shared/service";
+
+import { GeoRegistryConfiguration } from "@core/model/registry";
+import { Classification } from "@registry/model/classification-type";
+
+declare let registry: GeoRegistryConfiguration;
+
+@Injectable()
+export class ClassificationService {
+
+    // eslint-disable-next-line no-useless-constructor
+    constructor(private http: HttpClient, private eventService: EventService) { }
+
+    apply(classificationType: string, parentCode: string, classification: Classification, isNew: boolean): Promise<Classification> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        const params = {
+            classificationType: classificationType,
+            parentCode: parentCode,
+            classification: classification,
+            isNew: isNew
+        };
+
+        this.eventService.start();
+
+        return this.http
+            .post<Classification>(registry.contextPath + "/classification/apply", JSON.stringify(params), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+    remove(classificationType: string, code: string): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        const params = {
+            classificationType: classificationType,
+            code: code
+        };
+
+        this.eventService.start();
+
+        return this.http
+            .post<void>(registry.contextPath + "/classification/remove", JSON.stringify(params), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+    getChildren(classificationType: string, code: string): Promise<Classification[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("classificationType", classificationType);
+        params = params.set("code", code);
+
+        return this.http.get<Classification[]>(registry.contextPath + "/classification/get-children", { params: params })
+            .toPromise();
+    }
+
+}

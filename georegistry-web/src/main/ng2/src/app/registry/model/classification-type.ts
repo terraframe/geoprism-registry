@@ -9,3 +9,9 @@ export class ClassificationType {
     description: LocalizedValue;
 
 }
+
+export class Classification {
+
+    code: string;
+
+}

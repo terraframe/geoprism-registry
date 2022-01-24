@@ -6,9 +6,10 @@ import { ClassificationTypeService } from "@registry/service/classification-type
 import { ClassificationType } from "@registry/model/classification-type";
 import { PageResult } from "@shared/model/core";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { ClassificationTypePublishModalComponent } from "./publish-modal.component";
 import { LocalizationService } from "@shared/service";
 import { Subscription } from "rxjs";
+import { ClassificationTypePublishModalComponent } from "./classification-type-publish-modal.component";
+import { ActivatedRoute, Params } from "@angular/router";
 
 @Component({
     selector: "classification-type-manager",
@@ -28,6 +29,8 @@ export class ClassificationTypeManagerComponent implements OnInit, OnDestroy {
 
     subscription: Subscription = null;
 
+    classificationType: ClassificationType = null;
+
     /*
     * Reference to the modal current showing
     */
@@ -36,9 +39,22 @@ export class ClassificationTypeManagerComponent implements OnInit, OnDestroy {
     constructor(
         private service: ClassificationTypeService,
         private lService: LocalizationService,
+        private route: ActivatedRoute,
         private modalService: BsModalService) { }
 
     ngOnInit(): void {
+        this.subscription = this.route.queryParams.subscribe((params: Params) => {
+            const typeCode = params.typeCode;
+
+            if (typeCode != null && typeCode.length > 0) {
+                this.service.get(typeCode).then(classificationType => {
+                    this.classificationType = classificationType;
+                }).catch((err: HttpErrorResponse) => {
+                    this.error(err);
+                });
+            }
+        });
+
         this.refresh();
     }
 

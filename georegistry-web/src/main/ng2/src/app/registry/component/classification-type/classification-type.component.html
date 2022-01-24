@@ -1,0 +1,24 @@
+<ng-container>
+
+    <div class="heading">
+        <div class="row">
+            <div class="col-md-10">
+                <h2>
+                    {{classificationType.displayLabel.localizedValue}}
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="classificationType != null" class="row">
+        <div class="col-md-12">
+            <ng-container *ngIf="nodes.length === 0">
+                <button type="submit" (click)="onCreate(null)" class="btn btn-primary" role="button">
+                    <localize key="list.type.button.create"></localize>
+                </button>
+            </ng-container>
+            <tree-root *ngIf="nodes.length > 0" #tree [options]="options" [nodes]="nodes"></tree-root>            
+        </div>
+    </div>
+
+</ng-container>
