@@ -108,7 +108,7 @@ public class ClassificationType implements JsonSerializable
     {
       return new Classification(this, VertexObject.instantiate((VertexObjectDAO) root));
     }
-    
+
     return null;
   }
 
@@ -172,22 +172,53 @@ public class ClassificationType implements JsonSerializable
    * 
    * @param component
    * @param role
+   * @param includeWrite
+   *          TODO
    */
-  private void assignAllPermissions(ComponentIF component, Roles role)
+  private void assignPermissions(ComponentIF component, Roles role, boolean includeWrite)
   {
     RoleDAO roleDAO = (RoleDAO) BusinessFacade.getEntityDAO(role);
-    roleDAO.grantPermission(Operation.CREATE, component.getOid());
-    roleDAO.grantPermission(Operation.DELETE, component.getOid());
-    roleDAO.grantPermission(Operation.WRITE, component.getOid());
-    roleDAO.grantPermission(Operation.WRITE_ALL, component.getOid());
+    roleDAO.grantPermission(Operation.READ, component.getOid());
+    roleDAO.grantPermission(Operation.READ_ALL, component.getOid());
+
+    if (includeWrite)
+    {
+      roleDAO.grantPermission(Operation.CREATE, component.getOid());
+      roleDAO.grantPermission(Operation.DELETE, component.getOid());
+      roleDAO.grantPermission(Operation.WRITE, component.getOid());
+      roleDAO.grantPermission(Operation.WRITE_ALL, component.getOid());
+    }
   }
 
-  public void assignSRAPermissions()
+  public void assignPermissions()
   {
+    MdVertexDAOIF mdVertex = this.mdClassification.getReferenceMdVertexDAO();
+    MdEdgeDAOIF mdEdge = this.mdClassification.getReferenceMdEdgeDAO();
+
     Roles sraRole = Roles.findRoleByName(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
 
-    this.assignAllPermissions(this.mdClassification.getReferenceMdVertexDAO(), sraRole);
-    this.assignAllPermissions(this.mdClassification.getReferenceMdEdgeDAO(), sraRole);
+    this.assignPermissions(mdVertex, sraRole, true);
+    this.assignPermissions(mdEdge, sraRole, true);
+
+    Roles raRole = Roles.findRoleByName(RegistryConstants.REGISTRY_ADMIN_ROLE);
+
+    this.assignPermissions(mdVertex, raRole, false);
+    this.assignPermissions(mdEdge, raRole, false);
+
+    Roles rmRole = Roles.findRoleByName(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+
+    this.assignPermissions(mdVertex, rmRole, false);
+    this.assignPermissions(mdEdge, rmRole, false);
+
+    Roles rcRole = Roles.findRoleByName(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
+
+    this.assignPermissions(mdVertex, rcRole, false);
+    this.assignPermissions(mdEdge, rcRole, false);
+
+    Roles acRole = Roles.findRoleByName(RegistryConstants.API_CONSUMER_ROLE);
+
+    this.assignPermissions(mdVertex, acRole, false);
+    this.assignPermissions(mdEdge, acRole, false);
   }
 
   @Transaction
@@ -225,7 +256,7 @@ public class ClassificationType implements JsonSerializable
     if (isNew)
     {
       // Assign permissions
-      classificationType.assignSRAPermissions();
+      classificationType.assignPermissions();
     }
 
     return classificationType;

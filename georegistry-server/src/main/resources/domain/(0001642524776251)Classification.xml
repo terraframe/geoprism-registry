@@ -28,6 +28,13 @@
           <attribute name="defaultLocale" value="Set root classification" />
         </attributeStruct>
       </object>  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="classification.move.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="classification.move.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Are you sure you want to move [{0}] to [{1}]?" />
+        </attributeStruct>
+      </object>  
   </createOrUpdate>
   </doIt>
   <undoIt>

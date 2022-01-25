@@ -208,7 +208,7 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
         this.bsModalRef.content.submitText = this.lService.decode("modal.button.delete");
         this.bsModalRef.content.type = "danger";
 
-        this.bsModalRef.content.onConfirm.subscribe(data => {
+        this.bsModalRef.content.onConfirm.subscribe(() => {
             this.removeTreeNode(node);
         });
     }
@@ -217,15 +217,31 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
         from: any;
         to: any;
     }): void {
-        const parentCode = node.data.classification.code;
-        const code = obj.from.data.classification.code;
+        const parent: Classification = node.data.classification;
+        const classification: Classification = obj.from.data.classification;
+        const parentCode = parent.code;
+        const code = classification.code;
 
-        this.message = null;
+        let message = this.lService.decode("classification.move.message");
+        message = message.replace("{0}", classification.displayLabel.localizedValue);
+        message = message.replace("{1}", parent.displayLabel.localizedValue);
 
-        this.service.move(this.classificationType.code, code, parentCode).then(() => {
-            TREE_ACTIONS.MOVE_NODE(tree, node, $event, obj);
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
+        this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true
+        });
+        this.bsModalRef.content.message = message;
+        this.bsModalRef.content.type = "danger";
+
+        this.bsModalRef.content.onConfirm.subscribe(() => {
+            this.message = null;
+
+            this.service.move(this.classificationType.code, code, parentCode).then(() => {
+                TREE_ACTIONS.MOVE_NODE(tree, node, $event, obj);
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
         });
     }
 
