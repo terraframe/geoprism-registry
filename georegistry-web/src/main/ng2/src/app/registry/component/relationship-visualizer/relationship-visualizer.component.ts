@@ -76,6 +76,8 @@ export class RelationshipVisualizerComponent implements OnInit {
 
           if (this.relationships == null) {
               this.fetchRelationships();
+          } else if (this.relationships != null && this.mdEdgeOid) {
+              this.onSelectRelationship();
           }
       }
   }
@@ -113,11 +115,29 @@ export class RelationshipVisualizerComponent implements OnInit {
           this.data = data;
 
           if (this.geoObject != null) {
-              window.setTimeout(() => {
-                  this.panToNode$.next("g-" + this.geoObject.properties.uid);
-              }, 10);
+              this.panToNode(this.geoObject.properties.uid);
           }
       });
+  }
+
+  /*
+   * We can't predict when the graph will be finished loading and it will be ready to pan. So we're just telling it to
+   * pan over and over again just in case it takes a little while to load. To my knowledge there is no way to fix this,
+   * because:
+   *  1. ngx graph does not provide any sort of "on ready" event we can listen to
+   *  2. Checking if the element exists first in the dom before we call pan to node does not work. The graph might still
+   *     not be ready, even if the element exists.
+   */
+  private panToNode(uid: string, retryNum: number = 10) {
+      window.setTimeout(() => {
+          if (document.getElementById("g-" + uid) != null) {
+              this.panToNode$.next("g-" + uid);
+
+              if (retryNum > 0) {
+                  this.panToNode(uid, retryNum - 1);
+              }
+          }
+      }, 50);
   }
 
   public onClickNode(node: any): void {

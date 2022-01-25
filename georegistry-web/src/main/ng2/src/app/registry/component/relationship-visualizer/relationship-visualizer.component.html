@@ -3,18 +3,12 @@
 	<div id="app-container" style="height:100%; width:100%;" class="container-fluid">
 
 		<h2> <localize key="relationshipVisualizer.title"></localize> </h2>
+		
+		<select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="mdEdgeOid" (change)="onSelectRelationship()" required>
+       <option *ngFor="let relationship of relationships" value={{relationship.oid}}>{{relationship.label.localizedValue}}</option>
+    </select>
+		
 		<div *ngIf="relationships" style="height:100%; width:100%;" class="row">
-
-      <div style="padding-top:10px;" class="form-group row">
-          <label style="padding-top:8px;" class="col-md-2 text-right" for="relationshipId"> <localize key="io.modal.hierarchy"></localize></label>
-          
-          <div class="col-md-8">
-              <select id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="mdEdgeOid" (change)="onSelectRelationship()" required>
-                  <option *ngFor="let relationship of relationships" value={{relationship.oid}}>{{relationship.label.localizedValue}}</option>
-              </select>
-          </div>
-          <div class="col-md-2"></div>
-      </div>
 
 			<div class="hierarchy-content" style="height:100%; width:100%;">
 				<div id="graph-container" style="height:100%; width:100%;">

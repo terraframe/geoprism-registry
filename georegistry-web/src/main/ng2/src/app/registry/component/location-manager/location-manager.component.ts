@@ -404,7 +404,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     changeVisualizeMode(visualizeMode: number): void {
         if (this.visualizeMode !== this.VISUALIZE_MODE.MAP && visualizeMode === this.VISUALIZE_MODE.MAP) {
             window.setTimeout(() => {
-                this.ngOnDestroy();
+                this.geomService.destroy();
                 this.ngAfterViewInit();
             }, 5);
         }
@@ -714,8 +714,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (!this.isEdit) {
             this.router.navigate([], {
                 relativeTo: this.route,
-                queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null },
-                queryParamsHandling: "merge" // remove to replace all query params by provided
+                queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null }
             });
         }
     }
