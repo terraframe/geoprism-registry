@@ -60,6 +60,27 @@ export class ClassificationService {
             .toPromise();
     }
 
+    move(classificationCode: string, code: string, parentCode: string): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        const params = {
+            classificationCode: classificationCode,
+            code: code,
+            parentCode: parentCode
+        };
+
+        this.eventService.start();
+
+        return this.http
+            .post<void>(registry.contextPath + "/classification/move", JSON.stringify(params), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
     getChildren(classificationCode: string, code: string): Promise<Classification[]> {
         let params: HttpParams = new HttpParams();
         params = params.set("classificationCode", classificationCode);

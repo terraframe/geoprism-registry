@@ -5,7 +5,7 @@
 
         <div class="heading text-center">
             <h1 *ngIf="isNew">
-                Create Classification
+                <localize key="data.type.create.classification"></localize>                
             </h1>
             <h1 *ngIf="!isNew">
                 {{classificationType.displayLabel.localizedValue}}
@@ -18,7 +18,7 @@
                 <div class="row-holder">
                     <div class="label-holder">
                         <label>
-                            Code
+                            <localize key="data.property.label.code"></localize>
                         </label>
                     </div>
                     <div class="holder">
@@ -29,7 +29,7 @@
                 <div class="row-holder" *ngFor="let localeValue of classification.displayLabel.localeValues">
                     <div class="label-holder">
                         <label>
-                            Label
+                            <localize key="data.property.label.label"></localize>
                             <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
                                 </convert-key-label>)</span>
                         </label>
@@ -43,7 +43,7 @@
                 <div class="row-holder" *ngFor="let localeValue of classification.description.localeValues">
                     <div class="label-holder">
                         <label>
-                            Description
+                            <localize key="data.property.label.description"></localize>
                             <span style="color: #BABABA">
                                 &nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)
                             </span>

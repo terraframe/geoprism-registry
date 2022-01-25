@@ -9,13 +9,12 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
-import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.AbstractClassification;
 
+import net.geoprism.registry.CannotDeleteClassificationWithChildrenException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.view.JsonSerializable;
 
 public class Classification implements JsonSerializable
@@ -94,6 +93,11 @@ public class Classification implements JsonSerializable
   @Transaction
   public void delete()
   {
+    if (this.getChildren().size() > 0)
+    {
+      throw new CannotDeleteClassificationWithChildrenException();
+    }
+
     this.getVertex().delete();
   }
 
@@ -123,6 +127,16 @@ public class Classification implements JsonSerializable
   public void removeChild(Classification child)
   {
     child.removeParent(this);
+  }
+
+  @Transaction
+  public void move(Classification newParent)
+  {
+    this.getParents().forEach(parent -> {
+      this.removeParent(parent);
+    });
+
+    this.addParent(newParent);
   }
 
   public List<Classification> getChildren()
@@ -182,7 +196,7 @@ public class Classification implements JsonSerializable
     statement += " AND in = :child";
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
-    query.setParameter("parent", ( (VertexComponent) parent ).getVertex().getRID());
+    query.setParameter("parent", parent.getVertex().getRID());
     query.setParameter("child", this.getVertex().getRID());
 
     return query.getSingleResult();

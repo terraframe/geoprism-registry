@@ -1,12 +1,12 @@
 <context-menu #nodeMenu>
     <ng-template contextMenuItem let-item (execute)="onEdit($event.item)">
-        Edit
+        <localize key="modal.button.edit"></localize>
     </ng-template>
     <ng-template contextMenuItem let-item (execute)="onRemove($event.item)">
-        Delete
+        <localize key="modal.button.delete"></localize>
     </ng-template>
     <ng-template contextMenuItem let-item (execute)="onCreate($event.item)">
-        Add child
+        <localize key="hierarchy.content.addChild"></localize>
     </ng-template>
 </context-menu>
 
@@ -14,7 +14,9 @@
 
     <div class="heading">
         <div class="row">
-            <div class="col-md-10">
+            <div class="col-md-12">
+                <div *ngIf="message != null" class="alert alert-danger" style="margin-top: 5px;" role="alert">{{message}}</div>
+
                 <h2>
                     {{classificationType.displayLabel.localizedValue}}
                 </h2>
@@ -22,11 +24,11 @@
         </div>
     </div>
 
-    <div *ngIf="classificationType != null" class="row">
+    <div *ngIf="classificationType != null && nodes != null" class="row">
         <div class="col-md-12">
             <ng-container *ngIf="nodes.length === 0">
                 <button type="submit" (click)="onCreate(null)" class="btn btn-primary" role="button">
-                    <localize key="list.type.button.create"></localize>
+                    <localize key="classification.set.root"></localize>
                 </button>
             </ng-container>
             <tree-root *ngIf="nodes.length > 0" #tree [options]="options" [nodes]="nodes"></tree-root>

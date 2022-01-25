@@ -61,6 +61,14 @@ public class ClassificationController
     return new RestResponse();
   }
 
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "move")
+  public ResponseIF move(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code, @RequestParamter(name = "parentCode") String parentCode)
+  {
+    this.service.move(request.getSessionId(), classificationCode, code, parentCode);
+    
+    return new RestResponse();
+  }
+  
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-children")
   public ResponseIF getChildren(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code)
   {

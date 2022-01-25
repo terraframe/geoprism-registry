@@ -37,6 +37,16 @@ public class ClassificationService
   }
 
   @Request(RequestType.SESSION)
+  public void move(String sessionId, String classificationCode, String code, String parentCode)
+  {
+    ClassificationType type = ClassificationType.getByCode(classificationCode);
+    Classification classification = Classification.get(type, code);
+    Classification newParent = Classification.get(type, parentCode);
+    
+    classification.move(newParent);
+  }
+
+  @Request(RequestType.SESSION)
   public void addChild(String sessionId, String classificationCode, String parentCode, String childCode)
   {
     ClassificationType type = ClassificationType.getByCode(classificationCode);

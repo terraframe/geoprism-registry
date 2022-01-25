@@ -1,0 +1,36 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  <create>
+      <mdException name="net.geoprism.registry.CannotDeleteClassificationWithChildrenException" 
+                   label="CannotDeleteClassificationWithChildrenException" 
+                   message="Unable to delete. The classification has children">
+      </mdException>  
+  </create>
+  <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.type.label.classification">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.type.label.classification" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Classification" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.type.create.classification">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.type.create.classification" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Create Classification" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="classification.set.root">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="classification.set.root" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Set root classification" />
+        </attributeStruct>
+      </object>  
+  </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

@@ -2,7 +2,7 @@ import { Component, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { Subscription } from "rxjs";
-import { TreeComponent, TreeNode } from "@circlon/angular-tree-component";
+import { TreeComponent, TreeModel, TreeNode, TREE_ACTIONS } from "@circlon/angular-tree-component";
 import { ContextMenuComponent, ContextMenuService } from "ngx-contextmenu";
 
 import { ConfirmModalComponent, ErrorHandler } from "@shared/component";
@@ -32,7 +32,7 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
 
     @Input() classificationType: ClassificationType = null;
 
-    nodes: ClassificationNode[] = [];
+    nodes: ClassificationNode[] = null;
 
     subscription: Subscription = null;
 
@@ -53,6 +53,7 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
     @ViewChild("nodeMenu") public nodeMenuComponent: ContextMenuComponent;
 
     options = {
+        idField: "code",
         getChildren: (node: TreeNode) => {
             return this.getChildren(node);
         },
@@ -63,9 +64,21 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
                 },
                 contextMenu: (tree: any, node: TreeNode, $event: any) => {
                     this.handleOnMenu(node, $event);
+                },
+                drop: (tree: TreeModel, node: TreeNode, $event: any, obj: {
+                    from: any;
+                    to: any;
+                }) => {
+                    this.onMoveNode(tree, node, $event, obj);
                 }
             }
-        }
+        },
+        allowDrag: (node: TreeNode) => {
+            const code = node.data.classification.code;
+
+            return this.nodes.findIndex(root => root.classification.code === code) === -1;
+        },
+        allowDrop: (node: TreeNode) => true
     }
 
     constructor(
@@ -191,7 +204,7 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
             backdrop: true,
             ignoreBackdropClick: true
         });
-        this.bsModalRef.content.message = this.lService.decode("confirm.modal.verify.delete") + " [" + node.data.code + "]";
+        this.bsModalRef.content.message = this.lService.decode("confirm.modal.verify.delete") + " [" + node.data.classification.code + "]";
         this.bsModalRef.content.submitText = this.lService.decode("modal.button.delete");
         this.bsModalRef.content.type = "danger";
 
@@ -200,7 +213,25 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
         });
     }
 
+    onMoveNode(tree: TreeModel, node: TreeNode, $event: any, obj: {
+        from: any;
+        to: any;
+    }): void {
+        const parentCode = node.data.classification.code;
+        const code = obj.from.data.classification.code;
+
+        this.message = null;
+
+        this.service.move(this.classificationType.code, code, parentCode).then(() => {
+            TREE_ACTIONS.MOVE_NODE(tree, node, $event, obj);
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
     removeTreeNode(node: TreeNode): void {
+        this.message = null;
+
         this.service.remove(this.classificationType.code, node.data.classification.code).then(() => {
             if (node.parent.data.classification == null) {
                 this.nodes = [];
@@ -223,14 +254,14 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
 
     /*
 
-refresh(): void {
+    refresh(): void {
     this.service.page({}).then(page => {
         this.page = page;
     }).catch((err: HttpErrorResponse) => {
         this.error(err);
     });
-}
-*/
+    }
+    */
 
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);
