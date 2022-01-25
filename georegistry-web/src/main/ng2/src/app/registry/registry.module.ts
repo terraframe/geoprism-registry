@@ -20,8 +20,7 @@ import { DragDropModule } from "@angular/cdk/drag-drop";
 import { LocalizedInputComponent } from "./component/form-fields/localized-input/localized-input.component";
 import { LocalizedTextComponent } from "./component/form-fields/localized-text/localized-text.component";
 import { HierarchyComponent } from "./component/hierarchy/hierarchy.component";
-import { HierarchyVisualizerComponent } from "./component/relationship-visualizer/hierarchy-visualizer.component";
-import { GraphVisualizerComponent } from "./component/relationship-visualizer/graph-visualizer.component";
+import { RelationshipVisualizerComponent } from "./component/relationship-visualizer/relationship-visualizer.component";
 import { CreateHierarchyTypeModalComponent } from "./component/hierarchy/modals/create-hierarchy-type-modal.component";
 import { AddChildToHierarchyModalComponent } from "./component/hierarchy/modals/add-child-to-hierarchy-modal.component";
 import { CreateGeoObjTypeModalComponent } from "./component/hierarchy/modals/create-geoobjtype-modal.component";
@@ -149,8 +148,7 @@ import { CurationProblemModalComponent } from "./component/curation/curation-pro
     ],
     declarations: [
         HierarchyComponent,
-        HierarchyVisualizerComponent,
-        GraphVisualizerComponent,
+        RelationshipVisualizerComponent,
         RequestTableComponent,
         CreateUpdateGeoObjectDetailComponent,
         ImportTypesModalComponent,

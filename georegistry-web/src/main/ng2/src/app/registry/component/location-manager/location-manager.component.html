@@ -159,13 +159,13 @@
         </div>
         
         <div *ngIf="visualizeMode === VISUALIZE_MODE.HIERARCHY && current" style="height: calc(100vh - 145px);" class="row">
-	        <hierarchy-visualizer
-	          [params]="{geoObject: current, hierarchyCode: visualizingHierarchy}"
+	        <relationship-visualizer
+	          [params]="{geoObject: current, mdEdgeOid: visualizingRelationship, date: (record == null ? null : record.forDate)}"
 	          (changeGeoObject)="onChangeGeoObject($event)"
-	          (changeHierarchy)="visualizingHierarchy = $event.code"
+	          (changeRelationship)="visualizingRelationship = $event.oid"
 	        >
 	        
-	        </hierarchy-visualizer>
+	        </relationship-visualizer>
 	      </div>
 	      
 	      <!--

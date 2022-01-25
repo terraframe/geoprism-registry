@@ -101,7 +101,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     visualizeMode: number = this.VISUALIZE_MODE.MAP;
 
-    visualizingHierarchy: string = null;
+    visualizingRelationship: string = null;
 
     /*
     *  Flag to indicate if the left handle panel should be displayed or not
@@ -882,7 +882,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }, prevLayer);
             }
 
-            this.layers.push(layer);
+            if (this.layers.findIndex(lFind => layer.oid === lFind.oid) === -1) {
+                this.layers.push(layer);
+            }
         } else {
             this.addVectorLayer(layer, otherLayer);
         }

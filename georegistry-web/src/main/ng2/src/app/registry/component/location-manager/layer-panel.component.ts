@@ -292,6 +292,10 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     toggleLayer(layer: ContextLayer, list: ContextList): void {
+        if (!this.params) {
+            return;
+        }
+
         layer.enabled = !layer.enabled;
         layer.active = layer.enabled;
 

@@ -2,15 +2,15 @@
 
 	<div id="app-container" style="height:100%; width:100%;" class="container-fluid">
 
-		<h2> <localize key="hierarchyVisualizer.title"></localize> </h2>
-		<div *ngIf="hierarchies" style="height:100%; width:100%;" class="row">
+		<h2> <localize key="relationshipVisualizer.title"></localize> </h2>
+		<div *ngIf="relationships" style="height:100%; width:100%;" class="row">
 
       <div style="padding-top:10px;" class="form-group row">
-          <label style="padding-top:8px;" class="col-md-2 text-right" for="hierarchyCode"> <localize key="io.modal.hierarchy"></localize></label>
+          <label style="padding-top:8px;" class="col-md-2 text-right" for="relationshipId"> <localize key="io.modal.hierarchy"></localize></label>
+          
           <div class="col-md-8">
-              <select id="hierarchyCode" name="hierarchyCode" class="select-area" [(ngModel)]="hierarchyCode" (change)="onSelectHierarchy()" required>
-                  <option></option>
-                  <option *ngFor="let hierarchy of hierarchies" value={{hierarchy.code}}>{{hierarchy.label}}</option>
+              <select id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="mdEdgeOid" (change)="onSelectRelationship()" required>
+                  <option *ngFor="let relationship of relationships" value={{relationship.oid}}>{{relationship.label.localizedValue}}</option>
               </select>
           </div>
           <div class="col-md-2"></div>

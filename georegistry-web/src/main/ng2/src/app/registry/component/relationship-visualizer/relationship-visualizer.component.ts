@@ -14,7 +14,8 @@ import { Layout } from "@swimlane/ngx-graph";
 
 import { DagreNodesOnlyLayout } from "./relationship-viz-layout";
 
-import * as shape from 'd3-shape';
+import * as shape from "d3-shape";
+import { LocalizedValue } from "@shared/model/core";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -24,30 +25,30 @@ export const GRAPH_LINE_COLOR: string = "#999";
 
 @Component({
 
-    selector: "hierarchy-visualizer",
-    templateUrl: "./hierarchy-visualizer.component.html",
-    styleUrls: ["./hierarchy-visualizer.css"]
+    selector: "relationship-visualizer",
+    templateUrl: "./relationship-visualizer.component.html",
+    styleUrls: ["./relationship-visualizer.css"]
 })
-export class HierarchyVisualizerComponent implements OnInit {
+export class RelationshipVisualizerComponent implements OnInit {
 
   /*
    * Reference to the modal current showing
   */
   private bsModalRef: BsModalRef;
 
-  @Input() params: {geoObject: GeoObject, hierarchyCode: string} = null;
+  @Input() params: {geoObject: GeoObject, mdEdgeOid: string, date: string} = null;
 
   geoObject: GeoObject = null;
 
-  hierarchyCode: string = null;
+  mdEdgeOid: string = null;
 
   @Output() changeGeoObject = new EventEmitter<{id:string, code: string, typeCode: string}>();
 
-  @Output() changeHierarchy = new EventEmitter<{code:string}>();
+  @Output() changeRelationship = new EventEmitter<{oid:string}>();
 
   private data: any = null;
 
-  hierarchies: any[];
+  relationships: {oid: string, label: LocalizedValue, isHierarchy: boolean}[];
 
   private width: number = 500;
   private height: number = 500;
@@ -70,40 +71,41 @@ export class HierarchyVisualizerComponent implements OnInit {
   ngOnChanges(changes: SimpleChanges) {
       if (changes.params && changes.params.previousValue !== changes.params.currentValue) {
           this.data = null;
-          this.hierarchyCode = this.params.hierarchyCode;
+          this.mdEdgeOid = this.params.mdEdgeOid;
           this.geoObject = this.params.geoObject;
 
-          if (this.hierarchies == null) {
-              this.fetchHierarchies();
-          }
-
-          if (this.hierarchyCode != null) {
-              this.onSelectHierarchy();
+          if (this.relationships == null) {
+              this.fetchRelationships();
           }
       }
   }
 
-  private fetchHierarchies(): void {
+  private fetchRelationships(): void {
       if (this.geoObject != null) {
-        this.ioService.getHierarchiesForType(this.geoObject.properties.type, false).then(hierarchies => {
-            this.hierarchies = hierarchies;
+        this.vizService.relationships(this.geoObject.properties.type).then(relationships => {
+            this.relationships = relationships;
+
+            if (!this.mdEdgeOid && this.relationships && this.relationships.length > 0) {
+                // window.setTimeout(() => {
+                    this.mdEdgeOid = this.relationships[0].oid;
+                    this.onSelectRelationship();
+                // }, 2);
+            } else if (this.mdEdgeOid && this.relationships) {
+                this.onSelectRelationship();
+            }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
-      } else {
-          this.hierarchyService.getHierarchyGroupedTypes().then(views => {
-              this.hierarchies = views;
-          });
       }
   }
 
-  private onSelectHierarchy() {
+  private onSelectRelationship() {
       this.fetchData();
-      this.changeHierarchy.emit({ code: this.hierarchyCode });
+      this.changeRelationship.emit({ oid: this.mdEdgeOid });
   }
 
   private fetchData(): void {
-      this.vizService.fetchHierarchyData(this.hierarchyCode, this.geoObject.properties.code, this.geoObject.properties.type).then(data => {
+      this.vizService.tree(this.mdEdgeOid, this.geoObject.properties.code, this.geoObject.properties.type, this.params.date).then(data => {
           let graphContainer = document.getElementById("graph-container");
           this.height = graphContainer.clientHeight;
           this.width = graphContainer.clientWidth;
