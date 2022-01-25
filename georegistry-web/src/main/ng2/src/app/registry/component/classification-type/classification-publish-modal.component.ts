@@ -27,8 +27,6 @@ export class ClassificationPublishModalComponent implements OnInit, OnDestroy {
 
     readonly: boolean = false;
 
-    edit: boolean = false;
-
     isNew: boolean = false;
 
     valid: boolean = true;
@@ -56,7 +54,9 @@ export class ClassificationPublishModalComponent implements OnInit, OnDestroy {
         if (classification == null) {
             this.isNew = true;
             this.classification = {
-                code: ""
+                code: "",
+                displayLabel: this.lService.create(),
+                description: this.lService.create()
             };
         } else {
             this.classification = classification;

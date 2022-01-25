@@ -1,15 +1,25 @@
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
+import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
+import { Subscription } from "rxjs";
+import { TreeComponent, TreeNode } from "@circlon/angular-tree-component";
+import { ContextMenuComponent, ContextMenuService } from "ngx-contextmenu";
 
 import { ConfirmModalComponent, ErrorHandler } from "@shared/component";
 import { Classification, ClassificationType } from "@registry/model/classification-type";
-import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { ClassificationTypePublishModalComponent } from "./classification-type-publish-modal.component";
 import { LocalizationService } from "@shared/service";
-import { Subscription } from "rxjs";
-import { TreeNode } from "@circlon/angular-tree-component";
 import { ClassificationService } from "@registry/service/classification.service";
 import { ClassificationPublishModalComponent } from "./classification-publish-modal.component";
+
+class ClassificationNode {
+
+    name: string;
+    classification: Classification;
+    hasChildren: boolean;
+    children?: ClassificationNode[];
+    parent?: ClassificationNode;
+
+}
 
 @Component({
     selector: "classification-type",
@@ -22,7 +32,7 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
 
     @Input() classificationType: ClassificationType = null;
 
-    nodes: any[] = [];
+    nodes: ClassificationNode[] = [];
 
     subscription: Subscription = null;
 
@@ -31,16 +41,39 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
     */
     bsModalRef: BsModalRef;
 
+    /*
+     * Tree component
+     */
+    @ViewChild(TreeComponent)
+    private tree: TreeComponent;
+
+    /*
+     * Template for tree node menu
+     */
+    @ViewChild("nodeMenu") public nodeMenuComponent: ContextMenuComponent;
+
     options = {
         getChildren: (node: TreeNode) => {
             return this.getChildren(node);
+        },
+        actionMapping: {
+            mouse: {
+                click: (tree: TreeComponent, node: TreeNode, $event: any) => {
+                    this.treeNodeOnClick(node, $event);
+                },
+                contextMenu: (tree: any, node: TreeNode, $event: any) => {
+                    this.handleOnMenu(node, $event);
+                }
+            }
         }
     }
 
     constructor(
+        private contextMenuService: ContextMenuService,
+        private modalService: BsModalService,
         private service: ClassificationService,
-        private lService: LocalizationService,
-        private modalService: BsModalService) { }
+        private lService: LocalizationService
+    ) { }
 
     ngOnInit(): void {
         this.getChildren(null).then(nodes => {
@@ -56,28 +89,60 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
         this.subscription = null;
     }
 
-    getChildren(node: any): Promise<any[]> {
-        const code = node != null ? node.data.code : null;
+    getChildren(node: TreeNode): Promise<ClassificationNode[]> {
+        const code = node != null ? node.data.classification.code : null;
 
         return this.service.getChildren(this.classificationType.code, code).then(children => {
-            return children.map(child => {
+            const nodes = children.map(child => {
                 return {
-                    name: child.code,
-                    data: child,
+                    name: child.displayLabel.localizedValue,
+                    classification: child,
                     hasChildren: true
                 };
             });
+
+            if (node != null) {
+                const parent: ClassificationNode = node.data.classification;
+
+                if (parent.children == null) {
+                    parent.children = [];
+                }
+
+                parent.children.concat(nodes);
+            }
+
+            return nodes;
         }).catch(ex => {
             return [];
         });
     }
 
-    onCreate(node: any): void {
+    handleOnMenu(node: TreeNode, $event: any): void {
+        this.contextMenuService.show.next({
+            contextMenu: this.nodeMenuComponent,
+            event: $event,
+            item: node
+        });
+        $event.preventDefault();
+        $event.stopPropagation();
+    }
+
+    treeNodeOnClick(node: TreeNode, $event: any): void {
+        node.treeModel.setFocusedNode(node);
+
+        if (node.treeModel.isExpanded(node)) {
+            node.collapse();
+        } else {
+            node.treeModel.expandAll();
+        }
+    }
+
+    onCreate(parentNode: TreeNode): void {
         if (this.subscription != null) {
             this.subscription.unsubscribe();
         }
 
-        const parent: Classification = node != null ? node.data : null;
+        const parent: ClassificationNode = parentNode != null ? parentNode.data : null;
 
         this.bsModalRef = this.modalService.show(ClassificationPublishModalComponent, {
             animated: true,
@@ -85,65 +150,88 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
             ignoreBackdropClick: true
         });
         this.subscription = this.bsModalRef.content.init(classification => {
-            const newNode = {
-                name: classification.code,
-                data: classification,
+            const node: ClassificationNode = {
+                name: classification.displayLabel.localizedValue,
+                classification: classification,
                 hasChildren: true
             };
 
-            if (node != null) {
-                node.children.push(newNode);
+            if (parentNode != null) {
+                parent.children.push(node);
             } else {
-                this.nodes.push(newNode);
+                this.nodes.push(node);
             }
-        }, this.classificationType, parent, true);
+
+            this.tree.treeModel.update();
+        }, this.classificationType, (parent != null ? parent.classification : null));
+    }
+
+    onEdit(node: TreeNode): void {
+        if (this.subscription != null) {
+            this.subscription.unsubscribe();
+        }
+
+        this.bsModalRef = this.modalService.show(ClassificationPublishModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true
+        });
+        this.subscription = this.bsModalRef.content.init(classification => {
+            const classificationNode: ClassificationNode = node.data;
+            classificationNode.classification = classification;
+            classificationNode.name = classification.displayLabel.localizedValue;
+
+            this.tree.treeModel.update();
+        }, this.classificationType, null, node.data.classification);
+    }
+
+    onRemove(node: TreeNode): void {
+        this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true
+        });
+        this.bsModalRef.content.message = this.lService.decode("confirm.modal.verify.delete") + " [" + node.data.code + "]";
+        this.bsModalRef.content.submitText = this.lService.decode("modal.button.delete");
+        this.bsModalRef.content.type = "danger";
+
+        this.bsModalRef.content.onConfirm.subscribe(data => {
+            this.removeTreeNode(node);
+        });
+    }
+
+    removeTreeNode(node: TreeNode): void {
+        this.service.remove(this.classificationType.code, node.data.classification.code).then(() => {
+            if (node.parent.data.classification == null) {
+                this.nodes = [];
+            }
+
+            const parent: TreeNode = node.parent;
+            const children = parent.data.children;
+
+            // Update the tree
+            parent.data.children = children.filter((n: any) => n.id !== node.data.id);
+
+            if (parent.data.children.length === 0) {
+                parent.data.hasChildren = false;
+            }
+            this.tree.treeModel.update();
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
     }
 
     /*
-        onEdit(type: ClassificationType): void {
-            if (this.subscription != null) {
-                this.subscription.unsubscribe();
-            }
 
-            this.bsModalRef = this.modalService.show(ClassificationTypePublishModalComponent, {
-                animated: true,
-                backdrop: true,
-                ignoreBackdropClick: true
-            });
-            this.subscription = this.bsModalRef.content.init(() => this.refresh(), type);
-        }
+refresh(): void {
+    this.service.page({}).then(page => {
+        this.page = page;
+    }).catch((err: HttpErrorResponse) => {
+        this.error(err);
+    });
+}
+*/
 
-        onDelete(type: ClassificationType): void {
-            this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-                animated: true,
-                backdrop: true,
-                ignoreBackdropClick: true
-            });
-            this.bsModalRef.content.message = this.lService.decode("confirm.modal.verify.delete") + " [" + type.displayLabel.localizedValue + "]";
-            this.bsModalRef.content.submitText = this.lService.decode("modal.button.delete");
-            this.bsModalRef.content.type = "danger";
-
-            this.bsModalRef.content.onConfirm.subscribe(data => {
-                this.service.remove(type).then(() => {
-                    const index = this.page.resultSet.findIndex(t => t.oid === type.oid);
-
-                    if (index !== -1) {
-                        this.page.resultSet.splice(index, 1);
-                    }
-                }).catch((err: HttpErrorResponse) => {
-                    this.error(err);
-                });
-            });
-        }
-
-        refresh(): void {
-            this.service.page({}).then(page => {
-                this.page = page;
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-        }
-     */
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);
     }

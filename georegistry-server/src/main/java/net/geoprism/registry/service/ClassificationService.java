@@ -13,9 +13,9 @@ import net.geoprism.registry.model.ClassificationType;
 public class ClassificationService
 {
   @Request(RequestType.SESSION)
-  public JsonObject apply(String sessionId, String classificationType, String parentCode, JsonObject object, boolean isNew)
+  public JsonObject apply(String sessionId, String classificationCode, String parentCode, JsonObject object, boolean isNew)
   {
-    ClassificationType type = ClassificationType.getByType(classificationType);
+    ClassificationType type = ClassificationType.getByCode(classificationCode);
 
     Classification parent = parentCode != null ? Classification.get(type, parentCode) : null;
 
@@ -28,18 +28,18 @@ public class ClassificationService
   }
 
   @Request(RequestType.SESSION)
-  public void remove(String sessionId, String classificationType, String code)
+  public void remove(String sessionId, String classificationCode, String code)
   {
-    ClassificationType type = ClassificationType.getByType(classificationType);
+    ClassificationType type = ClassificationType.getByCode(classificationCode);
 
     Classification classification = Classification.get(type, code);
     classification.delete();
   }
 
   @Request(RequestType.SESSION)
-  public void addChild(String sessionId, String classificationType, String parentCode, String childCode)
+  public void addChild(String sessionId, String classificationCode, String parentCode, String childCode)
   {
-    ClassificationType type = ClassificationType.getByType(classificationType);
+    ClassificationType type = ClassificationType.getByCode(classificationCode);
 
     Classification parent = Classification.get(type, parentCode);
     Classification child = Classification.get(type, childCode);
@@ -48,9 +48,9 @@ public class ClassificationService
   }
 
   @Request(RequestType.SESSION)
-  public void removeChild(String sessionId, String classificationType, String parentCode, String childCode)
+  public void removeChild(String sessionId, String classificationCode, String parentCode, String childCode)
   {
-    ClassificationType type = ClassificationType.getByType(classificationType);
+    ClassificationType type = ClassificationType.getByCode(classificationCode);
 
     Classification parent = Classification.get(type, parentCode);
     Classification child = Classification.get(type, childCode);
@@ -59,16 +59,29 @@ public class ClassificationService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getChildren(String sessionId, String classificationType, String code)
+  public JsonArray getChildren(String sessionId, String classificationCode, String code)
   {
-    ClassificationType type = ClassificationType.getByType(classificationType);
+    ClassificationType type = ClassificationType.getByCode(classificationCode);
 
-    Classification parent = code != null ? Classification.get(type, code) : type.getRoot();
+    if (code != null)
+    {
+      Classification parent = Classification.get(type, code);
 
-    return parent.getChildren().stream().map(child -> child.toJSON()).collect(Collector.of(() -> new JsonArray(), (r, t) -> r.add((JsonObject) t), (x1, x2) -> {
-      x1.addAll(x2);
-      return x1;
-    }));
+      return parent.getChildren().stream().map(child -> child.toJSON()).collect(Collector.of(() -> new JsonArray(), (r, t) -> r.add((JsonObject) t), (x1, x2) -> {
+        x1.addAll(x2);
+        return x1;
+      }));
+    }
+
+    Classification root = type.getRoot();
+    JsonArray roots = new JsonArray();
+
+    if (root != null)
+    {
+      roots.add(root.toJSON());
+    }
+
+    return roots;
   }
 
 }

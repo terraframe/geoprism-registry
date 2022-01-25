@@ -44,27 +44,27 @@ public class ClassificationController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "classificationType") String classificationType, @RequestParamter(name = "parentCode") String parentCode, @RequestParamter(name = "classification") String classification, @RequestParamter(name = "isNew") Boolean isNew)
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "parentCode") String parentCode, @RequestParamter(name = "classification") String classification, @RequestParamter(name = "isNew") Boolean isNew)
   {
     JsonObject object = JsonParser.parseString(classification).getAsJsonObject();
 
-    JsonObject response = this.service.apply(request.getSessionId(), classificationType, parentCode, object, isNew);
+    JsonObject response = this.service.apply(request.getSessionId(), classificationCode, parentCode, object, isNew);
 
     return new RestBodyResponse(response);
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove")
-  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "classificationType") String classificationType, @RequestParamter(name = "code") String code)
+  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code)
   {
-    this.service.remove(request.getSessionId(), classificationType, code);
+    this.service.remove(request.getSessionId(), classificationCode, code);
 
     return new RestResponse();
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-children")
-  public ResponseIF getChildren(ClientRequestIF request, @RequestParamter(name = "classificationType") String classificationType, @RequestParamter(name = "code") String code)
+  public ResponseIF getChildren(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code)
   {
-    JsonArray children = this.service.getChildren(request.getSessionId(), classificationType, code);
+    JsonArray children = this.service.getChildren(request.getSessionId(), classificationCode, code);
 
     return new RestBodyResponse(children);
   }

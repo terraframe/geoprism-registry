@@ -3,23 +3,26 @@ package net.geoprism.registry.model;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.system.AbstractClassification;
 
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.view.JsonSerializable;
 
 public class Classification implements JsonSerializable
 {
-  private static final String CODE = "code";
+  private ClassificationType type;
 
-  private ClassificationType  type;
-
-  private VertexObject        vertex;
+  private VertexObject       vertex;
 
   public Classification(ClassificationType type, VertexObject vertex)
   {
@@ -39,17 +42,33 @@ public class Classification implements JsonSerializable
 
   public void setCode(String code)
   {
-    this.getVertex().setValue(CODE, code);
+    this.getVertex().setValue(AbstractClassification.CODE, code);
   }
 
   public String getCode()
   {
-    return this.getVertex().getObjectValue(CODE);
+    return this.getVertex().getObjectValue(AbstractClassification.CODE);
+  }
+
+  public LocalizedValue getDisplayLabel()
+  {
+    return LocalizedValueConverter.convert(this.vertex.getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
+  }
+
+  public LocalizedValue getDescription()
+  {
+    return LocalizedValueConverter.convert(this.vertex.getEmbeddedComponent(AbstractClassification.DESCRIPTION));
   }
 
   public void populate(JsonObject object)
   {
-    this.setCode(object.get(CODE).getAsString());
+    this.setCode(object.get(AbstractClassification.CODE).getAsString());
+
+    LocalizedValue displayLabel = LocalizedValue.fromJSON(object.get(AbstractClassification.DISPLAYLABEL).getAsJsonObject());
+    LocalizedValueConverter.populate(this.vertex, AbstractClassification.DISPLAYLABEL, displayLabel);
+
+    LocalizedValue description = LocalizedValue.fromJSON(object.get(AbstractClassification.DESCRIPTION).getAsJsonObject());
+    LocalizedValueConverter.populate(this.vertex, AbstractClassification.DESCRIPTION, description);
   }
 
   @Transaction
@@ -149,7 +168,9 @@ public class Classification implements JsonSerializable
   public JsonObject toJSON()
   {
     JsonObject object = new JsonObject();
-    object.addProperty(CODE, (String) this.vertex.getObjectValue(CODE));
+    object.addProperty(AbstractClassification.CODE, (String) this.vertex.getObjectValue(AbstractClassification.CODE));
+    object.add(AbstractClassification.DISPLAYLABEL, this.getDisplayLabel().toJSON());
+    object.add(AbstractClassification.DESCRIPTION, this.getDescription().toJSON());
 
     return object;
   }
@@ -178,7 +199,12 @@ public class Classification implements JsonSerializable
 
     VertexObject result = query.getSingleResult();
 
-    return new Classification(type, result);
+    if (result != null)
+    {
+      return new Classification(type, result);
+    }
+
+    return null;
   }
 
   public static Classification newInstance(ClassificationType type)
@@ -195,7 +221,7 @@ public class Classification implements JsonSerializable
       return Classification.newInstance(type);
     }
 
-    String code = object.get(CODE).getAsString();
+    String code = object.get(AbstractClassification.CODE).getAsString();
 
     return Classification.get(type, code);
   }

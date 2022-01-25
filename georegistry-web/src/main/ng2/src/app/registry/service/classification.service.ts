@@ -15,17 +15,20 @@ export class ClassificationService {
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    apply(classificationType: string, parentCode: string, classification: Classification, isNew: boolean): Promise<Classification> {
+    apply(classificationCode: string, parentCode: string, classification: Classification, isNew: boolean): Promise<Classification> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
 
         const params = {
-            classificationType: classificationType,
-            parentCode: parentCode,
+            classificationCode: classificationCode,
             classification: classification,
             isNew: isNew
         };
+
+        if (parentCode != null) {
+            params["parentCode"] = parentCode;
+        }
 
         this.eventService.start();
 
@@ -37,13 +40,13 @@ export class ClassificationService {
             .toPromise();
     }
 
-    remove(classificationType: string, code: string): Promise<void> {
+    remove(classificationCode: string, code: string): Promise<void> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
 
         const params = {
-            classificationType: classificationType,
+            classificationCode: classificationCode,
             code: code
         };
 
@@ -57,10 +60,13 @@ export class ClassificationService {
             .toPromise();
     }
 
-    getChildren(classificationType: string, code: string): Promise<Classification[]> {
+    getChildren(classificationCode: string, code: string): Promise<Classification[]> {
         let params: HttpParams = new HttpParams();
-        params = params.set("classificationType", classificationType);
-        params = params.set("code", code);
+        params = params.set("classificationCode", classificationCode);
+
+        if (code != null) {
+            params = params.set("code", code);
+        }
 
         return this.http.get<Classification[]>(registry.contextPath + "/classification/get-children", { params: params })
             .toPromise();

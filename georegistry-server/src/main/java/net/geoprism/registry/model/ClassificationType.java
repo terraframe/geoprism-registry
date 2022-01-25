@@ -4,7 +4,11 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.JsonObject;
+import com.runwaysdk.ComponentIF;
+import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.business.rbac.Operation;
+import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
@@ -15,6 +19,9 @@ import com.runwaysdk.dataaccess.graph.VertexObjectDAOIF;
 import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.AbstractClassification;
+import com.runwaysdk.system.Roles;
+import com.runwaysdk.system.gis.metadata.graph.MdGeoVertex;
+import com.runwaysdk.system.metadata.MdBusiness;
 
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
@@ -97,7 +104,12 @@ public class ClassificationType implements JsonSerializable
   {
     VertexObjectDAOIF root = this.mdClassification.getRoot();
 
-    return new Classification(this, VertexObject.instantiate((VertexObjectDAO) root));
+    if (root != null)
+    {
+      return new Classification(this, VertexObject.instantiate((VertexObjectDAO) root));
+    }
+    
+    return null;
   }
 
   public JsonObject toJSON()
@@ -126,7 +138,7 @@ public class ClassificationType implements JsonSerializable
     LocalizedValue displayLabel = LocalizedValueConverter.convert(root.getEmbeddedComponent(MdClassificationInfo.DISPLAY_LABEL));
 
     JsonObject object = new JsonObject();
-    object.add(AbstractClassification.CODE, root.getObjectValue(AbstractClassification.CODE));
+    object.addProperty(AbstractClassification.CODE, (String) root.getObjectValue(AbstractClassification.CODE));
     object.add(MdClassificationInfo.DISPLAY_LABEL, displayLabel.toJSON());
 
     return object;
@@ -150,6 +162,32 @@ public class ClassificationType implements JsonSerializable
     mdClassification.apply();
 
     return toJSON(root);
+  }
+
+  /**
+   * Assigns all permissions to the {@link ComponentIF} to the given role.
+   * 
+   * Precondition: component is either a {@link MdGeoVertex} or a
+   * {@link MdBusiness}.
+   * 
+   * @param component
+   * @param role
+   */
+  private void assignAllPermissions(ComponentIF component, Roles role)
+  {
+    RoleDAO roleDAO = (RoleDAO) BusinessFacade.getEntityDAO(role);
+    roleDAO.grantPermission(Operation.CREATE, component.getOid());
+    roleDAO.grantPermission(Operation.DELETE, component.getOid());
+    roleDAO.grantPermission(Operation.WRITE, component.getOid());
+    roleDAO.grantPermission(Operation.WRITE_ALL, component.getOid());
+  }
+
+  public void assignSRAPermissions()
+  {
+    Roles sraRole = Roles.findRoleByName(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+
+    this.assignAllPermissions(this.mdClassification.getReferenceMdVertexDAO(), sraRole);
+    this.assignAllPermissions(this.mdClassification.getReferenceMdEdgeDAO(), sraRole);
   }
 
   @Transaction
@@ -178,9 +216,19 @@ public class ClassificationType implements JsonSerializable
     LocalizedValue description = LocalizedValue.fromJSON(json.get(MdClassificationInfo.DESCRIPTION).getAsJsonObject());
     LocalizedValueConverter.populate(mdClassification, MdClassificationInfo.DESCRIPTION, description);
 
+    boolean isNew = mdClassification.isNew() && !mdClassification.isAppliedToDB();
+
     mdClassification.apply();
 
-    return new ClassificationType(mdClassification);
+    ClassificationType classificationType = new ClassificationType(mdClassification);
+
+    if (isNew)
+    {
+      // Assign permissions
+      classificationType.assignSRAPermissions();
+    }
+
+    return classificationType;
   }
 
   public static Page<ClassificationType> page(JsonObject criteria)
@@ -193,8 +241,10 @@ public class ClassificationType implements JsonSerializable
     return new ClassificationType((MdClassificationDAOIF) MdClassificationDAO.get(oid));
   }
 
-  public static ClassificationType getByType(String classificationType)
+  public static ClassificationType getByCode(String code)
   {
+    String classificationType = RegistryConstants.CLASSIFICATION_PACKAGE + "." + code;
+
     MdClassificationDAOIF mdClassification = (MdClassificationDAOIF) MdClassificationDAO.get(MdClassificationInfo.CLASS, classificationType);
 
     return new ClassificationType(mdClassification);

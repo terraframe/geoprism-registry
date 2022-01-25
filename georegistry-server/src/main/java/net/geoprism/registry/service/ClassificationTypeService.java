@@ -41,9 +41,9 @@ public class ClassificationTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject get(String sessionId, String classificationType)
+  public JsonObject get(String sessionId, String classificationCode)
   {
-    return ClassificationType.getByType(classificationType).toJSON();
+    return ClassificationType.getByCode(classificationCode).toJSON();
   }
 
   @Request(RequestType.SESSION)

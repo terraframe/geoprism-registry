@@ -49,9 +49,9 @@ public class ClassificationTypeController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "classificationType") String classificationType)
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode)
   {
-    JsonObject object = JsonParser.parseString(classificationType).getAsJsonObject();
+    JsonObject object = JsonParser.parseString(classificationCode).getAsJsonObject();
 
     JsonObject response = this.service.apply(request.getSessionId(), object);
 
@@ -67,9 +67,9 @@ public class ClassificationTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
-  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "classificationType") String classificationType)
+  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode)
   {
-    JsonObject response = this.service.get(request.getSessionId(), classificationType);
+    JsonObject response = this.service.get(request.getSessionId(), classificationCode);
 
     return new RestBodyResponse(response);
   }

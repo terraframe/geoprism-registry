@@ -22,8 +22,37 @@
                         </label>
                     </div>
                     <div class="holder">
-                        <input [(ngModel)]="type.code" name="code" type="text" class="form-control"
-                            [disabled]="readonly || edit" required />
+                        <input [(ngModel)]="classification.code" name="code" type="text" class="form-control"
+                            [disabled]="readonly || !isNew" required />
+                    </div>
+                </div>
+                <div class="row-holder" *ngFor="let localeValue of classification.displayLabel.localeValues">
+                    <div class="label-holder">
+                        <label>
+                            Label
+                            <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
+                                </convert-key-label>)</span>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text"
+                            class="form-control" [disabled]="readonly"
+                            [required]="localeValue.locale === 'defaultLocale'" />
+                    </div>
+                </div>
+                <div class="row-holder" *ngFor="let localeValue of classification.description.localeValues">
+                    <div class="label-holder">
+                        <label>
+                            Description
+                            <span style="color: #BABABA">
+                                &nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)
+                            </span>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <input [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="text"
+                            class="form-control" [disabled]="readonly"
+                            [required]="localeValue.locale === 'defaultLocale'" />
                     </div>
                 </div>
                 <div class="row-holder">

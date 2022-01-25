@@ -13,5 +13,7 @@ export class ClassificationType {
 export class Classification {
 
     code: string;
+    displayLabel: LocalizedValue;
+    description: LocalizedValue;
 
 }

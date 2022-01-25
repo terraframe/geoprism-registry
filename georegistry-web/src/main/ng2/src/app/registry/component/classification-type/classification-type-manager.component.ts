@@ -9,7 +9,7 @@ import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { LocalizationService } from "@shared/service";
 import { Subscription } from "rxjs";
 import { ClassificationTypePublishModalComponent } from "./classification-type-publish-modal.component";
-import { ActivatedRoute, Params } from "@angular/router";
+import { ActivatedRoute, Params, Router } from "@angular/router";
 
 @Component({
     selector: "classification-type-manager",
@@ -27,6 +27,8 @@ export class ClassificationTypeManagerComponent implements OnInit, OnDestroy {
         resultSet: []
     };
 
+    querySubscription: Subscription = null;
+
     subscription: Subscription = null;
 
     classificationType: ClassificationType = null;
@@ -37,21 +39,28 @@ export class ClassificationTypeManagerComponent implements OnInit, OnDestroy {
     bsModalRef: BsModalRef;
 
     constructor(
+        private route: ActivatedRoute,
+        private router: Router,
         private service: ClassificationTypeService,
         private lService: LocalizationService,
-        private route: ActivatedRoute,
         private modalService: BsModalService) { }
 
     ngOnInit(): void {
-        this.subscription = this.route.queryParams.subscribe((params: Params) => {
+        this.querySubscription = this.route.queryParams.subscribe((params: Params) => {
             const typeCode = params.typeCode;
 
             if (typeCode != null && typeCode.length > 0) {
-                this.service.get(typeCode).then(classificationType => {
-                    this.classificationType = classificationType;
-                }).catch((err: HttpErrorResponse) => {
-                    this.error(err);
-                });
+                if (this.classificationType == null || this.classificationType.code !== typeCode) {
+                    this.classificationType = null;
+
+                    this.service.get(typeCode).then(classificationType => {
+                        this.classificationType = classificationType;
+                    }).catch((err: HttpErrorResponse) => {
+                        this.error(err);
+                    });
+                }
+            } else {
+                this.classificationType = null;
             }
         });
 
@@ -59,6 +68,12 @@ export class ClassificationTypeManagerComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        if (this.querySubscription != null) {
+            this.querySubscription.unsubscribe();
+        }
+
+        this.querySubscription = null;
+
         if (this.subscription != null) {
             this.subscription.unsubscribe();
         }
@@ -102,12 +117,19 @@ export class ClassificationTypeManagerComponent implements OnInit, OnDestroy {
         this.bsModalRef.content.submitText = this.lService.decode("modal.button.delete");
         this.bsModalRef.content.type = "danger";
 
-        this.bsModalRef.content.onConfirm.subscribe(data => {
+        this.bsModalRef.content.onConfirm.subscribe(() => {
             this.service.remove(type).then(() => {
                 const index = this.page.resultSet.findIndex(t => t.oid === type.oid);
 
                 if (index !== -1) {
                     this.page.resultSet.splice(index, 1);
+                }
+
+                if (this.classificationType != null && type.code === this.classificationType.code) {
+                    this.router.navigate([], {
+                        relativeTo: this.route,
+                        queryParams: { typeCode: null }
+                    });
                 }
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);

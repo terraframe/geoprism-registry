@@ -1,3 +1,15 @@
+<context-menu #nodeMenu>
+    <ng-template contextMenuItem let-item (execute)="onEdit($event.item)">
+        Edit
+    </ng-template>
+    <ng-template contextMenuItem let-item (execute)="onRemove($event.item)">
+        Delete
+    </ng-template>
+    <ng-template contextMenuItem let-item (execute)="onCreate($event.item)">
+        Add child
+    </ng-template>
+</context-menu>
+
 <ng-container>
 
     <div class="heading">
@@ -17,7 +29,7 @@
                     <localize key="list.type.button.create"></localize>
                 </button>
             </ng-container>
-            <tree-root *ngIf="nodes.length > 0" #tree [options]="options" [nodes]="nodes"></tree-root>            
+            <tree-root *ngIf="nodes.length > 0" #tree [options]="options" [nodes]="nodes"></tree-root>
         </div>
     </div>
 
