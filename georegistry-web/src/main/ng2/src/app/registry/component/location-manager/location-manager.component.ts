@@ -687,18 +687,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             // Highlight the feature on the map
-            // TODO : This is a hack! But I'm in a branch here so I don't feel like I have the proper ability to
-            // fix this since it might require much larger-scale changes to this code which won't merge well in
-            // the future.
-            window.setTimeout(() => {
-                this.map.setFeatureState(this.feature = {
+            this.feature = {
                     source: list,
                     sourceLayer: "context",
                     id: uid
-                }, {
-                    hover: true
-                });
-            }, 1500);
+                };
 
             this.mode = this.MODE.VIEW;
             this.record = record;
@@ -997,6 +990,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     "text-size": 12
                 }
             }, prevLayer);
+            
+            
+            // Highlight
+            if (this.feature && this.feature.source === source) {
+                this.map.setFeatureState(this.feature, {
+                    hover: true
+                });
+            }
         }
 
         if (this.layers.findIndex(lFind => layer.oid === lFind.oid) === -1) {
