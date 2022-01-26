@@ -412,7 +412,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             window.setTimeout(() => {
                 this.geomService.destroy();
                 this.ngAfterViewInit();
-            }, 5);
+            }, 10);
         }
 
         this.visualizeMode = visualizeMode;
@@ -687,13 +687,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             // Highlight the feature on the map
-            this.map.setFeatureState(this.feature = {
-                source: list,
-                sourceLayer: "context",
-                id: uid
-            }, {
-                hover: true
-            });
+            // TODO : This is a hack! But I'm in a branch here so I don't feel like I have the proper ability to
+            // fix this since it might require much larger-scale changes to this code which won't merge well in
+            // the future.
+            window.setTimeout(() => {
+                this.map.setFeatureState(this.feature = {
+                    source: list,
+                    sourceLayer: "context",
+                    id: uid
+                }, {
+                    hover: true
+                });
+            }, 1500);
 
             this.mode = this.MODE.VIEW;
             this.record = record;
@@ -706,6 +711,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 this.service.getGeoObjectByCode(record.code, record.type.code).then(geoObject => {
                     this.current = geoObject;
                     this.filterDate = record.forDate;
+                    this.zoomToFeature(this.current, null);
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
                 });
@@ -771,6 +777,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
                 this.current = geoObject;
                 this.filterDate = this.record.forDate;
+                this.zoomToFeature(this.current, null);
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
@@ -787,6 +794,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         const layer = event.layer;
 
         if (layer.active) {
+            let existingIndex = this.layers.findIndex((findLayer: any) => { return findLayer.oid === layer.oid; });
+            
+            if (existingIndex !== -1) {
+                this.removeLayer(layer)
+            }
+          
             this.addLayer(layer, event.prevLayer);
         } else {
             this.removeLayer(layer);
@@ -986,7 +999,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }, prevLayer);
         }
 
-        this.layers.push(layer);
+        if (this.layers.findIndex(lFind => layer.oid === lFind.oid) === -1) {
+            this.layers.push(layer);
+        }
     }
 
     onFeatureSelect(event: any): void {
