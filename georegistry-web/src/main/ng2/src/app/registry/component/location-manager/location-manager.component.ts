@@ -469,6 +469,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         // }
 
         this.handleParameterChange(this.params);
+        
+        if (this.current) {
+            this.zoomToFeature(this.current, null);
+        }
     }
 
     onZoomTo(oid: string): void {
