@@ -703,6 +703,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             this.mode = this.MODE.VIEW;
+            
+            if (record.forDate === "") {
+                record.forDate = null;
+            }
+            
             this.record = record;
 
             if (this.record.recordType === "GEO_OBJECT") {
@@ -712,7 +717,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 this.service.getGeoObjectByCode(record.code, record.type.code).then(geoObject => {
                     this.current = geoObject;
-                    this.filterDate = record.forDate;
+                    this.filterDate = this.record.forDate === "" ? null : this.record.forDate;
                     this.zoomToFeature(this.current, null);
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
@@ -764,7 +769,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 recordType: "GEO_OBJECT",
                 type: type,
                 code: code,
-                forDate: this.state.currentDate
+                forDate: (this.state.currentDate === "" ? null : this.state.currentDate)
             };
 
             if (this.visualizeMode === this.VISUALIZE_MODE.MAP && this.record.recordType === "GEO_OBJECT") {
@@ -778,7 +783,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
                 this.current = geoObject;
-                this.filterDate = this.record.forDate;
+                this.filterDate = this.record.forDate === "" ? null : this.record.forDate;
                 this.zoomToFeature(this.current, null);
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
