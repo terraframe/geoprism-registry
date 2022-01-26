@@ -10,14 +10,24 @@ import { Classification, ClassificationType } from "@registry/model/classificati
 import { LocalizationService } from "@shared/service";
 import { ClassificationService } from "@registry/service/classification.service";
 import { ClassificationPublishModalComponent } from "./classification-publish-modal.component";
+import { PageResult } from "@shared/model/core";
+
+const PAGE_SIZE: number = 100;
+
+enum NodeType {
+    CLASSIFICATION = 0, LINK = 1
+}
 
 class ClassificationNode {
 
     name: string;
-    classification: Classification;
+    code: string;
+    type: NodeType;
+    classification?: Classification;
     hasChildren: boolean;
     children?: ClassificationNode[];
     parent?: ClassificationNode;
+    pageNumber?: number;
 
 }
 
@@ -74,11 +84,15 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
             }
         },
         allowDrag: (node: TreeNode) => {
-            const code = node.data.classification.code;
+            if (node.data.type === NodeType.CLASSIFICATION) {
+                const code = node.data.classification.code;
 
-            return this.nodes.findIndex(root => root.classification.code === code) === -1;
+                return this.nodes.findIndex(root => root.classification.code === code) === -1;
+            }
+
+            return false;
         },
-        allowDrop: (node: TreeNode) => true
+        allowDrop: (node: TreeNode) => node.data.type === NodeType.CLASSIFICATION
     }
 
     constructor(
@@ -102,32 +116,52 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
         this.subscription = null;
     }
 
-    getChildren(node: TreeNode): Promise<ClassificationNode[]> {
-        const code = node != null ? node.data.classification.code : null;
+    getChildren(treeNode: TreeNode): Promise<ClassificationNode[]> {
+        const node: ClassificationNode = treeNode != null ? treeNode.data : null;
 
-        return this.service.getChildren(this.classificationType.code, code).then(children => {
-            const nodes = children.map(child => {
-                return {
-                    name: child.displayLabel.localizedValue,
-                    classification: child,
-                    hasChildren: true
-                };
-            });
+        const code = node != null ? node.classification.code : null;
+
+        return this.service.getChildren(this.classificationType.code, code, 1, PAGE_SIZE).then(page => {
+            const nodes = this.createNodes(node, page);
 
             if (node != null) {
-                const parent: ClassificationNode = node.data.classification;
-
-                if (parent.children == null) {
-                    parent.children = [];
+                if (node.children == null) {
+                    node.children = [];
                 }
 
-                parent.children.concat(nodes);
+                node.children.concat(nodes);
             }
 
             return nodes;
         }).catch(ex => {
             return [];
         });
+    }
+
+    createNodes(parent: ClassificationNode, page: PageResult<Classification>): ClassificationNode[] {
+        const nodes = page.resultSet.map(child => {
+            return {
+                code: child.code,
+                name: child.displayLabel.localizedValue,
+                type: NodeType.CLASSIFICATION,
+                classification: child,
+                hasChildren: true
+            } as ClassificationNode;
+        });
+
+        // Add page node if needed
+        if (page.count > page.pageNumber * page.pageSize) {
+            nodes.push({
+                code: "...",
+                name: "...",
+                type: NodeType.LINK,
+                hasChildren: false,
+                pageNumber: page.pageNumber + 1,
+                parent: parent
+            } as ClassificationNode);
+        }
+
+        return nodes;
     }
 
     handleOnMenu(node: TreeNode, $event: any): void {
@@ -140,13 +174,33 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
         $event.stopPropagation();
     }
 
-    treeNodeOnClick(node: TreeNode, $event: any): void {
-        node.treeModel.setFocusedNode(node);
+    treeNodeOnClick(treeNode: TreeNode, $event: any): void {
+        const node: ClassificationNode = treeNode != null ? treeNode.data : null;
 
-        if (node.treeModel.isExpanded(node)) {
-            node.collapse();
+        if (node != null && node.type === NodeType.LINK) {
+            if (treeNode.parent != null) {
+                const parentNode: ClassificationNode = treeNode.parent.data;
+                const code = parentNode.classification.code;
+                const pageNumber = node.pageNumber;
+
+                this.service.getChildren(this.classificationType.code, code, pageNumber, PAGE_SIZE).then(page => {
+                    const nodes = this.createNodes(parentNode, page);
+
+                    parentNode.children = parentNode.children.filter(node => node.code !== "...");
+                    parentNode.children = parentNode.children.concat(nodes);
+
+                    this.tree.treeModel.update();
+                }).catch(ex => {
+                });
+            }
         } else {
-            node.treeModel.expandAll();
+            treeNode.treeModel.setFocusedNode(node);
+
+            if (treeNode.treeModel.isExpanded(node)) {
+                treeNode.collapse();
+            } else {
+                treeNode.treeModel.expandAll();
+            }
         }
     }
 
@@ -164,7 +218,9 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
         });
         this.subscription = this.bsModalRef.content.init(classification => {
             const node: ClassificationNode = {
+                code: classification.code,
                 name: classification.displayLabel.localizedValue,
+                type: NodeType.CLASSIFICATION,
                 classification: classification,
                 hasChildren: true
             };

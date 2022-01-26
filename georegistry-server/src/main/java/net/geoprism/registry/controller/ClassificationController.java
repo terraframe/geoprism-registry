@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.controller;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.constants.ClientRequestIF;
@@ -65,15 +64,15 @@ public class ClassificationController
   public ResponseIF move(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code, @RequestParamter(name = "parentCode") String parentCode)
   {
     this.service.move(request.getSessionId(), classificationCode, code, parentCode);
-    
+
     return new RestResponse();
   }
-  
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-children")
-  public ResponseIF getChildren(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code)
-  {
-    JsonArray children = this.service.getChildren(request.getSessionId(), classificationCode, code);
 
-    return new RestBodyResponse(children);
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-children")
+  public ResponseIF getChildren(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
+  {
+    JsonObject page = this.service.getChildren(request.getSessionId(), classificationCode, code, pageSize, pageNumber);
+
+    return new RestBodyResponse(page);
   }
 }

@@ -16,6 +16,7 @@ import com.runwaysdk.system.AbstractClassification;
 import net.geoprism.registry.CannotDeleteClassificationWithChildrenException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.view.JsonSerializable;
+import net.geoprism.registry.view.Page;
 
 public class Classification implements JsonSerializable
 {
@@ -93,7 +94,7 @@ public class Classification implements JsonSerializable
   @Transaction
   public void delete()
   {
-    if (this.getChildren().size() > 0)
+    if (this.getChildren(null, null).getCount() > 0)
     {
       throw new CannotDeleteClassificationWithChildrenException();
     }
@@ -139,11 +140,34 @@ public class Classification implements JsonSerializable
     this.addParent(newParent);
   }
 
-  public List<Classification> getChildren()
+  public Page<Classification> getChildren()
   {
+    return this.getChildren(20, 1);
+  }
+
+  public Page<Classification> getChildren(Integer pageSize, Integer pageNumber)
+  {
+    StringBuilder cStatement = new StringBuilder();
+    cStatement.append("SELECT out('" + this.type.getMdEdge().getDBClassName() + "').size()");
+    cStatement.append(" FROM :rid");
+
+    GraphQuery<Integer> cQuery = new GraphQuery<Integer>(cStatement.toString());
+    cQuery.setParameter("rid", this.getVertex().getRID());
+
+    Integer count = cQuery.getSingleResult();
+
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT EXPAND(out('" + this.type.getMdEdge().getDBClassName() + "')");
     statement.append(") FROM :rid");
+    statement.append(" ORDER BY code");
+
+    if (pageSize != null && pageNumber != null)
+    {
+      int first = pageSize * ( pageNumber - 1 );
+      int rows = pageSize;
+
+      statement.append(" SKIP " + first + " LIMIT " + rows);
+    }
 
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
     query.setParameter("rid", this.getVertex().getRID());
@@ -152,7 +176,7 @@ public class Classification implements JsonSerializable
       return new Classification(this.type, vertex);
     }).collect(Collectors.toList());
 
-    return results;
+    return new Page<Classification>(count, pageNumber, pageSize, results);
   }
 
   public List<Classification> getParents()

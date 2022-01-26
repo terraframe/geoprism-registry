@@ -1,14 +1,15 @@
 package net.geoprism.registry.service;
 
-import java.util.stream.Collector;
+import java.util.LinkedList;
+import java.util.List;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
+import net.geoprism.registry.view.Page;
 
 public class ClassificationService
 {
@@ -42,7 +43,7 @@ public class ClassificationService
     ClassificationType type = ClassificationType.getByCode(classificationCode);
     Classification classification = Classification.get(type, code);
     Classification newParent = Classification.get(type, parentCode);
-    
+
     classification.move(newParent);
   }
 
@@ -69,7 +70,7 @@ public class ClassificationService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getChildren(String sessionId, String classificationCode, String code)
+  public JsonObject getChildren(String sessionId, String classificationCode, String code, Integer pageSize, Integer pageNumber)
   {
     ClassificationType type = ClassificationType.getByCode(classificationCode);
 
@@ -77,21 +78,18 @@ public class ClassificationService
     {
       Classification parent = Classification.get(type, code);
 
-      return parent.getChildren().stream().map(child -> child.toJSON()).collect(Collector.of(() -> new JsonArray(), (r, t) -> r.add((JsonObject) t), (x1, x2) -> {
-        x1.addAll(x2);
-        return x1;
-      }));
+      return parent.getChildren(pageSize, pageNumber).toJSON();
     }
 
     Classification root = type.getRoot();
-    JsonArray roots = new JsonArray();
+    List<Classification> roots = new LinkedList<Classification>();
 
     if (root != null)
     {
-      roots.add(root.toJSON());
+      roots.add(root);
     }
 
-    return roots;
+    return new Page<Classification>(roots.size(), pageNumber, pageSize, roots).toJSON();
   }
 
 }

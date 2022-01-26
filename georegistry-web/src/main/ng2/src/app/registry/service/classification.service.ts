@@ -6,6 +6,7 @@ import { EventService } from "@shared/service";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
 import { Classification } from "@registry/model/classification-type";
+import { PageResult } from "@shared/model/core";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -81,15 +82,17 @@ export class ClassificationService {
             .toPromise();
     }
 
-    getChildren(classificationCode: string, code: string): Promise<Classification[]> {
+    getChildren(classificationCode: string, code: string, pageNumber: number, pageSize: number): Promise<PageResult<Classification>> {
         let params: HttpParams = new HttpParams();
         params = params.set("classificationCode", classificationCode);
+        params = params.set("pageNumber", pageNumber.toString());
+        params = params.set("pageSize", pageSize.toString());
 
         if (code != null) {
             params = params.set("code", code);
         }
 
-        return this.http.get<Classification[]>(registry.contextPath + "/classification/get-children", { params: params })
+        return this.http.get<PageResult<Classification>>(registry.contextPath + "/classification/get-children", { params: params })
             .toPromise();
     }
 

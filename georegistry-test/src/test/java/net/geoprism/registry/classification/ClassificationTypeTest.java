@@ -45,7 +45,7 @@ public class ClassificationTypeTest
 
     try
     {
-      Assert.assertNotNull(ClassificationType.getByType(type.getType()));
+      Assert.assertNotNull(ClassificationType.getByCode(type.getCode()));
     }
     finally
     {
@@ -85,7 +85,7 @@ public class ClassificationTypeTest
 
     try
     {
-      ClassificationType.getByType(type.getType());
+      ClassificationType.getByCode(type.getCode());
 
       Assert.fail("Able to get type which should have been deleted");
     }

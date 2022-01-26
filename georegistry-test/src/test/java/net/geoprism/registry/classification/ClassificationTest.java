@@ -11,6 +11,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
+import net.geoprism.registry.view.Page;
 
 public class ClassificationTest
 {
@@ -53,7 +54,7 @@ public class ClassificationTest
   {
     Classification object = Classification.newInstance(type);
     object.setCode(PARENT_CODE);
-    object.apply();
+    object.apply(null);
 
     try
     {
@@ -71,7 +72,7 @@ public class ClassificationTest
   {
     Classification object = Classification.newInstance(type);
     object.setCode(PARENT_CODE);
-    object.apply();
+    object.apply(null);
 
     try
     {
@@ -91,23 +92,58 @@ public class ClassificationTest
   {
     Classification parent = Classification.newInstance(type);
     parent.setCode(PARENT_CODE);
-    parent.apply();
+    parent.apply(null);
 
     try
     {
       Classification child = Classification.newInstance(type);
       child.setCode(CHILD_CODE);
-      child.apply();
+      child.apply(null);
 
       try
       {
         parent.addChild(child);
 
-        List<Classification> children = parent.getChildren();
+        Page<Classification> children = parent.getChildren(20, 1);
 
-        Assert.assertEquals(1, children.size());
+        Assert.assertEquals(Long.valueOf(1), children.getCount());
 
-        Classification result = children.get(0);
+        Classification result = children.getResults().get(0);
+
+        Assert.assertEquals(child.getOid(), result.getOid());
+      }
+      finally
+      {
+        child.delete();
+      }
+    }
+    finally
+    {
+      parent.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testAddGetChildApplyWithParent()
+  {
+    Classification parent = Classification.newInstance(type);
+    parent.setCode(PARENT_CODE);
+    parent.apply(null);
+
+    try
+    {
+      Classification child = Classification.newInstance(type);
+      child.setCode(CHILD_CODE);
+      child.apply(parent);
+
+      try
+      {
+        Page<Classification> children = parent.getChildren(20, 1);
+
+        Assert.assertEquals(Long.valueOf(1), children.getCount());
+
+        Classification result = children.getResults().get(0);
 
         Assert.assertEquals(child.getOid(), result.getOid());
       }
@@ -128,13 +164,13 @@ public class ClassificationTest
   {
     Classification parent = Classification.newInstance(type);
     parent.setCode(PARENT_CODE);
-    parent.apply();
+    parent.apply(null);
 
     try
     {
       Classification child = Classification.newInstance(type);
       child.setCode(CHILD_CODE);
-      child.apply();
+      child.apply(null);
 
       try
       {
@@ -163,23 +199,23 @@ public class ClassificationTest
   {
     Classification parent = Classification.newInstance(type);
     parent.setCode(PARENT_CODE);
-    parent.apply();
+    parent.apply(null);
 
     try
     {
       Classification child = Classification.newInstance(type);
       child.setCode(CHILD_CODE);
-      child.apply();
+      child.apply(null);
 
       try
       {
         parent.addChild(child);
 
-        Assert.assertEquals(1, parent.getChildren().size());
+        Assert.assertEquals(Long.valueOf(1), parent.getChildren().getCount());
 
         parent.removeChild(child);
 
-        Assert.assertEquals(0, parent.getChildren().size());
+        Assert.assertEquals(Long.valueOf(0), parent.getChildren().getCount());
       }
       finally
       {
@@ -198,13 +234,13 @@ public class ClassificationTest
   {
     Classification parent = Classification.newInstance(type);
     parent.setCode(PARENT_CODE);
-    parent.apply();
+    parent.apply(null);
 
     try
     {
       Classification child = Classification.newInstance(type);
       child.setCode(CHILD_CODE);
-      child.apply();
+      child.apply(null);
 
       try
       {

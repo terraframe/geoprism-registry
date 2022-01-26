@@ -98,6 +98,8 @@ public class ClassificationType implements JsonSerializable
     MdClassificationDAO mdClassificationDAO = (MdClassificationDAO) this.mdClassification.getBusinessDAO();
     mdClassificationDAO.setValue(MdClassificationInfo.ROOT, classification.getOid());
     mdClassificationDAO.apply();
+
+    this.mdClassification = mdClassificationDAO;
   }
 
   public Classification getRoot()
