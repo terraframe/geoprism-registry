@@ -688,10 +688,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             // Highlight the feature on the map
             this.feature = {
-                    source: list,
-                    sourceLayer: "context",
-                    id: uid
-                };
+                source: list,
+                sourceLayer: "context",
+                id: uid
+            };
+            if (this.layers.findIndex(lFind => this.feature.source === lFind.oid) !== -1) {
+                this.map.setFeatureState(this.feature, {
+                    hover: true
+                });
+            }
 
             this.mode = this.MODE.VIEW;
             this.record = record;
