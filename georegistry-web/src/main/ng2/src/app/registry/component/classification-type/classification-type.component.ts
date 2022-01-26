@@ -92,7 +92,17 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
 
             return false;
         },
-        allowDrop: (node: TreeNode) => node.data.type === NodeType.CLASSIFICATION
+        allowDrop: (node: TreeNode, event: { parent: TreeNode, index: number }) => {
+            if (event != null && event.parent != null) {
+                return event.parent.data.type === NodeType.CLASSIFICATION;
+            }
+
+            return false;
+        },
+        animateExpand: true,
+        scrollOnActivate: true,
+        animateSpeed: 2,
+        animateAcceleration: 1.01
     }
 
     constructor(
@@ -196,10 +206,11 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
         } else {
             treeNode.treeModel.setFocusedNode(node);
 
-            if (treeNode.treeModel.isExpanded(node)) {
+            if (treeNode.isExpanded) {
                 treeNode.collapse();
             } else {
-                treeNode.treeModel.expandAll();
+                treeNode.expand();
+                // treeNode.treeModel.expandAll();
             }
         }
     }
