@@ -203,7 +203,10 @@ public class RelationshipVisualizationService
     joEdge.addProperty("id", "g-" + edge.getOid());
     joEdge.addProperty("source", "g-" + source.getUid());
     joEdge.addProperty("target", "g-" + target.getUid());
-    joEdge.addProperty("label", mdEdge.getDisplayLabel(Session.getCurrentLocale()));
+    
+    String label = mdEdge.getDisplayLabel(Session.getCurrentLocale());
+    joEdge.addProperty("label", String.valueOf(label)); // If we write an object with a null label ngx graph freaks out. So we're just going to write "null" instead.
+    
     return joEdge;
   }
   
@@ -213,7 +216,10 @@ public class RelationshipVisualizationService
     joVertex.addProperty("id", "g-" + vertex.getUid());
     joVertex.addProperty("code", vertex.getCode());
     joVertex.addProperty("typeCode", vertex.getType().getCode());
-    joVertex.addProperty("label", vertex.getDisplayLabel().getValue());
+    
+    String label = vertex.getDisplayLabel().getValue();
+    joVertex.addProperty("label", String.valueOf(label)); // If we write an object with a null label ngx graph freaks out. So we're just going to write "null" instead.
+    
     return joVertex;
   }
 }

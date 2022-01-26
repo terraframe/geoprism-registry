@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Input, ViewChildren, QueryList } from "@angular/core";
+import { Component, OnInit, ViewChild, Input, ViewChildren, QueryList, EventEmitter, Output } from "@angular/core";
 import { DatePipe } from "@angular/common";
 import {
     trigger,
@@ -101,6 +101,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     @ViewChildren(ManageVersionsComponent) manageVersions: QueryList<any>;
 
+    @Output() changeFilterDate = new EventEmitter<string>();
+
     public parentAttributeType: AttributeType;
 
     public geometryAttributeType: AttributeType;
@@ -168,6 +170,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         if (this.manageVersions != null) {
             this.manageVersions.forEach(manageVersion => manageVersion.setFilterDate(this.filterDate, refresh));
         }
+
+        this.changeFilterDate.emit(date);
     }
 
     getChangeRequestEditor(): ChangeRequestEditor {

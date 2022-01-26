@@ -131,7 +131,7 @@
         <ng-container *ngIf="mode === MODE.VIEW && record != null">
           <div *ngIf="record.recordType === 'GEO_OBJECT'" class="row">
             <div class="col-md-12">
-              <feature-panel [type]="record.type" [code]="record.code" [forDate]="record.forDate" [readOnly]="false"
+              <feature-panel [type]="record.type" [code]="record.code" [forDate]="record.forDate" [readOnly]="false" (changeFilterDate)="setFilterDate($event)"
                 (modeChange)="onModeChange($event)" (panelCancel)="clearRecord()" (panelSubmit)="onPanelSubmit($event)">
               </feature-panel>
             </div>
@@ -160,7 +160,7 @@
         
         <div *ngIf="visualizeMode === VISUALIZE_MODE.HIERARCHY && current" style="height: calc(100vh - 145px);" class="row">
 	        <relationship-visualizer
-	          [params]="{geoObject: current, mdEdgeOid: visualizingRelationship, date: (record == null ? null : record.forDate)}"
+	          [params]="{geoObject: current, mdEdgeOid: visualizingRelationship, date: filterDate}"
 	          (changeGeoObject)="onChangeGeoObject($event)"
 	          (changeRelationship)="visualizingRelationship = $event.oid"
 	        >

@@ -79,6 +79,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
     current: GeoObject;
 
+    filterDate: string = null;
+
     /*
      * Currently highlighted feature
      */
@@ -192,6 +194,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (this.visualizeMode === this.VISUALIZE_MODE.MAP) {
             this.initializeMap();
         }
+    }
+
+    setFilterDate(date: string) {
+        this.filterDate = date;
     }
 
     initializeMap() {
@@ -696,6 +702,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 this.geomService.destroy(false);
 
                 this.geomService.initialize(this.map, record.type.geometryType, false);
+
+                this.service.getGeoObjectByCode(record.code, record.type.code).then(geoObject => {
+                    this.current = geoObject;
+                    this.filterDate = record.forDate;
+                }).catch((err: HttpErrorResponse) => {
+                    this.error(err);
+                });
             }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
@@ -757,6 +770,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
                 this.current = geoObject;
+                this.filterDate = this.record.forDate;
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
