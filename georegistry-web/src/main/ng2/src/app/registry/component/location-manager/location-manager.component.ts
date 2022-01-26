@@ -708,6 +708,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 record.forDate = null;
             }
             
+            this.visualizingRelationship = null;
+            
             this.record = record;
 
             if (this.record.recordType === "GEO_OBJECT") {
@@ -763,6 +765,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             this.mode = this.MODE.VIEW;
+            this.visualizingRelationship = null;
 
             const type = types[0];
             this.record = {
