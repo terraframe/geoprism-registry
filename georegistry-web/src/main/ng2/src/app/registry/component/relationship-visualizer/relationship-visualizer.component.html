@@ -1,8 +1,8 @@
 <div class="new-admin-design-main" style="overflow-y:hidden;">
 
-	<div id="app-container" style="height:100%; width:100%;" class="container-fluid">
+	<div id="" style="height:100%; width:100%; background-color: white; opacity: 100%" class="container-fluid">
 
-		<h2> <localize key="relationshipVisualizer.title"></localize> </h2>
+		<h2 [style]="params.searchPanelOpen ? '' : 'padding-left: 55px;'"> <localize key="relationshipVisualizer.title"></localize> </h2>
 		
 		<select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="mdEdgeOid" (change)="onSelectRelationship()" required>
        <option *ngFor="let relationship of relationships" value={{relationship.oid}}>{{relationship.label.localizedValue}}</option>
@@ -17,6 +17,7 @@
             [view]="[width, height]"
             [links]="data.edges"
             [nodes]="data.verticies"
+            [animate]="false"
             [layout]="layout"
             [layoutSettings]="{orientation: 'TB'}"
             [curve]="curve"
@@ -31,11 +32,16 @@
 					  </ng-template>
             <ng-template #nodeTemplate let-node>
 					    <svg:g (click)="onClickNode(node)" class="node">
+					      <!--
 					      <svg:rect
 					        [attr.width]="node.dimension.width"
 					        [attr.height]="node.dimension.height"
 					        [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? '#4287f5' : 'gray')"
 					      />
+					      -->
+					      <svg:polygon [attr.points]="getHexagonPoints(node)"
+					        [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? '#4287f5' : 'gray')"
+					      ></polygon>
 					      
 					      <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
                   {{node.label}}

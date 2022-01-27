@@ -8,6 +8,20 @@
           <attribute name="defaultLocale" value="Relationships" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="relationshipVisualizer.viewGraph">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="relationshipVisualizer.viewGraph" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View Relationships" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="relationshipVisualizer.viewMap">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="relationshipVisualizer.viewMap" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View Map" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create></create>
     <update></update>

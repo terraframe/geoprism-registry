@@ -23,6 +23,21 @@ export const GRAPH_GO_LABEL_COLOR: string = "black";
 export const GRAPH_CIRCLE_FILL: string = "#999";
 export const GRAPH_LINE_COLOR: string = "#999";
 
+// eslint-disable-next-line no-warning-comments
+/*
+ *
+ DONE:
+- When clicking on a Geo-Object on tree, open it in tree not map
+- Render Geo-Objects as hexagons
+- Hover tooltips are "null"
+
+TODO:
+- Closing the search bar when tree is open causes bad styling
+- Clicking on a node in the tree loses the context of what panels were open
+- Clicking on a node on the graph should not reload the map
+- Make it swoosh
+ */
+
 @Component({
 
     selector: "relationship-visualizer",
@@ -36,7 +51,7 @@ export class RelationshipVisualizerComponent implements OnInit {
   */
   private bsModalRef: BsModalRef;
 
-  @Input() params: {geoObject: GeoObject, mdEdgeOid: string, date: string} = null;
+  @Input() params: {geoObject: GeoObject, mdEdgeOid: string, date: string, searchPanelOpen: boolean} = null;
 
   geoObject: GeoObject = null;
 
@@ -80,6 +95,26 @@ export class RelationshipVisualizerComponent implements OnInit {
               this.onSelectRelationship();
           }
       }
+  }
+
+  // Thanks to https://stackoverflow.com/questions/52172067/create-svg-hexagon-points-with-only-only-a-length
+  public getHexagonPoints(node: {dimension: {width: number, height: number}}): string {
+      let radius = node.dimension.width / 2;
+      let height = node.dimension.height;
+      let width = node.dimension.width;
+
+      //let radius = 50;
+      //let height = 200;
+      //let width = 200;
+
+      let points = [0, 1, 2, 3, 4, 5, 6].map((n, i) => {
+          let angleDeg = 60 * i - 30;
+          let angleRad = Math.PI / 180 * angleDeg;
+          return [width / 2 + radius * Math.cos(angleRad), height / 2 + radius * Math.sin(angleRad)];
+        }).map((p) => p.join(","))
+        .join(" ");
+
+      return points;
   }
 
   private fetchRelationships(): void {

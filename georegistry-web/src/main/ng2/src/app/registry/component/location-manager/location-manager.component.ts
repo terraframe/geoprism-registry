@@ -50,8 +50,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     VISUALIZE_MODE: VisualizeState = {
         MAP: 0,
-        HIERARCHY: 1,
-        GRAPH: 2
+        GRAPH: 1
     }
 
     bsModalRef: BsModalRef;
@@ -156,6 +155,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     typeahead: Observable<any> = null;
 
+    public layersPanelIsOpen: boolean = false;
+
     @ViewChild("simpleEditControl") simpleEditControl: IControl;
 
     // eslint-disable-next-line no-useless-constructor
@@ -256,7 +257,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     onChangeGeoObject(event: {id: string, code: string, typeCode: string}): void {
         this.service.getGeoObject(event.id, event.typeCode).then(geoObj => {
             this.setData([geoObj]);
-            this.select(geoObj, null);
+            // this.select(geoObj, null);
+
+            if (!this.isEdit) {
+                // this.router.navigate([], {
+                //     relativeTo: this.route,
+                //     queryParams: { type: geoObj.properties.type, code: geoObj.properties.code, uid: geoObj.properties.uid, version: null, visualizeMode: this.visualizeMode },
+                //     queryParamsHandling: "merge" // remove to replace all query params by provided
+                // });
+
+                // this.changeVisualizeMode(this.VISUALIZE_MODE.GRAPH);
+                this.current = geoObj;
+            }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -312,6 +324,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     this.pageMode = this.params.pageContext;
                 }
 
+                this.layersPanelIsOpen = (this.pageMode === "EXPLORER");
+
                 // Keep the sidebar open if toggling a context layer when the sidebar is already open.
                 // This only happens on a fresh page load when sidebar is open (no search results or obj focus)
                 if (this.showPanel && this.pageMode === "EXPLORER") {
@@ -319,7 +333,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
 
                 if (this.params.visualizeMode) {
-                    this.visualizeMode = parseInt(this.params.visualizeMode);
+                    //this.visualizeMode = parseInt(this.params.visualizeMode);
                 }
             }
 
@@ -409,10 +423,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     changeVisualizeMode(visualizeMode: number): void {
         if (this.visualizeMode !== this.VISUALIZE_MODE.MAP && visualizeMode === this.VISUALIZE_MODE.MAP) {
-            window.setTimeout(() => {
-                this.geomService.destroy();
-                this.ngAfterViewInit();
-            }, 10);
+            // window.setTimeout(() => {
+                // this.geomService.destroy();
+                // this.ngAfterViewInit();
+            // }, 10);
         }
 
         this.visualizeMode = visualizeMode;
@@ -742,7 +756,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (!this.isEdit) {
             this.router.navigate([], {
                 relativeTo: this.route,
-                queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null }
+                queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null, visualizeMode: this.visualizeMode },
+                queryParamsHandling: "merge" // remove to replace all query params by provided
             });
         }
     }

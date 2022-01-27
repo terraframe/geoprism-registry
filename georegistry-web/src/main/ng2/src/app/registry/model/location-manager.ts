@@ -21,6 +21,5 @@ export class ModalState {
 
 export class VisualizeState {
     MAP: number;
-    HIERARCHY: number;
     GRAPH: number;
 }

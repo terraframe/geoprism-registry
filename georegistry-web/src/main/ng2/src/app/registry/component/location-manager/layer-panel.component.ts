@@ -49,6 +49,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     @Output() create = new EventEmitter<ContextLayer>();
 
     @Input() baselayerIconHover: boolean = false;
+    @Output() baselayerIconHoverChange = new EventEmitter<boolean>();
 
     lists: ContextList[] = [];
     layers: ContextLayer[] = [];
@@ -134,6 +135,12 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
                 }
             }
         }
+    }
+
+    togglePanelOpen() {
+        this.baselayerIconHover = !this.baselayerIconHover;
+
+        this.baselayerIconHoverChange.emit(this.baselayerIconHover);
     }
 
     /**
@@ -292,9 +299,9 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     toggleLayer(layer: ContextLayer, list: ContextList): void {
-        if (!this.params) {
-            return;
-        }
+        //if (!this.params) {
+        //    return;
+        //}
 
         layer.enabled = !layer.enabled;
         layer.active = layer.enabled;
@@ -307,7 +314,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         let index: number = 0;
 
         if (layer.enabled) {
-            if (layer.oid === GRAPH_LAYER && this.params.layers != null) {
+            if (layer.oid === GRAPH_LAYER && this.params && this.params.layers != null) {
                 const i = JSON.parse(this.params.layers).indexOf(GRAPH_LAYER);
 
                 if (i !== -1) {

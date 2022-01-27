@@ -9,7 +9,12 @@
   right: 37px;
 }
 .visualize-mode-toggle.hierarchy {
-  right: 6px;
+  /* right: 6px; */
+  right: 47px;
+}
+
+.visualize-mode-hierarchy {
+	color: black;
 }
 
 .visualize-mode-toggle > i {

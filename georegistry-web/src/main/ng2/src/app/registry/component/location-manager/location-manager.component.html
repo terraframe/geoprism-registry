@@ -20,9 +20,9 @@
 
   <div id="app-container" class="container-fluid">
   
-    <span *ngIf="record && record.recordType === 'GEO_OBJECT'" [ngClass]="{'hierarchy':visualizeMode === VISUALIZE_MODE.HIERARCHY, 'map':visualizeMode === VISUALIZE_MODE.MAP}" class="visualize-mode-toggle">
-      <i *ngIf="visualizeMode === VISUALIZE_MODE.HIERARCHY" class="visualize-mode-map fa fa-globe clickable" aria-hidden="true" (click)="visualizeRelationships(current, VISUALIZE_MODE.MAP, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
-      <i *ngIf="visualizeMode === VISUALIZE_MODE.MAP" class="visualize-mode-hierarchy fa fa-sitemap clickable" aria-hidden="true" (click)="visualizeRelationships(current, VISUALIZE_MODE.HIERARCHY, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
+    <span *ngIf="record && record.recordType === 'GEO_OBJECT'" [ngClass]="{'hierarchy':visualizeMode === VISUALIZE_MODE.GRAPH, 'map':visualizeMode === VISUALIZE_MODE.MAP}" class="visualize-mode-toggle">
+      <i *ngIf="visualizeMode === VISUALIZE_MODE.GRAPH" class="visualize-mode-map fa fa-globe clickable" aria-hidden="true" (click)="visualizeRelationships(current, VISUALIZE_MODE.MAP, $event)" [title]="'relationshipVisualizer.viewMap' | localize"></i>
+      <i *ngIf="visualizeMode === VISUALIZE_MODE.MAP" class="visualize-mode-hierarchy fa fa-sitemap clickable" aria-hidden="true" (click)="visualizeRelationships(current, VISUALIZE_MODE.GRAPH, $event)" [title]="'relationshipVisualizer.viewGraph' | localize"></i>
     </span>
 
     <div *ngIf="searchEnabled" class="row" style="position: absolute;top: 0;bottom: 0;left: 10px;right: 10px;height: 100%;">
@@ -94,9 +94,8 @@
               </div>
             </div>
           </article>
-        </div>
       </div>
-
+    </div>
 
     <div class="row">
       <div *ngIf="showPanel" id="navigator-left-sidebar" class="col-md-5 lw-inner-col"
@@ -115,7 +114,7 @@
                       <div class="card-body">
                         <i class="fa fa-map-marker clickable" style="float:right;font-size:25px;" aria-hidden="true"
                           (click)="zoomToFeature(node, $event)" [title]="'explorer.zoom.label' | localize"></i>
-                        <i class="fa fa-sitemap clickable" style="float:right;font-size:25px;" aria-hidden="true" (click)="visualizeRelationships(node, VISUALIZE_MODE.HIERARCHY, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
+                        <i class="fa fa-sitemap clickable" style="float:right;font-size:25px;" aria-hidden="true" (click)="visualizeRelationships(node, VISUALIZE_MODE.GRAPH, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
                         <h4 class="clickable" style="word-break: break-all;" title="View Geo-Object details">
                           {{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
                       </div>
@@ -145,11 +144,11 @@
       </div>
 
       <div [ngClass]="{'col-md-7':showPanel, 'col-md-12':!showPanel}" >
-        <div *ngIf="visualizeMode === VISUALIZE_MODE.MAP" class="row">
+        <div class="row">
 
-          <article class="base-layer-panel" [ngClass]="{'second-map-button' : searchEnabled && !showPanel}">
+          <article *ngIf="visualizeMode === VISUALIZE_MODE.MAP" class="base-layer-panel" [ngClass]="{'second-map-button' : searchEnabled && !showPanel}">
             <layer-panel (layerChange)="onLayerChange($event)" (reorder)="onReorderLayers($event)"
-              (zoomTo)="onZoomTo($event.oid)" (create)="onCreate($event)" [baselayerIconHover]="(this.pageMode === 'EXPLORER')"
+              (zoomTo)="onZoomTo($event.oid)" (create)="onCreate($event)" [(baselayerIconHover)]="layersPanelIsOpen"
               [includeGraphLayer]="data != null && data.length > 0">
             </layer-panel>
           </article>
@@ -158,9 +157,9 @@
 
         </div>
         
-        <div *ngIf="visualizeMode === VISUALIZE_MODE.HIERARCHY && current" style="height: calc(100vh - 145px);" class="row">
+        <div *ngIf="visualizeMode === VISUALIZE_MODE.GRAPH && current" style="position: absolute; top: 50px; bottom: 50px; left: 50px; right: 50px; " class="row">
 	        <relationship-visualizer
-	          [params]="{geoObject: current, mdEdgeOid: visualizingRelationship, date: filterDate}"
+	          [params]="{geoObject: current, mdEdgeOid: visualizingRelationship, date: filterDate, searchPanelOpen: showPanel}"
 	          (changeGeoObject)="onChangeGeoObject($event)"
 	          (changeRelationship)="visualizingRelationship = $event.oid"
 	        >
