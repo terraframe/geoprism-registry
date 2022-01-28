@@ -41,6 +41,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 
     @Input() filter: string[] = [];
     @Input() includeGraphLayer: boolean = false;
+    @Input() visualizeMode: number;
 
     @Output() layerChange = new EventEmitter<LayerEvent>();
     @Output() baseLayerChange = new EventEmitter<any>();

@@ -146,10 +146,10 @@
       <div [ngClass]="{'col-md-7':showPanel, 'col-md-12':!showPanel}" >
         <div class="row">
 
-          <article *ngIf="visualizeMode === VISUALIZE_MODE.MAP" class="base-layer-panel" [ngClass]="{'second-map-button' : searchEnabled && !showPanel}">
+          <article class="base-layer-panel" [ngClass]="{'second-map-button' : searchEnabled && !showPanel}">
             <layer-panel (layerChange)="onLayerChange($event)" (reorder)="onReorderLayers($event)"
               (zoomTo)="onZoomTo($event.oid)" (create)="onCreate($event)" [(baselayerIconHover)]="layersPanelIsOpen"
-              [includeGraphLayer]="data != null && data.length > 0">
+              [includeGraphLayer]="data != null && data.length > 0" [visualizeMode]="visualizeMode">
             </layer-panel>
           </article>
 
