@@ -35,6 +35,8 @@ export const GRAPH_LINE_COLOR: string = "#999";
 - Clicking on a node on the graph should not reload the map
 
 TODO:
+- Layer colors are still changing when opening / closing visualizer
+- Unchecking a layer doesn't keep it checked when opening and closing
 - Make it swoosh
  */
 
