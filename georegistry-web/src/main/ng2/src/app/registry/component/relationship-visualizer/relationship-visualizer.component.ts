@@ -30,11 +30,11 @@ export const GRAPH_LINE_COLOR: string = "#999";
 - When clicking on a Geo-Object on tree, open it in tree not map
 - Render Geo-Objects as hexagons
 - Hover tooltips are "null"
-
-TODO:
 - Closing the search bar when tree is open causes bad styling
 - Clicking on a node in the tree loses the context of what panels were open
 - Clicking on a node on the graph should not reload the map
+
+TODO:
 - Make it swoosh
  */
 

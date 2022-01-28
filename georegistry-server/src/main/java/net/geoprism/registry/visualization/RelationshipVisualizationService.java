@@ -30,6 +30,7 @@ import com.runwaysdk.system.metadata.MdEdgeQuery;
 import com.runwaysdk.system.metadata.MetadataDisplayLabel;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.hierarchy.HierarchyService;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -141,6 +142,19 @@ public class RelationshipVisualizationService
       statement.append("'" + mdEdge.getDBClassName() + "'");
     }
     statement.append(")");
+    
+    // Not sure if this is the right move or not but without a date the query will return all the parents across all timelines. So we definitely should restrict by date unless we want multiple parents.
+    if (date == null) { date = new Date(); }
+    
+    //if (date != null)
+    {
+      statement.append("[");
+
+      statement.append(":date BETWEEN " + GeoVertex.START_DATE + " AND " + GeoVertex.END_DATE);
+      parameters.put("date", date);
+
+      statement.append("]");
+    }
 
     statement.append(") FROM :rid");
 
