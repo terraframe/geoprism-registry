@@ -2,7 +2,9 @@ package net.geoprism.registry.service;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collector;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -90,6 +92,18 @@ public class ClassificationService
     }
 
     return new Page<Classification>(roots.size(), pageNumber, pageSize, roots).toJSON();
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonArray search(String sessionId, String classificationCode, String text)
+  {
+    ClassificationType type = ClassificationType.getByCode(classificationCode);
+    List<Classification> results = Classification.search(type, text);
+
+    return results.stream().map(child -> child.toJSON()).collect(Collector.of(() -> new JsonArray(), (r, t) -> r.add((JsonObject) t), (x1, x2) -> {
+      x1.addAll(x2);
+      return x1;
+    }));
   }
 
 }

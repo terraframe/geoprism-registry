@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.xml;
 
@@ -36,16 +36,12 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.runwaysdk.business.graph.VertexObject;
-import com.runwaysdk.constants.MdAttributeBooleanInfo;
-import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.constants.graph.MdClassificationInfo;
-import com.runwaysdk.dataaccess.MdVertexDAOIF;
-import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.classification.ClassificationTypeTest;
+import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -54,43 +50,31 @@ import net.geoprism.registry.service.RegistryService;
 public class XMLImporterTest
 {
 
-  private static String CLASSIFICATION_TYPE = "test.classification.TestClassification";
+  private static ClassificationType type      = null;
 
-  private static String ROOT_CODE           = "Test_Classification";
+  private static String             ROOT_CODE = "Test_Classification";
 
   @Request
   @BeforeClass
   public static void classSetUp()
   {
-    MdClassificationDAO mdClassification = MdClassificationDAO.newInstance();
-    mdClassification.setValue(MdClassificationInfo.PACKAGE, "test.classification");
-    mdClassification.setValue(MdClassificationInfo.TYPE_NAME, "TestClassification");
-    mdClassification.setValue(MdClassificationInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-    mdClassification.setStructValue(MdClassificationInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
-    mdClassification.apply();
+    type = ClassificationType.apply(ClassificationTypeTest.createMock());
 
-    MdVertexDAOIF referenceMdVertexDAO = mdClassification.getReferenceMdVertexDAO();
-
-    VertexObject root = new VertexObject(referenceMdVertexDAO.definesType());
-    root.setValue(AbstractClassification.CODE, ROOT_CODE);
-    root.setEmbeddedValue(AbstractClassification.DISPLAYLABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
-    root.apply();
-
-    mdClassification.setValue(MdClassificationInfo.ROOT, root.getOid());
-    mdClassification.apply();
+    Classification root = Classification.newInstance(type);
+    root.setCode(ROOT_CODE);
+    root.setDisplayLabel(new LocalizedValue("Test Classification"));
+    root.apply(null);
   }
 
   @AfterClass
   @Request
   public static void classTearDown()
   {
-    try
+    if (type != null)
     {
-      MdClassificationDAO.getMdClassificationDAO(CLASSIFICATION_TYPE).getBusinessDAO().delete();
-    }
-    catch (Exception e)
-    {
-      // skip
+      type.delete();
+
+      type = null;
     }
   }
 
@@ -183,7 +167,7 @@ public class XMLImporterTest
         attributeType = oattribute.get();
         Assert.assertEquals("Test Classification", attributeType.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
         Assert.assertEquals("Test Text Classification", attributeType.getDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
-        Assert.assertEquals(CLASSIFICATION_TYPE, ( (AttributeClassificationType) attributeType ).getClassificationType());
+        Assert.assertEquals("TEST_PROG", ( (AttributeClassificationType) attributeType ).getClassificationType());
         Assert.assertEquals(ROOT_CODE, ( (AttributeClassificationType) attributeType ).getRootTerm().getCode());
 
         type = ServerGeoObjectType.get(results.get(1).getCode());

@@ -137,6 +137,8 @@ import net.geoprism.registry.curation.ListCurationHistory;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.masterlist.ListTypeAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
+import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -980,15 +982,13 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           }
           else if (attribute instanceof AttributeClassificationType)
           {
-            String classificationType = ( (AttributeClassificationType) attribute ).getClassificationType();
-            MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
-            MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
+            String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
+            ClassificationType classificationType = ClassificationType.getByCode(classificationTypeCode);
+            Classification classification = Classification.getByOid(classificationType, (String) value);
 
-            VertexObject classification = VertexObject.get(mdVertexDAO, (String) value);
+            LocalizedValue label = classification.getDisplayLabel();
 
-            LocalizedValue label = LocalizedValueConverter.convert(classification.getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
-
-            this.setValue(business, name, classification.getObjectValue(AbstractClassification.CODE));
+            this.setValue(business, name, classification.getCode());
             this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
 
             for (Locale locale : locales)
@@ -1679,23 +1679,23 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     if (value != null && value.length() > 0)
     {
-      vQuery.WHERE(F.UPPER(query.aCharacter(attributeName)).LIKEi("%" + value .toUpperCase()+ "%"));
+      vQuery.WHERE(F.UPPER(query.aCharacter(attributeName)).LIKEi("%" + value.toUpperCase() + "%"));
     }
 
-//    vQuery.ORDER_BY_ASC(query.get(attributeName));
+    // vQuery.ORDER_BY_ASC(query.get(attributeName));
 
     try (OIterator<ValueObject> it = vQuery.getIterator(100, 1))
     {
       while (it.hasNext())
       {
         ValueObject vObject = it.next();
-        
+
         results.add(vObject.getValue("label"));
-//        JsonObject result = new JsonObject();
-//        result.addProperty("label", vObject.getValue("label"));
-//        result.addProperty("value", vObject.getValue("value"));
-//        
-//        results.add(result);
+        // JsonObject result = new JsonObject();
+        // result.addProperty("label", vObject.getValue("label"));
+        // result.addProperty("value", vObject.getValue("value"));
+        //
+        // results.add(result);
       }
     }
 

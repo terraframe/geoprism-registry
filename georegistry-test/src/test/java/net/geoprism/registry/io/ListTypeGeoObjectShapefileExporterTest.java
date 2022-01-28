@@ -191,7 +191,7 @@ public class ListTypeGeoObjectShapefileExporterTest
     ServerGeoObjectIF object = FastTestDataset.PROV_CENTRAL.getServerObject();
     ServerGeoObjectType type = object.getType();
 
-    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, null);
+    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, new JsonObject());
     SimpleFeatureType featureType = exporter.createFeatureType();
 
     FeatureCollection<SimpleFeatureType, SimpleFeature> features = exporter.features(featureType);
@@ -251,7 +251,7 @@ public class ListTypeGeoObjectShapefileExporterTest
   public void testWriteToFile() throws IOException
   {
 
-    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, null);
+    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, new JsonObject());
     File directory = exporter.writeToFile();
 
     Assert.assertTrue(directory.exists());
@@ -265,7 +265,7 @@ public class ListTypeGeoObjectShapefileExporterTest
   @Request
   public void testExport() throws IOException
   {
-    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, null);
+    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, new JsonObject());
     InputStream export = exporter.export();
 
     Assert.assertNotNull(export);

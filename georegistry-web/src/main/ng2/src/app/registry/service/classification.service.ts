@@ -96,4 +96,16 @@ export class ClassificationService {
             .toPromise();
     }
 
+    search(classificationCode: string, text: string): Promise<Classification[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("classificationCode", classificationCode);
+
+        if (text != null) {
+            params = params.set("text", text);
+        }
+
+        return this.http.get<Classification[]>(registry.contextPath + "/classification/search", { params: params })
+            .toPromise();
+    }
+
 }

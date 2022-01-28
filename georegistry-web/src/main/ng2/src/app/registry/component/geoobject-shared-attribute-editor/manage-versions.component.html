@@ -62,7 +62,8 @@
                                  </td>
                                </tr>
                               </ng-container>
-                              <tr *ngIf="attributeType.type === 'geometry' || attributeType.type === '_PARENT_' || attributeType.type === 'term' || attributeType.type === 'character' || attributeType.type === 'date' || attributeType.type === 'integer' || attributeType.type === 'float' || attributeType.type === 'boolean'" class="attribute-value-row">
+
+                              <tr *ngIf="attributeType.type === 'geometry' || attributeType.type === '_PARENT_' || attributeType.type === 'term' || attributeType.type === 'classification' || attributeType.type === 'character' || attributeType.type === 'date' || attributeType.type === 'integer' || attributeType.type === 'float' || attributeType.type === 'boolean'" class="attribute-value-row">
                                <td colspan="2">
                                
                                  <div *ngIf="attributeType.type === 'term'">
@@ -71,6 +72,17 @@
                                        <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attributeType.code)" [value]="option.code">{{option.label.localizedValue}}</option>
                                    </select>
                                  </div>
+
+                                 <div *ngIf="attributeType.type === 'classification'">
+                                   <classification-field
+                                    [attributeType]="attributeType"
+                                    [classNames]="{'has-changed': (viewModel.oldValue && !isNew)}"
+                                    [name]="'mod-term-' + i + '-' + attributeType.code"
+                                    [(value)]="viewModel.value" 
+                                    [disabled]="readonly || viewModel.summaryKey === 'DELETE'">
+                                   </classification-field>
+                                 </div>
+                                 
                                  <div *ngIf="attributeType.type === 'character'">
                                    <input [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}" type="text" class="form-control" [name]="'char-val-' + i" [(ngModel)]="viewModel.value" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" required>
                                  </div>
@@ -129,16 +141,24 @@
                                    <p class="warning-text display-current-value">
                                      <localize key="change.request.changed.value.prefix"></localize>
                                      
-                                     <ng-container *ngIf="attributeType.type !== 'boolean'">
-                                       {{ viewModel.oldValue }}
-                                     </ng-container>
-                                     <ng-container *ngIf="attributeType.type === 'boolean'">
-                                       <span *ngIf="attributeType.code === 'invalid' ? (viewModel.oldValue === false) : (viewModel.oldValue === true)" style="padding-left:3px;">
-                                         <localize key="change.request.boolean.option.true"></localize>
-                                       </span>
-                                       <span *ngIf="attributeType.code === 'invalid' ? (viewModel.oldValue === true) : (viewModel.oldValue === false)" style="padding-left:3px;">
-                                         <localize key="change.request.boolean.option.false"></localize>
-                                       </span>
+                                     <ng-container ng-switch="attributeType.type">
+                                      <ng-container ng-switch-when="'boolean'">
+                                        <span *ngIf="attributeType.code === 'invalid' ? (viewModel.oldValue === false) : (viewModel.oldValue === true)" style="padding-left:3px;">
+                                          <localize key="change.request.boolean.option.true"></localize>
+                                        </span>
+                                        <span *ngIf="attributeType.code === 'invalid' ? (viewModel.oldValue === true) : (viewModel.oldValue === false)" style="padding-left:3px;">
+                                          <localize key="change.request.boolean.option.false"></localize>
+                                        </span>
+                                      </ng-container> 
+<!--
+
+  <ng-container ng-switch-when="'classification'">
+    {{viewModel.oldValue}}
+  </ng-container> 
+-->                                      
+                                      <ng-container ng-switch-default>
+                                        {{ viewModel.oldValue }}
+                                      </ng-container> 
                                      </ng-container>
                                    </p>
                                  </div>

@@ -22,7 +22,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
@@ -39,18 +38,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.RunwayExceptionDTO;
 import com.runwaysdk.business.SmartExceptionDTO;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.ComponentInfo;
-import com.runwaysdk.constants.MdAttributeBooleanInfo;
-import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
-import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.AbstractClassification;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.ChangeFrequency;
@@ -64,6 +56,9 @@ import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SingleListType;
+import net.geoprism.registry.classification.ClassificationTypeTest;
+import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
@@ -75,9 +70,9 @@ import net.geoprism.registry.view.Page;
 
 public class ListTypeTest
 {
-  private static String                      CLASSIFICATION_TYPE = "test.classification.TestClassification";
+  private static String                      CODE = "Test Term";
 
-  private static String                      CODE                = "Test Term";
+  private static ClassificationType          type;
 
   private static USATestData                 testData;
 
@@ -97,26 +92,16 @@ public class ListTypeTest
   @Request
   private static void setUpInReq()
   {
-    MdClassificationDAO mdClassification = MdClassificationDAO.newInstance();
-    mdClassification.setValue(MdClassificationInfo.PACKAGE, "test.classification");
-    mdClassification.setValue(MdClassificationInfo.TYPE_NAME, "TestClassification");
-    mdClassification.setValue(MdClassificationInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-    mdClassification.setStructValue(MdClassificationInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
-    mdClassification.apply();
+    type = ClassificationType.apply(ClassificationTypeTest.createMock());
 
-    MdVertexDAOIF referenceMdVertexDAO = mdClassification.getReferenceMdVertexDAO();
-
-    VertexObject root = new VertexObject(referenceMdVertexDAO.definesType());
-    root.setValue(AbstractClassification.CODE, CODE);
-    root.setEmbeddedValue(AbstractClassification.DISPLAYLABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
-    root.apply();
-
-    mdClassification.setValue(MdClassificationInfo.ROOT, root.getOid());
-    mdClassification.apply();
+    Classification root = Classification.newInstance(type);
+    root.setCode(CODE);
+    root.setDisplayLabel(new LocalizedValue("Test Classification"));
+    root.apply(null);
 
     testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
-    testClassification.setClassificationType(CLASSIFICATION_TYPE);
-    testClassification.setRootTerm(new Term(CODE, new LocalizedValue("Test Classification"), new LocalizedValue("Test Classification")));
+    testClassification.setClassificationType(type.getCode());
+    testClassification.setRootTerm(root.toTerm());
 
     ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.STATE.getCode());
     testClassification = (AttributeClassificationType) got.createAttributeType(testClassification.toJSON().toString());
@@ -139,13 +124,9 @@ public class ListTypeTest
 
     USATestData.COLORADO.removeDefaultValue(testClassification.getName());
 
-    try
+    if (type != null)
     {
-      MdClassificationDAO.getMdClassificationDAO(CLASSIFICATION_TYPE).getBusinessDAO().delete();
-    }
-    catch (Exception e)
-    {
-      // skip
+      type.delete();
     }
   }
 

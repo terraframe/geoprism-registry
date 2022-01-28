@@ -1109,20 +1109,19 @@ public class ServerGeoObjectType implements ServerElement
     else if (attributeType.getType().equals(AttributeClassificationType.TYPE))
     {
       AttributeClassificationType attributeClassificationType = (AttributeClassificationType) attributeType;
-      String classificationType = attributeClassificationType.getClassificationType();
+      String classificationTypeCode = attributeClassificationType.getClassificationType();
 
-      MdClassification mdClassification = MdClassification.getByKey(classificationType);
-      MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+      ClassificationType classificationType = ClassificationType.getByCode(classificationTypeCode);
 
       mdAttribute = new MdAttributeClassification();
       MdAttributeClassification mdAttributeTerm = (MdAttributeClassification) mdAttribute;
-      mdAttributeTerm.setReferenceMdClassification(mdClassification);
+      mdAttributeTerm.setReferenceMdClassification(classificationType.getMdClassificationObject());
 
       Term root = attributeClassificationType.getRootTerm();
 
       if (root != null)
       {
-        VertexObject classification = AbstractClassification.get(root.getCode(), mdClassificationDAO);
+        Classification classification = Classification.get(classificationType, root.getCode());
 
         mdAttributeTerm.setValue(MdAttributeClassification.ROOT, classification.getOid());
       }
@@ -1213,15 +1212,15 @@ public class ServerGeoObjectType implements ServerElement
           MdAttributeClassification mdAttributeTerm = (MdAttributeClassification) mdAttribute;
 
           AttributeClassificationType attributeClassificationType = (AttributeClassificationType) attributeType;
-          String classificationType = attributeClassificationType.getClassificationType();
+          String classificationTypeCode = attributeClassificationType.getClassificationType();
 
-          MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+          ClassificationType classificationType = ClassificationType.getByCode(classificationTypeCode);
 
           Term root = attributeClassificationType.getRootTerm();
 
           if (root != null)
           {
-            VertexObject classification = AbstractClassification.get(root.getCode(), mdClassificationDAO);
+            Classification classification = Classification.get(classificationType, root.getCode());
 
             mdAttributeTerm.setValue(MdAttributeClassification.ROOT, classification.getOid());
           }

@@ -2,6 +2,7 @@ package net.geoprism.registry.classification;
 
 import java.util.List;
 
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -258,6 +259,29 @@ public class ClassificationTest
       {
         child.delete();
       }
+    }
+    finally
+    {
+      parent.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testSearch()
+  {
+    Classification parent = Classification.newInstance(type);
+    parent.setCode(PARENT_CODE);
+    parent.setDisplayLabel(new LocalizedValue("Test Parent"));
+    parent.apply(null);
+
+    try
+    {
+      Assert.assertEquals(1, Classification.search(type, PARENT_CODE.toLowerCase()).size());
+      Assert.assertEquals(1, Classification.search(type, parent.getDisplayLabel().getValue()).size());
+      Assert.assertEquals(1, Classification.search(type, "test").size());
+      Assert.assertEquals(1, Classification.search(type, null).size());
+      Assert.assertEquals(0, Classification.search(type, "ARG-BARG").size());
     }
     finally
     {

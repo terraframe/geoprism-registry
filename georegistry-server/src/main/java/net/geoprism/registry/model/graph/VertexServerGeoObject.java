@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.graph;
 
@@ -33,7 +33,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -59,7 +58,6 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.runwaysdk.Pair;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
@@ -119,9 +117,10 @@ import net.geoprism.registry.geoobject.ValueOutOfRangeException;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexSynonym;
-import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.AbstractServerGeoObject;
+import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.LocationInfo;
@@ -309,11 +308,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     LocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value, startDate, endDate);
   }
-  
+
   public boolean existsAtRange(Date startDate, Date endDate)
   {
     ValueOverTimeCollection votc = this.getValuesOverTime(DefaultAttribute.EXISTS.getName());
-    
+
     if (startDate == null) // Null is treated as "latest"
     {
       if (votc.size() > 0)
@@ -325,7 +324,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         return false;
       }
     }
-    
+
     if (endDate == null)
     {
       endDate = ValueOverTime.INFINITY_END_DATE;
@@ -341,7 +340,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         }
       }
     }
-    
+
     return false;
   }
 
@@ -350,11 +349,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     if (!this.existsAtRange(startDate, endDate))
     {
       final SimpleDateFormat format = ValueOverTimeDTO.getTimeFormatter();
-      
+
       ValueOutOfRangeException ex = new ValueOutOfRangeException();
       ex.setGeoObject(geoObjectLabel);
       ex.setAttribute(attributeLabel);
-      
+
       if (startDate != null)
       {
         ex.setStartDate(format.format(startDate));
@@ -428,7 +427,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       this.vertex.setValue(attributeName, value, startDate, endDate);
     }
   }
-  
+
   @SuppressWarnings("unchecked")
   @Override
   public void populate(GeoObject geoObject, Date startDate, Date endDate)
@@ -468,9 +467,9 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
           if (value != null)
           {
-            VertexObject classification = ConversionService.getInstance().termToClassification((AttributeClassificationType) attribute, value);
+            Classification classification = Classification.get((AttributeClassificationType) attribute, value);
 
-            this.vertex.setValue(attributeName, classification, startDate, endDate);
+            this.vertex.setValue(attributeName, classification.getVertex(), startDate, endDate);
           }
           else
           {
@@ -564,9 +563,9 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
             if (value != null)
             {
-              VertexObject classification = new ConversionService().termToClassification((AttributeClassificationType) attribute, value);
+              Classification classification = Classification.get((AttributeClassificationType) attribute, value);
 
-              this.vertex.setValue(attributeName, classification, votDTO.getStartDate(), votDTO.getEndDate());
+              this.vertex.setValue(attributeName, classification.getVertex(), votDTO.getStartDate(), votDTO.getEndDate());
             }
             else
             {
@@ -1504,7 +1503,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     this.getVertex().removeParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
   }
-  
+
   @Override
   public GeoObject toGeoObject(Date date)
   {
@@ -1543,15 +1542,13 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           }
           else if (attribute instanceof AttributeClassificationType)
           {
-            String classificationType = ( (AttributeClassificationType) attribute ).getClassificationType();
-            MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
-            MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
-
-            VertexObject classification = VertexObject.get(mdVertexDAO, (String) value);
+            String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
+            ClassificationType classificationType = ClassificationType.getByCode(classificationTypeCode);
+            Classification classification = Classification.getByOid(classificationType, (String) value);
 
             try
             {
-              geoObj.setValue(attributeName, classification.getObjectValue(AbstractClassification.CODE));
+              geoObj.setValue(attributeName, classification.toTerm());
             }
             catch (UnknownTermException e)
             {
@@ -1674,16 +1671,14 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
               }
               else if (attribute instanceof AttributeClassificationType)
               {
-                String classificationType = ( (AttributeClassificationType) attribute ).getClassificationType();
-                MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
-                MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
-
-                VertexObject classification = VertexObject.get(mdVertexDAO, (String) value);
+                String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
+                ClassificationType classificationType = ClassificationType.getByCode(classificationTypeCode);
+                Classification classification = Classification.getByOid(classificationType, (String) value);
 
                 try
                 {
                   ValueOverTimeDTO votDTO = new ValueOverTimeDTO(vot.getOid(), vot.getStartDate(), vot.getEndDate(), votcDTO);
-                  votDTO.setValue(classification.getObjectValue(AbstractClassification.CODE));
+                  votDTO.setValue(classification.toTerm());
                   votcDTO.add(votDTO);
                 }
                 catch (UnknownTermException e)

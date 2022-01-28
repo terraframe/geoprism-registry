@@ -304,7 +304,7 @@ public class CurationTest
 
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
-    Long count = version.buildQuery(null).getCount();
+    Long count = version.buildQuery(new JsonObject()).getCount();
 
     Assert.assertEquals(count, hist.getWorkTotal());
     Assert.assertEquals(count, hist.getWorkProgress());

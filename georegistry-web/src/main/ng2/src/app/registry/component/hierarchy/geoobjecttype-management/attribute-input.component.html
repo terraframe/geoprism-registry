@@ -54,7 +54,7 @@
       <select class="select-area" name="classificationType" [(ngModel)]="attribute.classificationType" required
         [disabled]="!isNew">
         <option></option>
-        <option *ngFor="let classification of classifications" [value]="classification.type">
+        <option *ngFor="let classification of classifications" [value]="classification.code">
           {{classification.displayLabel.localizedValue}}
         </option>
       </select>

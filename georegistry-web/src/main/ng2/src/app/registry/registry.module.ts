@@ -129,6 +129,7 @@ import { ClassificationTypePublishModalComponent } from "./component/classificat
 import { ClassificationTypeComponent } from "./component/classification-type/classification-type.component";
 import { ClassificationPublishModalComponent } from "./component/classification-type/classification-publish-modal.component";
 import { ClassificationService } from "./service/classification.service";
+import { ClassificationFieldComponent } from "./component/form-fields/classification-field/classification-field.component";
 
 @NgModule({
     imports: [
@@ -251,7 +252,8 @@ import { ClassificationService } from "./service/classification.service";
         ClassificationTypeManagerComponent,
         ClassificationTypePublishModalComponent,
         ClassificationTypeComponent,
-        ClassificationPublishModalComponent
+        ClassificationPublishModalComponent,
+        ClassificationFieldComponent
     ],
     providers: [
         MapService,

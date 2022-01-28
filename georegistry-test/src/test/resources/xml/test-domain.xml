@@ -31,7 +31,7 @@
         <option code="TERM_2" label="Term 2" description="Term 2 Description" />
         <option code="TERM_3" label="Term 3" description="Term 3 Description" />
       </term>
-      <classification code="TEST_CLASSIFICATION" label="Test Classification" description="Test Text Classification" classificationType="test.classification.TestClassification" root="Test_Classification" />
+      <classification code="TEST_CLASSIFICATION" label="Test Classification" description="Test Text Classification" classificationType="TEST_PROG" root="Test_Classification" />
     </attributes>
     <group-item code="TEST_GI" label="Test GI" description="Test GI" />
   </type>

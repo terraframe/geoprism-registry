@@ -3,7 +3,9 @@ package net.geoprism.registry.model;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.EdgeObject;
@@ -15,6 +17,7 @@ import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.registry.CannotDeleteClassificationWithChildrenException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.query.graph.AbstractVertexRestriction;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
@@ -55,9 +58,19 @@ public class Classification implements JsonSerializable
     return LocalizedValueConverter.convert(this.vertex.getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
   }
 
+  public void setDisplayLabel(LocalizedValue displayLabel)
+  {
+    LocalizedValueConverter.populate(this.vertex, AbstractClassification.DISPLAYLABEL, displayLabel);
+  }
+
   public LocalizedValue getDescription()
   {
     return LocalizedValueConverter.convert(this.vertex.getEmbeddedComponent(AbstractClassification.DESCRIPTION));
+  }
+
+  public void setDescription(LocalizedValue description)
+  {
+    LocalizedValueConverter.populate(this.vertex, AbstractClassification.DESCRIPTION, description);
   }
 
   public void populate(JsonObject object)
@@ -65,10 +78,17 @@ public class Classification implements JsonSerializable
     this.setCode(object.get(AbstractClassification.CODE).getAsString());
 
     LocalizedValue displayLabel = LocalizedValue.fromJSON(object.get(AbstractClassification.DISPLAYLABEL).getAsJsonObject());
-    LocalizedValueConverter.populate(this.vertex, AbstractClassification.DISPLAYLABEL, displayLabel);
+    this.setDisplayLabel(displayLabel);
 
     LocalizedValue description = LocalizedValue.fromJSON(object.get(AbstractClassification.DESCRIPTION).getAsJsonObject());
-    LocalizedValueConverter.populate(this.vertex, AbstractClassification.DESCRIPTION, description);
+    this.setDescription(description);
+  }
+
+  public void populate(Term term)
+  {
+    this.setCode(term.getCode());
+    this.setDisplayLabel(term.getLabel());
+    this.setDescription(term.getDescription());
   }
 
   @Transaction
@@ -226,6 +246,11 @@ public class Classification implements JsonSerializable
     return query.getSingleResult();
   }
 
+  public Term toTerm()
+  {
+    return new Term(this.getCode(), this.getDisplayLabel(), this.getDescription());
+  }
+
   public static Classification get(ClassificationType type, String code)
   {
     StringBuilder builder = new StringBuilder();
@@ -234,6 +259,25 @@ public class Classification implements JsonSerializable
 
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(builder.toString());
     query.setParameter("code", code);
+
+    VertexObject result = query.getSingleResult();
+
+    if (result != null)
+    {
+      return new Classification(type, result);
+    }
+
+    return null;
+  }
+
+  public static Classification getByOid(ClassificationType type, String oid)
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append("SELECT FROM " + type.getMdVertex().getDBClassName());
+    builder.append(" WHERE oid = :oid");
+
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(builder.toString());
+    query.setParameter("oid", oid);
 
     VertexObject result = query.getSingleResult();
 
@@ -260,6 +304,41 @@ public class Classification implements JsonSerializable
     }
 
     String code = object.get(AbstractClassification.CODE).getAsString();
+
+    return Classification.get(type, code);
+  }
+
+  public static List<Classification> search(ClassificationType type, String text)
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append("SELECT FROM " + type.getMdVertex().getDBClassName());
+
+    if (text != null)
+    {
+      builder.append(" WHERE (code.toUpperCase() LIKE :text");
+      builder.append(" OR " + AbstractVertexRestriction.localize("displayLabel") + ".toUpperCase() LIKE :text)");
+    }
+
+    builder.append(" LIMIT 10");
+
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(builder.toString());
+
+    if (text != null)
+    {
+      query.setParameter("text", "%" + text.toUpperCase() + "%");
+    }
+
+    List<Classification> results = query.getResults().stream().map(vertex -> {
+      return new Classification(type, vertex);
+    }).collect(Collectors.toList());
+
+    return results;
+  }
+
+  public static Classification get(AttributeClassificationType attribute, String code)
+  {
+    String classificationTypeCode = attribute.getClassificationType();
+    ClassificationType type = ClassificationType.getByCode(classificationTypeCode);
 
     return Classification.get(type, code);
   }

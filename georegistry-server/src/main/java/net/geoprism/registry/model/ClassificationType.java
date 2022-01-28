@@ -22,6 +22,7 @@ import com.runwaysdk.system.AbstractClassification;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.metadata.graph.MdGeoVertex;
 import com.runwaysdk.system.metadata.MdBusiness;
+import com.runwaysdk.system.metadata.MdClassification;
 
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
@@ -50,6 +51,11 @@ public class ClassificationType implements JsonSerializable
   public void setMdClassification(MdClassificationDAOIF mdClassification)
   {
     this.mdClassification = mdClassification;
+  }
+
+  public MdClassification getMdClassificationObject()
+  {
+    return (MdClassification) BusinessFacade.get(this.mdClassification);
   }
 
   public String getCode()
@@ -127,43 +133,12 @@ public class ClassificationType implements JsonSerializable
 
     if (rootOid != null && rootOid.length() > 0)
     {
-      VertexObject root = VertexObject.get(this.mdClassification.getReferenceMdVertexDAO(), rootOid);
+      Classification root = Classification.getByOid(this, rootOid);
 
-      object.add(MdClassificationInfo.ROOT, this.toJSON(root));
+      object.add(MdClassificationInfo.ROOT, root.toJSON());
     }
 
     return object;
-  }
-
-  private JsonObject toJSON(VertexObject root)
-  {
-    LocalizedValue displayLabel = LocalizedValueConverter.convert(root.getEmbeddedComponent(MdClassificationInfo.DISPLAY_LABEL));
-
-    JsonObject object = new JsonObject();
-    object.addProperty(AbstractClassification.CODE, (String) root.getObjectValue(AbstractClassification.CODE));
-    object.add(MdClassificationInfo.DISPLAY_LABEL, displayLabel.toJSON());
-
-    return object;
-  }
-
-  @Transaction
-  public JsonObject createRootNode(JsonObject json)
-  {
-    String code = json.get(AbstractClassification.CODE).getAsString();
-    LocalizedValue displayLabel = LocalizedValue.fromJSON(json.get("displayLabel").getAsJsonObject());
-
-    MdVertexDAOIF referenceMdVertexDAO = mdClassification.getReferenceMdVertexDAO();
-
-    VertexObject root = new VertexObject(referenceMdVertexDAO.definesType());
-    root.setValue(AbstractClassification.CODE, code);
-    LocalizedValueConverter.populate(root, MdClassificationInfo.DISPLAY_LABEL, displayLabel);
-    root.apply();
-
-    MdClassificationDAO mdClassification = (MdClassificationDAO) this.mdClassification.getBusinessDAO();
-    mdClassification.setValue(MdClassificationInfo.ROOT, root.getOid());
-    mdClassification.apply();
-
-    return toJSON(root);
   }
 
   /**

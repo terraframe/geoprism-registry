@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
@@ -39,10 +39,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.runwaysdk.business.graph.VertexObject;
-import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
@@ -51,16 +48,17 @@ import com.runwaysdk.dataaccess.MdAttributeLongDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMomentDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
-import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.test.FastTestDataset;
@@ -69,13 +67,15 @@ import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 
 public class AttributeTypeServiceTest
 {
-  public static final TestGeoObjectTypeInfo TEST_GOT            = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
+  public static final TestGeoObjectTypeInfo TEST_GOT  = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
 
   protected static FastTestDataset          testData;
 
-  protected static String                   CLASSIFICATION_TYPE = "test.classification.TestClassification";
+  protected static ClassificationType       type;
 
-  protected static String                   CODE                = "Classification-ROOT";
+  protected static String                   TYPE_CODE = null;
+
+  protected static String                   CODE      = "Classification-ROOT";
 
   @BeforeClass
   public static void setUpClass()
@@ -130,34 +130,24 @@ public class AttributeTypeServiceTest
   @Request
   private void createMdClassification()
   {
-    MdClassificationDAO mdClassification = MdClassificationDAO.newInstance();
-    mdClassification.setValue(MdClassificationInfo.PACKAGE, "test.classification");
-    mdClassification.setValue(MdClassificationInfo.TYPE_NAME, "TestClassification");
-    mdClassification.setStructValue(MdClassificationInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
-    mdClassification.setValue(MdClassificationInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-    mdClassification.apply();
+    type = ClassificationType.apply(ClassificationTypeTest.createMock());
 
-    MdVertexDAOIF referenceMdVertexDAO = mdClassification.getReferenceMdVertexDAO();
+    Classification root = Classification.newInstance(type);
+    root.setCode(CODE);
+    root.setDisplayLabel(new LocalizedValue("Test Classification"));
+    root.apply(null);
 
-    VertexObject vertexObject = new VertexObject(referenceMdVertexDAO.definesType());
-    vertexObject.setValue(AbstractClassification.CODE, CODE);
-    vertexObject.setEmbeddedValue(AbstractClassification.DISPLAYLABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
-    vertexObject.apply();
-
-    mdClassification.setValue(MdClassificationInfo.ROOT, vertexObject.getOid());
-    mdClassification.apply();
+    TYPE_CODE = type.getCode();
   }
 
   @Request
   private void deleteMdClassification()
   {
-    try
+    if (type != null)
     {
-      MdClassificationDAO.getMdClassificationDAO(CLASSIFICATION_TYPE).getBusinessDAO().delete();
-    }
-    catch (Exception e)
-    {
-      // skip
+      type.delete();
+
+      type = null;
     }
   }
 
@@ -362,7 +352,7 @@ public class AttributeTypeServiceTest
     String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     AttributeClassificationType attributeClassificationType = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("Test Classification Name"), new LocalizedValue("Test Classification Description"), AttributeClassificationType.TYPE, false, false, false);
-    attributeClassificationType.setClassificationType(CLASSIFICATION_TYPE);
+    attributeClassificationType.setClassificationType(TYPE_CODE);
     attributeClassificationType.setRootTerm(new Term(CODE, new LocalizedValue("Test Term Name"), new LocalizedValue("Test Term Description")));
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);

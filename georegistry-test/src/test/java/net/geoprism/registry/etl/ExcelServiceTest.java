@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -76,6 +76,7 @@ import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
@@ -88,6 +89,8 @@ import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.LocationBuilder;
 import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.io.PostalCodeFactory;
+import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -103,9 +106,9 @@ import net.geoprism.registry.test.USATestData;
 
 public class ExcelServiceTest
 {
-  protected static String                    CLASSIFICATION_TYPE = "test.classification.TestClassification";
+  private static ClassificationType          type;
 
-  protected static String                    CODE                = "Test Term";
+  protected static String                    CODE      = "Test Term";
 
   protected static USATestData               testData;
 
@@ -119,28 +122,18 @@ public class ExcelServiceTest
 
   private static AttributeClassificationType testClassification;
 
-  private final Integer                      ROW_COUNT           = 2;
+  private final Integer                      ROW_COUNT = 2;
 
   @BeforeClass
   @Request
   public static void classSetUp()
   {
-    MdClassificationDAO mdClassification = MdClassificationDAO.newInstance();
-    mdClassification.setValue(MdClassificationInfo.PACKAGE, "test.classification");
-    mdClassification.setValue(MdClassificationInfo.TYPE_NAME, "TestClassification");
-    mdClassification.setStructValue(MdClassificationInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
-    mdClassification.setValue(MdClassificationInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-    mdClassification.apply();
+    type = ClassificationType.apply(ClassificationTypeTest.createMock());
 
-    MdVertexDAOIF referenceMdVertexDAO = mdClassification.getReferenceMdVertexDAO();
-
-    VertexObject root = new VertexObject(referenceMdVertexDAO.definesType());
-    root.setValue(AbstractClassification.CODE, CODE);
-    root.setEmbeddedValue(AbstractClassification.DISPLAYLABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
-    root.apply();
-
-    mdClassification.setValue(MdClassificationInfo.ROOT, root.getOid());
-    mdClassification.apply();
+    Classification root = Classification.newInstance(type);
+    root.setCode(CODE);
+    root.setDisplayLabel(new LocalizedValue("Test Classification"));
+    root.apply(null);
 
     TestDataSet.deleteAllSchedulerData();
 
@@ -158,8 +151,8 @@ public class ExcelServiceTest
     }
 
     testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
-    testClassification.setClassificationType(CLASSIFICATION_TYPE);
-    testClassification.setRootTerm(new Term(CODE, new LocalizedValue("Test Classification"), new LocalizedValue("Test Classification")));
+    testClassification.setClassificationType(type.getCode());
+    testClassification.setRootTerm(root.toTerm());
 
     ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.DISTRICT.getCode());
     testClassification = (AttributeClassificationType) got.createAttributeType(testClassification.toJSON().toString());
@@ -170,15 +163,7 @@ public class ExcelServiceTest
   public static void classTearDown()
   {
     testData.tearDownMetadata();
-
-    try
-    {
-      MdClassificationDAO.getMdClassificationDAO(CLASSIFICATION_TYPE).getBusinessDAO().delete();
-    }
-    catch (Exception e)
-    {
-      // skip
-    }
+    type.delete();
   }
 
   @Before

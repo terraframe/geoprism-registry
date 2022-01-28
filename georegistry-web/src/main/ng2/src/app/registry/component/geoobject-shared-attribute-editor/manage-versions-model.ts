@@ -189,6 +189,8 @@ export class VersionDiffView {
           } else {
               return val;
           }
+      } else if (this.component.attributeType.type === "classification") {
+          return val.label.localizedValue;
       }
 
       return val;

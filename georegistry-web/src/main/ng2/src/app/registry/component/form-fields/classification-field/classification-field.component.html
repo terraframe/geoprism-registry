@@ -1,0 +1,19 @@
+<ng-template #customItemTemplate let-model="item" let-index="index">
+  <h5>{{model.displayLabel.localizedValue }} : {{ model.code }}</h5>
+</ng-template>
+
+<div class="input-group">
+
+  <input type="text" class="form-control" autocomplete="off"
+    [style]="customStyles" [name]="name" [disabled]="disabled" [(ngModel)]="text"
+    [class]="classNames"    
+    [typeaheadAsync]="true"
+    [typeahead]="typeahead"
+    (typeaheadOnSelect)="typeaheadOnSelect($event)" (typeaheadLoading)="loading = $event"
+    [ngClass]="{'inline-loading':loading}" [typeaheadOptionsLimit]="7"
+    [typeaheadItemTemplate]="customItemTemplate" [typeaheadMinLength]="0" [typeaheadWaitMs]="300">
+
+  <span class="input-group-addon clickable addon-alert" (click)="onViewTree()">
+    <i class="fa fa-tree" aria-hidden="true"></i>
+  </span>
+</div>

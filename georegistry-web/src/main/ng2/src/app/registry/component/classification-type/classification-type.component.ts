@@ -14,7 +14,9 @@ import { PageResult } from "@shared/model/core";
 
 const PAGE_SIZE: number = 100;
 
+// eslint-disable-next-line no-unused-vars
 enum NodeType {
+    // eslint-disable-next-line no-unused-vars
     CLASSIFICATION = 0, LINK = 1
 }
 
