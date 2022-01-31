@@ -110,7 +110,7 @@ public class FhirExportTest
 
     multiHierarchyList = multiHierarchyBuilder.build();
 
-    ListTypeEntry multiHierarchyEntry = multiHierarchyList.getOrCreateEntry(date);
+    ListTypeEntry multiHierarchyEntry = multiHierarchyList.getOrCreateEntry(date, null);
     multiHierarchyVersion = multiHierarchyEntry.getWorking();
     multiHierarchyVersion.publishNoAuth();
 
@@ -122,7 +122,7 @@ public class FhirExportTest
 
     basicHierarchyList = basicBuilder.build();
 
-    ListTypeEntry basicHierarchyEntry = basicHierarchyList.getOrCreateEntry(date);
+    ListTypeEntry basicHierarchyEntry = basicHierarchyList.getOrCreateEntry(date, null);
     basicHierarchyVersion = basicHierarchyEntry.getWorking();
     basicHierarchyVersion.publishNoAuth();
   }

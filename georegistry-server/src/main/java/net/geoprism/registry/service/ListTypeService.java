@@ -96,7 +96,7 @@ public class ListTypeService
   public JsonObject createEntries(String sessionId, String oid)
   {
     ListType mList = ListType.get(oid);
-    mList.createEntries();
+    mList.createEntries(null);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
@@ -430,6 +430,11 @@ public class ListTypeService
     {
       ListTypeVersion version = ListTypeVersion.get(oid);
 
+      if (version.getWorking())
+      {
+        throw new UnsupportedOperationException("Working versions cannot be deleted");
+      }
+
       this.enforceWritePermissions(version.getEntry().getListType());
 
       version.delete();
@@ -505,7 +510,7 @@ public class ListTypeService
         ListType listType = version.getListType();
         final boolean isMember = Organization.isMember(listType.getOrganization());
 
-        if ( ( version.getWorking() && listType.doesActorHaveExploratoryPermission() ) || ( !version.getWorking() && ( isMember || version.getGeospatialVisibility().equals(ListType.PUBLIC) ) ))
+        if ( ( version.getWorking() && listType.doesActorHaveExploratoryPermission() ) || ( isMember || version.getGeospatialVisibility().equals(ListType.PUBLIC) ))
         {
 
           if (!map.containsKey(listType.getOid()))

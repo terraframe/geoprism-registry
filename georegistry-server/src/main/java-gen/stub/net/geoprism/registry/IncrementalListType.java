@@ -25,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.runwaysdk.Pair;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
@@ -101,28 +100,8 @@ public class IncrementalListType extends IncrementalListTypeBase
       object.addProperty("type", "date");
       object.addProperty("value", GeoRegistryUtil.formatDate(version.getForDate(), false));
     }
-    
+
     return object;
-  }
-
-  @Override
-  public void apply()
-  {
-    /*
-     * Changing the frequency requires that any existing published version be
-     * deleted
-     */
-    if (this.isModified(IncrementalListType.FREQUENCY) || this.isModified(IncrementalListType.PUBLISHINGSTARTDATE))
-    {
-      final List<ListTypeEntry> entries = this.getEntries();
-
-      for (ListTypeEntry entry : entries)
-      {
-        entry.delete();
-      }
-    }
-
-    super.apply();
   }
 
   public List<Date> getFrequencyDates(Date startDate, Date endDate)
@@ -306,7 +285,7 @@ public class IncrementalListType extends IncrementalListTypeBase
 
   @Override
   @Transaction
-  public void createEntries()
+  public void createEntries(JsonObject metadata)
   {
     if (!this.isValid())
     {
@@ -315,6 +294,20 @@ public class IncrementalListType extends IncrementalListTypeBase
 
     final ServerGeoObjectType objectType = this.getGeoObjectType();
     Pair<Date, Date> range = this.getDateRange(objectType);
+
+    if (metadata == null)
+    {
+      List<ListTypeEntry> entries = this.getEntries();
+
+      if (entries.size() > 0)
+      {
+
+        ListTypeEntry entry = entries.get(0);
+        ListTypeVersion working = entry.getWorking();
+
+        metadata = working.toJSON(false);
+      }
+    }
 
     if (range != null)
     {
@@ -329,7 +322,7 @@ public class IncrementalListType extends IncrementalListTypeBase
 
       for (Date date : dates)
       {
-        this.getOrCreateEntry(date);
+        this.getOrCreateEntry(date, metadata);
       }
     }
     else
