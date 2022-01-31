@@ -683,7 +683,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 recordType: "GEO_OBJECT",
                 type: type,
                 code: code,
-                forDate: this.state.currentDate
+                forDate: this.state.currentDate === "" ? null : this.state.currentDate
             };
 
             if (this.record.recordType === "GEO_OBJECT") {
