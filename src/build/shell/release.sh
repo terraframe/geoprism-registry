@@ -42,9 +42,8 @@ if [ "$release_adapter" == "true" ]; then
   cd $WORKSPACE/adapter/java
   
   # CGR Adapter : License Headers
-  git checkout master
+  git checkout $release_branch
   git pull
-  git merge origin/dev
   mvn license:format -B
   git add -A
   git diff-index --quiet HEAD || git commit -m 'License headers'
@@ -90,9 +89,8 @@ if [ "$release_georegistry" == "true" ]; then
   cd $WORKSPACE/georegistry
   
   # Georegistry : Hardcode dependent library versions (adapter)
-  git checkout master
+  git checkout $release_branch
   git pull
-  git merge origin/dev
   sed -i -E "s_<cgr.adapter.version>.*</cgr.adapter.version>_<cgr.adapter.version>$CGR_RELEASE_VERSION</cgr.adapter.version>_g" georegistry-server/pom.xml
   cd georegistry-web/src/main/ng2
   npm install
@@ -110,7 +108,7 @@ if [ "$release_georegistry" == "true" ]; then
   
   # Georegistry : License Headers
   cd $WORKSPACE/georegistry
-  git checkout master
+  git checkout $release_branch
   mvn license:format -B
   git add -A
   git diff-index --quiet HEAD || git commit -m 'License headers'
@@ -123,7 +121,7 @@ if [ "$release_georegistry" == "true" ]; then
   
   # Georegistry : Release
   cd $WORKSPACE/georegistry
-  git checkout master
+  git checkout $release_branch
   mvn release:prepare -B -DdryRun=$dry_run -Dtag=$CGR_RELEASE_VERSION \
                    -DreleaseVersion=$CGR_RELEASE_VERSION \
                    -DdevelopmentVersion=$CGR_NEXT_VERSION
@@ -136,7 +134,7 @@ if [ "$release_georegistry" == "true" ]; then
   cd builderdev
   git clone -b master git@github.com:terraframe/geoprism-registry.git
   cd geoprism-registry
-  git checkout master
+  git checkout $release_branch
   sed -i -E "s_<cgr.adapter.version>.*</cgr.adapter.version>_<cgr.adapter.version>$CGR_NEXT_VERSION</cgr.adapter.version>_g" georegistry-server/pom.xml
   sed -i -E "0,/<version>.*<\/version>/s/<version>.*<\/version>/<version>$CGR_NEXT_VERSION<\/version>/" pom.xml
   sed -i -E "0,/<version>.*<\/version>/s/<version>.*<\/version>/<version>$CGR_NEXT_VERSION<\/version>/" georegistry-server/pom.xml
