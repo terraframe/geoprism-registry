@@ -1,17 +1,19 @@
-import { Component, Input, Output, EventEmitter, OnInit } from "@angular/core";
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from "@angular/core";
 import { Classification } from "@registry/model/classification-type";
 import { AttributeType } from "@registry/model/registry";
 import { ClassificationService } from "@registry/service/classification.service";
 import { LocalizedValue } from "@shared/model/core";
+import { BsModalService } from "ngx-bootstrap/modal";
 import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
-import { Observable, Observer } from "rxjs";
+import { Observable, Observer, Subscription } from "rxjs";
+import { ClassificationFieldModalComponent } from "./classification-field-modal.component";
 
 @Component({
     selector: "classification-field",
     templateUrl: "./classification-field.component.html",
     styleUrls: []
 })
-export class ClassificationFieldComponent implements OnInit {
+export class ClassificationFieldComponent implements OnInit, OnDestroy {
 
     @Input() attributeType: AttributeType;
 
@@ -28,8 +30,11 @@ export class ClassificationFieldComponent implements OnInit {
     text: string = "";
 
     typeahead: Observable<Object> = null;
+    subscription: Subscription = null;
 
-    constructor(private service: ClassificationService) { }
+    constructor(
+        private modalService: BsModalService,
+        private service: ClassificationService) { }
 
     ngOnInit(): void {
         this.typeahead = new Observable((observer: Observer<Object>) => {
@@ -40,6 +45,12 @@ export class ClassificationFieldComponent implements OnInit {
 
         if (this.value != null) {
             this.text = this.value.label.localizedValue;
+        }
+    }
+
+    ngOnDestroy(): void {
+        if (this.subscription != null) {
+            this.subscription.unsubscribe();
         }
     }
 
@@ -62,8 +73,21 @@ export class ClassificationFieldComponent implements OnInit {
     }
 
     onViewTree(): void {
-        // Open tree widget model and pre-load it will the currently selected value
+        const bsModalRef = this.modalService.show(ClassificationFieldModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true
+        });
+        this.subscription = bsModalRef.content.init(this.attributeType, classification => {
+            this.text = classification.displayLabel.localizedValue;
+            this.setValue({ code: classification.code, label: classification.displayLabel });
+        });
+    }
 
+    onTextChange(): void {
+        if (this.value != null && (this.text == null || this.text.length === 0)) {
+            this.setValue(null);
+        }
     }
 
 }

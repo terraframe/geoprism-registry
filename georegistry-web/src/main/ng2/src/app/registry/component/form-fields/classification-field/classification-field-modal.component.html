@@ -1,0 +1,25 @@
+<context-menu #nodeMenu menuClass="top-level">
+    <ng-template contextMenuItem let-item (execute)="onSelect($event.item)">
+        Select
+    </ng-template>
+</context-menu>
+
+<div class="modal-body">
+    <form #form="ngForm" class="modal-form">
+        <fieldset>
+            <div *ngIf="attributeType != null && nodes != null" class="row">
+                <div class="col-md-12">
+                    <tree-root *ngIf="nodes.length > 0" #tree [options]="options" [nodes]="nodes"></tree-root>
+                </div>
+            </div>
+            <div class="row-holder">
+                <div class="button-holder">
+                    <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+                        <localize key="io.back"></localize>
+                    </button>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+
+</div>

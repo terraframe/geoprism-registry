@@ -9,6 +9,7 @@
     [class]="classNames"    
     [typeaheadAsync]="true"
     [typeahead]="typeahead"
+    (change)="onTextChange()"
     (typeaheadOnSelect)="typeaheadOnSelect($event)" (typeaheadLoading)="loading = $event"
     [ngClass]="{'inline-loading':loading}" [typeaheadOptionsLimit]="7"
     [typeaheadItemTemplate]="customItemTemplate" [typeaheadMinLength]="0" [typeaheadWaitMs]="300">

@@ -1044,3 +1044,7 @@ td.clickable:focus {
 	.ui-table-scrollable-header, .ui-table-scrollable-body, .ui-table-scrollable-footer {
 	overflow: visible !important;
 	}
+
+.cdk-overlay-container {
+	z-index: 1100 !important;
+}

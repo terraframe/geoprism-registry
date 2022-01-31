@@ -130,6 +130,7 @@ import { ClassificationTypeComponent } from "./component/classification-type/cla
 import { ClassificationPublishModalComponent } from "./component/classification-type/classification-publish-modal.component";
 import { ClassificationService } from "./service/classification.service";
 import { ClassificationFieldComponent } from "./component/form-fields/classification-field/classification-field.component";
+import { ClassificationFieldModalComponent } from "./component/form-fields/classification-field/classification-field-modal.component";
 
 @NgModule({
     imports: [
@@ -253,7 +254,8 @@ import { ClassificationFieldComponent } from "./component/form-fields/classifica
         ClassificationTypePublishModalComponent,
         ClassificationTypeComponent,
         ClassificationPublishModalComponent,
-        ClassificationFieldComponent
+        ClassificationFieldComponent,
+        ClassificationFieldModalComponent
     ],
     providers: [
         MapService,
@@ -307,7 +309,8 @@ import { ClassificationFieldComponent } from "./component/form-fields/classifica
         SelectTypeModalComponent,
         CurationProblemModalComponent,
         ClassificationTypePublishModalComponent,
-        ClassificationPublishModalComponent
+        ClassificationPublishModalComponent,
+        ClassificationFieldModalComponent
     ]
 })
 export class RegistryModule { }
