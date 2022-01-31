@@ -7,9 +7,9 @@
 <div class="modal-body">
     <form #form="ngForm" class="modal-form">
         <fieldset>
-            <div *ngIf="attributeType != null && nodes != null" class="row">
+            <div class="row">
                 <div class="col-md-12">
-                    <tree-root *ngIf="nodes.length > 0" #tree [options]="options" [nodes]="nodes"></tree-root>
+                    <tree-root #tree [options]="options" [nodes]="nodes"></tree-root>
                 </div>
             </div>
             <div class="row-holder">

@@ -5,11 +5,12 @@ import { TreeComponent, TreeNode } from "@circlon/angular-tree-component";
 import { ContextMenuComponent, ContextMenuService } from "ngx-contextmenu";
 
 import { ErrorHandler } from "@shared/component";
-import { Classification } from "@registry/model/classification-type";
+import { Classification, ClassificationNode } from "@registry/model/classification-type";
 import { ClassificationService } from "@registry/service/classification.service";
 import { PageResult } from "@shared/model/core";
 import { AttributeType } from "@registry/model/registry";
 import { BsModalRef } from "ngx-bootstrap/modal";
+import { timeout } from "d3";
 
 const PAGE_SIZE: number = 100;
 
@@ -19,15 +20,15 @@ enum NodeType {
     CLASSIFICATION = 0, LINK = 1
 }
 
-class ClassificationNode {
+class ClassificationTreeNode {
 
     name: string;
     code: string;
     type: NodeType;
     classification?: Classification;
     hasChildren: boolean;
-    children?: ClassificationNode[];
-    parent?: ClassificationNode;
+    children?: ClassificationTreeNode[];
+    parent?: ClassificationTreeNode;
     pageNumber?: number;
 
 }
@@ -47,7 +48,7 @@ export class ClassificationFieldModalComponent implements OnDestroy {
 
     select: Subject<Classification> = new Subject<Classification>();
 
-    nodes: ClassificationNode[] = null;
+    nodes: ClassificationTreeNode[] = [];
 
     /*
      * Tree component
@@ -89,13 +90,27 @@ export class ClassificationFieldModalComponent implements OnDestroy {
         private service: ClassificationService
     ) { }
 
-    init(attributeType: AttributeType, disabled: boolean, observer: Observer<Classification>): Subscription {
+    init(attributeType: AttributeType, disabled: boolean, value: { code: string }, observer: Observer<Classification>): Subscription {
         this.attributeType = attributeType;
         this.disabled = disabled;
 
-        this.getChildren(null).then(nodes => {
-            this.nodes = nodes;
-        });
+        if (value != null) {
+            this.service.getAncestorTree(this.attributeType.classificationType, value.code, PAGE_SIZE).then(ancestor => {
+                this.nodes = [this.build(null, ancestor)];
+
+                timeout(() => {
+                    const node: TreeNode = this.tree.treeModel.getNodeById(value.code);
+
+                    if (node != null) {
+                        node.setActiveAndVisible();
+                    }
+                }, 100);
+            });
+        } else {
+            this.getChildren(null).then(nodes => {
+                this.nodes = nodes;
+            });
+        }
 
         return this.select.subscribe(observer);
     }
@@ -104,8 +119,8 @@ export class ClassificationFieldModalComponent implements OnDestroy {
         this.select.unsubscribe();
     }
 
-    getChildren(treeNode: TreeNode): Promise<ClassificationNode[]> {
-        const node: ClassificationNode = treeNode != null ? treeNode.data : null;
+    getChildren(treeNode: TreeNode): Promise<ClassificationTreeNode[]> {
+        const node: ClassificationTreeNode = treeNode != null ? treeNode.data : null;
 
         const code = node != null ? node.classification.code : null;
 
@@ -126,7 +141,39 @@ export class ClassificationFieldModalComponent implements OnDestroy {
         });
     }
 
-    createNodes(parent: ClassificationNode, page: PageResult<Classification>): ClassificationNode[] {
+    build(parent: ClassificationTreeNode, cNode: ClassificationNode): ClassificationTreeNode {
+        const node: ClassificationTreeNode = {
+            code: cNode.classification.code,
+            name: cNode.classification.displayLabel.localizedValue,
+            type: NodeType.CLASSIFICATION,
+            classification: cNode.classification,
+            hasChildren: true
+        };
+
+        if (cNode.children != null) {
+            const nodes: ClassificationTreeNode[] = cNode.children.resultSet.map(child => this.build(parent, child));
+
+            const page = cNode.children;
+
+            // Add page node if needed
+            if (page.count > page.pageNumber * page.pageSize) {
+                nodes.push({
+                    code: "...",
+                    name: "...",
+                    type: NodeType.LINK,
+                    hasChildren: false,
+                    pageNumber: page.pageNumber + 1,
+                    parent: parent
+                } as ClassificationTreeNode);
+            }
+
+            node.children = nodes;
+        }
+
+        return node;
+    }
+
+    createNodes(parent: ClassificationTreeNode, page: PageResult<Classification>): ClassificationTreeNode[] {
         const nodes = page.resultSet.map(child => {
             return {
                 code: child.code,
@@ -134,7 +181,7 @@ export class ClassificationFieldModalComponent implements OnDestroy {
                 type: NodeType.CLASSIFICATION,
                 classification: child,
                 hasChildren: true
-            } as ClassificationNode;
+            } as ClassificationTreeNode;
         });
 
         // Add page node if needed
@@ -146,7 +193,7 @@ export class ClassificationFieldModalComponent implements OnDestroy {
                 hasChildren: false,
                 pageNumber: page.pageNumber + 1,
                 parent: parent
-            } as ClassificationNode);
+            } as ClassificationTreeNode);
         }
 
         return nodes;
@@ -165,11 +212,11 @@ export class ClassificationFieldModalComponent implements OnDestroy {
     }
 
     treeNodeOnClick(treeNode: TreeNode, $event: any): void {
-        const node: ClassificationNode = treeNode != null ? treeNode.data : null;
+        const node: ClassificationTreeNode = treeNode != null ? treeNode.data : null;
 
         if (node != null && node.type === NodeType.LINK) {
             if (treeNode.parent != null) {
-                const parentNode: ClassificationNode = treeNode.parent.data;
+                const parentNode: ClassificationTreeNode = treeNode.parent.data;
                 const code = parentNode.classification.code;
                 const pageNumber = node.pageNumber;
 
@@ -184,19 +231,18 @@ export class ClassificationFieldModalComponent implements OnDestroy {
                 });
             }
         } else {
-            treeNode.treeModel.setFocusedNode(node);
-
             if (treeNode.isExpanded) {
                 treeNode.collapse();
             } else {
                 treeNode.expand();
-                // treeNode.treeModel.expandAll();
             }
+
+            treeNode.setActiveAndVisible();
         }
     }
 
     onSelect(treeNode: TreeNode): void {
-        const node: ClassificationNode = treeNode != null ? treeNode.data : null;
+        const node: ClassificationTreeNode = treeNode != null ? treeNode.data : null;
 
         if (node.type === NodeType.CLASSIFICATION) {
             this.select.next(node.classification);

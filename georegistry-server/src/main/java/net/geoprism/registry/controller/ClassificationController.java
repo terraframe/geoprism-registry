@@ -77,6 +77,14 @@ public class ClassificationController
     return new RestBodyResponse(page);
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-ancestor-tree")
+  public ResponseIF getAncestorTree(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code, @RequestParamter(name = "pageSize") Integer pageSize)
+  {
+    JsonObject page = this.service.getAncestorTree(request.getSessionId(), classificationCode, code, pageSize);
+
+    return new RestBodyResponse(page);
+  }
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "search")
   public ResponseIF search(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "text") String text)
   {

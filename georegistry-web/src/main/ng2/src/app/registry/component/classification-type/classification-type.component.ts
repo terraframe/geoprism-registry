@@ -206,14 +206,13 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
                 });
             }
         } else {
-            treeNode.treeModel.setFocusedNode(node);
-
             if (treeNode.isExpanded) {
                 treeNode.collapse();
             } else {
                 treeNode.expand();
-                // treeNode.treeModel.expandAll();
             }
+
+            treeNode.setActiveAndVisible();
         }
     }
 

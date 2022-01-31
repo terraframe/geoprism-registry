@@ -5,7 +5,7 @@ import { finalize } from "rxjs/operators";
 import { EventService } from "@shared/service";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
-import { Classification } from "@registry/model/classification-type";
+import { Classification, ClassificationNode } from "@registry/model/classification-type";
 import { PageResult } from "@shared/model/core";
 
 declare let registry: GeoRegistryConfiguration;
@@ -93,6 +93,16 @@ export class ClassificationService {
         }
 
         return this.http.get<PageResult<Classification>>(registry.contextPath + "/classification/get-children", { params: params })
+            .toPromise();
+    }
+
+    getAncestorTree(classificationCode: string, code: string, pageSize: number): Promise<ClassificationNode> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("classificationCode", classificationCode);
+        params = params.set("code", code);
+        params = params.set("pageSize", pageSize.toString());
+
+        return this.http.get<ClassificationNode>(registry.contextPath + "/classification/get-ancestor-tree", { params: params })
             .toPromise();
     }
 

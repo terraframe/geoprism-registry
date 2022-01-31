@@ -215,6 +215,28 @@ public class Classification implements JsonSerializable
     return results;
   }
 
+  public List<Classification> getAncestors()
+  {
+    String dbClassName = this.type.getMdVertex().getDBClassName();
+    String edgeName = this.type.getMdEdge().getDBClassName();
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("MATCH ");
+    statement.append("{class:" + dbClassName + ", where: (@rid=:rid)}");
+    statement.append(".in('" + edgeName + "')");
+    statement.append("{as: ancestor, while: (true)}");
+    statement.append("RETURN $elements");
+
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+    query.setParameter("rid", this.vertex.getRID());
+
+    List<Classification> results = query.getResults().stream().map(vertex -> {
+      return new Classification(this.type, vertex);
+    }).collect(Collectors.toList());
+
+    return results;
+  }
+
   private boolean exists(Classification parent)
   {
     EdgeObject edge = this.getEdge(parent);
@@ -233,6 +255,12 @@ public class Classification implements JsonSerializable
     return object;
   }
 
+  @Override
+  public String toString()
+  {
+    return this.getCode();
+  }
+
   public EdgeObject getEdge(Classification parent)
   {
     String statement = "SELECT FROM " + this.type.getMdEdge().getDBClassName();
@@ -249,6 +277,44 @@ public class Classification implements JsonSerializable
   public Term toTerm()
   {
     return new Term(this.getCode(), this.getDisplayLabel(), this.getDescription());
+  }
+
+  public ClassificationNode getAncestorTree(Integer pageSize)
+  {
+    List<Classification> ancestors = this.getAncestors();
+
+    ClassificationNode prev = null;
+
+    for (Classification ancestor : ancestors)
+    {
+      Page<Classification> page = ancestor.getChildren(pageSize, 1);
+
+      List<ClassificationNode> transform = page.getResults().stream().map(r -> {
+        return new ClassificationNode(r);
+      }).collect(Collectors.toList());
+
+      if (prev != null)
+      {
+        int index = transform.indexOf(prev);
+
+        if (index != -1)
+        {
+          transform.set(index, prev);
+        }
+        else
+        {
+          transform.add(prev);
+        }
+      }
+
+      ClassificationNode node = new ClassificationNode();
+      node.setClassification(ancestor);
+      node.setChildren(new Page<ClassificationNode>(page.getCount(), page.getPageNumber(), page.getPageSize(), transform));
+
+      prev = node;
+    }
+
+    return prev;
   }
 
   public static Classification get(ClassificationType type, String code)

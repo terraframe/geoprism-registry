@@ -95,6 +95,16 @@ public class ClassificationService
   }
 
   @Request(RequestType.SESSION)
+  public JsonObject getAncestorTree(String sessionId, String classificationCode, String code, Integer pageSize)
+  {
+    ClassificationType type = ClassificationType.getByCode(classificationCode);
+
+    Classification child = Classification.get(type, code);
+
+    return child.getAncestorTree(pageSize).toJSON();
+  }
+
+  @Request(RequestType.SESSION)
   public JsonArray search(String sessionId, String classificationCode, String text)
   {
     ClassificationType type = ClassificationType.getByCode(classificationCode);

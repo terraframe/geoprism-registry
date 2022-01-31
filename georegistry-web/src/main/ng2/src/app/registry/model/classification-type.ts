@@ -1,4 +1,4 @@
-import { LocalizedValue } from "@shared/model/core";
+import { LocalizedValue, PageResult } from "@shared/model/core";
 
 export class ClassificationType {
 
@@ -14,5 +14,12 @@ export class Classification {
     code: string;
     displayLabel: LocalizedValue;
     description: LocalizedValue;
+
+}
+
+export class ClassificationNode {
+
+    classification:Classification;
+    children: PageResult<ClassificationNode>;
 
 }

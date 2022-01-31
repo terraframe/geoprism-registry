@@ -11,14 +11,17 @@ import org.junit.Test;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ClassificationNode;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.view.Page;
 
 public class ClassificationTest
 {
-  private static String             PARENT_CODE = "PARENT_OBJ";
+  private static String             GRANDPARENT_CODE = "GRANDPARENT_OBJ";
 
-  private static String             CHILD_CODE  = "CHILD_OBJ";
+  private static String             PARENT_CODE      = "PARENT_OBJ";
+
+  private static String             CHILD_CODE       = "CHILD_OBJ";
 
   private static ClassificationType type;
 
@@ -254,6 +257,79 @@ public class ClassificationTest
         Classification result = parents.get(0);
 
         Assert.assertEquals(parent.getOid(), result.getOid());
+      }
+      finally
+      {
+        child.delete();
+      }
+    }
+    finally
+    {
+      parent.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testGetAncestor()
+  {
+    Classification grandParent = Classification.newInstance(type);
+    grandParent.setCode(GRANDPARENT_CODE);
+    grandParent.apply(null);
+
+    try
+    {
+      Classification parent = Classification.newInstance(type);
+      parent.setCode(PARENT_CODE);
+      parent.apply(grandParent);
+
+      try
+      {
+        Classification child = Classification.newInstance(type);
+        child.setCode(CHILD_CODE);
+        child.apply(parent);
+
+        try
+        {
+          List<Classification> ancestors = child.getAncestors();
+
+          Assert.assertEquals(3, ancestors.size());
+        }
+        finally
+        {
+          child.delete();
+        }
+      }
+      finally
+      {
+        parent.delete();
+      }
+    }
+    finally
+    {
+      grandParent.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testGetAncestorTree()
+  {
+    Classification parent = Classification.newInstance(type);
+    parent.setCode(PARENT_CODE);
+    parent.apply(null);
+
+    try
+    {
+      Classification child = Classification.newInstance(type);
+      child.setCode(CHILD_CODE);
+      child.apply(parent);
+
+      try
+      {
+        ClassificationNode tree = child.getAncestorTree(200);
+
+        Assert.assertEquals(parent.getOid(), tree.getClassification().getOid());
       }
       finally
       {

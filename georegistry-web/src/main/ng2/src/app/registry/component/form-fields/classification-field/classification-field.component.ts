@@ -78,7 +78,7 @@ export class ClassificationFieldComponent implements OnInit, OnDestroy {
             backdrop: true,
             ignoreBackdropClick: true
         });
-        this.subscription = bsModalRef.content.init(this.attributeType, classification => {
+        this.subscription = bsModalRef.content.init(this.attributeType, this.disabled, this.value, classification => {
             this.text = classification.displayLabel.localizedValue;
             this.setValue({ code: classification.code, label: classification.displayLabel });
         });
