@@ -212,6 +212,7 @@ export class AttributeType {
     precision?: number;
     scale?: number;
     classificationType?: string;
+    rootTerm?: Term;
     isValid?: boolean;
     isValidReason?: { timeConflict: boolean, existConflict: boolean, dateField: boolean };
     isValidReasonHierarchy?: any;
@@ -298,7 +299,7 @@ export class ScheduledJob extends AbstractScheduledJob {
     exportErrors: PageResult<any>;
     problems: PageResult<any>;
     fileName: string;
-    exception?: {type: string, message: string};
+    exception?: { type: string, message: string };
 }
 
 export class ScheduledJobOverview extends ScheduledJob {

@@ -98,6 +98,10 @@ export class AttributeInputComponent implements OnChanges {
                 return false;
             }
 
+            if (this.type === "classification" && (this.attribute.classificationType == null || this.attribute.classificationType.length === 0)) {
+                return false;
+            }
+
             return true;
         }
 
