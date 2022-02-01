@@ -29,6 +29,7 @@ import java.util.Map;
 import org.commongeoregistry.adapter.metadata.DefaultSerializer;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.wololo.jts2geojson.GeoJSONWriter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -385,6 +386,9 @@ public class ListTypeService
         object.add("type", geoObject.getType().toJSON(new DefaultSerializer()));
         object.addProperty("code", geoObject.getCode());
         object.addProperty(ListTypeVersion.FORDATE, format.format(version.getForDate()));
+        
+        // Add geometry so we can zoom to it
+        object.add("geoObject", geoObject.toGeoObject(version.getForDate()).toJSON());
 
         return object;
       }

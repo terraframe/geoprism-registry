@@ -1997,6 +1997,13 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         record.add("data", object);
       }
     }
+    
+    JsonArray bbox = this.bbox(uid);
+    if (bbox == null || bbox.size() == 0)
+    {
+      bbox = this.bbox(null);
+    }
+    record.add("bbox", bbox);
 
     return record;
   }
