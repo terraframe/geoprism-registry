@@ -215,20 +215,30 @@ public class Classification implements JsonSerializable
     return results;
   }
 
-  public List<Classification> getAncestors()
+  public List<Classification> getAncestors(String rootCode)
   {
-    String dbClassName = this.type.getMdVertex().getDBClassName();
-    String edgeName = this.type.getMdEdge().getDBClassName();
+    GraphQuery<VertexObject> query = null;
 
-    StringBuilder statement = new StringBuilder();
-    statement.append("MATCH ");
-    statement.append("{class:" + dbClassName + ", where: (@rid=:rid)}");
-    statement.append(".in('" + edgeName + "')");
-    statement.append("{as: ancestor, while: (true)}");
-    statement.append("RETURN $elements");
+    if (rootCode != null && rootCode.length() > 0)
+    {
+      StringBuilder statement = new StringBuilder();
+      statement.append("SELECT expand($res)");
+      statement.append(" LET $a = (TRAVERSE in(\"" + this.type.getMdEdge().getDBClassName() + "\") FROM :rid WHILE (code != :code))");
+      statement.append(", $b = (SELECT FROM " + this.type.getMdVertex().getDBClassName() + " WHERE code = :code)");
+      statement.append(", $res = (UNIONALL($a,$b))");
 
-    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
-    query.setParameter("rid", this.vertex.getRID());
+      query = new GraphQuery<VertexObject>(statement.toString());
+      query.setParameter("rid", this.vertex.getRID());
+      query.setParameter("code", rootCode);
+    }
+    else
+    {
+      StringBuilder statement = new StringBuilder();
+      statement.append("TRAVERSE in(\"" + this.type.getMdEdge().getDBClassName() + "\") FROM :rid");
+
+      query = new GraphQuery<VertexObject>(statement.toString());
+      query.setParameter("rid", this.vertex.getRID());
+    }
 
     List<Classification> results = query.getResults().stream().map(vertex -> {
       return new Classification(this.type, vertex);
@@ -279,9 +289,9 @@ public class Classification implements JsonSerializable
     return new Term(this.getCode(), this.getDisplayLabel(), this.getDescription());
   }
 
-  public ClassificationNode getAncestorTree(Integer pageSize)
+  public ClassificationNode getAncestorTree(String rootCode, Integer pageSize)
   {
-    List<Classification> ancestors = this.getAncestors();
+    List<Classification> ancestors = this.getAncestors(rootCode);
 
     ClassificationNode prev = null;
 
@@ -374,10 +384,18 @@ public class Classification implements JsonSerializable
     return Classification.get(type, code);
   }
 
-  public static List<Classification> search(ClassificationType type, String text)
+  public static List<Classification> search(ClassificationType type, String rootCode, String text)
   {
     StringBuilder builder = new StringBuilder();
-    builder.append("SELECT FROM " + type.getMdVertex().getDBClassName());
+
+    if (rootCode != null && rootCode.length() > 0)
+    {
+      builder.append("SELECT FROM (TRAVERSE out(\"" + type.getMdEdge().getDBClassName() + "\") FROM :rid) ");
+    }
+    else
+    {
+      builder.append("SELECT FROM " + type.getMdVertex().getDBClassName());
+    }
 
     if (text != null)
     {
@@ -385,6 +403,7 @@ public class Classification implements JsonSerializable
       builder.append(" OR " + AbstractVertexRestriction.localize("displayLabel") + ".toUpperCase() LIKE :text)");
     }
 
+    builder.append(" ORDER BY code");
     builder.append(" LIMIT 10");
 
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(builder.toString());
@@ -392,6 +411,12 @@ public class Classification implements JsonSerializable
     if (text != null)
     {
       query.setParameter("text", "%" + text.toUpperCase() + "%");
+    }
+
+    if (rootCode != null && rootCode.length() > 0)
+    {
+      Classification root = Classification.get(type, rootCode);
+      query.setParameter("rid", root.getVertex().getRID());
     }
 
     List<Classification> results = query.getResults().stream().map(vertex -> {

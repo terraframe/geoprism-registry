@@ -40,6 +40,16 @@ public class ClassificationService
   }
 
   @Request(RequestType.SESSION)
+  public JsonObject get(String sessionId, String classificationCode, String code)
+  {
+    ClassificationType type = ClassificationType.getByCode(classificationCode);
+
+    Classification classification = Classification.get(type, code);
+
+    return classification.toJSON();
+  }
+
+  @Request(RequestType.SESSION)
   public void move(String sessionId, String classificationCode, String code, String parentCode)
   {
     ClassificationType type = ClassificationType.getByCode(classificationCode);
@@ -95,20 +105,20 @@ public class ClassificationService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject getAncestorTree(String sessionId, String classificationCode, String code, Integer pageSize)
+  public JsonObject getAncestorTree(String sessionId, String classificationCode, String rootCode, String code, Integer pageSize)
   {
     ClassificationType type = ClassificationType.getByCode(classificationCode);
 
     Classification child = Classification.get(type, code);
 
-    return child.getAncestorTree(pageSize).toJSON();
+    return child.getAncestorTree(rootCode, pageSize).toJSON();
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray search(String sessionId, String classificationCode, String text)
+  public JsonArray search(String sessionId, String classificationCode, String rootCode, String text)
   {
     ClassificationType type = ClassificationType.getByCode(classificationCode);
-    List<Classification> results = Classification.search(type, text);
+    List<Classification> results = Classification.search(type, rootCode, text);
 
     return results.stream().map(child -> child.toJSON()).collect(Collector.of(() -> new JsonArray(), (r, t) -> r.add((JsonObject) t), (x1, x2) -> {
       x1.addAll(x2);

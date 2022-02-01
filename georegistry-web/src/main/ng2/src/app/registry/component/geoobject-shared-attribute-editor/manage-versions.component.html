@@ -75,7 +75,8 @@
 
                                  <div *ngIf="attributeType.type === 'classification'">
                                    <classification-field
-                                    [attributeType]="attributeType"
+                                    [classificationType]="attributeType.classificationType"
+                                    [rootCode]="attributeType.rootTerm != null ? attributeType.rootTerm.code : null"
                                     [classNames]="{'has-changed': (viewModel.oldValue && !isNew)}"
                                     [name]="'mod-term-' + i + '-' + attributeType.code"
                                     [(value)]="viewModel.value" 

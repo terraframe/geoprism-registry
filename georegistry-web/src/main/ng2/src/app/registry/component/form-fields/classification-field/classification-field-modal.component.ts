@@ -8,7 +8,6 @@ import { ErrorHandler } from "@shared/component";
 import { Classification, ClassificationNode } from "@registry/model/classification-type";
 import { ClassificationService } from "@registry/service/classification.service";
 import { PageResult } from "@shared/model/core";
-import { AttributeType } from "@registry/model/registry";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { timeout } from "d3";
 
@@ -42,7 +41,8 @@ export class ClassificationFieldModalComponent implements OnDestroy {
 
     message: string = null;
 
-    attributeType: AttributeType = null;
+    classificationType: string = null;
+    rootCode: string = null;
 
     disabled: boolean = false;
 
@@ -90,12 +90,13 @@ export class ClassificationFieldModalComponent implements OnDestroy {
         private service: ClassificationService
     ) { }
 
-    init(attributeType: AttributeType, disabled: boolean, value: { code: string }, observer: Observer<Classification>): Subscription {
-        this.attributeType = attributeType;
+    init(classificationType: string, rootCode: string, disabled: boolean, value: { code: string }, observer: Observer<Classification>): Subscription {
+        this.classificationType = classificationType;
+        this.rootCode = rootCode;
         this.disabled = disabled;
 
         if (value != null) {
-            this.service.getAncestorTree(this.attributeType.classificationType, value.code, PAGE_SIZE).then(ancestor => {
+            this.service.getAncestorTree(this.classificationType, this.rootCode, value.code, PAGE_SIZE).then(ancestor => {
                 this.nodes = [this.build(null, ancestor)];
 
                 timeout(() => {
@@ -105,6 +106,16 @@ export class ClassificationFieldModalComponent implements OnDestroy {
                         node.setActiveAndVisible();
                     }
                 }, 100);
+            });
+        } else if (this.rootCode != null) {
+            this.service.get(this.classificationType, this.rootCode).then(classification => {
+                this.nodes = [{
+                    code: classification.code,
+                    name: classification.displayLabel.localizedValue,
+                    type: NodeType.CLASSIFICATION,
+                    classification: classification,
+                    hasChildren: true
+                }];
             });
         } else {
             this.getChildren(null).then(nodes => {
@@ -124,7 +135,7 @@ export class ClassificationFieldModalComponent implements OnDestroy {
 
         const code = node != null ? node.classification.code : null;
 
-        return this.service.getChildren(this.attributeType.classificationType, code, 1, PAGE_SIZE).then(page => {
+        return this.service.getChildren(this.classificationType, code, 1, PAGE_SIZE).then(page => {
             const nodes = this.createNodes(node, page);
 
             if (node != null) {
@@ -220,7 +231,7 @@ export class ClassificationFieldModalComponent implements OnDestroy {
                 const code = parentNode.classification.code;
                 const pageNumber = node.pageNumber;
 
-                this.service.getChildren(this.attributeType.classificationType, code, pageNumber, PAGE_SIZE).then(page => {
+                this.service.getChildren(this.classificationType, code, pageNumber, PAGE_SIZE).then(page => {
                     const nodes = this.createNodes(parentNode, page);
 
                     parentNode.children = parentNode.children.filter(node => node.code !== "...");

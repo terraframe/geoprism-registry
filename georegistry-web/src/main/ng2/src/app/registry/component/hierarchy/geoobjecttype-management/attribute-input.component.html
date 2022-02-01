@@ -44,20 +44,39 @@
     </div>
   </div>
 
-  <div class="row-holder" *ngIf="type === 'classification'">
-    <div class="label-holder">
-      <label>
-        <localize key="data.type.label.classification"></localize>
-      </label>
+  <ng-container *ngIf="type === 'classification'">
+    <div class="row-holder">
+      <div class="label-holder">
+        <label>
+          <localize key="data.type.label.classification"></localize>
+        </label>
+      </div>
+      <div class="holder">
+        <select class="select-area" name="classificationType" [(ngModel)]="attribute.classificationType" required
+          [disabled]="!isNew">
+          <option></option>
+          <option *ngFor="let classification of classifications" [value]="classification.code">
+            {{classification.displayLabel.localizedValue}}
+          </option>
+        </select>
+      </div>
     </div>
-    <div class="holder">
-      <select class="select-area" name="classificationType" [(ngModel)]="attribute.classificationType" required
+
+    <div class="row-holder" *ngIf="attribute.classificationType != null && attribute.classificationType.length > 0">
+      <div class="label-holder">
+        <label>
+          Root Term
+        </label>
+      </div>
+      <div class="holder">
+        <classification-field
+        [attributeType]="attribute"
+        name="classification-root"
+        [(value)]="attribute.rootTerm" 
         [disabled]="!isNew">
-        <option></option>
-        <option *ngFor="let classification of classifications" [value]="classification.code">
-          {{classification.displayLabel.localizedValue}}
-        </option>
-      </select>
+       </classification-field>
+      </div>
     </div>
-  </div>
+
+  </ng-container>
 </div>

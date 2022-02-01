@@ -35,6 +35,7 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.constants.MdAttributeClassificationInfo;
 import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.BusinessDAO;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
@@ -55,6 +56,9 @@ import com.runwaysdk.dataaccess.RelationshipDAOIF;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAOIF;
 import com.runwaysdk.session.Session;
+
+import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ClassificationType;
 
 public class AttributeTypeConverter extends LocalizedValueConverter
 {
@@ -112,15 +116,15 @@ public class AttributeTypeConverter extends LocalizedValueConverter
       AttributeClassificationType attributeType = (AttributeClassificationType) AttributeType.factory(attributeName, displayLabel, description, AttributeClassificationType.TYPE, required, unique, isChangeOverTime);
       attributeType.setClassificationType(mdClassification.getValue(MdClassificationInfo.TYPE_NAME));
 
-      VertexObjectDAOIF root = ( (MdAttributeClassificationDAOIF) mdAttribute ).getRoot();
+      String rootOid = ( (MdAttributeClassificationDAOIF) mdAttribute ).getValue(MdAttributeClassificationInfo.ROOT);
 
-      if (root != null)
+      if (rootOid != null && rootOid.length() > 0)
       {
-        VertexObject classification = VertexObject.instantiate((VertexObjectDAO) root);
-        VertexTermConverter termBuilder = new VertexTermConverter(classification);
-        Term adapterTerm = termBuilder.build();
+        ClassificationType type = new ClassificationType(mdClassification);
 
-        attributeType.setRootTerm(adapterTerm);
+        Classification classification = Classification.getByOid(type, rootOid);
+
+        attributeType.setRootTerm(classification.toTerm());
       }
 
       return attributeType;

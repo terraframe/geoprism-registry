@@ -61,6 +61,14 @@ public class ClassificationController
     return new RestResponse();
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
+  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code)
+  {
+    JsonObject response = this.service.get(request.getSessionId(), classificationCode, code);
+
+    return new RestBodyResponse(response);
+  }
+
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "move")
   public ResponseIF move(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code, @RequestParamter(name = "parentCode") String parentCode)
   {
@@ -78,17 +86,17 @@ public class ClassificationController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-ancestor-tree")
-  public ResponseIF getAncestorTree(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code, @RequestParamter(name = "pageSize") Integer pageSize)
+  public ResponseIF getAncestorTree(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "rootCode") String rootCode, @RequestParamter(name = "code") String code, @RequestParamter(name = "pageSize") Integer pageSize)
   {
-    JsonObject page = this.service.getAncestorTree(request.getSessionId(), classificationCode, code, pageSize);
+    JsonObject page = this.service.getAncestorTree(request.getSessionId(), classificationCode, rootCode, code, pageSize);
 
     return new RestBodyResponse(page);
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "search")
-  public ResponseIF search(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "text") String text)
+  public ResponseIF search(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "rootCode") String rootCode, @RequestParamter(name = "text") String text)
   {
-    JsonArray results = this.service.search(request.getSessionId(), classificationCode, text);
+    JsonArray results = this.service.search(request.getSessionId(), classificationCode, rootCode, text);
 
     return new RestBodyResponse(results);
   }

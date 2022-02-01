@@ -1,6 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from "@angular/core";
 import { Classification } from "@registry/model/classification-type";
-import { AttributeType } from "@registry/model/registry";
 import { ClassificationService } from "@registry/service/classification.service";
 import { LocalizedValue } from "@shared/model/core";
 import { BsModalService } from "ngx-bootstrap/modal";
@@ -15,7 +14,8 @@ import { ClassificationFieldModalComponent } from "./classification-field-modal.
 })
 export class ClassificationFieldComponent implements OnInit, OnDestroy {
 
-    @Input() attributeType: AttributeType;
+    @Input() classificationType: string;
+    @Input() rootCode: string;
 
     @Input() name: string;
     @Input() disabled: boolean = false;
@@ -38,7 +38,7 @@ export class ClassificationFieldComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.typeahead = new Observable((observer: Observer<Object>) => {
-            this.service.search(this.attributeType.classificationType, this.text).then(results => {
+            this.service.search(this.classificationType, this.rootCode, this.text).then(results => {
                 observer.next(results);
             });
         });
@@ -78,7 +78,7 @@ export class ClassificationFieldComponent implements OnInit, OnDestroy {
             backdrop: true,
             ignoreBackdropClick: true
         });
-        this.subscription = bsModalRef.content.init(this.attributeType, this.disabled, this.value, classification => {
+        this.subscription = bsModalRef.content.init(this.classificationType, this.rootCode, this.disabled, this.value, classification => {
             this.text = classification.displayLabel.localizedValue;
             this.setValue({ code: classification.code, label: classification.displayLabel });
         });

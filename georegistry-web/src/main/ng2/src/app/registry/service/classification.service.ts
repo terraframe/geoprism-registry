@@ -96,25 +96,42 @@ export class ClassificationService {
             .toPromise();
     }
 
-    getAncestorTree(classificationCode: string, code: string, pageSize: number): Promise<ClassificationNode> {
+    getAncestorTree(classificationCode: string, rootCode: string, code: string, pageSize: number): Promise<ClassificationNode> {
         let params: HttpParams = new HttpParams();
         params = params.set("classificationCode", classificationCode);
         params = params.set("code", code);
         params = params.set("pageSize", pageSize.toString());
 
+        if (rootCode != null) {
+            params = params.set("rootCode", rootCode);
+        }
+
         return this.http.get<ClassificationNode>(registry.contextPath + "/classification/get-ancestor-tree", { params: params })
             .toPromise();
     }
 
-    search(classificationCode: string, text: string): Promise<Classification[]> {
+    search(classificationCode: string, rootCode: string, text: string): Promise<Classification[]> {
         let params: HttpParams = new HttpParams();
         params = params.set("classificationCode", classificationCode);
+
+        if (rootCode != null) {
+            params = params.set("rootCode", rootCode);
+        }
 
         if (text != null) {
             params = params.set("text", text);
         }
 
         return this.http.get<Classification[]>(registry.contextPath + "/classification/search", { params: params })
+            .toPromise();
+    }
+
+    get(classificationCode: string, code: string): Promise<Classification> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("classificationCode", classificationCode);
+        params = params.set("code", code);
+
+        return this.http.get<Classification>(registry.contextPath + "/classification/get", { params: params })
             .toPromise();
     }
 
