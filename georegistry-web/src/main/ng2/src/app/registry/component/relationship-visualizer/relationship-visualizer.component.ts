@@ -1,12 +1,10 @@
 /* eslint-disable indent */
-import { Component, OnInit, Input, Output, SimpleChanges, EventEmitter } from "@angular/core";
+import { Component, OnInit, Input, Output, SimpleChanges, EventEmitter, HostListener } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import { ErrorHandler } from "@shared/component";
-import { LocalizationService, AuthService } from "@shared/service";
 
-import { HierarchyService, IOService } from "@registry/service";
 import { GeoObject } from "@registry/model/registry";
 import { Subject } from "rxjs";
 import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
@@ -16,6 +14,8 @@ import { DagreNodesOnlyLayout } from "./relationship-viz-layout";
 
 import * as shape from "d3-shape";
 import { LocalizedValue } from "@shared/model/core";
+import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
+import { ChangeDetectorRef } from "@angular/core";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -50,8 +50,13 @@ export class RelationshipVisualizerComponent implements OnInit {
 
   relationships: {oid: string, label: LocalizedValue, isHierarchy: boolean}[];
 
-  private width: number = 500;
-  private height: number = 500;
+  public panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
+
+  public right: number = 50;
+  public top: number = 10;
+
+  public svgHeight: number = null;
+  public svgWidth: number = null;
 
   panToNode$: Subject<string> = new Subject();
 
@@ -62,8 +67,7 @@ export class RelationshipVisualizerComponent implements OnInit {
   public curve = shape.curveLinear;
 
   // eslint-disable-next-line no-useless-constructor
-  constructor(private hierarchyService: HierarchyService, private modalService: BsModalService, private ioService: IOService,
-      localizeService: LocalizationService, private vizService: RelationshipVisualizationService, private authService: AuthService) {}
+  constructor(private modalService: BsModalService, private cdr: ChangeDetectorRef, private vizService: RelationshipVisualizationService) {}
 
   ngOnInit(): void {
   }
@@ -79,6 +83,11 @@ export class RelationshipVisualizerComponent implements OnInit {
               this.onSelectRelationship();
           }
       }
+  }
+
+  @HostListener("window:resize", ["$event"])
+  onResize(event) {
+      // this.cdr.detectChanges();
   }
 
   // Thanks to https://stackoverflow.com/questions/52172067/create-svg-hexagon-points-with-only-only-a-length
@@ -99,6 +108,62 @@ export class RelationshipVisualizerComponent implements OnInit {
         .join(" ");
 
       return points;
+  }
+
+  toggleSize(event: MouseEvent): void {
+      if (event != null) {
+          event.stopPropagation();
+      }
+
+      this.panelSize = this.panelSize + 1;
+
+      if (this.panelSize > PANEL_SIZE_STATE.FULLSCREEN) {
+          this.panelSize = 0;
+      }
+  }
+
+  getCalculatedStyles() : any {
+      let styles: any = {
+          top: this.top + "px",
+          right: this.right + "px"
+      };
+
+      if (this.panelSize === PANEL_SIZE_STATE.WINDOWED) {
+          let width = 500;
+          let height = 500;
+
+          let navigatorLayerPanelWidth = document.getElementById("navigator-layer-panel").clientWidth + 25;
+
+          // calculate max width and height by spoofing the fullscreen settings and then asking the browser how large it is.
+          let root = document.getElementById("relationship-visualizer-root-node");
+          root.style.left = navigatorLayerPanelWidth + "px";
+          root.style.bottom = "50px";
+          let maxWidth = root.clientWidth;
+          let maxHeight = root.clientHeight;
+          root.style.left = null;
+          root.style.bottom = null;
+
+          if (width > maxWidth) {
+              width = maxWidth;
+          }
+          if (height > maxHeight) {
+              height = maxHeight;
+          }
+
+          styles.width = width + "px";
+          styles.height = height + "px";
+          styles.overflow = "hidden";
+      } else if (this.panelSize === PANEL_SIZE_STATE.FULLSCREEN) {
+          let left = document.getElementById("navigator-layer-panel").clientWidth + 25;
+
+          let bottom = 50;
+
+          styles.left = left + "px";
+          styles.bottom = bottom + "px";
+          styles.overflow = "hidden";
+      }
+
+      return styles;
   }
 
   private fetchRelationships(): void {
@@ -128,13 +193,16 @@ export class RelationshipVisualizerComponent implements OnInit {
   private fetchData(): void {
       this.vizService.tree(this.mdEdgeOid, this.geoObject.properties.code, this.geoObject.properties.type, this.params.date).then(data => {
           let graphContainer = document.getElementById("graph-container");
-          this.height = graphContainer.clientHeight;
-          this.width = graphContainer.clientWidth;
 
-          this.data = data;
+          if (graphContainer) {
+              this.svgHeight = graphContainer.clientHeight;
+              this.svgWidth = graphContainer.clientWidth;
 
-          if (this.geoObject != null) {
-              this.panToNode(this.geoObject.properties.uid);
+              this.data = data;
+
+              if (this.geoObject != null) {
+                  this.panToNode(this.geoObject.properties.uid);
+              }
           }
       });
   }

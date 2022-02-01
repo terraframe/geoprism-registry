@@ -20,11 +20,6 @@
 
   <div id="app-container" class="container-fluid">
   
-    <span *ngIf="record && record.recordType === 'GEO_OBJECT'" [ngClass]="{'hierarchy':visualizeMode === VISUALIZE_MODE.GRAPH, 'map':visualizeMode === VISUALIZE_MODE.MAP}" class="visualize-mode-toggle">
-      <i *ngIf="visualizeMode === VISUALIZE_MODE.GRAPH" class="visualize-mode-map fa fa-globe clickable" aria-hidden="true" (click)="visualizeRelationships(current, VISUALIZE_MODE.MAP, $event)" [title]="'relationshipVisualizer.viewMap' | localize"></i>
-      <i *ngIf="visualizeMode === VISUALIZE_MODE.MAP" class="visualize-mode-hierarchy fa fa-sitemap clickable" aria-hidden="true" (click)="visualizeRelationships(current, VISUALIZE_MODE.GRAPH, $event)" [title]="'relationshipVisualizer.viewGraph' | localize"></i>
-    </span>
-
     <div *ngIf="searchEnabled" class="row" style="position: absolute;top: 0;bottom: 0;left: 10px;right: 10px;height: 100%;">
         <div class="col-md-5" style="z-index:999;padding-bottom: 10px;" [style.background]="showPanel ? 'white' : 'transparent'">
         
@@ -146,10 +141,10 @@
       <div [ngClass]="{'col-md-7':showPanel, 'col-md-12':!showPanel}" >
         <div class="row">
 
-          <article class="base-layer-panel" [ngClass]="{'second-map-button' : searchEnabled && !showPanel}">
+          <article id="navigator-layer-panel" class="base-layer-panel" [ngClass]="{'second-map-button' : searchEnabled && !showPanel}">
             <layer-panel (layerChange)="onLayerChange($event)" (reorder)="onReorderLayers($event)"
               (zoomTo)="onZoomTo($event.oid)" (create)="onCreate($event)" [(baselayerIconHover)]="layersPanelIsOpen"
-              [includeGraphLayer]="data != null && data.length > 0" [visualizeMode]="visualizeMode">
+              [includeGraphLayer]="data != null && data.length > 0">
             </layer-panel>
           </article>
 
@@ -157,15 +152,13 @@
 
         </div>
         
-        <div *ngIf="visualizeMode === VISUALIZE_MODE.GRAPH && current" style="position: absolute; top: 50px; bottom: 50px; left: 50px; right: 50px; " class="row">
-	        <relationship-visualizer
-	          [params]="{geoObject: current, mdEdgeOid: visualizingRelationship, date: filterDate, searchPanelOpen: showPanel}"
-	          (changeGeoObject)="onChangeGeoObject($event)"
-	          (changeRelationship)="visualizingRelationship = $event.oid"
-	        >
-	        
-	        </relationship-visualizer>
-	      </div>
+        <relationship-visualizer *ngIf="record && record.recordType === 'GEO_OBJECT'"
+          [params]="{geoObject: current, mdEdgeOid: visualizingRelationship, date: filterDate, searchPanelOpen: showPanel}"
+          (changeGeoObject)="onChangeGeoObject($event)"
+          (changeRelationship)="visualizingRelationship = $event.oid"
+        >
+        
+        </relationship-visualizer>
 	      
 	      <!--
 	      <div *ngIf="visualizeMode === VISUALIZE_MODE.GRAPH && current" style="height: calc(100vh - 145px);" class="row">

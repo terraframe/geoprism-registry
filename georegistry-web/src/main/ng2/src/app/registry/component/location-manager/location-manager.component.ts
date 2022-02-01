@@ -8,7 +8,7 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import bbox from "@turf/bbox";
 
 import { GeoObject } from "@registry/model/registry";
-import { ModalState, VisualizeState } from "@registry/model/location-manager";
+import { ModalState } from "@registry/model/location-manager";
 
 import { MapService, RegistryService, GeometryService } from "@registry/service";
 import { HttpErrorResponse } from "@angular/common/http";
@@ -45,11 +45,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     MODE: ModalState = {
         SEARCH: 0,
         VIEW: 1
-    }
-
-    VISUALIZE_MODE: VisualizeState = {
-        MAP: 0,
-        GRAPH: 1
     }
 
     bsModalRef: BsModalRef;
@@ -99,9 +94,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
     mode: number = this.MODE.SEARCH;
 
-    visualizeMode: number = this.VISUALIZE_MODE.MAP;
-
     visualizingRelationship: string = null;
+
+    relationshipVisualizerPanelStatus: number = 0;
 
     /*
     *  Flag to indicate if the left handle panel should be displayed or not
@@ -191,9 +186,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     ngAfterViewInit() {
-        if (this.visualizeMode === this.VISUALIZE_MODE.MAP) {
-            this.initializeMap();
-        }
+        this.initializeMap();
     }
 
     setFilterDate(date: string) {
@@ -331,9 +324,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     showPanel = true;
                 }
 
-                if (this.params.visualizeMode) {
+                //if (this.params.visualizeMode) {
                     //this.visualizeMode = parseInt(this.params.visualizeMode);
-                }
+                //}
             }
 
             this.changeMode(mode);
@@ -418,33 +411,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     onModeChange(value: boolean): void {
         this.isEdit = value;
-    }
-
-    changeVisualizeMode(visualizeMode: number): void {
-        if (this.visualizeMode !== this.VISUALIZE_MODE.MAP && visualizeMode === this.VISUALIZE_MODE.MAP) {
-            // window.setTimeout(() => {
-                // this.geomService.destroy();
-                // this.ngAfterViewInit();
-            // }, 10);
-        }
-
-        this.visualizeMode = visualizeMode;
-
-        // if (this.visualizeMode === this.VISUALIZE_MODE.MAP && this.map == null) {
-        //    window.setTimeoutthis.initializeMap();
-        // }
-
-        // this.location.replaceState("/registry/location-manager/" + this.current.properties.uid + "/" + this.current.properties.type + "/" + this.visualizeMode);
-    }
-
-    visualizeRelationships(node: GeoObject, visualizeMode: number, event: MouseEvent): void {
-        if (event != null) {
-            event.stopPropagation();
-        }
-
-        this.current = node;
-
-        this.changeVisualizeMode(visualizeMode);
     }
 
     initMap(): void {
@@ -674,8 +640,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.preventSingleClick = false;
         const delay = 200;
 
-        this.changeVisualizeMode(this.VISUALIZE_MODE.MAP);
-
         let geometry = geoObject.geometry;
 
         this.timer = setTimeout(() => {
@@ -723,11 +687,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 record.forDate = null;
             }
 
-            this.filterDate = this.record.forDate === "" ? null : this.record.forDate;
-
             this.visualizingRelationship = null;
 
             this.record = record;
+
+            this.filterDate = this.record.forDate === "" ? null : this.record.forDate;
 
             if (this.record.recordType === "GEO_OBJECT") { // this happens when list type is working
                 this.geomService.destroy(false);
@@ -761,7 +725,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (!this.isEdit) {
             this.router.navigate([], {
                 relativeTo: this.route,
-                queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null, visualizeMode: this.visualizeMode },
+                queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null }, //visualizeMode: this.visualizeMode
                 queryParamsHandling: "merge" // remove to replace all query params by provided
             });
         }
@@ -770,12 +734,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     handleSelect(type: string, code: string, uid: string) {
         // Highlight the feature on the map
         this.service.getGeoObjectTypes([type], null).then(types => {
-            if (this.visualizeMode === this.VISUALIZE_MODE.MAP && this.feature != null) {
+            if (this.feature != null) {
                 this.map.removeFeatureState(this.feature);
             }
 
             // Highlight the feature on the map
-            if (this.visualizeMode === this.VISUALIZE_MODE.MAP && this.feature && code !== "__NEW__") {
+            if (this.feature && code !== "__NEW__") {
                 this.map.setFeatureState(this.feature = {
                     source: GRAPH_LAYER,
                     id: uid
@@ -795,7 +759,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 forDate: this.state.currentDate === "" ? null : this.state.currentDate
             };
 
-            if (this.visualizeMode === this.VISUALIZE_MODE.MAP && this.record.recordType === "GEO_OBJECT") {
+            if (this.record.recordType === "GEO_OBJECT") {
                 this.geomService.destroy(false);
 
                 this.geomService.initialize(this.map, this.record.type.geometryType, false);

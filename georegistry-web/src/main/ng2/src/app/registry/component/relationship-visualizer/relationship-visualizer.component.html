@@ -1,69 +1,77 @@
-<div class="new-admin-design-main" style="overflow-y:hidden;">
+<div id="relationship-visualizer-root-node" *ngIf="geoObject" [ngStyle]="getCalculatedStyles()">
 
-	<div id="" style="height:100%; width:100%; background-color: white; opacity: 100%" class="container-fluid">
+  <span class="map-button visualize-mode-toggle">
+    <i style="margin-right: initial" class="visualize-mode-hierarchy fa fa-sitemap clickable" aria-hidden="true" (click)="toggleSize($event)" [title]="'relationshipVisualizer.viewGraph' | localize"></i>
+  </span>
 
-		<h2 [style]="params.searchPanelOpen ? '' : 'padding-left: 55px;'"> <localize key="relationshipVisualizer.title"></localize> </h2>
-		
-		<select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="mdEdgeOid" (change)="onSelectRelationship()" required>
-       <option *ngFor="let relationship of relationships" value={{relationship.oid}}>{{relationship.label.localizedValue}}</option>
-    </select>
-		
-		<div *ngIf="relationships" style="height:100%; width:100%;" class="row">
-
-			<div class="hierarchy-content" style="height:100%; width:100%;">
-				<div id="graph-container" style="height:100%; width:100%;">
-          <ngx-graph *ngIf="data"
-            class="chart-container"
-            [view]="[width, height]"
-            [links]="data.edges"
-            [nodes]="data.verticies"
-            [animate]="true"
-            [layout]="layout"
-            [layoutSettings]="{orientation: 'TB'}"
-            [curve]="curve"
-            [draggingEnabled]="false"
-            [panToNode$]="panToNode$"
-            [update$]="update$"
-          >
-            <ng-template #defsTemplate>
-					    <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
-					      <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
-					    </svg:marker>
-					  </ng-template>
-            <ng-template #nodeTemplate let-node>
-					    <svg:g (click)="onClickNode(node)" class="node">
-					      <!--
-					      <svg:rect
-					        [attr.width]="node.dimension.width"
-					        [attr.height]="node.dimension.height"
-					        [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? '#4287f5' : 'gray')"
-					      />
-					      -->
-					      <svg:polygon [attr.points]="getHexagonPoints(node)"
-					        [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? '#4287f5' : 'gray')"
-					      ></polygon>
-					      
-					      <!--
-					      <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
-                  {{node.label}}
-                </svg:text>
-                -->
-                <foreignObject [attr.x]="15" [attr.y]="52" [attr.width]="150" [attr.height]="150">
-                  <span style="width:125px; height:80px; overflow:hidden; display: inline-block;">
-                    <p xmlns="http://www.w3.org/1999/xhtml" text-anchor="start" style="text-align:center; font-size: 22px; display: table-cell; vertical-align: middle; height:80px; width:125px; line-height:22px;">{{node.label}}</p>
-                  </span>
-                </foreignObject>
-					    </svg:g>
-					  </ng-template>
-					  <ng-template #linkTemplate let-link>
-					    <svg:g class="edge">
-					      <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
-					    </svg:g>
-					  </ng-template>
-          </ngx-graph>
+	<div *ngIf="panelSize !== 0" class="new-admin-design-main" style="overflow-y:hidden;">
+	
+		<div style="height:100%; width:100%; background-color: white; opacity: 100%" class="container-fluid">
+	
+			<h2 [style]="params.searchPanelOpen ? '' : 'padding-left: 55px;'"> <localize key="relationshipVisualizer.title"></localize> </h2>
+			
+			<select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="mdEdgeOid" (change)="onSelectRelationship()" required>
+	       <option *ngFor="let relationship of relationships" value={{relationship.oid}}>{{relationship.label.localizedValue}}</option>
+	    </select>
+			
+			<div *ngIf="relationships" style="height:100%; width:100%;" class="row">
+	
+				<div class="hierarchy-content" style="height:100%; width:100%;">
+					<div id="graph-container" style="height:100%; width:100%;">
+	          <ngx-graph *ngIf="data"
+	            class="chart-container"
+	            [view]="[svgWidth, svgHeight]"
+	            [links]="data.edges"
+	            [nodes]="data.verticies"
+	            [animate]="true"
+	            [layout]="layout"
+	            [layoutSettings]="{orientation: 'TB'}"
+	            [curve]="curve"
+	            [draggingEnabled]="false"
+	            [panToNode$]="panToNode$"
+	            [update$]="update$"
+	          >
+	            <ng-template #defsTemplate>
+						    <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+						      <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
+						    </svg:marker>
+						  </ng-template>
+	            <ng-template #nodeTemplate let-node>
+						    <svg:g (click)="onClickNode(node)" class="node">
+						      <!--
+						      <svg:rect
+						        [attr.width]="node.dimension.width"
+						        [attr.height]="node.dimension.height"
+						        [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? '#4287f5' : 'gray')"
+						      />
+						      -->
+						      <svg:polygon [attr.points]="getHexagonPoints(node)"
+						        [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? '#4287f5' : 'gray')"
+						      ></polygon>
+						      
+						      <!--
+						      <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
+	                  {{node.label}}
+	                </svg:text>
+	                -->
+	                <foreignObject [attr.x]="15" [attr.y]="52" [attr.width]="150" [attr.height]="150">
+	                  <span style="width:125px; height:80px; overflow:hidden; display: inline-block;">
+	                    <p xmlns="http://www.w3.org/1999/xhtml" text-anchor="start" style="text-align:center; font-size: 22px; display: table-cell; vertical-align: middle; height:80px; width:125px; line-height:22px;">{{node.label}}</p>
+	                  </span>
+	                </foreignObject>
+						    </svg:g>
+						  </ng-template>
+						  <ng-template #linkTemplate let-link>
+						    <svg:g class="edge">
+						      <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
+						    </svg:g>
+						  </ng-template>
+	          </ngx-graph>
+					</div>
 				</div>
 			</div>
 		</div>
+	
 	</div>
 
 </div>

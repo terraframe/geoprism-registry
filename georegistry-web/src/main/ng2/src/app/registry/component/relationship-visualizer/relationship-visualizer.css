@@ -1,0 +1,47 @@
+#relationship-visualizer-root-node {
+	border-radius:4px;
+	position: absolute;
+}
+
+.map-button.visualize-mode-toggle {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  z-index: 2;
+  margin-top: 0px;
+}
+
+.visualize-mode-toggle.map {
+  right: 50px;
+}
+.visualize-mode-toggle.hierarchy {
+  right: 50px;
+}
+
+.visualize-mode-hierarchy {
+  color: black;
+}
+
+.visualize-mode-toggle > i {
+  font-size: 25px;
+}
+
+.map-button {
+    background-color: white;
+    margin-top:150px;
+    z-index:9999;
+    border-radius: 4px;
+    padding: 8px;
+    width: 46px; /* IE fallback */
+    width: fit-content;
+}
+.map-button-icon {
+    font-size:23px;
+    text-align: center;
+    width: 30px;
+    height: 30px;
+    vertical-align: middle;
+}
+.map-button-icon > span.glyphicon {
+    line-height: 30px;
+}

@@ -1,16 +1,16 @@
 
-.visualize-mode-toggle {
+.map-button.visualize-mode-toggle {
 	position: absolute;
 	top: 156px;
 	z-index: 2;
+	margin-top: 0px;
 }
 
 .visualize-mode-toggle.map {
-  right: 37px;
+  right: 50px;
 }
 .visualize-mode-toggle.hierarchy {
-  /* right: 6px; */
-  right: 47px;
+  right: 50px;
 }
 
 .visualize-mode-hierarchy {

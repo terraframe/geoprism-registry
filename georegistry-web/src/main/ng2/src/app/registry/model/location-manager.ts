@@ -19,7 +19,8 @@ export class ModalState {
     VIEW: number;
 }
 
-export class VisualizeState {
-    MAP: number;
-    GRAPH: number;
-}
+export const PANEL_SIZE_STATE = {
+    MINIMIZED: 0,
+    WINDOWED: 1,
+    FULLSCREEN: 2
+};
