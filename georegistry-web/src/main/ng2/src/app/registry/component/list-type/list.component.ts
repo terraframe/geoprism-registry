@@ -316,10 +316,14 @@ export class ListComponent implements OnInit, OnDestroy {
         });
     }
 
-    onNewGeoObject(): void {
+    onNewGeoObject(type: string = null): void {
+        if (!type) {
+            type = this.list.typeCode;
+        }
+
         const params: any = {
             layers: JSON.stringify([this.list.oid]),
-            type: this.list.typeCode,
+            type: type,
             code: "__NEW__"
         };
 

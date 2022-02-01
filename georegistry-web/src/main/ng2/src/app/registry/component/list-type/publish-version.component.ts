@@ -3,7 +3,6 @@ import { BsModalRef } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorHandler } from "@shared/component";
-import { LocalizationService } from "@shared/service";
 import { ListType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 
@@ -13,6 +12,7 @@ import { ListTypeService } from "@registry/service/list-type.service";
     styleUrls: ["./list-type-manager.css"]
 })
 export class PublishVersionComponent implements OnInit {
+
     message: string = null;
 
     list: ListType = null;
@@ -20,7 +20,7 @@ export class PublishVersionComponent implements OnInit {
 
     metadata: ListVersionMetadata = null;
 
-    tab: string = 'LIST';
+    tab: string = "LIST";
 
     readonly: boolean = false;
 
@@ -33,29 +33,27 @@ export class PublishVersionComponent implements OnInit {
     }
 
     init(list: ListType, entry: ListTypeEntry, version?: ListTypeVersion): void {
-
         this.list = list;
         this.entry = entry;
         this.readonly = !list.write;
 
         if (version == null) {
+            const working: ListTypeVersion = entry.versions[entry.versions.length - 1];
+
             this.metadata = {
                 listMetadata: {
-                    visibility: 'PRIVATE',
+                    visibility: "PRIVATE",
                     master: false,
-                    ...JSON.parse(JSON.stringify(list.listMetadata)),
+                    ...JSON.parse(JSON.stringify(working.listMetadata))
                 },
                 geospatialMetadata: {
-                    visibility: 'PRIVATE',
+                    visibility: "PRIVATE",
                     master: false,
-                    ...JSON.parse(JSON.stringify(list.geospatialMetadata)),
+                    ...JSON.parse(JSON.stringify(working.geospatialMetadata))
                 }
             };
-        }
-        else {
+        } else {
             this.metadata = version;
-
-            console.log(this.metadata);
         }
     }
 
@@ -65,14 +63,15 @@ export class PublishVersionComponent implements OnInit {
                 if (this.entry.versions != null) {
                     const index = this.entry.versions.findIndex(v => v.oid === version.oid);
 
+                    version.collapsed = this.entry.versions[index].collapsed;
+
                     this.entry.versions[index] = version;
                 }
                 this.bsModalRef.hide();
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
-        }
-        else {
+        } else {
             this.service.createVersion(this.entry, this.metadata).then(version => {
                 this.entry.versions.unshift(version);
                 this.bsModalRef.hide();

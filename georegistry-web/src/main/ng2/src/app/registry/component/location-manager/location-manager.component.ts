@@ -5,7 +5,6 @@ import { Map, LngLatBoundsLike, NavigationControl, AttributionControl, IControl,
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
-import { AllGeoJSON } from "@turf/helpers";
 import bbox from "@turf/bbox";
 
 import { GeoObject } from "@registry/model/registry";
@@ -483,7 +482,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         // }
 
         this.handleParameterChange(this.params);
-        
+
         if (this.current) {
             this.zoomToFeature(this.current, null);
         }
@@ -667,7 +666,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
-    zoomToFeature(node: GeoObject, event: MouseEvent): void {
+    zoomToFeature(geoObject: GeoObject, event: MouseEvent): void {
         if (event != null) {
             event.stopPropagation();
         }
@@ -677,16 +676,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         this.changeVisualizeMode(this.VISUALIZE_MODE.MAP);
 
+        let geometry = geoObject.geometry;
+
         this.timer = setTimeout(() => {
             if (!this.preventSingleClick) {
-                if (node && node.geometry != null) {
-                    const bounds = bbox(node as AllGeoJSON) as LngLatBoundsLike;
+                if (geometry != null) {
+                    const bounds = bbox(geometry) as LngLatBoundsLike;
 
                     let padding = 50;
                     let maxZoom = 20;
 
                     // Zoom level was requested to be reduced when displaying point types as per #420
-                    if (node.geometry.type === "Point" || node.geometry.type === "MultiPoint") {
+                    if (geometry.type === "Point" || geometry.type === "MultiPoint") {
                         padding = 100;
                         maxZoom = 12;
                     }
@@ -717,27 +718,31 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             this.mode = this.MODE.VIEW;
-            
+
             if (record.forDate === "") {
                 record.forDate = null;
             }
-            
+
+            this.filterDate = this.record.forDate === "" ? null : this.record.forDate;
+
             this.visualizingRelationship = null;
-            
+
             this.record = record;
 
-            if (this.record.recordType === "GEO_OBJECT") {
+            if (this.record.recordType === "GEO_OBJECT") { // this happens when list type is working
                 this.geomService.destroy(false);
 
                 this.geomService.initialize(this.map, record.type.geometryType, false);
 
-                this.service.getGeoObjectByCode(record.code, record.type.code).then(geoObject => {
-                    this.current = geoObject;
-                    this.filterDate = this.record.forDate === "" ? null : this.record.forDate;
-                    this.zoomToFeature(this.current, null);
-                }).catch((err: HttpErrorResponse) => {
-                    this.error(err);
-                });
+                this.current = this.record.geoObject;
+                this.zoomToFeature(this.record.geoObject, null);
+            } else if (this.record.recordType === "LIST") { // this happens when list type is NOT working
+                let bounds = this.record.bbox;
+                if (bounds && Array.isArray(bounds)) {
+                    let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+
+                    this.map.fitBounds(llb, { padding: 50, animate: true, maxZoom: 20 });
+                }
             }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
@@ -787,7 +792,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 recordType: "GEO_OBJECT",
                 type: type,
                 code: code,
-                forDate: (this.state.currentDate === "" ? null : this.state.currentDate)
+                forDate: this.state.currentDate === "" ? null : this.state.currentDate
             };
 
             if (this.visualizeMode === this.VISUALIZE_MODE.MAP && this.record.recordType === "GEO_OBJECT") {
@@ -820,11 +825,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         if (layer.active) {
             let existingIndex = this.layers.findIndex((findLayer: any) => { return findLayer.oid === layer.oid; });
-            
+
             if (existingIndex !== -1) {
-                this.removeLayer(layer)
+                this.removeLayer(layer);
             }
-          
+
             this.addLayer(layer, event.prevLayer);
         } else {
             this.removeLayer(layer);
@@ -1022,8 +1027,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     "text-size": 12
                 }
             }, prevLayer);
-            
-            
+
             // Highlight
             if (this.feature && this.feature.source === source) {
                 this.map.setFeatureState(this.feature, {

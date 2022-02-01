@@ -98,6 +98,11 @@ export class ListTypeComponent implements OnInit, OnDestroy {
 
         this.bsModalRef.content.onConfirm.subscribe(data => {
             this.service.removeVersion(version).then(response => {
+                const index = entry.versions.findIndex(v => v.oid === version.oid);
+
+                if (index !== -1) {
+                    entry.versions.splice(index, 1);
+                }
             }).catch((err: HttpErrorResponse) => {
                 this.error.emit(err);
             });

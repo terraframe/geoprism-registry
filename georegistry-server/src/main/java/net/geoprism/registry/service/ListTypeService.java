@@ -29,6 +29,7 @@ import java.util.Map;
 import org.commongeoregistry.adapter.metadata.DefaultSerializer;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.wololo.jts2geojson.GeoJSONWriter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -96,7 +97,7 @@ public class ListTypeService
   public JsonObject createEntries(String sessionId, String oid)
   {
     ListType mList = ListType.get(oid);
-    mList.createEntries();
+    mList.createEntries(null);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
@@ -385,6 +386,9 @@ public class ListTypeService
         object.add("type", geoObject.getType().toJSON(new DefaultSerializer()));
         object.addProperty("code", geoObject.getCode());
         object.addProperty(ListTypeVersion.FORDATE, format.format(version.getForDate()));
+        
+        // Add geometry so we can zoom to it
+        object.add("geoObject", geoObject.toGeoObject(version.getForDate()).toJSON());
 
         return object;
       }
@@ -429,6 +433,11 @@ public class ListTypeService
     try
     {
       ListTypeVersion version = ListTypeVersion.get(oid);
+
+      if (version.getWorking())
+      {
+        throw new UnsupportedOperationException("Working versions cannot be deleted");
+      }
 
       this.enforceWritePermissions(version.getEntry().getListType());
 
@@ -505,7 +514,7 @@ public class ListTypeService
         ListType listType = version.getListType();
         final boolean isMember = Organization.isMember(listType.getOrganization());
 
-        if ( ( version.getWorking() && listType.doesActorHaveExploratoryPermission() ) || ( !version.getWorking() && ( isMember || version.getGeospatialVisibility().equals(ListType.PUBLIC) ) ))
+        if ( ( version.getWorking() && listType.doesActorHaveExploratoryPermission() ) || ( isMember || version.getGeospatialVisibility().equals(ListType.PUBLIC) ))
         {
 
           if (!map.containsKey(listType.getOid()))
