@@ -1,5 +1,5 @@
 import { LocalizedValue, PageResult } from "@shared/model/core";
-import { GeoObjectType } from "./registry";
+import { GeoObject, GeoObjectType } from "./registry";
 
 export class ListTypeByType {
 
@@ -200,7 +200,10 @@ export class LayerRecord {
     typeLabel?: LocalizedValue;
     version?: string;
     attributes?: any[];
-    data?: Object;
+    data?: any;
+
+    geoObject?: GeoObject;
+    bbox?: any;
 
 }
 
