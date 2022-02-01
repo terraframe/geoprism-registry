@@ -259,6 +259,8 @@ label.btn.full-width-radio-button.error {
 
 .dropdown-menu {
   font-size: 18px;
+  overflow-y: auto;
+  max-height: calc(100vh - 144px);
 }
 .dropdown-menu>li>a:hover, 
 .dropdown-menu>li>a:focus {
