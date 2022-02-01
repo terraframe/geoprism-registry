@@ -15,13 +15,18 @@ import { DagreNodesOnlyLayout } from "./relationship-viz-layout";
 import * as shape from "d3-shape";
 import { LocalizedValue } from "@shared/model/core";
 import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
-import { ChangeDetectorRef } from "@angular/core";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
 export const GRAPH_GO_LABEL_COLOR: string = "black";
 export const GRAPH_CIRCLE_FILL: string = "#999";
 export const GRAPH_LINE_COLOR: string = "#999";
+
+/*
+ * TODO : 
+ * - animations aren't communicating useful information
+ * - Toolbar on the left
+ */
 
 @Component({
 
@@ -67,7 +72,7 @@ export class RelationshipVisualizerComponent implements OnInit {
   public curve = shape.curveLinear;
 
   // eslint-disable-next-line no-useless-constructor
-  constructor(private modalService: BsModalService, private cdr: ChangeDetectorRef, private vizService: RelationshipVisualizationService) {}
+  constructor(private modalService: BsModalService, private vizService: RelationshipVisualizationService) {}
 
   ngOnInit(): void {
   }
@@ -83,11 +88,6 @@ export class RelationshipVisualizerComponent implements OnInit {
               this.onSelectRelationship();
           }
       }
-  }
-
-  @HostListener("window:resize", ["$event"])
-  onResize(event) {
-      // this.cdr.detectChanges();
   }
 
   // Thanks to https://stackoverflow.com/questions/52172067/create-svg-hexagon-points-with-only-only-a-length
@@ -120,6 +120,16 @@ export class RelationshipVisualizerComponent implements OnInit {
       if (this.panelSize > PANEL_SIZE_STATE.FULLSCREEN) {
           this.panelSize = 0;
       }
+
+      window.setTimeout(() => {
+          let graphContainer = document.getElementById("graph-container");
+
+          if (graphContainer) {
+              this.svgHeight = graphContainer.clientHeight;
+              this.svgWidth = graphContainer.clientWidth;
+              this.panToNode(this.geoObject.properties.uid);
+          }
+      }, 10);
   }
 
   getCalculatedStyles() : any {
