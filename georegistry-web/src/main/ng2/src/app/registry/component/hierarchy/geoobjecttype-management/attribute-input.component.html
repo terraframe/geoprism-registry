@@ -62,7 +62,7 @@
       </div>
     </div>
 
-    <div class="row-holder" *ngIf="attribute.classificationType != null && attribute.classificationType.length > 0">
+    <div class="row-holder" style="overflow: initial;" *ngIf="attribute.classificationType != null && attribute.classificationType.length > 0">
       <div class="label-holder">
         <label>
           Root Term
@@ -72,6 +72,7 @@
         <classification-field
         [classificationType]="attribute.classificationType"
         name="classification-root"
+        container="body"
         [(value)]="attribute.rootTerm" 
         [disabled]="!isNew">
        </classification-field>

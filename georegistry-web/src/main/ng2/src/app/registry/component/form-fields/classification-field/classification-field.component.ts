@@ -21,6 +21,7 @@ export class ClassificationFieldComponent implements OnInit, OnDestroy {
     @Input() disabled: boolean = false;
     @Input() customStyles: string = "";
     @Input() classNames: string = "";
+    @Input() container: string = null;
 
     @Input() value: { code: string, label: LocalizedValue } = null;
 
