@@ -69,6 +69,12 @@
     color: #555555;
 }
 
+.dropdown-menu {
+    overflow-y: auto;
+    max-height: calc(100vh - 144px);
+}
+
+
 .dropdown-menu>li>a:hover, 
 .dropdown-menu>li>a:focus {
     background: #3E2A5A; /* IE fallback */
