@@ -68,6 +68,8 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDateDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDoubleDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeFloatDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeLongDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTextDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -452,6 +454,14 @@ public class ListTypeShapefileExporter
     else if (mdAttribute instanceof MdAttributeTextDAOIF)
     {
       return String.class;
+    }
+    else if (mdAttribute instanceof MdAttributeFloatDAOIF)
+    {
+      return Float.class;
+    }
+    else if (mdAttribute instanceof MdAttributeIntegerDAOIF)
+    {
+      return Integer.class;
     }
 
     throw new UnsupportedOperationException("Unsupported attribute type [" + mdAttribute.getClass().getSimpleName() + "]");

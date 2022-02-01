@@ -102,6 +102,18 @@
                         (click)="onNewGeoObject()" class="btn btn-primary" role="button">
                         <localize key="masterlist.newGeoObject"></localize>
                     </button>
+                    
+                    <span class="dropdown" *ngIf="list.working && isWritable && list.isAbstract">
+                      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        <localize key="masterlist.newGeoObject"></localize>
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li><localize style="padding-left:10px;" key="masterlist.newGeoObject.selectASubtype"></localize></li>
+                        <li role="separator" class="divider"></li>
+                        <li *ngFor="let subtype of list.subtypes"><a (click)="onNewGeoObject(subtype.code)">{{subtype.label}}</a></li>
+                      </ul>
+                    </span>
 
                     <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
                         <localize *ngIf="filters == null" key="io.export.allrows"></localize>
