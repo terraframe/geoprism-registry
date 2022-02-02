@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,9 +64,9 @@ import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnitGroup;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.dhis2.DHIS2FeatureService.DHIS2SyncError;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
+import net.geoprism.registry.etl.DHIS2SyncLevel;
 import net.geoprism.registry.etl.ExportJobHasErrors;
 import net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError;
-import net.geoprism.registry.etl.DHIS2SyncLevel;
 import net.geoprism.registry.etl.export.ExportError;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
@@ -166,6 +167,8 @@ public class DHIS2SynchronizationManager
     
     Boolean includeTranslations = LocalizationFacade.getInstalledLocales().size() > 0;
 
+    // First calculate the total number of records
+    HashMap<Integer, Long> countAtLevel = new HashMap<Integer, Long>();
     int expectedLevel = 0;
     for (DHIS2SyncLevel level : levels)
     {
@@ -174,126 +177,12 @@ public class DHIS2SynchronizationManager
         throw new ProgrammingErrorException("Unexpected level number [" + level.getLevel() + "].");
       }
       
-      long skip = 0;
-      long pageSize = 1000;
-
-      long count = this.getCount(level.getGeoObjectType());
-      total += count;
-
-      while (skip < count)
+      if (!DHIS2SyncLevel.Type.NONE.equals(level.getSyncType()))
       {
-        List<VertexServerGeoObject> objects = this.query(level.getGeoObjectType(), skip, pageSize);
+        long count = this.getCount(level.getGeoObjectType());
+        total += count;
         
-        for (VertexServerGeoObject go : objects) {
-          try
-          {
-            this.exportGeoObject(dhis2Config, level, levels, rowIndex, go, includeTranslations);
-            
-            exportCount++;
-            
-            history.appLock();
-            history.setWorkProgress(rowIndex);
-            history.setExportedRecords(exportCount);
-            history.apply();
-            
-            if (level.getOrgUnitGroupId() != null && level.getOrgUnitGroupId().length() > 0)
-            {
-              final String externalId = go.getExternalId(es);
-              
-              level.getOrCreateOrgUnitGroupIdSet(level.getOrgUnitGroupId()).add(externalId);
-            }
-          }
-          catch (DHIS2SyncError ee)
-          {
-            recordExportError(ee, history);
-          }
-          
-          rowIndex++;
-        };
-        
-        // Export OrgUnitGroup changes
-        if (level.getOrgUnitGroupIdSet().size() > 0)
-        {
-          try
-          {
-            Map<String, Set<String>> orgUnitGroupIdSet = level.getOrgUnitGroupIdSet();
-            
-            
-            // Fetch and populate all the org unit groups with the ids of org units that we will be exporting
-            MetadataGetResponse<OrganisationUnitGroup> resp = dhis2.metadataGet(OrganisationUnitGroup.class);
-            
-            this.service.validateDhis2Response(resp);
-            
-            List<OrganisationUnitGroup> orgUnitGroups = resp.getObjects();
-            
-            if (orgUnitGroups != null)
-            {
-              Iterator<? extends OrganisationUnitGroup> it = orgUnitGroups.iterator();
-              while (it.hasNext())
-              {
-                OrganisationUnitGroup group = it.next();
-                
-                if (orgUnitGroupIdSet.containsKey(group.getId()))
-                {
-                  orgUnitGroupIdSet.get(group.getId()).addAll(group.getOrgUnitIds());
-                  group.setOrgUnitIds(orgUnitGroupIdSet.get(group.getId()));
-                  orgUnitGroupIdSet.remove(group.getId());
-                }
-                else
-                {
-                  it.remove();
-                }
-              }
-              
-              if (orgUnitGroups.size() > 0)
-              {
-                JsonObject payload = new JsonObject();
-                
-                JsonArray jaOrgUnitGroups = new JsonArray();
-                
-                for (OrganisationUnitGroup group : orgUnitGroups)
-                {
-                  GsonBuilder builder = new GsonBuilder();
-                  JsonObject joOrgUnitGroup = builder.create().toJsonTree(group, group.getClass()).getAsJsonObject();
-                  
-                  joOrgUnitGroup.remove("created");
-                  joOrgUnitGroup.remove("lastUpdated");
-                  joOrgUnitGroup.remove("symbol");
-                  joOrgUnitGroup.remove("publicAccess");
-                  joOrgUnitGroup.remove("user");
-                  joOrgUnitGroup.remove("userGroupAccesses");
-                  joOrgUnitGroup.remove("attributeValues");
-                  joOrgUnitGroup.remove("translations");
-                  joOrgUnitGroup.remove("userAccesses");
-                  
-                  jaOrgUnitGroups.add(joOrgUnitGroup);
-                }
-                
-                payload.add(DHIS2Objects.ORGANISATION_UNIT_GROUPS, jaOrgUnitGroups);
-                
-                List<NameValuePair> params = new ArrayList<NameValuePair>();
-                
-                MetadataImportResponse resp2 = dhis2.metadataPost(params, new StringEntity(payload.toString(), Charset.forName("UTF-8")));
-                
-                this.service.validateDhis2Response(resp2);
-              }
-            }
-          }
-          catch (InvalidLoginException e)
-          {
-            LoginException cgrlogin = new LoginException(e);
-            throw cgrlogin;
-          }
-          catch (HTTPException | BadServerUriException e)
-          {
-            HttpError cgrhttp = new HttpError(e);
-            throw cgrhttp;
-          }
-        }
-
-        skip += pageSize;
-        
-        NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+        countAtLevel.put(level.getLevel(), count);
       }
       
       expectedLevel++;
@@ -301,6 +190,136 @@ public class DHIS2SynchronizationManager
     
     history.appLock();
     history.setWorkTotal(total);
+    history.apply();
+    
+    // Now do the work
+    for (DHIS2SyncLevel level : levels)
+    {
+      if (!DHIS2SyncLevel.Type.NONE.equals(level.getSyncType()))
+      {
+        long skip = 0;
+        long pageSize = 1000;
+        long count = countAtLevel.get(level.getLevel());
+  
+        while (skip < count)
+        {
+          List<VertexServerGeoObject> objects = this.query(level.getGeoObjectType(), skip, pageSize);
+          
+          for (VertexServerGeoObject go : objects) {
+            try
+            {
+              this.exportGeoObject(dhis2Config, level, levels, rowIndex, go, includeTranslations);
+              
+              exportCount++;
+              
+              history.appLock();
+              history.setWorkProgress(rowIndex);
+              history.setExportedRecords(exportCount);
+              history.apply();
+              
+              if (level.getOrgUnitGroupId() != null && level.getOrgUnitGroupId().length() > 0)
+              {
+                final String externalId = go.getExternalId(es);
+                
+                level.getOrCreateOrgUnitGroupIdSet(level.getOrgUnitGroupId()).add(externalId);
+              }
+            }
+            catch (DHIS2SyncError ee)
+            {
+              recordExportError(ee, history);
+            }
+            
+            rowIndex++;
+          };
+          
+          // Export OrgUnitGroup changes
+          if (level.getOrgUnitGroupIdSet().size() > 0)
+          {
+            try
+            {
+              Map<String, Set<String>> orgUnitGroupIdSet = level.getOrgUnitGroupIdSet();
+              
+              
+              // Fetch and populate all the org unit groups with the ids of org units that we will be exporting
+              MetadataGetResponse<OrganisationUnitGroup> resp = dhis2.metadataGet(OrganisationUnitGroup.class);
+              
+              this.service.validateDhis2Response(resp);
+              
+              List<OrganisationUnitGroup> orgUnitGroups = resp.getObjects();
+              
+              if (orgUnitGroups != null)
+              {
+                Iterator<? extends OrganisationUnitGroup> it = orgUnitGroups.iterator();
+                while (it.hasNext())
+                {
+                  OrganisationUnitGroup group = it.next();
+                  
+                  if (orgUnitGroupIdSet.containsKey(group.getId()))
+                  {
+                    orgUnitGroupIdSet.get(group.getId()).addAll(group.getOrgUnitIds());
+                    group.setOrgUnitIds(orgUnitGroupIdSet.get(group.getId()));
+                    orgUnitGroupIdSet.remove(group.getId());
+                  }
+                  else
+                  {
+                    it.remove();
+                  }
+                }
+                
+                if (orgUnitGroups.size() > 0)
+                {
+                  JsonObject payload = new JsonObject();
+                  
+                  JsonArray jaOrgUnitGroups = new JsonArray();
+                  
+                  for (OrganisationUnitGroup group : orgUnitGroups)
+                  {
+                    GsonBuilder builder = new GsonBuilder();
+                    JsonObject joOrgUnitGroup = builder.create().toJsonTree(group, group.getClass()).getAsJsonObject();
+                    
+                    joOrgUnitGroup.remove("created");
+                    joOrgUnitGroup.remove("lastUpdated");
+                    joOrgUnitGroup.remove("symbol");
+                    joOrgUnitGroup.remove("publicAccess");
+                    joOrgUnitGroup.remove("user");
+                    joOrgUnitGroup.remove("userGroupAccesses");
+                    joOrgUnitGroup.remove("attributeValues");
+                    joOrgUnitGroup.remove("translations");
+                    joOrgUnitGroup.remove("userAccesses");
+                    
+                    jaOrgUnitGroups.add(joOrgUnitGroup);
+                  }
+                  
+                  payload.add(DHIS2Objects.ORGANISATION_UNIT_GROUPS, jaOrgUnitGroups);
+                  
+                  List<NameValuePair> params = new ArrayList<NameValuePair>();
+                  
+                  MetadataImportResponse resp2 = dhis2.metadataPost(params, new StringEntity(payload.toString(), Charset.forName("UTF-8")));
+                  
+                  this.service.validateDhis2Response(resp2);
+                }
+              }
+            }
+            catch (InvalidLoginException e)
+            {
+              LoginException cgrlogin = new LoginException(e);
+              throw cgrlogin;
+            }
+            catch (HTTPException | BadServerUriException e)
+            {
+              HttpError cgrhttp = new HttpError(e);
+              throw cgrhttp;
+            }
+          }
+  
+          skip += pageSize;
+          
+          NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+        }
+      }
+    }
+    
+    history.appLock();
     history.setWorkProgress(rowIndex);
     history.setExportedRecords(exportCount);
     history.clearStage();

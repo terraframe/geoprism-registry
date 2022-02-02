@@ -87,9 +87,9 @@ public class RemoteDHIS2APITezt
 {
   public static final String TEST_DATA_KEY = "RemoteDHIS2Test";
   
-  private static final Integer API_VERSION = 36;
+  private static final Integer API_VERSION = 37;
   
-  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".0";
+  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".2";
   
   private static final String URL = "https://play.dhis2.org/" + VERSION + "/";
   
