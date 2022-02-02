@@ -36,7 +36,7 @@
   </modules>
 
   <properties>
-    <geoprism.version>0.10.22</geoprism.version>
+    <geoprism.version>0.10.23-SNAPSHOT</geoprism.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -50,6 +50,7 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>[4.13.1,)</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
