@@ -177,7 +177,7 @@ public class DHIS2SynchronizationManager
         throw new ProgrammingErrorException("Unexpected level number [" + level.getLevel() + "].");
       }
       
-      if (!DHIS2SyncLevel.Type.NONE.equals(level.getSyncType()))
+      if (level.getSyncType() != null && !DHIS2SyncLevel.Type.NONE.equals(level.getSyncType()))
       {
         long count = this.getCount(level.getGeoObjectType());
         total += count;
@@ -195,7 +195,7 @@ public class DHIS2SynchronizationManager
     // Now do the work
     for (DHIS2SyncLevel level : levels)
     {
-      if (!DHIS2SyncLevel.Type.NONE.equals(level.getSyncType()))
+      if (level.getSyncType() != null && !DHIS2SyncLevel.Type.NONE.equals(level.getSyncType()))
       {
         long skip = 0;
         long pageSize = 1000;
