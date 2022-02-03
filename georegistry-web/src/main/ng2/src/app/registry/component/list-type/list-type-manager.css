@@ -19,6 +19,14 @@ li.list-group-item {
     padding: 3px 10px;
 }
 
+.got-group-child {
+    margin-left: 10px;
+}
+.got-group-child > a {
+    padding-left: 5px;
+    border-left: 1px solid;
+}
+
 .cr-sort-arrow {
 	font-size: 14px;
 }

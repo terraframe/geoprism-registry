@@ -17,7 +17,7 @@
                                 <h3>{{typeByOrg.org.label.localizedValue}}</h3>
                             </div>
 
-                            <li class="list-group-item got-li-item" *ngFor="let type of typeByOrg.types"
+                            <li class="list-group-item got-li-item" [ngClass]="{'got-group-child' : type.superTypeCode}" *ngFor="let type of typeByOrg.types"
                                 [id]="type.code">
                                 <a [routerLink]="'/registry/master-lists'"
                                     [queryParams]="{typeCode:type.code}" routerLinkActive="active">

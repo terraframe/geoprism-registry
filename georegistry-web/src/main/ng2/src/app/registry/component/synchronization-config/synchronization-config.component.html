@@ -72,9 +72,9 @@
                     </td>
                     <td style="text-align: right;">
                       <localize *ngIf="level.type === 'ORG_UNITS'" key="synchronization.config.units"></localize>
-                      <localize *ngIf="level.type === 'RELATIONSHIPS'" key="synchronization.config.relationships">
-                      </localize>
+                      <localize *ngIf="level.type === 'RELATIONSHIPS'" key="synchronization.config.relationships"></localize>
                       <localize *ngIf="level.type === 'ALL'" key="synchronization.config.all"></localize>
+                      <localize *ngIf="level.type === 'NONE'" key="synchronization.config.none"></localize>
                     </td>
                   </tr>
                 </tbody>
@@ -159,7 +159,7 @@
                         </td>
                         <td style="text-align: right; vertical-align: middle;">
                           <div class="button-holder" style="float: right;">
-                            <a *ngIf="job.status === 'FAILURE'"
+                            <a
                               [routerLink]="'/registry/sync/details/' + config.oid + '/' + job.historyId"
                               routerLinkActive="active">
                               <button class="btn btn-primary" role="button">

@@ -67,8 +67,52 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
                 this.typesByOrg = [];
 
                 response.organizations.forEach(org => {
-                    this.typesByOrg.push({ org: org, types: response.types.filter(t => t.organizationCode === org.code) });
-                })
+                    
+                    //
+                    // Post processing to better handle groups in the frontend
+                    //
+                    let orgTypes = response.types.filter(t => t.organizationCode === org.code);
+                    let orgTypesNoGroupMembers = orgTypes.filter(t => !t.superTypeCode);
+                    
+                    function compare( a, b ) {
+                      if ( a.label.localizedValue < b.label.localizedValue){
+                        return -1;
+                      }
+                      if ( a.label.localizedValue > b.label.localizedValue ){
+                        return 1;
+                      }
+                      return 0;
+                    }
+                    
+                    orgTypesNoGroupMembers.sort(compare);
+                    
+                    let groupTypes = [];
+                    let groups = orgTypesNoGroupMembers.filter(gType => gType.isAbstract);
+                    groups.forEach(group => {
+                        let groupType = {group:group, members:[]};
+                        orgTypes.forEach(t => {
+                            
+                            if(t.superTypeCode === group.code){
+                                groupType.members.push(t);
+                            }
+                        });
+                        groupTypes.push(groupType);
+                    });
+                    
+                    groupTypes.forEach(grpT => {
+                        let index = orgTypesNoGroupMembers.findIndex(grp => grpT.group.code === grp.code);
+                        if(index !== -1){
+                            orgTypesNoGroupMembers.splice(index+1, 0, ...grpT.members);
+                        }
+                    });
+                    //
+                    // End post processing
+                    //
+                    
+                    
+                    this.typesByOrg.push({ org: org, types: orgTypesNoGroupMembers });
+                });
+                
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
