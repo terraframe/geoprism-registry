@@ -76,6 +76,7 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
   public void setHierarchy(ServerHierarchyType hierarchy)
   {
     this.hierarchy = hierarchy;
+    this.hierarchyCode = hierarchy.getCode();
   }
 
   @Override
