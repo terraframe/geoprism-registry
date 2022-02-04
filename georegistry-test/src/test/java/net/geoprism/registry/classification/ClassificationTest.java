@@ -291,7 +291,7 @@ public class ClassificationTest
 
         try
         {
-          List<Classification> ancestors = child.getAncestors();
+          List<Classification> ancestors = child.getAncestors(null);
 
           Assert.assertEquals(3, ancestors.size());
         }
@@ -327,7 +327,7 @@ public class ClassificationTest
 
       try
       {
-        ClassificationNode tree = child.getAncestorTree(200);
+        ClassificationNode tree = child.getAncestorTree(null, 200);
 
         Assert.assertEquals(parent.getOid(), tree.getClassification().getOid());
       }
@@ -353,11 +353,11 @@ public class ClassificationTest
 
     try
     {
-      Assert.assertEquals(1, Classification.search(type, PARENT_CODE.toLowerCase()).size());
-      Assert.assertEquals(1, Classification.search(type, parent.getDisplayLabel().getValue()).size());
-      Assert.assertEquals(1, Classification.search(type, "test").size());
-      Assert.assertEquals(1, Classification.search(type, null).size());
-      Assert.assertEquals(0, Classification.search(type, "ARG-BARG").size());
+      Assert.assertEquals(1, Classification.search(type, null, PARENT_CODE.toLowerCase()).size());
+      Assert.assertEquals(1, Classification.search(type, null, parent.getDisplayLabel().getValue()).size());
+      Assert.assertEquals(1, Classification.search(type, null, "test").size());
+      Assert.assertEquals(1, Classification.search(type, null, null).size());
+      Assert.assertEquals(0, Classification.search(type, null, "ARG-BARG").size());
     }
     finally
     {

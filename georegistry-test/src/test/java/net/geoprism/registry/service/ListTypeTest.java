@@ -504,19 +504,17 @@ public class ListTypeTest
             JsonObject result = results.get(i).toJSON().getAsJsonObject();
 
             String code = result.get("code").getAsString();
-            String reportsTo = result.get("usatestdatareportstocode").getAsString();
 
             if (code.equals(USATestData.HS_ONE.getCode()))
             {
+              String reportsTo = result.get("usatestdatareportstocode").getAsString();
               Assert.assertEquals(USATestData.HP_ONE.getCode(), reportsTo);
             }
             else if (code.equals(USATestData.HS_TWO.getCode()))
             {
+              String reportsTo = result.get("usatestdatareportstocode").getAsString();
+
               Assert.assertEquals(USATestData.HP_TWO.getCode(), reportsTo);
-            }
-            else
-            {
-              Assert.assertEquals("", reportsTo);
             }
 
             if (includeGeometries != null && includeGeometries.equals(Boolean.TRUE))
