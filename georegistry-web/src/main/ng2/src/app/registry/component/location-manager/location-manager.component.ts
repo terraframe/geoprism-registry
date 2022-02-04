@@ -5,11 +5,10 @@ import { Map, LngLatBoundsLike, NavigationControl, AttributionControl, IControl,
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
-import { AllGeoJSON } from "@turf/helpers";
 import bbox from "@turf/bbox";
 
 import { GeoObject } from "@registry/model/registry";
-import { ModalState } from "@registry/model/location-manager";
+import { ModalState, PANEL_SIZE_STATE } from "@registry/model/location-manager";
 
 import { MapService, RegistryService, GeometryService } from "@registry/service";
 import { HttpErrorResponse } from "@angular/common/http";
@@ -69,6 +68,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     record: LayerRecord;
 
     /*
+     * If we're visualizing relationships of a Geo-Object then this is that GO.
+     */
+    current: GeoObject;
+
+    filterDate: string = null;
+
+    /*
      * Currently highlighted feature
      */
     feature: any;
@@ -87,6 +93,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      *  Mode used to determine what is being show on the left hand panel
      */
     mode: number = this.MODE.SEARCH;
+
+    visualizingRelationship: string = null;
+
+    relationshipVisualizerPanelStatus: number = 0;
 
     /*
     *  Flag to indicate if the left handle panel should be displayed or not
@@ -139,6 +149,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     typeahead: Observable<any> = null;
 
+    public layersPanelSize: number = PANEL_SIZE_STATE.MINIMIZED;
+
     @ViewChild("simpleEditControl") simpleEditControl: IControl;
 
     // eslint-disable-next-line no-useless-constructor
@@ -174,6 +186,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     ngAfterViewInit() {
+        this.initializeMap();
+    }
+
+    setFilterDate(date: string) {
+        this.filterDate = date;
+    }
+
+    initializeMap() {
         const layer = this.baseLayers[0];
 
         const mapConfig: any = {
@@ -226,6 +246,26 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
+    onChangeGeoObject(event: {id: string, code: string, typeCode: string}): void {
+        this.service.getGeoObject(event.id, event.typeCode).then(geoObj => {
+            this.setData([geoObj]);
+            // this.select(geoObj, null);
+
+            if (!this.isEdit) {
+                // this.router.navigate([], {
+                //     relativeTo: this.route,
+                //     queryParams: { type: geoObj.properties.type, code: geoObj.properties.code, uid: geoObj.properties.uid, version: null, visualizeMode: this.visualizeMode },
+                //     queryParamsHandling: "merge" // remove to replace all query params by provided
+                // });
+
+                // this.changeVisualizeMode(this.VISUALIZE_MODE.GRAPH);
+                this.current = geoObj;
+            }
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
     /**
     *
     * Method responsible for parsing the state from the URL parameters and determining if
@@ -276,11 +316,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     this.pageMode = this.params.pageContext;
                 }
 
+                this.layersPanelSize = (this.pageMode === "EXPLORER") ? PANEL_SIZE_STATE.WINDOWED : this.layersPanelSize;
+
                 // Keep the sidebar open if toggling a context layer when the sidebar is already open.
                 // This only happens on a fresh page load when sidebar is open (no search results or obj focus)
                 if (this.showPanel && this.pageMode === "EXPLORER") {
                     showPanel = true;
                 }
+
+                //if (this.params.visualizeMode) {
+                    //this.visualizeMode = parseInt(this.params.visualizeMode);
+                //}
             }
 
             this.changeMode(mode);
@@ -375,8 +421,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.addLayers();
 
         // Add zoom and rotation controls to the map.
-        this.map.addControl(new NavigationControl({ visualizePitch: true }), "top-right");
-        this.map.addControl(new AttributionControl({ compact: true }), "top-right");
+        this.map.addControl(new AttributionControl({ compact: true }), "bottom-right");
+        this.map.addControl(new NavigationControl({ visualizePitch: true }), "bottom-right");
 
         this.map.on("click", (event: any) => {
             this.handleMapClickEvent(event);
@@ -402,6 +448,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         // }
 
         this.handleParameterChange(this.params);
+
+        if (this.current) {
+            this.zoomToFeature(this.current, null);
+        }
     }
 
     onZoomTo(oid: string): void {
@@ -620,22 +670,35 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             // Highlight the feature on the map
-            this.map.setFeatureState(this.feature = {
+            this.feature = {
                 source: list,
                 sourceLayer: "context",
                 id: uid
-            }, {
-                hover: true
-            });
+            };
+            if (this.layers.findIndex(lFind => this.feature.source === lFind.oid) !== -1) {
+                this.map.setFeatureState(this.feature, {
+                    hover: true
+                });
+            }
 
             this.mode = this.MODE.VIEW;
+
+            if (record.forDate === "") {
+                record.forDate = null;
+            }
+
+            this.visualizingRelationship = null;
+
             this.record = record;
+
+            this.filterDate = this.record.forDate === "" ? null : this.record.forDate;
 
             if (this.record.recordType === "GEO_OBJECT") { // this happens when list type is working
                 this.geomService.destroy(false);
 
                 this.geomService.initialize(this.map, record.type.geometryType, false);
 
+                this.current = this.record.geoObject;
                 this.zoomToFeature(this.record.geoObject, null);
             } else if (this.record.recordType === "LIST") { // this happens when list type is NOT working
                 let bounds = this.record.bbox;
@@ -662,7 +725,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (!this.isEdit) {
             this.router.navigate([], {
                 relativeTo: this.route,
-                queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null },
+                queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null }, //visualizeMode: this.visualizeMode
                 queryParamsHandling: "merge" // remove to replace all query params by provided
             });
         }
@@ -686,6 +749,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             this.mode = this.MODE.VIEW;
+            this.visualizingRelationship = null;
 
             const type = types[0];
             this.record = {
@@ -695,12 +759,19 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 forDate: this.state.currentDate === "" ? null : this.state.currentDate
             };
 
-            this.geomService.destroy(false);
+            if (this.record.recordType === "GEO_OBJECT") {
+                this.geomService.destroy(false);
 
-            this.geomService.initialize(this.map, this.record.type.geometryType, false);
+                this.geomService.initialize(this.map, this.record.type.geometryType, false);
+            }
+
+            // Relationship Viz TODO
+            // this.location.replaceState("/registry/location-manager/" + this.current.properties.uid + "/" + this.current.properties.type + "/" + this.visualizeMode);
 
             this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
-                this.zoomToFeature(geoObject, null);
+                this.current = geoObject;
+                this.filterDate = this.record.forDate === "" ? null : this.record.forDate;
+                this.zoomToFeature(this.current, null);
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
@@ -717,6 +788,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         const layer = event.layer;
 
         if (layer.active) {
+            let existingIndex = this.layers.findIndex((findLayer: any) => { return findLayer.oid === layer.oid; });
+
+            if (existingIndex !== -1) {
+                this.removeLayer(layer);
+            }
+
             this.addLayer(layer, event.prevLayer);
         } else {
             this.removeLayer(layer);
@@ -825,7 +902,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }, prevLayer);
             }
 
-            this.layers.push(layer);
+            if (this.layers.findIndex(lFind => layer.oid === lFind.oid) === -1) {
+                this.layers.push(layer);
+            }
         } else {
             this.addVectorLayer(layer, otherLayer);
         }
@@ -912,9 +991,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     "text-size": 12
                 }
             }, prevLayer);
+
+            // Highlight
+            if (this.feature && this.feature.source === source) {
+                this.map.setFeatureState(this.feature, {
+                    hover: true
+                });
+            }
         }
 
-        this.layers.push(layer);
+        if (this.layers.findIndex(lFind => layer.oid === lFind.oid) === -1) {
+            this.layers.push(layer);
+        }
     }
 
     onFeatureSelect(event: any): void {

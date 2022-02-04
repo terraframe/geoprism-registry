@@ -287,10 +287,17 @@ a.navbar-brand {
 
 
 /**
- * Date Erorr message for location-manager
+ * location-manager
  */
 .date-required-message  {
   border-color: red;
 }
 
+.mapboxgl-ctrl-bottom-right > .mapboxgl-ctrl.mapboxgl-ctrl-attrib.mapboxgl-compact {
+	float: left;
+}
 
+.mapboxgl-ctrl-bottom-right > .mapboxgl-ctrl:not(.mapboxgl-ctrl-attrib.mapboxgl-compact):not(.mapboxgl-ctrl-group) {
+  clear: none;
+  margin-top: 7px;
+}

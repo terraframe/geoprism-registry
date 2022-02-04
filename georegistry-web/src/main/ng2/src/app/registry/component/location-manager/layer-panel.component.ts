@@ -8,6 +8,7 @@ import * as ColorGen from "color-generator";
 import { Subscription } from "rxjs";
 
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
+import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
 
 export const GRAPH_LAYER = "graph";
 
@@ -41,6 +42,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 
     @Input() filter: string[] = [];
     @Input() includeGraphLayer: boolean = false;
+    @Input() visualizeMode: number;
 
     @Output() layerChange = new EventEmitter<LayerEvent>();
     @Output() baseLayerChange = new EventEmitter<any>();
@@ -48,7 +50,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     @Output() zoomTo = new EventEmitter<ContextLayer>();
     @Output() create = new EventEmitter<ContextLayer>();
 
-    @Input() baselayerIconHover: boolean = false;
+    @Input() panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
+    @Output() panelSizeChange = new EventEmitter<number>();
 
     lists: ContextList[] = [];
     layers: ContextLayer[] = [];
@@ -134,6 +137,19 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
                 }
             }
         }
+    }
+
+    togglePanelOpen() {
+        this.panelSize = this.panelSize + 1;
+
+        if (this.layers.length === 0 && this.panelSize === PANEL_SIZE_STATE.WINDOWED) {
+            this.panelSize = PANEL_SIZE_STATE.FULLSCREEN;
+        }
+        if (this.panelSize > PANEL_SIZE_STATE.FULLSCREEN) {
+            this.panelSize = 0;
+        }
+
+        this.panelSizeChange.emit(this.panelSize);
     }
 
     /**
@@ -292,6 +308,10 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     toggleLayer(layer: ContextLayer, list: ContextList): void {
+        //if (!this.params) {
+        //    return;
+        //}
+
         layer.enabled = !layer.enabled;
         layer.active = layer.enabled;
 
@@ -303,7 +323,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         let index: number = 0;
 
         if (layer.enabled) {
-            if (layer.oid === GRAPH_LAYER && this.params.layers != null) {
+            if (layer.oid === GRAPH_LAYER && this.params && this.params.layers != null) {
                 const i = JSON.parse(this.params.layers).indexOf(GRAPH_LAYER);
 
                 if (i !== -1) {

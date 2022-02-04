@@ -1,3 +1,26 @@
+
+.map-button.visualize-mode-toggle {
+	position: absolute;
+	top: 156px;
+	z-index: 2;
+	margin-top: 0px;
+}
+
+.visualize-mode-toggle.map {
+  right: 50px;
+}
+.visualize-mode-toggle.hierarchy {
+  right: 50px;
+}
+
+.visualize-mode-hierarchy {
+	color: black;
+}
+
+.visualize-mode-toggle > i {
+	font-size: 25px;
+}
+
 #hierarchy-tree-container {
 	padding-top: 110px;
 }
@@ -8,29 +31,26 @@
 
 .base-layer-panel{
   position:absolute;
-  top: 0px;
-  left: 5px;
+  top: 3px;
+  right: 3px;
   z-index:2;
   padding:5px;
-}
-.base-layer-panel.second-map-button {
-  top: 50px;
 }
 
 .map-button {
     background-color: white;
-    margin-top:150px;
+    margin:0;
+    padding:0;
     z-index:9999;
     border-radius: 4px;
-    padding: 8px;
     width: 46px; /* IE fallback */
     width: fit-content;
 }
 .map-button-icon {
-    font-size:23px;
+    font-size:12px;
     text-align: center;
-    width: 30px;
-    height: 30px;
+    width: 45px;
+    height: 18px;
     vertical-align: middle;
 }
 .map-button-icon > span.glyphicon {

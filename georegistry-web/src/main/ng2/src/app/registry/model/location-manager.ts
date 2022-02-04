@@ -18,3 +18,9 @@ export class ModalState {
     SEARCH: number;
     VIEW: number;
 }
+
+export const PANEL_SIZE_STATE = {
+    MINIMIZED: 0,
+    WINDOWED: 1,
+    FULLSCREEN: 2
+};

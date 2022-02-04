@@ -38,6 +38,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
     @Output() modeChange = new EventEmitter<boolean>();
     @Output() panelCancel = new EventEmitter<void>();
     @Output() panelSubmit = new EventEmitter<{ isChangeRequest: boolean, geoObject?: any, changeRequestId?: string }>();
+    @Output() changeFilterDate = new EventEmitter<string>();
 
     _isValid: boolean = true;
 
@@ -91,6 +92,10 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
 
     updateCode(code: string): void {
         this.code = code;
+    }
+
+    setFilterDate(date: string, refresh: boolean = true) {
+        this.changeFilterDate.emit(date);
     }
 
     refresh(): void {

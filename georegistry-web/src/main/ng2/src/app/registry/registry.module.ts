@@ -19,6 +19,7 @@ import { ImportTypesModalComponent } from "./component/hierarchy/modals/import-t
 import { LocalizedInputComponent } from "./component/form-fields/localized-input/localized-input.component";
 import { LocalizedTextComponent } from "./component/form-fields/localized-text/localized-text.component";
 import { HierarchyComponent } from "./component/hierarchy/hierarchy.component";
+import { RelationshipVisualizerComponent } from "./component/relationship-visualizer/relationship-visualizer.component";
 import { CreateHierarchyTypeModalComponent } from "./component/hierarchy/modals/create-hierarchy-type-modal.component";
 import { AddChildToHierarchyModalComponent } from "./component/hierarchy/modals/add-child-to-hierarchy-modal.component";
 import { CreateGeoObjTypeModalComponent } from "./component/hierarchy/modals/create-geoobjtype-modal.component";
@@ -86,6 +87,7 @@ import { ToEpochDateTimePipe } from "./pipe/to-epoch-date-time.pipe";
 import { RegistryService } from "./service/registry.service";
 import { TaskService } from "./service/task.service";
 import { HierarchyService } from "./service/hierarchy.service";
+import { RelationshipVisualizationService } from "./service/relationship-visualization.service";
 import { SynchronizationConfigService } from "./service/synchronization-config.service";
 import { LocalizationManagerService } from "./service/localization-manager.service";
 import { ChangeRequestService } from "./service/change-request.service";
@@ -111,6 +113,7 @@ import { AccordionModule } from "ngx-bootstrap/accordion";
 
 import "../rxjs-extensions";
 
+import { NgxGraphModule } from "@swimlane/ngx-graph";
 import { ListTypeManagerComponent } from "./component/list-type/list-type-manager.component";
 import { ListTypePublishModalComponent } from "./component/list-type/publish-modal.component";
 import { ListTypeService } from "./service/list-type.service";
@@ -151,11 +154,13 @@ import { ClassificationFieldModalComponent } from "./component/form-fields/class
         SharedModule,
         RegistryRoutingModule,
         DndModule,
+        NgxGraphModule,
         DragDropModule,
         AccordionModule.forRoot()
     ],
     declarations: [
         HierarchyComponent,
+        RelationshipVisualizerComponent,
         RequestTableComponent,
         CreateUpdateGeoObjectDetailComponent,
         ImportTypesModalComponent,
@@ -201,7 +206,6 @@ import { ClassificationFieldModalComponent } from "./component/form-fields/class
         CascadingGeoSelector,
         TreeGeoSelector,
         ActionDetailModalComponent,
-        HierarchyComponent,
         DataImporterComponent,
         DataExportComponent,
         // Scheduled jobs
@@ -260,6 +264,7 @@ import { ClassificationFieldModalComponent } from "./component/form-fields/class
     providers: [
         MapService,
         HierarchyService,
+        RelationshipVisualizationService,
         LocalizationManagerService,
         ChangeRequestService,
         IOService,
