@@ -237,7 +237,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         if (this.ready) {
             let mode = this.MODE.SEARCH;
-            let showPanel = false;
+            let showPanel = this.showPanel;
 
             if (this.params != null) {
                 // Handle parameters for searching for a geo object

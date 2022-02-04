@@ -251,29 +251,24 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
               
               if (email != null && email.length() > 0 && !email.contains("@noreply"))
               {
-                toAddresses.add(geoprismUser.getEmail());
+                toAddresses.add(email);
               }
             }
           }
           
           if (toAddresses.size() > 0)
           {
-            String email = ( (GeoprismUser) createdBy ).getEmail();
-    
-            if (email != null && email.length() > 0)
-            {
-              String subject = LocalizationFacade.getFromBundles("change.request.email.submit.subject");
-    
-              String body = LocalizationFacade.getFromBundles("change.request.email.submit.body");
-              body = body.replaceAll("\\\\n", "\n");
-              body = body.replaceAll("\\{user\\}", ( (GeoprismUser) createdBy ).getUsername());
-              body = body.replaceAll("\\{geoobject\\}", this.getGeoObjectDisplayLabel().getValue());
-              
-              String link = GeoregistryProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
-              body = body.replaceAll("\\{link\\}", link);
-    
-               EmailSetting.sendEmail(subject, body, toAddresses.toArray(new String[toAddresses.size()]));
-            }
+            String subject = LocalizationFacade.getFromBundles("change.request.email.submit.subject");
+  
+            String body = LocalizationFacade.getFromBundles("change.request.email.submit.body");
+            body = body.replaceAll("\\\\n", "\n");
+            body = body.replaceAll("\\{user\\}", ( (GeoprismUser) createdBy ).getUsername());
+            body = body.replaceAll("\\{geoobject\\}", this.getGeoObjectDisplayLabel().getValue());
+            
+            String link = GeoregistryProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
+            body = body.replaceAll("\\{link\\}", link);
+  
+            EmailSetting.sendEmail(subject, body, toAddresses.toArray(new String[toAddresses.size()]));
           }
         }
       }
