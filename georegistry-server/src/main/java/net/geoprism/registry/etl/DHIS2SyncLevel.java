@@ -32,7 +32,7 @@ public class DHIS2SyncLevel implements Comparable<DHIS2SyncLevel>
 {
 
   public static enum Type {
-    ORG_UNITS, RELATIONSHIPS, ALL
+    ORG_UNITS, RELATIONSHIPS, ALL, NONE
   }
   
   private transient ServerGeoObjectType geoObjectType;
