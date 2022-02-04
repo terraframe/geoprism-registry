@@ -8,7 +8,7 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import bbox from "@turf/bbox";
 
 import { GeoObject } from "@registry/model/registry";
-import { ModalState } from "@registry/model/location-manager";
+import { ModalState, PANEL_SIZE_STATE } from "@registry/model/location-manager";
 
 import { MapService, RegistryService, GeometryService } from "@registry/service";
 import { HttpErrorResponse } from "@angular/common/http";
@@ -149,7 +149,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     typeahead: Observable<any> = null;
 
-    public layersPanelIsOpen: boolean = false;
+    public layersPanelSize: number = PANEL_SIZE_STATE.MINIMIZED;
 
     @ViewChild("simpleEditControl") simpleEditControl: IControl;
 
@@ -316,7 +316,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     this.pageMode = this.params.pageContext;
                 }
 
-                this.layersPanelIsOpen = (this.pageMode === "EXPLORER");
+                this.layersPanelSize = (this.pageMode === "EXPLORER") ? PANEL_SIZE_STATE.WINDOWED : this.layersPanelSize;
 
                 // Keep the sidebar open if toggling a context layer when the sidebar is already open.
                 // This only happens on a fresh page load when sidebar is open (no search results or obj focus)
@@ -421,8 +421,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.addLayers();
 
         // Add zoom and rotation controls to the map.
-        this.map.addControl(new NavigationControl({ visualizePitch: true }), "top-right");
-        this.map.addControl(new AttributionControl({ compact: true }), "top-right");
+        this.map.addControl(new AttributionControl({ compact: true }), "bottom-right");
+        this.map.addControl(new NavigationControl({ visualizePitch: true }), "bottom-right");
 
         this.map.on("click", (event: any) => {
             this.handleMapClickEvent(event);

@@ -57,8 +57,8 @@ export class RelationshipVisualizerComponent implements OnInit {
 
   public panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
 
-  public right: number = 50;
-  public top: number = 10;
+  public left: number = 10;
+  public top: number = 40;
 
   public svgHeight: number = null;
   public svgWidth: number = null;
@@ -135,7 +135,7 @@ export class RelationshipVisualizerComponent implements OnInit {
   getCalculatedStyles() : any {
       let styles: any = {
           top: this.top + "px",
-          right: this.right + "px"
+          left: this.left + "px"
       };
 
       if (this.panelSize === PANEL_SIZE_STATE.WINDOWED) {
@@ -146,11 +146,11 @@ export class RelationshipVisualizerComponent implements OnInit {
 
           // calculate max width and height by spoofing the fullscreen settings and then asking the browser how large it is.
           let root = document.getElementById("relationship-visualizer-root-node");
-          root.style.left = navigatorLayerPanelWidth + "px";
+          root.style.right = navigatorLayerPanelWidth + "px";
           root.style.bottom = "50px";
           let maxWidth = root.clientWidth;
           let maxHeight = root.clientHeight;
-          root.style.left = null;
+          root.style.right = null;
           root.style.bottom = null;
 
           if (width > maxWidth) {
@@ -164,11 +164,11 @@ export class RelationshipVisualizerComponent implements OnInit {
           styles.height = height + "px";
           styles.overflow = "hidden";
       } else if (this.panelSize === PANEL_SIZE_STATE.FULLSCREEN) {
-          let left = document.getElementById("navigator-layer-panel").clientWidth + 25;
+          let right = document.getElementById("navigator-layer-panel").clientWidth + 25;
 
           let bottom = 50;
 
-          styles.left = left + "px";
+          styles.right = right + "px";
           styles.bottom = bottom + "px";
           styles.overflow = "hidden";
       }

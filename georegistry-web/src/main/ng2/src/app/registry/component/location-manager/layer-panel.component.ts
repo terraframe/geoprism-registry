@@ -8,6 +8,7 @@ import * as ColorGen from "color-generator";
 import { Subscription } from "rxjs";
 
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
+import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
 
 export const GRAPH_LAYER = "graph";
 
@@ -49,8 +50,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     @Output() zoomTo = new EventEmitter<ContextLayer>();
     @Output() create = new EventEmitter<ContextLayer>();
 
-    @Input() baselayerIconHover: boolean = false;
-    @Output() baselayerIconHoverChange = new EventEmitter<boolean>();
+    @Input() panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
+    @Output() panelSizeChange = new EventEmitter<number>();
 
     lists: ContextList[] = [];
     layers: ContextLayer[] = [];
@@ -139,9 +140,16 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     togglePanelOpen() {
-        this.baselayerIconHover = !this.baselayerIconHover;
+        this.panelSize = this.panelSize + 1;
 
-        this.baselayerIconHoverChange.emit(this.baselayerIconHover);
+        if (this.layers.length === 0 && this.panelSize === PANEL_SIZE_STATE.WINDOWED) {
+            this.panelSize = PANEL_SIZE_STATE.FULLSCREEN;
+        }
+        if (this.panelSize > PANEL_SIZE_STATE.FULLSCREEN) {
+            this.panelSize = 0;
+        }
+
+        this.panelSizeChange.emit(this.panelSize);
     }
 
     /**
