@@ -101,7 +101,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     /*
     *  Flag to indicate if the left handle panel should be displayed or not
      */
-    showPanel: boolean = false;
+    showPanel: boolean = true;
 
     layers: ContextLayer[] = [];
 
@@ -318,10 +318,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 this.layersPanelSize = (this.pageMode === "EXPLORER") ? PANEL_SIZE_STATE.WINDOWED : this.layersPanelSize;
 
-                // Keep the sidebar open if toggling a context layer when the sidebar is already open.
-                // This only happens on a fresh page load when sidebar is open (no search results or obj focus)
-                if (this.showPanel && this.pageMode === "EXPLORER") {
-                    showPanel = true;
+                if (this.params.attrPanelOpen) {
+                    showPanel = this.params.attrPanelOpen === "true";
                 }
 
                 //if (this.params.visualizeMode) {
@@ -379,6 +377,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     setPanel(showPanel: boolean): void {
         if (this.showPanel !== showPanel) {
             this.showPanel = showPanel;
+
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { attrPanelOpen: this.showPanel },
+                queryParamsHandling: "merge" // remove to replace all query params by provided
+            });
 
             timeout(() => {
                 this.map.resize();
@@ -619,8 +623,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.mapService.search(text, date).then(data => {
             this.state.currentText = text;
             this.state.currentDate = date;
-
-            this.showPanel = true;
 
             if (this.data.length > 0) {
                 (<any> this.map.getSource(GRAPH_LAYER)).setData(data);
