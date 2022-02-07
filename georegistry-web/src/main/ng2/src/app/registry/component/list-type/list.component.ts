@@ -125,6 +125,7 @@ export class ListComponent implements OnInit, OnDestroy {
         this.service.data(this.list.oid, pageNumber, this.page.pageSize, this.getFilter(), this.sort).then(page => {
             this.page = page;
             this.listAttrs = this.calculateListAttributes();
+            console.log(this.listAttrs);
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -185,7 +186,43 @@ export class ListComponent implements OnInit, OnDestroy {
             attribute.isCollapsed = true;
         });
 
-        return attrs;
+        //
+        // Order list columns
+        // mdAttributes don't currently define the difference between hierarchy or custom attributes.
+        // This ordering is a best attempt given these constraints.
+        //
+        let orderedArray = [];
+        let code = attrs.filter(obj => {
+            return obj.name === "code";
+        });
+        let label = attrs.filter(obj => {
+            return obj.name === "displayLabelDefaultLocale";
+        });
+        let lat = attrs.filter(obj => {
+            return obj.name === "latitude";
+        });
+
+        let long = attrs.filter(obj => {
+            return obj.name === "longitude";
+        });
+
+        orderedArray.push(code[0], label[0]);
+
+        let customAttrs = [];
+        let otherAttrs = [];
+        attrs.forEach(attr => {
+            if (attr.type === "input" && attr.name !== "latitude" && attr.name !== "longitude") {
+                customAttrs.push(attr);
+            } else if (attr.name !== "code" && attr.name !== "displayLabelDefaultLocale" && attr.name !== "latitude" && attr.name !== "longitude") {
+                otherAttrs.push(attr);
+            }
+        });
+
+        orderedArray.splice(2, 0, ...customAttrs);
+        orderedArray.splice(orderedArray.length, 0, ...otherAttrs);
+        orderedArray.splice(orderedArray.length, 0, ...[lat[0], long[0]])
+
+        return orderedArray;
     }
 
     getTypeaheadDataObservable(attribute: any): void {
