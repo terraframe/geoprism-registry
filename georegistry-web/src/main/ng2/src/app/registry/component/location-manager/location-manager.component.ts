@@ -667,6 +667,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null },
                 queryParamsHandling: "merge" // remove to replace all query params by provided
             });
+
+            this.zoomToFeature(node, null);
         }
     }
 
