@@ -7,7 +7,7 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import bbox from "@turf/bbox";
 
-import { GeoObject } from "@registry/model/registry";
+import { GeoObject, GeoObjectTypeCache } from "@registry/model/registry";
 import { ModalState, PANEL_SIZE_STATE } from "@registry/model/location-manager";
 
 import { MapService, RegistryService, GeometryService } from "@registry/service";
@@ -149,6 +149,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     typeahead: Observable<any> = null;
 
+    typeCache: GeoObjectTypeCache;
+
     public layersPanelSize: number = PANEL_SIZE_STATE.MINIMIZED;
 
     @ViewChild("simpleEditControl") simpleEditControl: IControl;
@@ -177,6 +179,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         this.typeahead = new Observable((observer: Observer<any>) => {
             this.handleFeatureSearch(observer);
+        });
+
+        this.typeCache = new GeoObjectTypeCache(this.service);
+        this.typeCache.refresh().then(types => {
+            this.handleParameterChange(this.params);
         });
     }
 
@@ -249,18 +256,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     onChangeGeoObject(event: {id: string, code: string, typeCode: string}): void {
         this.service.getGeoObject(event.id, event.typeCode).then(geoObj => {
             this.setData([geoObj]);
-            // this.select(geoObj, null);
+            this.changeGeoObject(event.typeCode, event.code, event.id, geoObj);
 
-            if (!this.isEdit) {
-                // this.router.navigate([], {
-                //     relativeTo: this.route,
-                //     queryParams: { type: geoObj.properties.type, code: geoObj.properties.code, uid: geoObj.properties.uid, version: null, visualizeMode: this.visualizeMode },
-                //     queryParamsHandling: "merge" // remove to replace all query params by provided
-                // });
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { type: event.typeCode, code: event.code, uid: event.id, version: null, text: event.code },
+                queryParamsHandling: "merge" // remove to replace all query params by provided
+            });
 
-                // this.changeVisualizeMode(this.VISUALIZE_MODE.GRAPH);
-                this.current = geoObj;
-            }
+            this.current = geoObj;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -733,43 +737,41 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    handleSelect(type: string, code: string, uid: string) {
+    handleSelect(typeCode: string, code: string, uid: string, geoObject: GeoObject = null) {
+        this.visualizingRelationship = null;
+        this.mode = this.MODE.VIEW;
+
+        this.changeGeoObject(typeCode, code, uid, geoObject);
+    }
+
+    changeGeoObject(typeCode: string, code: string, uid: string, geoObject: GeoObject = null) {
         // Highlight the feature on the map
-        this.service.getGeoObjectTypes([type], null).then(types => {
-            if (this.feature != null) {
-                this.map.removeFeatureState(this.feature);
-            }
+        if (this.feature != null) {
+            this.map.removeFeatureState(this.feature);
+        }
 
-            // Highlight the feature on the map
-            if (this.feature && code !== "__NEW__") {
-                this.map.setFeatureState(this.feature = {
-                    source: GRAPH_LAYER,
-                    id: uid
-                }, {
-                    hover: true
-                });
-            }
+        // Highlight the feature on the map
+        if (this.feature && code !== "__NEW__") {
+            this.map.setFeatureState(this.feature = {
+                source: GRAPH_LAYER,
+                id: uid
+            }, {
+                hover: true
+            });
+        }
 
-            this.mode = this.MODE.VIEW;
-            this.visualizingRelationship = null;
+        const type = this.typeCache.getTypeByCode(typeCode);
+        this.record = {
+            recordType: "GEO_OBJECT",
+            type: type,
+            code: code,
+            forDate: this.state.currentDate === "" ? null : this.state.currentDate
+        };
 
-            const type = types[0];
-            this.record = {
-                recordType: "GEO_OBJECT",
-                type: type,
-                code: code,
-                forDate: this.state.currentDate === "" ? null : this.state.currentDate
-            };
+        this.geomService.destroy(false);
+        this.geomService.initialize(this.map, this.record.type.geometryType, false);
 
-            if (this.record.recordType === "GEO_OBJECT") {
-                this.geomService.destroy(false);
-
-                this.geomService.initialize(this.map, this.record.type.geometryType, false);
-            }
-
-            // Relationship Viz TODO
-            // this.location.replaceState("/registry/location-manager/" + this.current.properties.uid + "/" + this.current.properties.type + "/" + this.visualizeMode);
-
+        if (geoObject == null) {
             this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
                 this.current = geoObject;
                 this.filterDate = this.record.forDate === "" ? null : this.record.forDate;
@@ -777,9 +779,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
+        } else {
+            this.current = geoObject;
+            this.filterDate = this.record.forDate === "" ? null : this.record.forDate;
+            this.zoomToFeature(this.current, null);
+        }
     }
 
     setData(data: GeoObject[]): void {
