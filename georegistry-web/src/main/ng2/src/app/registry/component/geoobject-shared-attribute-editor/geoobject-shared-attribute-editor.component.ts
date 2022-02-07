@@ -259,7 +259,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                 let action: AbstractAction = this.changeRequest.actions[i];
 
                 if (action.actionType === ActionTypes.CREATEGEOOBJECTACTION) {
-                    return false;
+                    return true;
                 } else if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
                     let updateAttrAction: UpdateAttributeOverTimeAction = action as UpdateAttributeOverTimeAction;
 
