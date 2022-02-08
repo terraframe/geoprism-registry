@@ -629,7 +629,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.state.currentDate = date;
 
             if (this.data.length > 0) {
-                (<any> this.map.getSource(GRAPH_LAYER)).setData(data);
+                let source = (<any> this.map.getSource(GRAPH_LAYER));
+
+                if (source != null) {
+                    source.setData(data);
+                }
             }
 
             this.setData(data.features);

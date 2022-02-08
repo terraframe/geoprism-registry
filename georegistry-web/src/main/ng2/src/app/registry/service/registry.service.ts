@@ -270,8 +270,13 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("id", id);
         params = params.set("typeCode", typeCode);
 
+        this.eventService.start();
+
         return this.http
             .get<GeoObject>(registry.contextPath + "/cgr/geoobject/get", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
             .toPromise();
     }
 
