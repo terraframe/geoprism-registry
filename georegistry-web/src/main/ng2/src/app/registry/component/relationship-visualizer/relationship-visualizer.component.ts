@@ -202,16 +202,16 @@ export class RelationshipVisualizerComponent implements OnInit {
 
   private fetchData(): void {
       this.vizService.tree(this.mdEdgeOid, this.geoObject.properties.code, this.geoObject.properties.type, this.params.date).then(data => {
+          this.data = null;
+          window.setTimeout(() => {
+              this.data = data;
+          }, 0);
+
           let graphContainer = document.getElementById("graph-container");
 
           if (graphContainer) {
               this.svgHeight = graphContainer.clientHeight;
               this.svgWidth = graphContainer.clientWidth;
-
-              this.data = null;
-              window.setTimeout(() => {
-                  this.data = data;
-              }, 0);
 
               if (this.geoObject != null) {
                   //this.panToNode(this.geoObject.properties.uid);
@@ -258,10 +258,11 @@ export class RelationshipVisualizerComponent implements OnInit {
   }
 
   private getBBox(el: SVGGraphicsElement, includeTransform: boolean = true): DOMRect {
-      let cloned = el.cloneNode(true) as unknown as SVGGraphicsElement;
       if (!includeTransform) {
-          cloned.removeAttribute("transform");
+          return el.getBBox();
       }
+
+      let cloned = el.cloneNode(true) as unknown as SVGGraphicsElement;
 
       let newParent = document.createElementNS("http://www.w3.org/2000/svg", "g") as unknown as SVGGraphicsElement;
       document.querySelector("svg").appendChild(newParent);
