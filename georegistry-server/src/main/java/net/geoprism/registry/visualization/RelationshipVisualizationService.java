@@ -7,13 +7,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.map.HashedMap;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.runwaysdk.build.domain.RelationshipVisualizationDataImporter;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
@@ -27,7 +27,6 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdEdgeQuery;
-import com.runwaysdk.system.metadata.MetadataDisplayLabel;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.GeoVertex;
@@ -36,8 +35,6 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
-import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
-import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class RelationshipVisualizationService
@@ -118,7 +115,7 @@ public class RelationshipVisualizationService
     return view;
   }
   
-  private JsonElement serializeMdEdge(MdEdgeDAOIF mdEdge, boolean isHierarchy, MetadataDisplayLabel label)
+  private JsonElement serializeMdEdge(MdEdgeDAOIF mdEdge, boolean isHierarchy, LocalStruct label)
   {
     JsonObject jo = new JsonObject();
     

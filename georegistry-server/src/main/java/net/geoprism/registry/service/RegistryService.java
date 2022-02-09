@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -74,23 +74,18 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.AllowedIn;
-import com.runwaysdk.system.gis.geo.IsARelationship;
-import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdAttributeConcrete;
 import com.runwaysdk.system.metadata.MdAttributeMultiTerm;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
-import com.runwaysdk.system.metadata.MdBusiness;
-import com.runwaysdk.system.metadata.MdTermRelationship;
-import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 
 import net.geoprism.account.OauthServer;
 import net.geoprism.account.OauthServerIF;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeoregistryProperties;
+import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
@@ -172,41 +167,17 @@ public class RegistryService
       it.close();
     }
 
-    MdBusiness univMdBusiness = MdBusiness.getMdBusiness(Universal.CLASS);
+    HierarchicalRelationshipType.getAll().forEach(relationship -> {
+      ServerHierarchyType ht = new ServerHierarchyTypeBuilder().get(relationship, false);
 
-    MdTermRelationshipQuery trq = new MdTermRelationshipQuery(qf);
-    trq.WHERE(trq.getParentMdBusiness().EQ(univMdBusiness).AND(trq.getChildMdBusiness().EQ(univMdBusiness)));
-
-    OIterator<? extends MdTermRelationship> it2 = trq.getIterator();
-
-    try
-    {
-      while (it2.hasNext())
-      {
-        MdTermRelationship mdTermRel = it2.next();
-
-        // Ignore the IsARelationship class between universals. It should be
-        // deprecated
-        if (mdTermRel.definesType().equals(IsARelationship.CLASS) || mdTermRel.getKey().equals(AllowedIn.CLASS) || mdTermRel.getKey().equals(LocatedIn.CLASS))
-        {
-          continue;
-        }
-
-        ServerHierarchyType ht = new ServerHierarchyTypeBuilder().get(mdTermRel, false);
-
-        ServiceFactory.getMetadataCache().addHierarchyType(ht);
-      }
-    }
-    finally
-    {
-      it2.close();
-    }
+      ServiceFactory.getMetadataCache().addHierarchyType(ht);
+    });
 
     // Due to inherited hierarchy references, this has to wait until all types
     // exist in the cache.
     for (ServerHierarchyType type : ServiceFactory.getMetadataCache().getAllHierarchyTypes())
     {
-      type.buildHierarchyNodes();
+//      type.buildHierarchyNodes();
     }
 
     try
@@ -493,7 +464,7 @@ public class RegistryService
     {
       object.setDate(date);
     }
-    
+
     ServerChildTreeNode node = object.getChildGeoObjects(childrenTypes, recursive, date);
 
     return node.toNode(true);
@@ -1011,7 +982,7 @@ public class RegistryService
 
     StringBuilder statement = new StringBuilder();
     statement.append("select $filteredLabel,@class as clazz,* from " + type.getMdVertex().getDBClassName() + " ");
-    
+
     statement.append("let $dateLabel = first(displayLabel_cot");
     if (startDate != null && endDate != null)
     {

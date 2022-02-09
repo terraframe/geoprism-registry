@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.permission;
 
@@ -38,9 +38,9 @@ import net.geoprism.registry.roles.HierarchyRelationshipPermissionException;
 public class GeoObjectTypeRelationshipPermissionService extends UserPermissionService implements GeoObjectTypeRelationshipPermissionServiceIF
 {
   public enum RelationshipAction {
-    
+
   }
-  
+
   public boolean doesActorHaveRelationshipPermission(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType, boolean allowRC)
   {
     boolean permission = this.directRelationshipPermission(ht, parentType, childType, allowRC);
@@ -65,7 +65,7 @@ public class GeoObjectTypeRelationshipPermissionService extends UserPermissionSe
       return true;
     }
 
-    if (ht.getUniversalRelationship().getKey().equals(AllowedIn.CLASS) || ht.getUniversalRelationship().getKey().equals(LocatedIn.CLASS))
+    if (ht.getMdTermRelationship().getKey().equals(AllowedIn.CLASS) || ht.getMdTermRelationship().getKey().equals(LocatedIn.CLASS))
     {
       return true; // AllowedIn is deprecated and should not be used by the
       // end-user.
@@ -125,7 +125,7 @@ public class GeoObjectTypeRelationshipPermissionService extends UserPermissionSe
 
     return false;
   }
-  
+
   @Override
   public Collection<CGRPermissionActionIF> getPermissions(ServerGeoObjectType serverGeoObjectType)
   {

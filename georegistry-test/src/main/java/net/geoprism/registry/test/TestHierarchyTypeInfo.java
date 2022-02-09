@@ -126,12 +126,7 @@ public class TestHierarchyTypeInfo
     MdTermRelationshipQuery uniQuery = new MdTermRelationshipQuery(new QueryFactory());
     uniQuery.WHERE(uniQuery.getKeyName().EQ(universalKey));
 
-    String geoEntityKey = ServerHierarchyType.buildMdTermRelGeoEntityKey(this.getCode());
-
-    MdTermRelationshipQuery geoQuery = new MdTermRelationshipQuery(new QueryFactory());
-    geoQuery.WHERE(geoQuery.getKeyName().EQ(geoEntityKey));
-
-    return uniQuery.getCount() > 0 && geoQuery.getCount() > 0;
+    return uniQuery.getCount() > 0;
   }
 
   public TestOrganizationInfo getOrganization()

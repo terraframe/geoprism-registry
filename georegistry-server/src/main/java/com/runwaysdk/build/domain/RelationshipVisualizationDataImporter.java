@@ -95,7 +95,7 @@ public class RelationshipVisualizationDataImporter
   
   public static void main(String[] args) throws Exception
   {
-    new RelationshipVisualizationDataImporter().doItInReq();
+//    new RelationshipVisualizationDataImporter().doItInReq();
   }
   
   @Request

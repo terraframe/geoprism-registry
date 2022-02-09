@@ -636,6 +636,40 @@ public class GeoObjectRelationshipServiceTest
   }
 
   @Test
+  public void testInsertChild()
+  {
+    TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", FastTestDataset.PROVINCE);
+    testAddChild.apply();
+    
+    ParentTreeNode ptnTestState = testData.adapter.addChild(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), testAddChild.getRegistryId(), testAddChild.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode());
+    
+    boolean found = false;
+    for (ParentTreeNode ptnCAMBODIA : ptnTestState.getParents())
+    {
+      if (ptnCAMBODIA.getGeoObject().getCode().equals(FastTestDataset.CAMBODIA.getCode()))
+      {
+        found = true;
+        break;
+      }
+    }
+    Assert.assertTrue("Did not find our test object in the list of returned children", found);
+    testAddChild.assertEquals(ptnTestState.getGeoObject());
+    
+    ChildTreeNode ctnCAMBODIA2 = testData.adapter.getChildGeoObjects(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, new String[] { FastTestDataset.PROVINCE.getCode() }, false);
+    
+    found = false;
+    for (ChildTreeNode ctnState : ctnCAMBODIA2.getChildren())
+    {
+      if (ctnState.getGeoObject().getCode().equals(testAddChild.getCode()))
+      {
+        found = true;
+        break;
+      }
+    }
+    Assert.assertTrue("Did not find our test object in the list of returned children", found);
+  }
+  
+  @Test
   public void testRemoveChild()
   {
     /*

@@ -195,7 +195,7 @@ public class GeoObjectTypeMetadata extends GeoObjectTypeMetadataBase
 
     for (ServerHierarchyType ht : hierarchyTypes)
     {
-      List<HierarchyNode> roots = ht.getType().getRootGeoObjectTypes();
+      List<HierarchyNode> roots = ht.getRootGeoObjectTypes();
 
       for (HierarchyNode root : roots)
       {

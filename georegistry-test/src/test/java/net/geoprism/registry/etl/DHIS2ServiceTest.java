@@ -240,7 +240,7 @@ public class DHIS2ServiceTest
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(dhis2JsonConfig);
     config.setOrganization(org);
-    config.setHierarchy(ht.getUniversalRelationship());
+    config.setHierarchy(ht.getMdTermRelationship());
     config.setSystem(system.getOid());
     config.getLabel().setValue("DHIS2 Export Test");
     

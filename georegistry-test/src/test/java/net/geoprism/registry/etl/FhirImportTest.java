@@ -128,7 +128,7 @@ public class FhirImportTest
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(fhirExportJsonConfig);
     config.setOrganization(org);
-    config.setHierarchy(ht.getUniversalRelationship());
+    config.setHierarchy(ht.getMdTermRelationship());
     config.setSystem(system.getOid());
     config.getLabel().setValue("FHIR Import Test");
     config.setIsImport(true);
