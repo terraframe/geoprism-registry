@@ -79,7 +79,7 @@
 
         <div class="row" style="margin-bottom:10px;">
             <div class="col-md-4">
-                <div *ngIf="list.working && isRM" class="button-holder pull-left">
+                <div *ngIf="list.working && (isRM || isRA || isSRA)" class="button-holder pull-left">
                     <button type="submit" class="btn btn-primary" role="button" (click)="onRunCuration()"
                         style="margin-left:0;">
                         <localize key="list.type.run.curation"></localize>
@@ -148,8 +148,8 @@
                 </div>
             </div>
         </div>
-        <div class="row form-group">
-            <div *ngIf="list" class="col-md-12" style="max-height:calc(100vh - 439px); min-height:calc(100vh - 439px);">
+        <div class="row">
+            <div *ngIf="list" class="col-md-12" style="max-height:calc(100vh - 460px); min-height:calc(100vh - 460px);">
 
                 <ng-container *ngIf="cols != null && config != null">
                     <generic-table [cols]="cols" [config]="config" [refresh]="refresh" [pageConfig]="{oid: list.oid}"
