@@ -42,13 +42,6 @@
     </delete>
     
     <permissions>
-      <role roleName="PUBLIC">
-        <grant>
-          <mdBusinessPermission type="net.geoprism.registry.HierarchicalRelationshipType">
-            <operation name="ALL" />
-          </mdBusinessPermission>
-        </grant>
-      </role>
       <role roleName="geoprism.admin.Administrator">
         <grant>
           <mdBusinessPermission type="net.geoprism.registry.HierarchicalRelationshipType">
