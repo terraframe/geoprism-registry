@@ -141,9 +141,9 @@ public class RelationshipVisualizationService
     statement.append(")");
     
     // Not sure if this is the right move or not but without a date the query will return all the parents across all timelines. So we definitely should restrict by date unless we want multiple parents.
-    if (date == null) { date = new Date(); }
+//    if (date == null) { date = new Date(); }
     
-    //if (date != null)
+    if (date != null)
     {
       statement.append("[");
 

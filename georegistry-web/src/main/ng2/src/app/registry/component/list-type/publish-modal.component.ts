@@ -70,7 +70,7 @@ export class ListTypePublishModalComponent implements OnInit {
                 typeLabel: "",
                 displayLabel: this.lService.create(),
                 description: this.lService.create(),
-                code: "",
+                code: listByType.typeCode + "_" + Math.floor(Math.random() * 999999),
                 hierarchies: [],
                 subtypeHierarchies: [],
                 listMetadata: {

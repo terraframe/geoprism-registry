@@ -127,7 +127,7 @@ export class RelationshipVisualizerComponent implements OnInit {
           if (graphContainer) {
               this.svgHeight = graphContainer.clientHeight;
               this.svgWidth = graphContainer.clientWidth;
-              this.panToNode(this.geoObject.properties.uid);
+              // this.panToNode(this.geoObject.properties.uid);
           }
       }, 10);
   }
@@ -202,19 +202,77 @@ export class RelationshipVisualizerComponent implements OnInit {
 
   private fetchData(): void {
       this.vizService.tree(this.mdEdgeOid, this.geoObject.properties.code, this.geoObject.properties.type, this.params.date).then(data => {
+          this.data = null;
+          window.setTimeout(() => {
+              this.data = data;
+          }, 0);
+
           let graphContainer = document.getElementById("graph-container");
 
           if (graphContainer) {
               this.svgHeight = graphContainer.clientHeight;
               this.svgWidth = graphContainer.clientWidth;
 
-              this.data = data;
-
               if (this.geoObject != null) {
-                  this.panToNode(this.geoObject.properties.uid);
+                  //this.panToNode(this.geoObject.properties.uid);
               }
           }
       });
+  }
+
+  collapseAnimation(id: string): Promise<void> {
+      if (!this.geoObject) { return new Promise<void>((resolve, reject) => { resolve(); }); }
+
+      let activeEl = document.getElementById(id) as unknown as SVGGraphicsElement;
+      if (!activeEl) { return new Promise<void>((resolve, reject) => { resolve(); }); }
+
+      let bbox = this.getBBox(activeEl, true);
+
+      let all = document.querySelectorAll("g.nodes > g");
+
+      all.forEach((el: SVGGraphicsElement) => {
+          if (el.id !== activeEl.id) {
+              let bbox2 = this.getBBox(el, false);
+              let translate = "translate(" + (bbox.x - bbox2.x) + "," + (bbox.y - bbox2.y) + ")";
+              el.setAttribute("transform", translate);
+          }
+      });
+
+      document.querySelectorAll("g.links > g").forEach(el => {
+          el.remove();
+      });
+
+      let promise = new Promise<void>((resolve, reject) => {
+          setTimeout(() => {
+              all.forEach((el: SVGGraphicsElement) => {
+                  if (el.id !== activeEl.id) {
+                      el.remove();
+                  }
+              });
+
+              resolve();
+          }, 500);
+      });
+
+      return promise;
+  }
+
+  private getBBox(el: SVGGraphicsElement, includeTransform: boolean = true): DOMRect {
+      if (!includeTransform) {
+          return el.getBBox();
+      }
+
+      let cloned = el.cloneNode(true) as unknown as SVGGraphicsElement;
+
+      let newParent = document.createElementNS("http://www.w3.org/2000/svg", "g") as unknown as SVGGraphicsElement;
+      document.querySelector("svg").appendChild(newParent);
+
+      newParent.appendChild(cloned);
+      let bbox = newParent.getBBox();
+      cloned.remove();
+      newParent.remove();
+
+      return bbox;
   }
 
   /*
@@ -225,10 +283,12 @@ export class RelationshipVisualizerComponent implements OnInit {
    *  2. Checking if the element exists first in the dom before we call pan to node does not work. The graph might still
    *     not be ready, even if the element exists.
    */
+  /*
   private panToNode(uid: string, retryNum: number = 10) {
       window.setTimeout(() => {
           if (document.getElementById("g-" + uid) != null) {
               this.panToNode$.next("g-" + uid);
+              this.update$.next(); // https://github.com/swimlane/ngx-graph/issues/319
 
               if (retryNum > 0) {
                   this.panToNode(uid, retryNum - 1);
@@ -236,9 +296,12 @@ export class RelationshipVisualizerComponent implements OnInit {
           }
       }, 50);
   }
+  */
 
   public onClickNode(node: any): void {
-      this.changeGeoObject.emit({ id: node.id.substring(2), code: node.code, typeCode: node.typeCode });
+      this.collapseAnimation(node.id).then(() => {
+          this.changeGeoObject.emit({ id: node.id.substring(2), code: node.code, typeCode: node.typeCode });
+      });
   }
 
   private stringify(data: any): string {

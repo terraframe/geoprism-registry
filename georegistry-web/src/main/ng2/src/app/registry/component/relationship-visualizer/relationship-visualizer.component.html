@@ -13,7 +13,7 @@
 			<select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="mdEdgeOid" (change)="onSelectRelationship()" required>
 	       <option *ngFor="let relationship of relationships" value={{relationship.oid}}>{{relationship.label.localizedValue}}</option>
 	    </select>
-			
+	    
 			<div *ngIf="relationships" style="height:100%; width:100%;" class="row">
 	
 				<div class="hierarchy-content" style="height:100%; width:100%;">
@@ -24,6 +24,8 @@
 	            [links]="data.edges"
 	            [nodes]="data.verticies"
 	            [animate]="true"
+	            [autoZoom]="true"
+	            [autoCenter]="true"
 	            [layout]="layout"
 	            [layoutSettings]="{orientation: 'TB'}"
 	            [curve]="curve"

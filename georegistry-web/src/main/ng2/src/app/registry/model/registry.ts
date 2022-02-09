@@ -5,8 +5,37 @@ import { LocalizationService } from "@shared/service";
 import { ImportConfiguration } from "./io";
 import { GovernanceStatus, ConflictType } from "./constants";
 import Utils from "@registry/utility/Utils";
+import { RegistryService } from "@registry/service";
 
 export const PRESENT: string = "5000-12-31";
+
+export class GeoObjectTypeCache {
+
+    private registryService: RegistryService;
+
+    private types: GeoObjectType[];
+
+    public constructor(registryService: RegistryService) {
+        this.registryService = registryService;
+    }
+
+    public refresh(): Promise<void | GeoObjectType[]> {
+        return this.registryService.getGeoObjectTypes(null, null).then(types => {
+            this.types = types;
+        });
+    }
+
+    public getTypeByCode(code: string): GeoObjectType {
+        let index = this.types.findIndex(type => type.code === code);
+
+        if (index === -1) {
+            return null;
+        } else {
+            return this.types[index];
+        }
+    }
+
+}
 
 export class TreeEntity {
     id: string;

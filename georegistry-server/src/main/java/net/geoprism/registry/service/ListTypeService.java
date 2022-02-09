@@ -89,6 +89,14 @@ public class ListTypeService
     ListType mList = ListType.apply(list);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
+    
+    // Auto publish the working versions of the lists 
+    List<ListTypeVersion> versions = mList.getVersions();
+    for (ListTypeVersion version : versions) {
+      if (version.getWorking()) {
+        this.publishVersion(sessionId, version.getOid());
+      }
+    }
 
     return mList.toJSON();
   }

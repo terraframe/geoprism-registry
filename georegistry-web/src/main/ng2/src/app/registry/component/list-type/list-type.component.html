@@ -89,22 +89,21 @@
 
     <div class="heading">
         <div class="row">
-            <div class="col-md-10">
+            <div class="col-md-12">
                 <h2>
                     {{list.displayLabel.localizedValue}}
                 </h2>
             </div>
-            <div class="col-md-2">
-                <span *ngIf="list.listType === 'incremental'" class="float-right">
-                    <button type="submit" (click)="onCreateEntries()" class="btn btn-primary" style="margin-top: 7px;"
+        </div>
+    </div>
+    
+    <div class="row" *ngIf="list.listType === 'incremental'">
+            <div class="col-md-12" style="padding: 20px 15px;">
+                    <button type="submit" (click)="onCreateEntries()" class="btn btn-primary" style="margin:0;"
                         role="button">
                         <localize key="list.type.create.entries"></localize>
                     </button>
-
-                </span>
             </div>
-
-        </div>
     </div>
 
     <div *ngFor="let entry of list.entries" class="row" style="margin-bottom: 5px;">

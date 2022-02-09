@@ -21,9 +21,35 @@
                 </h2>
             </div>
         </div>
-        <div *ngIf="list" class="row form-group">
+        <div *ngIf="list" class="row">
 
-            <div class="col-md-3">
+            <div class="col-md-12">
+            
+                <h4>
+                    <span *ngIf="!list.working">
+                        <localize *ngIf="!list.working" key="list.type.version"></localize>&nbsp;{{list.versionNumber}}
+                    </span>
+                    <span *ngIf="list.working">
+                        <localize key="list.type.working.version"></localize>
+                    </span>
+                </h4>
+                
+                <h4>
+                    <localize key="masterlist.list.visibility"></localize> :
+                    <span class="date-string-display">
+                        <localize *ngIf="list.listMetadata.visibility === 'PUBLIC'" key="masterlist.public"></localize>
+                        <localize *ngIf="list.listMetadata.visibility !== 'PUBLIC'" key="masterlist.private"></localize>
+                    </span>
+                </h4>
+                
+                <h4>
+                    <localize key="masterlists.list.authoritativeness"></localize> :
+                    <span class="date-string-display">
+                        <localize *ngIf="list.listMetadata.master" key="list.type.master"></localize>
+                        <localize *ngIf="!list.listMetadata.master" key="list.type.non.master"></localize>
+                    </span>
+                </h4>
+                
                 <h4>
                     <localize key="masterlist.generatedDate"></localize>
                     : <span class="date-string-display">
@@ -51,7 +77,7 @@
 -->            
         </div>
 
-        <div class="row form-group">
+        <div class="row" style="margin-bottom:10px;">
             <div class="col-md-4">
                 <div *ngIf="list.working && isRM" class="button-holder pull-left">
                     <button type="submit" class="btn btn-primary" role="button" (click)="onRunCuration()"
@@ -135,7 +161,7 @@
             <!--
 
             <div *ngIf="list" class="col-md-12 table-responsive text-nowrap" id="list-view-table"
-                style="max-height:calc(100vh - 439px); min-height:calc(100vh - 439px);">
+                style="max-height:calc(100vh - 460px); min-height:calc(100vh - 460px);">
                 <table class="list-table table table-bordered table-striped">
                     <thead style="position: sticky;top: 0;background: #ececec;">
                         <tr>
@@ -204,8 +230,7 @@
                             class="fade-ngRepeat-item">
                             <td *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'"
                                 style="width: 3%; text-align: center;" class="label-column">
-                                <a class="fa" style="padding:3px;" [ngClass]="isWritable ? 'fa fa-pencil' : 'fa fa-eye'"
-                                    (click)="onGotoMap(result)"></a>
+                                <a class="fa fa-eye" style="padding:3px;" (click)="onGotoMap(result)"></a>
                             </td>
                             <td *ngFor="let attribute of listAttrs" class="label-column">{{ result[attribute.name] }}
                             </td>
