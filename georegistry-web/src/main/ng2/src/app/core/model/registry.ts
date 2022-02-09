@@ -14,6 +14,6 @@ export class GeoRegistryConfiguration {
         }
     ];
     searchEnabled: boolean;
-    mapCenter: [number];
+    defaultMapBounds: [[number]];
 
 }

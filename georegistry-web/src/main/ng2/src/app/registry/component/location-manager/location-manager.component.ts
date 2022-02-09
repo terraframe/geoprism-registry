@@ -204,7 +204,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             },
             zoom: 2,
             attributionControl: false,
-            center: registry.mapCenter
+            bounds: registry.defaultMapBounds
         };
 
         if (this.params.bounds != null && this.params.bounds.length > 0) {

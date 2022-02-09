@@ -22,16 +22,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jaitools.jts.CoordinateSequence2D;
-
 import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 import com.runwaysdk.ConfigurationException;
-import com.runwaysdk.Pair;
 import com.runwaysdk.configuration.ConfigurationManager;
 import com.runwaysdk.configuration.ConfigurationReaderIF;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.PrecisionModel;
 
 
 public class GeoregistryProperties
@@ -43,7 +38,7 @@ public class GeoregistryProperties
     private static GeoregistryProperties INSTANCE = new GeoregistryProperties();
   }
   
-  private Pair<Float, Float> mapCenter = null;
+  private String mapBounds = null;
 
   public GeoregistryProperties()
   {
@@ -99,59 +94,45 @@ public class GeoregistryProperties
   }
   
   /**
-   * Can be used to provide the default map center for all map activities such as the location manager.
-   * This parameter should be specified in the format of lat (<float>), long (<float>). Any additional
-   * spaces (for example after the comma or at the end) will be trimmed. The point is assumed to be in
-   * EPSG:3857 projection.
+   * Can be used to provide the default map bounds for all map activities such as the location manager.
+   * This parameter should be specified as a <a href="https://docs.mapbox.com/mapbox-gl-js/api/geography/#lnglatboundslike">LngLatBoundsLike</a>
+   * as it will be fed directly to the bounds parameter of the <a href="https://docs.mapbox.com/mapbox-gl-js/api/map/">Mapbox constructor</a>.
    * 
-   * @return A Pair where first is lat and second is long.
+   * @see <a href="https://docs.mapbox.com/playground/geocoding/">Create your own bounds here</a>
    */
-  public synchronized static Pair<Float, Float> getMapCenter()
+  public synchronized static String getDefaultMapBounds()
   {
-    if (Singleton.INSTANCE.mapCenter == null)
+    if (Singleton.INSTANCE.mapBounds == null)
     {
-      String sCenter = Singleton.INSTANCE.props.getString("cgr.map.center", "39.5501,-105.7821"); // Default is Denver, CO the headquarters of TerraFrame!
+      String sBounds = Singleton.INSTANCE.props.getString("cgr.map.bounds", "[[-108.9497822,40.919108654],[-102.02574403,37.14964020]]"); // Default is Colorado, the headquarters of TerraFrame!
       
-      String[] aCenter = sCenter.split(",");
+      JsonArray jaBounds = JsonParser.parseString(sBounds).getAsJsonArray();
       
-      if (aCenter.length != 2)
+      if (jaBounds.size() != 2)
       {
-        throw new ConfigurationException("cgr.map.center must contain an array of two floats.");
+        throw new ConfigurationException("cgr.map.bounds must contain an array of two arrays.");
       }
       
-      Float lat = Float.parseFloat(aCenter[0].trim());
-      Float lng = Float.parseFloat(aCenter[1].trim());
-      
-      if (lat > 90 || lat < -90)
+      for (int i = 0; i < jaBounds.size(); ++i)
       {
-        throw new ConfigurationException("Latitude must be greater than -90 and less than 90.");
-      }
-      else if (lng > 180 || lng < -180)
-      {
-        throw new ConfigurationException("Longitude be greater than -180 and less than 180.");
+        JsonArray lngLatLike = jaBounds.get(i).getAsJsonArray();
+        
+        Float lat = Float.parseFloat(lngLatLike.get(1).getAsString().trim());
+        Float lng = Float.parseFloat(lngLatLike.get(0).getAsString().trim());
+        
+        if (lat > 90 || lat < -90)
+        {
+          throw new ConfigurationException("Latitude must be greater than -90 and less than 90.");
+        }
+        else if (lng > 180 || lng < -180)
+        {
+          throw new ConfigurationException("Longitude be greater than -180 and less than 180.");
+        }
       }
       
-      Singleton.INSTANCE.mapCenter = new Pair<Float, Float>(lat, lng);
+      Singleton.INSTANCE.mapBounds = sBounds;
     }
     
-    return Singleton.INSTANCE.mapCenter;
-  }
-  
-  /**
-   * Returns the map center as a serialized array where [long, lat].
-   * 
-   * @see https://docs.mapbox.com/mapbox-gl-js/api/geography/#lnglat
-   * @see https://datatracker.ietf.org/doc/html/rfc7946#section-4
-   */
-  public static JsonArray getMapCenterAsJsonLngLat()
-  {
-    Pair<Float, Float> center = getMapCenter();
-  
-    JsonArray ja = new JsonArray();
-    
-    ja.add(center.getSecond());
-    ja.add(center.getFirst());
-    
-    return ja;
+    return Singleton.INSTANCE.mapBounds;
   }
 }
