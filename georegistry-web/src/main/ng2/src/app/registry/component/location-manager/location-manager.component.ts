@@ -231,7 +231,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             },
             zoom: 2,
             attributionControl: false,
-            center: [-41.44427718989905, 41.897852]
+            bounds: registry.defaultMapBounds
         };
 
         if (this.params.bounds != null && this.params.bounds.length > 0) {
@@ -738,6 +738,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null }, //visualizeMode: this.visualizeMode
                 queryParamsHandling: "merge" // remove to replace all query params by provided
             });
+
+            this.zoomToFeature(node, null);
         }
     }
 
