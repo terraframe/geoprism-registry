@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.cache;
 
@@ -116,43 +116,44 @@ public class ServerMetadataCache implements Serializable
 
     getAdapter().getMetadataCache().removeOrganization(code);
   }
-  
+
   /**
-   * Updates the cache with the new GeoObjectType everywhere where it is cached (including in HierarchyTypes).
+   * Updates the cache with the new GeoObjectType everywhere where it is cached
+   * (including in HierarchyTypes).
    */
   public void refreshGeoObjectType(ServerGeoObjectType refreshGot)
   {
     this.addGeoObjectType(refreshGot);
-    
-    List<ServerHierarchyType> hierarchyTypes = ServiceFactory.getMetadataCache().getAllHierarchyTypes();
-    for (ServerHierarchyType ht : hierarchyTypes)
-    {
-      List<HierarchyNode> rootNodes = ht.getType().getRootGeoObjectTypes();
-      
-      for (HierarchyNode rootNode : rootNodes)
-      {
-        if (refreshGot.getCode().equals(rootNode.getGeoObjectType().getCode()))
-        {
-          rootNode.setGeoObjectType(refreshGot.getType());
-          break;
-        }
-        
-        List<HierarchyNode> rootDescends = rootNode.getAllDescendants();
-        
-        Iterator<HierarchyNode> rootDescendIt = rootDescends.iterator();
-        
-        while (rootDescendIt.hasNext())
-        {
-          HierarchyNode childNode = rootDescendIt.next();
-          
-          if (childNode.getGeoObjectType().getCode().equals(refreshGot.getCode()))
-          {
-            childNode.setGeoObjectType(refreshGot.getType());
-            break;
-          }
-        }
-      }
-    }
+
+//    List<ServerHierarchyType> hierarchyTypes = ServiceFactory.getMetadataCache().getAllHierarchyTypes();
+//    for (ServerHierarchyType ht : hierarchyTypes)
+//    {
+//      List<HierarchyNode> rootNodes = ht.getRootGeoObjectTypes();
+//
+//      for (HierarchyNode rootNode : rootNodes)
+//      {
+//        if (refreshGot.getCode().equals(rootNode.getGeoObjectType().getCode()))
+//        {
+//          rootNode.setGeoObjectType(refreshGot.getType());
+//          break;
+//        }
+//
+//        List<HierarchyNode> rootDescends = rootNode.getAllDescendants();
+//
+//        Iterator<HierarchyNode> rootDescendIt = rootDescends.iterator();
+//
+//        while (rootDescendIt.hasNext())
+//        {
+//          HierarchyNode childNode = rootDescendIt.next();
+//
+//          if (childNode.getGeoObjectType().getCode().equals(refreshGot.getCode()))
+//          {
+//            childNode.setGeoObjectType(refreshGot.getType());
+//            break;
+//          }
+//        }
+//      }
+//    }
   }
 
   public void addGeoObjectType(ServerGeoObjectType geoObjectType)
@@ -178,7 +179,7 @@ public class ServerMetadataCache implements Serializable
   {
     this.hierarchyTypeMap.put(hierarchyType.getCode(), hierarchyType);
 
-    getAdapter().getMetadataCache().addHierarchyType(hierarchyType.getType());
+    getAdapter().getMetadataCache().addHierarchyType(hierarchyType.toHierarchyType());
   }
 
   public Optional<ServerHierarchyType> getHierachyType(String code)

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -77,9 +77,9 @@ public class ServerChildTreeNode extends ServerTreeNode
   {
     final GeoObjectRelationshipPermissionServiceIF relPermServ = ServiceFactory.getGeoObjectRelationshipPermissionService();
     final GeoObjectPermissionServiceIF goPermServ = ServiceFactory.getGeoObjectPermissionService();
-    
+
     GeoObject go = this.getGeoObject().toGeoObject(this.getStartDate());
-    HierarchyType ht = this.getHierarchyType() != null ? this.getHierarchyType().getType() : null;
+    HierarchyType ht = this.getHierarchyType() != null ? this.getHierarchyType().toHierarchyType() : null;
 
     ChildTreeNode node = new ChildTreeNode(go, ht);
 
@@ -89,9 +89,7 @@ public class ServerChildTreeNode extends ServerTreeNode
 
     for (ServerChildTreeNode child : this.children)
     {
-      if (!enforcePermissions ||
-          (relPermServ.canViewChild(orgCode, type, child.getGeoObject().getType())
-           && goPermServ.canRead(orgCode, type)))
+      if (!enforcePermissions || ( relPermServ.canViewChild(orgCode, type, child.getGeoObject().getType()) && goPermServ.canRead(orgCode, type) ))
       {
         node.addChild(child.toNode(enforcePermissions));
       }
@@ -103,11 +101,11 @@ public class ServerChildTreeNode extends ServerTreeNode
   public void removeChild(ServerChildTreeNode child)
   {
     Iterator<ServerChildTreeNode> it = this.children.iterator();
-    
+
     while (it.hasNext())
     {
       ServerChildTreeNode myChild = it.next();
-      
+
       if (myChild.getGeoObject().getCode().equals(child.getGeoObject().getCode()))
       {
         it.remove();

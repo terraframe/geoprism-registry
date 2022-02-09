@@ -1,28 +1,10 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 874798239)
+@com.runwaysdk.business.ClassSignature(hash = -2031791850)
 public abstract class InheritedHierarchyAnnotationDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.InheritedHierarchyAnnotation";
-  private static final long serialVersionUID = 874798239;
+  private static final long serialVersionUID = -2031791850;
   
   protected InheritedHierarchyAnnotationDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -48,7 +30,9 @@ public abstract class InheritedHierarchyAnnotationDTOBase extends com.runwaysdk.
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static java.lang.String FORHIERARCHICALRELATIONSHIPTYPE = "forHierarchicalRelationshipType";
   public static java.lang.String FORHIERARCHY = "forHierarchy";
+  public static java.lang.String INHERITEDHIERARCHICALRELATIONSHIPTYPE = "inheritedHierarchicalRelationshipType";
   public static java.lang.String INHERITEDHIERARCHY = "inheritedHierarchy";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
@@ -171,6 +155,55 @@ public abstract class InheritedHierarchyAnnotationDTOBase extends com.runwaysdk.
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(ENTITYDOMAIN).getAttributeMdDTO();
   }
   
+  public net.geoprism.registry.HierarchicalRelationshipTypeDTO getForHierarchicalRelationshipType()
+  {
+    if(getValue(FORHIERARCHICALRELATIONSHIPTYPE) == null || getValue(FORHIERARCHICALRELATIONSHIPTYPE).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.registry.HierarchicalRelationshipTypeDTO.get(getRequest(), getValue(FORHIERARCHICALRELATIONSHIPTYPE));
+    }
+  }
+  
+  public String getForHierarchicalRelationshipTypeOid()
+  {
+    return getValue(FORHIERARCHICALRELATIONSHIPTYPE);
+  }
+  
+  public void setForHierarchicalRelationshipType(net.geoprism.registry.HierarchicalRelationshipTypeDTO value)
+  {
+    if(value == null)
+    {
+      setValue(FORHIERARCHICALRELATIONSHIPTYPE, "");
+    }
+    else
+    {
+      setValue(FORHIERARCHICALRELATIONSHIPTYPE, value.getOid());
+    }
+  }
+  
+  public boolean isForHierarchicalRelationshipTypeWritable()
+  {
+    return isWritable(FORHIERARCHICALRELATIONSHIPTYPE);
+  }
+  
+  public boolean isForHierarchicalRelationshipTypeReadable()
+  {
+    return isReadable(FORHIERARCHICALRELATIONSHIPTYPE);
+  }
+  
+  public boolean isForHierarchicalRelationshipTypeModified()
+  {
+    return isModified(FORHIERARCHICALRELATIONSHIPTYPE);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getForHierarchicalRelationshipTypeMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(FORHIERARCHICALRELATIONSHIPTYPE).getAttributeMdDTO();
+  }
+  
   public com.runwaysdk.system.metadata.MdTermRelationshipDTO getForHierarchy()
   {
     if(getValue(FORHIERARCHY) == null || getValue(FORHIERARCHY).trim().equals(""))
@@ -218,6 +251,55 @@ public abstract class InheritedHierarchyAnnotationDTOBase extends com.runwaysdk.
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getForHierarchyMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(FORHIERARCHY).getAttributeMdDTO();
+  }
+  
+  public net.geoprism.registry.HierarchicalRelationshipTypeDTO getInheritedHierarchicalRelationshipType()
+  {
+    if(getValue(INHERITEDHIERARCHICALRELATIONSHIPTYPE) == null || getValue(INHERITEDHIERARCHICALRELATIONSHIPTYPE).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.registry.HierarchicalRelationshipTypeDTO.get(getRequest(), getValue(INHERITEDHIERARCHICALRELATIONSHIPTYPE));
+    }
+  }
+  
+  public String getInheritedHierarchicalRelationshipTypeOid()
+  {
+    return getValue(INHERITEDHIERARCHICALRELATIONSHIPTYPE);
+  }
+  
+  public void setInheritedHierarchicalRelationshipType(net.geoprism.registry.HierarchicalRelationshipTypeDTO value)
+  {
+    if(value == null)
+    {
+      setValue(INHERITEDHIERARCHICALRELATIONSHIPTYPE, "");
+    }
+    else
+    {
+      setValue(INHERITEDHIERARCHICALRELATIONSHIPTYPE, value.getOid());
+    }
+  }
+  
+  public boolean isInheritedHierarchicalRelationshipTypeWritable()
+  {
+    return isWritable(INHERITEDHIERARCHICALRELATIONSHIPTYPE);
+  }
+  
+  public boolean isInheritedHierarchicalRelationshipTypeReadable()
+  {
+    return isReadable(INHERITEDHIERARCHICALRELATIONSHIPTYPE);
+  }
+  
+  public boolean isInheritedHierarchicalRelationshipTypeModified()
+  {
+    return isModified(INHERITEDHIERARCHICALRELATIONSHIPTYPE);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getInheritedHierarchicalRelationshipTypeMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(INHERITEDHIERARCHICALRELATIONSHIPTYPE).getAttributeMdDTO();
   }
   
   public com.runwaysdk.system.metadata.MdTermRelationshipDTO getInheritedHierarchy()

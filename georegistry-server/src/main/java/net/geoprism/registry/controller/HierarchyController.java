@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -23,7 +23,6 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
@@ -39,13 +38,13 @@ import net.geoprism.registry.service.ServiceFactory;
 @Controller(url = "hierarchy")
 public class HierarchyController
 {
-  private RegistryService    registryService;
+  private RegistryService registryService;
 
   public HierarchyController()
   {
     this.registryService = RegistryService.getInstance();
   }
-  
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "groupedTypes")
   public ResponseIF getHierarchyGroupedTypes(ClientRequestIF request)
   {
@@ -53,7 +52,7 @@ public class HierarchyController
 
     return new RestBodyResponse(ja);
   }
-  
+
   /**
    * Adds the {@link GeoObjectType} with the given child code to the parent
    * {@link GeoObjectType} with the given code for the given
@@ -97,12 +96,13 @@ public class HierarchyController
 
     return new RestBodyResponse(ht.toJSON(serializer));
   }
-  
+
   /**
-   * Inserts the {@link GeoObjectType} 'middleGeoObjectTypeCode' into the hierarchy
-   * as the child of 'parentGeoObjectTypeCode' and the new parent for 'youngestGeoObjectTypeCode'.
-   * If an existing parent/child relationship already exists between 'youngestGeoObjectTypeCode'
-   * and 'parentgeoObjectTypeCode', it will first be removed.
+   * Inserts the {@link GeoObjectType} 'middleGeoObjectTypeCode' into the
+   * hierarchy as the child of 'parentGeoObjectTypeCode' and the new parent for
+   * 'youngestGeoObjectTypeCode'. If an existing parent/child relationship
+   * already exists between 'youngestGeoObjectTypeCode' and
+   * 'parentgeoObjectTypeCode', it will first be removed.
    * 
    * @param sessionId
    * @param hierarchyTypeCode
@@ -122,7 +122,7 @@ public class HierarchyController
 
     return new RestBodyResponse(ht.toJSON(serializer));
   }
-  
+
   /**
    * Modifies a hierarchy to inherit from another hierarchy at the given
    * GeoObjectType

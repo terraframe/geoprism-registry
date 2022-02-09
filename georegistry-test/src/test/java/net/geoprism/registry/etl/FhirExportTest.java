@@ -214,7 +214,7 @@ public class FhirExportTest
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(fhirExportJsonConfig);
     config.setOrganization(org);
-    config.setHierarchy(ht.getUniversalRelationship());
+    config.setHierarchy(ht.getMdTermRelationship());
     config.setSystem(system.getOid());
     config.getLabel().setValue("FHIR Export Test");
     config.apply();

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -131,7 +131,7 @@ public class FhirOauthImportTest
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(fhirExportJsonConfig);
     config.setOrganization(org);
-    config.setHierarchy(ht.getUniversalRelationship());
+    config.setHierarchy(ht.getMdTermRelationship());
     config.setSystem(system.getOid());
     config.getLabel().setValue("FHIR Import Test");
     config.setIsImport(true);
@@ -140,51 +140,60 @@ public class FhirOauthImportTest
     return config;
   }
 
-//  private HttpClientBuilder getHttpClientBuilder() throws NoSuchAlgorithmException
-//  {
-//    HostnameVerifier hostnameVerifier = SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
-//
-//    SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(SSLContext.getDefault(), hostnameVerifier);
-//    Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory()).register("https", sslSocketFactory).build();
-//
-//    BasicHttpClientConnectionManager connMgr = new BasicHttpClientConnectionManager(socketFactoryRegistry);
-//
-//    HttpClientBuilder b = HttpClientBuilder.create();
-//    b.setConnectionManager(connMgr);
-//
-//    return b;
-//  }
-//
+  // private HttpClientBuilder getHttpClientBuilder() throws
+  // NoSuchAlgorithmException
+  // {
+  // HostnameVerifier hostnameVerifier =
+  // SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
+  //
+  // SSLConnectionSocketFactory sslSocketFactory = new
+  // SSLConnectionSocketFactory(SSLContext.getDefault(), hostnameVerifier);
+  // Registry<ConnectionSocketFactory> socketFactoryRegistry =
+  // RegistryBuilder.<ConnectionSocketFactory> create().register("http",
+  // PlainConnectionSocketFactory.getSocketFactory()).register("https",
+  // sslSocketFactory).build();
+  //
+  // BasicHttpClientConnectionManager connMgr = new
+  // BasicHttpClientConnectionManager(socketFactoryRegistry);
+  //
+  // HttpClientBuilder b = HttpClientBuilder.create();
+  // b.setConnectionManager(connMgr);
+  //
+  // return b;
+  // }
+  //
   @Request
   @Test
   public void testConnection() throws Exception
   {
-//    FhirExternalSystem system = null;
-//
-//    try
-//    {
-//      system = createExternalSystem();
-//
-//      try (OauthFhirConnection connection = new OauthFhirConnection(system, system.getOauthServer()))
-//      {
-//        Assert.assertNotNull(connection.getAccessToken());
-//        Assert.assertNotNull(connection.getExpiresIn());
-//        Assert.assertNotNull(connection.getLastSessionRefresh());
-//
-//        IBaseBundle bundle = connection.getClient().search().forResource(org.hl7.fhir.r4.model.Organization.class).execute();
-//
-//        IParser parser = connection.getFhirContext().newJsonParser();
-//        parser.setPrettyPrint(true);
-//
-//        System.out.println(parser.encodeResourceToString(bundle));
-//      }
-//    }
-//    finally
-//    {
-//      if (system != null)
-//      {
-//        system.delete();
-//      }
-//    }
+    // FhirExternalSystem system = null;
+    //
+    // try
+    // {
+    // system = createExternalSystem();
+    //
+    // try (OauthFhirConnection connection = new OauthFhirConnection(system,
+    // system.getOauthServer()))
+    // {
+    // Assert.assertNotNull(connection.getAccessToken());
+    // Assert.assertNotNull(connection.getExpiresIn());
+    // Assert.assertNotNull(connection.getLastSessionRefresh());
+    //
+    // IBaseBundle bundle =
+    // connection.getClient().search().forResource(org.hl7.fhir.r4.model.Organization.class).execute();
+    //
+    // IParser parser = connection.getFhirContext().newJsonParser();
+    // parser.setPrettyPrint(true);
+    //
+    // System.out.println(parser.encodeResourceToString(bundle));
+    // }
+    // }
+    // finally
+    // {
+    // if (system != null)
+    // {
+    // system.delete();
+    // }
+    // }
   }
 }

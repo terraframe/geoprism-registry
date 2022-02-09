@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1145919432)
+@com.runwaysdk.business.ClassSignature(hash = -401339073)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -119,6 +101,29 @@ public  class InheritedHierarchyAnnotationQuery extends com.runwaysdk.query.Gene
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.InheritedHierarchyAnnotation.ENTITYDOMAIN, mdAttributeIF, this, alias, displayLabel);
 
   }
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType()
+  {
+    return getForHierarchicalRelationshipType(null);
+
+  }
+ 
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType(String alias)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHICALRELATIONSHIPTYPE);
+
+    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHICALRELATIONSHIPTYPE, mdAttributeIF, this, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType(String alias, String displayLabel)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHICALRELATIONSHIPTYPE);
+
+    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHICALRELATIONSHIPTYPE, mdAttributeIF, this, alias, displayLabel);
+
+  }
   public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getForHierarchy()
   {
     return getForHierarchy(null);
@@ -140,6 +145,29 @@ public  class InheritedHierarchyAnnotationQuery extends com.runwaysdk.query.Gene
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHY);
 
     return (com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHY, mdAttributeIF, this, alias, displayLabel);
+
+  }
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType()
+  {
+    return getInheritedHierarchicalRelationshipType(null);
+
+  }
+ 
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType(String alias)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.InheritedHierarchyAnnotation.INHERITEDHIERARCHICALRELATIONSHIPTYPE);
+
+    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.InheritedHierarchyAnnotation.INHERITEDHIERARCHICALRELATIONSHIPTYPE, mdAttributeIF, this, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType(String alias, String displayLabel)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.InheritedHierarchyAnnotation.INHERITEDHIERARCHICALRELATIONSHIPTYPE);
+
+    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.InheritedHierarchyAnnotation.INHERITEDHIERARCHICALRELATIONSHIPTYPE, mdAttributeIF, this, alias, displayLabel);
 
   }
   public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getInheritedHierarchy()
@@ -371,9 +399,17 @@ public  class InheritedHierarchyAnnotationQuery extends com.runwaysdk.query.Gene
     {
        return new com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
+    else if (name.equals(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHICALRELATIONSHIPTYPE)) 
+    {
+       return new net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
     else if (name.equals(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHY)) 
     {
        return new com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.InheritedHierarchyAnnotation.INHERITEDHIERARCHICALRELATIONSHIPTYPE)) 
+    {
+       return new net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.InheritedHierarchyAnnotation.INHERITEDHIERARCHY)) 
     {
@@ -443,9 +479,15 @@ public  class InheritedHierarchyAnnotationQuery extends com.runwaysdk.query.Gene
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
+    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType();
+    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType(String alias);
+    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getForHierarchy();
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getForHierarchy(String alias);
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getForHierarchy(String alias, String displayLabel);
+    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType();
+    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType(String alias);
+    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getInheritedHierarchy();
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getInheritedHierarchy(String alias);
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getInheritedHierarchy(String alias, String displayLabel);
@@ -565,6 +607,23 @@ public  class InheritedHierarchyAnnotationQuery extends com.runwaysdk.query.Gene
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.InheritedHierarchyAnnotation.ENTITYDOMAIN,  alias, displayLabel);
 
   }
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType()
+  {
+    return getForHierarchicalRelationshipType(null);
+
+  }
+ 
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType(String alias)
+  {
+    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.get(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHICALRELATIONSHIPTYPE, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.get(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHICALRELATIONSHIPTYPE,  alias, displayLabel);
+
+  }
   public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getForHierarchy()
   {
     return getForHierarchy(null);
@@ -580,6 +639,23 @@ public  class InheritedHierarchyAnnotationQuery extends com.runwaysdk.query.Gene
   public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getForHierarchy(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF)this.get(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHY,  alias, displayLabel);
+
+  }
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType()
+  {
+    return getInheritedHierarchicalRelationshipType(null);
+
+  }
+ 
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType(String alias)
+  {
+    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.get(net.geoprism.registry.InheritedHierarchyAnnotation.INHERITEDHIERARCHICALRELATIONSHIPTYPE, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.get(net.geoprism.registry.InheritedHierarchyAnnotation.INHERITEDHIERARCHICALRELATIONSHIPTYPE,  alias, displayLabel);
 
   }
   public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getInheritedHierarchy()
@@ -781,9 +857,17 @@ public  class InheritedHierarchyAnnotationQuery extends com.runwaysdk.query.Gene
     {
        return new com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
+    else if (name.equals(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHICALRELATIONSHIPTYPE)) 
+    {
+       return new net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
     else if (name.equals(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHY)) 
     {
        return new com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.InheritedHierarchyAnnotation.INHERITEDHIERARCHICALRELATIONSHIPTYPE)) 
+    {
+       return new net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.InheritedHierarchyAnnotation.INHERITEDHIERARCHY)) 
     {
@@ -830,9 +914,15 @@ public  class InheritedHierarchyAnnotationQuery extends com.runwaysdk.query.Gene
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
+    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType();
+    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType(String alias);
+    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getForHierarchy();
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getForHierarchy(String alias);
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getForHierarchy(String alias, String displayLabel);
+    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType();
+    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType(String alias);
+    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getInheritedHierarchy();
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getInheritedHierarchy(String alias);
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getInheritedHierarchy(String alias, String displayLabel);
@@ -1001,6 +1091,23 @@ public  class InheritedHierarchyAnnotationQuery extends com.runwaysdk.query.Gene
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.InheritedHierarchyAnnotation.ENTITYDOMAIN,  alias, displayLabel);
 
   }
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType()
+  {
+    return getForHierarchicalRelationshipType(null);
+
+  }
+ 
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType(String alias)
+  {
+    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.get(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHICALRELATIONSHIPTYPE, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getForHierarchicalRelationshipType(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.get(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHICALRELATIONSHIPTYPE,  alias, displayLabel);
+
+  }
   public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getForHierarchy()
   {
     return getForHierarchy(null);
@@ -1016,6 +1123,23 @@ public  class InheritedHierarchyAnnotationQuery extends com.runwaysdk.query.Gene
   public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getForHierarchy(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF)this.get(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHY,  alias, displayLabel);
+
+  }
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType()
+  {
+    return getInheritedHierarchicalRelationshipType(null);
+
+  }
+ 
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType(String alias)
+  {
+    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.get(net.geoprism.registry.InheritedHierarchyAnnotation.INHERITEDHIERARCHICALRELATIONSHIPTYPE, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getInheritedHierarchicalRelationshipType(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.get(net.geoprism.registry.InheritedHierarchyAnnotation.INHERITEDHIERARCHICALRELATIONSHIPTYPE,  alias, displayLabel);
 
   }
   public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getInheritedHierarchy()
@@ -1217,9 +1341,17 @@ public  class InheritedHierarchyAnnotationQuery extends com.runwaysdk.query.Gene
     {
        return new com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
+    else if (name.equals(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHICALRELATIONSHIPTYPE)) 
+    {
+       return new net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
     else if (name.equals(net.geoprism.registry.InheritedHierarchyAnnotation.FORHIERARCHY)) 
     {
        return new com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.InheritedHierarchyAnnotation.INHERITEDHIERARCHICALRELATIONSHIPTYPE)) 
+    {
+       return new net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.InheritedHierarchyAnnotation.INHERITEDHIERARCHY)) 
     {

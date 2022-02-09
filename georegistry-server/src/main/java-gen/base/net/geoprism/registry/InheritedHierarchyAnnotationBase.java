@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1262521887)
+@com.runwaysdk.business.ClassSignature(hash = 871826070)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -32,7 +14,9 @@ public abstract class InheritedHierarchyAnnotationBase extends com.runwaysdk.bus
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static java.lang.String FORHIERARCHICALRELATIONSHIPTYPE = "forHierarchicalRelationshipType";
   public static java.lang.String FORHIERARCHY = "forHierarchy";
+  public static java.lang.String INHERITEDHIERARCHICALRELATIONSHIPTYPE = "inheritedHierarchicalRelationshipType";
   public static java.lang.String INHERITEDHIERARCHY = "inheritedHierarchy";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
@@ -44,7 +28,7 @@ public abstract class InheritedHierarchyAnnotationBase extends com.runwaysdk.bus
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
-  private static final long serialVersionUID = 1262521887;
+  private static final long serialVersionUID = 871826070;
   
   public InheritedHierarchyAnnotationBase()
   {
@@ -147,6 +131,58 @@ public abstract class InheritedHierarchyAnnotationBase extends com.runwaysdk.bus
     }
   }
   
+  public net.geoprism.registry.HierarchicalRelationshipType getForHierarchicalRelationshipType()
+  {
+    if (getValue(FORHIERARCHICALRELATIONSHIPTYPE).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.registry.HierarchicalRelationshipType.get(getValue(FORHIERARCHICALRELATIONSHIPTYPE));
+    }
+  }
+  
+  public String getForHierarchicalRelationshipTypeOid()
+  {
+    return getValue(FORHIERARCHICALRELATIONSHIPTYPE);
+  }
+  
+  public void validateForHierarchicalRelationshipType()
+  {
+    this.validateAttribute(FORHIERARCHICALRELATIONSHIPTYPE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getForHierarchicalRelationshipTypeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.InheritedHierarchyAnnotation.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(FORHIERARCHICALRELATIONSHIPTYPE);
+  }
+  
+  public void setForHierarchicalRelationshipType(net.geoprism.registry.HierarchicalRelationshipType value)
+  {
+    if(value == null)
+    {
+      setValue(FORHIERARCHICALRELATIONSHIPTYPE, "");
+    }
+    else
+    {
+      setValue(FORHIERARCHICALRELATIONSHIPTYPE, value.getOid());
+    }
+  }
+  
+  public void setForHierarchicalRelationshipTypeId(java.lang.String oid)
+  {
+    if(oid == null)
+    {
+      setValue(FORHIERARCHICALRELATIONSHIPTYPE, "");
+    }
+    else
+    {
+      setValue(FORHIERARCHICALRELATIONSHIPTYPE, oid);
+    }
+  }
+  
   public com.runwaysdk.system.metadata.MdTermRelationship getForHierarchy()
   {
     if (getValue(FORHIERARCHY).trim().equals(""))
@@ -196,6 +232,58 @@ public abstract class InheritedHierarchyAnnotationBase extends com.runwaysdk.bus
     else
     {
       setValue(FORHIERARCHY, oid);
+    }
+  }
+  
+  public net.geoprism.registry.HierarchicalRelationshipType getInheritedHierarchicalRelationshipType()
+  {
+    if (getValue(INHERITEDHIERARCHICALRELATIONSHIPTYPE).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.registry.HierarchicalRelationshipType.get(getValue(INHERITEDHIERARCHICALRELATIONSHIPTYPE));
+    }
+  }
+  
+  public String getInheritedHierarchicalRelationshipTypeOid()
+  {
+    return getValue(INHERITEDHIERARCHICALRELATIONSHIPTYPE);
+  }
+  
+  public void validateInheritedHierarchicalRelationshipType()
+  {
+    this.validateAttribute(INHERITEDHIERARCHICALRELATIONSHIPTYPE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getInheritedHierarchicalRelationshipTypeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.InheritedHierarchyAnnotation.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(INHERITEDHIERARCHICALRELATIONSHIPTYPE);
+  }
+  
+  public void setInheritedHierarchicalRelationshipType(net.geoprism.registry.HierarchicalRelationshipType value)
+  {
+    if(value == null)
+    {
+      setValue(INHERITEDHIERARCHICALRELATIONSHIPTYPE, "");
+    }
+    else
+    {
+      setValue(INHERITEDHIERARCHICALRELATIONSHIPTYPE, value.getOid());
+    }
+  }
+  
+  public void setInheritedHierarchicalRelationshipTypeId(java.lang.String oid)
+  {
+    if(oid == null)
+    {
+      setValue(INHERITEDHIERARCHICALRELATIONSHIPTYPE, "");
+    }
+    else
+    {
+      setValue(INHERITEDHIERARCHICALRELATIONSHIPTYPE, oid);
     }
   }
   

@@ -45,9 +45,7 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeDoubleInfo;
@@ -57,12 +55,10 @@ import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.MdClassDAOIF;
-import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
-import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.dataaccess.transaction.TransactionState;
@@ -70,7 +66,6 @@ import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.AbstractClassification;
 import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -87,12 +82,10 @@ import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdClass;
-import com.runwaysdk.system.metadata.MdClassification;
-import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
-import net.geoprism.registry.AttributeHierarchy;
+import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.HierarchyRootException;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.ListType;
@@ -311,7 +304,7 @@ public class ServerGeoObjectType implements ServerElement
     /*
      * Delete all Attribute references
      */
-    AttributeHierarchy.deleteByUniversal(this.universal);
+    // AttributeHierarchy.deleteByUniversal(this.universal);
 
     this.getMetadata().delete();
 
@@ -497,6 +490,11 @@ public class ServerGeoObjectType implements ServerElement
     }
   }
 
+  public String getOrganizationCode()
+  {
+    return this.getOrganization().getCode();
+  }
+
   /**
    * Creates an {@link MdAttributeConcrete} for the given {@link MdBusiness}
    * from the given {@link AttributeType}
@@ -601,21 +599,7 @@ public class ServerGeoObjectType implements ServerElement
 
   public List<ServerGeoObjectType> getChildren(ServerHierarchyType hierarchy)
   {
-    List<ServerGeoObjectType> children = new LinkedList<>();
-    String mdRelationshipType = hierarchy.getUniversalRelationship().definesType();
-
-    try (OIterator<? extends Business> iterator = this.universal.getDirectDescendants(mdRelationshipType))
-    {
-      while (iterator.hasNext())
-      {
-        Universal cUniversal = (Universal) iterator.next();
-
-        children.add(ServerGeoObjectType.get(cUniversal));
-      }
-
-    }
-
-    return children;
+    return hierarchy.getChildren(this);
   }
 
   public ServerGeoObjectType getSuperType()
@@ -756,8 +740,8 @@ public class ServerGeoObjectType implements ServerElement
 
     InheritedHierarchyAnnotation annotation = new InheritedHierarchyAnnotation();
     annotation.setUniversal(this.universal);
-    annotation.setInheritedHierarchy(inheritedHierarchy.getUniversalRelationship());
-    annotation.setForHierarchy(forHierarchy.getUniversalRelationship());
+    annotation.setInheritedHierarchicalRelationshipType(inheritedHierarchy.getHierarchicalRelationshipType());
+    annotation.setForHierarchicalRelationshipType(forHierarchy.getHierarchicalRelationshipType());
     annotation.apply();
 
     return annotation;
@@ -766,7 +750,7 @@ public class ServerGeoObjectType implements ServerElement
   @Transaction
   public void removeInheritedHierarchy(ServerHierarchyType forHierarchy)
   {
-    InheritedHierarchyAnnotation annotation = InheritedHierarchyAnnotation.get(this.universal, forHierarchy.getUniversalRelationship());
+    InheritedHierarchyAnnotation annotation = InheritedHierarchyAnnotation.get(this.universal, forHierarchy.getHierarchicalRelationshipType());
 
     if (annotation != null)
     {
@@ -776,16 +760,16 @@ public class ServerGeoObjectType implements ServerElement
 
   public ServerHierarchyType getInheritedHierarchy(ServerHierarchyType hierarchy)
   {
-    return this.getInheritedHierarchy(hierarchy.getUniversalRelationship());
+    return this.getInheritedHierarchy(hierarchy.getHierarchicalRelationshipType());
   }
 
-  public ServerHierarchyType getInheritedHierarchy(MdTermRelationship universalRelationship)
+  public ServerHierarchyType getInheritedHierarchy(HierarchicalRelationshipType hierarchicalRelationship)
   {
-    InheritedHierarchyAnnotation annotation = InheritedHierarchyAnnotation.get(this.universal, universalRelationship);
+    InheritedHierarchyAnnotation annotation = InheritedHierarchyAnnotation.get(this.universal, hierarchicalRelationship);
 
     if (annotation != null)
     {
-      return ServerHierarchyType.get(annotation.getInheritedHierarchy());
+      return ServerHierarchyType.get(annotation.getInheritedHierarchicalRelationshipType());
     }
 
     return null;
@@ -1250,4 +1234,5 @@ public class ServerGeoObjectType implements ServerElement
 
     return null;
   }
+
 }

@@ -18,42 +18,15 @@
  */
 package net.geoprism.registry;
 
-import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
-import com.runwaysdk.dataaccess.metadata.MdRelationshipDAO;
-import com.runwaysdk.system.gis.geo.AllowedIn;
-import com.runwaysdk.system.gis.geo.LocatedIn;
-
 import net.geoprism.ConfigurationIF;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.ForgotPasswordRequest;
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.graph.ExternalSystem;
-import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.session.ForgotPasswordOnOauthUser;
 
 public class RegistryConfiguration extends DefaultConfiguration implements ConfigurationIF
 {
-  
-  @Override
-  public String getGeoEntityRelationship(MdRelationshipDAOIF mdRelationshipDAOIF)
-  {
-    if (mdRelationshipDAOIF.definesType().equals(AllowedIn.CLASS))
-    {
-      return MdRelationshipDAO.getMdRelationshipDAO(LocatedIn.CLASS).getOid();
-    }
-
-    try
-    {
-      String code = ServerHierarchyType.buildHierarchyKeyFromMdTermRelUniversal(mdRelationshipDAOIF.getKey());
-      ServerHierarchyType hierarchyType = ServerHierarchyType.get(code);
-
-      return hierarchyType.getEntityRelationship().getOid();
-    }
-    catch (Exception e)
-    {
-      return null;
-    }
-  }
   
   @Override
   public void onInitiateForgotPasswordForUser(GeoprismUser user, ForgotPasswordRequest req)

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.conversion;
 
@@ -22,6 +22,7 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.ComponentIF;
+import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.ontology.InitializationStrategyIF;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
@@ -30,12 +31,9 @@ import com.runwaysdk.constants.MdAttributeDateTimeInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.constants.graph.MdEdgeInfo;
-import com.runwaysdk.dataaccess.AttributeDoesNotExistException;
 import com.runwaysdk.dataaccess.DuplicateDataException;
-import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.attributes.AttributeValueException;
-import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDateTimeDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
@@ -46,13 +44,14 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.AssociationType;
 import com.runwaysdk.system.metadata.MdBusiness;
+import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.RelationshipCache;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.registry.CodeLengthException;
 import net.geoprism.registry.DuplicateHierarchyTypeException;
-import net.geoprism.registry.HierarchyMetadata;
+import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.Organization;
@@ -70,9 +69,12 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
       // TODO : A better exception
       throw new AttributeValueException("Organization code cannot be null.", hierarchyType.getOrganizationCode());
     }
-    
+
+    Organization organization = Organization.getByCode(hierarchyType.getOrganizationCode());
+
     String addons = new String(RegistryConstants.UNIVERSAL_RELATIONSHIP_POST + "AllPathsTable");
-    if (hierarchyType.getCode().length() > (64 - addons.length()))
+
+    if (hierarchyType.getCode().length() > ( 64 - addons.length() ))
     {
       // Initializing the Universal allpaths strategy creates this limitation.
       CodeLengthException ex = new CodeLengthException();
@@ -119,11 +121,44 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
       }
     };
 
-    MdTermRelationship mdTermRelUniversal = this.newHierarchyToMdTermRelForUniversals(hierarchyType);
-    
     try
     {
+      MdTermRelationship mdTermRelUniversal = this.newHierarchyToMdTermRelForUniversals(hierarchyType);
       mdTermRelUniversal.apply();
+
+      this.grantWritePermissionsOnMdTermRel(mdTermRelUniversal);
+      this.grantWritePermissionsOnMdTermRel(maintainer, mdTermRelUniversal);
+      this.grantReadPermissionsOnMdTermRel(consumer, mdTermRelUniversal);
+      this.grantReadPermissionsOnMdTermRel(contributor, mdTermRelUniversal);
+
+      Universal.getStrategy().initialize(mdTermRelUniversal.definesType(), strategy);
+
+      MdEdge mdEdge = this.createMdEdge(hierarchyType);
+
+      this.grantWritePermissionsOnMdTermRel(mdEdge);
+      this.grantWritePermissionsOnMdTermRel(maintainer, mdEdge);
+      this.grantReadPermissionsOnMdTermRel(consumer, mdEdge);
+      this.grantReadPermissionsOnMdTermRel(contributor, mdEdge);
+
+      HierarchicalRelationshipType hierarchicalRelationship = new HierarchicalRelationshipType();
+      hierarchicalRelationship.setCode(hierarchyType.getCode());
+      hierarchicalRelationship.setOrganization(organization);
+      populate(hierarchicalRelationship.getDisplayLabel(), hierarchyType.getLabel());
+      populate(hierarchicalRelationship.getDescription(), hierarchyType.getDescription());
+      hierarchicalRelationship.setMdTermRelationship(mdTermRelUniversal);
+      hierarchicalRelationship.setMdEdge(mdEdge);
+      hierarchicalRelationship.setAbstractDescription(hierarchyType.getAbstractDescription());
+      hierarchicalRelationship.setAcknowledgement(hierarchyType.getAcknowledgement());
+      hierarchicalRelationship.setDisclaimer(hierarchyType.getDisclaimer());
+      hierarchicalRelationship.setContact(hierarchyType.getContact());
+      hierarchicalRelationship.setPhoneNumber(hierarchyType.getPhoneNumber());
+      hierarchicalRelationship.setEmail(hierarchyType.getEmail());
+      hierarchicalRelationship.setProgress(hierarchyType.getProgress());
+      hierarchicalRelationship.setAccessConstraints(hierarchyType.getAccessConstraints());
+      hierarchicalRelationship.setUseConstraints(hierarchyType.getUseConstraints());
+      hierarchicalRelationship.apply();
+
+      return this.get(hierarchicalRelationship);
     }
     catch (DuplicateDataException ex)
     {
@@ -131,43 +166,6 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
       ex2.setDuplicateValue(hierarchyType.getCode());
       throw ex2;
     }
-
-    this.grantWritePermissionsOnMdTermRel(mdTermRelUniversal);
-    this.grantWritePermissionsOnMdTermRel(maintainer, mdTermRelUniversal);
-    this.grantReadPermissionsOnMdTermRel(consumer, mdTermRelUniversal);
-    this.grantReadPermissionsOnMdTermRel(contributor, mdTermRelUniversal);
-
-    Universal.getStrategy().initialize(mdTermRelUniversal.definesType(), strategy);
-
-    MdTermRelationship mdTermRelGeoEntity = this.newHierarchyToMdTermRelForGeoEntities(hierarchyType);
-    mdTermRelGeoEntity.apply();
-
-    this.grantWritePermissionsOnMdTermRel(mdTermRelGeoEntity);
-    this.grantWritePermissionsOnMdTermRel(maintainer, mdTermRelGeoEntity);
-    this.grantReadPermissionsOnMdTermRel(consumer, mdTermRelGeoEntity);
-    this.grantReadPermissionsOnMdTermRel(contributor, mdTermRelGeoEntity);
-
-    MdEdgeDAO mdEdge = this.createMdEdge(hierarchyType);
-
-    this.grantWritePermissionsOnMdTermRel(mdEdge);
-    this.grantWritePermissionsOnMdTermRel(maintainer, mdEdge);
-    this.grantReadPermissionsOnMdTermRel(consumer, mdEdge);
-    this.grantReadPermissionsOnMdTermRel(contributor, mdEdge);
-
-    HierarchyMetadata metadata = new HierarchyMetadata();
-    metadata.setMdTermRelationship(mdTermRelUniversal);
-    metadata.setAbstractDescription(hierarchyType.getAbstractDescription());
-    metadata.setAcknowledgement(hierarchyType.getAcknowledgement());
-    metadata.setDisclaimer(hierarchyType.getDisclaimer());
-    metadata.setContact(hierarchyType.getContact());
-    metadata.setPhoneNumber(hierarchyType.getPhoneNumber());
-    metadata.setEmail(hierarchyType.getEmail());
-    metadata.setProgress(hierarchyType.getProgress());
-    metadata.setAccessConstraints(hierarchyType.getAccessConstraints());
-    metadata.setUseConstraints(hierarchyType.getUseConstraints());
-    metadata.apply();
-
-    return this.get(mdTermRelUniversal);
   }
 
   /**
@@ -191,17 +189,18 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     MdTermRelationship mdTermRelationship = new MdTermRelationship();
 
     // The Universal allpaths has a more restrictive limitation.
-//    try
-//    {
-      mdTermRelationship.setTypeName(hierarchyType.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
-//    }
-//    catch (AttributeLengthCharacterException e)
-//    {
-//      CodeLengthException ex = new CodeLengthException();
-//      ex.setLength(64 - RegistryConstants.UNIVERSAL_RELATIONSHIP_POST.length());
-//      throw ex;
-//    }
-    
+    // try
+    // {
+    mdTermRelationship.setTypeName(hierarchyType.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
+    // }
+    // catch (AttributeLengthCharacterException e)
+    // {
+    // CodeLengthException ex = new CodeLengthException();
+    // ex.setLength(64 -
+    // RegistryConstants.UNIVERSAL_RELATIONSHIP_POST.length());
+    // throw ex;
+    // }
+
     mdTermRelationship.setPackageName(GISConstants.GEO_PACKAGE);
     populate(mdTermRelationship.getDisplayLabel(), hierarchyType.getLabel());
     populate(mdTermRelationship.getDescription(), hierarchyType.getDescription());
@@ -275,7 +274,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
    * @param hierarchyType
    * @return
    */
-  public MdEdgeDAO createMdEdge(HierarchyType hierarchyType)
+  public MdEdge createMdEdge(HierarchyType hierarchyType)
   {
     MdVertexDAOIF mdBusGeoEntity = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS);
 
@@ -303,7 +302,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     endDate.setValue(MdAttributeDateTimeInfo.DEFINING_MD_CLASS, mdEdgeDAO.getOid());
     endDate.apply();
 
-    return mdEdgeDAO;
+    return (MdEdge) BusinessFacade.get(mdEdgeDAO);
   }
 
   private void grantWritePermissionsOnMdTermRel(ComponentIF mdTermRelationship)
@@ -334,10 +333,10 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     role.grantPermission(Operation.READ, mdTermRelationship.getOid());
     role.grantPermission(Operation.READ_ALL, mdTermRelationship.getOid());
   }
-  
-  public ServerHierarchyType get(MdTermRelationship universalRelationship)
+
+  public ServerHierarchyType get(HierarchicalRelationshipType hierarchicalRelationship)
   {
-    return this.get(universalRelationship, true);
+    return this.get(hierarchicalRelationship, true);
   }
 
   /**
@@ -345,53 +344,19 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
    * @param universalRelationship
    * @return
    */
-  public ServerHierarchyType get(MdTermRelationship universalRelationship, boolean buildHierarchyNodes)
+  public ServerHierarchyType get(HierarchicalRelationshipType hierarchicalRelationship, boolean buildHierarchyNodes)
   {
-    String hierarchyKey = ServerHierarchyType.buildHierarchyKeyFromMdTermRelUniversal(universalRelationship.getKey());
-    String geoEntityKey = ServerHierarchyType.buildMdTermRelGeoEntityKey(hierarchyKey);
-    String mdEdgeKey = ServerHierarchyType.buildMdEdgeKey(hierarchyKey);
+//    LocalizedValue displayLabel = AttributeTypeConverter.convert(hierarchicalRelationship.getDisplayLabel());
+//    LocalizedValue description = AttributeTypeConverter.convert(hierarchicalRelationship.getDescription());
+//    Organization organization = hierarchicalRelationship.getOrganization();
 
-    MdTermRelationship entityRelationship = MdTermRelationship.getByKey(geoEntityKey);
-    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(mdEdgeKey);
+    ServerHierarchyType sht = new ServerHierarchyType(hierarchicalRelationship);
 
-    LocalizedValue displayLabel = AttributeTypeConverter.convert(entityRelationship.getDisplayLabel());
-    LocalizedValue description = AttributeTypeConverter.convert(entityRelationship.getDescription());
+//    if (buildHierarchyNodes)
+//    {
+//      sht.buildHierarchyNodes();
+//    }
 
-    String ownerActerOid = universalRelationship.getOwnerId();
-    String organizationCode = Organization.getRootOrganizationCode(ownerActerOid);
-
-    HierarchyType ht = new HierarchyType(hierarchyKey, displayLabel, description, organizationCode);
-
-    try
-    {
-      HierarchyMetadata metadata = HierarchyMetadata.getByKey(universalRelationship.getOid());
-      ht.setAbstractDescription(metadata.getAbstractDescription());
-      ht.setProgress(metadata.getProgress());
-      ht.setAcknowledgement(metadata.getAcknowledgement());
-      ht.setDisclaimer(metadata.getDisclaimer());
-      ht.setContact(metadata.getContact());
-      ht.setPhoneNumber(metadata.getPhoneNumber());
-      ht.setEmail(metadata.getEmail());
-      ht.setAccessConstraints(metadata.getAccessConstraints());
-      ht.setUseConstraints(metadata.getUseConstraints());
-    }
-    catch (DataNotFoundException | AttributeDoesNotExistException e)
-    {
-      ht.setAbstractDescription("");
-      ht.setProgress("");
-      ht.setAcknowledgement("");
-      ht.setContact("");
-      ht.setAccessConstraints("");
-      ht.setUseConstraints("");
-    }
-
-    ServerHierarchyType sht =  new ServerHierarchyType(ht, universalRelationship, entityRelationship, mdEdge);
-    
-    if (buildHierarchyNodes)
-    {
-      sht.buildHierarchyNodes();
-    }
-    
     return sht;
   }
 

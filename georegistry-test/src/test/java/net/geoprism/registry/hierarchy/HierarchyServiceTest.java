@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
@@ -33,17 +33,10 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.RunwayExceptionDTO;
-import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.SmartExceptionDTO;
-import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.gis.constants.GISConstants;
-import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.LocatedIn;
-import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.metadata.MdBusiness;
 
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -53,7 +46,6 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.TestUserInfo;
-import net.geoprism.registry.test.USATestData;
 
 public class HierarchyServiceTest
 {
@@ -63,8 +55,8 @@ public class HierarchyServiceTest
   public static final TestHierarchyTypeInfo TEST_HT  = new TestHierarchyTypeInfo("HMST_ReportDiv", FastTestDataset.ORG_CGOV);
 
   protected static FastTestDataset          testData;
-  
-  protected HierarchyService service = new HierarchyService();
+
+  protected HierarchyService                service  = new HierarchyService();
 
   @BeforeClass
   public static void setUpClass()
@@ -77,7 +69,7 @@ public class HierarchyServiceTest
   public static void cleanUpClass()
   {
     deleteExtraMetadata();
-    
+
     testData.tearDownMetadata();
   }
 
@@ -106,86 +98,86 @@ public class HierarchyServiceTest
     TEST_HT.delete();
     TEST_GOT.delete();
   }
-  
+
   @Test
   public void testGetHierarchyGroupedTypes()
   {
-    for (TestUserInfo user : new TestUserInfo[] {FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM})
+    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM })
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
         JsonArray ja = service.getHierarchyGroupedTypes(request.getSessionId());
-        
+
         ArrayList<String> hierarchyLabels = new ArrayList<String>();
         ArrayList<String> hierarchyCodes = new ArrayList<String>();
-        
+
         for (int i = 0; i < ja.size(); ++i)
         {
           JsonObject hierarchy = ja.get(i).getAsJsonObject();
-          
+
           Assert.assertNotNull(hierarchy.get("label").getAsString());
           Assert.assertNotNull(hierarchy.get("code").getAsString());
-          
+
           hierarchyLabels.add(hierarchy.get("label").getAsString());
           hierarchyCodes.add(hierarchy.get("code").getAsString());
         }
 
         Assert.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_ADMIN.getCode()));
         Assert.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
-        
+
         Assert.assertFalse(hierarchyCodes.contains(FastTestDataset.HIER_HEALTH_ADMIN.getCode()));
         Assert.assertFalse(hierarchyLabels.contains(FastTestDataset.HIER_HEALTH_ADMIN.getDisplayLabel()));
       });
     }
-    
-    for (TestUserInfo user : new TestUserInfo[] {FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM})
+
+    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM })
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
         JsonArray ja = service.getHierarchyGroupedTypes(request.getSessionId());
-        
+
         ArrayList<String> hierarchyLabels = new ArrayList<String>();
         ArrayList<String> hierarchyCodes = new ArrayList<String>();
-        
+
         for (int i = 0; i < ja.size(); ++i)
         {
           JsonObject hierarchy = ja.get(i).getAsJsonObject();
-          
+
           Assert.assertNotNull(hierarchy.get("label").getAsString());
           Assert.assertNotNull(hierarchy.get("code").getAsString());
-          
+
           hierarchyLabels.add(hierarchy.get("label").getAsString());
           hierarchyCodes.add(hierarchy.get("code").getAsString());
         }
 
         Assert.assertFalse(hierarchyCodes.contains(FastTestDataset.HIER_ADMIN.getCode()));
         Assert.assertFalse(hierarchyLabels.contains(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
-        
+
         Assert.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_HEALTH_ADMIN.getCode()));
         Assert.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_HEALTH_ADMIN.getDisplayLabel()));
       });
     }
-    
-    for (TestUserInfo user : new TestUserInfo[] {FastTestDataset.USER_ADMIN})
+
+    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_ADMIN })
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
         JsonArray ja = service.getHierarchyGroupedTypes(request.getSessionId());
-        
+
         ArrayList<String> hierarchyLabels = new ArrayList<String>();
         ArrayList<String> hierarchyCodes = new ArrayList<String>();
-        
+
         for (int i = 0; i < ja.size(); ++i)
         {
           JsonObject hierarchy = ja.get(i).getAsJsonObject();
-          
+
           Assert.assertNotNull(hierarchy.get("label").getAsString());
           Assert.assertNotNull(hierarchy.get("code").getAsString());
-          
+
           hierarchyLabels.add(hierarchy.get("label").getAsString());
           hierarchyCodes.add(hierarchy.get("code").getAsString());
         }
 
         Assert.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_ADMIN.getCode()));
         Assert.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
-        
+
         Assert.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_HEALTH_ADMIN.getCode()));
         Assert.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_HEALTH_ADMIN.getDisplayLabel()));
       });
@@ -317,7 +309,7 @@ public class HierarchyServiceTest
     gtJSON = reportingDivision.toJSON().toString();
 
     reportingDivision = ServiceFactory.getHierarchyService().updateHierarchyType(testData.clientSession.getSessionId(), gtJSON);
-    
+
     try
     {
       Assert.assertNotNull("The created hierarchy was not returned", reportingDivision);
@@ -410,32 +402,6 @@ public class HierarchyServiceTest
 
       Assert.assertEquals(testData.getManagedHierarchyTypes().size(), hierarchyTypes.length);
     });
-  }
-
-  @Request
-  private void checkReferenceAttribute(String hierarchyTypeCode, String parentCode, String childCode)
-  {
-    Universal parentUniversal = Universal.getByKey(parentCode);
-    Universal childUniversal = Universal.getByKey(childCode);
-
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyTypeCode);
-
-    String refAttrName = hierarchyType.getParentReferenceAttributeName(parentUniversal);
-
-    MdBusiness childMdBusiness = childUniversal.getMdBusiness();
-    MdBusinessDAOIF childMdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(childMdBusiness);
-
-    try
-    {
-      MdAttributeConcreteDAOIF mdAttribute = childMdBusinessDAOIF.definesAttribute(refAttrName);
-
-      Assert.assertNotNull("By adding a leaf type as a child of a non-leaf type, a reference attribute [" + refAttrName + "] to the parent was not defined on the child.", mdAttribute);
-
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("Attribute that implements GeoObject.UID does not exist. It should be defined on the business class");
-    }
   }
 
   @Test

@@ -4,22 +4,23 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -31,42 +32,25 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.business.ontology.Term;
-import com.runwaysdk.business.ontology.TermAndRel;
-import com.runwaysdk.business.ontology.TermHacker;
-import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
-import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
-import com.runwaysdk.dataaccess.RelationshipCardinalityException;
-import com.runwaysdk.dataaccess.cache.DataNotFoundException;
-import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
-import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.Actor;
-import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.InvalidGeoEntityUniversalException;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.metadata.MdAttributeIndices;
-import com.runwaysdk.system.metadata.MdAttributeReference;
-import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
-import com.runwaysdk.system.metadata.MetadataDisplayLabel;
-import com.runwaysdk.system.ontology.ImmutableRootException;
-import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.registry.AbstractParentException;
-import net.geoprism.registry.AttributeHierarchy;
+import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.HierarchyMetadata;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.ListType;
@@ -74,86 +58,92 @@ import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.geoobjecttype.AssignPublicChildOfPrivateType;
 import net.geoprism.registry.graph.CantRemoveInheritedGOT;
 import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
-import net.geoprism.registry.graph.MultipleHierarchyRootsException;
+import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerHierarchyType implements ServerElement
 {
+  private HierarchicalRelationshipType hierarchicalRelationship;
 
-  private HierarchyType      type;
-
-  private MdTermRelationship universalRelationship;
-
-  private MdTermRelationship entityRelationship;
-
-  private MdEdgeDAOIF        mdEdge;
-
-  public ServerHierarchyType(HierarchyType type, MdTermRelationship universalRelationship, MdTermRelationship entityRelationship, MdEdgeDAOIF mdEdge)
+  public ServerHierarchyType(HierarchicalRelationshipType hierarchicalRelationship)
   {
-    this.type = type;
-    this.universalRelationship = universalRelationship;
-    this.entityRelationship = entityRelationship;
-    this.mdEdge = mdEdge;
+    this.hierarchicalRelationship = hierarchicalRelationship;
   }
 
-  private HierarchyNode buildHierarchy(HierarchyNode parentNode, Universal parentUniversal, MdTermRelationship mdTermRel)
+  public HierarchicalRelationshipType getHierarchicalRelationshipType()
   {
-    List<Universal> childUniversals = new LinkedList<Universal>();
-
-    OIterator<? extends Business> i = parentUniversal.getChildren(mdTermRel.definesType());
-    try
-    {
-      i.forEach(u -> childUniversals.add((Universal) u));
-    }
-    finally
-    {
-      i.close();
-    }
-
-    for (Universal childUniversal : childUniversals)
-    {
-      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(childUniversal);
-
-      HierarchyNode node = new HierarchyNode(geoObjectType.getType());
-
-      node = buildHierarchy(node, childUniversal, mdTermRel);
-
-      parentNode.addChild(node);
-    }
-
-    return parentNode;
-
+    return hierarchicalRelationship;
   }
 
-  public void buildHierarchyNodes()
+  public MdTermRelationship getMdTermRelationship()
   {
-    this.type.clearRootGeoObjectTypes();
+    return this.hierarchicalRelationship.getMdTermRelationship();
+  }
 
-    Universal rootUniversal = Universal.getByKey(Universal.ROOT);
+  public MdEdgeDAOIF getMdEdge()
+  {
+    return (MdEdgeDAOIF) BusinessFacade.getEntityDAO(this.hierarchicalRelationship.getMdEdge());
+  }
 
-    // Copy all of the children to a list so as not to have recursion with open
-    // database cursors.
-    List<Universal> childUniversals = new LinkedList<Universal>();
+  // public HierarchyType getType()
+  // {
+  // return type;
+  // }
+  //
+  // public void setType(HierarchyType type)
+  // {
+  // this.type = type;
+  // }
 
-    OIterator<? extends Business> i = rootUniversal.getChildren(universalRelationship.definesType());
-    try
+  public String getCode()
+  {
+    return this.hierarchicalRelationship.getCode();
+  }
+
+  public String getProgress()
+  {
+    return this.hierarchicalRelationship.getProgress();
+  }
+
+  public String getAccessConstraints()
+  {
+    return this.hierarchicalRelationship.getAccessConstraints();
+  }
+
+  public String getUseConstraints()
+  {
+    return this.hierarchicalRelationship.getUseConstraints();
+  }
+
+  public String getAcknowledgement()
+  {
+    return this.hierarchicalRelationship.getAcknowledgement();
+  }
+
+  public String getDisclaimer()
+  {
+    return this.hierarchicalRelationship.getDisclaimer();
+  }
+
+  public List<HierarchyNode> getRootGeoObjectTypes()
+  {
+    return this.getRootGeoObjectTypes(true);
+  }
+
+  public List<HierarchyNode> getRootGeoObjectTypes(boolean includePrivateTypes)
+  {
+    List<HierarchyNode> rootGeoObjectTypes = new LinkedList<HierarchyNode>();
+
+    List<ServerGeoObjectType> types = this.getDirectRootNodes();
+
+    for (ServerGeoObjectType geoObjectType : types)
     {
-      i.forEach(u -> childUniversals.add((Universal) u));
-    }
-    finally
-    {
-      i.close();
-    }
-
-    for (Universal childUniversal : childUniversals)
-    {
-      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(childUniversal);
-      ServerHierarchyType inheritedHierarchy = geoObjectType.getInheritedHierarchy(universalRelationship);
+      ServerHierarchyType inheritedHierarchy = geoObjectType.getInheritedHierarchy(this.hierarchicalRelationship);
 
       if (inheritedHierarchy != null)
       {
@@ -171,182 +161,148 @@ public class ServerHierarchyType implements ServerElement
           root = cNode;
         }
 
-        buildHierarchy(child, childUniversal, universalRelationship);
-        this.type.addRootGeoObjects(root);
+        buildHierarchy(child, geoObjectType);
+        rootGeoObjectTypes.add(root);
       }
       else
       {
         HierarchyNode node = new HierarchyNode(geoObjectType.getType());
-        node = buildHierarchy(node, childUniversal, universalRelationship);
-        this.type.addRootGeoObjects(node);
+        node = buildHierarchy(node, geoObjectType);
+        rootGeoObjectTypes.add(node);
       }
 
     }
+
+    if (!includePrivateTypes)
+    {
+      Iterator<HierarchyNode> rootIt = rootGeoObjectTypes.iterator();
+
+      while (rootIt.hasNext())
+      {
+        HierarchyNode hn = rootIt.next();
+
+        if (isRootPrivate(hn))
+        {
+          rootIt.remove();
+        }
+        else
+        {
+          this.filterOutPrivateNodes(hn);
+        }
+      }
+    }
+
+    return rootGeoObjectTypes;
   }
 
-  public MdTermRelationship getEntityRelationship()
+  public boolean hasVisibleRoot()
   {
-    return entityRelationship;
+    List<ServerGeoObjectType> roots = this.getDirectRootNodes();
+
+    if (roots.size() > 0)
+    {
+      final GeoObjectTypePermissionServiceIF typePermServ = ServiceFactory.getGeoObjectTypePermissionService();
+
+      for (ServerGeoObjectType root : roots)
+      {
+        if (typePermServ.canRead(root.getOrganizationCode(), root, root.getIsPrivate()))
+        {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    return true;
   }
 
-  public MdRelationshipDAOIF getEntityRelationshipDAO()
+  private boolean isRootPrivate(HierarchyNode parent)
   {
-    return (MdRelationshipDAOIF) BusinessFacade.getEntityDAO(this.entityRelationship);
+    final GeoObjectTypePermissionServiceIF typePermServ = ServiceFactory.getGeoObjectTypePermissionService();
+
+    if (parent.getInheritedHierarchyCode() == null || parent.getInheritedHierarchyCode() == "")
+    {
+      GeoObjectType rootGot = parent.getGeoObjectType();
+
+      if (!typePermServ.canRead(rootGot.getOrganizationCode(), ServerGeoObjectType.get(rootGot), rootGot.getIsPrivate()))
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+    else
+    {
+      for (HierarchyNode child : parent.getChildren())
+      {
+        if (this.isRootPrivate(child))
+        {
+          return true;
+        }
+      }
+
+      return false;
+    }
   }
 
-  public void setEntityRelationship(MdTermRelationship entityRelationship)
+  private void filterOutPrivateNodes(HierarchyNode parent)
   {
-    this.entityRelationship = entityRelationship;
+    final GeoObjectTypePermissionServiceIF typePermServ = ServiceFactory.getGeoObjectTypePermissionService();
+    List<HierarchyNode> list = parent.getChildren();
+
+    Iterator<HierarchyNode> it = list.iterator();
+    while (it.hasNext())
+    {
+      HierarchyNode child = it.next();
+
+      GeoObjectType got = child.getGeoObjectType();
+
+      if (!typePermServ.canRead(got.getOrganizationCode(), ServerGeoObjectType.get(got), got.getIsPrivate()))
+      {
+        it.remove();
+      }
+      else
+      {
+        this.filterOutPrivateNodes(child);
+      }
+    }
   }
 
-  public MdTermRelationship getUniversalRelationship()
+  public LocalStruct getDescription()
   {
-    return universalRelationship;
+    return this.hierarchicalRelationship.getDescription();
   }
 
-  public MdRelationshipDAOIF getUniversalRelationshipDAO()
+  public LocalStruct getDisplayLabel()
   {
-    return (MdRelationshipDAOIF) BusinessFacade.getEntityDAO(this.universalRelationship);
-  }
-
-  public void setUniversalRelationship(MdTermRelationship universalRelationship)
-  {
-    this.universalRelationship = universalRelationship;
-  }
-
-  public MdEdgeDAOIF getMdEdge()
-  {
-    return mdEdge;
-  }
-
-  public void setMdEdge(MdEdgeDAOIF mdEdge)
-  {
-    this.mdEdge = mdEdge;
-  }
-
-  public HierarchyType getType()
-  {
-    return type;
-  }
-
-  public void setType(HierarchyType type)
-  {
-    this.type = type;
-  }
-
-  public String getCode()
-  {
-    return this.type.getCode();
-  }
-
-  public String getProgress()
-  {
-    return this.type.getProgress();
-  }
-
-  public String getAccessConstraints()
-  {
-    return this.type.getAccessConstraints();
-  }
-
-  public String getUseConstraints()
-  {
-    return this.type.getUseConstraints();
-  }
-
-  public String getAcknowledgement()
-  {
-    return this.type.getAcknowledgement();
-  }
-
-  public String getDisclaimer()
-  {
-    return this.type.getDisclaimer();
-  }
-
-  public List<HierarchyNode> getRootGeoObjectTypes()
-  {
-    return this.type.getRootGeoObjectTypes();
-  }
-
-  public MetadataDisplayLabel getDescription()
-  {
-    return this.entityRelationship.getDescription();
-  }
-
-  public MetadataDisplayLabel getDisplayLabel()
-  {
-    return this.entityRelationship.getDisplayLabel();
+    return this.hierarchicalRelationship.getDisplayLabel();
   }
 
   public LocalizedValue getLabel()
   {
-    return this.type.getLabel();
+    return LocalizedValueConverter.convert(this.getDisplayLabel());
   }
 
   public String getUniversalType()
   {
-    return this.universalRelationship.definesType();
-  }
-
-  public String getEntityType()
-  {
-    return this.entityRelationship.definesType();
+    return this.hierarchicalRelationship.getMdTermRelationship().definesType();
   }
 
   public void refresh()
   {
-    ServerHierarchyType updated = new ServerHierarchyTypeBuilder().get(this.universalRelationship);
-
-    this.type = updated.getType();
-    this.universalRelationship = updated.getUniversalRelationship();
-    this.entityRelationship = updated.getEntityRelationship();
+    this.hierarchicalRelationship = HierarchicalRelationshipType.getByCode(this.hierarchicalRelationship.getCode());
 
     ServiceFactory.getMetadataCache().addHierarchyType(this);
   }
 
   public void update(HierarchyType hierarchyType)
   {
-    this.updateTransaction(hierarchyType);
+    this.hierarchicalRelationship.update(hierarchyType);
 
     this.refresh();
-  }
-
-  @Transaction
-  private void updateTransaction(HierarchyType hierarchyType)
-  {
-    this.entityRelationship.lock();
-
-    LocalizedValueConverter.populate(this.entityRelationship.getDisplayLabel(), hierarchyType.getLabel());
-    LocalizedValueConverter.populate(this.entityRelationship.getDescription(), hierarchyType.getDescription());
-
-    HierarchyMetadata metadata = null;
-
-    try
-    {
-      metadata = HierarchyMetadata.getByKey(universalRelationship.getOid());
-      metadata.appLock();
-    }
-    catch (DataNotFoundException e)
-    {
-      metadata = new HierarchyMetadata();
-      metadata.setMdTermRelationship(this.universalRelationship);
-    }
-
-    metadata.setAbstractDescription(hierarchyType.getAbstractDescription());
-    metadata.setProgress(hierarchyType.getProgress());
-    metadata.setAcknowledgement(hierarchyType.getAcknowledgement());
-    metadata.setDisclaimer(hierarchyType.getDisclaimer());
-    metadata.setContact(hierarchyType.getContact());
-    metadata.setPhoneNumber(hierarchyType.getPhoneNumber());
-    metadata.setEmail(hierarchyType.getEmail());
-    metadata.setAccessConstraints(hierarchyType.getAccessConstraints());
-    metadata.setUseConstraints(hierarchyType.getUseConstraints());
-    metadata.apply();
-
-    this.entityRelationship.apply();
-
-    this.entityRelationship.unlock();
   }
 
   public void delete()
@@ -365,37 +321,10 @@ public class ServerHierarchyType implements ServerElement
   @Transaction
   private void deleteInTrans()
   {
-    // // They can't delete it if there's existing data
-    // Universal root = Universal.getRoot();
-    // OIterator<? extends Business> it =
-    // root.getChildren(this.getUniversalRelationship().definesType());
-    // if (it.hasNext())
-    // {
-    // throw new ObjectHasDataException();
-    // }
-
     /*
      * Delete all inherited hierarchies
      */
-    List<? extends InheritedHierarchyAnnotation> annotations = InheritedHierarchyAnnotation.getByRelationship(this.getUniversalRelationship());
-
-    for (InheritedHierarchyAnnotation annotation : annotations)
-    {
-      annotation.delete();
-    }
-
-    Universal.getStrategy().shutdown(this.universalRelationship.definesType());
-
-    HierarchyMetadata.deleteByRelationship(this.universalRelationship);
-    AttributeHierarchy.deleteByRelationship(this.universalRelationship);
-
-    this.universalRelationship.delete();
-
-    GeoEntity.getStrategy().shutdown(this.entityRelationship.definesType());
-
-    this.entityRelationship.delete();
-
-    ( (MdEdgeDAO) this.getMdEdge() ).delete();
+    this.hierarchicalRelationship.delete();
 
     // MasterList.markAllAsInvalid(this, null);
     ListType.markAllAsInvalid(this, null);
@@ -431,6 +360,12 @@ public class ServerHierarchyType implements ServerElement
       throw exception;
     }
 
+    if (parentType.getIsPrivate() && !childType.getIsPrivate())
+    {
+      AssignPublicChildOfPrivateType ex = new AssignPublicChildOfPrivateType();
+      throw ex;
+    }
+
     // Check to see if the child type is already in the hierarchy
     List<ServerHierarchyType> hierarchies = childType.getHierarchies(true);
 
@@ -454,7 +389,7 @@ public class ServerHierarchyType implements ServerElement
       }
     }
 
-    this.addToHierarchyTransaction(parentType, childType);
+    this.hierarchicalRelationship.addToHierarchy(parentType, childType);
 
     // No exceptions thrown. Refresh the HierarchyType object to include the new
     // relationships.
@@ -471,24 +406,7 @@ public class ServerHierarchyType implements ServerElement
    */
   public String getOrganizationCode()
   {
-    if (this.getUniversalRelationship().getKey().equals(AllowedIn.CLASS) || this.getUniversalRelationship().getKey().equals(LocatedIn.CLASS))
-    {
-      return null; // AllowedIn is deprecated and should not be used by the
-      // end-user.
-    }
-
-    Actor uniRelActor = this.getUniversalRelationship().getOwner();
-    if (! ( uniRelActor instanceof Roles ))
-    {
-      return null; // If we get here, then the HierarchyType was not created
-      // correctly.
-    }
-    else
-    {
-      Roles uniRelRole = (Roles) uniRelActor;
-
-      return RegistryRole.Type.parseOrgCode(uniRelRole.getRoleName());
-    }
+    return this.getOrganization().getCode();
   }
 
   /**
@@ -498,139 +416,7 @@ public class ServerHierarchyType implements ServerElement
    */
   public Organization getOrganization()
   {
-    if (this.getUniversalRelationship().getKey().equals(AllowedIn.CLASS) || this.getUniversalRelationship().getKey().equals(LocatedIn.CLASS))
-    {
-      return null; // AllowedIn is deprecated and should not be used by the
-                   // end-user.
-    }
-
-    Actor uniRelActor = this.getUniversalRelationship().getOwner();
-    if (! ( uniRelActor instanceof Roles ))
-    {
-      return null; // If we get here, then the HierarchyType was not created
-                   // correctly.
-    }
-    else
-    {
-      Roles uniRelRole = (Roles) uniRelActor;
-      String myOrgCode = RegistryRole.Type.parseOrgCode(uniRelRole.getRoleName());
-
-      return ServiceFactory.getMetadataCache().getOrganization(myOrgCode).get();
-    }
-  }
-
-  @Transaction
-  private void addToHierarchyTransaction(ServerGeoObjectType parentType, ServerGeoObjectType childType)
-  {
-
-    try
-    {
-      childType.getUniversal().addLink(parentType.getUniversal(), this.universalRelationship.definesType());
-    }
-    catch (RelationshipCardinalityException e)
-    {
-      GeoObjectTypeAlreadyInHierarchyException ex = new GeoObjectTypeAlreadyInHierarchyException();
-      ex.setGotCode(childType.getCode());
-      throw ex;
-    }
-
-    if (childType.getUniversal().getIsLeafType())
-    {
-      this.addParentReferenceToLeafType(parentType.getUniversal(), childType.getUniversal());
-    }
-  }
-
-  /**
-   * Creates a reference attribute name for a child leaf type that references
-   * the parent type
-   * 
-   * @param hierarchyTypeCode
-   * @param parentUniversal
-   * @return
-   */
-  public String getParentReferenceAttributeName(Universal parentUniversal)
-  {
-    return this.getParentReferenceAttributeName(parentUniversal.getMdBusiness());
-  }
-
-  private String getParentReferenceAttributeName(MdBusiness parentMdBusiness)
-  {
-    String parentTypeName = parentMdBusiness.getTypeName();
-
-    // Lower case the first character of the hierarchy Code
-    String lowerCaseHierarchyName = Character.toLowerCase(this.getCode().charAt(0)) + this.getCode().substring(1);
-    if (lowerCaseHierarchyName.length() > 32)
-    {
-      lowerCaseHierarchyName = lowerCaseHierarchyName.substring(0, 31);
-    }
-
-    // Upper case the first character of the parent class
-    String upperCaseParentClassName = Character.toUpperCase(parentTypeName.charAt(0)) + parentTypeName.substring(1);
-    if (upperCaseParentClassName.length() > 32)
-    {
-      upperCaseParentClassName = upperCaseParentClassName.substring(0, 31);
-    }
-
-    return lowerCaseHierarchyName + upperCaseParentClassName;
-  }
-
-  /**
-   * Creates a reference attribute to the parent node class.
-   * 
-   * 
-   * @param hierarchyTypeCode
-   * @param parentUniversal
-   * @param childUniversal
-   */
-  @Transaction
-  public void addParentReferenceToLeafType(Universal parentUniversal, Universal childUniversal)
-  {
-    // MdBusiness parentMdBusiness = parentUniversal.getMdBusiness();
-    MdBusiness childMdBusiness = childUniversal.getMdBusiness();
-
-    String refAttrName = this.getParentReferenceAttributeName(parentUniversal);
-
-    String displayLabel = "Reference to " + parentUniversal.getDisplayLabel().getValue() + " in hierarchy " + this.getDisplayLabel().getValue();
-
-    MdAttributeReference mdAttributeReference = new MdAttributeReference();
-    mdAttributeReference.setAttributeName(refAttrName);
-    mdAttributeReference.getDisplayLabel().setValue(displayLabel);
-    mdAttributeReference.getDescription().setValue(this.getCode());
-    mdAttributeReference.setRequired(false);
-    mdAttributeReference.setDefiningMdClass(childMdBusiness);
-    mdAttributeReference.setMdBusiness(MdBusiness.getMdBusiness(GeoEntity.CLASS));
-    mdAttributeReference.addIndexType(MdAttributeIndices.NON_UNIQUE_INDEX);
-    mdAttributeReference.apply();
-
-    AttributeHierarchy map = new AttributeHierarchy();
-    map.setMdAttribute(mdAttributeReference);
-    map.setMdTermRelationship(this.entityRelationship);
-    map.setKeyName(mdAttributeReference.getKey());
-    map.apply();
-  }
-
-  /**
-   * Creates a reference attribute to the parent node class.
-   * 
-   * 
-   * @param hierarchyTypeCode
-   * @param parentUniversal
-   * @param childUniversal
-   */
-  @Transaction
-  public void removeParentReferenceToLeafType(Universal parentUniversal, Universal childUniversal)
-  {
-    // MdBusiness parentMdBusiness = parentUniversal.getMdBusiness();
-    MdBusinessDAOIF childMdBusiness = MdBusinessDAO.get(childUniversal.getMdBusinessOid());
-
-    String refAttrName = this.getParentReferenceAttributeName(parentUniversal);
-
-    MdAttributeConcreteDAOIF mdAttributeReference = childMdBusiness.definesAttribute(refAttrName);
-
-    AttributeHierarchy map = AttributeHierarchy.getByKey(mdAttributeReference.getKey());
-    map.delete();
-
-    mdAttributeReference.getBusinessDAO().delete();
+    return this.hierarchicalRelationship.getOrganization();
   }
 
   public void removeChild(ServerGeoObjectType parentType, ServerGeoObjectType childType, boolean migrateChildren)
@@ -642,12 +428,79 @@ public class ServerHierarchyType implements ServerElement
     this.refresh();
   }
 
+  public List<ServerGeoObjectType> getAllTypes()
+  {
+    List<ServerGeoObjectType> types = new LinkedList<ServerGeoObjectType>();
+
+    Universal rootUniversal = Universal.getByKey(Universal.ROOT);
+
+    try (OIterator<? extends Business> i = rootUniversal.getAllDescendants(this.hierarchicalRelationship.getMdTermRelationship().definesType()))
+    {
+      i.forEach(u -> types.add(ServerGeoObjectType.get((Universal) u)));
+    }
+
+    return types;
+  }
+
+  public HierarchyType toHierarchyType()
+  {
+    return this.toHierarchyType(true);
+  }
+
+  public HierarchyType toHierarchyType(boolean includePrivateTypes)
+  {
+    LocalizedValue description = LocalizedValueConverter.convert(this.getDescription());
+
+    final HierarchyType hierarchyType = new HierarchyType(this.getCode(), getLabel(), description, this.getOrganizationCode());
+    hierarchyType.setAbstractDescription(this.hierarchicalRelationship.getAbstractDescription());
+    hierarchyType.setAcknowledgement(this.hierarchicalRelationship.getAcknowledgement());
+    hierarchyType.setDisclaimer(this.hierarchicalRelationship.getDisclaimer());
+    hierarchyType.setContact(this.hierarchicalRelationship.getContact());
+    hierarchyType.setPhoneNumber(this.hierarchicalRelationship.getPhoneNumber());
+    hierarchyType.setEmail(this.hierarchicalRelationship.getEmail());
+    hierarchyType.setProgress(this.hierarchicalRelationship.getProgress());
+    hierarchyType.setAccessConstraints(this.hierarchicalRelationship.getAccessConstraints());
+    hierarchyType.setUseConstraints(this.hierarchicalRelationship.getUseConstraints());
+
+    this.getRootGeoObjectTypes(includePrivateTypes).forEach(rootType -> hierarchyType.addRootGeoObjects(rootType));
+
+    return hierarchyType;
+  }
+
+  private HierarchyNode buildHierarchy(HierarchyNode parentNode, ServerGeoObjectType parent)
+  {
+    List<ServerGeoObjectType> children = this.getChildren(parent);
+
+    for (ServerGeoObjectType child : children)
+    {
+      HierarchyNode node = new HierarchyNode(child.getType());
+
+      node = buildHierarchy(node, child);
+
+      parentNode.addChild(node);
+    }
+
+    return parentNode;
+  }
+
+  @Transaction
+  public void insertBetween(ServerGeoObjectType parentType, ServerGeoObjectType middleType, List<ServerGeoObjectType> youngestTypes)
+  {
+    this.addToHierarchy(parentType, middleType);
+
+    for (ServerGeoObjectType youngest : youngestTypes)
+    {
+      this.removeFromHierarchy(parentType, youngest, false);
+      this.addToHierarchy(middleType, youngest);
+    }
+  }
+
   @Transaction
   private void removeFromHierarchy(ServerGeoObjectType parentType, ServerGeoObjectType childType, boolean migrateChildren)
   {
     ServerGeoObjectService service = new ServerGeoObjectService();
 
-    List<? extends InheritedHierarchyAnnotation> annotations = InheritedHierarchyAnnotation.getByInheritedHierarchy(childType.getUniversal(), this.universalRelationship);
+    List<? extends InheritedHierarchyAnnotation> annotations = InheritedHierarchyAnnotation.getByInheritedHierarchy(childType.getUniversal(), this.hierarchicalRelationship);
 
     if (annotations.size() > 0)
     {
@@ -666,37 +519,14 @@ public class ServerHierarchyType implements ServerElement
       throw ex;
     }
 
-    Universal parent = parentType.getUniversal();
-    Universal cUniversal = childType.getUniversal();
-
-    removeLink(parent, cUniversal, this.universalRelationship.definesType());
-
-    if (migrateChildren)
-    {
-      TermAndRel[] tnrChildren = TermUtil.getDirectDescendants(cUniversal.getOid(), new String[] { this.universalRelationship.definesType() });
-
-      if (parent.getKey().equals(Universal.ROOT) && tnrChildren.length > 1)
-      {
-        MultipleHierarchyRootsException ex = new MultipleHierarchyRootsException();
-        throw ex;
-      }
-
-      for (TermAndRel tnrChild : tnrChildren)
-      {
-        Universal child = (Universal) tnrChild.getTerm();
-
-        removeLink(cUniversal, child, this.universalRelationship.definesType());
-
-        child.addLink(parent, this.universalRelationship.definesType());
-      }
-    }
+    this.hierarchicalRelationship.removeFromHierarchy(parentType, childType, migrateChildren);
 
     service.removeAllEdges(this, childType);
 
     // MasterList.markAllAsInvalid(this, childType);
     ListType.markAllAsInvalid(this, childType);
 
-    InheritedHierarchyAnnotation annotation = InheritedHierarchyAnnotation.get(childType.getUniversal(), this.universalRelationship);
+    InheritedHierarchyAnnotation annotation = InheritedHierarchyAnnotation.get(childType.getUniversal(), this.hierarchicalRelationship);
 
     if (annotation != null)
     {
@@ -710,7 +540,7 @@ public class ServerHierarchyType implements ServerElement
 
     LinkedList<ServerGeoObjectType> roots = new LinkedList<ServerGeoObjectType>();
 
-    try (OIterator<? extends Business> i = rootUniversal.getChildren(this.universalRelationship.definesType()))
+    try (OIterator<? extends Business> i = rootUniversal.getChildren(this.hierarchicalRelationship.getMdTermRelationship().definesType()))
     {
       i.forEach(u -> roots.add(ServerGeoObjectType.get((Universal) u)));
     }
@@ -748,22 +578,9 @@ public class ServerHierarchyType implements ServerElement
 
   }
 
-  private static void removeLink(Universal parent, Universal child, String relationshipType)
+  public List<ServerGeoObjectType> getChildren(ServerGeoObjectType parent)
   {
-    if (child.getKey().equals(Term.ROOT_KEY))
-    {
-      ImmutableRootException exception = new ImmutableRootException("Cannot modify the root Term.");
-      exception.setRootName(child.getDisplayLabel().getValue());
-      exception.apply();
-
-      throw exception;
-    }
-
-    // Remove the relationship
-    parent.removeAllChildren(child, relationshipType);
-
-    // Update the strategy
-    TermHacker.getStrategy(child).removeLink(parent, child, relationshipType);
+    return this.hierarchicalRelationship.getChildren(parent);
   }
 
   public static ServerHierarchyType get(String hierarchyTypeCode)
@@ -785,38 +602,17 @@ public class ServerHierarchyType implements ServerElement
   public static ServerHierarchyType get(HierarchyType hierarchyType)
   {
     return get(hierarchyType.getCode());
+  }
 
-    // String universalKey =
-    // buildMdTermRelUniversalKey(hierarchyType.getCode());
-    // String geoEntityKey =
-    // buildMdTermRelGeoEntityKey(hierarchyType.getCode());
-    // String mdEdgeKey = buildMdEdgeKey(hierarchyType.getCode());
-    //
-    // MdTermRelationship universalRelationship =
-    // MdTermRelationship.getByKey(universalKey);
-    // MdTermRelationship entityRelationship =
-    // MdTermRelationship.getByKey(geoEntityKey);
-    // MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(mdEdgeKey);
-    //
-    // return new ServerHierarchyType(hierarchyType, universalRelationship,
-    // entityRelationship, mdEdge);
+  public static ServerHierarchyType get(HierarchicalRelationshipType hierarchicalRelationship)
+  {
+    return ServiceFactory.getMetadataCache().getHierachyType(hierarchicalRelationship.getCode()).get();
   }
 
   public static ServerHierarchyType get(MdTermRelationship universalRelationship)
   {
     String code = buildHierarchyKeyFromMdTermRelUniversal(universalRelationship.getKey());
     return ServiceFactory.getMetadataCache().getHierachyType(code).get();
-
-    // String geoEntityKey =
-    // buildMdTermRelGeoEntityKey(hierarchyType.getCode());
-    // String mdEdgeKey = buildMdEdgeKey(hierarchyType.getCode());
-    //
-    // MdTermRelationship entityRelationship =
-    // MdTermRelationship.getByKey(geoEntityKey);
-    // MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(mdEdgeKey);
-    //
-    // return new ServerHierarchyType(hierarchyType, universalRelationship,
-    // entityRelationship, mdEdge);
   }
 
   public static ServerHierarchyType get(MdEdgeDAOIF mdEdge)
@@ -824,19 +620,6 @@ public class ServerHierarchyType implements ServerElement
     String code = buildHierarchyKeyFromMdEdge(mdEdge);
 
     return ServiceFactory.getMetadataCache().getHierachyType(code).get();
-
-    // String universalKey =
-    // buildMdTermRelUniversalKey(hierarchyType.getCode());
-    // String geoEntityKey =
-    // buildMdTermRelGeoEntityKey(hierarchyType.getCode());
-    //
-    // MdTermRelationship entityRelationship =
-    // MdTermRelationship.getByKey(geoEntityKey);
-    // MdTermRelationship universalRelationship =
-    // MdTermRelationship.getByKey(universalKey);
-    //
-    // return new ServerHierarchyType(hierarchyType, universalRelationship,
-    // entityRelationship, mdEdge);
   }
 
   /**
@@ -973,4 +756,5 @@ public class ServerHierarchyType implements ServerElement
   {
     return HierarchyMetadata.sGetClassDisplayLabel() + " : " + this.getCode();
   }
+
 }
