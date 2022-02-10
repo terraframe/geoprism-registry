@@ -8,3 +8,32 @@
   opacity: 0.8;
   z-index: 99999 !important;
 }
+
+:host::ng-deep input {
+    width: 100%;
+}
+
+:host::ng-deep .ui-corner-all {
+    border-radius: 5px;
+    border: 1px solid;
+    border-color: #767676;
+    border-color: var(--theme-input-text-border);
+}
+
+:host::ng-deep .ui-inputtext:enabled:focus:not(.ui-state-error) {
+    border-color: #6BA542;
+    border-color: var(--theme-input-text-border-active);
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%), 0 0 8px rgb(107 165 66 / 60%);
+    box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%), 0 0 8px rgb(107 165 66 / 60%);
+}
+
+:host::ng-deep .ui-table .ui-sortable-column.ui-state-highlight {
+    background: #6BA542;
+}
+
+:host::ng-deep .ui-table .ui-sortable-column:focus {
+    -webkit-box-shadow: inset 0 0 0 0.2em #6BA542;
+    -moz-box-shadow: inset 0 0 0 0.2em #6BA542;
+    box-shadow: inset 0 0 0 0.2em #6BA542;
+}

@@ -137,7 +137,43 @@ export class ListComponent implements OnInit, OnDestroy {
             this.cols.push({ header: "", type: "ACTIONS", sortable: false });
         }
 
-        this.list.attributes.forEach(attribute => {
+        //
+        // Order list columns
+        // mdAttributes don't currently define the difference between hierarchy or custom attributes.
+        // This ordering is a best attempt given these constraints.
+        //
+        let orderedArray = [];
+        let code = this.list.attributes.filter(obj => {
+            return obj.name === "code";
+        });
+        let label = this.list.attributes.filter(obj => {
+            return obj.name.includes("displayLabel");
+        });
+
+        orderedArray.push(code[0], ...label);
+
+        let customAttrs = [];
+        let otherAttrs = [];
+        this.list.attributes.forEach(attr => {
+            if (attr.type === "input" && attr.name !== "latitude" && attr.name !== "longitude") {
+                customAttrs.push(attr);
+            } else if (attr.name !== "code" && !attr.name.includes("displayLabel") && attr.name !== "latitude" && attr.name !== "longitude") {
+                otherAttrs.push(attr);
+            }
+        });
+
+        orderedArray.push(...customAttrs, ...otherAttrs);
+        
+        let coords = this.list.attributes.filter(obj => {
+            return obj.name === "latitude" || obj.name === "longitude";
+        });
+        
+        if (coords.length === 2) {
+            orderedArray.push(...coords);
+        }        
+        
+
+        orderedArray.forEach(attribute => {
             if (this.showInvalid || attribute.name !== "invalid") {
                 let column: GenericTableColumn = {
                     header: attribute.label,
