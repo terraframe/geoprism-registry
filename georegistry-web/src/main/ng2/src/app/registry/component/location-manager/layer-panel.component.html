@@ -11,6 +11,28 @@
   )
 </ng-template>
 
+<ng-template #listView let-list='list'>
+  <div *ngIf="list.versions.length > 0" class="list-group-item" style="border: none;">
+    <h4><a (click)="list.open = !list.open"><i class="fa fa-chevron-right" [ngClass]="{'fa-chevron-down' : list.open, 'fa-chevron-right' : !list.open}" style="font-size:14px;"></i>{{ list.label }}</a></h4>
+  
+    <div *ngIf="list.open" class="list-group">
+      <div *ngFor="let version of list.versions">
+        <div class="layer-toggle-wrapper">
+			      <boolean-field [value]="version.enabled" [label]="version.forDate" [disable]="false" (change)="onToggleLayer(version, list)" style="line-height:0;"></boolean-field>
+			  
+			      <div class="label-wrapper">
+			        <ng-container *ngIf="version.oid !== CONSTANT.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
+			          [ngTemplateOutletContext]="{layer:version}">
+			        </ng-container>
+			        <div *ngIf="version.color != null" class="layer-legend-square" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"
+			          [ngStyle]="{'background-color': version.color}"> </div>
+			      </div>
+			  </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
 <div class="layer-toggle">
 
   <div>
@@ -21,9 +43,11 @@
 
   <div *ngIf="panelSize === 1 && layers.length > 0">
     <div style="margin-bottom: 10px;">
+      <!--
       <h4>
         <localize key="explorer.layers"></localize>
       </h4>
+      -->
       <div class="list-group" cdkDropList (cdkDropListDropped)="drop($event)">
         <div *ngFor="let layer of layers" class="list-group-item" style="padding:5px;" cdkDrag>
 
@@ -31,7 +55,7 @@
             
               <div class="custom-placeholder" *cdkDragPlaceholder></div>
               
-              <i class="fa fa-arrows" style="font-size:15px;color: grey;margin-right: 3px;" aria-hidden="true"></i>
+              <!-- <i class="fa fa-arrows" style="font-size:15px;color: grey;margin-right: 3px;" aria-hidden="true"></i> -->
               <boolean-field [value]="layer.active" [label]="layer.label" [disable]="false" (change)="toggleActive(layer)" style="line-height:0;" ></boolean-field>
               
               <div class="label-wrapper">
@@ -96,7 +120,7 @@
             </button>
           </div>
         </div>
-        <div *ngIf="lists.length > 0" class="row">
+        <div *ngIf="listOrgGroups.length > 0" class="row">
           <div class="col-md-12">
             <p style="font-style:italic;color:grey;"><localize key="explorer.search.note"></localize></p>
           </div>
@@ -104,31 +128,34 @@
 
         <div class="row">
           <div class="col-md-12">
+            <!--
             <h3>
               <localize key="explorer.layers"></localize>
             </h3>
+            -->
             
-            <p *ngIf="lists.length < 1" style="font-style: italic; color: grey;"><localize key="explorer.find.layers.no.layers.found.message"></localize></p>
+            <p *ngIf="listOrgGroups.length < 1" style="font-style: italic; color: grey;"><localize key="explorer.find.layers.no.layers.found.message"></localize></p>
             
             <div class="list-group">
-              <div *ngFor="let list of lists">
-                <div *ngIf="list.versions.length > 0" class="list-group-item" style="border: none;">
+              <ng-container *ngIf="graphList" [ngTemplateOutlet]="listView"
+                [ngTemplateOutletContext]="{list:graphList}">
+              </ng-container>
+            
+              <div *ngFor="let listOrgGroup of listOrgGroups">
+                <div *ngIf="listOrgGroup.types.length > 0" class="list-group-item" style="border: none;">
                 
-                  <h4><a (click)="list.open = !list.open"><i class="fa fa-chevron-right" [ngClass]="{'fa-chevron-down' : list.open, 'fa-chevron-right' : !list.open}" style="font-size:14px;"></i>{{ list.label }}</a></h4>
-                  <div *ngIf="list.open" class="list-group">
-                    <div *ngFor="let version of list.versions">
-
-                        <div class="layer-toggle-wrapper">
-                            <boolean-field [value]="version.enabled" [label]="version.forDate" [disable]="false" (change)="onToggleLayer(version, list)" style="line-height:0;"></boolean-field>
-                        
-                            <div class="label-wrapper">
-                              <ng-container *ngIf="version.oid !== CONSTANT.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
-                                [ngTemplateOutletContext]="{layer:version}">
-                              </ng-container>
-                              <div *ngIf="version.color != null" class="layer-legend-square" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"
-                                [ngStyle]="{'background-color': version.color}"> </div>
-                            </div>
-                        </div>           
+                  <h3>{{ listOrgGroup.orgLabel.localizedValue }}</h3>
+                  
+                  <div *ngFor="let listTypeGroup of listOrgGroup.types">
+                    <div *ngIf="listTypeGroup.lists.length > 0" class="list-group-item" style="border: none;">
+                    
+                      <h4>{{ listTypeGroup.typeLabel.localizedValue }}</h4>
+                      
+                      <div *ngFor="let list of listTypeGroup.lists">
+                        <ng-container *ngIf="list" [ngTemplateOutlet]="listView"
+                          [ngTemplateOutletContext]="{list:list}">
+                        </ng-container>
+                      </div>
                     </div>
                   </div>
                 </div>

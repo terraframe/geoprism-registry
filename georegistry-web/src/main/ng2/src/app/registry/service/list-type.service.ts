@@ -4,7 +4,7 @@ import { finalize } from "rxjs/operators";
 import { FilterMetadata } from "primeng/api";
 
 import { EventService } from "@shared/service";
-import { ContextList, CurationJob, CurationProblem, LayerRecord, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
+import { CurationJob, CurationProblem, LayerRecord, ListOrgGroup, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
 import { Observable } from "rxjs";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
@@ -269,7 +269,7 @@ export class ListTypeService implements GenericTableService {
             .toPromise();
     }
 
-    getGeospatialVersions(startDate: string, endDate: string): Promise<ContextList[]> {
+    getGeospatialVersions(startDate: string, endDate: string): Promise<ListOrgGroup[]> {
         let params: HttpParams = new HttpParams();
 
         if (startDate != null && startDate.length > 0) {
@@ -281,7 +281,7 @@ export class ListTypeService implements GenericTableService {
         }
 
         return this.http
-            .get<ContextList[]>(registry.contextPath + "/list-type/get-geospatial-versions", { params: params })
+            .get<ListOrgGroup[]>(registry.contextPath + "/list-type/get-geospatial-versions", { params: params })
             .toPromise();
     }
 
