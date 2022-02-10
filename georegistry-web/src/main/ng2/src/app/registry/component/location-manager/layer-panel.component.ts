@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 
-import { ContextLayer, ContextList } from "@registry/model/list-type";
+import { ContextLayer, ContextList, ListOrgGroup } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { LocalizationService } from "@shared/service";
 import * as ColorGen from "color-generator";
@@ -50,8 +50,11 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 
     @Input() baselayerIconHover: boolean = false;
 
-    lists: ContextList[] = [];
+    listOrgGroups: ListOrgGroup[] = [];
+    // lists: ContextList[] = [];
     layers: ContextLayer[] = [];
+
+    graphList: ContextList = null;
 
     form: { startDate: string, currentStartDate: string, endDate: string, currentEndDate: string } = {
         startDate: "",
@@ -107,30 +110,23 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     ngOnChanges(changes: SimpleChanges) {
         if (changes.includeGraphLayer != null) {
             if (changes.includeGraphLayer.currentValue) {
-                const layer = {
+                let graphLayer = {
                     oid: GRAPH_LAYER,
                     forDate: this.form.endDate,
                     versionNumber: -1
                 };
 
-                const list = {
+                this.graphList = {
                     oid: GRAPH_LAYER,
                     label: this.lService.decode("explorer.search.layer"),
-                    versions: [layer],
+                    versions: [graphLayer],
                     open: false
                 };
 
-                this.lists.unshift(list);
-
-                this.toggleLayer(layer, list);
+                this.toggleLayer(graphLayer, this.graphList);
             } else {
-                const index = this.lists.findIndex(v => v.oid === GRAPH_LAYER);
-
-                if (index !== -1) {
-                    const list = this.lists[index];
-                    this.toggleLayer(list.versions[0], list);
-
-                    this.lists.splice(index, 1);
+                if (this.graphList != null) {
+                    this.toggleLayer(this.graphList.versions[0], this.graphList);
                 }
             }
         }
@@ -160,9 +156,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         const layers = this.params.layers != null ? JSON.parse(this.params.layers) : [];
 
         layers.forEach(layer => {
-            const hasList = this.lists.filter(list => list.versions.findIndex(v => v.oid === layer) !== -1).length > 0;
-
-            if (!hasList) {
+            if (this.findVersionById(layer) == null) {
                 isSearchRequired = true;
             }
         });
@@ -175,11 +169,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 
             this.handleSearch().then(lists => {
                 layers.reverse().forEach(oid => {
-                    lists.forEach(list => {
-                        list.versions.filter(v => v.oid === oid).forEach(v => {
-                            this.toggleLayer(v, list);
-                        });
-                    });
+                    this.toggleLayersWithCondition(v => v.oid === oid);
                 });
             });
         } else {
@@ -189,21 +179,13 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
                 const index = this.layers.findIndex(l => l.oid === layer);
 
                 if (index === -1) {
-                    this.lists.forEach(list => {
-                        list.versions.filter(v => v.oid === layer).forEach(v => {
-                            this.toggleLayer(v, list);
-                        });
-                    });
+                    this.toggleLayersWithCondition(v => v.oid === layer);
                 }
             });
 
             // Determine if any existing layers which need to be toggled off based on the state of the URL ''
             this.layers.filter(l => l.oid !== GRAPH_LAYER && layers.indexOf(l.oid) === -1).forEach(layer => {
-                this.lists.forEach(list => {
-                    list.versions.filter(v => v.oid === layer.oid).forEach(v => {
-                        this.toggleLayer(v, list);
-                    });
-                });
+                this.toggleLayersWithCondition(v => v.oid === layer.oid);
             });
         }
 
@@ -251,25 +233,55 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    handleSearch(): Promise<ContextList[]> {
-        return this.service.getGeospatialVersions(this.form.startDate, this.form.endDate).then(lists => {
+    handleSearch(): Promise<ListOrgGroup[]> {
+        return this.service.getGeospatialVersions(this.form.startDate, this.form.endDate).then(listOrgGroups => {
             // Remove all current lists
-            this.lists.forEach(list => {
-                list.versions.filter(v => v.enabled && v.oid !== GRAPH_LAYER).forEach(v => {
-                    this.toggleLayer(v, list);
-                });
-            });
+            this.toggleLayersWithCondition(v => v.enabled && v.oid !== GRAPH_LAYER);
 
             this.form.currentStartDate = this.form.startDate;
             this.form.currentEndDate = this.form.endDate;
 
-            this.lists = this.lists.filter(v => v.oid === GRAPH_LAYER).concat(lists);
+            this.listOrgGroups = listOrgGroups;
 
-            this.lists.forEach(list => {
-                list.versions = list.versions.filter(v => this.filter.indexOf(v.oid) === -1);
+            this.listOrgGroups.forEach(listOrgGroup => {
+                listOrgGroup.types.forEach(listTypeGroup => {
+                    listTypeGroup.lists.forEach(list => {
+                        list.versions = list.versions.filter(v => this.filter.indexOf(v.oid) === -1);
+                    });
+                });
             });
 
-            return lists;
+            return listOrgGroups;
+        });
+    }
+
+    findVersionById(id: string): ContextLayer {
+        let response: ContextLayer = null;
+
+        this.listOrgGroups.forEach(listOrgGroup => {
+            listOrgGroup.types.forEach(listTypeGroup => {
+                listTypeGroup.lists.forEach(list => {
+                    list.versions.forEach(version => {
+                        if (version.oid === id) {
+                            response = version;
+                        }
+                    });
+                });
+            });
+        });
+
+        return response;
+    }
+
+    toggleLayersWithCondition(condition: (layer: ContextLayer) => boolean) {
+        this.listOrgGroups.forEach(listOrgGroup => {
+            listOrgGroup.types.forEach(listTypeGroup => {
+                listTypeGroup.lists.forEach(list => {
+                    list.versions.filter(condition).forEach(v => {
+                        this.toggleLayer(v, list);
+                    });
+                });
+            });
         });
     }
 

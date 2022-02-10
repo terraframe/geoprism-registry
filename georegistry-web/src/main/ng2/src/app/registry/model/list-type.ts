@@ -187,6 +187,22 @@ export class ContextList {
 
 }
 
+export class ListTypeGroup {
+
+    typeCode: string;
+    typeLabel: LocalizedValue;
+    lists: ContextList[];
+
+}
+
+export class ListOrgGroup {
+
+    orgCode: string;
+    orgLabel: LocalizedValue;
+    types: ListTypeGroup[];
+
+}
+
 export class LayerRecord {
 
     recordType: string;

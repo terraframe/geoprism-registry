@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
-import { ContextList, CurationJob, CurationProblem, LayerRecord, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
+import { CurationJob, CurationProblem, LayerRecord, ListOrgGroup, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
 import { Observable } from "rxjs";
 
 import { GeoRegistryConfiguration } from "@core/model/registry"; import { PageResult } from "@shared/model/core";
@@ -253,7 +253,7 @@ export class ListTypeService {
             .toPromise();
     }
 
-    getGeospatialVersions(startDate: string, endDate: string): Promise<ContextList[]> {
+    getGeospatialVersions(startDate: string, endDate: string): Promise<ListOrgGroup[]> {
         let params: HttpParams = new HttpParams();
 
         if (startDate != null && startDate.length > 0) {
@@ -265,7 +265,7 @@ export class ListTypeService {
         }
 
         return this.http
-            .get<ContextList[]>(registry.contextPath + "/list-type/get-geospatial-versions", { params: params })
+            .get<ListOrgGroup[]>(registry.contextPath + "/list-type/get-geospatial-versions", { params: params })
             .toPromise();
     }
 
