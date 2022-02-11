@@ -23,12 +23,13 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.dataaccess.Command;
 
+import net.geoprism.EmailSetting;
 import net.geoprism.registry.TableEntity;
 import net.geoprism.registry.service.WMSService;
 
 public class GeoserverRemoveWMSCommand implements Command
 {
-  private Logger      log = LoggerFactory.getLogger(GeoserverRemoveWMSCommand.class);
+  private Logger logger = LoggerFactory.getLogger(GeoserverRemoveWMSCommand.class);
 
   private TableEntity version;
 
@@ -42,9 +43,16 @@ public class GeoserverRemoveWMSCommand implements Command
    */
   public void doIt()
   {
-    log.info("Removing WMS for TableEntity [" + this.version.getOid() + "]");
+    try
+    {
+      logger.info("Removing WMS for TableEntity [" + this.version.getOid() + "]");
 
-    new WMSService().deleteWMSLayer(version);
+      new WMSService().deleteWMSLayer(version);
+    }
+    catch (Throwable t)
+    {
+      logger.error("Unexpected error while removing Geoserver WMS service.", t);
+    }
   }
 
   /**
