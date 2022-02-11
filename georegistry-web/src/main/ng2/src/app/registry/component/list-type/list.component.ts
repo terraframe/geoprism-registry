@@ -163,15 +163,14 @@ export class ListComponent implements OnInit, OnDestroy {
         });
 
         orderedArray.push(...customAttrs, ...otherAttrs);
-        
+
         let coords = this.list.attributes.filter(obj => {
             return obj.name === "latitude" || obj.name === "longitude";
         });
-        
+
         if (coords.length === 2) {
             orderedArray.push(...coords);
-        }        
-        
+        }
 
         orderedArray.forEach(attribute => {
             if (this.showInvalid || attribute.name !== "invalid") {
