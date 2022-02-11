@@ -220,7 +220,10 @@ export class ListComponent implements OnInit, OnDestroy {
 
         orderedArray.splice(2, 0, ...customAttrs);
         orderedArray.splice(orderedArray.length, 0, ...otherAttrs);
-        orderedArray.splice(orderedArray.length, 0, ...[lat[0], long[0]])
+
+        if (lat.length > 0 && long.length > 0) {
+            orderedArray.splice(orderedArray.length, 0, ...[lat[0], long[0]]);
+        }
 
         return orderedArray;
     }
