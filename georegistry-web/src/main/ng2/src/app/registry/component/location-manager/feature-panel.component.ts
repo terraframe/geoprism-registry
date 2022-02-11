@@ -28,6 +28,8 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
 
     @Input() forDate: Date = new Date();
 
+    @Output() forDateChange = new EventEmitter<string>();
+
     @Input() readOnly: boolean = false;
 
     @Input() code: string;
@@ -38,7 +40,6 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
     @Output() modeChange = new EventEmitter<boolean>();
     @Output() panelCancel = new EventEmitter<void>();
     @Output() panelSubmit = new EventEmitter<{ isChangeRequest: boolean, geoObject?: any, changeRequestId?: string }>();
-    @Output() changeFilterDate = new EventEmitter<string>();
 
     _isValid: boolean = true;
 
@@ -94,10 +95,6 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
         this.code = code;
     }
 
-    setFilterDate(date: string, refresh: boolean = true) {
-        this.changeFilterDate.emit(date);
-    }
-
     refresh(): void {
         this.postGeoObject = null;
         this.preGeoObject = null;
@@ -131,6 +128,10 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
                 });
             }
         }
+    }
+
+    editorForDateChange($event) {
+        this.forDateChange.emit($event);
     }
 
     onCancelInternal(): void {

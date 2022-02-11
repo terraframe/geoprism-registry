@@ -421,7 +421,7 @@ export class GeometryService {
                 type: "circle",
                 source: finalSourceName,
                 paint: {
-                    "circle-radius": 3,
+                    "circle-radius": 10,
                     "circle-color": color,
                     "circle-stroke-width": 2,
                     "circle-stroke-color": "#FFFFFF"
