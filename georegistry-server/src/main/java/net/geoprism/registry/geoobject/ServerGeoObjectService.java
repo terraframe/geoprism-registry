@@ -498,7 +498,6 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       request.addAction(action).apply();
     }
 
-    request.apply();
     return request;
   }
 
