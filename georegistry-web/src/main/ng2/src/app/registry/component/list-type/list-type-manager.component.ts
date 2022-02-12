@@ -3,6 +3,7 @@ import { ActivatedRoute, Params } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { RegistryService } from "@registry/service";
+import { AuthService } from "@shared/service/auth.service";
 
 import { ErrorHandler } from "@shared/component";
 import { Organization } from "@shared/model/core";
@@ -32,7 +33,8 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
         private service: ListTypeService,
         private registryService: RegistryService,
         private route: ActivatedRoute,
-        private location: Location) { }
+        private location: Location, 
+        private authService: AuthService) { }
 
     ngOnInit(): void {
 
@@ -65,6 +67,37 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
         if (this.typesByOrg.length === 0) {
             this.registryService.init().then(response => {
                 this.typesByOrg = [];
+                
+                //
+                // Order alphabetically
+                // TODO: sort these on the server
+                //
+                function compare( a, b ) {
+                  if ( a.label.localizedValue < b.label.localizedValue ){
+                    return -1;
+                  }
+                  if ( a.label.localizedValue > b.label.localizedValue ){
+                    return 1;
+                  }
+                  return 0;
+                }
+                response.organizations.sort( compare );
+                //
+                // End sort
+                
+                // put org of the user on top
+                if(!this.authService.isSRA()) {
+                    let pos = null;
+                    let myorg = this.authService.getMyOrganizations();
+                    pos = response.organizations.findIndex(org => {
+                      return org.code === myorg[0];
+                    });
+                    
+                    if(pos >= 0) {
+                        this.array_move(response.organizations, pos, 0);
+                    }
+                }
+                
 
                 response.organizations.forEach(org => {
                     
@@ -113,11 +146,33 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
                     this.typesByOrg.push({ org: org, types: orgTypesNoGroupMembers });
                 });
                 
+                // Select the first type on load if no URL type params
+                setTimeout(() => {
+                    if (this.typesByOrg.length > 0) {
+                        
+                        let els = document.getElementsByClassName("got-li-item");
+                        if(els && els.length > 0) {
+                            let el = els[0].firstChild as HTMLElement;
+                            el.click();
+                        }
+                    }
+                }, 0);
+                
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
         }
     }
+    
+    array_move(arr, old_index, new_index): void {
+        if (new_index >= arr.length) {
+            var k = new_index - arr.length + 1;
+            while (k--) {
+                arr.push(undefined);
+            }
+        }
+        arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+    };
 
     ngOnDestroy(): void {
         if (this.subscription != null) {

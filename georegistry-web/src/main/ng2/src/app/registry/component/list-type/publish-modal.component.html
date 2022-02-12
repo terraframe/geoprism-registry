@@ -2,7 +2,7 @@
     <div class="row-holder" *ngFor="let localeValue of metadata.label.localeValues">
         <div class="label-holder">
             <label>
-                <localize key="masterlist.label"></localize>
+                <localize key="masterlist.metadata.title"></localize>
                 <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
                     </convert-key-label>)</span>
             </label>
@@ -199,8 +199,8 @@
             </div>
             <div class="holder">
                 <select class="select-area" name="spatialRepresentation" [(ngModel)]="metadata.spatialRepresentation"
-                    [disabled]="readonly">
-                    <option></option>
+                    [disabled]="true">
+                    <!-- <option></option> -->
                     <option value="vector">
                         <localize key="list.type.vector"></localize>
                     </option>
@@ -216,8 +216,8 @@
             </div>
             <div class="holder">
                 <select class="select-area" name="referenceSystem" [(ngModel)]="metadata.referenceSystem"
-                    [disabled]="readonly">
-                    <option></option>
+                    [disabled]="true">
+                    <!-- <option></option> -->
                     <option value="EPSG4326">
                         <localize key="list.type.epsg4326"></localize>
                     </option>
@@ -243,7 +243,7 @@
             </div>
             <div class="holder">
                 <select class="select-area" name="distributionFormat" [(ngModel)]="metadata.distributionFormat"
-                    [disabled]="readonly">
+                    [disabled]="true">
                     <option></option>
                     <option value="SHAPEFILE">
                         <localize key="io.shapefile"></localize>
@@ -357,7 +357,7 @@
                 <div class="row-holder" *ngFor="let localeValue of list.displayLabel.localeValues">
                     <div class="label-holder">
                         <label>
-                            <localize key="masterlist.label"></localize>
+                            <localize key="masterlist.metadata.title"></localize>
                             <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
                                 </convert-key-label>)</span>
                         </label>

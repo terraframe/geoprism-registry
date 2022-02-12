@@ -1,4 +1,4 @@
-<div class="new-admin-design-main">
+<div class="new-admin-design-main" style="overflow-y:hidden;">
     <cgr-header></cgr-header>
     <loading-bar></loading-bar>
 
@@ -28,7 +28,7 @@
                     </ul>
                 </div>
             </nav>
-            <div class="col-md-9 hierarchy-content">
+            <div class="col-md-9 list-type-content">
                 <div id="overflow-div">
                     <lists-for-type *ngIf="listByType != null" [listByType]="listByType" (error)="error($event)">
                     </lists-for-type>

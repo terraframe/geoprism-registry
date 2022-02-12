@@ -13,6 +13,11 @@
     overflow-y: auto;
 }
 
+.list-type-content {
+    overflow-y: auto;
+    height: calc(100vh - 144px);
+}
+
 .list-group-item,
 li.list-group-item {
     background-color: transparent;

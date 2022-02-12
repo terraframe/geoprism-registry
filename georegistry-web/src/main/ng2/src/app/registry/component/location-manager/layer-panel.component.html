@@ -106,11 +106,11 @@
         <div class="row">
           <div class="col-md-4">
             <date-field [(value)]="form.startDate" [classNames]="['form-control']" label="" inputName="startDate"
-              [allowFutureDates]="false" name="startDate"></date-field>
+              [allowFutureDates]="false" name="startDate" [placement]="'right'"></date-field>
           </div>
           <div class="col-md-4">
             <date-field [(value)]="form.endDate" [classNames]="['form-control']" label="" inputName="endDate"
-              [allowFutureDates]="false" name="endDate"></date-field>
+              [allowFutureDates]="false" name="endDate" [placement]="'right'"></date-field>
           </div>
           <div class="col-md-4" style="text-align:center;">
             <button type="button" (click)="onConfirm()" class="btn btn-primary" role="button">

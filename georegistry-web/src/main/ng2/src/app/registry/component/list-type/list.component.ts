@@ -186,7 +186,6 @@ export class ListComponent implements OnInit, OnDestroy {
             attribute.isCollapsed = true;
         });
 
-        //
         // Order list columns
         // mdAttributes don't currently define the difference between hierarchy or custom attributes.
         // This ordering is a best attempt given these constraints.
@@ -196,31 +195,30 @@ export class ListComponent implements OnInit, OnDestroy {
             return obj.name === "code";
         });
         let label = attrs.filter(obj => {
-            return obj.name === "displayLabelDefaultLocale";
-        });
-        let lat = attrs.filter(obj => {
-            return obj.name === "latitude";
+            return obj.name.includes("displayLabel");
         });
 
-        let long = attrs.filter(obj => {
-            return obj.name === "longitude";
-        });
-
-        orderedArray.push(code[0], label[0]);
+        orderedArray.push(code[0], ...label);
 
         let customAttrs = [];
         let otherAttrs = [];
         attrs.forEach(attr => {
             if (attr.type === "input" && attr.name !== "latitude" && attr.name !== "longitude") {
                 customAttrs.push(attr);
-            } else if (attr.name !== "code" && attr.name !== "displayLabelDefaultLocale" && attr.name !== "latitude" && attr.name !== "longitude") {
+            } else if (attr.name !== "code" && !attr.name.includes("displayLabel") && attr.name !== "latitude" && attr.name !== "longitude") {
                 otherAttrs.push(attr);
             }
         });
 
-        orderedArray.splice(2, 0, ...customAttrs);
-        orderedArray.splice(orderedArray.length, 0, ...otherAttrs);
-        orderedArray.splice(orderedArray.length, 0, ...[lat[0], long[0]])
+        orderedArray.push(...customAttrs, ...otherAttrs);
+        
+        let coords = this.list.attributes.filter(obj => {
+            return obj.name === "latitude" || obj.name === "longitude";
+        });
+        
+        if (coords.length === 2) {
+            orderedArray.push(...coords);
+        }      
 
         return orderedArray;
     }
