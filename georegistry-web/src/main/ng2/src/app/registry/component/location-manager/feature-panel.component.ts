@@ -28,6 +28,8 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
 
     @Input() forDate: Date = new Date();
 
+    @Output() forDateChange = new EventEmitter<string>();
+
     @Input() readOnly: boolean = false;
 
     @Input() code: string;
@@ -126,6 +128,10 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
                 });
             }
         }
+    }
+
+    editorForDateChange($event) {
+        this.forDateChange.emit($event);
     }
 
     onCancelInternal(): void {

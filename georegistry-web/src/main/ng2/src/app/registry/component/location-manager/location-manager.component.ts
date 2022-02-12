@@ -660,6 +660,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
+    featurePanelForDateChange($event) {
+        this.geomService.destroy(false);
+    }
+
     select(node: any, event: MouseEvent): void {
         if (!this.isEdit) {
             this.router.navigate([], {
@@ -703,11 +707,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.geomService.initialize(this.map, this.record.type.geometryType, false);
 
-            this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
-                this.zoomToFeature(geoObject, null);
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
+            if (code !== "__NEW__") {
+                this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
+                    this.zoomToFeature(geoObject, null);
+                }).catch((err: HttpErrorResponse) => {
+                    this.error(err);
+                });
+            }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });

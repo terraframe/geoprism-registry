@@ -125,7 +125,7 @@
         <ng-container *ngIf="mode === MODE.VIEW && record != null">
           <div *ngIf="record.recordType === 'GEO_OBJECT'" class="row">
             <div class="col-md-12">
-              <feature-panel [type]="record.type" [code]="record.code" [forDate]="record.forDate" [readOnly]="false"
+              <feature-panel [type]="record.type" [code]="record.code" [forDate]="record.forDate" (forDateChange)="featurePanelForDateChange($event)" [readOnly]="false"
                 (modeChange)="onModeChange($event)" (panelCancel)="clearRecord()" (panelSubmit)="onPanelSubmit($event)">
               </feature-panel>
             </div>
