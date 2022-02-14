@@ -23,18 +23,25 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.dataaccess.Command;
 
+import net.geoprism.EmailSetting;
 import net.geoprism.registry.TableEntity;
 import net.geoprism.registry.service.WMSService;
 
-public class GeoserverCreateWMSCommand implements Command
+public class SendEmailCommand implements Command
 {
-  private Logger logger = LoggerFactory.getLogger(GeoserverCreateWMSCommand.class);
+  private Logger logger = LoggerFactory.getLogger(SendEmailCommand.class);
+  
+  private String subject;
+  
+  private String body;
+  
+  private String[] toAddresses;
 
-  private TableEntity version;
-
-  public GeoserverCreateWMSCommand(TableEntity version)
+  public SendEmailCommand(String subject, String body, String[] toAddresses)
   {
-    this.version = version;
+    this.subject = subject;
+    this.body = body;
+    this.toAddresses = toAddresses;
   }
 
   /**
@@ -44,13 +51,11 @@ public class GeoserverCreateWMSCommand implements Command
   {
     try
     {
-      logger.info("Creating WMS for TableEntity [" + this.version.getOid() + "]");
-
-      new WMSService().createGeoServerLayer(version, false);
+      EmailSetting.sendEmail(subject, body, toAddresses);
     }
     catch (Throwable t)
     {
-      logger.error("Unexpected error while creating geoserver WMS service.", t);
+      logger.error("Unexpected error while sending email", t);
     }
   }
 
@@ -77,11 +82,6 @@ public class GeoserverCreateWMSCommand implements Command
     return null;
   }
 
-  /*
-   * Indicates if this Command deletes something.
-   * 
-   * @return <code><b>true</b></code> if this Command deletes something.
-   */
   public boolean isUndoable()
   {
     return false;

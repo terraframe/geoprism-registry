@@ -16,9 +16,9 @@
       [readOnly]="!isEdit"
       (valid)="setValid($event)"
       [filterDate]="forDate"
+      (filterDateChange)="editorForDateChange($event)"
       [forDate]="forDate"
       [datasetId]="datasetId"
-      (changeFilterDate)="setFilterDate($event)"
       > 
     </geoobject-shared-attribute-editor>
     
