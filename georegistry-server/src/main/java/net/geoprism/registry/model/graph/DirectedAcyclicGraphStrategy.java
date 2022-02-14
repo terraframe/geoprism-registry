@@ -70,23 +70,24 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
 
     for (EdgeObject edge : edges)
     {
-      final VertexObject parentVertex = edge.getParent();
+      final VertexObject childVertex = edge.getChild();
 
-      MdVertexDAOIF mdVertex = (MdVertexDAOIF) parentVertex.getMdClass();
+      MdVertexDAOIF mdVertex = (MdVertexDAOIF) childVertex.getMdClass();
 
-      ServerGeoObjectType parentType = ServerGeoObjectType.get(mdVertex);
+      ServerGeoObjectType childType = ServerGeoObjectType.get(mdVertex);
 
-      VertexServerGeoObject child = new VertexServerGeoObject(parentType, parentVertex, date);
+      VertexServerGeoObject child = new VertexServerGeoObject(childType, childVertex, date);
 
       ServerChildGraphNode tnParent;
 
       if (recursive)
       {
         tnParent = this.getChildren(child, recursive, date);
+        tnParent.setOid(edge.getOid());
       }
       else
       {
-        tnParent = new ServerChildGraphNode(parent, this.type, date, null, edge.getOid());
+        tnParent = new ServerChildGraphNode(child, this.type, date, null, edge.getOid());
       }
 
       tnRoot.addChild(tnParent);
@@ -135,6 +136,7 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
       if (recursive)
       {
         tnParent = this.getParents(parent, recursive, date);
+        tnParent.setOid(edge.getOid());        
       }
       else
       {

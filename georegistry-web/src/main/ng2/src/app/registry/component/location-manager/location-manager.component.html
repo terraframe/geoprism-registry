@@ -150,9 +150,9 @@
         </div>
         
         <relationship-visualizer *ngIf="record && record.recordType === 'GEO_OBJECT'"
-          [params]="{geoObject: current, mdEdgeOid: visualizingRelationship, date: filterDate, searchPanelOpen: showPanel}"
+          [params]="{geoObject: current, graphOid: visualizingRelationship, date: filterDate, searchPanelOpen: showPanel}"
           (changeGeoObject)="onChangeGeoObject($event)"
-          (changeRelationship)="visualizingRelationship = $event.oid"
+          (changeRelationship)="visualizingRelationship = $event"
         >
         
         </relationship-visualizer>

@@ -16,9 +16,9 @@ import net.geoprism.registry.GeoRegistryUtil;
 public class RelationshipVisualizationController
 {
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "tree")
-  public ResponseIF tree(ClientRequestIF request, @RequestParamter(name = "mdEdgeOid") String mdEdgeOid, @RequestParamter(name = "geoObjectCode") String geoObjectCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "date") String sDate)
+  public ResponseIF tree(ClientRequestIF request, @RequestParamter(name = "relationshipType") String relationshipType, @RequestParamter(name = "graphTypeCode") String graphTypeCode, @RequestParamter(name = "geoObjectCode") String geoObjectCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "date") String sDate)
   {
-    JsonElement json = new RelationshipVisualizationService().tree(request.getSessionId(), GeoRegistryUtil.parseDate(sDate), mdEdgeOid, geoObjectCode, geoObjectTypeCode);
+    JsonElement json = new RelationshipVisualizationService().tree(request.getSessionId(), GeoRegistryUtil.parseDate(sDate), relationshipType, graphTypeCode, geoObjectCode, geoObjectTypeCode);
 
     return new RestBodyResponse(json);
   }
@@ -26,7 +26,7 @@ public class RelationshipVisualizationController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "relationships")
   public ResponseIF relationships(ClientRequestIF request, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode)
   {
-    JsonElement json = new RelationshipVisualizationService().getRelationships(request.getSessionId(), geoObjectTypeCode);
+    JsonElement json = new RelationshipVisualizationService().getRelationshipTypes(request.getSessionId(), geoObjectTypeCode);
 
     return new RestBodyResponse(json);
   }

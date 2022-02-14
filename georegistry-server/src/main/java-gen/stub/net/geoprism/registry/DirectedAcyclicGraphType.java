@@ -33,7 +33,9 @@ import net.geoprism.registry.view.JsonSerializable;
 
 public class DirectedAcyclicGraphType extends DirectedAcyclicGraphTypeBase implements JsonSerializable, GraphType, ServerElement
 {
-  private static final long serialVersionUID = 1222275153;
+  private static final long  serialVersionUID = 1222275153;
+
+  public static final String JSON_LABEL       = "label";
 
   public DirectedAcyclicGraphType()
   {
@@ -44,6 +46,12 @@ public class DirectedAcyclicGraphType extends DirectedAcyclicGraphTypeBase imple
   protected String buildKey()
   {
     return this.getCode();
+  }
+
+  @Override
+  public LocalizedValue getLabel()
+  {
+    return LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel());
   }
 
   public MdEdgeDAOIF getMdEdgeDAO()
@@ -58,9 +66,9 @@ public class DirectedAcyclicGraphType extends DirectedAcyclicGraphTypeBase imple
     {
       this.appLock();
 
-      if (object.has(DirectedAcyclicGraphType.DISPLAYLABEL))
+      if (object.has(DirectedAcyclicGraphType.JSON_LABEL))
       {
-        LocalizedValue label = LocalizedValue.fromJSON(object.getAsJsonObject(DirectedAcyclicGraphType.DISPLAYLABEL));
+        LocalizedValue label = LocalizedValue.fromJSON(object.getAsJsonObject(DirectedAcyclicGraphType.JSON_LABEL));
 
         LocalizedValueConverter.populate(this.getDisplayLabel(), label);
       }
@@ -96,8 +104,9 @@ public class DirectedAcyclicGraphType extends DirectedAcyclicGraphTypeBase imple
   {
     JsonObject object = new JsonObject();
     object.addProperty(DirectedAcyclicGraphType.OID, this.getOid());
+    object.addProperty(DirectedAcyclicGraphType.TYPE, "DirectedAcyclicGraphType");
     object.addProperty(DirectedAcyclicGraphType.CODE, this.getCode());
-    object.add(DirectedAcyclicGraphType.DISPLAYLABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
+    object.add(DirectedAcyclicGraphType.JSON_LABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
     object.add(DirectedAcyclicGraphType.DESCRIPTION, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescription()).toJSON());
 
     return object;
@@ -142,7 +151,7 @@ public class DirectedAcyclicGraphType extends DirectedAcyclicGraphTypeBase imple
   public static DirectedAcyclicGraphType create(JsonObject object)
   {
     String code = object.get(DirectedAcyclicGraphType.CODE).getAsString();
-    LocalizedValue label = LocalizedValue.fromJSON(object.getAsJsonObject(DirectedAcyclicGraphType.DISPLAYLABEL));
+    LocalizedValue label = LocalizedValue.fromJSON(object.getAsJsonObject(DirectedAcyclicGraphType.JSON_LABEL));
     LocalizedValue description = LocalizedValue.fromJSON(object.getAsJsonObject(DirectedAcyclicGraphType.DESCRIPTION));
 
     return create(code, label, description);

@@ -9,9 +9,10 @@
 		<div style="height:100%; width:100%; background-color: white; opacity: 100%" class="container-fluid">
 	
 			<h2 [style]="params.searchPanelOpen ? '' : 'padding-left: 55px;'"> <localize key="relationshipVisualizer.title"></localize> </h2>
-			
-			<select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="mdEdgeOid" (change)="onSelectRelationship()" required>
-	       <option *ngFor="let relationship of relationships" value={{relationship.oid}}>{{relationship.label.localizedValue}}</option>
+			<select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="graphOid" (change)="onSelectRelationship()" required>
+				<option></option>
+
+	       <option *ngFor="let relationship of relationships" [value]="relationship.oid">{{relationship.label.localizedValue}}</option>
 	    </select>
 	    
 			<div *ngIf="relationships" style="height:100%; width:100%;" class="row">

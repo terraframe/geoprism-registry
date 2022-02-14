@@ -76,6 +76,7 @@ public class UndirectedGraphStrategy implements GraphStrategy
           visited.add(target.getUid());
 
           tnParent = this.getChildren(target, recursive, date, visited);
+          tnParent.setOid(edge.getOid());          
         }
         else
         {
@@ -122,6 +123,7 @@ public class UndirectedGraphStrategy implements GraphStrategy
           visited.add(target.getUid());
 
           tnParent = this.getParents(target, recursive, date, visited);
+          tnParent.setOid(edge.getOid());          
         }
         else
         {

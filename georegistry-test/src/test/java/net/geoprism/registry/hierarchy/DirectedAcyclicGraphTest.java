@@ -233,7 +233,7 @@ public class DirectedAcyclicGraphTest
 
     Assert.assertEquals(1, children.size());
 
-    Assert.assertEquals(parent.getCode(), children.get(0).getGeoObject().getCode());
+    Assert.assertEquals(child.getCode(), children.get(0).getGeoObject().getCode());
   }
 
   @Test

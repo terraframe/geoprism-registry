@@ -33,7 +33,9 @@ import net.geoprism.registry.view.JsonSerializable;
 
 public class UndirectedGraphType extends UndirectedGraphTypeBase implements JsonSerializable, GraphType, ServerElement
 {
-  private static final long serialVersionUID = -1097845938;
+  private static final long  serialVersionUID = -1097845938;
+
+  public static final String JSON_LABEL       = "label";
 
   public UndirectedGraphType()
   {
@@ -51,6 +53,12 @@ public class UndirectedGraphType extends UndirectedGraphTypeBase implements Json
     return this.getCode();
   }
 
+  @Override
+  public LocalizedValue getLabel()
+  {
+    return LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel());
+  }
+
   @Transaction
   public void update(JsonObject object)
   {
@@ -58,9 +66,9 @@ public class UndirectedGraphType extends UndirectedGraphTypeBase implements Json
     {
       this.appLock();
 
-      if (object.has(UndirectedGraphType.DISPLAYLABEL))
+      if (object.has(UndirectedGraphType.JSON_LABEL))
       {
-        LocalizedValue label = LocalizedValue.fromJSON(object.getAsJsonObject(UndirectedGraphType.DISPLAYLABEL));
+        LocalizedValue label = LocalizedValue.fromJSON(object.getAsJsonObject(UndirectedGraphType.JSON_LABEL));
 
         LocalizedValueConverter.populate(this.getDisplayLabel(), label);
       }
@@ -96,8 +104,9 @@ public class UndirectedGraphType extends UndirectedGraphTypeBase implements Json
   {
     JsonObject object = new JsonObject();
     object.addProperty(UndirectedGraphType.OID, this.getOid());
+    object.addProperty(UndirectedGraphType.TYPE, "UndirectedGraphType");
     object.addProperty(UndirectedGraphType.CODE, this.getCode());
-    object.add(UndirectedGraphType.DISPLAYLABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
+    object.add(UndirectedGraphType.JSON_LABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
     object.add(UndirectedGraphType.DESCRIPTION, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescription()).toJSON());
 
     return object;
@@ -143,7 +152,7 @@ public class UndirectedGraphType extends UndirectedGraphTypeBase implements Json
   public static UndirectedGraphType create(JsonObject object)
   {
     String code = object.get(UndirectedGraphType.CODE).getAsString();
-    LocalizedValue label = LocalizedValue.fromJSON(object.getAsJsonObject(UndirectedGraphType.DISPLAYLABEL));
+    LocalizedValue label = LocalizedValue.fromJSON(object.getAsJsonObject(UndirectedGraphType.JSON_LABEL));
     LocalizedValue description = LocalizedValue.fromJSON(object.getAsJsonObject(UndirectedGraphType.DESCRIPTION));
 
     return create(code, label, description);

@@ -62,11 +62,13 @@ import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.geoobjecttype.AssignPublicChildOfPrivateType;
 import net.geoprism.registry.graph.CantRemoveInheritedGOT;
 import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
+import net.geoprism.registry.model.graph.GraphStrategy;
+import net.geoprism.registry.model.graph.ServerHierarchyStrategy;
 import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class ServerHierarchyType implements ServerElement
+public class ServerHierarchyType implements ServerElement, GraphType
 {
   private HierarchicalRelationshipType hierarchicalRelationship;
 
@@ -575,7 +577,18 @@ public class ServerHierarchyType implements ServerElement
 
       throw exception;
     }
+  }
 
+  @Override
+  public String toString()
+  {
+    return HierarchyMetadata.sGetClassDisplayLabel() + " : " + this.getCode();
+  }
+
+  @Override
+  public GraphStrategy getStrategy()
+  {
+    return new ServerHierarchyStrategy(this);
   }
 
   public List<ServerGeoObjectType> getChildren(ServerGeoObjectType parent)
@@ -749,12 +762,6 @@ public class ServerHierarchyType implements ServerElement
   public static List<ServerHierarchyType> getAll()
   {
     return ServiceFactory.getMetadataCache().getAllHierarchyTypes();
-  }
-
-  @Override
-  public String toString()
-  {
-    return HierarchyMetadata.sGetClassDisplayLabel() + " : " + this.getCode();
   }
 
 }

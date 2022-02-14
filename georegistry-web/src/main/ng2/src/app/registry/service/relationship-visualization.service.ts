@@ -31,14 +31,17 @@ import { LocalizedValue } from "@shared/model/core"; declare let registry: GeoRe
 @Injectable()
 export class RelationshipVisualizationService {
 
-    // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    tree(mdEdgeOid: string, geoObjectCode: string, geoObjectTypeCode: string, date: string): Promise<any> {
+    tree(relationshipType: string, graphTypeCode: string, geoObjectCode: string, geoObjectTypeCode: string, date: string): Promise<any> {
         let params: HttpParams = new HttpParams();
-        params = params.set("mdEdgeOid", mdEdgeOid);
+        params = params.set("graphTypeCode", graphTypeCode);
         params = params.set("geoObjectCode", geoObjectCode);
         params = params.set("geoObjectTypeCode", geoObjectTypeCode);
+
+        if (relationshipType != null) {
+            params = params.set("relationshipType", relationshipType);
+        }
 
         if (date) {
             params = params.set("date", date);
@@ -54,7 +57,7 @@ export class RelationshipVisualizationService {
             .toPromise();
     }
 
-    relationships(geoObjectTypeCode: string): Promise<{oid: string, label: LocalizedValue, isHierarchy: boolean}[]> {
+    relationships(geoObjectTypeCode: string): Promise<{ oid:string, code: string, label: LocalizedValue, isHierarchy: boolean, type?: string }[]> {
         let params: HttpParams = new HttpParams();
         params = params.set("geoObjectTypeCode", geoObjectTypeCode);
 

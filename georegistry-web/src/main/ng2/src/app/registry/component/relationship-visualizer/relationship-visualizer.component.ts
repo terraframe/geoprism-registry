@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { Component, OnInit, Input, Output, SimpleChanges, EventEmitter, HostListener } from "@angular/core";
+import { Component, OnInit, Input, Output, SimpleChanges, EventEmitter } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
@@ -23,7 +23,7 @@ export const GRAPH_CIRCLE_FILL: string = "#999";
 export const GRAPH_LINE_COLOR: string = "#999";
 
 /*
- * TODO : 
+ * TODO :
  * - animations aren't communicating useful information
  * - Toolbar on the left
  */
@@ -41,19 +41,19 @@ export class RelationshipVisualizerComponent implements OnInit {
   */
   private bsModalRef: BsModalRef;
 
-  @Input() params: {geoObject: GeoObject, mdEdgeOid: string, date: string, searchPanelOpen: boolean} = null;
+  @Input() params: {geoObject: GeoObject, graphOid: string, date: string, searchPanelOpen: boolean} = null;
 
   geoObject: GeoObject = null;
 
-  mdEdgeOid: string = null;
+  graphOid: string = null;
 
   @Output() changeGeoObject = new EventEmitter<{id:string, code: string, typeCode: string}>();
 
-  @Output() changeRelationship = new EventEmitter<{oid:string}>();
+  @Output() changeRelationship = new EventEmitter<string>();
 
   private data: any = null;
 
-  relationships: {oid: string, label: LocalizedValue, isHierarchy: boolean}[];
+  relationships: {oid: string, label: LocalizedValue, isHierarchy: boolean, code: string, type?:string}[];
 
   public panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
 
@@ -79,12 +79,12 @@ export class RelationshipVisualizerComponent implements OnInit {
 
   ngOnChanges(changes: SimpleChanges) {
       if (changes.params && changes.params.previousValue !== changes.params.currentValue) {
-          this.mdEdgeOid = this.params.mdEdgeOid;
+          this.graphOid = this.params.graphOid;
           this.geoObject = this.params.geoObject;
 
           if (this.relationships == null) {
               this.fetchRelationships();
-          } else if (this.relationships != null && this.mdEdgeOid) {
+          } else if (this.relationships != null && this.graphOid) {
               this.onSelectRelationship();
           }
       }
@@ -96,9 +96,9 @@ export class RelationshipVisualizerComponent implements OnInit {
       let height = node.dimension.height;
       let width = node.dimension.width;
 
-      //let radius = 50;
-      //let height = 200;
-      //let width = 200;
+      // let radius = 50;
+      // let height = 200;
+      // let width = 200;
 
       let points = [0, 1, 2, 3, 4, 5, 6].map((n, i) => {
           let angleDeg = 60 * i - 30;
@@ -181,12 +181,12 @@ export class RelationshipVisualizerComponent implements OnInit {
         this.vizService.relationships(this.geoObject.properties.type).then(relationships => {
             this.relationships = relationships;
 
-            if (!this.mdEdgeOid && this.relationships && this.relationships.length > 0) {
+            if (!this.graphOid && this.relationships && this.relationships.length > 0) {
                 // window.setTimeout(() => {
-                    this.mdEdgeOid = this.relationships[0].oid;
+                    this.graphOid = this.relationships[0].oid;
                     this.onSelectRelationship();
                 // }, 2);
-            } else if (this.mdEdgeOid && this.relationships) {
+            } else if (this.graphOid && this.relationships) {
                 this.onSelectRelationship();
             }
         }).catch((err: HttpErrorResponse) => {
@@ -197,27 +197,31 @@ export class RelationshipVisualizerComponent implements OnInit {
 
   private onSelectRelationship() {
       this.fetchData();
-      this.changeRelationship.emit({ oid: this.mdEdgeOid });
+      this.changeRelationship.emit(this.graphOid);
   }
 
   private fetchData(): void {
-      this.vizService.tree(this.mdEdgeOid, this.geoObject.properties.code, this.geoObject.properties.type, this.params.date).then(data => {
+      const graph = this.relationships.find(graph => graph.oid === this.graphOid);
+
+      if (graph != null) {
+        this.vizService.tree(graph.type, graph.code, this.geoObject.properties.code, this.geoObject.properties.type, this.params.date).then(data => {
           this.data = null;
           window.setTimeout(() => {
               this.data = data;
-          }, 0);
+            }, 0);
 
-          let graphContainer = document.getElementById("graph-container");
+            let graphContainer = document.getElementById("graph-container");
 
-          if (graphContainer) {
-              this.svgHeight = graphContainer.clientHeight;
-              this.svgWidth = graphContainer.clientWidth;
+            if (graphContainer) {
+                this.svgHeight = graphContainer.clientHeight;
+                this.svgWidth = graphContainer.clientWidth;
 
-              if (this.geoObject != null) {
-                  //this.panToNode(this.geoObject.properties.uid);
-              }
-          }
-      });
+                if (this.geoObject != null) {
+                    // this.panToNode(this.geoObject.properties.uid);
+                }
+            }
+        });
+    }
   }
 
   collapseAnimation(id: string): Promise<void> {
