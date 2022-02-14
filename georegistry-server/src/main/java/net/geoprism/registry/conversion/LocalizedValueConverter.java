@@ -157,7 +157,7 @@ public class LocalizedValueConverter
 
     for (Locale locale : locales)
     {
-      String key = locale.toString();
+      String key = locale.toString().toLowerCase();
 
       if (map.containsKey(key) && map.get(key) != null)
       {
