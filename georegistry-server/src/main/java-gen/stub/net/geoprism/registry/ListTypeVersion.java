@@ -198,6 +198,19 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   @Override
   public void apply()
   {
+    if (this.getWorking())
+    {
+      if (this.getListVisibility() == null || this.getListVisibility().length() == 0)
+      {
+        this.setListVisibility(ListType.PRIVATE);
+      }
+      
+      if (this.getGeospatialVisibility() == null || this.getGeospatialVisibility().length() == 0)
+      {
+        this.setGeospatialVisibility(ListType.PRIVATE);
+      }
+    }
+    
     super.apply();
 
     if (this.getGeospatialVisibility().equals(ListType.PUBLIC))
