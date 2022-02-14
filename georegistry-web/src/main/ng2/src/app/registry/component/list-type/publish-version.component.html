@@ -390,17 +390,15 @@
 
                 <div class="row-holder">
                     <div class="label-holder"></div>
-                    <div class="holder">
                         <div class="button-holder">
                             <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
                                 <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
                             </button>
                             <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary"
-                                role="button" [disabled]="!form.valid || !metadata.visibility">
+                                role="button" [disabled]="!form.valid">
                                 <localize key="io.submit"></localize>
                             </button>
                         </div>
-                    </div>
                 </div>
 
             </fieldset>
