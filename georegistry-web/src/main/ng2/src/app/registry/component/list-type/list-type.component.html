@@ -1,6 +1,6 @@
 <ng-template #versionDetail let-version='version' let-entry="entry">
     <div class="row" style="margin-bottom:5px;line-height:40px;">
-        <div class="col-md-9" style="vertical-align: middle;">
+        <div class="col-md-7" style="vertical-align: middle;">
 
             <span class="clickable" (click)="version.collapsed = !version.collapsed"
                 [attr.aria-expanded]="!version.collapsed">
@@ -20,7 +20,7 @@
                 </span>
             </span>
         </div>
-        <div class="col-md-3" style="text-align: right;">
+        <div class="col-md-5" style="text-align: right;">
             <button type="submit" (click)="onEdit(entry, version)" class="btn btn-default" role="button">
                 <localize key="masterlist.button.metadata"></localize>
             </button>
