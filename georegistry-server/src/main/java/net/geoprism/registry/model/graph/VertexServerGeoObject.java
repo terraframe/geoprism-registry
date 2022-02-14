@@ -108,6 +108,7 @@ import net.geoprism.registry.DuplicateGeoObjectException;
 import net.geoprism.registry.DuplicateGeoObjectMultipleException;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeometryTypeException;
+import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.RequiredAttributeException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
@@ -123,17 +124,19 @@ import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
+import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.LocationInfoHolder;
+import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
-import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.SearchService;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -1859,7 +1862,6 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     EdgeObject edge = this.getEdge(parent, hierarchyType, startDate, endDate);
 
     return ( edge != null );
-
   }
 
   public EdgeObject getEdge(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate)
@@ -2081,7 +2083,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
 
-      if (isEdgeAHierarchyType(mdEdge.definesType()))
+      if (HierarchicalRelationshipType.isEdgeAHierarchyType(mdEdge))
       {
         VertexObject childVertex = edge.getChild();
 
@@ -2108,11 +2110,6 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
 
     return tnRoot;
-  }
-
-  public static boolean isEdgeAHierarchyType(String edgeClass)
-  {
-    return edgeClass != null && edgeClass.length() > 0 && edgeClass.startsWith(RegistryConstants.UNIVERSAL_GRAPH_PACKAGE) && !edgeClass.equals(GeoVertex.EXTERNAL_ID) && !edgeClass.startsWith(SearchService.PACKAGE);
   }
 
   protected static ServerParentTreeNode internalGetParentGeoObjects(VertexServerGeoObject child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn, Date date)
@@ -2179,7 +2176,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
 
-      if (isEdgeAHierarchyType(mdEdge.definesType()))
+      if (HierarchicalRelationshipType.isEdgeAHierarchyType(mdEdge))
       {
         final VertexObject parentVertex = edge.getParent();
 
@@ -2258,7 +2255,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
 
-      if (isEdgeAHierarchyType(mdEdge.definesType()))
+      if (HierarchicalRelationshipType.isEdgeAHierarchyType(mdEdge))
       {
         ServerHierarchyType ht = ServerHierarchyType.get(mdEdge);
 
@@ -2494,6 +2491,37 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public int hashCode()
   {
     return this.getCode().hashCode();
+  }
+
+  /*
+   * DIRECT ACYCLIC/UNDIRECTED GRAPH METODS
+   */
+  @Transaction
+  public void removeGraphChild(ServerGeoObjectIF child, GraphType type, Date startDate, Date endDate)
+  {
+    type.getStrategy().removeParent((VertexServerGeoObject) child, this, startDate, endDate);
+  }
+
+  @Transaction
+  public ServerParentGraphNode addGraphChild(ServerGeoObjectIF child, GraphType type, Date startDate, Date endDate)
+  {
+    return type.getStrategy().addChild(this, (VertexServerGeoObject) child, startDate, endDate);
+  }
+
+  @Transaction
+  public ServerParentGraphNode addGraphParent(ServerGeoObjectIF parent, GraphType type, Date startDate, Date endDate)
+  {
+    return type.getStrategy().addParent(this, (VertexServerGeoObject) parent, startDate, endDate);
+  }
+
+  public ServerChildGraphNode getGraphChildren(GraphType type, Boolean recursive, Date date)
+  {
+    return type.getStrategy().getChildren(this, recursive, date);
+  }
+
+  public ServerParentGraphNode getGraphParents(GraphType type, Boolean recursive, Date date)
+  {
+    return type.getStrategy().getParents(this, recursive, date);
   }
 
 }

@@ -9,6 +9,7 @@ import com.runwaysdk.business.Business;
 import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.business.ontology.TermAndRel;
 import com.runwaysdk.business.ontology.TermHacker;
+import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.RelationshipCardinalityException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -185,6 +186,22 @@ public class HierarchicalRelationshipType extends HierarchicalRelationshipTypeBa
     return null;
   }
 
+  public static HierarchicalRelationshipType getByMdEdge(MdEdgeDAOIF mdEdge)
+  {
+    HierarchicalRelationshipTypeQuery query = new HierarchicalRelationshipTypeQuery(new QueryFactory());
+    query.WHERE(query.getMdEdge().EQ(mdEdge.getOid()));
+
+    try (OIterator<? extends HierarchicalRelationshipType> it = query.getIterator())
+    {
+      if (it.hasNext())
+      {
+        return it.next();
+      }
+    }
+
+    return null;
+  }
+
   private static void removeLink(Universal parent, Universal child, String relationshipType)
   {
     if (child.getKey().equals(Term.ROOT_KEY))
@@ -201,6 +218,11 @@ public class HierarchicalRelationshipType extends HierarchicalRelationshipTypeBa
 
     // Update the strategy
     TermHacker.getStrategy(child).removeLink(parent, child, relationshipType);
+  }
+
+  public static boolean isEdgeAHierarchyType(MdEdgeDAOIF mdEdge)
+  {
+    return ( HierarchicalRelationshipType.getByMdEdge(mdEdge) != null );
   }
 
 }

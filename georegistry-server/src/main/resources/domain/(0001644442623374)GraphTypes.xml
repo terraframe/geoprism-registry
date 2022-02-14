@@ -1,0 +1,75 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness name="net.geoprism.registry.DirectedAcyclicGraphType" label="Directed Acyclic Graph" table="directed_acyclic_graph" generateController="false" cacheAlgorithm="everything">
+        <attributes>
+          <char name="code" size="255" required="true" indexType="unique index" label="Code" />
+          <localChar name="displayLabel" label="Label" required="true" />
+          <localChar name="description" label="Description" required="false" />        
+          <reference name="mdEdge" type="com.runwaysdk.system.metadata.MdEdge" required="true" label="MdEdge" />          
+        </attributes>
+      </mdBusiness>    
+      <mdBusiness name="net.geoprism.registry.UndirectedGraphType" label="Directed Acyclic Graph" table="undirected_graph" generateController="false" cacheAlgorithm="everything">
+        <attributes>
+          <char name="code" size="255" required="true" indexType="unique index" label="Code" />
+          <localChar name="displayLabel" label="Label" required="true" />
+          <localChar name="description" label="Description" required="false" />        
+          <reference name="mdEdge" type="com.runwaysdk.system.metadata.MdEdge" required="true" label="MdEdge" />          
+        </attributes>
+      </mdBusiness>    
+    </create>
+    
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.DirectedAcyclicGraphType">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.UndirectedGraphType">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.DirectedAcyclicGraphType">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.UndirectedGraphType">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.DirectedAcyclicGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.UndirectedGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.DirectedAcyclicGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.UndirectedGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+    
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdBusiness" key="net.geoprism.registry.DirectedAcyclicGraphType" />
+    </delete>
+  </undoIt>
+</version>

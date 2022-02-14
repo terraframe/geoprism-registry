@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.conversion;
 
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.ComponentIF;
@@ -305,7 +304,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     return (MdEdge) BusinessFacade.get(mdEdgeDAO);
   }
 
-  private void grantWritePermissionsOnMdTermRel(ComponentIF mdTermRelationship)
+  public void grantWritePermissionsOnMdTermRel(ComponentIF mdTermRelationship)
   {
     RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
 
