@@ -125,7 +125,6 @@ export class ListComponent implements OnInit, OnDestroy {
         this.service.data(this.list.oid, pageNumber, this.page.pageSize, this.getFilter(), this.sort).then(page => {
             this.page = page;
             this.listAttrs = this.calculateListAttributes();
-            console.log(this.listAttrs);
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
