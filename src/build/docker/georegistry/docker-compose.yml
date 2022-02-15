@@ -2,7 +2,7 @@ version: '3'
 services:
   orientdb:
     container_name: georegistry-orientdb
-    image: 'orientdb:3.0'
+    image: 'orientdb:3.1'
     environment:
       ORIENTDB_ROOT_PASSWORD: "root"
       ORIENTDB_OPTS_MEMORY: "-Xms512M -Xmx2G"
@@ -19,7 +19,7 @@ services:
      - "2480:2480"
   postgres:
     container_name: georegistry-postgres
-    image: 'postgis/postgis:9.5-3.0'
+    image: 'postgis/postgis:14-3.2'
     command: postgres -c max_locks_per_transaction=100 -c max_wal_size=2048
     environment:
       POSTGRES_USER: postgres
