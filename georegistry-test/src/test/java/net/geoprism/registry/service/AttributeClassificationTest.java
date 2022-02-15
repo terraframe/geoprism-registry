@@ -46,27 +46,32 @@ import com.runwaysdk.system.AbstractClassification;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
+import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestUserInfo;
-import net.geoprism.registry.test.USATestData;
 
 public class AttributeClassificationTest
 {
-  public static final TestGeoObjectInfo      TEST_GO             = new TestGeoObjectInfo(USATestData.TEST_DATA_KEY + "NeverNeverLand", USATestData.STATE);
+  public static final String TEST_KEY = "ATTRCLASSTEST";
+  
+  public static TestGeoObjectTypeInfo TEST_GOT            = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
+  
+  public static final TestGeoObjectInfo      TEST_GO      = new TestGeoObjectInfo(TEST_KEY + "_NeverNeverLand", TEST_GOT);
 
   protected static String                    CLASSIFICATION_TYPE = "test.classification.TestClassification";
 
   protected static String                    CODE                = "Classification-ROOT";
 
-  private static USATestData                 testData;
+  private static FastTestDataset                 testData;
 
   private static AttributeClassificationType testClassification;
 
   @BeforeClass
   public static void setUpClass()
   {
-    testData = USATestData.newTestData();
+    testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
 
     setUpInReq();
@@ -75,6 +80,8 @@ public class AttributeClassificationTest
   @Request
   private static void setUpInReq()
   {
+    TEST_GOT.apply();
+    
     MdClassificationDAO mdClassification = MdClassificationDAO.newInstance();
     mdClassification.setValue(MdClassificationInfo.PACKAGE, "test.classification");
     mdClassification.setValue(MdClassificationInfo.TYPE_NAME, "TestClassification");
@@ -96,7 +103,7 @@ public class AttributeClassificationTest
     testClassification.setClassificationType(CLASSIFICATION_TYPE);
     testClassification.setRootTerm(new Term(CODE, new LocalizedValue("Test Classification"), new LocalizedValue("Test Classification")));
 
-    ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.STATE.getCode());
+    ServerGeoObjectType got = ServerGeoObjectType.get(TEST_GOT.getCode());
     testClassification = (AttributeClassificationType) got.createAttributeType(testClassification.toJSON().toString());
   }
 
@@ -107,6 +114,8 @@ public class AttributeClassificationTest
     {
       testData.tearDownMetadata();
     }
+    
+    TEST_GOT.delete();
 
     deleteMdClassification();
   }
@@ -131,7 +140,7 @@ public class AttributeClassificationTest
 
     testData.setUpInstanceData();
 
-    testData.logIn(USATestData.USER_NPS_RA);
+    testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After
@@ -168,7 +177,7 @@ public class AttributeClassificationTest
   @Test
   public void testCreateGeoObject()
   {
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { USATestData.USER_NPS_RA };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA };
 
     for (TestUserInfo user : allowedUsers)
     {
@@ -191,7 +200,7 @@ public class AttributeClassificationTest
   @Test
   public void testCreateGeoObjectOverTime()
   {
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { USATestData.USER_NPS_RA };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA };
 
     for (TestUserInfo user : allowedUsers)
     {
