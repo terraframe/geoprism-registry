@@ -17,6 +17,7 @@ import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerGraphNode;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
@@ -30,7 +31,6 @@ public class RelationshipVisualizationService
   {
     final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
 
-    final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
     final ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
 
     JsonObject view = new JsonObject();
@@ -50,11 +50,22 @@ public class RelationshipVisualizationService
       Set<String> setEdges = new HashSet<String>();
       Set<String> setVerticies = new HashSet<String>();
 
-      // Out is children
-      fetchParentsData(true, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies);
+      final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
 
-      // In is parents
-      fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies);
+      if (graphType instanceof UndirectedGraphType)
+      {
+        // get parent and get children return the same thing for an undirected
+        // graph
+        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies);
+      }
+      else
+      {
+        // Out is children
+        fetchParentsData(true, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies);
+
+        // In is parents
+        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies);
+      }
     }
 
     return view;

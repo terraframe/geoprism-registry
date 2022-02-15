@@ -80,7 +80,7 @@ public class UndirectedGraphStrategy implements GraphStrategy
         }
         else
         {
-          tnParent = new ServerChildGraphNode(source, this.type, date, null, edge.getOid());
+          tnParent = new ServerChildGraphNode(target, this.type, date, null, edge.getOid());
         }
 
         tnRoot.addChild(tnParent);
