@@ -10,6 +10,7 @@ import { MasterListVersion } from "@registry/model/registry";
 import { RegistryService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
+import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService, AuthService, ProgressService } from "@shared/service";
@@ -76,7 +77,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
             }
         });
 
-        let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + acp;
+        let baseUrl = WebSockets.buildBaseUrl();
 
         this.notifier = webSocket(baseUrl + "/websocket/progress/" + oid);
         this.notifier.subscribe(message => {

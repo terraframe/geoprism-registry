@@ -19,7 +19,7 @@ services:
      - "2480:2480"
   postgres:
     container_name: georegistry-postgres
-    image: 'postgis/postgis:9.5-3.0'
+    image: 'postgis/postgis:14-3.2'
     command: postgres -c max_locks_per_transaction=100 -c max_wal_size=2048
     environment:
       POSTGRES_USER: postgres
@@ -33,7 +33,7 @@ services:
      - "5432:5432"
   web:
     container_name: georegistry
-    image: georegistry
+    image: terraframe/geoprism-registry:latest
     environment:
       JAVA_OPTS: "-Xms1024m -Xmx4000m -Ddatabase.hostURL=georegistry-postgres -Dorientdb.db.url=remote:georegistry-orientdb"
       POSTGRES_PORT: 5432

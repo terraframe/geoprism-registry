@@ -9,6 +9,7 @@ import { LocalizationService } from '@shared/service';
 import { SynchronizationConfig, ExportScheduledJob } from '@registry/model/registry';
 import { SynchronizationConfigService } from '@registry/service';
 import { ErrorHandler } from '@shared/component/error-handler/error-handler';
+import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 
 declare var acp: any;
 
@@ -41,7 +42,7 @@ export class SynchronizationConfigComponent implements OnInit {
       this.onPageChange(1);
     });
 
-    let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + acp;
+    let baseUrl = WebSockets.buildBaseUrl();
 
     this.notifier = webSocket(baseUrl + '/websocket/notify');
     this.notifier.subscribe(message => {

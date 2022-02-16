@@ -10,6 +10,7 @@ import { ReuploadModalComponent } from "./conflict-widgets/reupload-modal.compon
 import { RegistryService, IOService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 import { ScheduledJob } from "@registry/model/registry";
+import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService, AuthService } from "@shared/service";
@@ -65,7 +66,7 @@ export class JobComponent implements OnInit {
 
         this.onPageChange(1);
 
-        let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + acp;
+        let baseUrl = WebSockets.buildBaseUrl();
 
         this.notifier = webSocket(baseUrl + "/websocket/notify");
         this.notifier.subscribe(message => {
