@@ -18,6 +18,7 @@ import { ModalTypes } from "@shared/model/modal";
 import { GeoRegistryConfiguration } from "@core/model/registry";
 import { PageResult } from "@shared/model/core";
 import { Subscription } from "rxjs";
+import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -69,7 +70,7 @@ export class JobComponent implements OnInit, OnDestroy {
 
         this.onPageChange(1);
 
-        let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + registry.contextPath;
+        let baseUrl = WebSockets.buildBaseUrl();
 
         this.notifier = webSocket(baseUrl + "/websocket/notify");
         this.subscription = this.notifier.subscribe(message => {

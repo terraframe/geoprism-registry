@@ -14,6 +14,7 @@ import { LocalizationService, AuthService, ProgressService } from "@shared/servi
 import { ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
+import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 
 import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
@@ -86,7 +87,7 @@ export class ListComponent implements OnInit, OnDestroy {
             }
         });
 
-        let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + registry.contextPath;
+        let baseUrl = WebSockets.buildBaseUrl();
 
         this.notifier = webSocket(baseUrl + "/websocket/progress/" + oid);
         this.subscription = this.notifier.subscribe(message => {
