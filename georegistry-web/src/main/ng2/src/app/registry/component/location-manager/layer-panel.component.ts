@@ -157,7 +157,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         const layers = this.params.layers != null ? JSON.parse(this.params.layers) : [];
 
         layers.forEach(layer => {
-            if (this.findVersionById(layer) == null) {
+            if (layer !== GRAPH_LAYER && this.findVersionById(layer) == null) {
                 isSearchRequired = true;
             }
         });
