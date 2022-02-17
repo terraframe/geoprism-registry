@@ -294,7 +294,7 @@ public class GeoObjectServiceTest
       Calendar cal = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
       cal.clear();
       cal.setTime(new Date());
-      cal.add(Calendar.HOUR, -1);
+      cal.add(Calendar.DAY_OF_YEAR, 1);
       Date startDate = cal.getTime();
 
       TEST_GO.assertApplied(startDate);

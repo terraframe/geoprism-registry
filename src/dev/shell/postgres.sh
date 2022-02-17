@@ -32,4 +32,4 @@ set -ex
 docker rm -f $(docker ps -a -q --filter="name=$POSTGRES_CONTAINER_NAME") > /dev/null || true
 
 # Pull & Run the container
-docker run --name $POSTGRES_CONTAINER_NAME -e POSTGRES_PASSWORD=$POSTGRES_ROOT_PASS -d -p $POSTGRES_PORT:5432 postgis/postgis:13-master
+docker run --name $POSTGRES_CONTAINER_NAME -e POSTGRES_PASSWORD=$POSTGRES_ROOT_PASS -d -p $POSTGRES_PORT:5432 postgis/postgis:14-3.2

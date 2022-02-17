@@ -1,4 +1,5 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, AfterViewInit, ViewChildren, QueryList} from "@angular/core";
+import {BrowserModule} from '@angular/platform-browser'
 import { ActivatedRoute, Params } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -27,6 +28,10 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
     current: ListType = null;
 
     subscription: Subscription = null;
+    
+    noQueryParams = false;
+    
+    @ViewChildren('typesByOrgIter') typesByOrgIterEls: QueryList<any>;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
@@ -59,7 +64,10 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
                 });
+            } else {
+                this.noQueryParams = true;
             }
+            
 
             // this.refresh();
         });
@@ -99,7 +107,7 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
                 }
                 
 
-                response.organizations.forEach(org => {
+                response.organizations.forEach((org, index) => {
                     
                     //
                     // Post processing to better handle groups in the frontend
@@ -142,26 +150,27 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
                     // End post processing
                     //
                     
-                    
                     this.typesByOrg.push({ org: org, types: orgTypesNoGroupMembers });
+                    
                 });
-                
-                // Select the first type on load if no URL type params
-                setTimeout(() => {
-                    if (this.typesByOrg.length > 0) {
-                        
-                        let els = document.getElementsByClassName("got-li-item");
-                        if(els && els.length > 0) {
-                            let el = els[0].firstChild as HTMLElement;
-                            el.click();
-                        }
-                    }
-                }, 0);
                 
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
         }
+    }
+    
+    ngAfterViewInit() {
+        this.typesByOrgIterEls.changes.subscribe(t => {
+            // Select the first type on load if no URL type params
+            if (this.noQueryParams && t.length > 0) {
+                let els = document.getElementsByClassName("got-li-item");
+                if(els && els.length > 0) {
+                    let el = els[0].firstChild as HTMLElement;
+                    el.click();
+                }
+            }
+        });
     }
     
     array_move(arr, old_index, new_index): void {
