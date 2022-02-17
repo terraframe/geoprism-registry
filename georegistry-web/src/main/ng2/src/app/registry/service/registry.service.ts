@@ -24,7 +24,7 @@ import { finalize } from "rxjs/operators";
 
 import {
     GeoObject, GeoObjectType, AttributeType, Term, ParentTreeNode,
-    ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob,
+    ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob
 } from "@registry/model/registry";
 
 import { HierarchyType } from "@registry/model/hierarchy";
@@ -101,7 +101,7 @@ export class RegistryService implements AttributeTypeService {
             .toPromise();
     }
 
-    doesGeoObjectExistAtRange(startDate: string, endDate: string, typeCode: string, code: string): Promise<{exists: boolean, invalid: boolean}> {
+    doesGeoObjectExistAtRange(startDate: string, endDate: string, typeCode: string, code: string): Promise<{ exists: boolean, invalid: boolean }> {
         let params: HttpParams = new HttpParams();
 
         params = params.set("startDate", startDate);
@@ -110,7 +110,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("code", code);
 
         return this.http
-            .get<{exists: boolean, invalid: boolean}>(registry.contextPath + "/geoobject/exists-at-range", { params: params })
+            .get<{ exists: boolean, invalid: boolean }>(registry.contextPath + "/geoobject/exists-at-range", { params: params })
             .toPromise();
     }
 
@@ -314,22 +314,26 @@ export class RegistryService implements AttributeTypeService {
             .toPromise();
     }
 
-    getHierarchiesForGeoObject(code: string, typeCode: string): Promise<HierarchyOverTime[]> {
+    getHierarchiesForGeoObject(code: string, typeCode: string, showOverlay: boolean = true): Promise<HierarchyOverTime[]> {
         let params: HttpParams = new HttpParams();
         params = params.set("code", code);
         params = params.set("typeCode", typeCode);
 
-        this.eventService.start();
+        if (showOverlay) {
+            this.eventService.start();
+        }
 
         return this.http
             .get<HierarchyOverTime[]>(registry.contextPath + "/cgr/geoobject/get-hierarchies-over-time", { params: params })
             .pipe(finalize(() => {
-                this.eventService.complete();
+                if (showOverlay) {
+                    this.eventService.complete();
+                }
             }))
             .toPromise();
     }
 
-    getGeoObjectSuggestions(text: string, type: string, parent: string, parentTypeCode: string, hierarchy: string, startDate: string, endDate: string): Promise<{id: string, code: string, name: string, typeCode: string, uid: string}[]> {
+    getGeoObjectSuggestions(text: string, type: string, parent: string, parentTypeCode: string, hierarchy: string, startDate: string, endDate: string): Promise<{ id: string, code: string, name: string, typeCode: string, uid: string }[]> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -354,7 +358,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .post<{id: string, code: string, name: string, typeCode: string, uid: string}[]>(registry.contextPath + "/cgr/geoobject/suggestions", JSON.stringify(params), { headers: headers })
+            .post<{ id: string, code: string, name: string, typeCode: string, uid: string }[]>(registry.contextPath + "/cgr/geoobject/suggestions", JSON.stringify(params), { headers: headers })
             .toPromise();
     }
 
@@ -483,17 +487,21 @@ export class RegistryService implements AttributeTypeService {
             .toPromise();
     }
 
-    newGeoObjectOverTime(typeCode: string): Promise<any> {
+    newGeoObjectOverTime(typeCode: string, showOverlay: boolean = true): Promise<any> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
 
-        this.eventService.start();
+        if (showOverlay) {
+            this.eventService.start();
+        }
 
         return this.http
             .post<any>(registry.contextPath + "/cgr/geoobject-time/newGeoObjectInstance", JSON.stringify({ typeCode: typeCode }), { headers: headers })
             .pipe(finalize(() => {
-                this.eventService.complete();
+                if (showOverlay) {
+                    this.eventService.complete();
+                }
             }))
             .toPromise();
     }
@@ -524,22 +532,22 @@ export class RegistryService implements AttributeTypeService {
     /*
      * Not really part of the RegistryService
      */
-    applyGeoObjectEdit(geoObjectCode: string, geoObjectTypeCode: string, actions: string, masterListId: string, notes: string): Promise<void> {
+    applyGeoObjectEdit(geoObjectCode: string, geoObjectTypeCode: string, actions: string, masterListId: string, notes: string, showOverlay: boolean = true): Promise<void> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
 
-	  // TODO
-		// Custom attributes of Date type need to be encoded to date/time. The Date picker requires this format to be yyyy-mm-dd.
-		// This conversion allows the date picker to work while ensuring the server recieves the correct format.
-		// for(const prop in geoObject.attributes) {
-		//	let attr = geoObject.attributes[prop];
- 		//	if(attr.type === "date"){
-		//		attr.values.forEach( val => {
-		//			val.value = new Date(val.value).getTime().toString();
-		//		})
-		//	}
-		// }
+        // TODO
+        // Custom attributes of Date type need to be encoded to date/time. The Date picker requires this format to be yyyy-mm-dd.
+        // This conversion allows the date picker to work while ensuring the server recieves the correct format.
+        // for(const prop in geoObject.attributes) {
+        //	let attr = geoObject.attributes[prop];
+        //	if(attr.type === "date"){
+        //		attr.values.forEach( val => {
+        //			val.value = new Date(val.value).getTime().toString();
+        //		})
+        //	}
+        // }
 
         let params = { geoObjectCode: geoObjectCode, geoObjectTypeCode: geoObjectTypeCode, actions: actions };
 
@@ -550,12 +558,16 @@ export class RegistryService implements AttributeTypeService {
             params["notes"] = notes;
         }
 
-        this.eventService.start();
+        if (showOverlay) {
+            this.eventService.start();
+        }
 
         return this.http
             .post<void>(registry.contextPath + "/geoobject-editor/updateGeoObject", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
-                this.eventService.complete();
+                if (showOverlay) {
+                    this.eventService.complete();
+                }
             }))
             .toPromise();
     }
@@ -563,13 +575,13 @@ export class RegistryService implements AttributeTypeService {
     /*
     * Not really part of the RegistryService
     */
-    applyGeoObjectCreate(parentTreeNode: HierarchyOverTime[], geoObject: GeoObjectOverTime, isNew: boolean, masterListId: string, notes: string): Promise<void> {
+    applyGeoObjectCreate(parentTreeNode: HierarchyOverTime[], geoObject: GeoObjectOverTime, isNew: boolean, masterListId: string, notes: string, showOverlay: boolean = true): Promise<void> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
 
-    // Custom attributes of Date type need to be encoded to date/time. The Date picker requires this format to be yyyy-mm-dd.
-    // This conversion allows the date picker to work while ensuring the server recieves the correct format.
+        // Custom attributes of Date type need to be encoded to date/time. The Date picker requires this format to be yyyy-mm-dd.
+        // This conversion allows the date picker to work while ensuring the server recieves the correct format.
         for (const prop in geoObject.attributes) {
             let attr = geoObject.attributes[prop];
             if (attr.type === "date") {
@@ -588,16 +600,19 @@ export class RegistryService implements AttributeTypeService {
             params["notes"] = notes;
         }
 
-        this.eventService.start();
+        if (showOverlay) {
+            this.eventService.start();
+        }
 
         return this.http
             .post<void>(registry.contextPath + "/geoobject-editor/createGeoObject", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
-                this.eventService.complete();
+                if (showOverlay) {
+                    this.eventService.complete();
+                }
             }))
             .toPromise();
     }
-
 
     progress(oid: string): Promise<Progress> {
         let params: HttpParams = new HttpParams();
@@ -608,7 +623,6 @@ export class RegistryService implements AttributeTypeService {
             .toPromise();
     }
 
-
     getDatasetBounds(oid: string): Promise<number[]> {
         let params: HttpParams = new HttpParams();
         params = params.set("oid", oid);
@@ -618,15 +632,15 @@ export class RegistryService implements AttributeTypeService {
             .toPromise();
     }
 
-	getOrganizations(): Promise<Organization[]> {
+    getOrganizations(): Promise<Organization[]> {
+        this.eventService.start();
 
-		this.eventService.start();
+        return this.http
+            .get<Organization[]>(registry.contextPath + "/cgr/organizations/get-all")
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-		return this.http
-			.get<Organization[]>(registry.contextPath + '/cgr/organizations/get-all')
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-			.toPromise();
-	}
 }

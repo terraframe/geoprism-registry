@@ -13,7 +13,7 @@
       [isNew]="isNew" 
       [isGeometryInlined]="false"
       [hierarchies]="hierarchies"
-      [readOnly]="!isEdit"
+      [readOnly]="!isEdit || inProgress !== 0"
       (valid)="setValid($event)"
       [filterDate]="forDate"
       (filterDateChange)="editorForDateChange($event)"

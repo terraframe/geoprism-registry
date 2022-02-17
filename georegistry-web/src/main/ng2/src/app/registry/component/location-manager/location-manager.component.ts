@@ -666,7 +666,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     handleRecord(list: string, uid: string): void {
         // Get the feature data from the server and populate the left-hand panel
-        this.listService.record(list, uid).then(record => {
+        this.listService.record(list, uid, false).then(record => {
             if (this.feature != null) {
                 this.map.removeFeatureState(this.feature);
             }
@@ -689,7 +689,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 record.forDate = null;
             }
 
-            this.visualizingRelationship = null;
+            // this.visualizingRelationship = null;
 
             this.record = record;
 
@@ -741,7 +741,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     handleSelect(typeCode: string, code: string, uid: string, geoObject: GeoObject = null) {
-        this.visualizingRelationship = null;
+        // this.visualizingRelationship = null;
         this.mode = this.MODE.VIEW;
 
         this.changeGeoObject(typeCode, code, uid, geoObject);

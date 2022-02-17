@@ -201,7 +201,7 @@ export class ListTypeService implements GenericTableService {
     //         .toPromise();
     // }
 
-    record(oid: string, uid: string): Promise<LayerRecord> {
+    record(oid: string, uid: string, showOverlay: boolean = true): Promise<LayerRecord> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -211,12 +211,16 @@ export class ListTypeService implements GenericTableService {
             uid: uid
         };
 
-        this.eventService.start();
+        if (showOverlay) {
+            this.eventService.start();
+        }
 
         return this.http
             .post<LayerRecord>(registry.contextPath + "/list-type/record", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
-                this.eventService.complete();
+                if (showOverlay) {
+                    this.eventService.complete();
+                }
             }))
             .toPromise();
     }

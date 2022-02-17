@@ -7,6 +7,7 @@ import { RegistryService, GeometryService } from "@registry/service";
 import { AuthService } from "@shared/service";
 import { ErrorHandler } from "@shared/component";
 import { CreateGeoObjectAction } from "@registry/model/crtable";
+import { fakeAsync } from "@angular/core/testing";
 
 @Component({
     selector: "feature-panel",
@@ -65,9 +66,11 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
 
     hierarchy: HierarchyOverTime = null;
 
+    // Flag indicating if the component is communicating with the server
+    inProgress: number = 0;
+
     reason: string = "";
 
-    // eslint-disable-next-line no-useless-constructor
     constructor(public service: RegistryService, private modalService: BsModalService, private authService: AuthService, private geometryService: GeometryService) { }
 
     ngOnInit(): void {
@@ -104,27 +107,39 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
             if (this.code !== "__NEW__") {
                 this.isNew = false;
 
+                this.inProgress++;
+
                 this.service.getGeoObjectOverTime(this.code, this.type.code).then(geoObject => {
                     this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
                     this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
+                }).finally(() => {
+                    this.inProgress--;
                 });
 
-                this.service.getHierarchiesForGeoObject(this.code, this.type.code).then((hierarchies: HierarchyOverTime[]) => {
+                this.inProgress++;
+
+                this.service.getHierarchiesForGeoObject(this.code, this.type.code, false).then((hierarchies: HierarchyOverTime[]) => {
                     this.hierarchies = hierarchies;
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
+                }).finally(() => {
+                    this.inProgress--;
                 });
             } else {
                 this.isNew = true;
 
-                this.service.newGeoObjectOverTime(this.type.code).then(retJson => {
+                this.inProgress++;
+
+                this.service.newGeoObjectOverTime(this.type.code, false).then(retJson => {
                     this.preGeoObject = new GeoObjectOverTime(this.type, retJson.geoObject.attributes);
                     this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
 
                     this.hierarchies = retJson.hierarchies;
                     this.setEditMode(true);
+                }).finally(() => {
+                    this.inProgress--;
                 });
             }
         }
@@ -155,15 +170,18 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
         if (this.isNew) {
             const action: CreateGeoObjectAction = this.attributeEditor.getActions()[0];
 
-            this.service.applyGeoObjectCreate(action.parentJson, action.geoObjectJson, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
+            this.inProgress++;
+
+            this.service.applyGeoObjectCreate(action.parentJson, action.geoObjectJson, this.isNew, this.datasetId, this.reason, false).then((applyInfo: any) => {
                 if (!applyInfo.isChangeRequest) {
                     this.featureChange.emit(this.postGeoObject);
                 }
                 this.panelSubmit.emit(applyInfo);
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
+            }).finally(() => {
+                this.inProgress--;
             });
-
 
             // this.service.applyGeoObjectCreate(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
             //     if (!applyInfo.isChangeRequest) {
@@ -174,13 +192,17 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
             //     this.error(err);
             // });
         } else {
-            this.service.applyGeoObjectEdit(this.postGeoObject.attributes.code, this.type.code, this.attributeEditor.getActions(), this.datasetId, this.reason).then((applyInfo: any) => {
+            this.inProgress++;
+
+            this.service.applyGeoObjectEdit(this.postGeoObject.attributes.code, this.type.code, this.attributeEditor.getActions(), this.datasetId, this.reason, false).then((applyInfo: any) => {
                 if (!applyInfo.isChangeRequest) {
                     this.featureChange.emit(this.postGeoObject);
                 }
                 this.panelSubmit.emit(applyInfo);
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
+            }).finally(() => {
+                this.inProgress--;
             });
         }
 
