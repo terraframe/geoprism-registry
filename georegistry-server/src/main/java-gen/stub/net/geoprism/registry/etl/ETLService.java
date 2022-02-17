@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -34,6 +34,7 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.controller.MultipartFileParameter;
@@ -64,6 +65,7 @@ import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
@@ -562,7 +564,6 @@ public class ETLService
     GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
     hist.getConfig().enforceExecutePermissions();
 
-
     JsonObject jo = this.serializeHistory(hist, user, job);
 
     if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE) && hist.hasImportErrors())
@@ -782,6 +783,22 @@ public class ETLService
 
     VaultFile file = hist.getImportFile();
     file.delete();
+  }
+
+  @Request(RequestType.SESSION)
+  public void importEdgeJson(String sessionId, String relationshipType, String graphTypeCode, Date startDate, Date endDate, InputStream stream)
+  {
+    try
+    {
+      GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
+
+      EdgeJsonImporter importer = new EdgeJsonImporter(stream, graphType, startDate, endDate);
+      importer.importData();
+    }
+    catch (JsonSyntaxException | IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
   }
 
 }

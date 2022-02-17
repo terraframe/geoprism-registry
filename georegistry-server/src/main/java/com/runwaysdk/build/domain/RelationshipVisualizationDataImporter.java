@@ -32,7 +32,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.DirectedAcyclicGraphType;
+import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.conversion.OrganizationConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
@@ -81,9 +81,9 @@ public class RelationshipVisualizationDataImporter
 
   private ServerGeoObjectType sgotSite;
 
-  private DirectedAcyclicGraphType mdeAdjacentTo;
+  private UndirectedGraphType mdeAdjacentTo;
 
-  private DirectedAcyclicGraphType mdeConnectedTo;
+  private UndirectedGraphType mdeConnectedTo;
 
   public static final String  MDEDGE_ADJACENT_TO      = "AdjacentTo";
 
@@ -179,12 +179,12 @@ public class RelationshipVisualizationDataImporter
     this.mdeConnectedTo = this.createMdEdge(MDEDGE_CONNECTED_TO, "Connected To");
   }
 
-  private DirectedAcyclicGraphType createMdEdge(String code, String defaultLabel)
+  private UndirectedGraphType createMdEdge(String code, String defaultLabel)
   {
     LocalizedValue label = new LocalizedValue(defaultLabel);
     LocalizedValue description = new LocalizedValue("");
 
-    return DirectedAcyclicGraphType.create(code, label, description);
+    return UndirectedGraphType.create(code, label, description);
   }
 
   private void importInstanceData() throws Exception

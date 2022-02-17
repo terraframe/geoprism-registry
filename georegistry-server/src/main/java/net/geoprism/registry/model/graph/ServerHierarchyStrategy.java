@@ -13,6 +13,7 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentGraphNode;
 
@@ -25,6 +26,7 @@ public class ServerHierarchyStrategy implements GraphStrategy
     this.hierarchy = hierarchy;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public ServerChildGraphNode getChildren(VertexServerGeoObject parent, Boolean recursive, Date date)
   {
@@ -78,6 +80,7 @@ public class ServerHierarchyStrategy implements GraphStrategy
     return tnRoot;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public ServerParentGraphNode getParents(VertexServerGeoObject child, Boolean recursive, Date date)
   {
@@ -131,14 +134,16 @@ public class ServerHierarchyStrategy implements GraphStrategy
     return tnRoot;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public ServerParentGraphNode addChild(VertexServerGeoObject geoObject, VertexServerGeoObject child, Date startDate, Date endDate)
+  public ServerGraphNode addChild(VertexServerGeoObject geoObject, VertexServerGeoObject child, Date startDate, Date endDate)
   {
     throw new UnsupportedOperationException();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public ServerParentGraphNode addParent(VertexServerGeoObject geoObject, VertexServerGeoObject parent, Date startDate, Date endDate)
+  public ServerGraphNode addParent(VertexServerGeoObject geoObject, VertexServerGeoObject parent, Date startDate, Date endDate)
   {
     throw new UnsupportedOperationException();
   }

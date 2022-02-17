@@ -42,14 +42,6 @@ public class ServerParentGraphNode extends ServerGraphNode
 
     this.parents = Collections.synchronizedList(new LinkedList<ServerParentGraphNode>());
   }
-  
-  @Override
-  public void accept(final ServerGraphNodeVisitor visitor)
-  {
-    visitor.visit(this);
- 
-    this.parents.forEach(parent -> parent.accept(visitor));
-  }
 
   /**
    * Returns the parents of the {@link ServerGeoObjectIF} of this

@@ -20,6 +20,7 @@ import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.model.ServerParentGraphNode;
 
 public class UndirectedGraphStrategy implements GraphStrategy
@@ -43,10 +44,11 @@ public class UndirectedGraphStrategy implements GraphStrategy
     this.type = type;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public ServerChildGraphNode getChildren(VertexServerGeoObject source, Boolean recursive, Date date)
+  public <T extends ServerGraphNode> T getChildren(VertexServerGeoObject source, Boolean recursive, Date date)
   {
-    return getChildren(source, recursive, date, new TreeSet<String>());
+    return (T) getChildren(source, recursive, date, new TreeSet<String>());
   }
 
   private ServerChildGraphNode getChildren(VertexServerGeoObject source, Boolean recursive, Date date, TreeSet<String> visited)
@@ -76,7 +78,7 @@ public class UndirectedGraphStrategy implements GraphStrategy
           visited.add(target.getUid());
 
           tnParent = this.getChildren(target, recursive, date, visited);
-          tnParent.setOid(edge.getOid());          
+          tnParent.setOid(edge.getOid());
         }
         else
         {
@@ -90,10 +92,11 @@ public class UndirectedGraphStrategy implements GraphStrategy
     return tnRoot;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public ServerParentGraphNode getParents(VertexServerGeoObject child, Boolean recursive, Date date)
+  public <T extends ServerGraphNode> T getParents(VertexServerGeoObject child, Boolean recursive, Date date)
   {
-    return getParents(child, recursive, date, new TreeSet<String>());
+    return (T) getParents(child, recursive, date, new TreeSet<String>());
   }
 
   private ServerParentGraphNode getParents(VertexServerGeoObject source, Boolean recursive, Date date, TreeSet<String> visited)
@@ -123,7 +126,7 @@ public class UndirectedGraphStrategy implements GraphStrategy
           visited.add(target.getUid());
 
           tnParent = this.getParents(target, recursive, date, visited);
-          tnParent.setOid(edge.getOid());          
+          tnParent.setOid(edge.getOid());
         }
         else
         {
@@ -138,13 +141,14 @@ public class UndirectedGraphStrategy implements GraphStrategy
   }
 
   @Override
-  public ServerParentGraphNode addChild(VertexServerGeoObject geoObject, VertexServerGeoObject child, Date startDate, Date endDate)
+  public <T extends ServerGraphNode> T addChild(VertexServerGeoObject geoObject, VertexServerGeoObject child, Date startDate, Date endDate)
   {
     return this.addParent(child, geoObject, startDate, endDate);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public ServerParentGraphNode addParent(VertexServerGeoObject geoObject, VertexServerGeoObject parent, Date startDate, Date endDate)
+  public <T extends ServerGraphNode> T addParent(VertexServerGeoObject geoObject, VertexServerGeoObject parent, Date startDate, Date endDate)
   {
     if (this.isCycle(geoObject, parent, startDate, endDate))
     {
@@ -164,7 +168,7 @@ public class UndirectedGraphStrategy implements GraphStrategy
     ServerParentGraphNode node = new ServerParentGraphNode(geoObject, this.type, startDate, endDate, null);
     node.addParent(new ServerParentGraphNode(parent, this.type, startDate, endDate, newEdges.first().getOid()));
 
-    return node;
+    return (T) node;
   }
 
   @Override

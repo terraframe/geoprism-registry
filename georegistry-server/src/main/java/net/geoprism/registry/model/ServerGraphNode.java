@@ -41,8 +41,6 @@ public abstract class ServerGraphNode
     this.oid = oid;
   }
 
-  public abstract void accept(ServerGraphNodeVisitor visitor);
-
   public ServerGeoObjectIF getGeoObject()
   {
     return geoObject;

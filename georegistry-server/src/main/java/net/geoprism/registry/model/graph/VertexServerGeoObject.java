@@ -127,12 +127,11 @@ import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.LocationInfoHolder;
-import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
@@ -2503,23 +2502,23 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Transaction
-  public ServerParentGraphNode addGraphChild(ServerGeoObjectIF child, GraphType type, Date startDate, Date endDate)
+  public <T extends ServerGraphNode> T addGraphChild(ServerGeoObjectIF child, GraphType type, Date startDate, Date endDate)
   {
     return type.getStrategy().addChild(this, (VertexServerGeoObject) child, startDate, endDate);
   }
 
   @Transaction
-  public ServerParentGraphNode addGraphParent(ServerGeoObjectIF parent, GraphType type, Date startDate, Date endDate)
+  public <T extends ServerGraphNode> T addGraphParent(ServerGeoObjectIF parent, GraphType type, Date startDate, Date endDate)
   {
     return type.getStrategy().addParent(this, (VertexServerGeoObject) parent, startDate, endDate);
   }
 
-  public ServerChildGraphNode getGraphChildren(GraphType type, Boolean recursive, Date date)
+  public <T extends ServerGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date)
   {
     return type.getStrategy().getChildren(this, recursive, date);
   }
 
-  public ServerParentGraphNode getGraphParents(GraphType type, Boolean recursive, Date date)
+  public <T extends ServerGraphNode> T getGraphParents(GraphType type, Boolean recursive, Date date)
   {
     return type.getStrategy().getParents(this, recursive, date);
   }

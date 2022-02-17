@@ -35,14 +35,6 @@ public class ServerChildGraphNode extends ServerGraphNode
     this.children = Collections.synchronizedList(new LinkedList<ServerChildGraphNode>());
   }
 
-  @Override
-  public void accept(final ServerGraphNodeVisitor visitor)
-  {
-    visitor.visit(this);
-
-    this.children.forEach(child -> child.accept(visitor));
-  }
-
   public List<ServerChildGraphNode> getChildren()
   {
     return this.children;

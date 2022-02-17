@@ -18,6 +18,15 @@
  */
 package net.geoprism.registry.etl;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.MultipartFileParameter;
@@ -30,6 +39,10 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.system.scheduler.JobHistory;
+
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 @Controller(url = "etl")
 public class ETLController
@@ -149,4 +162,18 @@ public class ETLController
     return new RestBodyResponse(details.toString());
   }
   
+  @Endpoint(url = "import-edge-json", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF importEdgeJson(ClientRequestIF request, @RequestParamter(name = "relationshipType") String relationshipType, @RequestParamter(name = "graphTypeCode") String graphTypeCode, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException, JSONException, ParseException
+  {
+    try (InputStream stream = file.getInputStream())
+    {
+      Date sDate = startDate != null ? GeoRegistryUtil.parseDate(startDate) : null;
+      Date eDate = endDate != null ? GeoRegistryUtil.parseDate(endDate) : null;
+
+      service.importEdgeJson(request.getSessionId(), relationshipType, graphTypeCode, sDate, eDate, stream);
+
+      return new RestResponse();
+    }
+  }
+
 }

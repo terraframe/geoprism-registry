@@ -43,6 +43,7 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
     this.type = type;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public ServerChildGraphNode getChildren(VertexServerGeoObject parent, Boolean recursive, Date date)
   {
@@ -96,6 +97,7 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
     return tnRoot;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public ServerParentGraphNode getParents(VertexServerGeoObject child, Boolean recursive, Date date)
   {
@@ -136,7 +138,7 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
       if (recursive)
       {
         tnParent = this.getParents(parent, recursive, date);
-        tnParent.setOid(edge.getOid());        
+        tnParent.setOid(edge.getOid());
       }
       else
       {
@@ -149,12 +151,14 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
     return tnRoot;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public ServerParentGraphNode addChild(VertexServerGeoObject geoObject, VertexServerGeoObject child, Date startDate, Date endDate)
   {
     return this.addParent(child, geoObject, startDate, endDate);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public ServerParentGraphNode addParent(VertexServerGeoObject geoObject, VertexServerGeoObject parent, Date startDate, Date endDate)
   {

@@ -82,10 +82,13 @@ export class RelationshipVisualizerComponent implements OnInit {
           this.graphOid = this.params.graphOid;
           this.geoObject = this.params.geoObject;
 
-          if (this.relationships == null) {
+          if (this.relationships == null ||
+            changes.params.previousValue == null ||
+            changes.params.previousValue.geoObject.type !== changes.params.currentValue.geoObject.type) {
               this.fetchRelationships();
           } else if (this.relationships != null && this.graphOid) {
-              this.onSelectRelationship();
+            //   this.onSelectRelationship();
+            this.fetchData();
           }
       }
   }
@@ -181,13 +184,15 @@ export class RelationshipVisualizerComponent implements OnInit {
         this.vizService.relationships(this.geoObject.properties.type).then(relationships => {
             this.relationships = relationships;
 
-            if (!this.graphOid && this.relationships && this.relationships.length > 0) {
-                // window.setTimeout(() => {
-                    this.graphOid = this.relationships[0].oid;
-                    this.onSelectRelationship();
-                // }, 2);
-            } else if (this.graphOid && this.relationships) {
-                this.onSelectRelationship();
+            if (this.relationships && this.relationships.length > 0) {
+                if (!this.graphOid || this.relationships.findIndex(rel => rel.oid === this.graphOid) === -1) {
+                    // window.setTimeout(() => {
+                        this.graphOid = this.relationships[0].oid;
+                        this.onSelectRelationship();
+                    // }, 2);
+                } else {
+                  this.fetchData();
+                }
             }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
@@ -196,7 +201,7 @@ export class RelationshipVisualizerComponent implements OnInit {
   }
 
   private onSelectRelationship() {
-      this.fetchData();
+    //   this.fetchData();
       this.changeRelationship.emit(this.graphOid);
   }
 
@@ -206,6 +211,7 @@ export class RelationshipVisualizerComponent implements OnInit {
       if (graph != null) {
         this.vizService.tree(graph.type, graph.code, this.geoObject.properties.code, this.geoObject.properties.type, this.params.date).then(data => {
           this.data = null;
+
           window.setTimeout(() => {
               this.data = data;
             }, 0);
