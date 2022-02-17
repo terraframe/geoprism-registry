@@ -1,4 +1,4 @@
-<div class="new-admin-design-main">
+<div class="new-admin-design-main" style="overflow-y:hidden;">
     <cgr-header></cgr-header>
     <loading-bar></loading-bar>
 
@@ -18,7 +18,7 @@
                             </div>
 
                             <li class="list-group-item got-li-item" [ngClass]="{'got-group-child' : type.superTypeCode}" *ngFor="let type of typeByOrg.types"
-                                [id]="type.code">
+                                [id]="type.code" #typesByOrgIter>
                                 <a [routerLink]="'/registry/master-lists'"
                                     [queryParams]="{typeCode:type.code}" routerLinkActive="active">
                                     {{type.label.localizedValue}}
@@ -28,7 +28,7 @@
                     </ul>
                 </div>
             </nav>
-            <div class="col-md-9 hierarchy-content">
+            <div class="col-md-9 list-type-content">
                 <div id="overflow-div">
                     <lists-for-type *ngIf="listByType != null" [listByType]="listByType" (error)="error($event)">
                     </lists-for-type>

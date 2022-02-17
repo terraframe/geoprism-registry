@@ -253,13 +253,13 @@ public class ListTypeService
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
 
-    this.enforceWritePermissions(version.getListType());
-
     // Only a working version can be republished.
     if (!version.getWorking())
     {
       throw new UnsupportedOperationException();
     }
+    
+    this.enforceReadPermissions(version.getListType());
 
     QueryFactory factory = new QueryFactory();
 
@@ -650,6 +650,19 @@ public class ListTypeService
     Organization organization = geoObjectType.getOrganization();
 
     if (!ServiceFactory.getGeoObjectPermissionService().canWrite(organization.getCode(), geoObjectType))
+    {
+      CreateListPermissionException ex = new CreateListPermissionException();
+      ex.setOrganization(organization.getDisplayLabel().getValue());
+      throw ex;
+    }
+  }
+  
+  private void enforceReadPermissions(ListType listType)
+  {
+    ServerGeoObjectType geoObjectType = listType.getGeoObjectType();
+    Organization organization = geoObjectType.getOrganization();
+
+    if (!ServiceFactory.getGeoObjectPermissionService().canRead(organization.getCode(), geoObjectType))
     {
       CreateListPermissionException ex = new CreateListPermissionException();
       ex.setOrganization(organization.getDisplayLabel().getValue());

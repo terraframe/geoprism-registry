@@ -312,13 +312,16 @@
             
             <!-- TODO : This code copy/pasted into standard-attribute-editor.component.html -->
             <div *ngIf="!changeRequestEditor.changeRequest.isNew && changeRequestEditor.changeRequest.type !== 'CreateGeoObject' && changeRequestEditor.changeRequest.approvalStatus === 'PENDING' && changeRequestEditor.changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && changeRequestAttributeEditor.hasChanges()" style="margin-left: 15px;">
-              <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.action.accept.btn.hover' | localize">
+              <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'ACCEPTED'" [ngClass]="{'active': changeRequestAttributeEditor.editAction.approvalStatus === 'ACCEPTED'}"
+                    type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.action.accept.btn.hover' | localize">
                 <localize key="change.request.accept.btn"></localize>
               </button>
-              <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'REJECTED'" type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.action.reject.btn.hover' | localize">
+              <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'REJECTED'" [ngClass]="{'active': changeRequestAttributeEditor.editAction.approvalStatus === 'REJECTED'}" 
+                    type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.action.reject.btn.hover' | localize">
                 <localize key="change.request.reject.btn"></localize>
               </button>
-              <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'PENDING'" type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.action.pending.btn.hover' | localize">
+              <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'PENDING'" [ngClass]="{'active': changeRequestAttributeEditor.editAction.approvalStatus === 'PENDING'}" 
+                    type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.action.pending.btn.hover' | localize">
                 <localize key="change.request.pending.btn"></localize>
               </button>
             </div>              

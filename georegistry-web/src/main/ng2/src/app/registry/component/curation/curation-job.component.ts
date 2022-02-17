@@ -15,6 +15,7 @@ import { PageResult } from "@shared/model/core";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { CurationJob, CurationProblem, ListTypeVersion } from "@registry/model/list-type";
 import { Subscription } from "rxjs";
+import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -70,7 +71,7 @@ export class CurationJobComponent implements OnInit, OnDestroy {
             this.onPageChange(1);
         });
 
-        let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + registry.contextPath;
+        let baseUrl = WebSockets.buildBaseUrl();
 
         this.notifier = webSocket(baseUrl + "/websocket/notify");
         this.subscription = this.notifier.subscribe(message => {

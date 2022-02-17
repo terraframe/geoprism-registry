@@ -19,10 +19,8 @@
 package net.geoprism.registry.etl;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -30,22 +28,20 @@ import org.junit.Test;
 import com.google.gson.GsonBuilder;
 import com.runwaysdk.session.Request;
 
-import ca.uhn.fhir.parser.IParser;
 import net.geoprism.account.OauthServer;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.etl.fhir.BasicFhirResourceProcessor;
-import net.geoprism.registry.etl.fhir.OauthFhirConnection;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.SynchronizationConfigService;
+import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
-import net.geoprism.registry.test.USATestData;
 
 public class FhirOauthImportTest
 {
-  protected static USATestData           testData;
+  protected static FastTestDataset           testData;
 
   protected SynchronizationConfigService syncService;
 
@@ -54,7 +50,7 @@ public class FhirOauthImportTest
   {
     TestDataSet.deleteExternalSystems("FHIRImportTest");
 
-    testData = USATestData.newTestData();
+    testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
     testData.setUpInstanceData();
   }
@@ -72,7 +68,7 @@ public class FhirOauthImportTest
 
     syncService = new SynchronizationConfigService();
 
-    testData.logIn(USATestData.USER_NPS_RA);
+    testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After
@@ -97,7 +93,7 @@ public class FhirOauthImportTest
 
     FhirExternalSystem system = new FhirExternalSystem();
     system.setId("FHIRImportTest");
-    system.setOrganization(USATestData.ORG_NPS.getServerObject());
+    system.setOrganization(FastTestDataset.ORG_CGOV.getServerObject());
     system.getEmbeddedComponent(ExternalSystem.LABEL).setValue("defaultLocale", "Test");
     system.getEmbeddedComponent(ExternalSystem.DESCRIPTION).setValue("defaultLocale", "Test");
     system.setUrl("https://63.35.75.89/fhir/DEFAULT/");
@@ -114,8 +110,8 @@ public class FhirOauthImportTest
   public static SynchronizationConfig createSyncConfig(ExternalSystem system)
   {
     // Define reusable objects
-    final ServerHierarchyType ht = USATestData.HIER_ADMIN.getServerObject();
-    final Organization org = USATestData.ORG_NPS.getServerObject();
+    final ServerHierarchyType ht = FastTestDataset.HIER_ADMIN.getServerObject();
+    final Organization org = FastTestDataset.ORG_CGOV.getServerObject();
 
     // Create DHIS2 Sync Config
     FhirSyncImportConfig sourceConfig = new FhirSyncImportConfig();

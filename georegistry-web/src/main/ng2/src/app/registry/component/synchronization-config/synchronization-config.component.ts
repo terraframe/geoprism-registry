@@ -9,9 +9,10 @@ import { LocalizationService } from "@shared/service";
 import { SynchronizationConfig, ExportScheduledJob } from "@registry/model/registry";
 import { SynchronizationConfigService } from "@registry/service";
 import { ErrorHandler } from "@shared/component/error-handler/error-handler";
+import { WebSockets } from "@shared/component/web-sockets/web-sockets";
+import { Subscription } from "rxjs";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; import { Subscription } from "rxjs";
-declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component({
     selector: "synchronization-config",
@@ -44,7 +45,7 @@ export class SynchronizationConfigComponent implements OnInit {
           this.onPageChange(1);
       });
 
-      let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + registry.contextPath;
+      let baseUrl = WebSockets.buildBaseUrl();
 
       this.notifier = webSocket(baseUrl + "/websocket/notify");
       this.subscription = this.notifier.subscribe(message => {

@@ -110,10 +110,10 @@ export class ListTypePublishModalComponent implements OnInit {
                     lineage: "",
                     languages: "",
                     scaleResolution: "",
-                    spatialRepresentation: "",
-                    referenceSystem: "",
+                    spatialRepresentation: "vector",
+                    referenceSystem: "EPSG4326",
                     reportSpecification: "",
-                    distributionFormat: ""
+                    distributionFormat: "SHAPEFILE"
                 }
 
             };

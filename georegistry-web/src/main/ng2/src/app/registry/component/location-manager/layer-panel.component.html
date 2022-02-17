@@ -39,6 +39,10 @@
       <div class="clickable" style="width: 30px;height: 30px;float:right;" (click)="togglePanelOpen()">
         <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 105.02" style="enable-background:new 0 0 122.88 105.02" xml:space="preserve"><g><path d="M97.25,40.58l23.85,10.28c1.48,0.64,2.17,2.36,1.53,3.85c-0.32,0.75-0.93,1.3-1.63,1.57l-23.19,9.39l23.29,10.04 c1.48,0.64,2.17,2.36,1.53,3.84c-0.32,0.75-0.93,1.3-1.63,1.57l-58.52,23.69c-0.73,0.3-1.52,0.27-2.2,0L1.83,81.05 c-1.5-0.61-2.22-2.31-1.61-3.81c0.33-0.82,0.99-1.4,1.76-1.67l22.97-9.96l-23.12-9.4c-1.5-0.61-2.22-2.31-1.61-3.81 c0.33-0.82,0.99-1.4,1.76-1.67l23.53-10.21L1.83,30.9c-1.5-0.61-2.22-2.31-1.61-3.81c0.33-0.82,0.99-1.4,1.76-1.67L60.02,0.24 c0.77-0.33,1.6-0.31,2.31,0l0-0.01l58.77,25.32c1.48,0.64,2.17,2.36,1.53,3.84c-0.32,0.75-0.93,1.3-1.63,1.57L97.25,40.58 L97.25,40.58z M112.36,53.47l-22.73-9.79L62.49,54.66c-0.73,0.3-1.52,0.27-2.2,0L33.08,43.6L10.47,53.4L61.39,74.1L112.36,53.47 L112.36,53.47z M90.19,68.75l-27.7,11.21c-0.73,0.3-1.52,0.27-2.2,0L32.52,68.68l-22.05,9.56l50.92,20.69l50.97-20.63L90.19,68.75 L90.19,68.75z M61.17,6.1l-50.7,21.99l50.92,20.69l50.97-20.63L61.17,6.1L61.17,6.1z"/></g></svg>
       </div>
+      
+      <div *ngIf="showLayerPanel && layers.length > 0" class="clickable" style="width: 30px;height: 30px;display: inline-block;float: right;text-align: center;" (click)="showSummaryLayerPanel = !showSummaryLayerPanel">
+        <i class="fa clickable" [ngClass]="{'fa-compress': showSummaryLayerPanel, 'fa-expand': !showSummaryLayerPanel}" style="font-size: 25px;"></i>
+      </div>
   </div>
 
   <div *ngIf="panelSize === 1 && layers.length > 0" style="padding-right:50px;">
@@ -55,22 +59,42 @@
             
               <div class="custom-placeholder" *cdkDragPlaceholder></div>
               
-              <!-- <i class="fa fa-arrows" style="font-size:15px;color: grey;margin-right: 3px;" aria-hidden="true"></i> -->
-              <boolean-field [value]="layer.active" [label]="layer.label" [disable]="false" (change)="toggleActive(layer)" style="line-height:0;" ></boolean-field>
-              
-              <div class="label-wrapper">
-                <span *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER">- {{ layer.forDate }}</span>
-                <ng-container *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
-                  [ngTemplateOutletContext]="{layer:layer}">
-                </ng-container>
-                <div class="layer-legend-square" [ngStyle]="{'background-color': layer.color}" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"> </div>
-<!--                 <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i> -->
-<!--                 <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i> -->
-                <i *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
-                <i *ngIf="layer.versionNumber === 0 && !layer.isAbstract" class="fa fa-plus" aria-hidden="true"
-                  (click)="onCreate(layer)"></i>
+                <div class="custom-placeholder" *cdkDragPlaceholder></div>
+                
+                <!-- <i class="fa fa-arrows" style="font-size:15px;color: grey;margin-right: 3px;" aria-hidden="true"></i> -->
+                <boolean-field [value]="layer.active" [label]="layer.label" [disable]="false" (change)="toggleActive(layer)" style="line-height:0;" ></boolean-field>
+                
+                <div class="label-wrapper">
+                  <span *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER">- {{ layer.forDate }}</span>
+                  <ng-container *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
+                    [ngTemplateOutletContext]="{layer:layer}">
+                  </ng-container>
+                  <div class="layer-legend-square" [ngStyle]="{'background-color': layer.color}" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"> </div>
+  <!--                 <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i> -->
+  <!--                 <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i> -->
+                  <i *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
+                  <i *ngIf="layer.versionNumber === 0 && !layer.isAbstract" class="fa fa-plus" aria-hidden="true"
+                    (click)="onCreate(layer)"></i>
+                </div>
               </div>
-            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  
+    <div *ngIf="!showSummaryLayerPanel" style="margin-top: 10px;">
+  
+      <div *ngIf="baseLayers.length > 1" style="margin-bottom: 10px;">
+        <h4>
+          <localize key="explorer.base.layers.label"></localize>
+        </h4>
+        <div class="row-form" *ngFor="let baseLayer of baseLayers">
+          <input class="layer-toggle-input" type='radio' name='baselayers' [value]='baseLayer.id'
+            [checked]="baseLayer.selected" (change)="toggleBaseLayer(baseLayer)">
+          <label class="layer-toggle-label">
+            <localize [key]="baseLayer.label"></localize>
+          </label>
         </div>
       </div>
       
@@ -99,62 +123,59 @@
           <div class="col-md-4">
             <label><localize key="io.startDate"></localize></label>
           </div>
-          <div class="col-md-4">
-            <label><localize key="io.endDate"></localize></label>
+          <div class="row">
+            <div class="col-md-4">
+              <date-field [(value)]="form.startDate" [classNames]="['form-control']" label="" inputName="startDate"
+                [allowFutureDates]="false" name="startDate" [placement]="'right'"></date-field>
+            </div>
+            <div class="col-md-4">
+              <date-field [(value)]="form.endDate" [classNames]="['form-control']" label="" inputName="endDate"
+                [allowFutureDates]="false" name="endDate" [placement]="'right'"></date-field>
+            </div>
+            <div class="col-md-4" style="text-align:center;">
+              <button type="button" (click)="onConfirm()" class="btn btn-primary" role="button">
+                <span>
+                  <localize key="explorer.find.layers.by.date.range.button"></localize>
+                </span>
+              </button>
+            </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="col-md-4">
-            <date-field [(value)]="form.startDate" [classNames]="['form-control']" label="" inputName="startDate"
-              [allowFutureDates]="false" name="startDate"></date-field>
+          <div *ngIf="listOrgGroups.length > 0" class="row">
+            <div class="col-md-12">
+              <p style="font-style:italic;color:grey;"><localize key="explorer.search.note"></localize></p>
+            </div>
           </div>
-          <div class="col-md-4">
-            <date-field [(value)]="form.endDate" [classNames]="['form-control']" label="" inputName="endDate"
-              [allowFutureDates]="false" name="endDate"></date-field>
-          </div>
-          <div class="col-md-4" style="text-align:center;">
-            <button type="button" (click)="onConfirm()" class="btn btn-primary" role="button">
-              <span>
-                <localize key="explorer.find.layers.by.date.range.button"></localize>
-              </span>
-            </button>
-          </div>
-        </div>
-        <div *ngIf="listOrgGroups.length > 0" class="row">
-          <div class="col-md-12">
-            <p style="font-style:italic;color:grey;"><localize key="explorer.search.note"></localize></p>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-12">
-            <!--
-            <h3>
-              <localize key="explorer.layers"></localize>
-            </h3>
-            -->
-            
-            <p *ngIf="listOrgGroups.length < 1" style="font-style: italic; color: grey;"><localize key="explorer.find.layers.no.layers.found.message"></localize></p>
-            
-            <div class="list-group">
-              <ng-container *ngIf="graphList" [ngTemplateOutlet]="listView"
-                [ngTemplateOutletContext]="{list:graphList}">
-              </ng-container>
-            
-              <div *ngFor="let listOrgGroup of listOrgGroups">
-                <div *ngIf="listOrgGroup.types.length > 0" class="list-group-item" style="border: none;">
-                
-                  <h3>{{ listOrgGroup.orgLabel.localizedValue }}</h3>
+  
+          <div class="row">
+            <div class="col-md-12">
+              <!--
+              <h3>
+                <localize key="explorer.layers"></localize>
+              </h3>
+              -->
+              
+              <p *ngIf="listOrgGroups.length < 1" style="font-style: italic; color: grey;"><localize key="explorer.find.layers.no.layers.found.message"></localize></p>
+              
+              <div class="list-group">
+                <ng-container *ngIf="graphList" [ngTemplateOutlet]="listView"
+                  [ngTemplateOutletContext]="{list:graphList}">
+                </ng-container>
+              
+                <div *ngFor="let listOrgGroup of listOrgGroups">
+                  <div *ngIf="listOrgGroup.types.length > 0" class="list-group-item" style="border: none;">
                   
-                  <div *ngFor="let listTypeGroup of listOrgGroup.types">
-                    <div *ngIf="listTypeGroup.lists.length > 0" class="list-group-item" style="border: none;">
+                    <h3>{{ listOrgGroup.orgLabel.localizedValue }}</h3>
                     
-                      <h4>{{ listTypeGroup.typeLabel.localizedValue }}</h4>
+                    <div *ngFor="let listTypeGroup of listOrgGroup.types">
+                      <div *ngIf="listTypeGroup.lists.length > 0" class="list-group-item" style="border: none;">
                       
-                      <div *ngFor="let list of listTypeGroup.lists">
-                        <ng-container *ngIf="list" [ngTemplateOutlet]="listView"
-                          [ngTemplateOutletContext]="{list:list}">
-                        </ng-container>
+                        <h4>{{ listTypeGroup.typeLabel.localizedValue }}</h4>
+                        
+                        <div *ngFor="let list of listTypeGroup.lists">
+                          <ng-container *ngIf="list" [ngTemplateOutlet]="listView"
+                            [ngTemplateOutletContext]="{list:list}">
+                          </ng-container>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -162,9 +183,8 @@
               </div>
             </div>
           </div>
-        </div>
-      </fieldset>
-    </form>
+        </fieldset>
+      </form>
 
-
+    </div>
   </div>

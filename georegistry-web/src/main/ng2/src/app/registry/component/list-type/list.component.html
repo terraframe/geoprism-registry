@@ -23,7 +23,7 @@
         </div>
         <div *ngIf="list" class="row">
 
-            <div class="col-md-12">
+            <div class="col-md-4">
             
                 <h4>
                     <span *ngIf="!list.working">
@@ -49,7 +49,8 @@
                         <localize *ngIf="!list.listMetadata.master" key="list.type.non.master"></localize>
                     </span>
                 </h4>
-                
+            </div>
+            <div class="col-md-8">
                 <h4>
                     <localize key="masterlist.generatedDate"></localize>
                     : <span class="date-string-display">
