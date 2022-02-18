@@ -316,7 +316,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     this.pageMode = this.params.pageContext;
                 }
 
-                this.layersPanelSize = (this.pageMode === "EXPLORER") ? PANEL_SIZE_STATE.WINDOWED : this.layersPanelSize;
+                if (this.params.layersPanelSize) {
+                    this.layersPanelSize = Number.parseInt(this.params.layersPanelSize);
+                } else {
+                    this.layersPanelSize = (this.pageMode === "EXPLORER") ? PANEL_SIZE_STATE.WINDOWED : this.layersPanelSize;
+                }
 
                 if (this.params.attrPanelOpen) {
                     showPanel = this.params.attrPanelOpen === "true";
@@ -798,7 +802,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     onLayerChange(event: LayerEvent): void {
         const layer = event.layer;
 
-        if (layer.active) {
+        if (layer.rendered) {
             let existingIndex = this.layers.findIndex((findLayer: any) => { return findLayer.oid === layer.oid; });
 
             if (existingIndex !== -1) {
