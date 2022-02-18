@@ -28,7 +28,7 @@
 	            [autoZoom]="true"
 	            [autoCenter]="true"
 	            [layout]="layout"
-	            [layoutSettings]="{orientation: 'TB'}"
+	            [layoutSettings]="{orientation: relationship.isHierarchy ? ORIENTATION.TOP_TO_BOTTOM : ORIENTATION.LEFT_TO_RIGHT}"
 	            [curve]="curve"
 	            [draggingEnabled]="false"
 	            [panToNode$]="panToNode$"

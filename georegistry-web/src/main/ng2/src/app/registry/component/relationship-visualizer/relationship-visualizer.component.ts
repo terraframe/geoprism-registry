@@ -8,7 +8,7 @@ import { ErrorHandler } from "@shared/component";
 import { GeoObject } from "@registry/model/registry";
 import { Subject } from "rxjs";
 import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
-import { Layout } from "@swimlane/ngx-graph";
+import { Layout, Orientation } from "@swimlane/ngx-graph";
 
 import { DagreNodesOnlyLayout } from "./relationship-viz-layout";
 
@@ -22,11 +22,13 @@ export const GRAPH_GO_LABEL_COLOR: string = "black";
 export const GRAPH_CIRCLE_FILL: string = "#999";
 export const GRAPH_LINE_COLOR: string = "#999";
 
-/*
- * TODO :
- * - animations aren't communicating useful information
- * - Toolbar on the left
- */
+export interface Relationship {
+  oid: string,
+  label: LocalizedValue,
+  isHierarchy: boolean,
+  code: string,
+  type?:string
+}
 
 @Component({
 
@@ -35,6 +37,9 @@ export const GRAPH_LINE_COLOR: string = "#999";
     styleUrls: ["./relationship-visualizer.css"]
 })
 export class RelationshipVisualizerComponent implements OnInit {
+
+  // Dumb hack to use this imported enum
+  public ORIENTATION = Orientation;
 
   /*
    * Reference to the modal current showing
@@ -47,13 +52,15 @@ export class RelationshipVisualizerComponent implements OnInit {
 
   graphOid: string = null;
 
+  relationship: Relationship = null;
+
   @Output() changeGeoObject = new EventEmitter<{id:string, code: string, typeCode: string}>();
 
   @Output() changeRelationship = new EventEmitter<string>();
 
   private data: any = null;
 
-  relationships: {oid: string, label: LocalizedValue, isHierarchy: boolean, code: string, type?:string}[];
+  relationships: Relationship[];
 
   public panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
 
@@ -83,12 +90,11 @@ export class RelationshipVisualizerComponent implements OnInit {
           this.geoObject = this.params.geoObject;
 
           if (this.relationships == null ||
-            changes.params.previousValue == null ||
-            changes.params.previousValue.geoObject.type !== changes.params.currentValue.geoObject.type) {
-              this.fetchRelationships();
-          } else if (this.relationships != null && this.graphOid) {
-            //   this.onSelectRelationship();
-            this.fetchData();
+              changes.params.previousValue == null ||
+              changes.params.previousValue.geoObject.type !== changes.params.currentValue.geoObject.type) {
+                  this.fetchRelationships();
+          } else if (this.relationships != null && this.relationship) {
+              this.fetchData();
           }
       }
   }
@@ -186,12 +192,12 @@ export class RelationshipVisualizerComponent implements OnInit {
 
             if (this.relationships && this.relationships.length > 0) {
                 if (!this.graphOid || this.relationships.findIndex(rel => rel.oid === this.graphOid) === -1) {
-                    // window.setTimeout(() => {
-                        this.graphOid = this.relationships[0].oid;
-                        this.onSelectRelationship();
-                    // }, 2);
+                    this.relationship = this.relationships[0];
+                    this.graphOid = this.relationship.oid;
+                    this.onSelectRelationship();
                 } else {
-                  this.fetchData();
+                    this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
+                    this.fetchData();
                 }
             }
         }).catch((err: HttpErrorResponse) => {
@@ -201,15 +207,15 @@ export class RelationshipVisualizerComponent implements OnInit {
   }
 
   private onSelectRelationship() {
+      this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
+
     //   this.fetchData();
       this.changeRelationship.emit(this.graphOid);
   }
 
   private fetchData(): void {
-      const graph = this.relationships.find(graph => graph.oid === this.graphOid);
-
-      if (graph != null) {
-        this.vizService.tree(graph.type, graph.code, this.geoObject.properties.code, this.geoObject.properties.type, this.params.date).then(data => {
+      if (this.relationship != null) {
+        this.vizService.tree(this.relationship.type, this.relationship.code, this.geoObject.properties.code, this.geoObject.properties.type, this.params.date).then(data => {
           this.data = null;
 
           window.setTimeout(() => {
