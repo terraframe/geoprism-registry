@@ -18,7 +18,7 @@
     <div *ngIf="list.open" class="list-group">
       <div *ngFor="let version of list.versions">
         <div class="layer-toggle-wrapper">
-			      <a class="fa" [ngClass]='{"fa-minus" : version.showOnLegend, "fa-plus" : !version.showOnLegend}' (click)="clickToggleLayerShowOnLegend(version, list)"></a>
+			      <a *ngIf="version.oid !== CONSTANT.GRAPH_LAYER" class="fa" [ngClass]='{"fa-minus" : version.showOnLegend, "fa-plus" : !version.showOnLegend}' (click)="clickToggleLayerShowOnLegend(version, list)"></a>
 			      <boolean-field *ngIf="version.showOnLegend" [value]="version.rendered" [label]="version.forDate" [disable]="false" (change)="clickToggleLayerRendered(version, list)" style="line-height:0;"></boolean-field>
 			  
 			      <div class="label-wrapper">
