@@ -91,7 +91,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
           if (this.relationships == null ||
               changes.params.previousValue == null ||
-              changes.params.previousValue.geoObject.type !== changes.params.currentValue.geoObject.type) {
+              changes.params.previousValue.geoObject.properties.type !== changes.params.currentValue.geoObject.properties.type) {
                   this.fetchRelationships();
           } else if (this.relationships != null && this.relationship) {
               this.fetchData();

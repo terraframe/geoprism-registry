@@ -693,8 +693,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 record.forDate = null;
             }
 
-            this.visualizingRelationship = null;
-
             this.record = record;
 
             this.filterDate = this.record.forDate === "" ? null : this.record.forDate;
@@ -745,7 +743,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     handleSelect(typeCode: string, code: string, uid: string, geoObject: GeoObject = null) {
-        this.visualizingRelationship = null;
         this.mode = this.MODE.VIEW;
 
         this.changeGeoObject(typeCode, code, uid, geoObject);
