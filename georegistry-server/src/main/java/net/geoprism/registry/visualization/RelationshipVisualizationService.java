@@ -87,7 +87,7 @@ public class RelationshipVisualizationService
       jo.addProperty("oid", graphType.getCode());
       jo.addProperty("code", graphType.getCode());
       jo.add("label", graphType.getLabel().toJSON());
-      jo.addProperty("isHierarchy", false);
+      jo.addProperty("isHierarchy", true);
 
       view.add(jo);
 

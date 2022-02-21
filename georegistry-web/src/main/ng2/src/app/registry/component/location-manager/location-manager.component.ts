@@ -318,7 +318,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     this.pageMode = this.params.pageContext;
                 }
 
-                this.layersPanelSize = (this.pageMode === "EXPLORER") ? PANEL_SIZE_STATE.WINDOWED : this.layersPanelSize;
+                if (this.params.layersPanelSize) {
+                    this.layersPanelSize = Number.parseInt(this.params.layersPanelSize);
+                } else {
+                    this.layersPanelSize = (this.pageMode === "EXPLORER") ? PANEL_SIZE_STATE.WINDOWED : this.layersPanelSize;
+                }
 
                 if (this.params.attrPanelOpen) {
                     showPanel = this.params.attrPanelOpen === "true";
@@ -691,8 +695,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 record.forDate = null;
             }
 
-            // this.visualizingRelationship = null;
-
             this.record = record;
 
             if (this.record.recordType === "GEO_OBJECT") { // this happens when list type is working
@@ -744,7 +746,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     handleSelect(typeCode: string, code: string, uid: string, geoObject: GeoObject = null) {
-        // this.visualizingRelationship = null;
         this.mode = this.MODE.VIEW;
 
         this.changeGeoObject(typeCode, code, uid, geoObject);
@@ -801,7 +802,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     onLayerChange(event: LayerEvent): void {
         const layer = event.layer;
 
-        if (layer.active) {
+        if (layer.rendered) {
             let existingIndex = this.layers.findIndex((findLayer: any) => { return findLayer.oid === layer.oid; });
 
             if (existingIndex !== -1) {

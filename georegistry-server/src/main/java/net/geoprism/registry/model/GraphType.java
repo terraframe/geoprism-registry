@@ -16,13 +16,16 @@ public interface GraphType
 
   public static GraphType getByCode(String relationshipType, String code)
   {
-    if (relationshipType.equals("UndirectedGraphType"))
+    if (relationshipType != null)
     {
-      return UndirectedGraphType.getByCode(code);
-    }
-    else if (relationshipType.equals("DirectedAcyclicGraphType"))
-    {
-      return DirectedAcyclicGraphType.getByCode(code);
+      if (relationshipType.equals("UndirectedGraphType"))
+      {
+        return UndirectedGraphType.getByCode(code);
+      }
+      else if (relationshipType.equals("DirectedAcyclicGraphType"))
+      {
+        return DirectedAcyclicGraphType.getByCode(code);
+      }
     }
 
     return ServerHierarchyType.get(code);

@@ -18,7 +18,8 @@
     <div *ngIf="list.open" class="list-group">
       <div *ngFor="let version of list.versions">
         <div class="layer-toggle-wrapper">
-			      <boolean-field [value]="version.enabled" [label]="version.forDate" [disable]="false" (change)="onToggleLayer(version, list)" style="line-height:0;"></boolean-field>
+			      <a *ngIf="version.oid !== CONSTANT.GRAPH_LAYER" class="fa" [ngClass]='{"fa-minus" : version.showOnLegend, "fa-plus" : !version.showOnLegend}' (click)="clickToggleLayerShowOnLegend(version, list)"></a>
+			      <boolean-field *ngIf="version.showOnLegend" [value]="version.rendered" [label]="version.forDate" [disable]="false" (change)="clickToggleLayerRendered(version, list)" style="line-height:0;"></boolean-field>
 			  
 			      <div class="label-wrapper">
 			        <ng-container *ngIf="version.oid !== CONSTANT.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
@@ -56,7 +57,7 @@
               <div class="custom-placeholder" *cdkDragPlaceholder></div>
               
               <!-- <i class="fa fa-arrows" style="font-size:15px;color: grey;margin-right: 3px;" aria-hidden="true"></i> -->
-              <boolean-field [value]="layer.active" [label]="layer.label" [disable]="false" (change)="toggleActive(layer)" style="line-height:0;" ></boolean-field>
+              <boolean-field [value]="layer.rendered" [label]="layer.label" [disable]="false" (change)="toggleLayerRendered(layer)" style="line-height:0;" ></boolean-field>
               
               <div class="label-wrapper">
                 <span *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER">- {{ layer.forDate }}</span>

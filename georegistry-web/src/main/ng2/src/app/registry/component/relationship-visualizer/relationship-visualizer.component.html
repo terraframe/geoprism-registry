@@ -12,7 +12,7 @@
 			<select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="graphOid" (change)="onSelectRelationship()" required>
 				<option></option>
 
-	       <option *ngFor="let relationship of relationships" [value]="relationship.oid">{{relationship.label.localizedValue}}</option>
+	       <option *ngFor="let loopRel of relationships" [value]="loopRel.oid">{{loopRel.label.localizedValue}}</option>
 	    </select>
 	    
 			<div *ngIf="relationships" style="height:100%; width:100%;" class="row">
@@ -28,7 +28,7 @@
 	            [autoZoom]="true"
 	            [autoCenter]="true"
 	            [layout]="layout"
-	            [layoutSettings]="{orientation: 'TB'}"
+	            [layoutSettings]="{orientation: relationship.isHierarchy ? ORIENTATION.TOP_TO_BOTTOM : ORIENTATION.LEFT_TO_RIGHT}"
 	            [curve]="curve"
 	            [draggingEnabled]="false"
 	            [panToNode$]="panToNode$"

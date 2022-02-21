@@ -163,6 +163,7 @@ export class ListTypeVersion extends ListVersionMetadata {
         type: string,
         value: any
     };
+
 }
 
 export class ContextLayer {
@@ -170,8 +171,8 @@ export class ContextLayer {
     oid: string;
     forDate: string;
     versionNumber: number;
-    active?: boolean;
-    enabled?: boolean;
+    rendered?: boolean;
+    showOnLegend?: boolean;
     color?: string;
     label?: string;
 
