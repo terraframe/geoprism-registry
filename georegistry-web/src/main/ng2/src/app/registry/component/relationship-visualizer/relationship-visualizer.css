@@ -22,7 +22,7 @@
 .map-button {
     background-color: white;
     margin-top:150px;
-    z-index:9999;
+    z-index:1001;
     border-radius: 4px;
     padding: 8px;
     width: 46px; /* IE fallback */
