@@ -16,8 +16,7 @@ import * as shape from "d3-shape";
 import { LocalizedValue } from "@shared/model/core";
 import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
-import { ActivatedRoute } from "@angular/router";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -289,9 +288,12 @@ export class RelationshipVisualizerComponent implements OnInit {
     */
 
     public onClickNode(node: any): void {
-        this.collapseAnimation(node.id).then(() => {
-            this.changeGeoObject.emit({ id: node.id.substring(2), code: node.code, typeCode: node.typeCode });
-        });
+        if (node.code !== this.params.geoObject.properties.code &&
+            node.typeCode !== this.params.geoObject.type) {
+            this.collapseAnimation(node.id).then(() => {
+                this.changeGeoObject.emit({ id: node.id.substring(2), code: node.code, typeCode: node.typeCode });
+            });
+        }
     }
 
     public error(err: HttpErrorResponse): void {
