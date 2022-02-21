@@ -57,6 +57,14 @@ public class RelationshipVisualizationService
         // graph
         fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies);
       }
+      else if(graphType instanceof DirectedAcyclicGraphType)
+      {
+        // Out is children
+        fetchParentsData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies);
+        
+        // In is parents
+        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies);
+      }
       else
       {
         // Out is children
