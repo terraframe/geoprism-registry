@@ -292,7 +292,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         }).finally(() => {
             this.spinner.hide(this.CONSTANTS.OVERLAY);
         });
-}
+    }
 
     findVersionById(id: string): ContextLayer {
         let response: ContextLayer = null;
