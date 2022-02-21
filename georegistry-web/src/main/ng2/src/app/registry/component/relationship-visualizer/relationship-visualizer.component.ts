@@ -187,6 +187,8 @@ export class RelationshipVisualizerComponent implements OnInit {
 
   private fetchRelationships(): void {
       if (this.geoObject != null) {
+        this.relationships = [];
+
         this.vizService.relationships(this.geoObject.properties.type).then(relationships => {
             this.relationships = relationships;
 
