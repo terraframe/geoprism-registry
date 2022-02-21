@@ -15,7 +15,7 @@
       [hierarchies]="hierarchies"
       [readOnly]="!isEdit || inProgress !== 0"
       (valid)="setValid($event)"
-      [filterDate]="forDate"
+      [requestedDate]="forDate"
       (filterDateChange)="editorForDateChange($event)"
       [forDate]="forDate"
       [datasetId]="datasetId"

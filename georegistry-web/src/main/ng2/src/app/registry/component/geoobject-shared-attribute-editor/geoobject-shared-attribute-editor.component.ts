@@ -88,9 +88,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
 
-    @Input() filterDate: string = null;
+    @Input() requestedDate: string = null;
 
-    @Output() filterDateChange = new EventEmitter<string>();
+    calculatedDate: string = null;
+
+    @Output() calculatedDateChange = new EventEmitter<string>();
 
     // used in context of a list where reference back to the list forDate is needed
     @Input() forDate: string = null;
@@ -149,7 +151,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
 
         if (this.isNew) {
-            this.filterDate = null;
+            this.calculatedDate = null;
         }
 
         let got = this.changeRequest.current ? this.changeRequest.current.geoObjectType : this.postGeoObject.geoObjectType;
@@ -165,13 +167,13 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     setFilterDate(date: string, refresh: boolean = true) {
-        this.filterDate = date;
+        this.calculatedDate = date;
 
         if (this.manageVersions != null) {
-            this.manageVersions.forEach(manageVersion => manageVersion.setFilterDate(this.filterDate, refresh));
+            this.manageVersions.forEach(manageVersion => manageVersion.setFilterDate(this.calculatedDate, refresh));
         }
 
-        this.filterDateChange.emit(this.filterDate);
+        this.calculatedDateChange.emit(this.calculatedDate);
     }
 
     getChangeRequestEditor(): ChangeRequestEditor {

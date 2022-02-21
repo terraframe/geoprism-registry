@@ -72,7 +72,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
     current: GeoObject;
 
-    filterDate: string = null;
+    requestedDate: string = null;
+
+    calculatedDate: string = null;
 
     /*
      * Currently highlighted feature
@@ -249,8 +251,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    onChangeGeoObject(event: {id: string, code: string, typeCode: string}): void {
-        this.service.getGeoObject(event.id, event.typeCode).then(geoObj => {
+    onChangeGeoObject(event: { id: string, code: string, typeCode: string }): void {
+        this.service.getGeoObject(event.id, event.typeCode, false).then(geoObj => {
             this.setData([geoObj]);
             this.changeGeoObject(event.typeCode, event.code, event.id, geoObj);
 
@@ -616,7 +618,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     handleSearch(text: string, date: string): void {
         this.geomService.destroy(false);
-        this.mapService.search(text, date).then(data => {
+        this.mapService.search(text, date, false).then(data => {
             this.state.currentText = text;
             this.state.currentDate = date;
 
@@ -693,8 +695,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.record = record;
 
-            this.filterDate = this.record.forDate === "" ? null : this.record.forDate;
-
             if (this.record.recordType === "GEO_OBJECT") { // this happens when list type is working
                 this.geomService.destroy(false);
 
@@ -703,7 +703,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 this.current = this.record.geoObject;
                 this.zoomToFeature(this.record.geoObject, null);
             } else if (this.record.recordType === "LIST") { // this happens when list type is NOT working
-                let bounds = this.record.bbox;
+                const bounds = this.record.bbox;
+
+                this.requestedDate = this.record.forDate === "" || this.record.forDate === undefined ? null : this.record.forDate;
+
                 if (bounds && Array.isArray(bounds)) {
                     let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 
@@ -725,7 +728,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     featurePanelForDateChange(date: string) {
         this.geomService.destroy(false);
-        this.filterDate = date;
+        this.calculatedDate = date;
     }
 
     select(node: any, event: MouseEvent): void {
@@ -778,7 +781,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             if (code !== "__NEW__") {
                 this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
                     this.current = geoObject;
-                    this.filterDate = this.record.forDate === "" ? null : this.record.forDate;
+                    this.requestedDate = this.record.forDate === "" ? null : this.record.forDate;
                     this.zoomToFeature(this.current, null);
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
@@ -786,7 +789,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
         } else {
             this.current = geoObject;
-            this.filterDate = this.record.forDate === "" ? null : this.record.forDate;
+            this.requestedDate = this.record.forDate === "" ? null : this.record.forDate;
             this.zoomToFeature(this.current, null);
         }
     }

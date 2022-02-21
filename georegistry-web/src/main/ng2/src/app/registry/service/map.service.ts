@@ -41,7 +41,7 @@ export class MapService {
             .toPromise();
     }
 
-    search(text: string, date: string): Promise<{ type: string, features: GeoObject[] }> {
+    search(text: string, date: string, showOverlay: boolean = true): Promise<{ type: string, features: GeoObject[] }> {
         let params: HttpParams = new HttpParams();
         params = params.set("text", text);
 
@@ -49,12 +49,16 @@ export class MapService {
             params = params.set("date", date);
         }
 
-        this.eventService.start();
+        if (showOverlay) {
+            this.eventService.start();
+        }
 
         return this.http
             .get<{ type: string, features: GeoObject[] }>(registry.contextPath + "/registrylocation/search", { params: params })
             .pipe(finalize(() => {
-                this.eventService.complete();
+                if (showOverlay) {
+                    this.eventService.complete();
+                }
             }))
             .toPromise();
     }

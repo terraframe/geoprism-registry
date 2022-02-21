@@ -47,12 +47,12 @@ export class RelationshipVisualizationService {
             params = params.set("date", date);
         }
 
-        this.eventService.start();
+        // this.eventService.start();
 
         return this.http
             .get<any>(registry.contextPath + "/relationship-visualization/tree", { params: params })
             .pipe(finalize(() => {
-                this.eventService.complete();
+                // this.eventService.complete();
             }))
             .toPromise();
     }
@@ -61,12 +61,12 @@ export class RelationshipVisualizationService {
         let params: HttpParams = new HttpParams();
         params = params.set("geoObjectTypeCode", geoObjectTypeCode);
 
-        this.eventService.start();
+        // this.eventService.start();
 
         return this.http
             .get<any>(registry.contextPath + "/relationship-visualization/relationships", { params: params })
             .pipe(finalize(() => {
-                this.eventService.complete();
+                // this.eventService.complete();
             }))
             .toPromise();
     }
