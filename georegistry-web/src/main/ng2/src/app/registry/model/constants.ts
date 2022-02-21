@@ -31,8 +31,7 @@ export enum ConflictType {
     OUTSIDE_EXISTS = "OUTSIDE_EXISTS"
 }
 
-export enum ChangeType
-{
+export enum ChangeType {
     END_DATE = "endDate",
     START_DATE = "startDate",
     VALUE = "value",
@@ -41,6 +40,12 @@ export enum ChangeType
 }
 
 export enum LayerColor {
-  "OLD" = "#A4A4A4",
-  "NEW" = "#0062AA"
+    "OLD" = "#A4A4A4",
+    "NEW" = "#0062AA"
 }
+
+export const OverlayerIdentifier = {
+    LAYER_PANEL: "layer-panel",
+    FEATURE_PANEL: "feature-panel",
+    VISUALIZER_PANEL: "visualizer-panel",
+} 

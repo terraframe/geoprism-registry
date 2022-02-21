@@ -1,12 +1,14 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
+import { NgxSpinnerService } from "ngx-spinner";
 
 import { GeoObjectType, GeoObjectOverTime, AttributeType, HierarchyOverTime } from "@registry/model/registry";
 import { RegistryService, GeometryService } from "@registry/service";
 import { AuthService } from "@shared/service";
 import { ErrorHandler } from "@shared/component";
 import { CreateGeoObjectAction } from "@registry/model/crtable";
+import { OverlayerIdentifier } from "@registry/model/constants";
 
 @Component({
     selector: "feature-panel",
@@ -20,7 +22,11 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
         ATTRIBUTES: "ATTRIBUTES",
         HIERARCHY: "HIERARCHY",
         GEOMETRY: "GEOMETRY"
-    }
+    };
+
+    CONSTANTS = {
+        OVERLAY: OverlayerIdentifier.FEATURE_PANEL,
+    };
 
     @Input() datasetId: string;
 
@@ -66,11 +72,16 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
     hierarchy: HierarchyOverTime = null;
 
     // Flag indicating if the component is communicating with the server
-    inProgress: number = 0;
+    // inProgress: number = 0;
 
     reason: string = "";
 
-    constructor(public service: RegistryService, private modalService: BsModalService, private authService: AuthService, private geometryService: GeometryService) { }
+    constructor(
+        public service: RegistryService,
+        private spinner: NgxSpinnerService,
+        private modalService: BsModalService,
+        private authService: AuthService,
+        private geometryService: GeometryService) { }
 
     ngOnInit(): void {
         this.isMaintainer = this.authService.isSRA() || this.authService.isOrganizationRA(this.type.organizationCode) || this.authService.isGeoObjectTypeOrSuperRM(this.type);
@@ -106,7 +117,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
             if (this.code !== "__NEW__") {
                 this.isNew = false;
 
-                this.inProgress++;
+                this.spinner.show(this.CONSTANTS.OVERLAY);
 
                 this.service.getGeoObjectOverTime(this.code, this.type.code).then(geoObject => {
                     this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
@@ -114,22 +125,22 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
                 }).finally(() => {
-                    this.inProgress--;
+                    this.spinner.hide(this.CONSTANTS.OVERLAY);
                 });
 
-                this.inProgress++;
+                this.spinner.show(this.CONSTANTS.OVERLAY);
 
                 this.service.getHierarchiesForGeoObject(this.code, this.type.code, false).then((hierarchies: HierarchyOverTime[]) => {
                     this.hierarchies = hierarchies;
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
                 }).finally(() => {
-                    this.inProgress--;
+                    this.spinner.hide(this.CONSTANTS.OVERLAY);
                 });
             } else {
                 this.isNew = true;
 
-                this.inProgress++;
+                this.spinner.show(this.CONSTANTS.OVERLAY);
 
                 this.service.newGeoObjectOverTime(this.type.code, false).then(retJson => {
                     this.preGeoObject = new GeoObjectOverTime(this.type, retJson.geoObject.attributes);
@@ -138,7 +149,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
                     this.hierarchies = retJson.hierarchies;
                     this.setEditMode(true);
                 }).finally(() => {
-                    this.inProgress--;
+                    this.spinner.hide(this.CONSTANTS.OVERLAY);
                 });
             }
         }
@@ -169,7 +180,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
         if (this.isNew) {
             const action: CreateGeoObjectAction = this.attributeEditor.getActions()[0];
 
-            this.inProgress++;
+            this.spinner.show(this.CONSTANTS.OVERLAY);
 
             this.service.applyGeoObjectCreate(action.parentJson, action.geoObjectJson, this.isNew, this.datasetId, this.reason, false).then((applyInfo: any) => {
                 if (!applyInfo.isChangeRequest) {
@@ -179,7 +190,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             }).finally(() => {
-                this.inProgress--;
+                this.spinner.hide(this.CONSTANTS.OVERLAY);
             });
 
             // this.service.applyGeoObjectCreate(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
@@ -191,7 +202,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
             //     this.error(err);
             // });
         } else {
-            this.inProgress++;
+            this.spinner.show(this.CONSTANTS.OVERLAY);
 
             this.service.applyGeoObjectEdit(this.postGeoObject.attributes.code, this.type.code, this.attributeEditor.getActions(), this.datasetId, this.reason, false).then((applyInfo: any) => {
                 if (!applyInfo.isChangeRequest) {
@@ -201,7 +212,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             }).finally(() => {
-                this.inProgress--;
+                this.spinner.hide(this.CONSTANTS.OVERLAY);
             });
         }
 

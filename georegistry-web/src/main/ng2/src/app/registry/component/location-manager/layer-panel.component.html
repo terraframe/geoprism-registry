@@ -18,11 +18,11 @@
     <div *ngIf="list.open" class="list-group">
       <div *ngFor="let version of list.versions">
         <div class="layer-toggle-wrapper">
-			      <a *ngIf="version.oid !== CONSTANT.GRAPH_LAYER" class="fa" [ngClass]='{"fa-minus" : version.showOnLegend, "fa-plus" : !version.showOnLegend}' (click)="clickToggleLayerShowOnLegend(version, list)"></a>
+			      <a *ngIf="version.oid !== CONSTANTS.GRAPH_LAYER" class="fa" [ngClass]='{"fa-minus" : version.showOnLegend, "fa-plus" : !version.showOnLegend}' (click)="clickToggleLayerShowOnLegend(version, list)"></a>
 			      <boolean-field *ngIf="version.showOnLegend" [value]="version.rendered" [label]="version.forDate" [disable]="false" (change)="clickToggleLayerRendered(version, list)" style="line-height:0;"></boolean-field>
 			  
 			      <div class="label-wrapper">
-			        <ng-container *ngIf="version.oid !== CONSTANT.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
+			        <ng-container *ngIf="version.oid !== CONSTANTS.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
 			          [ngTemplateOutletContext]="{layer:version}">
 			        </ng-container>
 			        <div *ngIf="version.color != null" class="layer-legend-square" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"
@@ -35,6 +35,7 @@
 </ng-template>
 
 <div class="layer-toggle">
+  <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.OVERLAY" type="ball-clip-rotate-multiple" size="medium"></ngx-spinner>  
 
   <div>
       <div class="clickable" style="width: 30px;height: 30px;float:right;" (click)="togglePanelOpen()">
@@ -60,14 +61,14 @@
               <boolean-field [value]="layer.rendered" [label]="layer.label" [disable]="false" (change)="toggleLayerRendered(layer)" style="line-height:0;" ></boolean-field>
               
               <div class="label-wrapper">
-                <span *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER">- {{ layer.forDate }}</span>
-                <ng-container *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
+                <span *ngIf="layer.oid !== CONSTANTS.GRAPH_LAYER">- {{ layer.forDate }}</span>
+                <ng-container *ngIf="layer.oid !== CONSTANTS.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
                   [ngTemplateOutletContext]="{layer:layer}">
                 </ng-container>
                 <div class="layer-legend-square" [ngStyle]="{'background-color': layer.color}" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"> </div>
 <!--                 <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i> -->
 <!--                 <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i> -->
-                <i *ngIf="layer.oid !== CONSTANT.GRAPH_LAYER" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
+                <i *ngIf="layer.oid !== CONSTANTS.GRAPH_LAYER" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
                 <i *ngIf="layer.versionNumber === 0 && !layer.isAbstract" class="fa fa-plus" aria-hidden="true"
                   (click)="onCreate(layer)"></i>
               </div>

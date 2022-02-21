@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from "@angular/core";
+import { Component, Input, Output, EventEmitter } from "@angular/core";
 import { LayerRecord } from "@registry/model/list-type";
 
 @Component({
@@ -7,10 +7,12 @@ import { LayerRecord } from "@registry/model/list-type";
     styleUrls: ["./dataset-location-manager.css"]
 })
 export class RecordPanelComponent {
+
     @Input() record: LayerRecord
     @Output() close = new EventEmitter<void>();
 
-    onClose():void {
+    onClose(): void {
         this.close.emit();
     }
+
 }

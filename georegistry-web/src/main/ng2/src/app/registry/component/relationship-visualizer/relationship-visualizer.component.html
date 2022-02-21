@@ -1,5 +1,6 @@
 <div id="relationship-visualizer-root-node" *ngIf="geoObject" [ngStyle]="getCalculatedStyles()">
-
+	<ngx-spinner [fullScreen]="false" [name]="CONSTANTS.OVERLAY" type="ball-clip-rotate-multiple" size="medium"></ngx-spinner>  
+	
   <span class="map-button visualize-mode-toggle">
     <i style="margin-right: initial" class="visualize-mode-hierarchy fa fa-sitemap clickable" aria-hidden="true" (click)="toggleSize($event)" [title]="'relationshipVisualizer.viewGraph' | localize"></i>
   </span>
@@ -28,7 +29,7 @@
 	            [autoZoom]="true"
 	            [autoCenter]="true"
 	            [layout]="layout"
-	            [layoutSettings]="{orientation: relationship.isHierarchy ? ORIENTATION.TOP_TO_BOTTOM : ORIENTATION.LEFT_TO_RIGHT}"
+	            [layoutSettings]="{orientation: relationship.isHierarchy ? CONSTANTS.ORIENTATION.TOP_TO_BOTTOM : CONSTANTS.ORIENTATION.LEFT_TO_RIGHT}"
 	            [curve]="curve"
 	            [draggingEnabled]="false"
 	            [panToNode$]="panToNode$"

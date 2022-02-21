@@ -9,6 +9,8 @@ import { Subscription } from "rxjs";
 
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
+import { NgxSpinnerService } from "ngx-spinner";
+import { OverlayerIdentifier } from "@registry/model/constants";
 
 export const GRAPH_LAYER = "graph";
 
@@ -45,8 +47,9 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     };
 
     // Hack to allow the constant to be used in the html
-    CONSTANT = {
-        GRAPH_LAYER: GRAPH_LAYER
+    CONSTANTS = {
+        GRAPH_LAYER: GRAPH_LAYER,
+        OVERLAY: OverlayerIdentifier.LAYER_PANEL
     }
 
     @Input() filter: string[] = [];
@@ -104,6 +107,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
+        private spinner: NgxSpinnerService,
         private service: ListTypeService,
         private lService: LocalizationService) { }
 
@@ -265,6 +269,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     handleSearch(): Promise<ListOrgGroup[]> {
+        this.spinner.show(this.CONSTANTS.OVERLAY);
+
         return this.service.getGeospatialVersions(this.form.startDate, this.form.endDate).then(listOrgGroups => {
             // Remove all current lists
             this.toggleLayersWithCondition(layer => layer.showOnLegend && layer.oid !== GRAPH_LAYER);
@@ -283,8 +289,10 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
             });
 
             return listOrgGroups;
+        }).finally(() => {
+            this.spinner.hide(this.CONSTANTS.OVERLAY);
         });
-    }
+}
 
     findVersionById(id: string): ContextLayer {
         let response: ContextLayer = null;

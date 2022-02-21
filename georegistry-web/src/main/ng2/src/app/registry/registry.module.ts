@@ -14,6 +14,7 @@ import { CollapseModule } from "ngx-bootstrap/collapse";
 import { TabsModule } from "ngx-bootstrap/tabs";
 import { DndModule } from "ngx-drag-drop";
 import { DragDropModule } from "@angular/cdk/drag-drop";
+import { NgxSpinnerModule } from "ngx-spinner";
 
 import { ImportTypesModalComponent } from "./component/hierarchy/modals/import-types-modal.component";
 import { LocalizedInputComponent } from "./component/form-fields/localized-input/localized-input.component";
@@ -156,7 +157,8 @@ import { ClassificationFieldModalComponent } from "./component/form-fields/class
         DndModule,
         NgxGraphModule,
         DragDropModule,
-        AccordionModule.forRoot()
+        AccordionModule.forRoot(),
+        NgxSpinnerModule
     ],
     declarations: [
         HierarchyComponent,

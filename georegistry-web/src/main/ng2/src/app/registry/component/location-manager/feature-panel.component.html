@@ -1,4 +1,5 @@
 <div style="padding-top:110px;">
+  <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.OVERLAY" type="ball-clip-rotate-multiple" size="medium"></ngx-spinner>  
   <div class="row">
     <div class="col-md-12">
       <h3>{{type.label.localizedValue}}</h3>
@@ -13,7 +14,7 @@
       [isNew]="isNew" 
       [isGeometryInlined]="false"
       [hierarchies]="hierarchies"
-      [readOnly]="!isEdit || inProgress !== 0"
+      [readOnly]="!isEdit"
       (valid)="setValid($event)"
       [requestedDate]="forDate"
       (filterDateChange)="editorForDateChange($event)"

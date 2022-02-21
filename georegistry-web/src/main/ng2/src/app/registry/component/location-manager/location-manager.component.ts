@@ -23,6 +23,8 @@ import { Observable, Observer, Subscription } from "rxjs";
 import { SelectTypeModalComponent } from "./select-type-modal.component";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
+import { OverlayerIdentifier } from "@registry/model/constants";
+import { NgxSpinnerService } from "ngx-spinner";
 declare let registry: GeoRegistryConfiguration;
 
 const SELECTED_COLOR = "#800000";
@@ -45,7 +47,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     MODE: ModalState = {
         SEARCH: 0,
         VIEW: 1
-    }
+    };
+
+    CONSTANTS = {
+        OVERLAY: OverlayerIdentifier.FEATURE_PANEL
+    };
 
     bsModalRef: BsModalRef;
 
@@ -162,6 +168,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         private route: ActivatedRoute,
         private router: Router,
         private modalService: BsModalService,
+        private spinner: NgxSpinnerService,
         private service: RegistryService,
         private listService: ListTypeService,
         private mapService: MapService,
@@ -252,6 +259,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     onChangeGeoObject(event: { id: string, code: string, typeCode: string }): void {
+        this.spinner.show(this.CONSTANTS.OVERLAY);
+
         this.service.getGeoObject(event.id, event.typeCode, false).then(geoObj => {
             this.setData([geoObj]);
             this.changeGeoObject(event.typeCode, event.code, event.id, geoObj);
@@ -265,6 +274,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.current = geoObj;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
+        }).finally(() => {
+            this.spinner.hide(this.CONSTANTS.OVERLAY);
         });
     }
 
@@ -780,12 +791,16 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         if (geoObject == null) {
             if (code !== "__NEW__") {
+                this.spinner.show(this.CONSTANTS.OVERLAY);
+
                 this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
                     this.current = geoObject;
                     this.requestedDate = this.record.forDate === "" ? null : this.record.forDate;
                     this.zoomToFeature(this.current, null);
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
+                }).finally(() => {
+                    this.spinner.hide(this.CONSTANTS.OVERLAY);
                 });
             }
         } else {

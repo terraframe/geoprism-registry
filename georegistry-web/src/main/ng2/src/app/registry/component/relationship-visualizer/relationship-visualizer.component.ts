@@ -15,6 +15,8 @@ import { DagreNodesOnlyLayout } from "./relationship-viz-layout";
 import * as shape from "d3-shape";
 import { LocalizedValue } from "@shared/model/core";
 import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
+import { NgxSpinnerService } from "ngx-spinner";
+import { OverlayerIdentifier } from "@registry/model/constants";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -23,11 +25,11 @@ export const GRAPH_CIRCLE_FILL: string = "#999";
 export const GRAPH_LINE_COLOR: string = "#999";
 
 export interface Relationship {
-  oid: string,
-  label: LocalizedValue,
-  isHierarchy: boolean,
-  code: string,
-  type?:string
+    oid: string,
+    label: LocalizedValue,
+    isHierarchy: boolean,
+    code: string,
+    type?: string
 }
 
 @Component({
@@ -38,296 +40,308 @@ export interface Relationship {
 })
 export class RelationshipVisualizerComponent implements OnInit {
 
-  // Dumb hack to use this imported enum
-  public ORIENTATION = Orientation;
+    // Hack to allow the constant to be used in the html
+    CONSTANTS = {
+        OVERLAY: OverlayerIdentifier.VISUALIZER_PANEL,
+        ORIENTATION : Orientation
+    }
 
-  /*
-   * Reference to the modal current showing
-  */
-  private bsModalRef: BsModalRef;
+    /*
+     * Reference to the modal current showing
+    */
+    private bsModalRef: BsModalRef;
 
-  @Input() params: {geoObject: GeoObject, graphOid: string, date: string, searchPanelOpen: boolean} = null;
+    @Input() params: { geoObject: GeoObject, graphOid: string, date: string, searchPanelOpen: boolean } = null;
 
-  geoObject: GeoObject = null;
+    geoObject: GeoObject = null;
 
-  graphOid: string = null;
+    graphOid: string = null;
 
-  relationship: Relationship = null;
+    relationship: Relationship = null;
 
-  @Output() changeGeoObject = new EventEmitter<{id:string, code: string, typeCode: string}>();
+    @Output() changeGeoObject = new EventEmitter<{ id: string, code: string, typeCode: string }>();
 
-  @Output() changeRelationship = new EventEmitter<string>();
+    @Output() changeRelationship = new EventEmitter<string>();
 
-  private data: any = null;
+    private data: any = null;
 
-  relationships: Relationship[];
+    relationships: Relationship[];
 
-  public panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
+    public panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
 
-  public left: number = 10;
-  public top: number = 40;
+    public left: number = 10;
+    public top: number = 40;
 
-  public svgHeight: number = null;
-  public svgWidth: number = null;
+    public svgHeight: number = null;
+    public svgWidth: number = null;
 
-  panToNode$: Subject<string> = new Subject();
+    panToNode$: Subject<string> = new Subject();
 
-  update$: Subject<boolean> = new Subject();
+    update$: Subject<boolean> = new Subject();
 
-  public layout: Layout = new DagreNodesOnlyLayout();
+    public layout: Layout = new DagreNodesOnlyLayout();
 
-  public curve = shape.curveLinear;
+    public curve = shape.curveLinear;
 
-  // eslint-disable-next-line no-useless-constructor
-  constructor(private modalService: BsModalService, private vizService: RelationshipVisualizationService) {}
+    // eslint-disable-next-line no-useless-constructor
+    constructor(private modalService: BsModalService,
+        private spinner: NgxSpinnerService,
+        private vizService: RelationshipVisualizationService) { }
 
-  ngOnInit(): void {
-  }
+    ngOnInit(): void {
+    }
 
-  ngOnChanges(changes: SimpleChanges) {
-      if (changes.params && changes.params.previousValue !== changes.params.currentValue) {
-          this.graphOid = this.params.graphOid;
-          this.geoObject = this.params.geoObject;
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes.params && changes.params.previousValue !== changes.params.currentValue) {
+            this.graphOid = this.params.graphOid;
+            this.geoObject = this.params.geoObject;
 
-          if (this.relationships == null ||
-              changes.params.previousValue == null ||
-              changes.params.previousValue.geoObject.properties.type !== changes.params.currentValue.geoObject.properties.type) {
-                  this.fetchRelationships();
-          } else if (this.relationships != null && this.relationship) {
-              this.fetchData();
-          }
-      }
-  }
-
-  // Thanks to https://stackoverflow.com/questions/52172067/create-svg-hexagon-points-with-only-only-a-length
-  public getHexagonPoints(node: {dimension: {width: number, height: number}}): string {
-      let radius = node.dimension.width / 2;
-      let height = node.dimension.height;
-      let width = node.dimension.width;
-
-      // let radius = 50;
-      // let height = 200;
-      // let width = 200;
-
-      let points = [0, 1, 2, 3, 4, 5, 6].map((n, i) => {
-          let angleDeg = 60 * i - 30;
-          let angleRad = Math.PI / 180 * angleDeg;
-          return [width / 2 + radius * Math.cos(angleRad), height / 2 + radius * Math.sin(angleRad)];
-        }).map((p) => p.join(","))
-        .join(" ");
-
-      return points;
-  }
-
-  toggleSize(event: MouseEvent): void {
-      if (event != null) {
-          event.stopPropagation();
-      }
-
-      this.panelSize = this.panelSize + 1;
-
-      if (this.panelSize > PANEL_SIZE_STATE.FULLSCREEN) {
-          this.panelSize = 0;
-      }
-
-      window.setTimeout(() => {
-          let graphContainer = document.getElementById("graph-container");
-
-          if (graphContainer) {
-              this.svgHeight = graphContainer.clientHeight;
-              this.svgWidth = graphContainer.clientWidth;
-              // this.panToNode(this.geoObject.properties.uid);
-          }
-      }, 10);
-  }
-
-  getCalculatedStyles() : any {
-      let styles: any = {
-          top: this.top + "px",
-          left: this.left + "px"
-      };
-
-      if (this.panelSize === PANEL_SIZE_STATE.WINDOWED) {
-          let width = 500;
-          let height = 500;
-
-          let navigatorLayerPanelWidth = document.getElementById("navigator-layer-panel").clientWidth + 25;
-
-          // calculate max width and height by spoofing the fullscreen settings and then asking the browser how large it is.
-          let root = document.getElementById("relationship-visualizer-root-node");
-          root.style.right = navigatorLayerPanelWidth + "px";
-          root.style.bottom = "50px";
-          let maxWidth = root.clientWidth;
-          let maxHeight = root.clientHeight;
-          root.style.right = null;
-          root.style.bottom = null;
-
-          if (width > maxWidth) {
-              width = maxWidth;
-          }
-          if (height > maxHeight) {
-              height = maxHeight;
-          }
-
-          styles.width = width + "px";
-          styles.height = height + "px";
-          styles.overflow = "hidden";
-      } else if (this.panelSize === PANEL_SIZE_STATE.FULLSCREEN) {
-          let right = document.getElementById("navigator-layer-panel").clientWidth + 25;
-
-          let bottom = 50;
-
-          styles.right = right + "px";
-          styles.bottom = bottom + "px";
-          styles.overflow = "hidden";
-      }
-
-      return styles;
-  }
-
-  private fetchRelationships(): void {
-      if (this.geoObject != null) {
-        this.relationships = [];
-
-        this.vizService.relationships(this.geoObject.properties.type).then(relationships => {
-            this.relationships = relationships;
-
-            if (this.relationships && this.relationships.length > 0) {
-                if (!this.graphOid || this.relationships.findIndex(rel => rel.oid === this.graphOid) === -1) {
-                    this.relationship = this.relationships[0];
-                    this.graphOid = this.relationship.oid;
-                    this.onSelectRelationship();
-                } else {
-                    this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
-                    this.fetchData();
-                }
+            if (this.relationships == null ||
+                changes.params.previousValue == null ||
+                changes.params.previousValue.geoObject.properties.type !== changes.params.currentValue.geoObject.properties.type) {
+                this.fetchRelationships();
+            } else if (this.relationships != null && this.relationship) {
+                this.fetchData();
             }
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-      }
-  }
+        }
+    }
 
-  private onSelectRelationship() {
-      this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
+    // Thanks to https://stackoverflow.com/questions/52172067/create-svg-hexagon-points-with-only-only-a-length
+    public getHexagonPoints(node: { dimension: { width: number, height: number } }): string {
+        let radius = node.dimension.width / 2;
+        let height = node.dimension.height;
+        let width = node.dimension.width;
 
-    //   this.fetchData();
-      this.changeRelationship.emit(this.graphOid);
-  }
+        // let radius = 50;
+        // let height = 200;
+        // let width = 200;
 
-  private fetchData(): void {
-      if (this.relationship != null) {
-        this.vizService.tree(this.relationship.type, this.relationship.code, this.geoObject.properties.code, this.geoObject.properties.type, this.params.date).then(data => {
-          this.data = null;
+        let points = [0, 1, 2, 3, 4, 5, 6].map((n, i) => {
+            let angleDeg = 60 * i - 30;
+            let angleRad = Math.PI / 180 * angleDeg;
+            return [width / 2 + radius * Math.cos(angleRad), height / 2 + radius * Math.sin(angleRad)];
+        }).map((p) => p.join(","))
+            .join(" ");
 
-          window.setTimeout(() => {
-              this.data = data;
-            }, 0);
+        return points;
+    }
 
+    toggleSize(event: MouseEvent): void {
+        if (event != null) {
+            event.stopPropagation();
+        }
+
+        this.panelSize = this.panelSize + 1;
+
+        if (this.panelSize > PANEL_SIZE_STATE.FULLSCREEN) {
+            this.panelSize = 0;
+        }
+
+        window.setTimeout(() => {
             let graphContainer = document.getElementById("graph-container");
 
             if (graphContainer) {
                 this.svgHeight = graphContainer.clientHeight;
                 this.svgWidth = graphContainer.clientWidth;
+                // this.panToNode(this.geoObject.properties.uid);
+            }
+        }, 10);
+    }
 
-                if (this.geoObject != null) {
-                    // this.panToNode(this.geoObject.properties.uid);
+    getCalculatedStyles(): any {
+        let styles: any = {
+            top: this.top + "px",
+            left: this.left + "px"
+        };
+
+        if (this.panelSize === PANEL_SIZE_STATE.WINDOWED) {
+            let width = 500;
+            let height = 500;
+
+            let navigatorLayerPanelWidth = document.getElementById("navigator-layer-panel").clientWidth + 25;
+
+            // calculate max width and height by spoofing the fullscreen settings and then asking the browser how large it is.
+            let root = document.getElementById("relationship-visualizer-root-node");
+            root.style.right = navigatorLayerPanelWidth + "px";
+            root.style.bottom = "50px";
+            let maxWidth = root.clientWidth;
+            let maxHeight = root.clientHeight;
+            root.style.right = null;
+            root.style.bottom = null;
+
+            if (width > maxWidth) {
+                width = maxWidth;
+            }
+            if (height > maxHeight) {
+                height = maxHeight;
+            }
+
+            styles.width = width + "px";
+            styles.height = height + "px";
+            styles.overflow = "hidden";
+        } else if (this.panelSize === PANEL_SIZE_STATE.FULLSCREEN) {
+            let right = document.getElementById("navigator-layer-panel").clientWidth + 25;
+
+            let bottom = 50;
+
+            styles.right = right + "px";
+            styles.bottom = bottom + "px";
+            styles.overflow = "hidden";
+        }
+
+        return styles;
+    }
+
+    private fetchRelationships(): void {
+        if (this.geoObject != null) {
+            this.relationships = [];
+            this.spinner.show(this.CONSTANTS.OVERLAY);
+
+            this.vizService.relationships(this.geoObject.properties.type).then(relationships => {
+                this.relationships = relationships;
+
+                if (this.relationships && this.relationships.length > 0) {
+                    if (!this.graphOid || this.relationships.findIndex(rel => rel.oid === this.graphOid) === -1) {
+                        this.relationship = this.relationships[0];
+                        this.graphOid = this.relationship.oid;
+                        this.onSelectRelationship();
+                    } else {
+                        this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
+                        this.fetchData();
+                    }
                 }
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            }).finally(() => {
+                this.spinner.hide(this.CONSTANTS.OVERLAY);
+            });
+        }
+    }
+
+    private onSelectRelationship() {
+        this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
+
+        //   this.fetchData();
+        this.changeRelationship.emit(this.graphOid);
+    }
+
+    private fetchData(): void {
+        if (this.relationship != null) {
+            this.spinner.show(this.CONSTANTS.OVERLAY);
+
+            this.vizService.tree(this.relationship.type, this.relationship.code, this.geoObject.properties.code, this.geoObject.properties.type, this.params.date).then(data => {
+                this.data = null;
+
+                window.setTimeout(() => {
+                    this.data = data;
+                }, 0);
+
+                let graphContainer = document.getElementById("graph-container");
+
+                if (graphContainer) {
+                    this.svgHeight = graphContainer.clientHeight;
+                    this.svgWidth = graphContainer.clientWidth;
+
+                    if (this.geoObject != null) {
+                        // this.panToNode(this.geoObject.properties.uid);
+                    }
+                }
+            }).finally(() => {
+                this.spinner.hide(this.CONSTANTS.OVERLAY);
+            });
+        }
+    }
+
+    collapseAnimation(id: string): Promise<void> {
+        if (!this.geoObject) { return new Promise<void>((resolve, reject) => { resolve(); }); }
+
+        let activeEl = document.getElementById(id) as unknown as SVGGraphicsElement;
+        if (!activeEl) { return new Promise<void>((resolve, reject) => { resolve(); }); }
+
+        let bbox = this.getBBox(activeEl, true);
+
+        let all = document.querySelectorAll("g.nodes > g");
+
+        all.forEach((el: SVGGraphicsElement) => {
+            if (el.id !== activeEl.id) {
+                let bbox2 = this.getBBox(el, false);
+                let translate = "translate(" + (bbox.x - bbox2.x) + "," + (bbox.y - bbox2.y) + ")";
+                el.setAttribute("transform", translate);
             }
         });
+
+        document.querySelectorAll("g.links > g").forEach(el => {
+            el.remove();
+        });
+
+        let promise = new Promise<void>((resolve, reject) => {
+            setTimeout(() => {
+                all.forEach((el: SVGGraphicsElement) => {
+                    if (el.id !== activeEl.id) {
+                        el.remove();
+                    }
+                });
+
+                resolve();
+            }, 500);
+        });
+
+        return promise;
     }
-  }
 
-  collapseAnimation(id: string): Promise<void> {
-      if (!this.geoObject) { return new Promise<void>((resolve, reject) => { resolve(); }); }
+    private getBBox(el: SVGGraphicsElement, includeTransform: boolean = true): DOMRect {
+        if (!includeTransform) {
+            return el.getBBox();
+        }
 
-      let activeEl = document.getElementById(id) as unknown as SVGGraphicsElement;
-      if (!activeEl) { return new Promise<void>((resolve, reject) => { resolve(); }); }
+        let cloned = el.cloneNode(true) as unknown as SVGGraphicsElement;
 
-      let bbox = this.getBBox(activeEl, true);
+        let newParent = document.createElementNS("http://www.w3.org/2000/svg", "g") as unknown as SVGGraphicsElement;
+        document.querySelector("svg").appendChild(newParent);
 
-      let all = document.querySelectorAll("g.nodes > g");
+        newParent.appendChild(cloned);
+        let bbox = newParent.getBBox();
+        cloned.remove();
+        newParent.remove();
 
-      all.forEach((el: SVGGraphicsElement) => {
-          if (el.id !== activeEl.id) {
-              let bbox2 = this.getBBox(el, false);
-              let translate = "translate(" + (bbox.x - bbox2.x) + "," + (bbox.y - bbox2.y) + ")";
-              el.setAttribute("transform", translate);
-          }
-      });
+        return bbox;
+    }
 
-      document.querySelectorAll("g.links > g").forEach(el => {
-          el.remove();
-      });
+    /*
+     * We can't predict when the graph will be finished loading and it will be ready to pan. So we're just telling it to
+     * pan over and over again just in case it takes a little while to load. To my knowledge there is no way to fix this,
+     * because:
+     *  1. ngx graph does not provide any sort of "on ready" event we can listen to
+     *  2. Checking if the element exists first in the dom before we call pan to node does not work. The graph might still
+     *     not be ready, even if the element exists.
+     */
+    /*
+    private panToNode(uid: string, retryNum: number = 10) {
+        window.setTimeout(() => {
+            if (document.getElementById("g-" + uid) != null) {
+                this.panToNode$.next("g-" + uid);
+                this.update$.next(); // https://github.com/swimlane/ngx-graph/issues/319
+  
+                if (retryNum > 0) {
+                    this.panToNode(uid, retryNum - 1);
+                }
+            }
+        }, 50);
+    }
+    */
 
-      let promise = new Promise<void>((resolve, reject) => {
-          setTimeout(() => {
-              all.forEach((el: SVGGraphicsElement) => {
-                  if (el.id !== activeEl.id) {
-                      el.remove();
-                  }
-              });
+    public onClickNode(node: any): void {
+        this.collapseAnimation(node.id).then(() => {
+            this.changeGeoObject.emit({ id: node.id.substring(2), code: node.code, typeCode: node.typeCode });
+        });
+    }
 
-              resolve();
-          }, 500);
-      });
+    private stringify(data: any): string {
+        return JSON.stringify(data);
+    }
 
-      return promise;
-  }
-
-  private getBBox(el: SVGGraphicsElement, includeTransform: boolean = true): DOMRect {
-      if (!includeTransform) {
-          return el.getBBox();
-      }
-
-      let cloned = el.cloneNode(true) as unknown as SVGGraphicsElement;
-
-      let newParent = document.createElementNS("http://www.w3.org/2000/svg", "g") as unknown as SVGGraphicsElement;
-      document.querySelector("svg").appendChild(newParent);
-
-      newParent.appendChild(cloned);
-      let bbox = newParent.getBBox();
-      cloned.remove();
-      newParent.remove();
-
-      return bbox;
-  }
-
-  /*
-   * We can't predict when the graph will be finished loading and it will be ready to pan. So we're just telling it to
-   * pan over and over again just in case it takes a little while to load. To my knowledge there is no way to fix this,
-   * because:
-   *  1. ngx graph does not provide any sort of "on ready" event we can listen to
-   *  2. Checking if the element exists first in the dom before we call pan to node does not work. The graph might still
-   *     not be ready, even if the element exists.
-   */
-  /*
-  private panToNode(uid: string, retryNum: number = 10) {
-      window.setTimeout(() => {
-          if (document.getElementById("g-" + uid) != null) {
-              this.panToNode$.next("g-" + uid);
-              this.update$.next(); // https://github.com/swimlane/ngx-graph/issues/319
-
-              if (retryNum > 0) {
-                  this.panToNode(uid, retryNum - 1);
-              }
-          }
-      }, 50);
-  }
-  */
-
-  public onClickNode(node: any): void {
-      this.collapseAnimation(node.id).then(() => {
-          this.changeGeoObject.emit({ id: node.id.substring(2), code: node.code, typeCode: node.typeCode });
-      });
-  }
-
-  private stringify(data: any): string {
-    return JSON.stringify(data);
-  }
-
-  public error(err: HttpErrorResponse): void {
-      this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
-  }
+    public error(err: HttpErrorResponse): void {
+        this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+    }
 
 }
