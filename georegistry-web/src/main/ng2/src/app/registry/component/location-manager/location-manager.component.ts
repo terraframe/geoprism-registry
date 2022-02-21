@@ -104,7 +104,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     visualizingRelationship: string = null;
 
-    relationshipVisualizerPanelStatus: number = 0;
+    graphPanelOpen: boolean = false;
 
     /*
     *  Flag to indicate if the left handle panel should be displayed or not
@@ -337,6 +337,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 if (this.params.attrPanelOpen) {
                     showPanel = this.params.attrPanelOpen === "true";
+                }
+
+                if (this.params.graphPanelOpen) {
+                    this.graphPanelOpen = this.params.graphPanelOpen === "true";
                 }
             }
 
@@ -675,7 +679,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         maxZoom = 12;
                     }
 
-                    this.map.fitBounds(bounds, { padding: padding, animate: true, maxZoom: maxZoom });
+                    let config: any = { padding: padding, animate: true, maxZoom: maxZoom };
+
+                    if (this.graphPanelOpen && !this.showPanel) {
+                        config.offset = [150, 0];
+                        config.padding = padding + 200;
+                    }
+
+                    this.map.fitBounds(bounds, config);
                 }
             }
         }, delay);

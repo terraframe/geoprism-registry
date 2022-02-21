@@ -148,8 +148,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    togglePanelOpen() {
-        this.panelSize = this.panelSize + 1;
+    setPanelSize(size: number) {
+        this.panelSize = size;
 
         if (this.layers.length === 0 && this.panelSize === PANEL_SIZE_STATE.WINDOWED) {
             this.panelSize = PANEL_SIZE_STATE.FULLSCREEN;
@@ -165,6 +165,10 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
             queryParams: { layersPanelSize: this.panelSize },
             queryParamsHandling: "merge"
         });
+    }
+
+    togglePanelOpen() {
+        this.setPanelSize(this.panelSize + 1);
     }
 
     /**

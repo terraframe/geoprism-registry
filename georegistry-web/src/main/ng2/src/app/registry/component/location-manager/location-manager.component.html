@@ -153,6 +153,7 @@
           [params]="{geoObject: current, graphOid: visualizingRelationship, date: calculatedDate, searchPanelOpen: showPanel}"
           (changeGeoObject)="onChangeGeoObject($event)"
           (changeRelationship)="visualizingRelationship = $event"
+          [graphPanelOpen]="graphPanelOpen"
         >
         
         </relationship-visualizer>

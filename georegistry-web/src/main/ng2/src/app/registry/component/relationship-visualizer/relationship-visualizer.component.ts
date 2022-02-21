@@ -16,6 +16,8 @@ import * as shape from "d3-shape";
 import { LocalizedValue } from "@shared/model/core";
 import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
+import { ActivatedRoute } from "@angular/router";
+import { Router } from "@angular/router";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -52,6 +54,8 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     @Input() params: { geoObject: GeoObject, graphOid: string, date: string, searchPanelOpen: boolean } = null;
 
+    @Input() graphPanelOpen: boolean = false;
+
     geoObject: GeoObject = null;
 
     graphOid: string = null;
@@ -65,8 +69,6 @@ export class RelationshipVisualizerComponent implements OnInit {
     private data: any = null;
 
     relationships: Relationship[];
-
-    public panelOpen: boolean = false;
 
     public searchPanelOpen: boolean = false;
 
@@ -87,6 +89,8 @@ export class RelationshipVisualizerComponent implements OnInit {
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService,
         private spinner: NgxSpinnerService,
+        private route: ActivatedRoute,
+        private router: Router,
         private vizService: RelationshipVisualizationService) { }
 
     ngOnInit(): void {
@@ -132,7 +136,7 @@ export class RelationshipVisualizerComponent implements OnInit {
             event.stopPropagation();
         }
 
-        this.panelOpen = !this.panelOpen;
+        this.graphPanelOpen = !this.graphPanelOpen;
 
         window.setTimeout(() => {
             let graphContainer = document.getElementById("graph-container");
@@ -143,6 +147,12 @@ export class RelationshipVisualizerComponent implements OnInit {
                 // this.panToNode(this.geoObject.properties.uid);
             }
         }, 10);
+
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { graphPanelOpen: this.graphPanelOpen },
+            queryParamsHandling: "merge" // remove to replace all query params by provided
+        });
     }
 
     private fetchRelationships(): void {
