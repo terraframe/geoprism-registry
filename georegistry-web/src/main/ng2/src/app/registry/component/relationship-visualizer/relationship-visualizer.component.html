@@ -1,14 +1,14 @@
 <div id="relationship-visualizer-root-node" *ngIf="geoObject"
     style="overflow: hidden; z-index:5; overflow: hidden;"
-    [ngStyle]="{ 'width': ((panelOpen && !searchPanelOpen) ? '50%' : 'unset'), 'top': panelOpen ? '0px' : '30px', 'left': panelOpen ? '0px' : '10px', 'right': panelOpen ? (searchPanelOpen ? '8px' : 'unset') : 'unset', 'bottom': panelOpen ? '10px' : 'unset', 'overflow': panelOpen ? 'hidden' : 'visible' }">
+    [ngStyle]="{ 'width': ((graphPanelOpen && !searchPanelOpen) ? '50%' : 'unset'), 'top': graphPanelOpen ? '0px' : '30px', 'left': graphPanelOpen ? '0px' : '10px', 'right': graphPanelOpen ? (searchPanelOpen ? '8px' : 'unset') : 'unset', 'bottom': graphPanelOpen ? '10px' : 'unset', 'overflow': graphPanelOpen ? 'hidden' : 'visible' }">
 
 	<ngx-spinner [fullScreen]="false" [name]="CONSTANTS.OVERLAY" type="ball-clip-rotate-multiple" size="medium"></ngx-spinner>  
 
-  <span class="map-button visualize-mode-toggle" [ngStyle]="{ 'top': panelOpen ? '30px' : '0px', 'left': panelOpen ? '10px' : '0px' }">
+  <span class="map-button visualize-mode-toggle" [ngStyle]="{ 'top': graphPanelOpen ? '30px' : '0px', 'left': graphPanelOpen ? '10px' : '0px' }">
     <i style="margin-right: initial" class="visualize-mode-hierarchy clickable fa fa-share-alt" aria-hidden="true" (click)="toggleSize($event)" [title]="'relationshipVisualizer.viewGraph' | localize"></i>
   </span>
 
-	<div *ngIf="panelOpen" class="new-admin-design-main" style="overflow-y:hidden; position: absolute; left: 65px; top: 5px; right: 0px; border-radius:4px;">
+	<div *ngIf="graphPanelOpen" class="new-admin-design-main" style="overflow-y:hidden; position: absolute; left: 65px; top: 5px; right: 0px; border-radius:4px;">
 	
 		<div style="height:100%; width:100%; background-color: white; opacity: 100%" class="container-fluid">
 	
