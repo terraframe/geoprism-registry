@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 import { Component, OnInit, Input, Output, SimpleChanges, EventEmitter } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
-import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
+import { BsModalService } from "ngx-bootstrap/modal";
 
 import { ErrorHandler } from "@shared/component";
 
@@ -45,12 +45,9 @@ export class RelationshipVisualizerComponent implements OnInit {
         ORIENTATION: Orientation
     }
 
-    /*
-     * Reference to the modal current showing
-    */
-    private bsModalRef: BsModalRef;
+    @Input() params: { geoObject: GeoObject, graphOid: string, date: string } = null;
 
-    @Input() params: { geoObject: GeoObject, graphOid: string, date: string, searchPanelOpen: boolean } = null;
+    @Input() searchPanelOpen: boolean = false;
 
     geoObject: GeoObject = null;
 
@@ -67,8 +64,6 @@ export class RelationshipVisualizerComponent implements OnInit {
     relationships: Relationship[];
 
     public panelOpen: boolean = false;
-
-    public searchPanelOpen: boolean = false;
 
     public left: number = 10;
     public top: number = 40;
@@ -96,7 +91,7 @@ export class RelationshipVisualizerComponent implements OnInit {
         if (changes.params && changes.params.previousValue !== changes.params.currentValue) {
             this.graphOid = this.params.graphOid;
             this.geoObject = this.params.geoObject;
-            this.searchPanelOpen = this.params.searchPanelOpen;
+
             if (this.relationships == null ||
                 changes.params.previousValue == null ||
                 changes.params.previousValue.geoObject.properties.type !== changes.params.currentValue.geoObject.properties.type) {
@@ -290,7 +285,7 @@ export class RelationshipVisualizerComponent implements OnInit {
     }
 
     public error(err: HttpErrorResponse): void {
-        this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+        ErrorHandler.showErrorAsDialog(err, this.modalService);
     }
 
 }
