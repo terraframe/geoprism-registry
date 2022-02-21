@@ -41,7 +41,7 @@
     background-color: white;
     margin:0;
     padding:0;
-    z-index:9999;
+    z-index:1001;
     border-radius: 4px;
     width: 46px; /* IE fallback */
     width: fit-content;
