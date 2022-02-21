@@ -67,7 +67,13 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     relationships: Relationship[];
 
+<<<<<<< HEAD
     public panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
+=======
+  public panelOpen: boolean = false;
+
+  public searchPanelOpen: boolean = false;
+>>>>>>> refs/remotes/origin/graph-extensions
 
     public left: number = 10;
     public top: number = 40;
@@ -91,17 +97,92 @@ export class RelationshipVisualizerComponent implements OnInit {
     ngOnInit(): void {
     }
 
+<<<<<<< HEAD
     ngOnChanges(changes: SimpleChanges) {
         if (changes.params && changes.params.previousValue !== changes.params.currentValue) {
             this.graphOid = this.params.graphOid;
             this.geoObject = this.params.geoObject;
+=======
+  ngOnChanges(changes: SimpleChanges) {
+      if (changes.params && changes.params.previousValue !== changes.params.currentValue) {
+          this.graphOid = this.params.graphOid;
+          this.geoObject = this.params.geoObject;
+          this.searchPanelOpen = this.params.searchPanelOpen;
+>>>>>>> refs/remotes/origin/graph-extensions
 
+<<<<<<< HEAD
             if (this.relationships == null ||
                 changes.params.previousValue == null ||
                 changes.params.previousValue.geoObject.properties.type !== changes.params.currentValue.geoObject.properties.type) {
                 this.fetchRelationships();
             } else if (this.relationships != null && this.relationship) {
                 this.fetchData();
+=======
+          if (this.relationships == null ||
+              changes.params.previousValue == null ||
+              changes.params.previousValue.geoObject.properties.type !== changes.params.currentValue.geoObject.properties.type) {
+                  this.fetchRelationships();
+          } else if (this.relationships != null && this.relationship) {
+              this.fetchData();
+          }
+      }
+  }
+
+  // Thanks to https://stackoverflow.com/questions/52172067/create-svg-hexagon-points-with-only-only-a-length
+  public getHexagonPoints(node: {dimension: {width: number, height: number}}): string {
+      let radius = node.dimension.width / 2;
+      let height = node.dimension.height;
+      let width = node.dimension.width;
+
+      // let radius = 50;
+      // let height = 200;
+      // let width = 200;
+
+      let points = [0, 1, 2, 3, 4, 5, 6].map((n, i) => {
+          let angleDeg = 60 * i - 30;
+          let angleRad = Math.PI / 180 * angleDeg;
+          return [width / 2 + radius * Math.cos(angleRad), height / 2 + radius * Math.sin(angleRad)];
+        }).map((p) => p.join(","))
+        .join(" ");
+
+      return points;
+  }
+
+  toggleSize(event: MouseEvent): void {
+      if (event != null) {
+          event.stopPropagation();
+      }
+
+      this.panelOpen = !this.panelOpen;
+
+      window.setTimeout(() => {
+          let graphContainer = document.getElementById("graph-container");
+
+          if (graphContainer) {
+              this.svgHeight = graphContainer.clientHeight;
+              this.svgWidth = graphContainer.clientWidth;
+              // this.panToNode(this.geoObject.properties.uid);
+          }
+      }, 10);
+  }
+
+  private fetchRelationships(): void {
+      if (this.geoObject != null) {
+        this.relationships = [];
+
+        this.vizService.relationships(this.geoObject.properties.type).then(relationships => {
+            this.relationships = relationships;
+
+            if (this.relationships && this.relationships.length > 0) {
+                if (!this.graphOid || this.relationships.findIndex(rel => rel.oid === this.graphOid) === -1) {
+                    this.relationship = this.relationships[0];
+                    this.graphOid = this.relationship.oid;
+                    this.onSelectRelationship();
+                } else {
+                    this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
+                    this.fetchData();
+                }
+>>>>>>> refs/remotes/origin/graph-extensions
             }
         }
     }

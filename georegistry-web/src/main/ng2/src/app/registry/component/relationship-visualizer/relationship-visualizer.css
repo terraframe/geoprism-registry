@@ -5,8 +5,8 @@
 
 .map-button.visualize-mode-toggle {
   position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 30px;
+  left: 10px;
   z-index: 2;
   margin-top: 0px;
 }
