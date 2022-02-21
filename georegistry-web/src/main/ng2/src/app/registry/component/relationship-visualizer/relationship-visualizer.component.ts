@@ -62,7 +62,9 @@ export class RelationshipVisualizerComponent implements OnInit {
 
   relationships: Relationship[];
 
-  public panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
+  public panelOpen: boolean = false;
+
+  public searchPanelOpen: boolean = false;
 
   public left: number = 10;
   public top: number = 40;
@@ -88,6 +90,7 @@ export class RelationshipVisualizerComponent implements OnInit {
       if (changes.params && changes.params.previousValue !== changes.params.currentValue) {
           this.graphOid = this.params.graphOid;
           this.geoObject = this.params.geoObject;
+          this.searchPanelOpen = this.params.searchPanelOpen;
 
           if (this.relationships == null ||
               changes.params.previousValue == null ||
@@ -124,11 +127,7 @@ export class RelationshipVisualizerComponent implements OnInit {
           event.stopPropagation();
       }
 
-      this.panelSize = this.panelSize + 1;
-
-      if (this.panelSize > PANEL_SIZE_STATE.FULLSCREEN) {
-          this.panelSize = 0;
-      }
+      this.panelOpen = !this.panelOpen;
 
       window.setTimeout(() => {
           let graphContainer = document.getElementById("graph-container");
@@ -139,50 +138,6 @@ export class RelationshipVisualizerComponent implements OnInit {
               // this.panToNode(this.geoObject.properties.uid);
           }
       }, 10);
-  }
-
-  getCalculatedStyles() : any {
-      let styles: any = {
-          top: this.top + "px",
-          left: this.left + "px"
-      };
-
-      if (this.panelSize === PANEL_SIZE_STATE.WINDOWED) {
-          let width = 500;
-          let height = 500;
-
-          let navigatorLayerPanelWidth = document.getElementById("navigator-layer-panel").clientWidth + 25;
-
-          // calculate max width and height by spoofing the fullscreen settings and then asking the browser how large it is.
-          let root = document.getElementById("relationship-visualizer-root-node");
-          root.style.right = navigatorLayerPanelWidth + "px";
-          root.style.bottom = "50px";
-          let maxWidth = root.clientWidth;
-          let maxHeight = root.clientHeight;
-          root.style.right = null;
-          root.style.bottom = null;
-
-          if (width > maxWidth) {
-              width = maxWidth;
-          }
-          if (height > maxHeight) {
-              height = maxHeight;
-          }
-
-          styles.width = width + "px";
-          styles.height = height + "px";
-          styles.overflow = "hidden";
-      } else if (this.panelSize === PANEL_SIZE_STATE.FULLSCREEN) {
-          let right = document.getElementById("navigator-layer-panel").clientWidth + 25;
-
-          let bottom = 50;
-
-          styles.right = right + "px";
-          styles.bottom = bottom + "px";
-          styles.overflow = "hidden";
-      }
-
-      return styles;
   }
 
   private fetchRelationships(): void {
