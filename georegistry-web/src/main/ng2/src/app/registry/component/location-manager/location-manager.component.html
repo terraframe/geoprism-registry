@@ -82,7 +82,7 @@
     </div>
 
     <div class="row">
-      <div *ngIf="showPanel" id="navigator-left-sidebar" class="col-md-4 lw-inner-col"
+      <div [hidden]="!showPanel" id="navigator-left-sidebar" class="col-md-4 lw-inner-col"
         style="height: calc(100vh - 144px);overflow-y: auto;">
 
         <ng-container *ngIf="mode === MODE.SEARCH && searchEnabled">
@@ -150,7 +150,8 @@
         </div>
         
         <relationship-visualizer *ngIf="record && record.recordType === 'GEO_OBJECT'"
-          [params]="{geoObject: current, graphOid: visualizingRelationship, date: calculatedDate, searchPanelOpen: showPanel}"
+          [params]="{geoObject: current, graphOid: visualizingRelationship, date: calculatedDate}"
+          [searchPanelOpen]="showPanel"
           (changeGeoObject)="onChangeGeoObject($event)"
           (changeRelationship)="visualizingRelationship = $event"
           [graphPanelOpen]="graphPanelOpen"
