@@ -1,0 +1,95 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.resize.openGraphViz">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.resize.openGraphViz" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Open Graph Visualizer" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.resize.closeGraphViz">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.resize.closeGraphViz" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Close Graph Visualizer" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.resize.openLayerPanel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.resize.openLayerPanel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Open Layer Panel" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.resize.closeLayerPanel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.resize.closeLayerPanel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Close Layer Panel" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.resize.expandLayerPanel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.resize.expandLayerPanel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Expand and Search For Layers" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.resize.collapseLayerPanel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.resize.collapseLayerPanel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Collapse to Legend" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.resize.openAttributePanel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.resize.openAttributePanel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Open Attribute Panel" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.resize.closeAttributePanel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.resize.closeAttributePanel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Close Attribute Panel" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.layerPanel.zoomToFeature">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.layerPanel.zoomToFeature" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Zoom To Feature" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.layerPanel.addNewGeoObject">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.layerPanel.addNewGeoObject" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add New Geo-Object" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.layerPanel.addToLegend">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.layerPanel.addToLegend" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add To Legend" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.layerPanel.removeFromLegend">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.layerPanel.removeFromLegend" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Remove From Legend" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

@@ -145,7 +145,7 @@
         
         <div class="map-button clickable" (click)="!isEdit && togglePanel()" style="position: absolute; top: 0; left: 10px;">
           <div class="map-button-icon">
-            <span class="fa" [ngClass]="{'fa-angle-double-left': showPanel, 'fa-angle-double-right': !showPanel}" aria-hidden="true"></span>
+            <span class="fa" [title]="(showPanel ? 'explorer.resize.closeAttributePanel' : 'explorer.resize.openAttributePanel') | localize" [ngClass]="{'fa-angle-double-left': showPanel, 'fa-angle-double-right': !showPanel}" aria-hidden="true"></span>
           </div>
         </div>
         
