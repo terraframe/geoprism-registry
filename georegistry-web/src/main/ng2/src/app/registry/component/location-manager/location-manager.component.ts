@@ -494,7 +494,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             if (bounds && Array.isArray(bounds)) {
                 let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 
-                this.map.fitBounds(llb, { padding: 50, animate: true, maxZoom: 20 });
+                this.map.fitBounds(llb, this.calculateZoomConfig(null));
             }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
@@ -684,25 +684,34 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 if (geometry != null) {
                     const bounds = bbox(geometry) as LngLatBoundsLike;
 
-                    let padding = 50;
-                    let maxZoom = 20;
-
-                    // Zoom level was requested to be reduced when displaying point types as per #420
-                    if (geometry.type === "Point" || geometry.type === "MultiPoint") {
-                        padding = 100;
-                        maxZoom = 12;
-                    }
-
-                    let config: any = { padding: padding, animate: true, maxZoom: maxZoom };
-
-                    if (this.graphPanelOpen && !this.showPanel) {
-                        config.padding = { top: 10, bottom: 10, left: (Math.round(this.windowWidth / 2) + 10), right: 10 };
-                    }
-
-                    this.map.fitBounds(bounds, config);
+                    this.map.fitBounds(bounds, this.calculateZoomConfig(geometry.type));
                 }
             }
         }, delay);
+    }
+
+    calculateZoomConfig(geometryType: string): any {
+        let padding = 50;
+        let maxZoom = 20;
+
+        // Zoom level was requested to be reduced when displaying point types as per #420
+        if (geometryType === "Point" || geometryType === "MultiPoint") {
+            padding = 100;
+            maxZoom = 12;
+        }
+
+        let config: any = { padding: padding, animate: true, maxZoom: maxZoom };
+
+        if (this.graphPanelOpen && !this.showPanel) {
+            config.padding = {
+                top: (this.layersPanelSize !== PANEL_SIZE_STATE.MINIMIZED ? ((37 * this.layers.length) + 45) : 0) + 10,
+                bottom: 10,
+                left: (Math.round(this.windowWidth / 2) + 10),
+                right: 10
+            };
+        }
+
+        return config;
     }
 
     handleRecord(list: string, uid: string): void {
