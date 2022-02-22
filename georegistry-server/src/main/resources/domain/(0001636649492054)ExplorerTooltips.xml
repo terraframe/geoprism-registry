@@ -85,6 +85,13 @@
           <attribute name="defaultLocale" value="Remove From Legend" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.edit.loseAllChanges">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.edit.loseAllChanges" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="You are about to lose all changes in your current editing session. Are you sure you want to proceed?" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create></create>
     <update></update>

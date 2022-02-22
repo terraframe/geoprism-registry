@@ -25,6 +25,9 @@ import { SelectTypeModalComponent } from "./select-type-modal.component";
 import { GeoRegistryConfiguration } from "@core/model/registry";
 import { OverlayerIdentifier } from "@registry/model/constants";
 import { NgxSpinnerService } from "ngx-spinner";
+import { ModalTypes } from "@shared/model/modal";
+import { FeaturePanelComponent } from "./feature-panel.component";
+
 declare let registry: GeoRegistryConfiguration;
 
 const SELECTED_COLOR = "#800000";
@@ -163,6 +166,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     @ViewChild("simpleEditControl") simpleEditControl: IControl;
 
+    @ViewChild("FeaturePanel") featurePanel: FeaturePanelComponent;
+
     windowWidth: number;
     windowHeight: number;
 
@@ -270,24 +275,28 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    onChangeGeoObject(event: { id: string, code: string, typeCode: string }): void {
-        this.spinner.show(this.CONSTANTS.OVERLAY);
+    onChangeGeoObject(event: { id: string, code: string, typeCode: string, doIt: any }): void {
+        this.closeEditSessionSafeguard().then(() => {
+            event.doIt(() => {
+                this.spinner.show(this.CONSTANTS.OVERLAY);
 
-        this.service.getGeoObject(event.id, event.typeCode, false).then(geoObj => {
-            this.setData([geoObj]);
-            this.changeGeoObject(event.typeCode, event.code, event.id, geoObj);
+                this.service.getGeoObject(event.id, event.typeCode, false).then(geoObj => {
+                    this.setData([geoObj]);
+                    this.changeGeoObject(event.typeCode, event.code, event.id, geoObj);
 
-            this.router.navigate([], {
-                relativeTo: this.route,
-                queryParams: { type: event.typeCode, code: event.code, uid: event.id, version: null, text: event.code },
-                queryParamsHandling: "merge" // remove to replace all query params by provided
+                    this.router.navigate([], {
+                        relativeTo: this.route,
+                        queryParams: { type: event.typeCode, code: event.code, uid: event.id, version: null, text: event.code },
+                        queryParamsHandling: "merge" // remove to replace all query params by provided
+                    });
+
+                    this.current = geoObj;
+                }).catch((err: HttpErrorResponse) => {
+                    this.error(err);
+                }).finally(() => {
+                    this.spinner.hide(this.CONSTANTS.OVERLAY);
+                });
             });
-
-            this.current = geoObj;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        }).finally(() => {
-            this.spinner.hide(this.CONSTANTS.OVERLAY);
         });
     }
 
@@ -502,7 +511,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     onCreate(layer: ContextLayer): void {
-        if (!this.isEdit) {
+        this.closeEditSessionSafeguard().then(() => {
             this.listService.getVersion(layer.oid).then(version => {
                 if (!version.isAbstract) {
                     this.select({
@@ -527,11 +536,37 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     });
                 }
             });
+        });
+    }
+
+    closeEditSessionSafeguard(): Promise<void> {
+        if (!this.isEdit) {
+            return new Promise((resolve, reject) => { resolve(); });
         }
+
+        let confirmBsModalRef = this.modalService.show(ConfirmModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true
+        });
+        confirmBsModalRef.content.message = this.lService.decode("explorer.edit.loseAllChanges");
+        confirmBsModalRef.content.data = {};
+        confirmBsModalRef.content.submitText = this.lService.decode("modal.button.ok");
+        confirmBsModalRef.content.type = ModalTypes.danger;
+
+        let resolver = (subsription: Subscription, resolve: Function, result: void) => { this.cancelEditingSession(); resolve(result); subsription.unsubscribe(); };
+        let rejecter = (subsription: Subscription, reject: Function, error: any) => { reject(error); subsription.unsubscribe(); };
+
+        return new Promise((resolve, reject) => {
+            let subscription = confirmBsModalRef.content.onConfirm.subscribe(
+                result => { resolver(subscription, resolve, result); },
+                error => { rejecter(subscription, reject, error); }
+            );
+        });
     }
 
     handleMapClickEvent(e: any): void {
-        if (!this.isEdit) {
+        this.closeEditSessionSafeguard().then(() => {
             const features = this.map.queryRenderedFeatures(e.point);
 
             if (features != null && features.length > 0) {
@@ -549,7 +584,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     }
                 }
             }
-        }
+        });
     }
 
     onPanelCancel(): void {
@@ -762,6 +797,21 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
+    }
+
+    cancelEditingSession() {
+        if (this.isEdit) {
+            this.geomService.destroy(false);
+        }
+
+        this.isEdit = false;
+
+        if (this.feature != null) {
+            this.map.removeFeatureState(this.feature);
+        }
+
+        this.featurePanel.setEditMode(false);
+        this.feature = null;
     }
 
     clearRecord() {

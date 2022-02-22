@@ -58,7 +58,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     relationship: Relationship = null;
 
-    @Output() changeGeoObject = new EventEmitter<{ id: string, code: string, typeCode: string }>();
+    @Output() changeGeoObject = new EventEmitter<{ id: string, code: string, typeCode: string, doIt: any }>();
 
     @Output() changeRelationship = new EventEmitter<string>();
 
@@ -110,10 +110,6 @@ export class RelationshipVisualizerComponent implements OnInit {
         let radius = node.dimension.width / 2;
         let height = node.dimension.height;
         let width = node.dimension.width;
-
-        // let radius = 50;
-        // let height = 200;
-        // let width = 200;
 
         let points = [0, 1, 2, 3, 4, 5, 6].map((n, i) => {
             let angleDeg = 60 * i - 30;
@@ -290,9 +286,13 @@ export class RelationshipVisualizerComponent implements OnInit {
     public onClickNode(node: any): void {
         if (node.code !== this.params.geoObject.properties.code &&
             node.typeCode !== this.params.geoObject.type) {
-            this.collapseAnimation(node.id).then(() => {
-                this.changeGeoObject.emit({ id: node.id.substring(2), code: node.code, typeCode: node.typeCode });
-            });
+              let doIt = (resolve) => {
+                  this.collapseAnimation(node.id).then(() => {
+                      resolve();
+                  });
+              }
+
+              this.changeGeoObject.emit({ id: node.id.substring(2), code: node.code, typeCode: node.typeCode, doIt: doIt });
         }
     }
 
