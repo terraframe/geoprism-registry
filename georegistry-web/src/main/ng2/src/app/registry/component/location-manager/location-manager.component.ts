@@ -696,7 +696,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     let config: any = { padding: padding, animate: true, maxZoom: maxZoom };
 
                     if (this.graphPanelOpen && !this.showPanel) {
-                        config.padding = { top: 10, bottom: 10, left: Math.round(this.windowWidth / 2), right: 10 };
+                        config.padding = { top: 10, bottom: 10, left: (Math.round(this.windowWidth / 2) + 10), right: 10 };
                     }
 
                     this.map.fitBounds(bounds, config);
