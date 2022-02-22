@@ -484,6 +484,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         if (this.current) {
             this.zoomToFeature(this.current, null);
+        } else if (this.layers.length > 0 && this.layers[0].oid !== GRAPH_LAYER) {
+            this.onZoomTo(this.layers[0].oid);
         }
     }
 

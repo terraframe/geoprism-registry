@@ -168,7 +168,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     togglePanelOpen() {
-        this.setPanelSize(this.panelSize + 1);
+        this.setPanelSize(this.panelSize === 0 ? 1 : 0);
     }
 
     /**
