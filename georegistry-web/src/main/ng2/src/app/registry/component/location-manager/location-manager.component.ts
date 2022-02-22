@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from "@angular/core";
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, HostListener } from "@angular/core";
 import { Location } from "@angular/common";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { Map, LngLatBoundsLike, NavigationControl, AttributionControl, IControl, LngLatBounds } from "mapbox-gl";
@@ -163,6 +163,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     @ViewChild("simpleEditControl") simpleEditControl: IControl;
 
+    windowWidth: number;
+    windowHeight: number;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private route: ActivatedRoute,
@@ -180,6 +183,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     ngOnInit(): void {
+        this.windowWidth = window.innerWidth;
+        this.windowHeight = window.innerHeight;
+
         this.subscription = this.route.queryParams.subscribe(params => {
             this.handleParameterChange(params);
         });
@@ -203,6 +209,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     ngAfterViewInit() {
         this.initializeMap();
+    }
+
+    @HostListener("window:resize", ["$event"])
+    resizeWindow() {
+        this.windowWidth = window.innerWidth;
+        this.windowHeight = window.innerHeight;
     }
 
     initializeMap() {
@@ -682,8 +694,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     let config: any = { padding: padding, animate: true, maxZoom: maxZoom };
 
                     if (this.graphPanelOpen && !this.showPanel) {
-                        config.offset = [150, 0];
-                        config.padding = padding + 200;
+                        config.offset = [Math.round(this.windowWidth / 8), 0];
+                        config.padding = 0;
                     }
 
                     this.map.fitBounds(bounds, config);
