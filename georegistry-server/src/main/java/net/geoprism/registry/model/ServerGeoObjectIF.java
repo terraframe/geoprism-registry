@@ -119,13 +119,13 @@ public interface ServerGeoObjectIF
 
   public ServerParentTreeNode addChild(ServerGeoObjectIF entity, ServerHierarchyType hierarchy, Date startDate, Date endDate);
 
-  public void removeChild(ServerGeoObjectIF child, String hierarchyCode);
+  public void removeChild(ServerGeoObjectIF child, String hierarchyCode, Date startDate, Date endDate);
 
   public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType);
 
   public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate);
 
-  public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType);
+  public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate);
 
   public void lock();
 

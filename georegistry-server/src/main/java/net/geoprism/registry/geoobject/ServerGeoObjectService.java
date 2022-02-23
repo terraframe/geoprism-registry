@@ -41,6 +41,7 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.CGRPermissionException;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InvalidRegistryIdException;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.action.AbstractAction;
@@ -105,7 +106,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   }
 
   @Request(RequestType.SESSION)
-  public ParentTreeNode addChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
+  public ParentTreeNode addChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode, Date startDate, Date endDate)
   {
     ServerGeoObjectIF parent = this.getGeoObject(parentId, parentGeoObjectTypeCode);
     ServerGeoObjectIF child = this.getGeoObject(childId, childGeoObjectTypeCode);
@@ -113,11 +114,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
-    return parent.addChild(child, ht).toNode(false);
+    return parent.addChild(child, ht, startDate, endDate).toNode(false);
   }
 
   @Request(RequestType.SESSION)
-  public void removeChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
+  public void removeChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode, Date startDate, Date endDate)
   {
     ServerGeoObjectIF parent = this.getGeoObject(parentId, parentGeoObjectTypeCode);
     ServerGeoObjectIF child = this.getGeoObject(childId, childGeoObjectTypeCode);
@@ -125,7 +126,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
-    parent.removeChild(child, hierarchyCode);
+    parent.removeChild(child, hierarchyCode, startDate, endDate);
   }
   
   @Transaction

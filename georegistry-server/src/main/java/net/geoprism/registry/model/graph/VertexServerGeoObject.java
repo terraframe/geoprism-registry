@@ -23,7 +23,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -106,7 +105,6 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.DuplicateGeoObjectCodeException;
 import net.geoprism.registry.DuplicateGeoObjectException;
 import net.geoprism.registry.DuplicateGeoObjectMultipleException;
-import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.RegistryConstants;
@@ -1238,10 +1236,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Transaction
-  public void removeChild(ServerGeoObjectIF child, String hierarchyCode)
+  public void removeChild(ServerGeoObjectIF child, String hierarchyCode, Date startDate, Date endDate)
   {
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
-    child.removeParent(this, hierarchyType);
+    child.removeParent(this, hierarchyType, startDate, endDate);
   }
 
   @Transaction
@@ -1501,9 +1499,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Override
-  public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
+  public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate)
   {
-    this.getVertex().removeParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
+    EdgeObject edge = this.getEdge(parent, hierarchyType, startDate, endDate);
+    edge.delete();
+//    
+//    this.getVertex().removeParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
   }
 
   @Override
@@ -1920,28 +1921,6 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       edge.delete();
     }
-  }
-
-  @Deprecated
-  private void calculateEndDates(SortedSet<EdgeObject> edges)
-  {
-    EdgeObject prev = null;
-
-    for (EdgeObject current : edges)
-    {
-      if (prev != null)
-      {
-        Calendar cal = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-        cal.setTime(current.getObjectValue(GeoVertex.START_DATE));
-        cal.add(Calendar.DAY_OF_YEAR, -1);
-
-        current.setValue(GeoVertex.END_DATE, cal.getTime());
-      }
-
-      prev = current;
-    }
-
-    edges.last().setValue(GeoVertex.END_DATE, ValueOverTime.INFINITY_END_DATE);
   }
 
   public String addSynonym(String label)

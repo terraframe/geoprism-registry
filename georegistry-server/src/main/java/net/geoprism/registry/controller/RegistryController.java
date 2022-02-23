@@ -535,11 +535,16 @@ public class RegistryController
    *
    * @returns ParentTreeNode The new node which was created with the provided
    *          parent.
+   * @param startDate TODO
+   * @param endDate TODO
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_ADD_CHILD)
-  public ResponseIF addChild(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTID) String parentId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDID) String childId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE) String hierarchyRef)
+  public ResponseIF addChild(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTID) String parentId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDID) String childId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE) String hierarchyRef, @RequestParamter(name = "startDate") String startDateString, @RequestParamter(name = "endDate") String endDateString)
   {
-    ParentTreeNode pn = ServiceFactory.getGeoObjectService().addChild(request.getSessionId(), parentId, parentTypeCode, childId, childTypeCode, hierarchyRef);
+    Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString) : null;
+    Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString) : null;
+
+    ParentTreeNode pn = ServiceFactory.getGeoObjectService().addChild(request.getSessionId(), parentId, parentTypeCode, childId, childTypeCode, hierarchyRef, startDate, endDate);
 
     return new RestBodyResponse(pn.toJSON());
   }
@@ -553,9 +558,12 @@ public class RegistryController
    * @returns
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_REMOVE_CHILD)
-  public ResponseIF removeChild(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTID) String parentId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDID) String childId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE) String hierarchyRef)
+  public ResponseIF removeChild(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTID) String parentId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDID) String childId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE) String hierarchyRef, @RequestParamter(name = "startDate") String startDateString, @RequestParamter(name = "endDate") String endDateString)
   {
-    ServiceFactory.getGeoObjectService().removeChild(request.getSessionId(), parentId, parentTypeCode, childId, childTypeCode, hierarchyRef);
+    Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString) : null;
+    Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString) : null;
+
+    ServiceFactory.getGeoObjectService().removeChild(request.getSessionId(), parentId, parentTypeCode, childId, childTypeCode, hierarchyRef, startDate, endDate);
 
     return new RestResponse();
   }

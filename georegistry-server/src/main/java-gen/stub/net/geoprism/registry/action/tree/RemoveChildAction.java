@@ -55,7 +55,7 @@ public class RemoveChildAction extends RemoveChildActionBase
 
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
-    parent.removeChild(child, this.getHierarchyTypeCode());
+    parent.removeChild(child, this.getHierarchyTypeCode(), null, null);
   }
 
   @Override

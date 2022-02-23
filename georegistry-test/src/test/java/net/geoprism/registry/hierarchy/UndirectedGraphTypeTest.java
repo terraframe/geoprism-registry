@@ -77,7 +77,7 @@ public class UndirectedGraphTypeTest
     try
     {
       JsonObject object = new JsonObject();
-      object.add(UndirectedGraphType.DISPLAYLABEL, new LocalizedValue("Updated Label").toJSON());
+      object.add(UndirectedGraphType.JSON_LABEL, new LocalizedValue("Updated Label").toJSON());
       object.add(UndirectedGraphType.DESCRIPTION, new LocalizedValue("Updated Description").toJSON());
 
       type.update(object);

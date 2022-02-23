@@ -219,6 +219,25 @@ public class ValueOverTimeParentTest
   }
   
   /**
+   * Imported data completely consumes existing data, and the values are different.
+   */
+  @Test
+  @Request
+  public void testGetParentAtTime()
+  {
+    ServerGeoObjectIF go = TEST_GO.getServerObject();
+    go.addParent(BELIZE.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5));
+    go.apply(false);
+    
+    go = TEST_GO.getServerObject();
+    ServerParentTreeNode node = go.getParentsForHierarchy(FastTestDataset.HIER_ADMIN.getServerObject(), false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+    Assert.assertEquals(1, node.getParents().size());
+    
+    ServerGeoObjectIF value = node.getParents().get(0).getGeoObject();
+    Assert.assertEquals(BELIZE.getCode(), value.getCode());
+  }
+  
+  /**
    * Imported data partially overlaps an existing range, and the values are the same.
    */
   @Test

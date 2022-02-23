@@ -232,14 +232,14 @@ public class RegistryControllerWrapper extends TestControllerWrapper
     return responseToHierarchyType(this.controller.addToHierarchy(this.clientRequest, hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode));
   }
 
-  public ParentTreeNode addChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef)
+  public ParentTreeNode addChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef, String startDate, String endDate)
   {
-    return responseToParentTreeNode(this.controller.addChild(this.clientRequest, parentId, parentTypeCode, childId, childTypeCode, hierarchyRef));
+    return responseToParentTreeNode(this.controller.addChild(this.clientRequest, parentId, parentTypeCode, childId, childTypeCode, hierarchyRef, startDate, endDate));
   }
 
-  public void removeChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef)
+  public void removeChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef, String startDate, String endDate)
   {
-    this.controller.removeChild(this.clientRequest, parentId, parentTypeCode, childId, childTypeCode, hierarchyRef);
+    this.controller.removeChild(this.clientRequest, parentId, parentTypeCode, childId, childTypeCode, hierarchyRef, startDate, endDate);
   }
 
 }
