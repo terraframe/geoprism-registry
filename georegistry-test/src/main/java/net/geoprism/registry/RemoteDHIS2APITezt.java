@@ -39,6 +39,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.gson.GsonBuilder;
@@ -50,23 +51,18 @@ import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
-import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
-import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
-import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
-import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
-import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
-import net.geoprism.registry.etl.DHIS2TermAttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncLevel;
+import net.geoprism.registry.etl.DHIS2TermAttributeMapping;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
 import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache;
@@ -83,6 +79,7 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestUserInfo;
 
+@Ignore
 public class RemoteDHIS2APITezt
 {
   public static final String TEST_DATA_KEY = "RemoteDHIS2Test";

@@ -1237,10 +1237,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Transaction
-  public void removeChild(ServerGeoObjectIF child, String hierarchyCode)
+  public void removeChild(ServerGeoObjectIF child, String hierarchyCode, Date startDate, Date endDate)
   {
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
-    child.removeParent(this, hierarchyType);
+    child.removeParent(this, hierarchyType, startDate, endDate);
   }
 
   @Transaction
@@ -1500,9 +1500,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Override
-  public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
+  public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate)
   {
-    this.getVertex().removeParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
+    EdgeObject edge = this.getEdge(parent, hierarchyType, startDate, endDate);
+    edge.delete();
+//    
+//    this.getVertex().removeParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
   }
   
   @Override

@@ -29,7 +29,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
-import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.junit.After;
@@ -43,8 +42,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
-import net.geoprism.registry.test.CambodiaTestDataset;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
@@ -604,10 +603,13 @@ public class GeoObjectRelationshipServiceTest
   @Test
   public void testAddChild()
   {
+    String startDate = GeoRegistryUtil.formatDate(FastTestDataset.DEFAULT_OVER_TIME_DATE, false);
+    String endDate = GeoRegistryUtil.formatDate(FastTestDataset.DEFAULT_END_TIME_DATE, false);
+    
     TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", FastTestDataset.PROVINCE);
     testAddChild.apply();
 
-    ParentTreeNode ptnTestState = testData.adapter.addChild(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), testAddChild.getRegistryId(), testAddChild.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode());
+    ParentTreeNode ptnTestState = testData.adapter.addChild(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), testAddChild.getRegistryId(), testAddChild.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode(), startDate, endDate);
 
     boolean found = false;
     for (ParentTreeNode ptnCAMBODIA : ptnTestState.getParents())
@@ -636,12 +638,52 @@ public class GeoObjectRelationshipServiceTest
   }
 
   @Test
+  public void testInsertChild()
+  {
+    String startDate = GeoRegistryUtil.formatDate(FastTestDataset.DEFAULT_OVER_TIME_DATE, false);
+    String endDate = GeoRegistryUtil.formatDate(FastTestDataset.DEFAULT_END_TIME_DATE, false);
+
+    TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", FastTestDataset.PROVINCE);
+    testAddChild.apply();
+    
+    ParentTreeNode ptnTestState = testData.adapter.addChild(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), testAddChild.getRegistryId(), testAddChild.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode(), startDate, endDate);
+    
+    boolean found = false;
+    for (ParentTreeNode ptnCAMBODIA : ptnTestState.getParents())
+    {
+      if (ptnCAMBODIA.getGeoObject().getCode().equals(FastTestDataset.CAMBODIA.getCode()))
+      {
+        found = true;
+        break;
+      }
+    }
+    Assert.assertTrue("Did not find our test object in the list of returned children", found);
+    testAddChild.assertEquals(ptnTestState.getGeoObject());
+    
+    ChildTreeNode ctnCAMBODIA2 = testData.adapter.getChildGeoObjects(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, new String[] { FastTestDataset.PROVINCE.getCode() }, false);
+    
+    found = false;
+    for (ChildTreeNode ctnState : ctnCAMBODIA2.getChildren())
+    {
+      if (ctnState.getGeoObject().getCode().equals(testAddChild.getCode()))
+      {
+        found = true;
+        break;
+      }
+    }
+    Assert.assertTrue("Did not find our test object in the list of returned children", found);
+  }
+  
+  @Test
   public void testRemoveChild()
   {
+    String startDate = GeoRegistryUtil.formatDate(FastTestDataset.DEFAULT_OVER_TIME_DATE, false);
+    String endDate = GeoRegistryUtil.formatDate(FastTestDataset.DEFAULT_END_TIME_DATE, false);
+    
     /*
      * Remove Child
      */
-    testData.adapter.removeChild(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.PROV_CENTRAL.getRegistryId(), FastTestDataset.PROVINCE.getCode(), FastTestDataset.HIER_ADMIN.getCode());
+    testData.adapter.removeChild(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.PROV_CENTRAL.getRegistryId(), FastTestDataset.PROVINCE.getCode(), FastTestDataset.HIER_ADMIN.getCode(), startDate, endDate);
 
     /*
      * Fetch the children and validate ours was removed

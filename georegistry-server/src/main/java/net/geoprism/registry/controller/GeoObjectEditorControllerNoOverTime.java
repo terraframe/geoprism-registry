@@ -175,7 +175,7 @@ public class GeoObjectEditorControllerNoOverTime
 
       if (shouldRemove)
       {
-        ServiceFactory.getGeoObjectService().removeChild(sessionId, ptnDbParent.getGeoObject().getUid(), ptnDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), ptnDbParent.getHierachyType().getCode());
+        ServiceFactory.getGeoObjectService().removeChild(sessionId, ptnDbParent.getGeoObject().getUid(), ptnDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), ptnDbParent.getHierachyType().getCode(), startDate, endDate);
       }
     }
 
@@ -195,7 +195,7 @@ public class GeoObjectEditorControllerNoOverTime
       if (!alreadyExists)
       {
         GeoObject parent = ptnParent.getGeoObject();
-        ServiceFactory.getGeoObjectService().addChild(sessionId, parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ptnParent.getHierachyType().getCode());
+        ServiceFactory.getGeoObjectService().addChild(sessionId, parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ptnParent.getHierachyType().getCode(), startDate, endDate);
       }
     }
   }
