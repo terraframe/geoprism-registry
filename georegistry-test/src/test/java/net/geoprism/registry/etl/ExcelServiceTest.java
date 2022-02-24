@@ -49,6 +49,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.runwaysdk.business.SmartExceptionDTO;
@@ -101,6 +102,7 @@ import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
+@Ignore
 public class ExcelServiceTest
 {
   protected static String                    CLASSIFICATION_TYPE = "test.classification.TestClassification";

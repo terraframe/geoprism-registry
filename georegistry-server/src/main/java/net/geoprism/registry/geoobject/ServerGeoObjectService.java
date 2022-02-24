@@ -105,10 +105,10 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   }
 
   @Request(RequestType.SESSION)
-  public ParentTreeNode addChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode, Date startDate, Date endDate)
+  public ParentTreeNode addChild(String sessionId, String parentCode, String parentGeoObjectTypeCode, String childCode, String childGeoObjectTypeCode, String hierarchyCode, Date startDate, Date endDate)
   {
-    ServerGeoObjectIF parent = this.getGeoObject(parentId, parentGeoObjectTypeCode);
-    ServerGeoObjectIF child = this.getGeoObject(childId, childGeoObjectTypeCode);
+    ServerGeoObjectIF parent = this.getGeoObjectByCode(parentCode, parentGeoObjectTypeCode);
+    ServerGeoObjectIF child = this.getGeoObjectByCode(childCode, childGeoObjectTypeCode);
     ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
 
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
@@ -117,10 +117,10 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   }
 
   @Request(RequestType.SESSION)
-  public void removeChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode, Date startDate, Date endDate)
+  public void removeChild(String sessionId, String parentCode, String parentGeoObjectTypeCode, String childCode, String childGeoObjectTypeCode, String hierarchyCode, Date startDate, Date endDate)
   {
-    ServerGeoObjectIF parent = this.getGeoObject(parentId, parentGeoObjectTypeCode);
-    ServerGeoObjectIF child = this.getGeoObject(childId, childGeoObjectTypeCode);
+    ServerGeoObjectIF parent = this.getGeoObjectByCode(parentCode, parentGeoObjectTypeCode);
+    ServerGeoObjectIF child = this.getGeoObjectByCode(childCode, childGeoObjectTypeCode);
     ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
 
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChild(ht.getOrganization().getCode(), parent.getType(), child.getType());

@@ -478,9 +478,9 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive, Date date)
+  public ChildTreeNode getChildGeoObjects(String sessionId, String parentCode, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive, Date date)
   {
-    ServerGeoObjectIF object = this.service.getGeoObject(parentUid, parentGeoObjectTypeCode);
+    ServerGeoObjectIF object = this.service.getGeoObjectByCode(parentCode, parentGeoObjectTypeCode);
 
     if (date != null)
     {
@@ -493,9 +493,9 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive, Date date)
+  public ParentTreeNode getParentGeoObjects(String sessionId, String childCode, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive, Date date)
   {
-    ServerGeoObjectIF object = this.service.getGeoObject(childId, childGeoObjectTypeCode);
+    ServerGeoObjectIF object = this.service.getGeoObjectByCode(childCode, childGeoObjectTypeCode);
 
     if (date != null)
     {

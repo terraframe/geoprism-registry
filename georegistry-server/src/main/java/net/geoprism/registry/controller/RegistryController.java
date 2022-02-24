@@ -449,7 +449,7 @@ public class RegistryController
    * @returns @throws
    **/
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET_CHILDREN)
-  public ResponseIF getChildGeoObjects(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_PARENTID) String parentId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = "date") String date, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_CHILDREN_TYPES) String childrenTypes, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_RECURSIVE) Boolean recursive)
+  public ResponseIF getChildGeoObjects(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTCODE) String parentCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_DATE) String date, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_CHILDREN_TYPES) String childrenTypes, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_RECURSIVE) Boolean recursive)
   {
     String[] aChildTypes = null;
 
@@ -464,7 +464,7 @@ public class RegistryController
       }
     }
 
-    TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentId, parentTypeCode, aChildTypes, recursive, GeoRegistryUtil.parseDate(date));
+    TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentCode, parentTypeCode, aChildTypes, recursive, GeoRegistryUtil.parseDate(date));
 
     return new RestBodyResponse(tn.toJSON());
   }
@@ -486,7 +486,7 @@ public class RegistryController
    * @returns @throws
    **/
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET_PARENTS)
-  public ResponseIF getParentGeoObjects(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILDID) String childId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = "date") String date, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_PARENT_TYPES) String parentTypes, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_RECURSIVE) Boolean recursive) throws ParseException
+  public ResponseIF getParentGeoObjects(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILDCODE) String childCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_DATE) String date, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_PARENT_TYPES) String parentTypes, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_RECURSIVE) Boolean recursive) throws ParseException
   {
     String[] aParentTypes = null;
 
@@ -501,7 +501,7 @@ public class RegistryController
       }
     }
 
-    TreeNode tn = this.registryService.getParentGeoObjects(request.getSessionId(), childId, childTypeCode, aParentTypes, recursive, GeoRegistryUtil.parseDate(date));
+    TreeNode tn = this.registryService.getParentGeoObjects(request.getSessionId(), childCode, childTypeCode, aParentTypes, recursive, GeoRegistryUtil.parseDate(date));
 
     return new RestBodyResponse(tn.toJSON());
   }
@@ -535,16 +535,14 @@ public class RegistryController
    *
    * @returns ParentTreeNode The new node which was created with the provided
    *          parent.
-   * @param startDate TODO
-   * @param endDate TODO
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_ADD_CHILD)
-  public ResponseIF addChild(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTID) String parentId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDID) String childId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE) String hierarchyRef, @RequestParamter(name = "startDate") String startDateString, @RequestParamter(name = "endDate") String endDateString)
+  public ResponseIF addChild(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTCODE) String parentCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDCODE) String childCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE) String hierarchyRef, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_START_DATE) String startDateString, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_END_DATE) String endDateString)
   {
     Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString) : null;
     Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString) : null;
 
-    ParentTreeNode pn = ServiceFactory.getGeoObjectService().addChild(request.getSessionId(), parentId, parentTypeCode, childId, childTypeCode, hierarchyRef, startDate, endDate);
+    ParentTreeNode pn = ServiceFactory.getGeoObjectService().addChild(request.getSessionId(), parentCode, parentTypeCode, childCode, childTypeCode, hierarchyRef, startDate, endDate);
 
     return new RestBodyResponse(pn.toJSON());
   }
@@ -558,12 +556,12 @@ public class RegistryController
    * @returns
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_REMOVE_CHILD)
-  public ResponseIF removeChild(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTID) String parentId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDID) String childId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE) String hierarchyRef, @RequestParamter(name = "startDate") String startDateString, @RequestParamter(name = "endDate") String endDateString)
+  public ResponseIF removeChild(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTCODE) String parentCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDCODE) String childCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE) String hierarchyRef, @RequestParamter(name = "startDate") String startDateString, @RequestParamter(name = "endDate") String endDateString)
   {
     Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString) : null;
     Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString) : null;
 
-    ServiceFactory.getGeoObjectService().removeChild(request.getSessionId(), parentId, parentTypeCode, childId, childTypeCode, hierarchyRef, startDate, endDate);
+    ServiceFactory.getGeoObjectService().removeChild(request.getSessionId(), parentCode, parentTypeCode, childCode, childTypeCode, hierarchyRef, startDate, endDate);
 
     return new RestResponse();
   }

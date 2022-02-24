@@ -119,9 +119,9 @@ public class ChangeRequestTestDataGenerator
     if (includeRemove)
     {
       RemoveChildActionDTO removeChild = new RemoveChildActionDTO();
-      removeChild.setChildId(testAddChild.getUid());
+      removeChild.setChildCode(testAddChild.getUid());
       removeChild.setChildTypeCode(testAddChild.getType().getCode());
-      removeChild.setParentId(testAddChildParent.getUid());
+      removeChild.setParentCode(testAddChildParent.getUid());
       removeChild.setParentTypeCode(testAddChildParent.getType().getCode());
       removeChild.setHierarchyCode(LocatedIn.class.getSimpleName());
       removeChild.setCreateActionDate(Date.from(when.minus(9, ChronoUnit.HOURS)));
@@ -136,9 +136,9 @@ public class ChangeRequestTestDataGenerator
     if (includeAdd)
     {
       AddChildActionDTO addChild = new AddChildActionDTO();
-      addChild.setChildId(testAddChild.getUid());
+      addChild.setChildCode(testAddChild.getUid());
       addChild.setChildTypeCode(testAddChild.getType().getCode());
-      addChild.setParentId(testAddChildParent.getUid());
+      addChild.setParentCode(testAddChildParent.getUid());
       addChild.setParentTypeCode(testAddChildParent.getType().getCode());
       addChild.setHierarchyCode(LocatedIn.class.getSimpleName());
       addChild.setCreateActionDate(Date.from(when.minus(10, ChronoUnit.HOURS)));

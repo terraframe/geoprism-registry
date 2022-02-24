@@ -55,8 +55,8 @@ public class AndroidIntegrationTestDatabaseBuilder
   @Transaction
   private static void buildInTransaction(USATestData data)
   {
-    data.newTestGeoObjectInfo("Utah", data.STATE).delete();
-    data.newTestGeoObjectInfo("California", data.STATE).delete();
-    data.newTestGeoObjectInfo("TEST_ADD_CHILD", data.DISTRICT).apply();
+    data.newTestGeoObjectInfo("Utah", USATestData.STATE).delete();
+    data.newTestGeoObjectInfo("California", USATestData.STATE).delete();
+    data.newTestGeoObjectInfo("TEST_ADD_CHILD", USATestData.DISTRICT).apply();
   }
 }

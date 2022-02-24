@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -23,9 +23,9 @@ import java.util.Date;
 
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -38,7 +38,6 @@ import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.VaultFile;
 
-import junit.framework.Assert;
 import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
@@ -55,8 +54,6 @@ public class ChangeRequestDocumentActionServiceTest
   private AbstractAction           action;
 
   private ChangeRequest            cr;
-
-  private String                   actionOid;
 
   @BeforeClass
   public static void setUpClass()
@@ -117,10 +114,9 @@ public class ChangeRequestDocumentActionServiceTest
 
     this.cr = cr;
     this.action = action;
-    this.actionOid = action.getOid();
   }
 
-//  @Test
+  // @Test
   public void testDeleteDocument()
   {
     TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
@@ -191,7 +187,7 @@ public class ChangeRequestDocumentActionServiceTest
     }
   }
 
-//  @Test
+  // @Test
   public void testListDocuments()
   {
     uploadDocumentsAsAdmin();
@@ -268,7 +264,7 @@ public class ChangeRequestDocumentActionServiceTest
     return vfOid;
   }
 
-//  @Test
+  // @Test
   public void testUploadDocument()
   {
     TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
@@ -312,7 +308,7 @@ public class ChangeRequestDocumentActionServiceTest
     }
   }
 
-//  @Test
+  // @Test
   public void testDownloadDocument() throws IOException
   {
     String vfOid = uploadDocumentsAsAdmin();

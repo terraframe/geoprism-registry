@@ -323,7 +323,7 @@ export class ManageVersionsComponent implements OnInit {
             }
         }
 
-        this.service.getParentGeoObjects(e.item.uid, type.code, parentTypes, true, date).then(ancestors => {
+        this.service.getParentGeoObjects(e.item.code, type.code, parentTypes, true, date).then(ancestors => {
             // First filter the response for ancestors of only the correct hierarchy
             ancestors.parents = ancestors.parents.filter(p => p.hierarchyType === editor.changeRequestAttributeEditor.hierarchy.code);
 

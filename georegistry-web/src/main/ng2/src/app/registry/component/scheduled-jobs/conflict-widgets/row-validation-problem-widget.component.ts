@@ -61,7 +61,7 @@ export class RowValidationProblemWidgetComponent implements OnInit {
         let parentCode = null;
         let hierarchyCode = this.job.configuration.hierarchy;
 
-        return Observable.create((observer: any) => {
+        return new Observable((observer: any) => {
             this.service.getGeoObjectSuggestions(this.searchLabel, typeCode, parentCode, null, hierarchyCode, this.job.startDate, this.job.endDate).then(results => {
                 observer.next(results);
             });
@@ -69,7 +69,7 @@ export class RowValidationProblemWidgetComponent implements OnInit {
     }
 
     typeaheadOnSelect(e: TypeaheadMatch, conflict: any): void {
-        this.service.getParentGeoObjects(e.item.uid, conflict.typeCode, [], false, this.job.startDate).then(ancestors => {
+        this.service.getParentGeoObjects(e.item.code, conflict.typeCode, [], false, this.job.startDate).then(ancestors => {
             conflict.parent = ancestors.geoObject;
             this.searchLabel = ancestors.geoObject.properties.displayLabel.localizedValue;
         }).catch((err: HttpErrorResponse) => {
