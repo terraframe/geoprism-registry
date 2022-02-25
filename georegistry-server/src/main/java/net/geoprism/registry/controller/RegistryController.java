@@ -21,7 +21,6 @@ package net.geoprism.registry.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
@@ -47,7 +46,6 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
@@ -164,7 +162,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET)
   public ResponseIF getGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_ID) String id, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE) String typeCode, @RequestParamter(name = "date") String date) throws JSONException
   {
-    GeoObject geoObject = this.registryService.getGeoObject(request.getSessionId(), id, typeCode, GeoRegistryUtil.parseDate(date));
+    GeoObject geoObject = this.registryService.getGeoObject(request.getSessionId(), id, typeCode, GeoRegistryUtil.parseDate(date, true));
 
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
@@ -212,7 +210,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject-time/get-bounds")
   public ResponseIF getGeoObjectBoundsAtDate(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE) String typeCode, @RequestParamter(name = "date") String date) throws JSONException, ParseException
   {
-    Date forDate = GeoRegistryUtil.parseDate(date);
+    Date forDate = GeoRegistryUtil.parseDate(date, true);
     
     GeoObject geoObject = this.registryService.getGeoObjectByCode(request.getSessionId(), code, typeCode, forDate);
 
@@ -234,7 +232,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET_CODE)
   public ResponseIF getGeoObjectByCode(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_TYPE_CODE) String typeCode, @RequestParamter(name = "date") String date) throws JSONException
   {
-    GeoObject geoObject = this.registryService.getGeoObjectByCode(request.getSessionId(), code, typeCode, GeoRegistryUtil.parseDate(date));
+    GeoObject geoObject = this.registryService.getGeoObjectByCode(request.getSessionId(), code, typeCode, GeoRegistryUtil.parseDate(date, true));
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
@@ -254,9 +252,12 @@ public class RegistryController
    * @throws //TODO
    **/
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_CREATE)
-  public ResponseIF createGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_CREATE_PARAM_GEOOBJECT) String jGeoObj, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate) throws ParseException
+  public ResponseIF createGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_CREATE_PARAM_GEOOBJECT) String jGeoObj, @RequestParamter(name = "startDate") String startDateString, @RequestParamter(name = "endDate") String endDateString) throws ParseException
   {
-    GeoObject geoObject = this.registryService.createGeoObject(request.getSessionId(), jGeoObj, GeoRegistryUtil.parseDate(startDate), GeoRegistryUtil.parseDate(endDate));
+    Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString, true) : null;
+    Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString, true) : null;
+    
+    GeoObject geoObject = this.registryService.createGeoObject(request.getSessionId(), jGeoObj, startDate, endDate);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
@@ -303,9 +304,12 @@ public class RegistryController
    * @throws //TODO
    **/
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_UPDATE)
-  public ResponseIF updateGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_UPDATE_PARAM_GEOOBJECT) String jGeoObj, @RequestParamter(name = "startDate") String sStartDate, @RequestParamter(name = "endDate") String sEndDate) throws ParseException
+  public ResponseIF updateGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_UPDATE_PARAM_GEOOBJECT) String jGeoObj, @RequestParamter(name = "startDate") String startDateString, @RequestParamter(name = "endDate") String endDateString) throws ParseException
   {
-    GeoObject geoObject = this.registryService.updateGeoObject(request.getSessionId(), jGeoObj, GeoRegistryUtil.parseDate(sStartDate), GeoRegistryUtil.parseDate(sEndDate));
+    Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString, true) : null;
+    Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString, true) : null;
+
+    GeoObject geoObject = this.registryService.updateGeoObject(request.getSessionId(), jGeoObj, startDate, endDate);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
@@ -321,7 +325,9 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE)
-  public ResponseIF createAttributeType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_PARAM) String geoObjectTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_TYPE_PARAM) String attributeType)
+  public ResponseIF createAttributeType(ClientRequestIF request, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_PARAM, required = true) String geoObjectTypeCode,
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_TYPE_PARAM, required = true) String attributeType)
   {
     AttributeType attrType = this.registryService.createAttributeType(request.getSessionId(), geoObjectTypeCode, attributeType);
 
@@ -394,7 +400,9 @@ public class RegistryController
   // }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE)
-  public ResponseIF updateAttributeType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE_TYPE_PARAM) String attributeType)
+  public ResponseIF updateAttributeType(ClientRequestIF request, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE_PARAM, required = true) String geoObjTypeId,
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE_TYPE_PARAM, required = true) String attributeType)
   {
     AttributeType attrType = this.registryService.updateAttributeType(request.getSessionId(), geoObjTypeId, attributeType);
 
@@ -402,7 +410,9 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE)
-  public ResponseIF deleteAttributeType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE_TYPE_PARAM) String attributeName)
+  public ResponseIF deleteAttributeType(ClientRequestIF request, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE_PARAM, required = true) String geoObjTypeId,
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE_TYPE_PARAM, required = true) String attributeName)
   {
     this.registryService.deleteAttributeType(request.getSessionId(), geoObjTypeId, attributeName);
 
@@ -410,7 +420,9 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM)
-  public ResponseIF createTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARENT_PARAM) String parentTermCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARAM) String termJSON)
+  public ResponseIF createTerm(ClientRequestIF request, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARENT_PARAM, required = true) String parentTermCode,
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARAM, required = true) String termJSON)
   {
     Term term = this.registryService.createTerm(request.getSessionId(), parentTermCode, termJSON);
 
@@ -418,7 +430,9 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM)
-  public ResponseIF updateTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARENT_PARAM) String parentTermCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM_PARAM) String termJSON)
+  public ResponseIF updateTerm(ClientRequestIF request, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARENT_PARAM, required = true) String parentTermCode, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM_PARAM, required = true) String termJSON)
   {
     Term term = this.registryService.updateTerm(request.getSessionId(), parentTermCode, termJSON);
 
@@ -426,7 +440,9 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM)
-  public ResponseIF deleteTerm(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARENT_PARAM) String parentTermCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM_PARAM) String termCode)
+  public ResponseIF deleteTerm(ClientRequestIF request, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARENT_PARAM, required = true) String parentTermCode, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM_PARAM, required = true) String termCode)
   {
     this.registryService.deleteTerm(request.getSessionId(), parentTermCode, termCode);
 
@@ -449,7 +465,12 @@ public class RegistryController
    * @returns @throws
    **/
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET_CHILDREN)
-  public ResponseIF getChildGeoObjects(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTCODE) String parentCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_DATE) String date, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_CHILDREN_TYPES) String childrenTypes, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_RECURSIVE) Boolean recursive)
+  public ResponseIF getChildGeoObjects(ClientRequestIF request, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTCODE, required = true) String parentCode, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_PARENT_TYPE_CODE, required = true) String parentTypeCode, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_DATE, required = true) String date, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_CHILDREN_TYPES) String childrenTypes, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_RECURSIVE, required = true) Boolean recursive)
   {
     String[] aChildTypes = null;
 
@@ -464,7 +485,7 @@ public class RegistryController
       }
     }
 
-    TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentCode, parentTypeCode, aChildTypes, recursive, GeoRegistryUtil.parseDate(date));
+    TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentCode, parentTypeCode, aChildTypes, recursive, GeoRegistryUtil.parseDate(date, true));
 
     return new RestBodyResponse(tn.toJSON());
   }
@@ -486,7 +507,12 @@ public class RegistryController
    * @returns @throws
    **/
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET_PARENTS)
-  public ResponseIF getParentGeoObjects(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILDCODE) String childCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_DATE) String date, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_PARENT_TYPES) String parentTypes, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_RECURSIVE) Boolean recursive) throws ParseException
+  public ResponseIF getParentGeoObjects(ClientRequestIF request, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILDCODE, required = true) String childCode, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILD_TYPE_CODE, required = true) String childTypeCode, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_DATE, required = true) String date, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_PARENT_TYPES) String parentTypes, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_RECURSIVE, required = true) Boolean recursive) throws ParseException
   {
     String[] aParentTypes = null;
 
@@ -501,7 +527,7 @@ public class RegistryController
       }
     }
 
-    TreeNode tn = this.registryService.getParentGeoObjects(request.getSessionId(), childCode, childTypeCode, aParentTypes, recursive, GeoRegistryUtil.parseDate(date));
+    TreeNode tn = this.registryService.getParentGeoObjects(request.getSessionId(), childCode, childTypeCode, aParentTypes, recursive, GeoRegistryUtil.parseDate(date, true));
 
     return new RestBodyResponse(tn.toJSON());
   }
@@ -520,7 +546,7 @@ public class RegistryController
    * @returns @throws
    **/
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET_UIDS)
-  public ResponseIF getUIDs(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_UIDS_PARAM_AMOUNT) Integer amount)
+  public ResponseIF getUIDs(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_UIDS_PARAM_AMOUNT, required = true) Integer amount)
   {
     String[] ids = this.registryService.getUIDS(request.getSessionId(), amount);
 
@@ -537,10 +563,17 @@ public class RegistryController
    *          parent.
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_ADD_CHILD)
-  public ResponseIF addChild(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTCODE) String parentCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDCODE) String childCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE) String hierarchyRef, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_START_DATE) String startDateString, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_END_DATE) String endDateString)
+  public ResponseIF addChild(ClientRequestIF request, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTCODE, required = true) String parentCode, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE, required = true) String parentTypeCode, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDCODE, required = true) String childCode, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE, required = true) String childTypeCode, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE, required = true) String hierarchyRef, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_START_DATE) String startDateString, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_END_DATE) String endDateString)
   {
-    Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString) : null;
-    Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString) : null;
+    Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString, true) : null;
+    Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString, true) : null;
 
     ParentTreeNode pn = ServiceFactory.getGeoObjectService().addChild(request.getSessionId(), parentCode, parentTypeCode, childCode, childTypeCode, hierarchyRef, startDate, endDate);
 
@@ -556,10 +589,17 @@ public class RegistryController
    * @returns
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_REMOVE_CHILD)
-  public ResponseIF removeChild(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTCODE) String parentCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE) String parentTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDCODE) String childCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE) String childTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE) String hierarchyRef, @RequestParamter(name = "startDate") String startDateString, @RequestParamter(name = "endDate") String endDateString)
+  public ResponseIF removeChild(ClientRequestIF request, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTCODE, required = true) String parentCode,
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE, required = true) String parentTypeCode,
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDCODE, required = true) String childCode, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE, required = true) String childTypeCode, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE, required = true) String hierarchyRef, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_START_DATE) String startDateString, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_END_DATE) String endDateString)
   {
-    Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString) : null;
-    Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString) : null;
+    Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString, true) : null;
+    Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString, true) : null;
 
     ServiceFactory.getGeoObjectService().removeChild(request.getSessionId(), parentCode, parentTypeCode, childCode, childTypeCode, hierarchyRef, startDate, endDate);
 
@@ -633,7 +673,7 @@ public class RegistryController
    * @returns @throws
    **/
   @Endpoint(url = "geoobjecttype/list-types", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF listGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "includeAbstractTypes") Boolean includeAbstractTypes)
+  public ResponseIF listGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "includeAbstractTypes", required = true) Boolean includeAbstractTypes)
   {
     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null, null, PermissionContext.READ);
 
@@ -675,7 +715,7 @@ public class RegistryController
    *          JSON of the {@link GeoObjectType} to be created.
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_CREATE)
-  public ResponseIF createGeoObjectType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_CREATE_PARAM_GOT) String gtJSON) throws JSONException
+  public ResponseIF createGeoObjectType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_CREATE_PARAM_GOT, required = true) String gtJSON) throws JSONException
   {
     GeoObjectType geoObjectType = this.registryService.createGeoObjectType(request.getSessionId(), gtJSON);
 
@@ -690,7 +730,7 @@ public class RegistryController
    *          JSON of the {@link GeoObjectType} to be updated.
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_UPDATE)
-  public ResponseIF updateGeoObjectType(ClientRequestIF request, @RequestParamter(name = "gtJSON") String gtJSON) throws JSONException
+  public ResponseIF updateGeoObjectType(ClientRequestIF request, @RequestParamter(name = "gtJSON", required = true) String gtJSON) throws JSONException
   {
     GeoObjectType geoObjectType = this.registryService.updateGeoObjectType(request.getSessionId(), gtJSON);
 
@@ -705,7 +745,7 @@ public class RegistryController
    *          code of the {@link GeoObjectType} to delete.
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_DELETE)
-  public RestResponse deleteGeoObjectType(ClientRequestIF request, @RequestParamter(name = "code") String code) throws JSONException
+  public RestResponse deleteGeoObjectType(ClientRequestIF request, @RequestParamter(name = "code", required = true) String code) throws JSONException
   {
     this.registryService.deleteGeoObjectType(request.getSessionId(), code);
 
@@ -757,7 +797,7 @@ public class RegistryController
    *          JSON of the {@link HierarchyType} to be created.
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.HIERARCHY_TYPE_CREATE)
-  public ResponseIF createHierarchyType(ClientRequestIF request, @RequestParamter(name = "htJSON") String htJSON)
+  public ResponseIF createHierarchyType(ClientRequestIF request, @RequestParamter(name = "htJSON", required = true) String htJSON)
   {
     HierarchyType hierarchyType = ServiceFactory.getHierarchyService().createHierarchyType(request.getSessionId(), htJSON);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
@@ -774,7 +814,9 @@ public class RegistryController
    * @throws IOException
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "import-types")
-  public ResponseIF importTypes(ClientRequestIF request, @RequestParamter(name = "orgCode") String orgCode, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException
+  public ResponseIF importTypes(ClientRequestIF request, 
+      @RequestParamter(name = "orgCode", required = true) String orgCode, 
+      @RequestParamter(name = "file", required = true) MultipartFileParameter file) throws IOException
   {
     try (InputStream istream = file.getInputStream())
     {
@@ -792,7 +834,7 @@ public class RegistryController
    *          JSON of the {@link HierarchyType} to be updated.
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.HIERARCHY_TYPE_UPDATE)
-  public ResponseIF updateHierarchyType(ClientRequestIF request, @RequestParamter(name = "htJSON") String htJSON)
+  public ResponseIF updateHierarchyType(ClientRequestIF request, @RequestParamter(name = "htJSON", required = true) String htJSON)
   {
     HierarchyType hierarchyType = ServiceFactory.getHierarchyService().updateHierarchyType(request.getSessionId(), htJSON);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
@@ -809,7 +851,7 @@ public class RegistryController
    * @return
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.HIERARCHY_TYPE_DELETE)
-  public RestResponse deleteHierarchyType(ClientRequestIF request, @RequestParamter(name = "code") String code)
+  public RestResponse deleteHierarchyType(ClientRequestIF request, @RequestParamter(name = "code", required = true) String code)
   {
     ServiceFactory.getHierarchyService().deleteHierarchyType(request.getSessionId(), code);
 
@@ -830,7 +872,10 @@ public class RegistryController
    *          child {@link GeoObjectType}.
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.HIERARCHY_TYPE_ADD)
-  public ResponseIF addToHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode, @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)
+  public ResponseIF addToHierarchy(ClientRequestIF request, 
+      @RequestParamter(name = "hierarchyCode", required = true) String hierarchyCode, 
+      @RequestParamter(name = "parentGeoObjectTypeCode", required = true) String parentGeoObjectTypeCode,
+      @RequestParamter(name = "childGeoObjectTypeCode", required = true) String childGeoObjectTypeCode)
   {
     HierarchyType ht = ServiceFactory.getHierarchyService().addToHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
@@ -852,7 +897,10 @@ public class RegistryController
    *          child {@link GeoObjectType}.
    */
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.HIERARCHY_TYPE_REMOVE)
-  public ResponseIF removeFromHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode, @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)
+  public ResponseIF removeFromHierarchy(ClientRequestIF request, 
+      @RequestParamter(name = "hierarchyCode", required = true) String hierarchyCode, 
+      @RequestParamter(name = "parentGeoObjectTypeCode", required = true) String parentGeoObjectTypeCode,
+      @RequestParamter(name = "childGeoObjectTypeCode", required = true) String childGeoObjectTypeCode)
   {
     HierarchyType ht = ServiceFactory.getHierarchyService().removeFromHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode, true);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
@@ -861,7 +909,10 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobjecttype/get-ancestors")
-  public ResponseIF getTypeAncestors(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "includeInheritedTypes") Boolean includeInheritedTypes)
+  public ResponseIF getTypeAncestors(ClientRequestIF request, 
+      @RequestParamter(name = "code", required = true) String code, 
+      @RequestParamter(name = "hierarchyCode", required = true) String hierarchyCode, 
+      @RequestParamter(name = "includeInheritedTypes", required = true) Boolean includeInheritedTypes)
   {
     if (includeInheritedTypes == null)
     {
@@ -885,7 +936,9 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobjecttype/get-hierarchies")
-  public ResponseIF getHierarchiesForType(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "includeTypes") Boolean includeTypes)
+  public ResponseIF getHierarchiesForType(ClientRequestIF request, 
+      @RequestParamter(name = "code", required = true) String code, 
+      @RequestParamter(name = "includeTypes", required = true) Boolean includeTypes)
   {
     JsonArray response = ServiceFactory.getHierarchyService().getHierarchiesForType(request.getSessionId(), code, includeTypes);
 
@@ -893,7 +946,7 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobjecttype/get-subtype-hierarchies")
-  public ResponseIF getHierarchiesForSubtypes(ClientRequestIF request, @RequestParamter(name = "code") String code)
+  public ResponseIF getHierarchiesForSubtypes(ClientRequestIF request, @RequestParamter(name = "code", required = true) String code)
   {
     JsonArray response = ServiceFactory.getHierarchyService().getHierarchiesForSubtypes(request.getSessionId(), code);
 
@@ -901,15 +954,20 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/get-hierarchies")
-  public ResponseIF getHierarchiesForGeoObject(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "date") String date)
+  public ResponseIF getHierarchiesForGeoObject(ClientRequestIF request, 
+      @RequestParamter(name = "code", required = true) String code, 
+      @RequestParamter(name = "typeCode", required = true) String typeCode, 
+      @RequestParamter(name = "date", required = true) String date)
   {
-    JsonArray response = this.registryService.getHierarchiesForGeoObject(request.getSessionId(), code, typeCode, GeoRegistryUtil.parseDate(date));
+    JsonArray response = this.registryService.getHierarchiesForGeoObject(request.getSessionId(), code, typeCode, GeoRegistryUtil.parseDate(date, true));
 
     return new RestBodyResponse(response);
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/get-hierarchies-over-time")
-  public ResponseIF getHierarchiesForGeoObjectOverTime(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "typeCode") String typeCode)
+  public ResponseIF getHierarchiesForGeoObjectOverTime(ClientRequestIF request, 
+      @RequestParamter(name = "code", required = true) String code, 
+      @RequestParamter(name = "typeCode", required = true) String typeCode)
   {
     JsonArray response = ServiceFactory.getHierarchyService().getHierarchiesForGeoObjectOverTime(request.getSessionId(), code, typeCode);
 
@@ -928,43 +986,19 @@ public class RegistryController
    * @returns @throws
    **/
   @Endpoint(url = "geoobject/suggestions", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF getGeoObjectSuggestions(ClientRequestIF request, @RequestParamter(name = "text") String text, @RequestParamter(name = "type") String type, @RequestParamter(name = "parent") String parent, @RequestParamter(name = "parentTypeCode") String parentTypeCode, @RequestParamter(name = "hierarchy") String hierarchy, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate)
+  public ResponseIF getGeoObjectSuggestions(ClientRequestIF request, 
+      @RequestParamter(name = "text") String text, 
+      @RequestParamter(name = "type", required = true) String type, 
+      @RequestParamter(name = "parent") String parent, 
+      @RequestParamter(name = "parentTypeCode") String parentTypeCode, 
+      @RequestParamter(name = "hierarchy") String hierarchy, 
+      @RequestParamter(name = "startDate") String startDateString, 
+      @RequestParamter(name = "endDate") String endDateString)
   {
-    Date forStartDate = null;
+    Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString, true) : null;
+    Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString, true) : null;
 
-    if (startDate != null && startDate.length() > 0)
-    {
-      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-      try
-      {
-        forStartDate = format.parse(startDate);
-      }
-      catch (ParseException e)
-      {
-        throw new ProgrammingErrorException(e);
-      }
-    }
-
-    Date forEndDate = null;
-
-    if (endDate != null && endDate.length() > 0)
-    {
-      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-      try
-      {
-        forEndDate = format.parse(endDate);
-      }
-      catch (ParseException e)
-      {
-        throw new ProgrammingErrorException(e);
-      }
-    }
-
-    JsonArray response = this.registryService.getGeoObjectSuggestions(request.getSessionId(), text, type, parent, parentTypeCode, hierarchy, forStartDate, forEndDate);
+    JsonArray response = this.registryService.getGeoObjectSuggestions(request.getSessionId(), text, type, parent, parentTypeCode, hierarchy, startDate, endDate);
 
     return new RestBodyResponse(response);
   }
@@ -990,7 +1024,7 @@ public class RegistryController
    * @param conflict
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "registry/submit-conflict")
-  public ResponseIF submitDataConflictResolution(ClientRequestIF request, @RequestParamter(name = "conflict") String conflict)
+  public ResponseIF submitDataConflictResolution(ClientRequestIF request, @RequestParamter(name = "conflict", required = true) String conflict)
   {
 
     // TODO: set this method up
@@ -1040,7 +1074,7 @@ public class RegistryController
    * @returns @throws
    **/
   @Endpoint(url = "organizations/get-all", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF getOrganizations(ClientRequestIF request, @RequestParamter(name = "text") String text, @RequestParamter(name = "type") String type, @RequestParamter(name = "parent") String parent, @RequestParamter(name = "hierarchy") String hierarchy, @RequestParamter(name = "date") String date) throws ParseException
+  public ResponseIF getOrganizations(ClientRequestIF request) throws ParseException
   {
 
     OrganizationDTO[] orgs = this.registryService.getOrganizations(request.getSessionId(), null);
@@ -1062,7 +1096,7 @@ public class RegistryController
    * @param json
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/create")
-  public ResponseIF submitNewOrganization(ClientRequestIF request, @RequestParamter(name = "json") String json)
+  public ResponseIF submitNewOrganization(ClientRequestIF request, @RequestParamter(name = "json", required = true) String json)
   {
     OrganizationDTO org = this.registryService.createOrganization(request.getSessionId(), json);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
@@ -1077,7 +1111,7 @@ public class RegistryController
    * @param json
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/delete")
-  public ResponseIF removeOrganization(ClientRequestIF request, @RequestParamter(name = "code") String code)
+  public ResponseIF removeOrganization(ClientRequestIF request, @RequestParamter(name = "code", required = true) String code)
   {
     this.registryService.deleteOrganization(request.getSessionId(), code);
 
@@ -1091,7 +1125,7 @@ public class RegistryController
    * @param json
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/update")
-  public ResponseIF updateOrganization(ClientRequestIF request, @RequestParamter(name = "json") String json)
+  public ResponseIF updateOrganization(ClientRequestIF request, @RequestParamter(name = "json", required = true) String json)
   {
     OrganizationDTO org = this.registryService.updateOrganization(request.getSessionId(), json);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
@@ -1100,9 +1134,12 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/search")
-  public ResponseIF search(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE) String typeCode, @RequestParamter(name = "text") String text, @RequestParamter(name = "date") String date) throws JSONException, ParseException
+  public ResponseIF search(ClientRequestIF request, 
+      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE, required = true) String typeCode, 
+      @RequestParamter(name = "text", required = true) String text, 
+      @RequestParamter(name = "date", required = true) String date) throws JSONException, ParseException
   {
-    List<GeoObject> results = this.registryService.search(request.getSessionId(), typeCode, text, GeoRegistryUtil.parseDate(date));
+    List<GeoObject> results = this.registryService.search(request.getSessionId(), typeCode, text, GeoRegistryUtil.parseDate(date, true));
 
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 

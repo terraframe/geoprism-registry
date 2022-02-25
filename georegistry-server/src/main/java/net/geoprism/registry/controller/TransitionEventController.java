@@ -48,25 +48,28 @@ public class TransitionEventController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "page")
-  public ResponseIF page(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "attrConditions") String attrConditions)
+  public ResponseIF page(ClientRequestIF request, 
+      @RequestParamter(name = "pageSize", required = true) Integer pageSize,
+      @RequestParamter(name = "pageNumber", required = true) Integer pageNumber, 
+      @RequestParamter(name = "attrConditions") String attrConditions)
   {
     return new RestBodyResponse(service.page(request.getSessionId(), pageSize, pageNumber, attrConditions));
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-details")
-  public ResponseIF getDetails(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF getDetails(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     return new RestBodyResponse(service.getDetails(request.getSessionId(), oid));
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "event") String eventJSON)
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "event", required = true) String eventJSON)
   {
     return new RestBodyResponse(this.service.apply(request.getSessionId(), eventJSON));
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "delete")
-  public ResponseIF delete(ClientRequestIF request, @RequestParamter(name = "eventId") String eventId)
+  public ResponseIF delete(ClientRequestIF request, @RequestParamter(name = "eventId", required = true) String eventId)
   {
     this.service.delete(request.getSessionId(), eventId);
 
@@ -74,7 +77,12 @@ public class TransitionEventController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "historical-report")
-  public ResponseIF getHistoricalReport(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber) throws ParseException
+  public ResponseIF getHistoricalReport(ClientRequestIF request, 
+      @RequestParamter(name = "typeCode", required = true) String typeCode, 
+      @RequestParamter(name = "startDate") String startDate, 
+      @RequestParamter(name = "endDate") String endDate, 
+      @RequestParamter(name = "pageSize") Integer pageSize, 
+      @RequestParamter(name = "pageNumber") Integer pageNumber) throws ParseException
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
@@ -86,7 +94,10 @@ public class TransitionEventController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "export-excel")
-  public ResponseIF exportExcel(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate) throws ParseException, IOException
+  public ResponseIF exportExcel(ClientRequestIF request, 
+      @RequestParamter(name = "typeCode", required = true) String typeCode, 
+      @RequestParamter(name = "startDate") String startDate, 
+      @RequestParamter(name = "endDate") String endDate) throws ParseException, IOException
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);

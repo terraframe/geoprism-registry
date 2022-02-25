@@ -83,7 +83,10 @@ public class RegistryLocationController
 //  }
 
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF roots(ClientRequestIF request, @RequestParamter(name = "date") String date, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "hierarchyCode") String hierarchyCode) throws JSONException, ParseException
+  public ResponseIF roots(ClientRequestIF request, 
+      @RequestParamter(name = "date") String date, 
+      @RequestParamter(name = "typeCode") String typeCode, 
+      @RequestParamter(name = "hierarchyCode") String hierarchyCode) throws JSONException, ParseException
   {
     // ServerGeoObjectIF parent = service.getGeoObjectByEntityId(oid);
 
@@ -93,7 +96,9 @@ public class RegistryLocationController
   }
 
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF search(ClientRequestIF request, @RequestParamter(name = "text") String text, @RequestParamter(name = "date") String date) throws JSONException, ParseException
+  public ResponseIF search(ClientRequestIF request, 
+      @RequestParamter(name = "text", required = true) String text, 
+      @RequestParamter(name = "date") String date) throws JSONException, ParseException
   {
     List<GeoObject> results = service.search(request.getSessionId(), text, parseDate(date));
     CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(request.getSessionId());

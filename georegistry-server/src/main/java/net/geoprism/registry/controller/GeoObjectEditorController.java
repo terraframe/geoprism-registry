@@ -49,7 +49,11 @@ public class GeoObjectEditorController
    * @throws net.geoprism.registry.CGRPermissionException
    */
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF createGeoObject(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "masterListId") String masterListId, @RequestParamter(name = "notes") String notes) throws JSONException
+  public ResponseIF createGeoObject(ClientRequestIF request, 
+      @RequestParamter(name = "parentTreeNode") String parentTreeNode,
+      @RequestParamter(name = "geoObject", required = true) String geoObject,
+      @RequestParamter(name = "masterListId") String masterListId,
+      @RequestParamter(name = "notes") String notes) throws JSONException
   {
     JsonObject resp = new ServerGeoObjectService().createGeoObject(request.getSessionId(), parentTreeNode, geoObject, masterListId, notes);
 
@@ -71,7 +75,12 @@ public class GeoObjectEditorController
    * @throws net.geoprism.registry.CGRPermissionException
    */
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF updateGeoObject(ClientRequestIF request, @RequestParamter(name = "geoObjectCode") String geoObjectCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "actions") String actions, @RequestParamter(name = "masterListId") String masterListId, @RequestParamter(name = "notes") String notes) throws JSONException
+  public ResponseIF updateGeoObject(ClientRequestIF request, 
+      @RequestParamter(name = "geoObjectCode", required = true) String geoObjectCode,
+      @RequestParamter(name = "geoObjectTypeCode", required = true) String geoObjectTypeCode, 
+      @RequestParamter(name = "actions", required = true) String actions, 
+      @RequestParamter(name = "masterListId") String masterListId, 
+      @RequestParamter(name = "notes") String notes) throws JSONException
   {
     JsonObject resp = new ServerGeoObjectService().updateGeoObject(request.getSessionId(), geoObjectCode, geoObjectTypeCode, actions, masterListId, notes);
 
