@@ -187,7 +187,7 @@ public class HierarchyServiceTest
   @Test
   public void testCreateHierarchyType()
   {
-    String organizationCode = testData.ORG_CGOV.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, testData.adapter);
     reportingDivision.setAbstractDescription("Test Abstract");
@@ -238,7 +238,7 @@ public class HierarchyServiceTest
   {
     HierarchyType reportingDivision = null;
 
-    String organizationCode = testData.ORG_CGOV.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, testData.adapter);
     String gtJSON = reportingDivision.toJSON().toString();

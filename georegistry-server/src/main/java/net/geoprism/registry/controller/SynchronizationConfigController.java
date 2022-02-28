@@ -47,7 +47,9 @@ public class SynchronizationConfigController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-config-for-es")
-  public ResponseIF getConfigForExternalSystem(ClientRequestIF request, @RequestParamter(name = "externalSystemId") String externalSystemId, @RequestParamter(name = "hierarchyTypeCode") String hierarchyTypeCode)
+  public ResponseIF getConfigForExternalSystem(ClientRequestIF request, 
+      @RequestParamter(name = "externalSystemId", required = true) String externalSystemId,
+      @RequestParamter(name = "hierarchyTypeCode", required = true) String hierarchyTypeCode)
   {
     JsonObject resp = this.service.getConfigForExternalSystem(request.getSessionId(), externalSystemId, hierarchyTypeCode);
 
@@ -55,7 +57,9 @@ public class SynchronizationConfigController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-custom-attr")
-  public ResponseIF getCustomAttributeConfiguration(ClientRequestIF request, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "externalId") String externalId)
+  public ResponseIF getCustomAttributeConfiguration(ClientRequestIF request, 
+      @RequestParamter(name = "geoObjectTypeCode", required = true) String geoObjectTypeCode, 
+      @RequestParamter(name = "externalId", required = true) String externalId)
   {
     JsonArray resp = new DHIS2FeatureService().getDHIS2AttributeConfiguration(request.getSessionId(), externalId, geoObjectTypeCode);
 
@@ -63,7 +67,9 @@ public class SynchronizationConfigController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-all")
-  public ResponseIF getAll(ClientRequestIF request, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize)
+  public ResponseIF getAll(ClientRequestIF request, 
+      @RequestParamter(name = "pageNumber", required = true) Integer pageNumber, 
+      @RequestParamter(name = "pageSize", required = true) Integer pageSize)
   {
     JsonObject response = this.service.page(request.getSessionId(), pageNumber, pageSize);
 
@@ -71,7 +77,7 @@ public class SynchronizationConfigController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "config") String configJSON)
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "config", required = true) String configJSON)
   {
     JsonObject response = this.service.apply(request.getSessionId(), configJSON);
 
@@ -79,7 +85,7 @@ public class SynchronizationConfigController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove")
-  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     this.service.remove(request.getSessionId(), oid);
 
@@ -87,7 +93,7 @@ public class SynchronizationConfigController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
-  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     JsonObject response = this.service.get(request.getSessionId(), oid);
 
@@ -103,7 +109,7 @@ public class SynchronizationConfigController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "unlock")
-  public ResponseIF unlock(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF unlock(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     this.service.unlock(request.getSessionId(), oid);
 
@@ -111,7 +117,10 @@ public class SynchronizationConfigController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-jobs")
-  public ResponseIF getJobs(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize)
+  public ResponseIF getJobs(ClientRequestIF request, 
+      @RequestParamter(name = "oid", required = true) String oid, 
+      @RequestParamter(name = "pageNumber", required = true) Integer pageNumber,
+      @RequestParamter(name = "pageSize", required = true) Integer pageSize)
   {
     JsonObject jobs = this.service.getJobs(request.getSessionId(), oid, pageSize, pageNumber);
 
@@ -119,7 +128,7 @@ public class SynchronizationConfigController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "run")
-  public ResponseIF run(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF run(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     this.service.run(request.getSessionId(), oid);
 
@@ -127,7 +136,7 @@ public class SynchronizationConfigController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "generate-file")
-  public ResponseIF generateFile(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF generateFile(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     return new InputStreamResponse(this.service.generateFile(request.getSessionId(), oid), "application/zip", "bundles.zip");
   }

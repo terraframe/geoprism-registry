@@ -67,7 +67,9 @@ public class RegistrySessionController
   public static final long serialVersionUID = 1234283350799L;
   
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF login(ServletRequestIF req, @RequestParamter(name = "username") String username, @RequestParamter(name = "password") String password) throws JSONException
+  public ResponseIF login(ServletRequestIF req, 
+      @RequestParamter(name = "username", required = true) String username, 
+      @RequestParamter(name = "password", required = true) String password) throws JSONException
   {
     if (username != null)
     {
@@ -135,7 +137,9 @@ public class RegistrySessionController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF ologin(ServletRequestIF req, @RequestParamter(name = "code") String code, @RequestParamter(name = "state") String state) throws MalformedURLException, JSONException
+  public ResponseIF ologin(ServletRequestIF req, 
+      @RequestParamter(name = "code", required = true) String code, 
+      @RequestParamter(name = "state", required = true) String state) throws MalformedURLException, JSONException
   {
     final SessionController geoprism = new SessionController();
     

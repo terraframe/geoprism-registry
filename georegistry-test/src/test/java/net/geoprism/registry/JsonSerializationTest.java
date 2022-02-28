@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,7 +41,6 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 
-import junit.framework.Assert;
 import net.geoprism.account.OauthServer;
 import net.geoprism.account.OauthServerQuery;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
@@ -117,7 +117,7 @@ public class JsonSerializationTest
   {
     DHIS2ExternalSystem system = new DHIS2ExternalSystem();
     system.setId("JsonSerializationTestDhis2");
-    system.setOrganization(testData.ORG_NPS.getServerObject());
+    system.setOrganization(USATestData.ORG_NPS.getServerObject());
     system.getEmbeddedComponent(ExternalSystem.LABEL).setValue("defaultLocale", "Test");
     system.getEmbeddedComponent(ExternalSystem.DESCRIPTION).setValue("defaultLocale", "Test");
     system.setUsername(USERNAME);
@@ -202,8 +202,8 @@ public class JsonSerializationTest
   // @Request
   // public void testDhis2Serialize() throws IOException
   // {
-  // ServerGeoObjectType got = testData.DISTRICT.getServerObject();
-  // ServerHierarchyType ht = testData.HIER_ADMIN.getServerObject();
+  // ServerGeoObjectType got = USATestData.DISTRICT.getServerObject();
+  // ServerHierarchyType ht = USATestData.HIER_ADMIN.getServerObject();
   //
   // GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(got, ht, null,
   // true, GeoObjectExportFormat.JSON_DHIS2, system, -1, -1);
@@ -280,8 +280,8 @@ public class JsonSerializationTest
   @Request
   public void testRevealSerialize() throws IOException
   {
-    ServerGeoObjectType got = testData.DISTRICT.getServerObject();
-    ServerHierarchyType ht = testData.HIER_ADMIN.getServerObject();
+    ServerGeoObjectType got = USATestData.DISTRICT.getServerObject();
+    ServerHierarchyType ht = USATestData.HIER_ADMIN.getServerObject();
 
     GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(got, ht, null, true, GeoObjectExportFormat.JSON_REVEAL, system, -1, -1);
     System.out.println(exporter.export().toString());

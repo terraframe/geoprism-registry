@@ -28,6 +28,7 @@ import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.Query;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
+import org.junit.Assert;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.sort.SortBy;
@@ -37,7 +38,6 @@ import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
 
-import junit.framework.Assert;
 import net.geoprism.registry.etl.upload.ShapefileImporter;
 
 /**

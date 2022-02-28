@@ -71,10 +71,10 @@ export class RegistryService implements AttributeTypeService {
             .toPromise();
     }
 
-    getParentGeoObjects(childId: string, childTypeCode: string, parentTypes: any, recursive: boolean, date: string): Promise<ParentTreeNode> {
+    getParentGeoObjects(childCode: string, childTypeCode: string, parentTypes: any, recursive: boolean, date: string): Promise<ParentTreeNode> {
         let params: HttpParams = new HttpParams();
 
-        params = params.set("childId", childId);
+        params = params.set("childCode", childCode);
         params = params.set("childTypeCode", childTypeCode);
         params = params.set("parentTypes", JSON.stringify(parentTypes));
         params = params.set("recursive", JSON.stringify(recursive));
@@ -88,10 +88,10 @@ export class RegistryService implements AttributeTypeService {
             .toPromise();
     }
 
-    getChildGeoObjects(parentId: string, parentTypeCode: string, childrenTypes: any, recursive: boolean): Promise<ChildTreeNode> {
+    getChildGeoObjects(parentCode: string, parentTypeCode: string, childrenTypes: any, recursive: boolean): Promise<ChildTreeNode> {
         let params: HttpParams = new HttpParams();
 
-        params = params.set("parentId", parentId);
+        params = params.set("parentCode", parentCode);
         params = params.set("parentTypeCode", parentTypeCode);
         params = params.set("childrenTypes", JSON.stringify(childrenTypes));
         params = params.set("recursive", JSON.stringify(recursive));

@@ -61,7 +61,7 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "list-for-type")
-  public ResponseIF listForType(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode)
+  public ResponseIF listForType(ClientRequestIF request, @RequestParamter(name = "typeCode", required = true) String typeCode)
   {
     JsonObject response = this.service.listForType(request.getSessionId(), typeCode);
 
@@ -69,7 +69,7 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "list") String listJSON)
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "list", required = true) String listJSON)
   {
     JsonObject list = JsonParser.parseString(listJSON).getAsJsonObject();
 
@@ -79,7 +79,7 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "create-entries")
-  public ResponseIF createEntries(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF createEntries(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     JsonObject response = this.service.createEntries(request.getSessionId(), oid);
 
@@ -87,7 +87,7 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove")
-  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     this.service.remove(request.getSessionId(), oid);
 
@@ -95,7 +95,9 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "create-version")
-  public ResponseIF createVersion(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "metadata") String metadata) throws ParseException
+  public ResponseIF createVersion(ClientRequestIF request, 
+      @RequestParamter(name = "oid", required = true) String oid, 
+      @RequestParamter(name = "metadata", required = true) String metadata) throws ParseException
   {
     JsonObject response = this.service.createVersion(request.getSessionId(), oid, metadata);
 
@@ -103,7 +105,9 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply-version")
-  public ResponseIF applyVersion(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "metadata") String metadata) throws ParseException
+  public ResponseIF applyVersion(ClientRequestIF request, 
+      @RequestParamter(name = "oid", required = true) String oid, 
+      @RequestParamter(name = "metadata", required = true) String metadata) throws ParseException
   {
     JsonObject response = this.service.applyVersion(request.getSessionId(), oid, metadata);
 
@@ -111,7 +115,7 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "publish")
-  public ResponseIF publish(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws ParseException
+  public ResponseIF publish(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid) throws ParseException
   {
     JsonObject response = this.service.publishVersion(request.getSessionId(), oid);
 
@@ -119,7 +123,7 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "publish-versions")
-  public ResponseIF publishVersions(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws ParseException
+  public ResponseIF publishVersions(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid) throws ParseException
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
@@ -133,7 +137,7 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
-  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     JsonObject response = this.service.get(request.getSessionId(), oid);
 
@@ -141,7 +145,7 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "entries")
-  public ResponseIF entries(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF entries(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     JsonObject response = this.service.getEntries(request.getSessionId(), oid);
 
@@ -149,7 +153,7 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "versions")
-  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     JsonArray response = this.service.getVersions(request.getSessionId(), oid);
 
@@ -157,7 +161,7 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "version")
-  public ResponseIF version(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF version(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     JsonObject response = this.service.getVersion(request.getSessionId(), oid);
 
@@ -165,7 +169,7 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove-version")
-  public ResponseIF removeVersion(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF removeVersion(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     this.service.removeVersion(request.getSessionId(), oid);
 
@@ -173,7 +177,10 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "data")
-  public ResponseIF data(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "criteria") String criteria, @RequestParamter(name = "includeGeometries") Boolean includeGeometries)
+  public ResponseIF data(ClientRequestIF request, 
+      @RequestParamter(name = "oid", required = true) String oid, 
+      @RequestParamter(name = "criteria", required = true) String criteria, 
+      @RequestParamter(name = "includeGeometries") Boolean includeGeometries)
   {
     JsonObject response = this.service.data(request.getSessionId(), oid, criteria, includeGeometries);
 
@@ -181,7 +188,9 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "record")
-  public ResponseIF record(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "uid") String uid)
+  public ResponseIF record(ClientRequestIF request, 
+      @RequestParamter(name = "oid", required = true) String oid, 
+      @RequestParamter(name = "uid", required = true) String uid)
   {
     JsonObject response = this.service.record(request.getSessionId(), oid, uid);
 
@@ -189,7 +198,11 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "values")
-  public ResponseIF values(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "value") String value, @RequestParamter(name = "attributeName") String attributeName, @RequestParamter(name = "criteria") String criteria)
+  public ResponseIF values(ClientRequestIF request, 
+      @RequestParamter(name = "oid", required = true) String oid, 
+      @RequestParamter(name = "value") String value, 
+      @RequestParamter(name = "attributeName", required = true) String attributeName,
+      @RequestParamter(name = "criteria") String criteria)
   {
     JsonArray response = this.service.values(request.getSessionId(), oid, value, attributeName, criteria);
 
@@ -197,7 +210,9 @@ public class ListTypeController
   }
 
   @Endpoint(url = "export-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "criteria") String criteria) throws JSONException
+  public ResponseIF exportShapefile(ClientRequestIF request, 
+      @RequestParamter(name = "oid", required = true) String oid, 
+      @RequestParamter(name = "criteria") String criteria) throws JSONException
   {
     JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
     String code = masterList.get(ListType.TYPE_CODE).getAsString() + "-" + masterList.get(ListTypeVersion.FORDATE).getAsString();
@@ -206,7 +221,9 @@ public class ListTypeController
   }
 
   @Endpoint(url = "download-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF downloadShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
+  public ResponseIF downloadShapefile(ClientRequestIF request, 
+      @RequestParamter(name = "oid", required = true) String oid, 
+      @RequestParamter(name = "filter") String filter) throws JSONException
   {
     JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
     String code = masterList.get(ListType.TYPE_CODE).getAsString() + "-" + masterList.get(ListTypeVersion.FORDATE).getAsString();
@@ -229,7 +246,9 @@ public class ListTypeController
   // }
 
   @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF exportSpreadsheet(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "criteria") String criteria) throws JSONException
+  public ResponseIF exportSpreadsheet(ClientRequestIF request, 
+      @RequestParamter(name = "oid", required = true) String oid, 
+      @RequestParamter(name = "criteria") String criteria) throws JSONException
   {
     JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
     String code = masterList.get(ListType.TYPE_CODE).getAsString() + "-" + masterList.get(ListTypeVersion.FORDATE).getAsString();
@@ -238,7 +257,7 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "progress")
-  public ResponseIF progress(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF progress(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
 
     JsonObject response = this.service.progress(request.getSessionId(), oid);
@@ -247,7 +266,12 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-publish-jobs")
-  public ResponseIF getPublishJobs(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "sortAttr") String sortAttr, @RequestParamter(name = "isAscending") Boolean isAscending)
+  public ResponseIF getPublishJobs(ClientRequestIF request, 
+      @RequestParamter(name = "oid", required = true) String oid, 
+      @RequestParamter(name = "pageSize", required = true) Integer pageSize, 
+      @RequestParamter(name = "pageNumber", required = true) Integer pageNumber, 
+      @RequestParamter(name = "sortAttr") String sortAttr, 
+      @RequestParamter(name = "isAscending") Boolean isAscending)
   {
     if (sortAttr == null || sortAttr == "")
     {
@@ -265,7 +289,11 @@ public class ListTypeController
   }
 
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF tile(ClientRequestIF request, @RequestParamter(name = "x") Integer x, @RequestParamter(name = "y") Integer y, @RequestParamter(name = "z") Integer z, @RequestParamter(name = "config") String config) throws JSONException
+  public ResponseIF tile(ClientRequestIF request, 
+      @RequestParamter(name = "x", required = true) Integer x, 
+      @RequestParamter(name = "y", required = true) Integer y, 
+      @RequestParamter(name = "z", required = true) Integer z, 
+      @RequestParamter(name = "config", required = true) String config) throws JSONException
   {
     JSONObject object = new JSONObject(config);
     object.put("x", x);
@@ -276,7 +304,7 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-public-versions")
-  public ResponseIF getPublicVersions(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  public ResponseIF getPublicVersions(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     return new RestBodyResponse(this.service.getPublicVersions(request.getSessionId(), oid));
   }
@@ -288,7 +316,9 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "bounds")
-  public ResponseIF getGeoObjectBounds(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "uid") String uid)
+  public ResponseIF getGeoObjectBounds(ClientRequestIF request, 
+      @RequestParamter(name = "oid", required = true) String oid, 
+      @RequestParamter(name = "uid") String uid)
   {
     JsonArray bounds = this.service.getBounds(request.getSessionId(), oid, uid);
 

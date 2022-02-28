@@ -39,7 +39,10 @@ public class GeoSynonymController
   private GeoSynonymService service = new GeoSynonymService();
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF createGeoEntitySynonym(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "code") String code, @RequestParamter(name = "label") String label) throws JSONException
+  public ResponseIF createGeoEntitySynonym(ClientRequestIF request, 
+      @RequestParamter(name = "typeCode", required = true) String typeCode, 
+      @RequestParamter(name = "code", required = true) String code, 
+      @RequestParamter(name = "label", required = true) String label) throws JSONException
   {
     JSONObject response = service.createGeoEntitySynonym(request.getSessionId(), typeCode, code, label);
 
@@ -47,7 +50,7 @@ public class GeoSynonymController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF deleteGeoEntitySynonym(ClientRequestIF request, @RequestParamter(name = "vOid") String vOid)
+  public ResponseIF deleteGeoEntitySynonym(ClientRequestIF request, @RequestParamter(name = "vOid", required = true) String vOid)
   {
     service.deleteGeoEntitySynonym(request.getSessionId(), vOid);
 

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -99,10 +99,10 @@ public class DHIS2ServiceTest
     testData = AllAttributesDataset.newTestData();
     testData.setUpMetadata();
 
-    //if (!SchedulerManager.initialized())
-    //{
+    if (!SchedulerManager.initialized())
+    {
       SchedulerManager.start();
-    //}
+    }
   }
 
   @AfterClass
@@ -194,7 +194,7 @@ public class DHIS2ServiceTest
 
     return system;
   }
-  
+
   public static SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel)
   {
     return createSyncConfig(system, additionalLevel, true);
@@ -243,7 +243,7 @@ public class DHIS2ServiceTest
     config.setHierarchy(ht.getMdTermRelationship());
     config.setSystem(system.getOid());
     config.getLabel().setValue("DHIS2 Export Test");
-    
+
     if (apply)
     {
       config.apply();
@@ -251,21 +251,23 @@ public class DHIS2ServiceTest
 
     return config;
   }
-  
+
   public static Collection<DHIS2AttributeMapping> getDefaultMappings()
   {
     Collection<DHIS2AttributeMapping> mappings = new ArrayList<DHIS2AttributeMapping>();
-    
+
     final String defaultMappingStrategy = DHIS2AttributeMapping.class.getName();
-    
+
     HashMap<String, String> lazyMap = new HashMap<String, String>();
-    
-    // These DHIS2 default attribute names are also hardcoded in the synchronization-config-modal.component.ts front-end as well as the DHIS2FeatureService.buildDefaultDhis2OrgUnitAttributes
+
+    // These DHIS2 default attribute names are also hardcoded in the
+    // synchronization-config-modal.component.ts front-end as well as the
+    // DHIS2FeatureService.buildDefaultDhis2OrgUnitAttributes
     lazyMap.put("name", DefaultAttribute.DISPLAY_LABEL.getName());
     lazyMap.put("shortName", DefaultAttribute.DISPLAY_LABEL.getName());
     lazyMap.put("code", DefaultAttribute.CODE.getName());
     lazyMap.put("openingDate", DefaultAttribute.CREATE_DATE.getName());
-    
+
     for (Entry<String, String> entry : lazyMap.entrySet())
     {
       DHIS2AttributeMapping name = new DHIS2AttributeMapping();
@@ -274,10 +276,10 @@ public class DHIS2ServiceTest
       name.setAttributeMappingStrategy(defaultMappingStrategy);
       mappings.add(name);
     }
-    
+
     return mappings;
   }
-  
+
   private DHIS2AttributeMapping findMapping(String cgrAttrName, Collection<DHIS2AttributeMapping> mappings)
   {
     for (DHIS2AttributeMapping mapping : mappings)
@@ -287,7 +289,7 @@ public class DHIS2ServiceTest
         return mapping;
       }
     }
-    
+
     return null;
   }
 
@@ -305,7 +307,7 @@ public class DHIS2ServiceTest
     {
       mapping = new DHIS2TermAttributeMapping();
       mapping.setAttributeMappingStrategy(DHIS2TermAttributeMapping.class.getName());
-      
+
       Map<String, String> terms = new HashMap<String, String>();
       terms.put(AllAttributesDataset.AT_GO_TERM.fetchRootAsClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
       terms.put(AllAttributesDataset.TERM_TERM_VAL1.fetchClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
@@ -494,9 +496,10 @@ public class DHIS2ServiceTest
     SynchronizationConfig config = createSyncConfig(this.system, null);
 
     JsonArray custConfig = new DHIS2FeatureService().getDHIS2AttributeConfiguration(testData.clientSession.getSessionId(), config.getSystem(), AllAttributesDataset.GOT_ALL.getCode());
-    
+
     final List<Attribute> defaultAttributes = DHIS2FeatureService.buildDefaultDhis2OrgUnitAttributes();
-//    final Collection<DHIS2AttributeMapping> defaultMappings = getDefaultMappings();
+    // final Collection<DHIS2AttributeMapping> defaultMappings =
+    // getDefaultMappings();
     GeoObjectType got_all = AllAttributesDataset.GOT_ALL.fetchDTO();
 
     for (int i = 0; i < custConfig.size(); ++i)
@@ -513,7 +516,7 @@ public class DHIS2ServiceTest
       if (cgrAttrName.equals(testData.AT_ALL_INT.getAttributeName()))
       {
         attrType = testData.AT_ALL_INT;
-        
+
         JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
         Assert.assertEquals(1, strategies.size());
         Assert.assertEquals(DHIS2AttributeMapping.class.getName(), strategies.get(0).getAsString());
@@ -531,7 +534,7 @@ public class DHIS2ServiceTest
       else if (cgrAttrName.equals(testData.AT_ALL_BOOL.getAttributeName()))
       {
         attrType = testData.AT_ALL_BOOL;
-        
+
         JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
         Assert.assertEquals(1, strategies.size());
         Assert.assertEquals(DHIS2AttributeMapping.class.getName(), strategies.get(0).getAsString());
@@ -549,13 +552,13 @@ public class DHIS2ServiceTest
       else if (cgrAttrName.equals(testData.AT_ALL_CHAR.getAttributeName()))
       {
         attrType = testData.AT_ALL_CHAR;
-        
+
         JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
         Assert.assertEquals(1, strategies.size());
         Assert.assertEquals(DHIS2AttributeMapping.class.getName(), strategies.get(0).getAsString());
 
         Assert.assertEquals(13, dhis2Attrs.size());
-        
+
         List<String> defaultIds = defaultAttributes.stream().map(attribute -> attribute.getValueType().equals(ValueType.TEXT) ? attribute.getId() : null).collect(Collectors.toList());
         List<String> defaultNames = defaultAttributes.stream().map(attribute -> attribute.getValueType().equals(ValueType.TEXT) ? attribute.getName() : null).collect(Collectors.toList());
 
@@ -564,7 +567,7 @@ public class DHIS2ServiceTest
           JsonObject dhis2Attr = dhis2Attrs.get(j).getAsJsonObject();
 
           String id = dhis2Attr.get("dhis2Id").getAsString();
-          
+
           Assert.assertTrue(id.equals("UKNKz1H10EE") || id.equals("n2xYlNbsfko") || id.equals("tw1zAoX9tP6") || defaultIds.contains(id));
 
           String code = dhis2Attr.get("code").getAsString();
@@ -574,7 +577,7 @@ public class DHIS2ServiceTest
       else if (cgrAttrName.equals(testData.AT_ALL_DATE.getAttributeName()))
       {
         attrType = testData.AT_ALL_DATE;
-        
+
         JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
         Assert.assertEquals(1, strategies.size());
         Assert.assertEquals(DHIS2AttributeMapping.class.getName(), strategies.get(0).getAsString());
@@ -582,9 +585,9 @@ public class DHIS2ServiceTest
         Assert.assertEquals(3, dhis2Attrs.size());
 
         JsonObject dhis2Attr = dhis2Attrs.get(0).getAsJsonObject();
-        
+
         String id = dhis2Attr.get("dhis2Id").getAsString();
-        
+
         List<String> defaultIds = defaultAttributes.stream().map(attribute -> attribute.getValueType().equals(ValueType.DATE) ? attribute.getId() : null).collect(Collectors.toList());
         List<String> defaultNames = defaultAttributes.stream().map(attribute -> attribute.getValueType().equals(ValueType.DATE) ? attribute.getName() : null).collect(Collectors.toList());
 
@@ -599,7 +602,7 @@ public class DHIS2ServiceTest
       else if (cgrAttrName.equals(testData.AT_ALL_FLOAT.getAttributeName()))
       {
         attrType = testData.AT_ALL_FLOAT;
-        
+
         JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
         Assert.assertEquals(1, strategies.size());
         Assert.assertEquals(DHIS2AttributeMapping.class.getName(), strategies.get(0).getAsString());
@@ -617,7 +620,7 @@ public class DHIS2ServiceTest
       else if (cgrAttrName.equals(testData.AT_ALL_TERM.getAttributeName()))
       {
         attrType = testData.AT_ALL_TERM;
-        
+
         JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
         Assert.assertEquals(1, strategies.size());
         Assert.assertEquals(DHIS2TermAttributeMapping.class.getName(), strategies.get(0).getAsString());
@@ -686,10 +689,10 @@ public class DHIS2ServiceTest
       else if (got_all.getAttribute(cgrAttrName).isPresent())
       {
         AttributeType at = got_all.getAttribute(cgrAttrName).get();
-        
+
         JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
         Assert.assertEquals(1, strategies.size());
-        
+
         if (at.getType().equals(AttributeTermType.TYPE))
         {
           Assert.assertEquals(DHIS2TermAttributeMapping.class.getName(), strategies.get(0).getAsString());
@@ -698,12 +701,12 @@ public class DHIS2ServiceTest
         {
           Assert.assertEquals(DHIS2AttributeMapping.class.getName(), strategies.get(0).getAsString());
         }
-        
+
         if (at.getType().equals(AttributeCharacterType.TYPE))
         {
           Assert.assertEquals(13, dhis2Attrs.size());
         }
-        
+
         attrType = AllAttributesDataset.GOT_ALL.getAttribute(cgrAttrName);
       }
       else
@@ -719,54 +722,54 @@ public class DHIS2ServiceTest
       Assert.assertEquals(AttributeTypeMetadata.get().getTypeEnumDisplayLabel(attrType.fetchDTO().getType()), cgrAttr.get("typeLabel").getAsString());
     }
   }
-  
+
   @Test
   public void testGetConfigForExternalSystem()
   {
     TestUserInfo[] users = new TestUserInfo[] { AllAttributesDataset.USER_ADMIN, AllAttributesDataset.USER_ORG_RA };
-    
+
     for (TestUserInfo user : users)
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
         JsonObject jo = adapter.getConfigForExternalSystem(this.system.getOid(), AllAttributesDataset.HIER.getCode());
-        
+
         Assert.assertTrue(jo.has("types"));
         JsonArray types = jo.get("types").getAsJsonArray();
-        
+
         Assert.assertTrue(types.size() == 7 || types.size() == 8);
-        
+
         Assert.assertTrue(jo.has("orgUnitGroups"));
         JsonArray orgUnitGroups = jo.get("orgUnitGroups").getAsJsonArray();
-        
+
         Assert.assertEquals(18, orgUnitGroups.size());
       });
     }
   }
-  
+
   @Request
   @Test
   public void testApplySyncConfig() throws Exception
   {
     SynchronizationConfig config = createSyncConfig(this.system, null, false);
-    
+
     SynchronizationConfigService service = new SynchronizationConfigService();
-    
+
     JsonObject json = config.toJSON();
     json.remove("oid");
-    
+
     JsonObject configToJson = service.apply(testData.clientSession.getSessionId(), json.toString());
-    
+
     String oid = configToJson.get(SynchronizationConfig.OID).getAsString();
-    
+
     SynchronizationConfig.get(oid);
   }
-  
+
   @Request
   @Test
   public void testExportGeoObjects() throws InterruptedException
   {
     SynchronizationConfig config = createSyncConfig(this.system, null);
-    
+
     SynchronizationConfigService service = new SynchronizationConfigService();
 
     JsonObject joHist = service.run(testData.clientSession.getSessionId(), config.getOid());
@@ -778,21 +781,21 @@ public class DHIS2ServiceTest
     Assert.assertEquals(new Long(1), hist.getWorkTotal());
     Assert.assertEquals(new Long(1), hist.getWorkProgress());
     Assert.assertEquals(ImportStage.COMPLETE.name(), hist.getStage().get(0).name());
-    
+
     LinkedList<Dhis2Payload> payloads = this.dhis2.getPayloads();
     Assert.assertEquals(1, payloads.size());
-    
+
     Dhis2Payload payload = payloads.get(0);
-    
+
     JsonObject data = JsonParser.parseString(payload.getData()).getAsJsonObject();
-    
+
     JsonArray orgUnits = data.get("organisationUnits").getAsJsonArray();
-    
+
     Assert.assertEquals(1, orgUnits.size());
-    
+
     JsonObject orgUnit = orgUnits.get(0).getAsJsonObject();
-    
+
     Assert.assertEquals("AllAttrGO_ALL", orgUnit.get("code").getAsString());
   }
-  
+
 }

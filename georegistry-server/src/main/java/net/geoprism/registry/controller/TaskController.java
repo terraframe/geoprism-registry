@@ -58,7 +58,7 @@ public class TaskController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF delete(ClientRequestIF request, @RequestParamter(name = "id") String id) throws JSONException
+  public ResponseIF delete(ClientRequestIF request, @RequestParamter(name = "id", required = true) String id) throws JSONException
   {
     TaskService.deleteTask(request.getSessionId(), id);
 
@@ -66,7 +66,7 @@ public class TaskController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF complete(ClientRequestIF request, @RequestParamter(name = "id") String id) throws JSONException
+  public ResponseIF complete(ClientRequestIF request, @RequestParamter(name = "id", required = true) String id) throws JSONException
   {
     TaskService.completeTask(request.getSessionId(), id);
 
@@ -74,7 +74,9 @@ public class TaskController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF setTaskStatus(ClientRequestIF request, @RequestParamter(name = "id") String id, @RequestParamter(name = "status") String status) throws JSONException
+  public ResponseIF setTaskStatus(ClientRequestIF request, 
+      @RequestParamter(name = "id", required = true) String id, 
+      @RequestParamter(name = "status", required = true) String status) throws JSONException
   {
     TaskService.setTaskStatus(request.getSessionId(), id, status);
 

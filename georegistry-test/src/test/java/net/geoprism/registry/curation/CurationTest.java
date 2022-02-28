@@ -25,6 +25,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.gson.JsonArray;
@@ -53,6 +54,7 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.test.curation.CurationControllerWrapper;
 
+@Ignore
 public class CurationTest
 {
   protected static FastTestDataset testData;

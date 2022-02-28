@@ -58,7 +58,11 @@ import net.geoprism.registry.service.ServiceFactory;
 public class GeoObjectEditorControllerNoOverTime
 {
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "isNew") Boolean isNew, @RequestParamter(name = "masterListId") String masterListId) throws JSONException
+  public ResponseIF apply(ClientRequestIF request, 
+      @RequestParamter(name = "parentTreeNode", required = true) String parentTreeNode, 
+      @RequestParamter(name = "geoObject", required = true) String geoObject, 
+      @RequestParamter(name = "isNew", required = true) Boolean isNew, 
+      @RequestParamter(name = "masterListId") String masterListId) throws JSONException
   {
     applyInReq(request.getSessionId(), parentTreeNode, geoObject, isNew, masterListId);
 

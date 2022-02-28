@@ -117,6 +117,11 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
   public static Date parseDate(String date)
   {
+    return parseDate(date, false);
+  }
+
+  public static Date parseDate(String date, boolean throwClientException)
+  {
     if (date != null && date.length() > 0)
     {
 
@@ -129,7 +134,14 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
       }
       catch (ParseException e)
       {
-        throw new ProgrammingErrorException(e);
+        if (throwClientException)
+        {
+          throw new RuntimeException("Unable to parse the date [" + date + "]. The date format must be [" + GeoObjectImportConfiguration.DATE_FORMAT + "]");
+        }
+        else
+        {
+          throw new ProgrammingErrorException(e);
+        }
       }
     }
 

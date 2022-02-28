@@ -65,9 +65,9 @@ public class RemoveChildAction extends RemoveChildActionBase
 
     RemoveChildActionDTO acaDTO = (RemoveChildActionDTO) dto;
 
-    this.setParentId(acaDTO.getParentId());
+    this.setParentId(acaDTO.getParentCode());
     this.setParentTypeCode(acaDTO.getParentTypeCode());
-    this.setChildId(acaDTO.getChildId());
+    this.setChildId(acaDTO.getChildCode());
     this.setChildTypeCode(acaDTO.getChildTypeCode());
     this.setHierarchyTypeCode(acaDTO.getHierarchyCode());
   }

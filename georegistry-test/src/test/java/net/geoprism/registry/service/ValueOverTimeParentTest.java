@@ -235,7 +235,7 @@ public class ValueOverTimeParentTest
     
     ServerGeoObjectIF value = node.getParents().get(0).getGeoObject();
     Assert.assertEquals(BELIZE.getCode(), value.getCode());
-  }
+  }  
   
   /**
    * Imported data partially overlaps an existing range, and the values are the same.

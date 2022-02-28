@@ -67,7 +67,10 @@ public class HierarchyController
    *          child {@link GeoObjectType}.
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "add")
-  public ResponseIF addToHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode, @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)
+  public ResponseIF addToHierarchy(ClientRequestIF request, 
+      @RequestParamter(name = "hierarchyCode", required = true) String hierarchyCode, 
+      @RequestParamter(name = "parentGeoObjectTypeCode", required = true) String parentGeoObjectTypeCode,
+      @RequestParamter(name = "childGeoObjectTypeCode", required = true) String childGeoObjectTypeCode)
   {
     HierarchyType ht = ServiceFactory.getHierarchyService().addToHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
@@ -89,7 +92,10 @@ public class HierarchyController
    *          child {@link GeoObjectType}.
    */
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "remove")
-  public ResponseIF removeFromHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode, @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)
+  public ResponseIF removeFromHierarchy(ClientRequestIF request, 
+      @RequestParamter(name = "hierarchyCode", required = true) String hierarchyCode, 
+      @RequestParamter(name = "parentGeoObjectTypeCode", required = true) String parentGeoObjectTypeCode,
+      @RequestParamter(name = "childGeoObjectTypeCode", required = true) String childGeoObjectTypeCode)
   {
     HierarchyType ht = ServiceFactory.getHierarchyService().removeFromHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode, true);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
@@ -115,7 +121,11 @@ public class HierarchyController
    *          youngest child {@link GeoObjectType} after this method returns
    */
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "insertBetweenTypes")
-  public ResponseIF insertBetweenTypes(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode, @RequestParamter(name = "middleGeoObjectTypeCode") String middleGeoObjectTypeCode, @RequestParamter(name = "youngestGeoObjectTypeCode") String youngestGeoObjectTypeCode)
+  public ResponseIF insertBetweenTypes(ClientRequestIF request, 
+      @RequestParamter(name = "hierarchyCode", required = true) String hierarchyCode, 
+      @RequestParamter(name = "parentGeoObjectTypeCode", required = true) String parentGeoObjectTypeCode, 
+      @RequestParamter(name = "middleGeoObjectTypeCode", required = true) String middleGeoObjectTypeCode, 
+      @RequestParamter(name = "youngestGeoObjectTypeCode", required = true) String youngestGeoObjectTypeCode)
   {
     HierarchyType ht = ServiceFactory.getHierarchyService().insertBetweenTypes(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, middleGeoObjectTypeCode, youngestGeoObjectTypeCode);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
@@ -137,7 +147,10 @@ public class HierarchyController
    *          code of the root {@link GeoObjectType}.
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "setInherited")
-  public ResponseIF setInheritedHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyTypeCode") String hierarchyTypeCode, @RequestParamter(name = "inheritedHierarchyTypeCode") String inheritedHierarchyTypeCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode)
+  public ResponseIF setInheritedHierarchy(ClientRequestIF request, 
+      @RequestParamter(name = "hierarchyTypeCode", required = true) String hierarchyTypeCode, 
+      @RequestParamter(name = "inheritedHierarchyTypeCode", required = true) String inheritedHierarchyTypeCode,
+      @RequestParamter(name = "geoObjectTypeCode", required = true) String geoObjectTypeCode)
   {
     HierarchyType ht = ServiceFactory.getHierarchyService().setInheritedHierarchy(request.getSessionId(), hierarchyTypeCode, inheritedHierarchyTypeCode, geoObjectTypeCode);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
@@ -156,7 +169,9 @@ public class HierarchyController
    *          code of the root {@link GeoObjectType}.
    */
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "removeInherited")
-  public ResponseIF removeInheritedHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyTypeCode") String hierarchyTypeCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode)
+  public ResponseIF removeInheritedHierarchy(ClientRequestIF request, 
+      @RequestParamter(name = "hierarchyTypeCode", required = true) String hierarchyTypeCode, 
+      @RequestParamter(name = "geoObjectTypeCode", required = true) String geoObjectTypeCode)
   {
     HierarchyType ht = ServiceFactory.getHierarchyService().removeInheritedHierarchy(request.getSessionId(), hierarchyTypeCode, geoObjectTypeCode);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());

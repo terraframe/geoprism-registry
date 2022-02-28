@@ -460,7 +460,7 @@ public class GeoObjectRelationshipServiceTest
   @Test
   public void testGetChildGeoObjects()
   {
-    final String parentId = FastTestDataset.CAMBODIA.getRegistryId();
+    final String parentCode = FastTestDataset.CAMBODIA.getCode();
     final String parentTypeCode = FastTestDataset.CAMBODIA.getGeoObjectType().getCode();
     final String[] childrenTypes = new String[] { FastTestDataset.PROVINCE.getCode() };
 
@@ -470,17 +470,17 @@ public class GeoObjectRelationshipServiceTest
     expectedChildren.add(FastTestDataset.PROV_WESTERN);
 
     // Recursive
-    ChildTreeNode tn = testData.adapter.getChildGeoObjects(parentId, parentTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, childrenTypes, true);
+    ChildTreeNode tn = testData.adapter.getChildGeoObjects(parentCode, parentTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, childrenTypes, true);
     FastTestDataset.CAMBODIA.childTreeNodeAssert(tn, expectedChildren);
     Assert.assertEquals(tn.toJSON().toString(), ChildTreeNode.fromJSON(tn.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Not recursive
-    ChildTreeNode tn2 = testData.adapter.getChildGeoObjects(parentId, parentTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, childrenTypes, false);
+    ChildTreeNode tn2 = testData.adapter.getChildGeoObjects(parentCode, parentTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, childrenTypes, false);
     FastTestDataset.CAMBODIA.childTreeNodeAssert(tn2, expectedChildren);
     Assert.assertEquals(tn2.toJSON().toString(), ChildTreeNode.fromJSON(tn2.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Null date
-    ChildTreeNode tn3 = testData.adapter.getChildGeoObjects(parentId, parentTypeCode, null, childrenTypes, false);
+    ChildTreeNode tn3 = testData.adapter.getChildGeoObjects(parentCode, parentTypeCode, null, childrenTypes, false);
     FastTestDataset.CAMBODIA.childTreeNodeAssert(tn3, expectedChildren);
     Assert.assertEquals(tn3.toJSON().toString(), ChildTreeNode.fromJSON(tn3.toJSON().toString(), testData.adapter).toJSON().toString());
   }
@@ -491,7 +491,7 @@ public class GeoObjectRelationshipServiceTest
     // TODO : Attempt to get children of a parent which is private. This
     // scenario should throw an error
 
-    final String parentId = FastTestDataset.CAMBODIA.getRegistryId();
+    final String parentCode = FastTestDataset.CAMBODIA.getCode();
     final String parentTypeCode = FastTestDataset.CAMBODIA.getGeoObjectType().getCode();
     final String[] childrenTypes = new String[] { FastTestDataset.PROVINCE_PRIVATE.getCode() };
 
@@ -502,7 +502,7 @@ public class GeoObjectRelationshipServiceTest
     for (TestUserInfo user : allowedUsers)
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
-        ChildTreeNode tn = adapter.getChildGeoObjects(parentId, parentTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, childrenTypes, true);
+        ChildTreeNode tn = adapter.getChildGeoObjects(parentCode, parentTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, childrenTypes, true);
         FastTestDataset.CAMBODIA.childTreeNodeAssert(tn, expectedChildren);
         Assert.assertEquals(tn.toJSON().toString(), ChildTreeNode.fromJSON(tn.toJSON().toString(), testData.adapter).toJSON().toString());
       });
@@ -512,7 +512,7 @@ public class GeoObjectRelationshipServiceTest
     for (TestUserInfo user : disallowedUsers)
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
-        ChildTreeNode ctn = adapter.getChildGeoObjects(parentId, parentTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, childrenTypes, true);
+        ChildTreeNode ctn = adapter.getChildGeoObjects(parentCode, parentTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, childrenTypes, true);
 
         Assert.assertEquals(0, ctn.getChildren().size());
       });
@@ -522,7 +522,7 @@ public class GeoObjectRelationshipServiceTest
   @Test
   public void testGetParentGeoObjects()
   {
-    final String childId = FastTestDataset.PROV_CENTRAL.getRegistryId();
+    final String childCode = FastTestDataset.PROV_CENTRAL.getCode();
     final String childTypeCode = FastTestDataset.PROVINCE.getCode();
     final String[] parentTypes = new String[] { FastTestDataset.COUNTRY.getCode() };
 
@@ -531,33 +531,33 @@ public class GeoObjectRelationshipServiceTest
     expectedParents.add(FastTestDataset.CAMBODIA);
 
     // Recursive
-    ParentTreeNode tn = testData.adapter.getParentGeoObjects(childId, childTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, parentTypes, true);
+    ParentTreeNode tn = testData.adapter.getParentGeoObjects(childCode, childTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, parentTypes, true);
     FastTestDataset.PROV_CENTRAL.parentTreeNodeAssert(tn, expectedParents);
     Assert.assertEquals(tn.toJSON().toString(), ParentTreeNode.fromJSON(tn.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Not recursive
-    ParentTreeNode tn2 = testData.adapter.getParentGeoObjects(childId, childTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, parentTypes, false);
+    ParentTreeNode tn2 = testData.adapter.getParentGeoObjects(childCode, childTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, parentTypes, false);
     FastTestDataset.PROV_CENTRAL.parentTreeNodeAssert(tn2, expectedParents);
     Assert.assertEquals(tn2.toJSON().toString(), ParentTreeNode.fromJSON(tn2.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Test only getting countries
     String[] countryArr = new String[] { FastTestDataset.COUNTRY.getCode() };
-    ParentTreeNode tn3 = testData.adapter.getParentGeoObjects(childId, childTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, countryArr, true);
+    ParentTreeNode tn3 = testData.adapter.getParentGeoObjects(childCode, childTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, countryArr, true);
     FastTestDataset.PROV_CENTRAL.parentTreeNodeAssert(tn3, expectedParents);
     Assert.assertEquals(tn3.toJSON().toString(), ParentTreeNode.fromJSON(tn3.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Test null parent types
-    ParentTreeNode tn4 = testData.adapter.getParentGeoObjects(childId, childTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, null, true);
+    ParentTreeNode tn4 = testData.adapter.getParentGeoObjects(childCode, childTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, null, true);
     FastTestDataset.PROV_CENTRAL.parentTreeNodeAssert(tn4, expectedParents);
     Assert.assertEquals(tn4.toJSON().toString(), ParentTreeNode.fromJSON(tn4.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Test empty parent types
-    ParentTreeNode tn5 = testData.adapter.getParentGeoObjects(childId, childTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, new String[] {}, true);
+    ParentTreeNode tn5 = testData.adapter.getParentGeoObjects(childCode, childTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, new String[] {}, true);
     FastTestDataset.PROV_CENTRAL.parentTreeNodeAssert(tn5, expectedParents);
     Assert.assertEquals(tn5.toJSON().toString(), ParentTreeNode.fromJSON(tn5.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Null dates
-    ParentTreeNode tn6 = testData.adapter.getParentGeoObjects(childId, childTypeCode, null, new String[] {}, true);
+    ParentTreeNode tn6 = testData.adapter.getParentGeoObjects(childCode, childTypeCode, null, new String[] {}, true);
     FastTestDataset.PROV_CENTRAL.parentTreeNodeAssert(tn6, expectedParents);
     Assert.assertEquals(tn6.toJSON().toString(), ParentTreeNode.fromJSON(tn6.toJSON().toString(), testData.adapter).toJSON().toString());
   }
@@ -565,7 +565,7 @@ public class GeoObjectRelationshipServiceTest
   @Test
   public void testGetPrivateParentGeoObjects()
   {
-    final String childId = FastTestDataset.PROV_CENTRAL_PRIVATE.getRegistryId();
+    final String childCode = FastTestDataset.PROV_CENTRAL_PRIVATE.getCode();
     final String childTypeCode = FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode();
     final String[] parentTypes = new String[] { FastTestDataset.COUNTRY.getCode() };
 
@@ -576,7 +576,7 @@ public class GeoObjectRelationshipServiceTest
     for (TestUserInfo user : allowedUsers)
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
-        ParentTreeNode tn = adapter.getParentGeoObjects(childId, childTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, parentTypes, true);
+        ParentTreeNode tn = adapter.getParentGeoObjects(childCode, childTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, parentTypes, true);
         FastTestDataset.PROV_CENTRAL_PRIVATE.parentTreeNodeAssert(tn, expectedParents);
         Assert.assertEquals(tn.toJSON().toString(), ParentTreeNode.fromJSON(tn.toJSON().toString(), testData.adapter).toJSON().toString());
       });
@@ -588,7 +588,7 @@ public class GeoObjectRelationshipServiceTest
       FastTestDataset.runAsUser(user, (request, adapter) -> {
         try
         {
-          adapter.getParentGeoObjects(childId, childTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, parentTypes, true);
+          adapter.getParentGeoObjects(childCode, childTypeCode, TestDataSet.DEFAULT_OVER_TIME_DATE, parentTypes, true);
 
           Assert.fail("Expected a permissions error.");
         }
@@ -609,7 +609,7 @@ public class GeoObjectRelationshipServiceTest
     TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", FastTestDataset.PROVINCE);
     testAddChild.apply();
 
-    ParentTreeNode ptnTestState = testData.adapter.addChild(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), testAddChild.getRegistryId(), testAddChild.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode(), startDate, endDate);
+    ParentTreeNode ptnTestState = testData.adapter.addChild(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), testAddChild.getCode(), testAddChild.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode(), startDate, endDate);
 
     boolean found = false;
     for (ParentTreeNode ptnCAMBODIA : ptnTestState.getParents())
@@ -623,7 +623,7 @@ public class GeoObjectRelationshipServiceTest
     Assert.assertTrue("Did not find our test object in the list of returned children", found);
     testAddChild.assertEquals(ptnTestState.getGeoObject());
 
-    ChildTreeNode ctnCAMBODIA2 = testData.adapter.getChildGeoObjects(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, new String[] { FastTestDataset.PROVINCE.getCode() }, false);
+    ChildTreeNode ctnCAMBODIA2 = testData.adapter.getChildGeoObjects(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, new String[] { FastTestDataset.PROVINCE.getCode() }, false);
 
     found = false;
     for (ChildTreeNode ctnState : ctnCAMBODIA2.getChildren())
@@ -646,7 +646,7 @@ public class GeoObjectRelationshipServiceTest
     TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", FastTestDataset.PROVINCE);
     testAddChild.apply();
     
-    ParentTreeNode ptnTestState = testData.adapter.addChild(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), testAddChild.getRegistryId(), testAddChild.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode(), startDate, endDate);
+    ParentTreeNode ptnTestState = testData.adapter.addChild(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), testAddChild.getCode(), testAddChild.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode(), startDate, endDate);
     
     boolean found = false;
     for (ParentTreeNode ptnCAMBODIA : ptnTestState.getParents())
@@ -660,7 +660,7 @@ public class GeoObjectRelationshipServiceTest
     Assert.assertTrue("Did not find our test object in the list of returned children", found);
     testAddChild.assertEquals(ptnTestState.getGeoObject());
     
-    ChildTreeNode ctnCAMBODIA2 = testData.adapter.getChildGeoObjects(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, new String[] { FastTestDataset.PROVINCE.getCode() }, false);
+    ChildTreeNode ctnCAMBODIA2 = testData.adapter.getChildGeoObjects(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, new String[] { FastTestDataset.PROVINCE.getCode() }, false);
     
     found = false;
     for (ChildTreeNode ctnState : ctnCAMBODIA2.getChildren())
@@ -683,12 +683,12 @@ public class GeoObjectRelationshipServiceTest
     /*
      * Remove Child
      */
-    testData.adapter.removeChild(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.PROV_CENTRAL.getRegistryId(), FastTestDataset.PROVINCE.getCode(), FastTestDataset.HIER_ADMIN.getCode(), startDate, endDate);
+    testData.adapter.removeChild(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.PROV_CENTRAL.getCode(), FastTestDataset.PROVINCE.getCode(), FastTestDataset.HIER_ADMIN.getCode(), startDate, endDate);
 
     /*
      * Fetch the children and validate ours was removed
      */
-    ChildTreeNode ctnCAMBODIA2 = testData.adapter.getChildGeoObjects(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, new String[] { FastTestDataset.PROVINCE.getCode() }, false);
+    ChildTreeNode ctnCAMBODIA2 = testData.adapter.getChildGeoObjects(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, new String[] { FastTestDataset.PROVINCE.getCode() }, false);
 
     boolean found = false;
     for (ChildTreeNode ctnState : ctnCAMBODIA2.getChildren())
