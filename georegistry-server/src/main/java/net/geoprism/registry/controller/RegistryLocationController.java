@@ -97,7 +97,7 @@ public class RegistryLocationController
 
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF search(ClientRequestIF request, 
-      @RequestParamter(name = "text", required = true) String text, 
+      @RequestParamter(name = "text") String text, 
       @RequestParamter(name = "date") String date) throws JSONException, ParseException
   {
     List<GeoObject> results = service.search(request.getSessionId(), text, parseDate(date));
