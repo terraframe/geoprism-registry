@@ -18,10 +18,11 @@
     <div *ngIf="list.open" class="list-group">
       <div *ngFor="let version of list.versions">
         <div class="layer-toggle-wrapper">
-			      <a *ngIf="version.oid !== CONSTANTS.GRAPH_LAYER" class="fa" [ngClass]='{"fa-minus" : version.showOnLegend, "fa-plus" : !version.showOnLegend}' [title]="(version.showOnLegend ? 'explorer.layerPanel.removeFromLegend' : 'explorer.layerPanel.addToLegend') | localize" (click)="clickToggleLayerShowOnLegend(version, list)"></a>
-			      <boolean-field *ngIf="version.showOnLegend" [value]="version.rendered" [label]="version.forDate" [disable]="false" (change)="clickToggleLayerRendered(version, list)" style="line-height:0;"></boolean-field>
+			      <a *ngIf="version.oid !== CONSTANTS.GRAPH_LAYER" class="fa" style="padding-right: 10px;" [ngClass]='{"fa-minus" : version.showOnLegend, "fa-plus" : !version.showOnLegend}' [title]="(version.showOnLegend ? 'explorer.layerPanel.removeFromLegend' : 'explorer.layerPanel.addToLegend') | localize" (click)="clickToggleLayerShowOnLegend(version, list)"></a>
+			      <boolean-field *ngIf="version.showOnLegend" [value]="version.rendered" label="" [disable]="false" (change)="clickToggleLayerRendered(version, list)" style="line-height:0;"></boolean-field>
 			  
 			      <div class="label-wrapper">
+              <date-text [date]="version.forDate"></date-text>
 			        <ng-container *ngIf="version.oid !== CONSTANTS.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
 			          [ngTemplateOutletContext]="{layer:version}">
 			        </ng-container>
@@ -59,9 +60,10 @@
               <div class="custom-placeholder" *cdkDragPlaceholder></div>
               
               <!-- <i class="fa fa-arrows" style="font-size:15px;color: grey;margin-right: 3px;" aria-hidden="true"></i> -->
-              <boolean-field [value]="layer.rendered" [label]="layer.label" [disable]="false" (change)="toggleLayerRendered(layer)" style="line-height:0;" ></boolean-field>
+              <boolean-field [value]="layer.rendered" label="" [disable]="false" (change)="toggleLayerRendered(layer)" style="line-height:0;" ></boolean-field>
               
               <div class="label-wrapper">
+                {{layer.label}}
                 <span *ngIf="layer.oid !== CONSTANTS.GRAPH_LAYER">- {{ layer.forDate }}</span>
                 <ng-container *ngIf="layer.oid !== CONSTANTS.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
                   [ngTemplateOutletContext]="{layer:layer}">

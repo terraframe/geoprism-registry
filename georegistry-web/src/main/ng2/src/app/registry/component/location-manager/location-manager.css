@@ -155,6 +155,7 @@
     justify-content: left;
     align-items: center;
     margin: 3px 0;
+    padding-left: 20px;
 }
 
 .label-wrapper {
