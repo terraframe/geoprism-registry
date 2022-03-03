@@ -99,3 +99,7 @@ label.settings > span > i.fa.fa-cog {
   text-align: right;
   color: orange;
 }
+
+hr.bottom {
+    border-top: 1px solid #776f6f;
+}
