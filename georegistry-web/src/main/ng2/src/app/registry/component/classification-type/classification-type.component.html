@@ -31,7 +31,10 @@
                     <localize key="classification.set.root"></localize>
                 </button>
             </ng-container>
-            <tree-root *ngIf="nodes.length > 0" #tree [options]="options" [nodes]="nodes"></tree-root>
+            <div>
+                <tree-root *ngIf="nodes.length > 0" #tree [options]="options" [nodes]="nodes">
+                </tree-root>
+            </div>
         </div>
     </div>
 
