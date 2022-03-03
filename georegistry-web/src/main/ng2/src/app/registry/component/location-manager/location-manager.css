@@ -101,7 +101,8 @@
     cursor: pointer; 
 }
 .layer-toggle svg {
-    width: 30px;height: 30px;
+    width: 30px;
+    height: 30px;
 }
 
 .layer-toggle input {
