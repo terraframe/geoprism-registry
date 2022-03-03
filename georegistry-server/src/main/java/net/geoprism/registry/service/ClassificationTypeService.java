@@ -24,6 +24,7 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.model.ClassificationType;
 
 public class ClassificationTypeService
@@ -47,12 +48,12 @@ public class ClassificationTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject apply(String sessionId, JsonObject object)
+  public JsonObject apply(String sessionId, String json)
   {
-    ClassificationType classificationType = ClassificationType.apply(object);
+    String retJson = GeoRegistryUtil.applyClassificationType(json);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
-    return classificationType.toJSON();
+    return JsonParser.parseString(retJson).getAsJsonObject();
   }
 }

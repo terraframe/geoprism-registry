@@ -17,7 +17,7 @@ export class ClassificationTypeService implements GenericTableService {
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    apply(type: ClassificationType): Promise<ClassificationType> {
+    apply(classificationType: ClassificationType): Promise<ClassificationType> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -25,7 +25,7 @@ export class ClassificationTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<ClassificationType>(registry.contextPath + "/classification-type/apply", JSON.stringify({ classificationCode: type }), { headers: headers })
+            .post<ClassificationType>(registry.contextPath + "/classification-type/apply", JSON.stringify({ classificationType: classificationType }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

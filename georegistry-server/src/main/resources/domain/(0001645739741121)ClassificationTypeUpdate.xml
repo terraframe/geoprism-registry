@@ -1,0 +1,33 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <update>
+      <mdUtil name="net.geoprism.registry.GeoRegistryUtil" label="Geo Registry Util">
+        <create>
+          <mdMethod name="applyClassificationType" label="Apply classification type" returnType="java.lang.String" static="true">
+            <mdParameter name="json" label="JSON" order="0" type="java.lang.String" />
+          </mdMethod>          
+        </create>
+      </mdUtil>
+    </update>
+    <permissions>
+      <method methodName="applyClassificationType" type="net.geoprism.registry.GeoRegistryUtil">
+        <assignedRole roleName="Administrator" />
+      </method>    
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.GeoRegistryUtil">
+            <mdMethodPermission methodName="applyClassificationType">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+    
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdMethod" key="net.geoprism.registry.GeoRegistryUtil.createClassificationType"></object>    
+    </delete>
+  </undoIt>
+</version>

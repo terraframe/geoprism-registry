@@ -1,28 +1,10 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -140531323)
+@com.runwaysdk.business.ClassSignature(hash = 81747895)
 public abstract class GeoRegistryUtilDTOBase extends com.runwaysdk.business.UtilDTO
 {
   public final static String CLASS = "net.geoprism.registry.GeoRegistryUtil";
-  private static final long serialVersionUID = -140531323;
+  private static final long serialVersionUID = 81747895;
   
   protected GeoRegistryUtilDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -35,6 +17,14 @@ public abstract class GeoRegistryUtilDTOBase extends com.runwaysdk.business.Util
   }
   
   public static java.lang.String OID = "oid";
+  public static final java.lang.String applyClassificationType(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String json)
+  {
+    String[] _declaredTypes = new String[]{"java.lang.String"};
+    Object[] _parameters = new Object[]{json};
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.GeoRegistryUtilDTO.CLASS, "applyClassificationType", _declaredTypes);
+    return (java.lang.String) clientRequest.invokeMethod(_metadata, null, _parameters);
+  }
+  
   public static final java.lang.String createHierarchyType(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String htJSON)
   {
     String[] _declaredTypes = new String[]{"java.lang.String"};

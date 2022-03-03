@@ -176,26 +176,31 @@ public class ClassificationType implements JsonSerializable
 
     Roles sraRole = Roles.findRoleByName(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
 
+    this.assignPermissions(this.mdClassification, sraRole, true);
     this.assignPermissions(mdVertex, sraRole, true);
     this.assignPermissions(mdEdge, sraRole, true);
 
     Roles raRole = Roles.findRoleByName(RegistryConstants.REGISTRY_ADMIN_ROLE);
 
+    this.assignPermissions(this.mdClassification, raRole, false);
     this.assignPermissions(mdVertex, raRole, false);
     this.assignPermissions(mdEdge, raRole, false);
 
     Roles rmRole = Roles.findRoleByName(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
 
+    this.assignPermissions(this.mdClassification, rmRole, false);
     this.assignPermissions(mdVertex, rmRole, false);
     this.assignPermissions(mdEdge, rmRole, false);
 
     Roles rcRole = Roles.findRoleByName(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
 
+    this.assignPermissions(this.mdClassification, rcRole, false);
     this.assignPermissions(mdVertex, rcRole, false);
     this.assignPermissions(mdEdge, rcRole, false);
 
     Roles acRole = Roles.findRoleByName(RegistryConstants.API_CONSUMER_ROLE);
 
+    this.assignPermissions(this.mdClassification, acRole, false);
     this.assignPermissions(mdVertex, acRole, false);
     this.assignPermissions(mdEdge, acRole, false);
   }

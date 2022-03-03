@@ -46,6 +46,7 @@ import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.excel.ListTypeExcelExporter;
 import net.geoprism.registry.excel.MasterListExcelExporter;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
@@ -170,6 +171,16 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     return hierarchyType.getCode();
   }
 
+  @Authenticate
+  public static String applyClassificationType(String json)
+  {
+    JsonObject object = JsonParser.parseString(json).getAsJsonObject();
+    
+    ClassificationType type = ClassificationType.apply(object);
+    
+    return type.toJSON().toString();
+  }
+  
   @Transaction
   public static InputStream exportMasterListShapefile(String oid, String filterJson)
   {

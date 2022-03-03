@@ -23,7 +23,7 @@
                     </div>
                     <div class="holder">
                         <input [(ngModel)]="type.code" name="code" type="text" class="form-control"
-                            [disabled]="readonly || edit" required />
+                            [disabled]="readonly || !isNew" required />
                     </div>
                 </div>
                 <div class="row-holder" *ngFor="let localeValue of type.displayLabel.localeValues">

@@ -23,8 +23,6 @@ export class ClassificationTypePublishModalComponent implements OnInit, OnDestro
 
     readonly: boolean = false;
 
-    edit: boolean = false;
-
     isNew: boolean = false;
 
     valid: boolean = true;
