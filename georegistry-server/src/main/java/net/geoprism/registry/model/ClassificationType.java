@@ -24,6 +24,8 @@ import com.runwaysdk.system.gis.metadata.graph.MdGeoVertex;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdClassification;
 
+import net.geoprism.registry.InvalidMasterListCodeException;
+import net.geoprism.registry.MasterList;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.query.ClassificationTypePageQuery;
@@ -211,6 +213,11 @@ public class ClassificationType implements JsonSerializable
     else
     {
       String code = json.get(DefaultAttribute.CODE.getName()).getAsString();
+
+      if (!MasterList.isValidName(code))
+      {
+        throw new InvalidMasterListCodeException("The geo object type code has an invalid character");
+      }
 
       mdClassification = MdClassificationDAO.newInstance();
       mdClassification.setValue(MdClassificationInfo.PACKAGE, RegistryConstants.CLASSIFICATION_PACKAGE);
