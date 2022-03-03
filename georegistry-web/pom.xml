@@ -32,7 +32,7 @@
 	<name>GeoRegistry Web</name>
 
 	<properties>
-		<geoserver.version>2.14.2</geoserver.version>
+		<geoserver.version>2.20.2-terraframe</geoserver.version>
 		<db.name>georegistry</db.name>
 		<db.user>georegistry</db.user>
 		<db.port>5432</db.port>

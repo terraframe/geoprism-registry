@@ -12,8 +12,8 @@ services:
     restart: always
     ulimits:
       nofile:
-        soft: 500000
-        hard: 500000
+        soft: 10000
+        hard: 10000
     ports:
      - "2424:2424"
      - "2480:2480"
@@ -35,7 +35,7 @@ services:
     container_name: georegistry
     image: terraframe/geoprism-registry:latest
     environment:
-      JAVA_OPTS: "-Xms1024m -Xmx4000m -Ddatabase.hostURL=georegistry-postgres -Dorientdb.db.url=remote:georegistry-orientdb"
+      JAVA_OPTS: "-Xms1024m -Xmx4000m -Ddatabase.hostURL=georegistry-postgres -Dorientdb.db.url=remote:georegistry-orientdb -Dgeoserver.local.path=http://127.0.0.1:8080/geoserver"
       POSTGRES_PORT: 5432
       POSTGRES_ROOT_USERNAME: postgres
       POSTGRES_ROOT_PASSWORD: georegistry
