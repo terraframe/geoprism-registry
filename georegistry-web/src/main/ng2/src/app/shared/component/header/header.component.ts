@@ -86,7 +86,7 @@ export class CgrHeaderComponent {
         } else if (item === "EVENTS") {
             // return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
             return true;
-        } else if (item === "CONFIGS") {
+        } else if (item === "CONFIGS" || item === "CLASSIFICATION") {
             return this.service.hasExactRole(RegistryRoleType.RA);
         } else if (item === "SETTINGS") {
             return true;
