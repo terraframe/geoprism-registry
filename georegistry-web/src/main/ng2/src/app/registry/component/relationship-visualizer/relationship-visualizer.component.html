@@ -15,7 +15,7 @@
       <select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="graphOid" (change)="onSelectRelationship()" required
               style="margin-top: 5px;"
       >
-        <option></option>
+        <option *ngIf="relationships.length <= 0"></option>
 
          <option *ngFor="let loopRel of relationships" [value]="loopRel.oid">{{loopRel.label.localizedValue}}</option>
       </select>
