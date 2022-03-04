@@ -566,13 +566,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     handleMapClickEvent(e: any): void {
-        this.closeEditSessionSafeguard().then(() => {
-            const features = this.map.queryRenderedFeatures(e.point);
+        const features = this.map.queryRenderedFeatures(e.point);
 
-            if (features != null && features.length > 0) {
-                const feature = features[0];
+        if (features != null && features.length > 0) {
+            const feature = features[0];
 
-                if (feature.properties.uid != null) {
+            if (feature.properties.uid != null && this.current.properties.uid !== feature.properties.uid) {
+                this.closeEditSessionSafeguard().then(() => {
                     if (feature.source === GRAPH_LAYER) {
                         this.select(feature, null);
                     } else {
@@ -582,9 +582,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                             queryParamsHandling: "merge" // remove to replace all query params by provided
                         });
                     }
-                }
+                });
             }
-        });
+        }
     }
 
     onPanelCancel(): void {
