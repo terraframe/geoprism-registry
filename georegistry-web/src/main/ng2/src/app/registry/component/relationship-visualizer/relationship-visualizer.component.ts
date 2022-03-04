@@ -32,6 +32,16 @@ export interface Relationship {
     type?: string
 }
 
+export const DIMENSIONS = {
+    NODE: { WIDTH: 30, HEIGHT: 30 },
+    LABEL: { WIDTH: 100, HEIGHT: 60, FONTSIZE: 14 },
+    PADDING: {
+      BETWEEN_NODES: 0,
+      NODE_LABEL: 5,
+      NODE_EDGE: 5
+    }
+};
+
 @Component({
 
     selector: "relationship-visualizer",
@@ -63,6 +73,8 @@ export class RelationshipVisualizerComponent implements OnInit {
     @Output() changeRelationship = new EventEmitter<string>();
 
     private data: any = null;
+
+    public DIMENSIONS = DIMENSIONS;
 
     relationships: Relationship[];
 
@@ -106,15 +118,20 @@ export class RelationshipVisualizerComponent implements OnInit {
     }
 
     // Thanks to https://stackoverflow.com/questions/52172067/create-svg-hexagon-points-with-only-only-a-length
-    public getHexagonPoints(node: { dimension: { width: number, height: number } }): string {
-        let radius = node.dimension.width / 2;
-        let height = node.dimension.height;
-        let width = node.dimension.width;
+    public getHexagonPoints(node: { dimension: { width: number, height: number }, relation: string }): string {
+        let y = (this.DIMENSIONS.LABEL.HEIGHT / 2) - this.DIMENSIONS.NODE.HEIGHT / 2;
+        let x = this.relationship.isHierarchy
+          ? (node.relation === "CHILD" ? (this.DIMENSIONS.LABEL.WIDTH / 2 - this.DIMENSIONS.NODE.WIDTH / 2) : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 - this.DIMENSIONS.NODE.WIDTH / 2)
+          : node.relation === "PARENT" ? (this.DIMENSIONS.LABEL.WIDTH + this.DIMENSIONS.PADDING.NODE_LABEL - this.DIMENSIONS.PADDING.NODE_EDGE) : 0;
+
+        let radius = this.DIMENSIONS.NODE.WIDTH / 2;
+        let height = this.DIMENSIONS.NODE.HEIGHT;
+        let width = this.DIMENSIONS.NODE.WIDTH;
 
         let points = [0, 1, 2, 3, 4, 5, 6].map((n, i) => {
             let angleDeg = 60 * i - 30;
             let angleRad = Math.PI / 180 * angleDeg;
-            return [width / 2 + radius * Math.cos(angleRad), height / 2 + radius * Math.sin(angleRad)];
+            return [(width / 2 + radius * Math.cos(angleRad)) + x, (height / 2 + radius * Math.sin(angleRad)) + y];
         }).map((p) => p.join(","))
             .join(" ");
 

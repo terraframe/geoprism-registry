@@ -44,12 +44,12 @@ public class RelationshipVisualizationService
     {
       VertexServerGeoObject rootGo = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(geoObjectCode, type);
 
-      jaVerticies.add(serializeVertex(rootGo));
+      final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
+      
+      jaVerticies.add(serializeVertex(rootGo, (graphType instanceof UndirectedGraphType) ? "PARENT" : "SELECTED"));
 
       Set<String> setEdges = new HashSet<String>();
       Set<String> setVerticies = new HashSet<String>();
-
-      final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
 
       if (graphType instanceof UndirectedGraphType)
       {
@@ -138,7 +138,7 @@ public class RelationshipVisualizationService
 
         if (!setVerticies.contains(relatedGO.getCode()))
         {
-          jaVerticies.add(serializeVertex(relatedGO));
+          jaVerticies.add(serializeVertex(relatedGO, "PARENT"));
 
           setVerticies.add(relatedGO.getCode());
         }
@@ -172,7 +172,7 @@ public class RelationshipVisualizationService
 
         if (!setVerticies.contains(relatedGO.getCode()))
         {
-          jaVerticies.add(serializeVertex(relatedGO));
+          jaVerticies.add(serializeVertex(relatedGO, "CHILD"));
 
           setVerticies.add(relatedGO.getCode());
         }
@@ -207,7 +207,7 @@ public class RelationshipVisualizationService
     return joEdge;
   }
 
-  private JsonObject serializeVertex(ServerGeoObjectIF vertex)
+  private JsonObject serializeVertex(ServerGeoObjectIF vertex, String relation)
   {
     JsonObject joVertex = new JsonObject();
     joVertex.addProperty("id", "g-" + vertex.getUid());
@@ -224,6 +224,8 @@ public class RelationshipVisualizationService
                                                                // write ""
                                                                // instead.
 
+    joVertex.addProperty("relation", relation);
+    
     return joVertex;
   }
 }
