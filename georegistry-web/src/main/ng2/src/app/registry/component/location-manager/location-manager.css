@@ -1,9 +1,9 @@
 
 .map-button.visualize-mode-toggle {
-	position: absolute;
-	top: 156px;
-	z-index: 2;
-	margin-top: 0px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 7px;
+  padding-top: 12px;  
 }
 
 .visualize-mode-toggle.map {
@@ -19,10 +19,6 @@
 
 .visualize-mode-toggle > i {
 	font-size: 25px;
-}
-
-#hierarchy-tree-container {
-	padding-top: 110px;
 }
 
 .map-view-port {
@@ -45,6 +41,7 @@
     border-radius: 4px;
     width: 46px; /* IE fallback */
     width: fit-content;
+    margin-bottom: 20px;
 }
 .map-button-icon {
     font-size:12px;
@@ -133,10 +130,8 @@
 
 .panel-toggle {
 /* 	position: absolute; */
-	margin-top: 150px;
 	left: 20px;
-	z-index: 1000;
-	padding: 10px;
+	padding: 30px;
 	background-color: white;
 	
 	border-radius: 3px;

@@ -121,30 +121,6 @@ export class RelationshipVisualizerComponent implements OnInit {
         return points;
     }
 
-    toggleSize(event: MouseEvent): void {
-        if (event != null) {
-            event.stopPropagation();
-        }
-
-        this.graphPanelOpen = !this.graphPanelOpen;
-
-        window.setTimeout(() => {
-            let graphContainer = document.getElementById("graph-container");
-
-            if (graphContainer) {
-                this.svgHeight = graphContainer.clientHeight;
-                this.svgWidth = graphContainer.clientWidth;
-                // this.panToNode(this.geoObject.properties.uid);
-            }
-        }, 10);
-
-        this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: { graphPanelOpen: this.graphPanelOpen },
-            queryParamsHandling: "merge" // remove to replace all query params by provided
-        });
-    }
-
     private fetchRelationships(): void {
         if (this.geoObject != null) {
             this.relationships = [];
@@ -187,6 +163,18 @@ export class RelationshipVisualizerComponent implements OnInit {
 
                 window.setTimeout(() => {
                     this.data = data;
+
+                    let graphContainer = document.getElementById("graph-container");
+
+                    if (graphContainer) {
+                        this.svgHeight = graphContainer.clientHeight;
+                        this.svgWidth = graphContainer.clientWidth;
+    
+                        if (this.geoObject != null) {
+                            // this.panToNode(this.geoObject.properties.uid);
+                        }
+                    }
+    
                 }, 0);
 
                 let graphContainer = document.getElementById("graph-container");

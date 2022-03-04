@@ -1146,6 +1146,26 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
+    toggleGraphPanel(): void {
+        this.graphPanelOpen = !this.graphPanelOpen;
+
+        // window.setTimeout(() => {
+        //     let graphContainer = document.getElementById("graph-container");
+
+        //     if (graphContainer) {
+        //         this.svgHeight = graphContainer.clientHeight;
+        //         this.svgWidth = graphContainer.clientWidth;
+        //         // this.panToNode(this.geoObject.properties.uid);
+        //     }
+        // }, 10);
+
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { graphPanelOpen: this.graphPanelOpen },
+            queryParamsHandling: "merge" // remove to replace all query params by provided
+        });
+    }
+
     error(err: HttpErrorResponse): void {
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
     }

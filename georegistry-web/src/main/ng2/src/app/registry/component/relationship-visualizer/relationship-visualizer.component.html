@@ -1,16 +1,9 @@
-<div id="relationship-visualizer-root-node" *ngIf="geoObject"
-    style="overflow: hidden; z-index:5; overflow: hidden;"
-    [ngStyle]="{ 'width': ((graphPanelOpen && !searchPanelOpen) ? '50%' : 'unset'), 'top': graphPanelOpen ? '0px' : '30px', 'left': graphPanelOpen ? '0px' : '10px', 'right': graphPanelOpen ? (searchPanelOpen ? '8px' : 'unset') : 'unset', 'bottom': graphPanelOpen ? '10px' : 'unset', 'overflow': graphPanelOpen ? 'hidden' : 'visible' }">
+<div id="relationship-visualizer-root-node" *ngIf="geoObject">
 
 	<ngx-spinner [fullScreen]="false" [name]="CONSTANTS.OVERLAY" type="ball-clip-rotate-multiple" size="medium"></ngx-spinner>  
 
-  <span class="map-button visualize-mode-toggle" [ngStyle]="{ 'top': graphPanelOpen ? '30px' : '0px', 'left': graphPanelOpen ? '10px' : '0px' }">
-    <i style="margin-right: initial" class="visualize-mode-hierarchy clickable fa fa-share-alt" aria-hidden="true" (click)="toggleSize($event)" [title]="(graphPanelOpen ? 'explorer.resize.closeGraphViz' : 'explorer.resize.openGraphViz') | localize"></i>
-  </span>
 
-	<div *ngIf="graphPanelOpen" class="new-admin-design-main" style="overflow-y:hidden; position: absolute; left: 65px; top: 5px; right: 0px; border-radius:4px;">
-	
-		<div style="height:100%; width:100%; background-color: white; opacity: 100%" class="container-fluid">
+		<div>
 	
 			<select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="graphOid" (change)="onSelectRelationship()" required
 			        style="margin-top: 5px;"
@@ -20,10 +13,10 @@
 	       <option *ngFor="let loopRel of relationships" [value]="loopRel.oid">{{loopRel.label.localizedValue}}</option>
 	    </select>
 	    
-			<div *ngIf="relationships" style="height:100%; width:100%;" class="row">
+			<div *ngIf="relationships" class="row">
 	
-				<div class="hierarchy-content" style="height:100%; width:100%;">
-					<div id="graph-container" style="height:100%; width:100%;">
+				<div class="hierarchy-content">
+					<div>
 	          <ngx-graph *ngIf="data"
 	            class="chart-container"
 	            [view]="[svgWidth, svgHeight]"
@@ -84,6 +77,5 @@
 			</div>
 		</div>
 	
-	</div>
 
 </div>
