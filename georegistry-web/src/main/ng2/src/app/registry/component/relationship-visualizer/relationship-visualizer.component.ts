@@ -58,10 +58,6 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     @Input() params: { geoObject: GeoObject, graphOid: string, date: string } = null;
 
-    @Input() searchPanelOpen: boolean = false;
-
-    @Input() graphPanelOpen: boolean = false;
-
     geoObject: GeoObject = null;
 
     graphOid: string = null;

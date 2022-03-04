@@ -149,17 +149,16 @@
               (click)="toggleGraphPanel()"></i>
           </span>
         </div>
-        <div class="col-md-6" *ngIf="graphPanelOpen" 
-                style="z-index:999;padding-top: 10px; overflow-y: auto; background-color: white; opacity: 100%">
-                <div id="graph-container" style="height: calc(100vh - 144px);">
+        <div class="col-md-6" *ngIf="graphPanelOpen"
+          style="z-index:999;padding-top: 10px; overflow-y: auto; background-color: white; opacity: 100%">
+          <div id="graph-container" style="height: calc(100vh - 144px);">
 
-                  <relationship-visualizer  *ngIf="record && record.recordType === 'GEO_OBJECT'"
-                  [params]="{geoObject: current, graphOid: visualizingRelationship, date: calculatedDate}"
-                  [searchPanelOpen]="showPanel" (changeGeoObject)="onChangeGeoObject($event)"
-                  (changeRelationship)="visualizingRelationship = $event" [graphPanelOpen]="graphPanelOpen">
-                  
-                </relationship-visualizer>
-              </div>
+            <relationship-visualizer *ngIf="record && record.recordType === 'GEO_OBJECT'"
+              [params]="{geoObject: current, graphOid: visualizingRelationship, date: calculatedDate}"
+              (changeGeoObject)="onChangeGeoObject($event)"
+              (changeRelationship)="visualizingRelationship = $event">
+            </relationship-visualizer>
+          </div>
         </div>
       </div>
     </div>
