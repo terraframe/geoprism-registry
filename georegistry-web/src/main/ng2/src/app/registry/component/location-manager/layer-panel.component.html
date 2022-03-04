@@ -12,7 +12,7 @@
 </ng-template>
 
 <ng-template #listView let-list='list'>
-  <div *ngIf="list.versions.length > 0" class="list-group-item" style="border: none;">
+  <div *ngIf="list.versions.length > 0" class="list-group-item" style="border: none; padding-top:0; padding-bottom:0;">
     <h4><a (click)="list.open = !list.open"><i class="fa fa-chevron-right" [ngClass]="{'fa-chevron-down' : list.open, 'fa-chevron-right' : !list.open}" style="font-size:14px;"></i>{{ list.label }}</a></h4>
   
     <div *ngIf="list.open" class="list-group">

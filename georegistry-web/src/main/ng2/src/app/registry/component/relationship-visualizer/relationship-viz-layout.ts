@@ -1,36 +1,6 @@
 
-/*
-import { Graph, Layout, DagreLayout, Orientation } from "@swimlane/ngx-graph";
-import { Observable } from "rxjs";
-
-export class RelationshipVizLayout implements Layout {
-
-    private verticalLayout: Layout = new DagreLayout();
-
-    private horizontalLayout: Layout = new DagreLayout();
-
-    public constructor() {
-        this.verticalLayout.settings = { orientation: Orientation.TOP_TO_BOTTOM };
-        this.horizontalLayout.settings = { orientation: Orientation.LEFT_TO_RIGHT };
-    }
-
-    run(graph: Graph): Observable<Graph> {
-        // TODO:
-        // 1. create a graph for horizontal layout
-        // 2. create a graph for vertical layout
-        // 3. layout each graph
-        // 4. update the graph they gave us with the results
-
-        // ? And what about the selected (shared) node being moved around by the layout ?
-    }
-
-    updateEdge(graph: Graph, edge: Edge): Observable<Graph> {
-        
-    }
-}
-*/
-
 import { Graph, Layout, Edge } from '@swimlane/ngx-graph';
+import { DIMENSIONS } from "./relationship-visualizer.component";
 import * as dagre from 'dagre';
 
 export enum Orientation {
@@ -72,12 +42,12 @@ const EDGE_KEY_DELIM = '\x01';
 export class DagreNodesOnlyLayout implements Layout {
   defaultSettings: DagreNodesOnlySettings = {
     orientation: Orientation.LEFT_TO_RIGHT,
-    marginX: 20,
-    marginY: 20,
-    edgePadding: 100,
+    marginX: 0,
+    marginY: 0,
+    edgePadding: DIMENSIONS.PADDING.BETWEEN_NODES,
     rankPadding: 100,
-    nodePadding: 50,
-    curveDistance: 20,
+    nodePadding: DIMENSIONS.PADDING.BETWEEN_NODES,
+    curveDistance: 0,
     multigraph: false,
     compound: true
   };
@@ -135,20 +105,6 @@ export class DagreNodesOnlyLayout implements Layout {
 
     const curveDistance = this.settings.curveDistance || this.defaultSettings.curveDistance;
     // generate new points
-    /*
-    edge.points = [
-      startingPoint,
-      {
-        [rankAxis]: (startingPoint[rankAxis] + endingPoint[rankAxis]) / 2,
-        [orderAxis]: startingPoint[orderAxis]
-      },
-      {
-        [orderAxis]: endingPoint[orderAxis],
-        [rankAxis]: (startingPoint[rankAxis] + endingPoint[rankAxis]) / 2,
-      },
-      endingPoint
-    ];
-    */
     edge.points = [
       startingPoint,
       {
@@ -157,7 +113,7 @@ export class DagreNodesOnlyLayout implements Layout {
       },
       {
         [orderAxis]: endingPoint[orderAxis],
-        [rankAxis]: (startingPoint[rankAxis] + endingPoint[rankAxis]) / 2,
+        [rankAxis]: sourceNode.position[rankAxis] + (targetNode.position[rankAxis] - sourceNode.position[rankAxis]) / 2
       },
       endingPoint
     ];

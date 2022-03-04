@@ -1,6 +1,6 @@
 <div id="relationship-visualizer-root-node" *ngIf="geoObject">
 
-	<ngx-spinner [fullScreen]="false" [name]="CONSTANTS.OVERLAY" type="ball-clip-rotate-multiple" size="medium"></ngx-spinner>  
+  <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.OVERLAY" type="ball-clip-rotate-multiple" size="medium"></ngx-spinner>  
 
 
 		<div>
@@ -8,74 +8,68 @@
 			<select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="graphOid" (change)="onSelectRelationship()" required
 			        style="margin-top: 5px;"
 			>
-				<option></option>
+      <option *ngIf="relationships.length <= 0"></option>
 
-	       <option *ngFor="let loopRel of relationships" [value]="loopRel.oid">{{loopRel.label.localizedValue}}</option>
-	    </select>
-	    
-			<div *ngIf="relationships" class="row">
-	
-				<div class="hierarchy-content">
-					<div>
-	          <ngx-graph *ngIf="data"
-	            class="chart-container"
-	            [view]="[svgWidth, svgHeight]"
-	            [links]="data.edges"
-	            [nodes]="data.verticies"
-	            [animate]="true"
-	            [autoZoom]="true"
-	            [autoCenter]="true"
-	            [layout]="layout"
-	            [layoutSettings]="{orientation: relationship.isHierarchy ? CONSTANTS.ORIENTATION.TOP_TO_BOTTOM : CONSTANTS.ORIENTATION.LEFT_TO_RIGHT}"
-	            [curve]="curve"
-	            [draggingEnabled]="false"
-	            [panToNode$]="panToNode$"
-	            [update$]="update$"
-	          >
-	            <ng-template #defsTemplate>
-					<ng-container *ngIf="relationship.type !== 'UndirectedGraphType'">
-						<svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
-							<svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
-						</svg:marker>
-					</ng-container>
-				</ng-template>
+         <option *ngFor="let loopRel of relationships" [value]="loopRel.oid">{{loopRel.label.localizedValue}}</option>
+      </select>
+      
+      <div *ngIf="relationships" style="height:100%; width:100%;" class="row">
+  
+        <div class="hierarchy-content" style="height:100%; width:100%;">
+          <div id="graph-container" style="height:100%; width:100%;">
+            <ngx-graph *ngIf="data"
+              class="chart-container"
+              [view]="[svgWidth, svgHeight]"
+              [links]="data.edges"
+              [nodes]="data.verticies"
+              [animate]="true"
+              [autoZoom]="true"
+              [autoCenter]="true"
+              [layout]="layout"
+              [layoutSettings]="{orientation: relationship.isHierarchy ? CONSTANTS.ORIENTATION.TOP_TO_BOTTOM : CONSTANTS.ORIENTATION.LEFT_TO_RIGHT}"
+              [curve]="curve"
+              [draggingEnabled]="false"
+              [panToNode$]="panToNode$"
+              [update$]="update$"
+            >
+              <!-- Draw an arrow on relationships for directed graph types -->
+              <ng-template #defsTemplate>
+                <ng-container *ngIf="relationship.type !== 'UndirectedGraphType'">
+                  <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+                    <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
+                  </svg:marker>
+                </ng-container>
+              </ng-template>
 
-
-	            <ng-template #nodeTemplate let-node>
-						    <svg:g (click)="onClickNode(node)" class="node">
-						      <!--
-						      <svg:rect
-						        [attr.width]="node.dimension.width"
-						        [attr.height]="node.dimension.height"
-						        [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? '#4287f5' : 'gray')"
-						      />
-						      -->
-						      <svg:polygon [attr.points]="getHexagonPoints(node)"
-						        [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? '#4287f5' : 'gray')"
-						      ></polygon>
-						      
-						      <!--
-						      <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
-	                  {{node.label}}
-	                </svg:text>
-	                -->
-	                <foreignObject [attr.x]="15" [attr.y]="52" [attr.width]="150" [attr.height]="150">
-	                  <span style="width:125px; height:80px; overflow:hidden; display: inline-block;">
-	                    <p xmlns="http://www.w3.org/1999/xhtml" text-anchor="start" style="text-align:center; font-size: 22px; display: table-cell; vertical-align: middle; height:80px; width:125px; line-height:22px;">{{node.label}}</p>
-	                  </span>
+              <!-- Node Template -->
+              <ng-template #nodeTemplate let-node>
+                <svg:g (click)="onClickNode(node)" class="node">
+                  <svg:polygon [attr.points]="getHexagonPoints(node)"
+                    [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? '#4287f5' : 'gray')"
+                  ></polygon>
+                  
+	                <foreignObject
+	                        [attr.x]="relationship.isHierarchy ? (node.relation === 'CHILD' ? 0 : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 + this.DIMENSIONS.NODE.WIDTH / 2 + DIMENSIONS.PADDING.NODE_LABEL) : (node.relation === 'PARENT' ? -DIMENSIONS.PADDING.NODE_LABEL : (node.relation === 'SELECTED' ? 15 : (DIMENSIONS.NODE.WIDTH + DIMENSIONS.PADDING.NODE_LABEL)))"
+	                        [attr.y]="relationship.isHierarchy ? (node.relation === 'CHILD' ? DIMENSIONS.NODE.HEIGHT + DIMENSIONS.PADDING.NODE_LABEL: 0) : node.relation === 'SELECTED' ? -10 : 0"
+	                        [attr.width]="DIMENSIONS.LABEL.WIDTH" [attr.height]="DIMENSIONS.LABEL.HEIGHT">
+	                    <span [style]="'width:' + DIMENSIONS.LABEL.WIDTH + 'px; height:' + DIMENSIONS.LABEL.HEIGHT + 'px; overflow:hidden; display: inline-block;'">
+	                      <p xmlns="http://www.w3.org/1999/xhtml" text-anchor="start" [ngStyle]="{'text-align': relationship.isHierarchy ? (node.relation === 'CHILD' ? 'center' : 'left') : node.relation === 'SELECTED' ? 'center' : (node.relation === 'PARENT' ? 'right' : 'left')}" [style]="'font-size: ' + DIMENSIONS.LABEL.FONTSIZE + 'px; display: table-cell; vertical-align: middle; height:' + DIMENSIONS.LABEL.HEIGHT + 'px; width:' + DIMENSIONS.LABEL.WIDTH + 'px; line-height:' + DIMENSIONS.LABEL.FONTSIZE + 'px;'">{{node.label}}</p>
+	                    </span>
 	                </foreignObject>
-						    </svg:g>
-						  </ng-template>
-						  <ng-template #linkTemplate let-link>
-						    <svg:g class="edge">
-						      <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
-						    </svg:g>
-						  </ng-template>
-	          </ngx-graph>
-					</div>
-				</div>
-			</div>
-		</div>
-	
+                </svg:g>
+              </ng-template>
+
+              <!-- Link Template -->
+              <ng-template #linkTemplate let-link>
+                <svg:g class="edge">
+                  <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
+                </svg:g>
+              </ng-template>
+            </ngx-graph>
+          </div>
+        </div>
+      </div>
+    </div>
+  
 
 </div>
