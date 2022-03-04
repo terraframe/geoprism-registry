@@ -117,6 +117,12 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.getChildren(null).then(nodes => {
             this.nodes = nodes;
+
+            if (this.nodes.length > 0) {
+                window.setTimeout(() => {
+                    this.tree.treeModel.getFirstRoot().expand();
+                }, 50);
+            }
         });
     }
 
