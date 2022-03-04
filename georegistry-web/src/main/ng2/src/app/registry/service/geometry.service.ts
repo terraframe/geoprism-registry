@@ -252,7 +252,6 @@ export class GeometryService {
     enableEditing(): void {
         if (this.editingControl == null) {
             if (this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON") {
-                console.log(MapboxDraw);
                 this.editingControl = new MapboxDraw({
                     controls: {
                         point: false,
@@ -319,7 +318,7 @@ export class GeometryService {
             }
 
             if (this.map.getSource("mapbox-gl-draw-cold") == null) {
-                this.map.addControl(this.editingControl);
+                this.map.addControl(this.editingControl, "bottom-right");
             }
         }
     }
