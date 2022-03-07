@@ -16,7 +16,7 @@ import * as shape from "d3-shape";
 import { LocalizedValue } from "@shared/model/core";
 import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
-import { ActivatedRoute, Router } from "@angular/router";
+import { timeout } from "d3";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -36,9 +36,9 @@ export const DIMENSIONS = {
     NODE: { WIDTH: 30, HEIGHT: 30 },
     LABEL: { WIDTH: 100, HEIGHT: 60, FONTSIZE: 14 },
     PADDING: {
-      BETWEEN_NODES: 0,
-      NODE_LABEL: 5,
-      NODE_EDGE: 5
+        BETWEEN_NODES: 0,
+        NODE_LABEL: 5,
+        NODE_EDGE: 5
     }
 };
 
@@ -57,6 +57,8 @@ export class RelationshipVisualizerComponent implements OnInit {
     }
 
     @Input() params: { geoObject: GeoObject, graphOid: string, date: string } = null;
+
+    @Input() panelOpen: boolean;
 
     geoObject: GeoObject = null;
 
@@ -91,8 +93,6 @@ export class RelationshipVisualizerComponent implements OnInit {
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService,
         private spinner: NgxSpinnerService,
-        private route: ActivatedRoute,
-        private router: Router,
         private vizService: RelationshipVisualizationService) { }
 
     ngOnInit(): void {
@@ -111,14 +111,29 @@ export class RelationshipVisualizerComponent implements OnInit {
                 this.fetchData();
             }
         }
+
+        if (changes.panelOpen != null) {
+            window.setTimeout(() => {
+                this.resizeDimensions();
+            }, 1);
+        }
+    }
+
+    resizeDimensions():void {
+        let graphContainer = document.getElementById("graph-container");
+
+        if (graphContainer) {
+            this.svgHeight = graphContainer.clientHeight - 144;
+            this.svgWidth = graphContainer.clientWidth;
+        }
     }
 
     // Thanks to https://stackoverflow.com/questions/52172067/create-svg-hexagon-points-with-only-only-a-length
     public getHexagonPoints(node: { dimension: { width: number, height: number }, relation: string }): string {
         let y = (this.DIMENSIONS.LABEL.HEIGHT / 2) - this.DIMENSIONS.NODE.HEIGHT / 2;
         let x = this.relationship.isHierarchy
-          ? (node.relation === "CHILD" ? (this.DIMENSIONS.LABEL.WIDTH / 2 - this.DIMENSIONS.NODE.WIDTH / 2) : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 - this.DIMENSIONS.NODE.WIDTH / 2)
-          : node.relation === "PARENT" ? (this.DIMENSIONS.LABEL.WIDTH + this.DIMENSIONS.PADDING.NODE_LABEL - this.DIMENSIONS.PADDING.NODE_EDGE) : 0;
+            ? (node.relation === "CHILD" ? (this.DIMENSIONS.LABEL.WIDTH / 2 - this.DIMENSIONS.NODE.WIDTH / 2) : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 - this.DIMENSIONS.NODE.WIDTH / 2)
+            : node.relation === "PARENT" ? (this.DIMENSIONS.LABEL.WIDTH + this.DIMENSIONS.PADDING.NODE_LABEL - this.DIMENSIONS.PADDING.NODE_EDGE) : 0;
 
         let radius = this.DIMENSIONS.NODE.WIDTH / 2;
         let height = this.DIMENSIONS.NODE.HEIGHT;
@@ -177,29 +192,10 @@ export class RelationshipVisualizerComponent implements OnInit {
                 window.setTimeout(() => {
                     this.data = data;
 
-                    let graphContainer = document.getElementById("graph-container");
-
-                    if (graphContainer) {
-                        this.svgHeight = graphContainer.clientHeight;
-                        this.svgWidth = graphContainer.clientWidth;
-    
-                        if (this.geoObject != null) {
-                            // this.panToNode(this.geoObject.properties.uid);
-                        }
-                    }
-    
+                    this.resizeDimensions();
                 }, 0);
 
-                let graphContainer = document.getElementById("graph-container");
-
-                if (graphContainer) {
-                    this.svgHeight = graphContainer.clientHeight;
-                    this.svgWidth = graphContainer.clientWidth;
-
-                    if (this.geoObject != null) {
-                        // this.panToNode(this.geoObject.properties.uid);
-                    }
-                }
+                this.resizeDimensions();
             }).finally(() => {
                 this.spinner.hide(this.CONSTANTS.OVERLAY);
             });
@@ -287,13 +283,13 @@ export class RelationshipVisualizerComponent implements OnInit {
     public onClickNode(node: any): void {
         if (node.code !== this.params.geoObject.properties.code &&
             node.typeCode !== this.params.geoObject.type) {
-              let doIt = (resolve) => {
-                  this.collapseAnimation(node.id).then(() => {
-                      resolve();
-                  });
-              }
+            let doIt = (resolve) => {
+                this.collapseAnimation(node.id).then(() => {
+                    resolve();
+                });
+            };
 
-              this.changeGeoObject.emit({ id: node.id.substring(2), code: node.code, typeCode: node.typeCode, doIt: doIt });
+            this.changeGeoObject.emit({ id: node.id.substring(2), code: node.code, typeCode: node.typeCode, doIt: doIt });
         }
     }
 

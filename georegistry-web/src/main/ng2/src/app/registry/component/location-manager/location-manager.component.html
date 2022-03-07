@@ -24,7 +24,7 @@
     <div style="position: absolute;top: 0;bottom: 0;left: 10px;right: 10px;height: 100%;">
       <div class="row" style="margin-top: 140px;">
         <div class="col-md-4" style="z-index:999;padding-bottom: 10px;"
-          [style.background]="showPanel ? 'white' : 'transparent'" *ngIf="showPanel">
+          [style.background]="showPanel ? 'white' : 'transparent'" [hidden]="!showPanel">
 
           <article class="panel-toggle">
 
@@ -134,9 +134,9 @@
           </article>
         </div>
         <div class="col-md-1" style="z-index:999;padding-top: 10px;">
-          <div class="map-button clickable" (click)="!isEdit && togglePanel()">
+          <div class="map-button clickable" style="padding-bottom: 5px;" (click)="!isEdit && togglePanel()">
             <div class="map-button-icon">
-              <span class="fa"
+              <span class="fa" style="padding-top: 8px;"
                 [title]="(showPanel ? 'explorer.resize.closeAttributePanel' : 'explorer.resize.openAttributePanel') | localize"
                 [ngClass]="{'fa-angle-double-left': showPanel, 'fa-angle-double-right': !showPanel}"
                 aria-hidden="true"></span>
@@ -149,15 +149,21 @@
               (click)="toggleGraphPanel()"></i>
           </span>
         </div>
-        <div class="col-md-6" *ngIf="graphPanelOpen"
-          style="z-index:999;padding-top: 10px; overflow-y: auto; background-color: white; opacity: 100%">
-          <div id="graph-container" style="height: calc(100vh - 144px);">
+        <!--
 
-            <relationship-visualizer *ngIf="record && record.recordType === 'GEO_OBJECT'"
-              [params]="{geoObject: current, graphOid: visualizingRelationship, date: calculatedDate}"
-              (changeGeoObject)="onChangeGeoObject($event)"
-              (changeRelationship)="visualizingRelationship = $event">
-            </relationship-visualizer>
+  <div class="col-md-1" *ngIf="showPanel" style="z-index:999;padding-top: 10px">
+  </div>
+-->
+        <div [ngClass]="{'col-md-5':!showPanel, 'col-md-7':showPanel}" *ngIf="graphPanelOpen"
+          style="z-index:999;padding-top: 10px; overflow-y: auto;">
+          <div id="graph-container" style="height: calc(100vh - 164px);">
+            <div style="background-color: white; opacity: 100%; width: 100%; height: 100%;">
+              <relationship-visualizer *ngIf="record && record.recordType === 'GEO_OBJECT'"
+                [params]="{geoObject: current, graphOid: visualizingRelationship, date: calculatedDate}"
+                [panelOpen]="showPanel"                
+                (changeGeoObject)="onChangeGeoObject($event)" (changeRelationship)="visualizingRelationship = $event">
+              </relationship-visualizer>
+            </div>
           </div>
         </div>
       </div>
@@ -179,16 +185,6 @@
           <div id="map" class="map-view-port"></div>
 
         </div>
-        <!--
-	      <div *ngIf="visualizeMode === VISUALIZE_MODE.GRAPH && current" style="height: calc(100vh - 145px);" class="row">
-	        <graph-visualizer
-	          [geoObject]="current"
-	          (changeGeoObject)="onChangeGeoObject($event)"
-	        >
-	        
-	        </graph-visualizer>
-	      </div>
-	      -->
       </div>
     </div>
   </div>

@@ -571,7 +571,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (features != null && features.length > 0) {
             const feature = features[0];
 
-            if (feature.properties.uid != null && this.current.properties.uid !== feature.properties.uid) {
+            if (feature.properties.uid != null && (this.current == null || this.current.properties.uid !== feature.properties.uid)) {
                 this.closeEditSessionSafeguard().then(() => {
                     if (feature.source === GRAPH_LAYER) {
                         this.select(feature, null);
@@ -691,7 +691,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.state.currentDate = date;
 
             if (this.data.length > 0) {
-                let source = (<any> this.map.getSource(GRAPH_LAYER));
+                let source = (<any>this.map.getSource(GRAPH_LAYER));
 
                 if (source != null) {
                     source.setData(data);
@@ -862,6 +862,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
 
         const type = this.typeCache.getTypeByCode(typeCode);
+
         this.record = {
             recordType: "GEO_OBJECT",
             type: type,
