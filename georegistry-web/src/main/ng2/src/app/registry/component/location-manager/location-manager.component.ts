@@ -975,6 +975,25 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     ]
                 }, prevLayer);
 
+                // Line layer
+                this.map.addLayer({
+                    id: source + "-line",
+                    type: "line",
+                    source: source,
+                    paint: {
+                        "line-width": 3,
+                        "line-color": [
+                            "case",
+                            ["boolean", ["feature-state", "hover"], false],
+                            SELECTED_COLOR,
+                            layer.color
+                        ]
+                    },
+                    filter: ["all",
+                        ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false]
+                    ]
+                }, prevLayer);
+
                 // Point layer
                 this.map.addLayer({
                     id: source + "-points",
@@ -1059,6 +1078,27 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
                 ]
             }, prevLayer);
+
+            // Line layer
+            this.map.addLayer({
+                id: source + "-line",
+                type: "line",
+                source: source,
+                "source-layer": "context",
+                paint: {
+                    "line-width": 3,
+                    "line-color": [
+                        "case",
+                        ["boolean", ["feature-state", "hover"], false],
+                        SELECTED_COLOR,
+                        layer.color
+                    ]
+                },
+                filter: ["all",
+                    ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false]
+                ]
+            }, prevLayer);
+
 
             // Point layer
             this.map.addLayer({
