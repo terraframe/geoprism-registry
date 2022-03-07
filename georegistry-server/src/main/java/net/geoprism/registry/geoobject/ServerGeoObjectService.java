@@ -295,7 +295,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     ServerGeoObjectIF geoObject = strategy.getGeoObjectByCode(code);
 
-    if (geoObject == null)
+    if (geoObject == null && throwException)
     {
       DataNotFoundException ex = new DataNotFoundException();
       ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
