@@ -22,6 +22,9 @@
 
 set -e
 
+# If tag is not set, then set it to 'latest' as a default value.
+tag=${tag:-'latest'}
+
 ([ -d target ] && rm -rf target) || true
 mkdir target
 cp ../../../../georegistry-web/target/georegistry.war target/georegistry.war
