@@ -158,7 +158,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
       return null;
     }
 
-    return (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(this.getGeoObjectCode(), type);
+    return (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(this.getGeoObjectCode(), type, false);
   }
 
   public JsonObject toJSON()
@@ -301,7 +301,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
     }
     else
     {
-      ServerGeoObjectIF serverGO = new ServerGeoObjectService().getGeoObjectByCode(this.getGeoObjectCode(), this.getGeoObjectTypeCode());
+      ServerGeoObjectIF serverGO = new ServerGeoObjectService().getGeoObjectByCode(this.getGeoObjectCode(), this.getGeoObjectTypeCode(), false);
       if (serverGO != null)
       {
         return serverGO.getDisplayLabel();

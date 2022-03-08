@@ -80,7 +80,7 @@ import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestUserInfo;
 
 @Ignore
-public class RemoteDHIS2APITezt
+public class RemoteDHIS2APITest
 {
   public static final String TEST_DATA_KEY = "RemoteDHIS2Test";
   
@@ -404,7 +404,7 @@ public class RemoteDHIS2APITezt
   public void exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, String externalAttrId) throws Exception
   {
     // Make sure our prerequsite data exists on the server
-    String attrPayload = IOUtils.toString(RemoteDHIS2APITezt.class.getClassLoader().getResourceAsStream("remote-dhis2-api-test-attrs.json"), "UTF-8");
+    String attrPayload = IOUtils.toString(RemoteDHIS2APITest.class.getClassLoader().getResourceAsStream("remote-dhis2-api-test-attrs.json"), "UTF-8");
     MetadataImportResponse attrImportResponse = this.dhis2.metadataPost(null, new StringEntity(attrPayload.toString(), Charset.forName("UTF-8")));
     Assert.assertTrue(attrImportResponse.isSuccess());
     

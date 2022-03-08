@@ -284,7 +284,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
   public ServerGeoObjectIF getGeoObjectByCode(String code, ServerGeoObjectType type)
   {
-    return this.getGeoObjectByCode(code, type, false);
+    return this.getGeoObjectByCode(code, type, true);
   }
 
   public ServerGeoObjectIF getGeoObjectByCode(String code, ServerGeoObjectType type, boolean throwException)

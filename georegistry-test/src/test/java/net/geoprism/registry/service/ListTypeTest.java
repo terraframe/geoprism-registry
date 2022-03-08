@@ -610,15 +610,20 @@ public class ListTypeTest
   {
     JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
 
-    TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_ADMIN, USATestData.USER_PPP_RA };
+    TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_PPP_RA };
 
     for (TestUserInfo user : users)
     {
       try
       {
         USATestData.runAsUser(user, (request, adapter) -> {
+          
           ListTypeService service = new ListTypeService();
+          
           service.apply(request.getSessionId(), listJson);
+          
+          Assert.fail("Expected an exception to be thrown.");
+          
         });
       }
       catch (SmartExceptionDTO e)
