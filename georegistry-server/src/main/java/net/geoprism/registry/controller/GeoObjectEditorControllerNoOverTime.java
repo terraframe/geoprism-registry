@@ -58,7 +58,11 @@ import net.geoprism.registry.service.ServiceFactory;
 public class GeoObjectEditorControllerNoOverTime
 {
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "isNew") Boolean isNew, @RequestParamter(name = "masterListId") String masterListId) throws JSONException
+  public ResponseIF apply(ClientRequestIF request, 
+      @RequestParamter(name = "parentTreeNode", required = true) String parentTreeNode, 
+      @RequestParamter(name = "geoObject", required = true) String geoObject, 
+      @RequestParamter(name = "isNew", required = true) Boolean isNew, 
+      @RequestParamter(name = "masterListId") String masterListId) throws JSONException
   {
     applyInReq(request.getSessionId(), parentTreeNode, geoObject, isNew, masterListId);
 
@@ -175,7 +179,7 @@ public class GeoObjectEditorControllerNoOverTime
 
       if (shouldRemove)
       {
-        ServiceFactory.getGeoObjectService().removeChild(sessionId, ptnDbParent.getGeoObject().getUid(), ptnDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), ptnDbParent.getHierachyType().getCode());
+        ServiceFactory.getGeoObjectService().removeChild(sessionId, ptnDbParent.getGeoObject().getUid(), ptnDbParent.getGeoObject().getType().getCode(), child.getUid(), child.getType().getCode(), ptnDbParent.getHierachyType().getCode(), startDate, endDate);
       }
     }
 
@@ -195,7 +199,7 @@ public class GeoObjectEditorControllerNoOverTime
       if (!alreadyExists)
       {
         GeoObject parent = ptnParent.getGeoObject();
-        ServiceFactory.getGeoObjectService().addChild(sessionId, parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ptnParent.getHierachyType().getCode());
+        ServiceFactory.getGeoObjectService().addChild(sessionId, parent.getUid(), parent.getType().getCode(), child.getUid(), child.getType().getCode(), ptnParent.getHierachyType().getCode(), startDate, endDate);
       }
     }
   }

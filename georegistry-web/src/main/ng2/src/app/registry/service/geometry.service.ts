@@ -1,6 +1,6 @@
 import { Injectable, Output, EventEmitter } from "@angular/core";
 
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import * as MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { Map, LngLat, LngLatBounds } from "mapbox-gl";
 
 import { Layer } from "../component/geoobject-shared-attribute-editor/manage-versions-model";
@@ -252,6 +252,7 @@ export class GeometryService {
     enableEditing(): void {
         if (this.editingControl == null) {
             if (this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON") {
+                console.log(MapboxDraw);
                 this.editingControl = new MapboxDraw({
                     controls: {
                         point: false,
@@ -420,7 +421,7 @@ export class GeometryService {
                 type: "circle",
                 source: finalSourceName,
                 paint: {
-                    "circle-radius": 3,
+                    "circle-radius": 10,
                     "circle-color": color,
                     "circle-stroke-width": 2,
                     "circle-stroke-color": "#FFFFFF"

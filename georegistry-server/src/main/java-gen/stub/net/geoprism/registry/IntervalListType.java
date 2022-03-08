@@ -18,15 +18,16 @@
  */
 package net.geoprism.registry;
 
+import java.util.Comparator;
 import java.util.Date;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.Pair;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
 public class IntervalListType extends IntervalListTypeBase
@@ -60,9 +61,10 @@ public class IntervalListType extends IntervalListTypeBase
     this.setIntervalJson(object.get(INTERVALJSON).getAsJsonArray().toString());
   }
 
-  public LinkedHashMap<Date, Date> getIntervals()
+  public List<Pair<Date, Date>> getIntervals()
   {
-    LinkedHashMap<Date, Date> map = new LinkedHashMap<Date, Date>();
+    List<Pair<Date, Date>> list = new LinkedList<Pair<Date, Date>>();
+
     JsonArray intervals = JsonParser.parseString(this.getIntervalJson()).getAsJsonArray();
 
     for (int i = 0; i < intervals.size(); i++)
@@ -71,27 +73,51 @@ public class IntervalListType extends IntervalListTypeBase
       Date startDate = GeoRegistryUtil.parseDate(interval.get(START_DATE).getAsString());
       Date endDate = GeoRegistryUtil.parseDate(interval.get(END_DATE).getAsString());
 
-      map.put(startDate, endDate);
+      list.add(new Pair<Date, Date>(startDate, endDate));
     }
 
-    return map;
+    list.sort(new Comparator<Pair<Date, Date>>()
+    {
+      @Override
+      public int compare(Pair<Date, Date> o1, Pair<Date, Date> o2)
+      {
+        int compareTo = o1.getFirst().compareTo(o2.getFirst());
+
+        if (compareTo == 0)
+        {
+          return o1.getSecond().compareTo(o2.getSecond());
+        }
+
+        return compareTo;
+      }
+
+    });
+
+    return list;
   }
 
   @Override
-  protected String formatVersionLabel(LabeledVersion version)
+  protected JsonObject formatVersionLabel(LabeledVersion version)
   {
     Date versionDate = version.getForDate();
-    LinkedHashMap<Date, Date> intervals = this.getIntervals();
-    Set<Entry<Date, Date>> entries = intervals.entrySet();
+    List<Pair<Date, Date>> intervals = this.getIntervals();
 
-    for (Entry<Date, Date> entry : entries)
+    for (Pair<Date, Date> interval : intervals)
     {
-      Date startDate = entry.getKey();
-      Date endDate = entry.getValue();
+      Date startDate = interval.getFirst();
+      Date endDate = interval.getSecond();
 
       if (GeoRegistryUtil.isBetweenInclusive(versionDate, startDate, endDate))
       {
-        return GeoRegistryUtil.formatDate(startDate, false) + " - " + GeoRegistryUtil.formatDate(endDate, false);
+        JsonObject range = new JsonObject();
+        range.addProperty("startDate", GeoRegistryUtil.formatDate(startDate, false));
+        range.addProperty("endDate", GeoRegistryUtil.formatDate(endDate, false));
+
+        JsonObject object = new JsonObject();
+        object.addProperty("type", "range");
+        object.add("value", range);
+
+        return object;
       }
     }
 
@@ -100,33 +126,55 @@ public class IntervalListType extends IntervalListTypeBase
 
   @Override
   @Transaction
-  public void createEntries()
+  public void createEntries(JsonObject metadata)
   {
     if (!this.isValid())
     {
       throw new InvalidMasterListException();
     }
 
-    this.getIntervals().forEach((startDate, endDate) -> {
-      this.getOrCreateEntry(endDate);
+    if (metadata == null)
+    {
+      List<ListTypeEntry> entries = this.getEntries();
+
+      if (entries.size() > 0)
+      {
+
+        ListTypeEntry entry = entries.get(0);
+        ListTypeVersion working = entry.getWorking();
+
+        metadata = working.toJSON(false);
+      }
+    }
+
+    final JsonObject object = metadata;
+
+    this.getIntervals().forEach((pair) -> {
+      Date startDate = pair.getFirst();
+
+      this.getOrCreateEntry(startDate, object);
     });
   }
 
   @Override
   public void apply()
   {
-    /*
-     * Changing the interval requires that any existing published version be
-     * deleted
-     */
-    if (!this.isNew() && this.isModified(IntervalListType.INTERVALJSON))
-    {
-      final List<ListTypeEntry> entries = this.getEntries();
+    List<Pair<Date, Date>> intervals = this.getIntervals();
 
-      for (ListTypeEntry entry : entries)
+    Iterator<Pair<Date, Date>> iterator = intervals.iterator();
+
+    Pair<Date, Date> prev = null;
+
+    while (iterator.hasNext())
+    {
+      Pair<Date, Date> pair = iterator.next();
+
+      if (prev != null && ( prev.getSecond().after(pair.getFirst()) || prev.getSecond().equals(pair.getFirst()) ))
       {
-        entry.delete();
+        throw new UnsupportedOperationException("No overlaps");
       }
+
+      prev = pair;
     }
 
     super.apply();

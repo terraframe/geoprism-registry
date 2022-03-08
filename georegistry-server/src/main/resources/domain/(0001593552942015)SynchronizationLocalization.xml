@@ -51,7 +51,7 @@
 	        <attribute name="storeTag" value="UIText" />
 	        <attribute name="storeKey" value="settings.external.synchronization.dhis2.synch.type.label" />
 	        <attributeStruct name="storeValue">
-	          <attribute name="defaultLocale" value="DHIS2 Synchnonization Type" />
+	          <attribute name="defaultLocale" value="DHIS2 Synchronization Type" />
 	        </attributeStruct>
 	      </object>
 	      

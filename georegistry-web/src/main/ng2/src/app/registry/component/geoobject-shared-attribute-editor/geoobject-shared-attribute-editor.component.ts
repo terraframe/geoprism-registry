@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Input, ViewChildren, QueryList } from "@angular/core";
+import { Component, OnInit, ViewChild, Input, ViewChildren, QueryList, Output, EventEmitter } from "@angular/core";
 import { DatePipe } from "@angular/common";
 import {
     trigger,
@@ -90,6 +90,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     @Input() filterDate: string = null;
 
+    @Output() filterDateChange = new EventEmitter<string>();
+
     // used in context of a list where reference back to the list forDate is needed
     @Input() forDate: string = null;
     @Input() datasetId: string = null;
@@ -168,6 +170,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         if (this.manageVersions != null) {
             this.manageVersions.forEach(manageVersion => manageVersion.setFilterDate(this.filterDate, refresh));
         }
+
+        this.filterDateChange.emit(this.filterDate);
     }
 
     getChangeRequestEditor(): ChangeRequestEditor {
@@ -259,7 +263,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                 let action: AbstractAction = this.changeRequest.actions[i];
 
                 if (action.actionType === ActionTypes.CREATEGEOOBJECTACTION) {
-                    return false;
+                    return true;
                 } else if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
                     let updateAttrAction: UpdateAttributeOverTimeAction = action as UpdateAttributeOverTimeAction;
 

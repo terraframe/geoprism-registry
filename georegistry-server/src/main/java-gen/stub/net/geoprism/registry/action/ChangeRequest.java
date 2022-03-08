@@ -28,7 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTimeJsonAdapters;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +56,7 @@ import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
+import net.geoprism.registry.command.SendEmailCommand;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -218,7 +218,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
   @Override
   public void apply()
   {
-    final boolean isNew = this.isNew();
+    final boolean isApplied = this.isAppliedToDB(); // We aren't using 'isNew' here because isNew will be true until the transaction applies
     
     // Cache the Geo-Object label and type label on this object for sorting purposes
     this.getGeoObjectLabel().setLocaleMap(this.getGeoObjectDisplayLabel().getLocaleMap());
@@ -229,14 +229,14 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
     // Send an email to RMs telling them about this new CR
     try
     {
-      if (isNew)
+      if (!isApplied)
       {
         SingleActor createdBy = this.getCreatedBy();
   
         if (createdBy instanceof GeoprismUser)
         {
           // Get all RM's for the GOT and Org
-          String rmRoleName = RegistryRole.Type.getRM_RoleName(this.getOrganizationCode(), this.getGeoObjectTypeCode());
+          String rmRoleName = this.getGeoObjectType().getMaintainerRoleName();
           RoleDAOIF role = RoleDAO.findRole(rmRoleName);
           Set<SingleActorDAOIF> actors = role.assignedActors();
           
@@ -251,29 +251,25 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
               
               if (email != null && email.length() > 0 && !email.contains("@noreply"))
               {
-                toAddresses.add(geoprismUser.getEmail());
+                toAddresses.add(email);
               }
             }
           }
           
           if (toAddresses.size() > 0)
           {
-            String email = ( (GeoprismUser) createdBy ).getEmail();
-    
-            if (email != null && email.length() > 0)
-            {
-              String subject = LocalizationFacade.getFromBundles("change.request.email.submit.subject");
-    
-              String body = LocalizationFacade.getFromBundles("change.request.email.submit.body");
-              body = body.replaceAll("\\\\n", "\n");
-              body = body.replaceAll("\\{user\\}", ( (GeoprismUser) createdBy ).getUsername());
-              body = body.replaceAll("\\{geoobject\\}", this.getGeoObjectDisplayLabel().getValue());
-              
-              String link = GeoregistryProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
-              body = body.replaceAll("\\{link\\}", link);
-    
-               EmailSetting.sendEmail(subject, body, toAddresses.toArray(new String[toAddresses.size()]));
-            }
+            String subject = LocalizationFacade.getFromBundles("change.request.email.submit.subject");
+  
+            String body = LocalizationFacade.getFromBundles("change.request.email.submit.body");
+            body = body.replaceAll("\\\\n", "\n");
+            body = body.replaceAll("\\{user\\}", ( (GeoprismUser) createdBy ).getUsername());
+            body = body.replaceAll("\\{geoobject\\}", this.getGeoObjectDisplayLabel().getValue());
+            
+            String link = GeoregistryProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
+            body = body.replaceAll("\\{link\\}", link);
+  
+            // Aspects will weave in here and this will happen at the end of the transaction
+            new SendEmailCommand(subject, body, toAddresses.toArray(new String[toAddresses.size()])).doIt();
           }
         }
       }

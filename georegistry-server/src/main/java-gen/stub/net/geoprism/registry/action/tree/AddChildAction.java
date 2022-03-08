@@ -70,9 +70,9 @@ public class AddChildAction extends AddChildActionBase
 
     AddChildActionDTO acaDTO = (AddChildActionDTO) dto;
 
-    this.setParentId(acaDTO.getParentId());
+    this.setParentId(acaDTO.getParentCode());
     this.setParentTypeCode(acaDTO.getParentTypeCode());
-    this.setChildId(acaDTO.getChildId());
+    this.setChildId(acaDTO.getChildCode());
     this.setChildTypeCode(acaDTO.getChildTypeCode());
     this.setHierarchyTypeCode(acaDTO.getHierarchyCode());
   }

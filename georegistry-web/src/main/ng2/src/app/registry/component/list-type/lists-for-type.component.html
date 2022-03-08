@@ -24,7 +24,7 @@
             <div class="panel panel-default">
                 <div class="panel-body">
                     <div class="row">
-                        <div class="col-md-9" style="vertical-align:middle;line-height:40px;">
+                        <div class="col-md-7" style="vertical-align:middle;line-height:40px;">
                             <i *ngIf="list.listType === 'single'" class="fa fa-table" aria-hidden="true"></i>
                             <span *ngIf="list.listType !== 'single'" class="fa-stack fa-lg">
                                 <i class="fa fa-table fa-stack-2x"></i>
@@ -35,7 +35,7 @@
                                 {{list.displayLabel.localizedValue}}
                             </a>
                         </div>
-                        <div class="col-md-3" style="text-align: right;">
+                        <div class="col-md-5" style="text-align: right;">
                             <button type="submit" (click)="onEdit(list)" class="btn btn-default" role="button">
                                 <localize key="masterlist.button.metadata"></localize>
                             </button>
@@ -49,7 +49,8 @@
                         <div class="col-md-12">
                             <ul class="unstyled-list">
                                 <li>
-                                    <localize key="list.type.valid.on"></localize>: {{list.validOn}}
+                                    <localize key="list.type.valid.on"></localize>:
+                                    <date-text [date]="list.validOn"></date-text>
                                 </li>
                             </ul>
                         </div>
@@ -59,7 +60,7 @@
                             <ul class="unstyled-list">
                                 <li>
                                     <localize key="data.property.label.publishingStartDate"></localize>:
-                                    {{list.publishingStartDate}}
+                                    <date-text [date]="list.publishingStartDate"></date-text>
                                 </li>
                                 <li>
                                     <localize key="data.property.label.frequency"></localize>: {{list.frequency}}
@@ -72,7 +73,9 @@
                             <localize key="list.type.valid.on"></localize>:
                             <ul class="unstyled-list">
                                 <li *ngFor="let interval of list.intervalJson">
-                                    {{interval.startDate}} - {{interval.endDate}}
+                                    <date-text [date]="interval.startDate"></date-text>
+                                    - 
+                                    <date-text [date]="interval.endDate"></date-text>
                                 </li>
                             </ul>
                         </div>

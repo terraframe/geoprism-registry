@@ -198,6 +198,19 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   @Override
   public void apply()
   {
+    if (this.getWorking())
+    {
+      if (this.getListVisibility() == null || this.getListVisibility().length() == 0)
+      {
+        this.setListVisibility(ListType.PRIVATE);
+      }
+      
+      if (this.getGeospatialVisibility() == null || this.getGeospatialVisibility().length() == 0)
+      {
+        this.setGeospatialVisibility(ListType.PRIVATE);
+      }
+    }
+    
     super.apply();
 
     if (this.getGeospatialVisibility().equals(ListType.PUBLIC))
@@ -1208,8 +1221,16 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
   private void parseMetadata(String prefix, JsonObject object)
   {
-    this.setValue(prefix + "Visibility", object.get("visibility").getAsString());
-    this.setValue(prefix + "Master", object.get("master").getAsBoolean());
+    if (object.has("visibility"))
+    {
+      this.setValue(prefix + "Visibility", object.get("visibility").getAsString());
+    }
+
+    if (object.has("master"))
+    {
+      this.setValue(prefix + "Master", object.get("master").getAsBoolean());
+    }
+
     ( (LocalStruct) this.getStruct(prefix + "Label") ).setLocaleMap(LocalizedValue.fromJSON(object.get("label").getAsJsonObject()).getLocaleMap());
     ( (LocalStruct) this.getStruct(prefix + "Description") ).setLocaleMap(LocalizedValue.fromJSON(object.get("description").getAsJsonObject()).getLocaleMap());
     ( (LocalStruct) this.getStruct(prefix + "Process") ).setLocaleMap(LocalizedValue.fromJSON(object.get("process").getAsJsonObject()).getLocaleMap());
@@ -1280,13 +1301,13 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     object.addProperty(ListTypeVersion.LISTTYPE, masterlist.getOid());
     object.addProperty(ListTypeVersion.FORDATE, format.format(this.getForDate()));
     object.addProperty(ListTypeVersion.CREATEDATE, format.format(this.getCreateDate()));
-    object.addProperty(ListTypeVersion.PERIOD, masterlist.formatVersionLabel(this));
     object.addProperty(ListTypeVersion.VERSIONNUMBER, this.getVersionNumber());
     object.addProperty(ListTypeVersion.WORKING, this.getWorking());
     object.addProperty("isGeometryEditable", type.isGeometryEditable());
     object.addProperty("isAbstract", type.getIsAbstract());
     object.addProperty("shapefile", file.exists());
     object.addProperty("isMember", isMember);
+    object.add(ListTypeVersion.PERIOD, masterlist.formatVersionLabel(this));
     object.add(ListType.LIST_METADATA, this.toMetadataJSON("list"));
     object.add(ListType.GEOSPATIAL_METADATA, this.toMetadataJSON("geospatial"));
 
@@ -1989,6 +2010,13 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         record.add("data", object);
       }
     }
+    
+    JsonArray bbox = this.bbox(uid);
+    if (bbox == null || bbox.size() == 0)
+    {
+      bbox = this.bbox(null);
+    }
+    record.add("bbox", bbox);
 
     return record;
   }

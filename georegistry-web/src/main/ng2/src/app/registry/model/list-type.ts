@@ -1,5 +1,5 @@
 import { LocalizedValue, PageResult } from "@shared/model/core";
-import { GeoObjectType } from "./registry";
+import { GeoObject, GeoObjectType } from "./registry";
 
 export class ListTypeByType {
 
@@ -11,6 +11,7 @@ export class ListTypeByType {
     write: boolean;
     private: boolean;
     lists: ListType[];
+
 }
 
 export class ListMetadata {
@@ -40,6 +41,7 @@ export class ListMetadata {
     referenceSystem?: string;
     reportSpecification?: string;
     distributionFormat?: string;
+
 }
 
 export class ListType {
@@ -69,24 +71,33 @@ export class ListType {
     validOn?: string;
     publishingStartDate?: string;
     frequency?: string;
-    intervalJson?: { startDate: string, endDate: string }[]
+    intervalJson?: { startDate: string, endDate: string, readonly?: string, oid?: string }[]
 
     entries?: ListTypeEntry[];
+
 }
 
 export class ListTypeEntry {
+
     displayLabel: string;
     oid: string;
     typeCode: string;
     orgCode: string;
     listType: string;
     forDate: string;
+    period?: {
+        type: string,
+        value: any
+    };
+
     wokring: ListTypeVersion;
     versions?: ListTypeVersion[];
     showAll?: boolean;
+
 }
 
 export class VersionMetadata {
+
     master: boolean;
     visibility: string;
     label: LocalizedValue;
@@ -114,15 +125,19 @@ export class VersionMetadata {
     referenceSystem?: string;
     reportSpecification?: string;
     distributionFormat?: string;
+
 }
 
 export class ListVersionMetadata {
+
     oid?: string;
     listMetadata?: VersionMetadata;
     geospatialMetadata?: VersionMetadata;
+
 }
 
 export class ListTypeVersion extends ListVersionMetadata {
+
     displayLabel: string;
     typeCode: string;
     orgCode: string;
@@ -144,9 +159,15 @@ export class ListTypeVersion extends ListVersionMetadata {
     subtypes?: { label: string, code: string }[];
     collapsed?: boolean;
     curation?: any;
+    period?: {
+        type: string,
+        value: any
+    };
+
 }
 
 export class ContextLayer {
+
     oid: string;
     forDate: string;
     versionNumber: number;
@@ -154,16 +175,36 @@ export class ContextLayer {
     enabled?: boolean;
     color?: string;
     label?: string;
+
 }
 
 export class ContextList {
+
     oid: string;
     label: string;
     versions: ContextLayer[];
     open?: boolean;
+
+}
+
+export class ListTypeGroup {
+
+    typeCode: string;
+    typeLabel: LocalizedValue;
+    lists: ContextList[];
+
+}
+
+export class ListOrgGroup {
+
+    orgCode: string;
+    orgLabel: LocalizedValue;
+    types: ListTypeGroup[];
+
 }
 
 export class LayerRecord {
+
     recordType: string;
 
     // Attributes required for the geo object properties panel
@@ -175,10 +216,15 @@ export class LayerRecord {
     typeLabel?: LocalizedValue;
     version?: string;
     attributes?: any[];
-    data?: Object;
+    data?: any;
+
+    geoObject?: GeoObject;
+    bbox?: any;
+
 }
 
 export class CurationProblem {
+
     resolution: string;
     historyId: string;
     type: string;
@@ -187,9 +233,11 @@ export class CurationProblem {
     goCode?: string;
     goUid?: string;
     selected?: boolean;
+
 }
 
 export class CurationJob {
+
     status: string;
     lastRun: string;
     lastRunBy: string;
@@ -201,5 +249,7 @@ export class CurationJob {
         type: string,
         message: string
     };
+
     page?: PageResult<CurationProblem>
+
 }

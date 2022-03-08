@@ -58,14 +58,15 @@ public class LocalizedValueConverter
     return ServiceFactory.getMetadataCache().getTerm(code).get();
   }
 
-  /*
-   * TODO : This method will coalesce the value for all of the locales. So if
+  /**
+   * This method will coalesce the value for all of the locales. So if
    * the value is empty for a particular locale, that locale will actually have
    * the default locale placed in it. For this reason, usage of this method
-   * should be deprecated for populating DTOS and the like, the coalescing of
-   * values should actually happen on the front-end, since that coalescing is
-   * actually use-case dependent.
+   * should be deprecated.
+   * 
+   * Use convertNoAutoCoalesce instead.
    */
+  @Deprecated
   public static LocalizedValue convert(LocalStruct localStruct)
   {
     LocalizedValue label = new LocalizedValue(localStruct.getValue());
@@ -156,7 +157,7 @@ public class LocalizedValueConverter
 
     for (Locale locale : locales)
     {
-      String key = locale.toString();
+      String key = locale.toString().toLowerCase();
 
       if (map.containsKey(key) && map.get(key) != null)
       {

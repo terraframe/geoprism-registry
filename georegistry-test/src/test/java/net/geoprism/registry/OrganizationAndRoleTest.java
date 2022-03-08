@@ -57,27 +57,27 @@ public class OrganizationAndRoleTest
   @Test
   public void testRoleNames()
   {
-    Assert.assertEquals(RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE + "." + testData.ORG_CGOV.getCode(), RegistryRole.Type.getRootOrgRoleName(testData.ORG_CGOV.getCode()));
-    Assert.assertEquals(RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE + "." + testData.ORG_CGOV.getCode() + ".RA", RegistryRole.Type.getRA_RoleName(testData.ORG_CGOV.getCode()));
+    Assert.assertEquals(RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE + "." + FastTestDataset.ORG_CGOV.getCode(), RegistryRole.Type.getRootOrgRoleName(FastTestDataset.ORG_CGOV.getCode()));
+    Assert.assertEquals(RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE + "." + FastTestDataset.ORG_CGOV.getCode() + ".RA", RegistryRole.Type.getRA_RoleName(FastTestDataset.ORG_CGOV.getCode()));
   }
 
   @Test
   @Request
   public void testRoles()
   {
-    Organization organization = testData.ORG_CGOV.getServerObject();
+    Organization organization = FastTestDataset.ORG_CGOV.getServerObject();
 
     Roles orgRole = organization.getRole();
-    Assert.assertEquals(RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE + "." + testData.ORG_CGOV.getCode(), orgRole.getRoleName());
+    Assert.assertEquals(RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE + "." + FastTestDataset.ORG_CGOV.getCode(), orgRole.getRoleName());
 
     // Make sure the organization code can be obtained from the corresponding
     // role id
     Organization serverRootOrganization = Organization.getRootOrganization(orgRole.getOid());
     Assert.assertTrue(serverRootOrganization != null);
-    Assert.assertEquals(testData.ORG_CGOV.getCode(), serverRootOrganization.getCode());
+    Assert.assertEquals(FastTestDataset.ORG_CGOV.getCode(), serverRootOrganization.getCode());
 
     Roles raOrgRole = organization.getRegistryAdminiRole();
-    Assert.assertEquals(RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE + "." + testData.ORG_CGOV.getCode() + ".RA", raOrgRole.getRoleName());
+    Assert.assertEquals(RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE + "." + FastTestDataset.ORG_CGOV.getCode() + ".RA", raOrgRole.getRoleName());
 
     // Make sure NULL is returned, as the role is not the root role for the
     // organization.
@@ -115,12 +115,12 @@ public class OrganizationAndRoleTest
   @Test
   public void testRARoleNameParsing()
   {
-    String organizationCode = testData.ORG_CGOV.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
     String raRole = RegistryRole.Type.getRA_RoleName(organizationCode);
 
     Assert.assertTrue("Valid RA role name was not parsed correctly", RegistryRole.Type.isRA_Role(raRole));
 
-    String invalidRole = RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE + "." + organizationCode + ".testData.PROVINCE." + RegistryRole.Type.RA.name();
+    String invalidRole = RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE + "." + organizationCode + ".FastTestDataset.PROVINCE." + RegistryRole.Type.RA.name();
     Assert.assertFalse("Invalid RA role name was parsed as valid", RegistryRole.Type.isRA_Role(invalidRole));
 
     Assert.assertTrue("Valid RA role name was not parsed correctly", RegistryRole.Type.isRA_Role(raRole));
@@ -130,7 +130,7 @@ public class OrganizationAndRoleTest
   @Request
   public void testRA_RoleToRegistryRole()
   {
-    String organizationCode = testData.ORG_CGOV.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     String raRoleName = RegistryRole.Type.getRA_RoleName(organizationCode);
 
@@ -145,8 +145,8 @@ public class OrganizationAndRoleTest
   @Test
   public void testRMRoleNameParsing()
   {
-    String organizationCode = testData.ORG_CGOV.getCode();
-    String geoObjectType = testData.PROVINCE.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
+    String geoObjectType = FastTestDataset.PROVINCE.getCode();
 
     String rmRole = RegistryRole.Type.getRM_RoleName(organizationCode, geoObjectType);
 
@@ -165,21 +165,21 @@ public class OrganizationAndRoleTest
   @Request
   public void rm_RoleToRegistryRoleRequest()
   {
-    String rmRoleName = RegistryRole.Type.getRM_RoleName(testData.ORG_CGOV.getCode(), testData.PROVINCE.getCode());
+    String rmRoleName = RegistryRole.Type.getRM_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE.getCode());
     Roles rmRole = Roles.findRoleByName(rmRoleName);
 
     RegistryRole registryRole = new RegistryRoleConverter().build(rmRole);
 
     Assert.assertEquals(rmRoleName, registryRole.getName());
-    Assert.assertEquals(testData.ORG_CGOV.getCode(), registryRole.getOrganizationCode());
-    Assert.assertEquals(testData.PROVINCE.getCode(), registryRole.getGeoObjectTypeCode());
+    Assert.assertEquals(FastTestDataset.ORG_CGOV.getCode(), registryRole.getOrganizationCode());
+    Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), registryRole.getGeoObjectTypeCode());
   }
 
   @Test
   public void testRCRoleNameParsing()
   {
-    String organizationCode = testData.ORG_CGOV.getCode();
-    String geoObjectType = testData.PROVINCE.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
+    String geoObjectType = FastTestDataset.PROVINCE.getCode();
 
     String rmRole = RegistryRole.Type.getRC_RoleName(organizationCode, geoObjectType);
 

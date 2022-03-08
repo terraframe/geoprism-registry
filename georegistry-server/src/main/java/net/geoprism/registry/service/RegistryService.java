@@ -422,20 +422,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObject getGeoObjectByCode(String sessionId, String code, String typeCode, Date date)
   {
-    ServerGeoObjectIF object = service.getGeoObjectByCode(code, typeCode);
-
-    if (object == null)
-    {
-      // DataNotFoundException ex = new DataNotFoundException();
-      // ex.setDataIdentifier(code);
-      // throw ex;
-
-      net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
-      ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
-      ex.setDataIdentifier(code);
-      ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
-      throw ex;
-    }
+    ServerGeoObjectIF object = service.getGeoObjectByCode(code, typeCode, true);
 
     ServiceFactory.getGeoObjectPermissionService().enforceCanRead(object.getType().getOrganization().getCode(), object.getType());
 
@@ -478,9 +465,9 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public ChildTreeNode getChildGeoObjects(String sessionId, String parentUid, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive, Date date)
+  public ChildTreeNode getChildGeoObjects(String sessionId, String parentCode, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive, Date date)
   {
-    ServerGeoObjectIF object = this.service.getGeoObject(parentUid, parentGeoObjectTypeCode);
+    ServerGeoObjectIF object = this.service.getGeoObjectByCode(parentCode, parentGeoObjectTypeCode, true);
 
     if (date != null)
     {
@@ -493,9 +480,9 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public ParentTreeNode getParentGeoObjects(String sessionId, String childId, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive, Date date)
+  public ParentTreeNode getParentGeoObjects(String sessionId, String childCode, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive, Date date)
   {
-    ServerGeoObjectIF object = this.service.getGeoObject(childId, childGeoObjectTypeCode);
+    ServerGeoObjectIF object = this.service.getGeoObjectByCode(childCode, childGeoObjectTypeCode, true);
 
     if (date != null)
     {
@@ -1258,7 +1245,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObjectOverTime getGeoObjectOverTimeByCode(String sessionId, String code, String typeCode)
   {
-    ServerGeoObjectIF goServer = service.getGeoObjectByCode(code, typeCode);
+    ServerGeoObjectIF goServer = service.getGeoObjectByCode(code, typeCode, true);
 
     return goServer.toGeoObjectOverTime();
   }

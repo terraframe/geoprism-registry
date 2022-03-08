@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.commongeoregistry.adapter.constants.CGRAdapterProperties;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -41,6 +42,7 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.CGRPermissionException;
+import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.InvalidRegistryIdException;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.action.AbstractAction;
@@ -53,6 +55,7 @@ import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
 import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
+import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -105,27 +108,27 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   }
 
   @Request(RequestType.SESSION)
-  public ParentTreeNode addChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
+  public ParentTreeNode addChild(String sessionId, String parentCode, String parentGeoObjectTypeCode, String childCode, String childGeoObjectTypeCode, String hierarchyCode, Date startDate, Date endDate)
   {
-    ServerGeoObjectIF parent = this.getGeoObject(parentId, parentGeoObjectTypeCode);
-    ServerGeoObjectIF child = this.getGeoObject(childId, childGeoObjectTypeCode);
+    ServerGeoObjectIF parent = this.getGeoObjectByCode(parentCode, parentGeoObjectTypeCode, true);
+    ServerGeoObjectIF child = this.getGeoObjectByCode(childCode, childGeoObjectTypeCode, true);
     ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
 
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
-    return parent.addChild(child, ht).toNode(false);
+    return parent.addChild(child, ht, startDate, endDate).toNode(false);
   }
 
   @Request(RequestType.SESSION)
-  public void removeChild(String sessionId, String parentId, String parentGeoObjectTypeCode, String childId, String childGeoObjectTypeCode, String hierarchyCode)
+  public void removeChild(String sessionId, String parentCode, String parentGeoObjectTypeCode, String childCode, String childGeoObjectTypeCode, String hierarchyCode, Date startDate, Date endDate)
   {
-    ServerGeoObjectIF parent = this.getGeoObject(parentId, parentGeoObjectTypeCode);
-    ServerGeoObjectIF child = this.getGeoObject(childId, childGeoObjectTypeCode);
+    ServerGeoObjectIF parent = this.getGeoObjectByCode(parentCode, parentGeoObjectTypeCode, true);
+    ServerGeoObjectIF child = this.getGeoObjectByCode(childCode, childGeoObjectTypeCode, true);
     ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
 
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
-    parent.removeChild(child, hierarchyCode);
+    parent.removeChild(child, hierarchyCode, startDate, endDate);
   }
 
   @Transaction
@@ -265,22 +268,38 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
   public ServerGeoObjectIF getGeoObjectByCode(String code, String typeCode)
   {
-    ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+    return this.getGeoObjectByCode(code, ServerGeoObjectType.get(typeCode));
+  }
 
-    this.permissionService.enforceCanRead(type.getOrganization().getCode(), type);
-
-    ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
-
-    return strategy.getGeoObjectByCode(code);
+  public ServerGeoObjectIF getGeoObjectByCode(String code, String typeCode, boolean throwException)
+  {
+    return this.getGeoObjectByCode(code, ServerGeoObjectType.get(typeCode), throwException);
   }
 
   public ServerGeoObjectIF getGeoObjectByCode(String code, ServerGeoObjectType type)
+  {
+    return this.getGeoObjectByCode(code, type, false);
+  }
+
+  public ServerGeoObjectIF getGeoObjectByCode(String code, ServerGeoObjectType type, boolean throwException)
   {
     this.permissionService.enforceCanRead(type.getOrganization().getCode(), type);
 
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
 
-    return strategy.getGeoObjectByCode(code);
+    ServerGeoObjectIF geoObject = strategy.getGeoObjectByCode(code);
+
+    if (geoObject == null && throwException)
+    {
+      DataNotFoundException ex = new DataNotFoundException();
+      ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
+      ex.setDataIdentifier(code);
+      ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+
+      throw ex;
+    }
+
+    return geoObject;
   }
 
   public ServerGeoObjectIF getGeoObject(String uid, String typeCode)
@@ -436,7 +455,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     if (perms.isSRA() || perms.isRA(orgCode) || perms.isRM(orgCode, type))
     {
       this.executeActions(type, go, jaActions);
-      
+
       if (masterListId != null)
       {
         ListTypeVersion.get(masterListId).updateRecord(go);
@@ -498,7 +517,6 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       request.addAction(action).apply();
     }
 
-    request.apply();
     return request;
   }
 
@@ -592,12 +610,12 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   public JsonObject doesGeoObjectExistAtRange(String sessionId, Date startDate, Date endDate, String typeCode, String code)
   {
     VertexServerGeoObject vsgo = (VertexServerGeoObject) new ServerGeoObjectService().getGeoObjectByCode(code, typeCode);
-    
+
     JsonObject jo = new JsonObject();
-    
+
     jo.addProperty("exists", vsgo.existsAtRange(startDate, endDate));
     jo.addProperty("invalid", vsgo.getInvalid());
-    
+
     return jo;
   }
 }

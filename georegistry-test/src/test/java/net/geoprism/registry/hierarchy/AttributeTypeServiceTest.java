@@ -164,7 +164,7 @@ public class AttributeTypeServiceTest
   @Test
   public void testCreateGeoObjectTypeCharacter_AndUpdate()
   {
-    String organizationCode = testData.ORG_CGOV.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
 
@@ -195,7 +195,7 @@ public class AttributeTypeServiceTest
   @Test
   public void testCreateGeoObjectTypeDate()
   {
-    String organizationCode = testData.ORG_CGOV.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
 
@@ -218,7 +218,7 @@ public class AttributeTypeServiceTest
   @Test
   public void testCreateGeoObjectTypeInteger()
   {
-    String organizationCode = testData.ORG_CGOV.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
 
@@ -241,7 +241,7 @@ public class AttributeTypeServiceTest
   @Test
   public void testCreateGeoObjectTypeBoolean()
   {
-    String organizationCode = testData.ORG_CGOV.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
 
@@ -264,7 +264,7 @@ public class AttributeTypeServiceTest
   @Test
   public void testCreateGeoObjectTypeTerm()
   {
-    String organizationCode = testData.ORG_CGOV.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
 

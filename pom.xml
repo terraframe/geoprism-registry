@@ -15,7 +15,7 @@
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses />.
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -23,7 +23,7 @@
 
   <groupId>net.geoprism</groupId>
   <artifactId>georegistry</artifactId>
-  <version>0.18.1-SNAPSHOT</version>
+  <version>0.18.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>GeoRegistry</name>
@@ -36,7 +36,7 @@
   </modules>
 
   <properties>
-    <geoprism.version>0.10.19</geoprism.version>
+    <geoprism.version>0.10.26</geoprism.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -54,6 +54,12 @@
   </dependencies>
 
   <repositories>
+    <repository>
+      <id>central</id>
+      <name>central</name>
+      <url> https://repo1.maven.org/maven2/</url>
+      <layout>default</layout>
+    </repository>  
     <repository>
       <id>terraframe-public</id>
       <url>https://dl.cloudsmith.io/public/terraframe/public/maven/</url>

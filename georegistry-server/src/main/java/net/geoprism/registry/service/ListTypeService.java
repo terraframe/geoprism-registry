@@ -21,10 +21,12 @@ package net.geoprism.registry.service;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.DefaultSerializer;
 import org.json.JSONException;
@@ -52,6 +54,7 @@ import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.ListTypeVersionQuery;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.etl.ListTypeJobQuery;
@@ -88,8 +91,27 @@ public class ListTypeService
     ListType mList = ListType.apply(list);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
+    
+    // Auto publish the working versions of the lists 
+    List<ListTypeVersion> versions = mList.getVersions();
+    for (ListTypeVersion version : versions) {
+      if (version.getWorking()) {
+        this.publishVersion(sessionId, version.getOid());
+      }
+    }
 
     return mList.toJSON();
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonObject createEntries(String sessionId, String oid)
+  {
+    ListType mList = ListType.get(oid);
+    mList.createEntries(null);
+
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
+    return mList.toJSON(true);
   }
 
   @Request(RequestType.SESSION)
@@ -231,13 +253,13 @@ public class ListTypeService
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
 
-    this.enforceWritePermissions(version.getListType());
-
     // Only a working version can be republished.
     if (!version.getWorking())
     {
       throw new UnsupportedOperationException();
     }
+    
+    this.enforceReadPermissions(version.getListType());
 
     QueryFactory factory = new QueryFactory();
 
@@ -374,6 +396,9 @@ public class ListTypeService
         object.add("type", geoObject.getType().toJSON(new DefaultSerializer()));
         object.addProperty("code", geoObject.getCode());
         object.addProperty(ListTypeVersion.FORDATE, format.format(version.getForDate()));
+        
+        // Add geometry so we can zoom to it
+        object.add("geoObject", geoObject.toGeoObject(version.getForDate()).toJSON());
 
         return object;
       }
@@ -418,6 +443,11 @@ public class ListTypeService
     try
     {
       ListTypeVersion version = ListTypeVersion.get(oid);
+
+      if (version.getWorking())
+      {
+        throw new UnsupportedOperationException("Working versions cannot be deleted");
+      }
 
       this.enforceWritePermissions(version.getEntry().getListType());
 
@@ -483,7 +513,9 @@ public class ListTypeService
     query.ORDER_BY_DESC(query.getForDate());
     query.ORDER_BY_DESC(query.getVersionNumber());
 
-    Map<String, JsonObject> map = new LinkedHashMap<String, JsonObject>();
+    Map<String, Set<String>> orgMap = new LinkedHashMap<String, Set<String>>();
+    Map<String, Set<String>> typeMap = new LinkedHashMap<String, Set<String>>();
+    Map<String, JsonObject> listMap = new LinkedHashMap<String, JsonObject>();
 
     try (OIterator<? extends ListTypeVersion> it = query.getIterator())
     {
@@ -494,17 +526,30 @@ public class ListTypeService
         ListType listType = version.getListType();
         final boolean isMember = Organization.isMember(listType.getOrganization());
 
-        if ( ( version.getWorking() && listType.doesActorHaveExploratoryPermission() ) || ( !version.getWorking() && ( isMember || version.getGeospatialVisibility().equals(ListType.PUBLIC) ) ))
+        if ( ( version.getWorking() && listType.doesActorHaveExploratoryPermission() ) || ( isMember || version.getGeospatialVisibility().equals(ListType.PUBLIC) ))
         {
-
-          if (!map.containsKey(listType.getOid()))
+          if (!listMap.containsKey(listType.getOid()))
           {
             JsonObject object = new JsonObject();
             object.addProperty("label", listType.getDisplayLabel().getValue());
             object.addProperty("oid", listType.getOid());
             object.add("versions", new JsonArray());
 
-            map.put(listType.getOid(), object);
+            listMap.put(listType.getOid(), object);
+            
+            String gotCode = listType.getGeoObjectType().getCode();
+            if (!typeMap.containsKey(gotCode))
+            {
+              typeMap.put(gotCode, new HashSet<String>());
+            }
+            typeMap.get(gotCode).add(listType.getOid());
+            
+            String orgCode = listType.getOrganization().getCode();
+            if (!orgMap.containsKey(orgCode))
+            {
+              orgMap.put(orgCode, new HashSet<String>());
+            }
+            orgMap.get(orgCode).add(gotCode);
           }
 
           JsonObject object = new JsonObject();
@@ -512,22 +557,66 @@ public class ListTypeService
           object.addProperty("forDate", GeoRegistryUtil.formatDate(version.getForDate(), false));
           object.addProperty("versionNumber", version.getVersionNumber());
 
-          map.get(listType.getOid()).get("versions").getAsJsonArray().add(object);
+          listMap.get(listType.getOid()).get("versions").getAsJsonArray().add(object);
         }
       }
     }
+    
+    JsonArray jaOrgs = new JsonArray();
 
-    JsonArray response = new JsonArray();
-
-    map.forEach((key, object) -> {
-
-      if (object.get("versions").getAsJsonArray().size() > 0)
+    for (String orgCode : orgMap.keySet())
+    {
+      Organization org = ServiceFactory.getMetadataCache().getOrganization(orgCode).get();
+      
+      JsonObject joOrg = new JsonObject();
+      
+      joOrg.addProperty("orgCode", orgCode);
+      
+      joOrg.add("orgLabel", LocalizedValueConverter.convertNoAutoCoalesce(org.getDisplayLabel()).toJSON());
+      
+      JsonArray jaTypes = new JsonArray();
+      
+      for (String gotCode : orgMap.get(orgCode))
       {
-        response.add(object);
+        ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode).get();
+        
+        JsonObject joType = new JsonObject();
+        
+        joType.addProperty("typeCode", gotCode);
+        
+        joType.add("typeLabel", type.getLabel().toJSON());
+        
+        JsonArray jaLists = new JsonArray();
+        
+        for (String listOid : typeMap.get(gotCode))
+        {
+          JsonObject joListType = listMap.get(listOid);
+          
+          JsonArray jaVersions = joListType.get("versions").getAsJsonArray();
+          
+          if (jaVersions.size() > 0)
+          {
+            jaLists.add(joListType);
+          }
+        }
+        
+        joType.add("lists", jaLists);
+        
+        if (jaLists.size() > 0)
+        {
+          jaTypes.add(joType);
+        }
       }
-    });
-
-    return response;
+      
+      joOrg.add("types", jaTypes);
+      
+      if (jaTypes.size() > 0)
+      {
+        jaOrgs.add(joOrg);
+      }
+    }
+    
+    return jaOrgs;
   }
 
   @Request(RequestType.SESSION)
@@ -556,6 +645,19 @@ public class ListTypeService
     Organization organization = geoObjectType.getOrganization();
 
     if (!ServiceFactory.getGeoObjectPermissionService().canWrite(organization.getCode(), geoObjectType))
+    {
+      CreateListPermissionException ex = new CreateListPermissionException();
+      ex.setOrganization(organization.getDisplayLabel().getValue());
+      throw ex;
+    }
+  }
+  
+  private void enforceReadPermissions(ListType listType)
+  {
+    ServerGeoObjectType geoObjectType = listType.getGeoObjectType();
+    Organization organization = geoObjectType.getOrganization();
+
+    if (!ServiceFactory.getGeoObjectPermissionService().canRead(organization.getCode(), geoObjectType))
     {
       CreateListPermissionException ex = new CreateListPermissionException();
       ex.setOrganization(organization.getDisplayLabel().getValue());

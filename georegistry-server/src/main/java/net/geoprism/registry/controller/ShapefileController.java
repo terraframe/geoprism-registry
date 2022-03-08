@@ -53,7 +53,13 @@ public class ShapefileController
   }
 
   @Endpoint(url = "get-shapefile-configuration", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF getShapefileConfiguration(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "file") MultipartFileParameter file, @RequestParamter(name = "strategy") String sStrategy, @RequestParamter(name = "copyBlank") Boolean copyBlank) throws IOException, JSONException, ParseException
+  public ResponseIF getShapefileConfiguration(ClientRequestIF request, 
+      @RequestParamter(name = "type", required = true) String type, 
+      @RequestParamter(name = "startDate") String startDate, 
+      @RequestParamter(name = "endDate") String endDate, 
+      @RequestParamter(name = "file", required = true) MultipartFileParameter file, 
+      @RequestParamter(name = "strategy", required = true) String sStrategy, 
+      @RequestParamter(name = "copyBlank", required = true) Boolean copyBlank) throws IOException, JSONException, ParseException
   {
     try (InputStream stream = file.getInputStream())
     {

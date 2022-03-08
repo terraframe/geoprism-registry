@@ -49,10 +49,9 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
-import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.AbstractClassification;
+import com.runwaysdk.system.scheduler.SchedulerManager;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.ChangeFrequency;
@@ -63,7 +62,6 @@ import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeBuilder;
 import net.geoprism.registry.ListTypeEntry;
-import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SingleListType;
@@ -93,6 +91,11 @@ public class ListTypeTest
     testData.setUpMetadata();
 
     setUpInReq();
+
+    if (!SchedulerManager.initialized())
+    {
+      SchedulerManager.start();
+    }
   }
 
   @Request
@@ -188,17 +191,6 @@ public class ListTypeTest
     list.getDescription().setValue("My Overal Description");
     list.setValidOn(USATestData.DEFAULT_OVER_TIME_DATE);
 
-    list.getListDescription().setValue("My Abstract");
-    list.getListProcess().setValue("Process");
-    list.getListProgress().setValue("Progress");
-    list.getListAccessConstraints().setValue("Access Contraints");
-    list.getListUseConstraints().setValue("User Constraints");
-    list.getListAcknowledgements().setValue("Acknowledgements");
-    list.getListDisclaimer().setValue("Disclaimer");
-    list.setListContactName("Contact Name");
-    list.setListTelephoneNumber("Telephone Number");
-    list.setListEmail("Email");
-
     JsonObject json = list.toJSON();
     SingleListType test = (SingleListType) ListType.fromJSON(json);
 
@@ -209,16 +201,6 @@ public class ListTypeTest
     Assert.assertEquals(list.getCode(), test.getCode());
     Assert.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
     Assert.assertEquals(list.getValidOn(), test.getValidOn());
-
-    Assert.assertEquals(list.getListProcess().getValue(), test.getListProcess().getValue());
-    Assert.assertEquals(list.getListProgress().getValue(), test.getListProgress().getValue());
-    Assert.assertEquals(list.getListAccessConstraints().getValue(), test.getListAccessConstraints().getValue());
-    Assert.assertEquals(list.getListUseConstraints().getValue(), test.getListUseConstraints().getValue());
-    Assert.assertEquals(list.getListAcknowledgements().getValue(), test.getListAcknowledgements().getValue());
-    Assert.assertEquals(list.getListDisclaimer().getValue(), test.getListDisclaimer().getValue());
-    Assert.assertEquals(list.getListContactName(), test.getListContactName());
-    Assert.assertEquals(list.getListTelephoneNumber(), test.getListTelephoneNumber());
-    Assert.assertEquals(list.getListEmail(), test.getListEmail());
   }
 
   @Test
@@ -240,17 +222,6 @@ public class ListTypeTest
     list.getDescription().setValue("My Overal Description");
     list.setIntervalJson(intervalJson.toString());
 
-    list.getListDescription().setValue("My Abstract");
-    list.getListProcess().setValue("Process");
-    list.getListProgress().setValue("Progress");
-    list.getListAccessConstraints().setValue("Access Contraints");
-    list.getListUseConstraints().setValue("User Constraints");
-    list.getListAcknowledgements().setValue("Acknowledgements");
-    list.getListDisclaimer().setValue("Disclaimer");
-    list.setListContactName("Contact Name");
-    list.setListTelephoneNumber("Telephone Number");
-    list.setListEmail("Email");
-
     JsonObject json = list.toJSON();
     IntervalListType test = (IntervalListType) ListType.fromJSON(json);
 
@@ -261,16 +232,6 @@ public class ListTypeTest
     Assert.assertEquals(list.getCode(), test.getCode());
     Assert.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
     Assert.assertEquals(list.getIntervalJson(), test.getIntervalJson());
-
-    Assert.assertEquals(list.getListProcess().getValue(), test.getListProcess().getValue());
-    Assert.assertEquals(list.getListProgress().getValue(), test.getListProgress().getValue());
-    Assert.assertEquals(list.getListAccessConstraints().getValue(), test.getListAccessConstraints().getValue());
-    Assert.assertEquals(list.getListUseConstraints().getValue(), test.getListUseConstraints().getValue());
-    Assert.assertEquals(list.getListAcknowledgements().getValue(), test.getListAcknowledgements().getValue());
-    Assert.assertEquals(list.getListDisclaimer().getValue(), test.getListDisclaimer().getValue());
-    Assert.assertEquals(list.getListContactName(), test.getListContactName());
-    Assert.assertEquals(list.getListTelephoneNumber(), test.getListTelephoneNumber());
-    Assert.assertEquals(list.getListEmail(), test.getListEmail());
   }
 
   @Test
@@ -286,17 +247,6 @@ public class ListTypeTest
     list.setPublishingStartDate(USATestData.DEFAULT_OVER_TIME_DATE);
     list.addFrequency(ChangeFrequency.ANNUAL);
 
-    list.getListDescription().setValue("My Abstract");
-    list.getListProcess().setValue("Process");
-    list.getListProgress().setValue("Progress");
-    list.getListAccessConstraints().setValue("Access Contraints");
-    list.getListUseConstraints().setValue("User Constraints");
-    list.getListAcknowledgements().setValue("Acknowledgements");
-    list.getListDisclaimer().setValue("Disclaimer");
-    list.setListContactName("Contact Name");
-    list.setListTelephoneNumber("Telephone Number");
-    list.setListEmail("Email");
-
     JsonObject json = list.toJSON();
     IncrementalListType test = (IncrementalListType) ListType.fromJSON(json);
 
@@ -308,16 +258,6 @@ public class ListTypeTest
     Assert.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
     Assert.assertEquals(list.getFrequency().get(0), test.getFrequency().get(0));
     Assert.assertEquals(list.getPublishingStartDate(), test.getPublishingStartDate());
-
-    Assert.assertEquals(list.getListProcess().getValue(), test.getListProcess().getValue());
-    Assert.assertEquals(list.getListProgress().getValue(), test.getListProgress().getValue());
-    Assert.assertEquals(list.getListAccessConstraints().getValue(), test.getListAccessConstraints().getValue());
-    Assert.assertEquals(list.getListUseConstraints().getValue(), test.getListUseConstraints().getValue());
-    Assert.assertEquals(list.getListAcknowledgements().getValue(), test.getListAcknowledgements().getValue());
-    Assert.assertEquals(list.getListDisclaimer().getValue(), test.getListDisclaimer().getValue());
-    Assert.assertEquals(list.getListContactName(), test.getListContactName());
-    Assert.assertEquals(list.getListTelephoneNumber(), test.getListTelephoneNumber());
-    Assert.assertEquals(list.getListEmail(), test.getListEmail());
   }
 
   // @Test
@@ -495,11 +435,11 @@ public class ListTypeTest
 
         try
         {
-          entry.publish(this.createVersionMetadata().toString());
+          entry.publish(createVersionMetadata().toString());
 
           List<ListTypeVersion> versions = entry.getVersions();
 
-          Assert.assertEquals(1, versions.size());
+          Assert.assertEquals(2, versions.size());
 
           ListTypeVersion version = versions.get(0);
 
@@ -567,7 +507,7 @@ public class ListTypeTest
 
           List<ListTypeVersion> versions = entry.getVersions();
 
-          Assert.assertEquals(1, versions.size());
+          Assert.assertEquals(2, versions.size());
 
           ListTypeVersion version = versions.get(0);
 
@@ -648,7 +588,7 @@ public class ListTypeTest
       test.setValid(false);
       test.apply();
 
-      ListTypeEntry version = test.getOrCreateEntry(TestDataSet.DEFAULT_OVER_TIME_DATE);
+      ListTypeEntry version = test.getOrCreateEntry(TestDataSet.DEFAULT_OVER_TIME_DATE, null);
       version.delete();
     }
     finally

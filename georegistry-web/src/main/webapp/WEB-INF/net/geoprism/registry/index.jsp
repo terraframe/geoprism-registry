@@ -57,7 +57,8 @@
     		contextPath: "<%=request.getContextPath()%>",
     		locale:'<%=request.getAttribute("locale")%>', 
     		locales:<%=request.getAttribute("ilocales")%>,
-    		searchEnabled:<%=GeoregistryProperties.isSearchEnabled().toString()%>
+    		searchEnabled:<%=GeoregistryProperties.isSearchEnabled().toString()%>,
+    		defaultMapBounds: JSON.parse("<%=GeoregistryProperties.getDefaultMapBounds()%>")
     }; 
     window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');   
     window.googleanalyticstoken = "<%=GeoregistryProperties.getGoogleAnalyticsToken()%>";

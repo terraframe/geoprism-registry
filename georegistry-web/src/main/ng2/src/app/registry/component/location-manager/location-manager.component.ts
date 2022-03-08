@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from "@angular/core";
-import {Location} from '@angular/common';
-import { ActivatedRoute, Params, Router, RoutesRecognized } from "@angular/router";
+import { Location } from "@angular/common";
+import { ActivatedRoute, Params, Router } from "@angular/router";
 import { Map, LngLatBoundsLike, NavigationControl, AttributionControl, IControl, LngLatBounds } from "mapbox-gl";
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
@@ -37,7 +37,7 @@ const SELECTED_COLOR = "#800000";
 export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     pageMode: string = "";
-    
+
     coordinate: {
         longitude: number,
         latitude: number
@@ -91,8 +91,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     /*
     *  Flag to indicate if the left handle panel should be displayed or not
      */
-    showPanel: boolean = false;
-    
+    showPanel: boolean = true;
+
     layers: ContextLayer[] = [];
 
     backReference: string;
@@ -152,9 +152,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         private geomService: GeometryService,
         private lService: LocalizationService,
         private authService: AuthService,
-        private location: Location) { 
-            this.location = location; 
-        }
+        private location: Location) {
+        this.location = location;
+    }
 
     ngOnInit(): void {
         this.subscription = this.route.queryParams.subscribe(params => {
@@ -204,13 +204,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             },
             zoom: 2,
             attributionControl: false,
-            center: [-41.44427718989905, 41.897852]
+            bounds: registry.defaultMapBounds
         };
 
         if (this.params.bounds != null && this.params.bounds.length > 0) {
             mapConfig.bounds = new LngLatBounds(JSON.parse(this.params.bounds));
         }
-        
+
         mapConfig.logoPosition = "bottom-right";
 
         this.map = new Map(mapConfig);
@@ -237,7 +237,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         if (this.ready) {
             let mode = this.MODE.SEARCH;
-            let showPanel = false;
+            let showPanel = this.showPanel;
 
             if (this.params != null) {
                 // Handle parameters for searching for a geo object
@@ -271,18 +271,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     showPanel = true;
                     mode = this.MODE.VIEW;
                 }
-                
+
                 if (this.params.pageContext) {
                     this.pageMode = this.params.pageContext;
                 }
-                
-                // Keep the sidebar open if toggling a context layer when the sidebar is already open.
-                // This only happens on a fresh page load when sidebar is open (no search results or obj focus)
-                if (this.showPanel && this.pageMode === "EXPLORER") {
-                    showPanel = true;
+
+                if (this.params.attrPanelOpen) {
+                    showPanel = this.params.attrPanelOpen === "true";
                 }
-                
-            } 
+            }
 
             this.changeMode(mode);
             this.setPanel(showPanel);
@@ -334,18 +331,23 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     setPanel(showPanel: boolean): void {
         if (this.showPanel !== showPanel) {
             this.showPanel = showPanel;
-            
+
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { attrPanelOpen: this.showPanel },
+                queryParamsHandling: "merge" // remove to replace all query params by provided
+            });
+
             timeout(() => {
                 this.map.resize();
             }, 1);
         }
-
     }
 
     togglePanel(): void {
         this.setPanel(!this.showPanel);
     }
-    
+
     changeMode(mode: number): void {
         this.mode = mode;
 
@@ -572,8 +574,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.state.currentText = text;
             this.state.currentDate = date;
 
-            this.showPanel = true;
-
             if (this.data.length > 0) {
                 (<any> this.map.getSource(GRAPH_LAYER)).setData(data);
             }
@@ -584,7 +584,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
-    zoomToFeature(node: GeoObject, event: MouseEvent): void {
+    zoomToFeature(geoObject: GeoObject, event: MouseEvent): void {
         if (event != null) {
             event.stopPropagation();
         }
@@ -592,16 +592,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.preventSingleClick = false;
         const delay = 200;
 
+        let geometry = geoObject.geometry;
+
         this.timer = setTimeout(() => {
             if (!this.preventSingleClick) {
-                if (node && node.geometry != null) {
-                    const bounds = bbox(node as AllGeoJSON) as LngLatBoundsLike;
+                if (geometry != null) {
+                    const bounds = bbox(geometry) as LngLatBoundsLike;
 
                     let padding = 50;
                     let maxZoom = 20;
 
                     // Zoom level was requested to be reduced when displaying point types as per #420
-                    if (node.geometry.type === "Point" || node.geometry.type === "MultiPoint") {
+                    if (geometry.type === "Point" || geometry.type === "MultiPoint") {
                         padding = 100;
                         maxZoom = 12;
                     }
@@ -631,10 +633,19 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.mode = this.MODE.VIEW;
             this.record = record;
 
-            if (this.record.recordType === "GEO_OBJECT") {
+            if (this.record.recordType === "GEO_OBJECT") { // this happens when list type is working
                 this.geomService.destroy(false);
 
                 this.geomService.initialize(this.map, record.type.geometryType, false);
+
+                this.zoomToFeature(this.record.geoObject, null);
+            } else if (this.record.recordType === "LIST") { // this happens when list type is NOT working
+                let bounds = this.record.bbox;
+                if (bounds && Array.isArray(bounds)) {
+                    let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+
+                    this.map.fitBounds(llb, { padding: 50, animate: true, maxZoom: 20 });
+                }
             }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
@@ -649,6 +660,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
+    featurePanelForDateChange($event) {
+        this.geomService.destroy(false);
+    }
+
     select(node: any, event: MouseEvent): void {
         if (!this.isEdit) {
             this.router.navigate([], {
@@ -656,6 +671,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null },
                 queryParamsHandling: "merge" // remove to replace all query params by provided
             });
+
+            this.zoomToFeature(node, null);
         }
     }
 
@@ -683,13 +700,19 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 recordType: "GEO_OBJECT",
                 type: type,
                 code: code,
-                forDate: this.state.currentDate
+                forDate: this.state.currentDate === "" ? null : this.state.currentDate
             };
 
-            if (this.record.recordType === "GEO_OBJECT") {
-                this.geomService.destroy(false);
+            this.geomService.destroy(false);
 
-                this.geomService.initialize(this.map, this.record.type.geometryType, false);
+            this.geomService.initialize(this.map, this.record.type.geometryType, false);
+
+            if (code !== "__NEW__") {
+                this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
+                    this.zoomToFeature(geoObject, null);
+                }).catch((err: HttpErrorResponse) => {
+                    this.error(err);
+                });
             }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
@@ -768,6 +791,25 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     },
                     filter: ["all",
                         ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+                    ]
+                }, prevLayer);
+
+                // Line layer
+                this.map.addLayer({
+                    id: source + "-line",
+                    type: "line",
+                    source: source,
+                    paint: {
+                        "line-width": 3,
+                        "line-color": [
+                            "case",
+                            ["boolean", ["feature-state", "hover"], false],
+                            SELECTED_COLOR,
+                            layer.color
+                        ]
+                    },
+                    filter: ["all",
+                        ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false]
                     ]
                 }, prevLayer);
 
@@ -851,6 +893,26 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 },
                 filter: ["all",
                     ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+                ]
+            }, prevLayer);
+
+            // Line layer
+            this.map.addLayer({
+                id: source + "-line",
+                type: "line",
+                source: source,
+                "source-layer": "context",
+                paint: {
+                    "line-width": 3,
+                    "line-color": [
+                        "case",
+                        ["boolean", ["feature-state", "hover"], false],
+                        SELECTED_COLOR,
+                        layer.color
+                    ]
+                },
+                filter: ["all",
+                    ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false]
                 ]
             }, prevLayer);
 

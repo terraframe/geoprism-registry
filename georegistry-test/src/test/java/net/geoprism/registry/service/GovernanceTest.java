@@ -79,9 +79,9 @@ public class GovernanceTest
   @Test
   public void testActionSerialization()
   {
-    TestGeoObjectInfo testGo = testData.CAMBODIA;
+    TestGeoObjectInfo testGo = FastTestDataset.CAMBODIA;
 //    GeoObjectOverTime go = testGo.asGeoObject();
-    GeoObjectOverTime goTime = testData.adapter.getGeoObjectOverTimeByCode(testData.CAMBODIA.getCode(), testData.CAMBODIA.getGeoObjectType().getCode());
+    GeoObjectOverTime goTime = testData.adapter.getGeoObjectOverTimeByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
     testGo.setRegistryId(goTime.getUid());
 
     /*
@@ -118,7 +118,7 @@ public class GovernanceTest
     Date startDate = new Date();
     Date endDate = new Date();
     
-    GeoObjectOverTime goTime = testData.adapter.getGeoObjectOverTimeByCode(testData.CAMBODIA.getCode(), testData.CAMBODIA.getGeoObjectType().getCode());
+    GeoObjectOverTime goTime = testData.adapter.getGeoObjectOverTimeByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
     
     goTime.setDisplayLabel(new LocalizedValue("test 123"), startDate, endDate);
     
@@ -131,7 +131,7 @@ public class GovernanceTest
     UpdateGeoObjectAction updateRA = (UpdateGeoObjectAction) AbstractAction.dtoToRegistry(updateDTO);
     execute(updateRA);
     
-    GeoObjectOverTime goTime2 = testData.adapter.getGeoObjectOverTimeByCode(testData.CAMBODIA.getCode(), testData.CAMBODIA.getGeoObjectType().getCode());
+    GeoObjectOverTime goTime2 = testData.adapter.getGeoObjectOverTimeByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
     Assert.assertEquals("test 123", goTime2.getDisplayLabel(startDate).getValue());
   }
   

@@ -2,7 +2,7 @@
     <div class="row-holder" *ngFor="let localeValue of metadata.label.localeValues">
         <div class="label-holder">
             <label>
-                <localize key="masterlist.label"></localize>
+                <localize key="masterlist.metadata.title"></localize>
                 <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
                     </convert-key-label>)</span>
             </label>
@@ -199,8 +199,8 @@
             </div>
             <div class="holder">
                 <select class="select-area" name="spatialRepresentation" [(ngModel)]="metadata.spatialRepresentation"
-                    [disabled]="readonly">
-                    <option></option>
+                    [disabled]="true">
+                    <!-- <option></option> -->
                     <option value="vector">
                         <localize key="list.type.vector"></localize>
                     </option>
@@ -216,8 +216,8 @@
             </div>
             <div class="holder">
                 <select class="select-area" name="referenceSystem" [(ngModel)]="metadata.referenceSystem"
-                    [disabled]="readonly">
-                    <option></option>
+                    [disabled]="true">
+                    <!-- <option></option> -->
                     <option value="EPSG4326">
                         <localize key="list.type.epsg4326"></localize>
                     </option>
@@ -243,7 +243,7 @@
             </div>
             <div class="holder">
                 <select class="select-area" name="distributionFormat" [(ngModel)]="metadata.distributionFormat"
-                    [disabled]="readonly">
+                    [disabled]="true">
                     <option></option>
                     <option value="SHAPEFILE">
                         <localize key="io.shapefile"></localize>
@@ -357,7 +357,7 @@
                 <div class="row-holder" *ngFor="let localeValue of list.displayLabel.localeValues">
                     <div class="label-holder">
                         <label>
-                            <localize key="masterlist.label"></localize>
+                            <localize key="masterlist.metadata.title"></localize>
                             <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
                                 </convert-key-label>)</span>
                         </label>
@@ -552,42 +552,53 @@
                         <div class="holder">
                             <div *ngFor="let interval of list.intervalJson; let i = index;">
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-5">
                                         <label>
                                             <localize key="io.startDate"></localize>
                                         </label>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-5">
                                         <label>
                                             <localize key="io.endDate"></localize>
                                         </label>
                                     </div>
+                                    <div class="col-md-2"></div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-5">
                                         <date-field [(value)]="interval.startDate" [classNames]="['form-control']"
-                                            label="" [inputName]="'startDate-' + i" [allowFutureDates]="false"
-                                            [required]="true" [disable]="readonly || !isNew"
+                                            label="" [inputName]="'startDate-' + interval.oid" [allowFutureDates]="false"
+                                            [required]="true" [disable]="readonly || (!isNew && interval.readonly != null)"
                                             (valueChange)="handleDateChange()"></date-field>
 
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-5">
                                         <date-field [(value)]="interval.endDate" [classNames]="['form-control']"
-                                            label="" [inputName]="'endDate-'+i" [allowFutureDates]="false"
-                                            [required]="true" [disable]="readonly || !isNew"
+                                            label="" [inputName]="'endDate-' + interval.oid" [allowInfinity]="true" [required]="true"
+                                            [disable]="readonly || (!isNew && interval.readonly == 'BOTH')"
                                             (valueChange)="handleDateChange()"></date-field>
 
+                                    </div>
+                                    <div class="col-md-2">
+                                        <i class="fa fa-times delete-btn clickable"
+                                            *ngIf="(isNew || interval.readonly == null)"
+                                            (click)="removeInterval(i)"
+                                            [title]="'button.delete.helptext' | localize">
+                                        </i>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row" *ngIf="!readonly && isNew">
+                            <div class="row" *ngIf="!readonly">
                                 <div class="col-md-12">
                                     <button type="button" (click)="onNewInterval()" class="btn btn-primary"
                                         role="button" style="margin:15px 0;">
                                         <localize key="changeovertime.manageVersions.summaryKey.NEW"></localize>
                                     </button>
-                                    <div *ngIf="!valid" style="float:none;" class="inline-error-message">
+                                    <div *ngIf="!valid" style="float:none;" class="error-message">
                                         <localize key="list.type.bad.interval.dates"></localize>
+                                    </div>
+                                    <div *ngIf="gap" style="float:none;" class="warning-text">
+                                        <localize key="manage.versions.gap.message"></localize>
                                     </div>
                                 </div>
                             </div>
@@ -596,7 +607,7 @@
                 </ng-container>
 
 
-                <div class="inner-col-content-wrapper" style="padding-top: 30px; margin-top: 10px;">
+                <div class="inner-col-content-wrapper" *ngIf="isNew" style="padding-top: 30px; margin-top: 10px;">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="label-holder"></div>

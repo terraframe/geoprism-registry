@@ -53,7 +53,9 @@ public class RegistryAccountController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF page(ClientRequestIF request, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize) throws JSONException
+  public ResponseIF page(ClientRequestIF request, 
+      @RequestParamter(name = "pageNumber", required = true) Integer pageNumber,
+      @RequestParamter(name = "pageSize", required = true) Integer pageSize) throws JSONException
   {
     String json = this.accountService.page(request.getSessionId(), pageNumber, pageSize);
 
@@ -61,7 +63,9 @@ public class RegistryAccountController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-sras")
-  public ResponseIF getSRAs(ClientRequestIF request, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize) throws JSONException
+  public ResponseIF getSRAs(ClientRequestIF request, 
+      @RequestParamter(name = "pageNumber", required = true) Integer pageNumber, 
+      @RequestParamter(name = "pageSize", required = true) Integer pageSize) throws JSONException
   {
     String json = this.accountService.getSRAs(request.getSessionId(), pageNumber, pageSize);
 
@@ -69,7 +73,8 @@ public class RegistryAccountController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF getRolesForUser(ClientRequestIF request, @RequestParamter(name = "userOID") String userOID) throws JSONException
+  public ResponseIF getRolesForUser(ClientRequestIF request, 
+      @RequestParamter(name = "userOID", required = true) String userOID) throws JSONException
   {
     RegistryRole[] roles = this.accountService.getRolesForUser(request.getSessionId(), userOID);
 
@@ -79,7 +84,7 @@ public class RegistryAccountController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF edit(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
+  public ResponseIF edit(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid) throws JSONException
   {
     JSONObject user = this.accountService.lock(request.getSessionId(), oid);
 
@@ -151,7 +156,7 @@ public class RegistryAccountController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
+  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid) throws JSONException
   {
     accountService.remove(request.getSessionId(), oid);
 
@@ -159,7 +164,7 @@ public class RegistryAccountController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF unlock(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
+  public ResponseIF unlock(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid) throws JSONException
   {
     this.accountService.unlock(request.getSessionId(), oid);
 
@@ -167,7 +172,9 @@ public class RegistryAccountController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "account") String account, @RequestParamter(name = "roleNames") String roleNames) throws JSONException
+  public ResponseIF apply(ClientRequestIF request, 
+      @RequestParamter(name = "account", required = true) String account, 
+      @RequestParamter(name = "roleNames") String roleNames) throws JSONException
   {
     String[] roleNameArray = null;
 
@@ -195,7 +202,9 @@ public class RegistryAccountController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF inviteUser(ClientRequestIF request, ServletRequestIF sr, @RequestParamter(name = "invite") String sInvite, @RequestParamter(name = "roleIds") String roleIds) throws JSONException
+  public ResponseIF inviteUser(ClientRequestIF request, ServletRequestIF sr, 
+      @RequestParamter(name = "invite", required = true) String sInvite, 
+      @RequestParamter(name = "roleIds", required = true) String roleIds) throws JSONException
   {
     RegistryAccountUtilDTO.initiate(request, sInvite, roleIds, null);
 
@@ -245,7 +254,9 @@ public class RegistryAccountController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF inviteComplete(ClientRequestIF request, @RequestParamter(name = "user") String user, @RequestParamter(name = "token") String token) throws JSONException
+  public ResponseIF inviteComplete(ClientRequestIF request, 
+      @RequestParamter(name = "user", required = true) String user, 
+      @RequestParamter(name = "token", required = true) String token) throws JSONException
   {
     RegistryAccountUtilDTO.inviteComplete(request, token, user);
 

@@ -112,8 +112,13 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     return null;
   }
-  
+
   public static Date parseDate(String date)
+  {
+    return parseDate(date, false);
+  }
+
+  public static Date parseDate(String date, boolean throwClientException)
   {
     if (date != null && date.length() > 0)
     {
@@ -127,7 +132,14 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
       }
       catch (ParseException e)
       {
-        throw new ProgrammingErrorException(e);
+        if (throwClientException)
+        {
+          throw new RuntimeException("Unable to parse the date [" + date + "]. The date format must be [" + GeoObjectImportConfiguration.DATE_FORMAT + "]");
+        }
+        else
+        {
+          throw new ProgrammingErrorException(e);
+        }
       }
     }
 
@@ -211,18 +223,18 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
-    
+
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
-    
+
     if (filterJson.contains("invalid"))
     {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
     }
-    
+
     try
     {
       ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, filterJson);
-      
+
       return exporter.export();
     }
     catch (IOException e)
@@ -230,24 +242,24 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
       throw new ProgrammingErrorException(e);
     }
   }
-  
+
   @Transaction
   public static InputStream exportListTypeExcel(String oid, String filterJson)
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
-    
+
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
-    
+
     if (filterJson.contains("invalid"))
     {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
     }
-    
+
     try
     {
       ListTypeExcelExporter exporter = new ListTypeExcelExporter(version, mdBusiness, mdAttributes, filterJson, null);
-      
+
       return exporter.export();
     }
     catch (IOException e)
@@ -255,7 +267,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
       throw new ProgrammingErrorException(e);
     }
   }
-  
+
   @Authenticate
   public static void importTypes(String orgCode, InputStream istream)
   {

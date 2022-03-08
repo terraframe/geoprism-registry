@@ -14,6 +14,7 @@ import { LocalizationService, AuthService, ProgressService } from "@shared/servi
 import { ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
+import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 
 import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
@@ -86,7 +87,7 @@ export class ListComponent implements OnInit, OnDestroy {
             }
         });
 
-        let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + registry.contextPath;
+        let baseUrl = WebSockets.buildBaseUrl();
 
         this.notifier = webSocket(baseUrl + "/websocket/progress/" + oid);
         this.subscription = this.notifier.subscribe(message => {
@@ -185,7 +186,41 @@ export class ListComponent implements OnInit, OnDestroy {
             attribute.isCollapsed = true;
         });
 
-        return attrs;
+        // Order list columns
+        // mdAttributes don't currently define the difference between hierarchy or custom attributes.
+        // This ordering is a best attempt given these constraints.
+        //
+        let orderedArray = [];
+        let code = attrs.filter(obj => {
+            return obj.name === "code";
+        });
+        let label = attrs.filter(obj => {
+            return obj.name.includes("displayLabel");
+        });
+
+        orderedArray.push(code[0], ...label);
+
+        let customAttrs = [];
+        let otherAttrs = [];
+        attrs.forEach(attr => {
+            if (attr.type === "input" && attr.name !== "latitude" && attr.name !== "longitude") {
+                customAttrs.push(attr);
+            } else if (attr.name !== "code" && !attr.name.includes("displayLabel") && attr.name !== "latitude" && attr.name !== "longitude") {
+                otherAttrs.push(attr);
+            }
+        });
+
+        orderedArray.push(...customAttrs, ...otherAttrs);
+        
+        let coords = this.list.attributes.filter(obj => {
+            return obj.name === "latitude" || obj.name === "longitude";
+        });
+        
+        if (coords.length === 2) {
+            orderedArray.push(...coords);
+        }      
+
+        return orderedArray;
     }
 
     getTypeaheadDataObservable(attribute: any): void {
@@ -316,10 +351,14 @@ export class ListComponent implements OnInit, OnDestroy {
         });
     }
 
-    onNewGeoObject(): void {
+    onNewGeoObject(type: string = null): void {
+        if (!type) {
+            type = this.list.typeCode;
+        }
+
         const params: any = {
             layers: JSON.stringify([this.list.oid]),
-            type: this.list.typeCode,
+            type: type,
             code: "__NEW__"
         };
 

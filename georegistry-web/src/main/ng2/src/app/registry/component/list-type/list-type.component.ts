@@ -37,7 +37,7 @@ export class ListTypeComponent implements OnInit, OnDestroy {
         this.isRC = this.authService.isGeoObjectTypeOrSuperRC({
             organizationCode: this.list.organization,
             code: this.list.typeCode,
-            superTypeCode: this.list.superTypeCode,
+            superTypeCode: this.list.superTypeCode
         });
 
         // Expand the most recent version by default
@@ -45,7 +45,7 @@ export class ListTypeComponent implements OnInit, OnDestroy {
             return (entry.versions != null && entry.versions.length > 0);
         }).forEach(entry => {
             entry.versions[0].collapsed = true;
-        })
+        });
     }
 
     ngOnDestroy() {
@@ -62,6 +62,19 @@ export class ListTypeComponent implements OnInit, OnDestroy {
             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(this.list, entry);
+    }
+
+    onCreateEntries(): void {
+        // Expand the most recent version by default
+        this.service.createEntries(this.list.oid).then(list => {
+            list.entries.forEach(entry => {
+                if (this.list.entries.findIndex(e => e.oid === entry.oid) === -1) {
+                    this.list.entries.push(entry);
+                }
+            });
+        }).catch((err: HttpErrorResponse) => {
+            this.error.emit(err);
+        });
     }
 
     onEdit(entry: ListTypeEntry, version: ListTypeVersion): void {
@@ -84,8 +97,12 @@ export class ListTypeComponent implements OnInit, OnDestroy {
         this.bsModalRef.content.type = "danger";
 
         this.bsModalRef.content.onConfirm.subscribe(data => {
-
             this.service.removeVersion(version).then(response => {
+                const index = entry.versions.findIndex(v => v.oid === version.oid);
+
+                if (index !== -1) {
+                    entry.versions.splice(index, 1);
+                }
             }).catch((err: HttpErrorResponse) => {
                 this.error.emit(err);
             });
@@ -93,8 +110,8 @@ export class ListTypeComponent implements OnInit, OnDestroy {
     }
 
     onGotoMap(version: ListTypeVersion): void {
-        this.router.navigate(['/registry/location-manager'], {
-            queryParams: {layers: JSON.stringify([version.oid]) },
+        this.router.navigate(["/registry/location-manager"], {
+            queryParams: { layers: JSON.stringify([version.oid]) }
         });
     }
 

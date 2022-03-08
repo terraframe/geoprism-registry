@@ -41,10 +41,9 @@ public class IncrementalListType extends IncrementalListTypeBase
   }
 
   @Override
-  protected String formatVersionLabel(LabeledVersion version)
+  protected JsonObject formatVersionLabel(LabeledVersion version)
   {
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    JsonObject object = new JsonObject();
 
     List<ChangeFrequency> frequency = this.getFrequency();
 
@@ -53,7 +52,8 @@ public class IncrementalListType extends IncrementalListTypeBase
       Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
       calendar.setTime(version.getForDate());
 
-      return Integer.toString(calendar.get(Calendar.YEAR));
+      object.addProperty("type", "text");
+      object.addProperty("value", Integer.toString(calendar.get(Calendar.YEAR)));
     }
     else if (frequency.contains(ChangeFrequency.BIANNUAL))
     {
@@ -62,7 +62,8 @@ public class IncrementalListType extends IncrementalListTypeBase
 
       int halfYear = ( calendar.get(Calendar.MONTH) / 6 ) + 1;
 
-      return "H" + halfYear + " " + Integer.toString(calendar.get(Calendar.YEAR));
+      object.addProperty("type", "text");
+      object.addProperty("value", "H" + halfYear + " " + Integer.toString(calendar.get(Calendar.YEAR)));
     }
     else if (frequency.contains(ChangeFrequency.QUARTER))
     {
@@ -71,7 +72,8 @@ public class IncrementalListType extends IncrementalListTypeBase
 
       int quarter = ( calendar.get(Calendar.MONTH) / 3 ) + 1;
 
-      return "Q" + quarter + " " + Integer.toString(calendar.get(Calendar.YEAR));
+      object.addProperty("type", "text");
+      object.addProperty("value", "Q" + quarter + " " + Integer.toString(calendar.get(Calendar.YEAR)));
     }
     else if (frequency.contains(ChangeFrequency.MONTHLY))
     {
@@ -86,30 +88,20 @@ public class IncrementalListType extends IncrementalListTypeBase
 
       Date endOfWeek = calendar.getTime();
 
-      return format.format(startOfWeek) + " - " + format.format(endOfWeek);
+      JsonObject range = new JsonObject();
+      range.addProperty("startDate", GeoRegistryUtil.formatDate(startOfWeek, false));
+      range.addProperty("endDate", GeoRegistryUtil.formatDate(endOfWeek, false));
+
+      object.addProperty("type", "range");
+      object.add("value", range);
     }
-
-    return format.format(version.getForDate());
-  }
-
-  @Override
-  public void apply()
-  {
-    /*
-     * Changing the frequency requires that any existing published version be
-     * deleted
-     */
-    if (this.isModified(IncrementalListType.FREQUENCY) || this.isModified(IncrementalListType.PUBLISHINGSTARTDATE))
+    else
     {
-      final List<ListTypeEntry> entries = this.getEntries();
-
-      for (ListTypeEntry entry : entries)
-      {
-        entry.delete();
-      }
+      object.addProperty("type", "date");
+      object.addProperty("value", GeoRegistryUtil.formatDate(version.getForDate(), false));
     }
 
-    super.apply();
+    return object;
   }
 
   public List<Date> getFrequencyDates(Date startDate, Date endDate)
@@ -293,7 +285,7 @@ public class IncrementalListType extends IncrementalListTypeBase
 
   @Override
   @Transaction
-  public void createEntries()
+  public void createEntries(JsonObject metadata)
   {
     if (!this.isValid())
     {
@@ -302,6 +294,20 @@ public class IncrementalListType extends IncrementalListTypeBase
 
     final ServerGeoObjectType objectType = this.getGeoObjectType();
     Pair<Date, Date> range = this.getDateRange(objectType);
+
+    if (metadata == null)
+    {
+      List<ListTypeEntry> entries = this.getEntries();
+
+      if (entries.size() > 0)
+      {
+
+        ListTypeEntry entry = entries.get(0);
+        ListTypeVersion working = entry.getWorking();
+
+        metadata = working.toJSON(false);
+      }
+    }
 
     if (range != null)
     {
@@ -316,7 +322,7 @@ public class IncrementalListType extends IncrementalListTypeBase
 
       for (Date date : dates)
       {
-        this.getOrCreateEntry(date);
+        this.getOrCreateEntry(date, metadata);
       }
     }
     else

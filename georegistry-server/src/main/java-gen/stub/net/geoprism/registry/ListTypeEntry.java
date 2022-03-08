@@ -48,7 +48,7 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
   public void delete()
   {
     // Delete all versions
-    ListTypeVersion working = this.getWorking();
+    // ListTypeVersion working = this.getWorking();
 
     this.appLock();
     this.setWorking(null);
@@ -56,10 +56,10 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
 
     this.getVersions().forEach(version -> version.delete());
 
-    if (working != null)
-    {
-      working.delete();
-    }
+    // if (working != null)
+    // {
+    // working.delete();
+    // }
 
     super.delete();
   }
@@ -83,8 +83,7 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
     object.addProperty(ListTypeVersion.LISTTYPE, listType.getOid());
     object.addProperty(ListTypeVersion.FORDATE, GeoRegistryUtil.formatDate(this.getForDate(), false));
     object.addProperty(ListTypeVersion.CREATEDATE, GeoRegistryUtil.formatDate(this.getCreateDate(), false));
-    object.addProperty(ListTypeVersion.PERIOD, listType.formatVersionLabel(this));
-    object.addProperty(ListTypeVersion.WORKING, this.getWorkingOid());
+    object.add(ListTypeVersion.PERIOD, listType.formatVersionLabel(this));
 
     List<ListTypeVersion> versions = this.getVersions();
 
@@ -104,7 +103,7 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
   {
     ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
     query.WHERE(query.getEntry().EQ(this));
-    query.AND(query.getWorking().EQ(false));
+    // query.AND(query.getWorking().EQ(false));
     query.ORDER_BY_DESC(query.getVersionNumber());
 
     try (OIterator<? extends ListTypeVersion> it = query.getIterator())
@@ -150,14 +149,14 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
   }
 
   @Transaction
-  public static ListTypeEntry create(ListType list, Date forDate)
+  public static ListTypeEntry create(ListType list, Date forDate, JsonObject metadata)
   {
     ListTypeEntry entry = new ListTypeEntry();
     entry.setListType(list);
     entry.setForDate(forDate);
     entry.apply();
 
-    entry.setWorking(ListTypeVersion.create(entry, true, 0, null));
+    entry.setWorking(ListTypeVersion.create(entry, true, 0, metadata));
     entry.apply();
 
     return entry;

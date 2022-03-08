@@ -40,7 +40,9 @@ import net.geoprism.ontology.ClassifierDTO;
 public class TermController
 {
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF createClassifierSynonym(ClientRequestIF request, @RequestParamter(name = "classifierId") String classifierId, @RequestParamter(name = "label") String label) throws JSONException
+  public ResponseIF createClassifierSynonym(ClientRequestIF request, 
+      @RequestParamter(name = "classifierId", required = true) String classifierId, 
+      @RequestParamter(name = "label", required = true) String label) throws JSONException
   {
     String response = DataUploaderDTO.createClassifierSynonym(request, classifierId, label);
 
@@ -50,7 +52,8 @@ public class TermController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF deleteClassifierSynonym(ClientRequestIF request, @RequestParamter(name = "synonymId") String synonymId)
+  public ResponseIF deleteClassifierSynonym(ClientRequestIF request, 
+      @RequestParamter(name = "synonymId", required = true) String synonymId)
   {
     DataUploaderDTO.deleteClassifierSynonym(request, synonymId);
 
@@ -58,7 +61,10 @@ public class TermController
   }
 
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF getClassifierSuggestions(ClientRequestIF request, @RequestParamter(name = "mdAttributeId") String mdAttributeId, @RequestParamter(name = "text") String text, @RequestParamter(name = "limit") Integer limit) throws JSONException
+  public ResponseIF getClassifierSuggestions(ClientRequestIF request, 
+      @RequestParamter(name = "mdAttributeId", required = true) String mdAttributeId, 
+      @RequestParamter(name = "text") String text, 
+      @RequestParamter(name = "limit") Integer limit) throws JSONException
   {
     JSONArray response = new JSONArray();
 
@@ -78,7 +84,9 @@ public class TermController
   }
 
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF validateCategoryName(ClientRequestIF request, @RequestParamter(name = "name") String name, @RequestParamter(name = "oid") String oid)
+  public ResponseIF validateCategoryName(ClientRequestIF request, 
+      @RequestParamter(name = "name", required = true) String name, 
+      @RequestParamter(name = "oid", required = true) String oid)
   {
     ClassifierDTO.validateCategoryName(request, name, oid);
 

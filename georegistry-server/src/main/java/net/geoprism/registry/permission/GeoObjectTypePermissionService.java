@@ -125,6 +125,11 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
 
           if (roleOrgCode.equals(orgCode))
           {
+            if (action.equals(CGRPermissionAction.READ) && isPrivate)
+            {
+              return true;
+            }
+
             if (RegistryRole.Type.isRA_Role(roleName))
             {
               return true;
@@ -144,7 +149,8 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
                 }
                 else if (RegistryRole.Type.isRC_Role(roleName))
                 {
-                  if (action.equals(CGRPermissionAction.READ)) // || isChangeRequest
+                  if (action.equals(CGRPermissionAction.READ)) // ||
+                                                               // isChangeRequest
                   {
                     return true;
                   }
@@ -169,24 +175,24 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
 
     return false;
   }
-  
+
   public Set<CGRPermissionActionIF> getPermissions(ServerGeoObjectType got)
   {
     final String orgCode = got.getOrganization().getCode();
     final Boolean isPrivate = got.getIsPrivate();
-    
+
     HashSet<CGRPermissionActionIF> actions = new HashSet<CGRPermissionActionIF>();
-    
+
     if (this.canRead(orgCode, got, isPrivate))
     {
       actions.add(CGRPermissionAction.READ);
     }
-    
+
     if (this.canWrite(orgCode, got, isPrivate))
     {
       actions.add(CGRPermissionAction.WRITE);
     }
-    
+
     if (this.canCreate(orgCode, got, isPrivate))
     {
       actions.add(CGRPermissionAction.CREATE);
@@ -196,7 +202,7 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
     {
       actions.add(CGRPermissionAction.DELETE);
     }
-    
+
     return actions;
   }
 

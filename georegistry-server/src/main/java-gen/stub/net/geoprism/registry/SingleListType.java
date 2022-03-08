@@ -18,7 +18,10 @@
  */
 package net.geoprism.registry;
 
+import org.commongeoregistry.adapter.metadata.DefaultSerializer;
+
 import com.google.gson.JsonObject;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 
 public class SingleListType extends SingleListTypeBase
 {
@@ -28,7 +31,7 @@ public class SingleListType extends SingleListTypeBase
   {
     super();
   }
-  
+
   @Override
   public JsonObject toJSON(boolean includeEntries)
   {
@@ -48,20 +51,25 @@ public class SingleListType extends SingleListTypeBase
   }
 
   @Override
-  public void createEntries()
+  @Transaction
+  public void createEntries(JsonObject metadata)
   {
     if (!this.isValid())
     {
       throw new InvalidMasterListException();
     }
 
-    this.getOrCreateEntry(this.getValidOn());
+    this.getOrCreateEntry(this.getValidOn(), metadata);
   }
 
   @Override
-  protected String formatVersionLabel(LabeledVersion version)
+  protected JsonObject formatVersionLabel(LabeledVersion version)
   {
-    return GeoRegistryUtil.formatDate(this.getValidOn(), false);
+    JsonObject object = new JsonObject();
+    object.addProperty("type", "date");
+    object.addProperty("value", GeoRegistryUtil.formatDate(this.getValidOn(), false));
+
+    return object;
   }
 
 }

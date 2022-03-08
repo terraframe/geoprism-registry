@@ -28,7 +28,7 @@ import net.geoprism.registry.service.WMSService;
 
 public class GeoserverCreateWMSCommand implements Command
 {
-  private Logger      log = LoggerFactory.getLogger(GeoserverCreateWMSCommand.class);
+  private Logger logger = LoggerFactory.getLogger(GeoserverCreateWMSCommand.class);
 
   private TableEntity version;
 
@@ -42,9 +42,16 @@ public class GeoserverCreateWMSCommand implements Command
    */
   public void doIt()
   {
-    log.info("Creating WMS for TableEntity [" + this.version.getOid() + "]");
+    try
+    {
+      logger.info("Creating WMS for TableEntity [" + this.version.getOid() + "]");
 
-    new WMSService().createGeoServerLayer(version, false);
+      new WMSService().createGeoServerLayer(version, false);
+    }
+    catch (Throwable t)
+    {
+      logger.error("Unexpected error while creating geoserver WMS service.", t);
+    }
   }
 
   /**
