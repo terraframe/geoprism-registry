@@ -49,34 +49,19 @@ export class HierarchyCREditor extends ValueOverTimeCREditor {
   validate(): boolean {
       super.validate();
 
-      let invalidParent = this.changeRequestAttributeEditor.changeRequestEditor.dateService.invalidParent;
-      let parentDoesNotExist = this.changeRequestAttributeEditor.changeRequestEditor.dateService.parentDoesNotExist;
-      let service = this.changeRequestAttributeEditor.changeRequestEditor.registryService;
+      if (this._isValid && this.hierarchyEntry != null) {
+          let invalidParent = this.changeRequestAttributeEditor.changeRequestEditor.dateService.invalidParent;
+          let parentDoesNotExist = this.changeRequestAttributeEditor.changeRequestEditor.dateService.parentDoesNotExist;
+          let service = this.changeRequestAttributeEditor.changeRequestEditor.registryService;
 
-      let len = this.hierarchyOverTime.types.length;
-      for (let i = len - 1; i >= 0; --i) {
-          let type = this.hierarchyOverTime.types[i];
+          let len = this.hierarchyOverTime.types.length;
+          for (let i = len - 1; i >= 0; --i) {
+              let type = this.hierarchyOverTime.types[i];
 
-          if (Object.prototype.hasOwnProperty.call(this.hierarchyEntry.parents, type.code) && this.hierarchyEntry.parents[type.code].geoObject) {
-              let goParent = this.hierarchyEntry.parents[type.code].geoObject;
+              if (Object.prototype.hasOwnProperty.call(this.hierarchyEntry.parents, type.code) && this.hierarchyEntry.parents[type.code].geoObject) {
+                  let goParent = this.hierarchyEntry.parents[type.code].geoObject;
 
-              if (!this.existRangeStale) {
-                  if (goParent.properties.invalid) {
-                      this._isValid = false;
-                      this.conflictMessages.add(invalidParent);
-                  }
-                  if (!goParent.properties.exists) {
-                      this._isValid = false;
-                      this.conflictMessages.add(parentDoesNotExist);
-                  }
-              } else {
-                  service.doesGeoObjectExistAtRange(this.startDate, this.endDate, type.code, goParent.properties.code).then(stats => {
-                      goParent.properties.invalid = stats.invalid;
-                      goParent.properties.exists = stats.exists;
-
-                      this.conflictMessages.delete(invalidParent);
-                      this.conflictMessages.delete(parentDoesNotExist);
-
+                  if (!this.existRangeStale) {
                       if (goParent.properties.invalid) {
                           this._isValid = false;
                           this.conflictMessages.add(invalidParent);
@@ -85,15 +70,32 @@ export class HierarchyCREditor extends ValueOverTimeCREditor {
                           this._isValid = false;
                           this.conflictMessages.add(parentDoesNotExist);
                       }
-                  }).catch((err: HttpErrorResponse) => {
+                  } else {
+                      service.doesGeoObjectExistAtRange(this.startDate, this.endDate, type.code, goParent.properties.code).then(stats => {
+                          goParent.properties.invalid = stats.invalid;
+                          goParent.properties.exists = stats.exists;
+
+                          this.conflictMessages.delete(invalidParent);
+                          this.conflictMessages.delete(parentDoesNotExist);
+
+                          if (goParent.properties.invalid) {
+                              this._isValid = false;
+                              this.conflictMessages.add(invalidParent);
+                          }
+                          if (!goParent.properties.exists) {
+                              this._isValid = false;
+                              this.conflictMessages.add(parentDoesNotExist);
+                          }
+                      }).catch((err: HttpErrorResponse) => {
                       // eslint-disable-next-line no-console
-                      console.log(err);
-                  });
+                          console.log(err);
+                      });
+                  }
               }
           }
-      }
 
-      this.existRangeStale = false;
+          this.existRangeStale = false;
+      }
 
       return this._isValid;
   }
