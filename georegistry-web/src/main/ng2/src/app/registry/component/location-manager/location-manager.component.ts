@@ -1099,7 +1099,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 ]
             }, prevLayer);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/master
             // Point layer
             this.map.addLayer({
                 id: source + "-points",

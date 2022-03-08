@@ -15,8 +15,10 @@ import { ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
+import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
+import { LngLatBounds } from "mapbox-gl";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
+import { GeoRegistryConfiguration } from "@core/model/registry"; 
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -328,11 +330,26 @@ export class ListComponent implements OnInit, OnDestroy {
             params.version = this.list.oid;
             params.uid = result.uid;
             params.pageContext = "DATA";
-        }
 
-        this.router.navigate(["/registry/location-manager"], {
-            queryParams: params
-        });
+            this.router.navigate(["/registry/location-manager"], {
+                queryParams: params
+            });
+        } else {
+            this.service.getBounds(this.list.oid).then(bounds => {
+                if (bounds && Array.isArray(bounds)) {
+                    let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+                    const array = llb.toArray();
+
+                    params.bounds = JSON.stringify(array);
+                }
+
+                this.router.navigate(["/registry/location-manager"], {
+                    queryParams: params
+                });
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
+        }
     }
 
     onRunCuration(): void {

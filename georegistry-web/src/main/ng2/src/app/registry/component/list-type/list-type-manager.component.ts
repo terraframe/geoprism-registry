@@ -36,6 +36,7 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
         private service: ListTypeService,
         private registryService: RegistryService,
         private route: ActivatedRoute,
+        private location: Location,
         private authService: AuthService) { }
 
     ngOnInit(): void {
