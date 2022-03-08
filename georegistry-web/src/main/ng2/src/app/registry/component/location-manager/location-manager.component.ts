@@ -5,7 +5,6 @@ import { Map, LngLatBoundsLike, NavigationControl, AttributionControl, IControl,
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
-import { AllGeoJSON } from "@turf/helpers";
 import bbox from "@turf/bbox";
 
 import { GeoObject } from "@registry/model/registry";
