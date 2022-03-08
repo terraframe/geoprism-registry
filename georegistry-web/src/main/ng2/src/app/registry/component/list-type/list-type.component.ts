@@ -8,6 +8,7 @@ import { ListType, ListTypeEntry, ListTypeVersion } from "@registry/model/list-t
 import { ListTypeService } from "@registry/service/list-type.service";
 import { PublishVersionComponent } from "./publish-version.component";
 import { Router } from "@angular/router";
+import { LngLatBounds } from "mapbox-gl";
 
 @Component({
     selector: "list-type",
@@ -110,8 +111,23 @@ export class ListTypeComponent implements OnInit, OnDestroy {
     }
 
     onGotoMap(version: ListTypeVersion): void {
-        this.router.navigate(["/registry/location-manager"], {
-            queryParams: { layers: JSON.stringify([version.oid]) }
+        this.service.getBounds(version.oid).then(bounds => {
+            const queryParams: any = {
+                layers: JSON.stringify([version.oid])
+            };
+
+            if (bounds && Array.isArray(bounds)) {
+                let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+                const array = llb.toArray();
+
+                queryParams.bounds = JSON.stringify(array);
+            }
+
+            this.router.navigate(["/registry/location-manager"], {
+                queryParams: queryParams
+            });
+        }).catch((err: HttpErrorResponse) => {
+            this.error.emit(err);
         });
     }
 
