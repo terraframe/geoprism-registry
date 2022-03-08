@@ -31,7 +31,7 @@ export class HierarchyCREditor extends ValueOverTimeCREditor {
 
   // @Override
   getValueFromGeoObjectForDiff(): any {
-      let immediateParent: GeoObject = this.hierarchyEntry.parents[this.hierarchyOverTime.types[this.hierarchyOverTime.types.length - 1].code].geoObject;
+      let immediateParent: GeoObject = this.hierarchyEntry == null ? null : this.hierarchyEntry.parents[this.hierarchyOverTime.types[this.hierarchyOverTime.types.length - 1].code].geoObject;
       let goVal: string = immediateParent == null ? null : immediateParent.properties.type + "_~VST~_" + immediateParent.properties.code;
       return goVal;
   }
