@@ -521,7 +521,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
       if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY) || this.configuration.getImportStrategy().equals(ImportStrategy.NEW_AND_UPDATE))
       {
-        serverGo = service.getGeoObjectByCode(code, this.configuration.getType());
+        serverGo = service.getGeoObjectByCode(code, this.configuration.getType(), false);
       }
 
       if (serverGo == null)

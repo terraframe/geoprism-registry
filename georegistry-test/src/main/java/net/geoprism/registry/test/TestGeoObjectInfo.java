@@ -445,7 +445,7 @@ public class TestGeoObjectInfo
   {
     // if (this.serverGO == null)
     // {
-    this.serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObjectByCode(this.getCode(), this.getGeoObjectType().getCode());
+    this.serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObjectByCode(this.getCode(), this.getGeoObjectType().getCode(), false);
     // }
 
     return this.serverGO;

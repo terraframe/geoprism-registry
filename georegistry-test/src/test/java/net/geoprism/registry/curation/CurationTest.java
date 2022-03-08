@@ -54,7 +54,6 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.test.curation.CurationControllerWrapper;
 
-@Ignore
 public class CurationTest
 {
   protected static FastTestDataset testData;

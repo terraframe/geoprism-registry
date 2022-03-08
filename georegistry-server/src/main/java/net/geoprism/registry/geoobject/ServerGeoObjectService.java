@@ -278,7 +278,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
   public ServerGeoObjectIF getGeoObjectByCode(String code, ServerGeoObjectType type)
   {
-    return this.getGeoObjectByCode(code, type, false);
+    return this.getGeoObjectByCode(code, type, true);
   }
 
   public ServerGeoObjectIF getGeoObjectByCode(String code, ServerGeoObjectType type, boolean throwException)
@@ -289,7 +289,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     ServerGeoObjectIF geoObject = strategy.getGeoObjectByCode(code);
 
-    if (geoObject == null)
+    if (geoObject == null && throwException)
     {
       DataNotFoundException ex = new DataNotFoundException();
       ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
