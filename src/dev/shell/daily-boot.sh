@@ -49,6 +49,7 @@ git pull
 mvn install
 
 # Run Docker containers
+sudo docker start postgres
 sudo docker start orientdb
 
 # Kill any running tomcat
