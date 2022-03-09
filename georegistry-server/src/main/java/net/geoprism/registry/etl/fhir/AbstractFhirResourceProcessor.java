@@ -109,7 +109,7 @@ public abstract class AbstractFhirResourceProcessor implements FhirResourceProce
       String typeCode = this.getType(location);
       String code = identifier.getValue();
 
-      ServerGeoObjectIF geoObject = this.getService().getGeoObjectByCode(code, typeCode);
+      ServerGeoObjectIF geoObject = this.getService().getGeoObjectByCode(code, typeCode, false);
 
       if (geoObject == null)
       {

@@ -75,7 +75,6 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
-@Ignore
 public class GeoObjectImporterTest
 {
   protected static USATestData testData;

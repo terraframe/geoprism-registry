@@ -102,7 +102,6 @@ import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
-@Ignore
 public class ExcelServiceTest
 {
   protected static String                    CLASSIFICATION_TYPE = "test.classification.TestClassification";
@@ -668,7 +667,7 @@ public class ExcelServiceTest
 
     Assert.assertEquals("0001", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { USATestData.STATE.getCode() }, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getCode(), config.getType().getCode(), new String[] { USATestData.STATE.getCode() }, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -742,7 +741,7 @@ public class ExcelServiceTest
 
     Assert.assertEquals("0001", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { USATestData.STATE.getCode() }, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getCode(), config.getType().getCode(), new String[] { USATestData.STATE.getCode() }, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
 
