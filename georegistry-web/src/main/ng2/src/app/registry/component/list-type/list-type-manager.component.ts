@@ -13,6 +13,7 @@ import { ListType, ListTypeByType } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { Location } from "@angular/common";
 import { Subscription } from "rxjs";
+import Utils from "@registry/utility/Utils";
 
 @Component({
     selector: "list-type-manager",
@@ -75,7 +76,7 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
                 // Order alphabetically
                 // TODO: sort these on the server
                 //
-                function compare(a, b) {
+                response.organizations.sort((a, b) => {
                     if (a.label.localizedValue < b.label.localizedValue) {
                         return -1;
                     }
@@ -83,8 +84,7 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
                         return 1;
                     }
                     return 0;
-                }
-                response.organizations.sort(compare);
+                });
                 //
                 // End sort
 
@@ -97,7 +97,7 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
                     });
 
                     if (pos >= 0) {
-                        this.array_move(response.organizations, pos, 0);
+                        Utils.arrayMove(response.organizations, pos, 0);
                     }
                 }
 
@@ -108,7 +108,7 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
                     let orgTypes = response.types.filter(t => t.organizationCode === org.code);
                     let orgTypesNoGroupMembers = orgTypes.filter(t => !t.superTypeCode);
 
-                    function compare(a, b) {
+                    orgTypesNoGroupMembers.sort((a, b) => {
                         if (a.label.localizedValue < b.label.localizedValue) {
                             return -1;
                         }
@@ -116,9 +116,7 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
                             return 1;
                         }
                         return 0;
-                    }
-
-                    orgTypesNoGroupMembers.sort(compare);
+                    });
 
                     let groupTypes = [];
                     let groups = orgTypesNoGroupMembers.filter(gType => gType.isAbstract);
@@ -161,16 +159,6 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
                 }
             }
         });
-    }
-
-    array_move(arr, old_index, new_index): void {
-        if (new_index >= arr.length) {
-            let k = new_index - arr.length + 1;
-            while (k--) {
-                arr.push(undefined);
-            }
-        }
-        arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
     }
 
     ngOnDestroy(): void {
