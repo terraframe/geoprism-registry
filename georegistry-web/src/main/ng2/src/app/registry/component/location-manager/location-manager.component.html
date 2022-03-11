@@ -142,7 +142,7 @@
                 aria-hidden="true"></span>
             </div>
           </div>
-          <span class="map-button visualize-mode-toggle">
+          <span class="map-button visualize-mode-toggle" *ngIf="graphVisualizerEnabled">
             <i style="margin-right: initial" class="visualize-mode-hierarchy clickable fa fa-share-alt"
               aria-hidden="true"
               [title]="(graphPanelOpen ? 'explorer.resize.closeGraphViz' : 'explorer.resize.openGraphViz') | localize"
@@ -154,7 +154,7 @@
   <div class="col-md-1" *ngIf="showPanel" style="z-index:999;padding-top: 10px">
   </div>
 -->
-        <div [ngClass]="{'col-md-5':!showPanel, 'col-md-7':showPanel}" *ngIf="graphPanelOpen"
+        <div [ngClass]="{'col-md-5':!showPanel, 'col-md-7':showPanel}" *ngIf="graphPanelOpen && graphVisualizerEnabled"
           style="z-index:999;padding-top: 10px; overflow-y: auto;">
           <div id="graph-container" style="height: calc(100vh - 164px);">
             <div style="background-color: white; opacity: 100%; width: 100%; height: 100%;">

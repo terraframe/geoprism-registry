@@ -158,6 +158,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     // Flag denoting if the search and results panel is enabled at all
     searchEnabled: boolean = true;
 
+    graphVisualizerEnabled: boolean = false;
+
     typeahead: Observable<any> = null;
 
     typeCache: GeoObjectTypeCache;
@@ -196,6 +198,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
 
         this.searchEnabled = registry.searchEnabled && (this.authService.isRC(false) || this.authService.isRM() || this.authService.isRA());
+        this.graphVisualizerEnabled = registry.graphVisualizerEnabled || false;
 
         this.typeahead = new Observable((observer: Observer<any>) => {
             this.handleFeatureSearch(observer);
