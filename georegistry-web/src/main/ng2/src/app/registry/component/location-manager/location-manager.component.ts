@@ -7,7 +7,7 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import bbox from "@turf/bbox";
 
-import { GeoObject, GeoObjectTypeCache } from "@registry/model/registry";
+import { GeoObject, GeoObjectType, GeoObjectTypeCache } from "@registry/model/registry";
 import { ModalState, PANEL_SIZE_STATE } from "@registry/model/location-manager";
 
 import { MapService, RegistryService, GeometryService } from "@registry/service";
@@ -679,6 +679,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.searchFeatures = !this.searchFeatures;
     }
 
+    getGeoObjectTypeLabel(geoObject: GeoObject) {
+        const type: GeoObjectType = this.typeCache.getTypeByCode(geoObject.properties.type);
+
+        return type == null ? "" : type.label.localizedValue;
+    }
+
     search(): void {
         this.router.navigate([], {
             relativeTo: this.route,
@@ -694,7 +700,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.state.currentDate = date;
 
             if (this.data.length > 0) {
-                let source = (<any>this.map.getSource(GRAPH_LAYER));
+                let source = (<any> this.map.getSource(GRAPH_LAYER));
 
                 if (source != null) {
                     source.setData(data);
@@ -864,7 +870,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             });
         }
 
-        const type = this.typeCache.getTypeByCode(typeCode);
+        const type: GeoObjectType = this.typeCache.getTypeByCode(typeCode);
 
         this.record = {
             recordType: "GEO_OBJECT",

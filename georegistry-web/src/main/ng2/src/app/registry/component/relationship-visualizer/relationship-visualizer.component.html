@@ -34,7 +34,8 @@
             <ng-template #nodeTemplate let-node>
               <svg:g (click)="onClickNode(node)" class="node">
                 <svg:polygon [attr.points]="getHexagonPoints(node)"
-                  [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? '#4287f5' : 'gray')">
+                  [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? '#4287f5' : this.colorSchema[node.typeCode])"
+                  >
                   </polygon>
 
                   <foreignObject
