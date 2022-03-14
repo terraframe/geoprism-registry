@@ -24,6 +24,11 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 public class ServerParentGraphNode extends ServerGraphNode
 {
   private List<ServerParentGraphNode> parents;
@@ -153,4 +158,23 @@ public class ServerParentGraphNode extends ServerGraphNode
 
     return this;
   }
+
+  @Override
+  public JsonObject toJSON()
+  {
+    JsonObject json = super.toJSON();
+
+    JsonArray jaParents = new JsonArray();
+    for (int i = 0; i < this.parents.size(); ++i)
+    {
+      ServerParentGraphNode parent = this.parents.get(i);
+
+      jaParents.add(parent.toJSON());
+    }
+
+    json.add(ParentTreeNode.JSON_PARENTS, jaParents);
+
+    return json;
+  }
+
 }

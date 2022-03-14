@@ -20,6 +20,10 @@ package net.geoprism.registry.model;
 
 import java.util.Date;
 
+import org.commongeoregistry.adapter.dataaccess.TreeNode;
+
+import com.google.gson.JsonObject;
+
 public abstract class ServerGraphNode
 {
   private ServerGeoObjectIF geoObject;
@@ -79,6 +83,27 @@ public abstract class ServerGraphNode
   public void setOid(String oid)
   {
     this.oid = oid;
+  }
+
+  public JsonObject toJSON()
+  {
+    JsonObject json = new JsonObject();
+    
+    if (this.geoObject != null)
+    {
+      json.add(TreeNode.JSON_GEO_OBJECT, this.geoObject.toGeoObject(this.startDate).toJSON());
+    }
+    else
+    {
+      json.add(TreeNode.JSON_GEO_OBJECT, null);
+    }
+    
+    if (this.graphType != null) // The hierarchyType is null on the root node
+    {
+      json.addProperty("graphType", this.graphType.getCode());
+    }
+    
+    return json;
   }
 
 }
