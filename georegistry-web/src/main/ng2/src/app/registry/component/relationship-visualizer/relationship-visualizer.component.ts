@@ -16,7 +16,7 @@ import * as shape from "d3-shape";
 import { LocalizedValue } from "@shared/model/core";
 import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
-import { timeout } from "d3";
+import * as ColorGen from "color-generator";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -41,6 +41,21 @@ export const DIMENSIONS = {
         NODE_EDGE: 5
     }
 };
+
+export interface Vertex {
+    code: string,
+    typeCode: string,
+    id: string,
+    label: string,
+    relation: "PARENT" | "CHILD" | "SELECTED"
+}
+
+export interface Edge {
+    id: string,
+    label: string,
+    source: string,
+    target: string
+}
 
 @Component({
 
@@ -70,14 +85,11 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     @Output() changeRelationship = new EventEmitter<string>();
 
-    private data: any = null;
+    private data: {edges: Edge[], verticies: Vertex[]} = null;
 
     public DIMENSIONS = DIMENSIONS;
 
     relationships: Relationship[];
-
-    public left: number = 10;
-    public top: number = 40;
 
     public svgHeight: number = null;
     public svgWidth: number = null;
@@ -89,6 +101,8 @@ export class RelationshipVisualizerComponent implements OnInit {
     public layout: Layout = new DagreNodesOnlyLayout();
 
     public curve = shape.curveLinear;
+
+    public colorSchema: any = {};
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService,
@@ -193,6 +207,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                     this.data = data;
 
                     this.resizeDimensions();
+                    this.calculateColorSchema();
                 }, 0);
 
                 this.resizeDimensions();
@@ -200,6 +215,16 @@ export class RelationshipVisualizerComponent implements OnInit {
                 this.spinner.hide(this.CONSTANTS.OVERLAY);
             });
         }
+    }
+
+    calculateColorSchema() {
+        this.colorSchema = {};
+
+        this.data.verticies.forEach(vertex => {
+            if (!this.colorSchema[vertex.typeCode]) {
+                this.colorSchema[vertex.typeCode] = ColorGen().hexString();
+            }
+        });
     }
 
     collapseAnimation(id: string): Promise<void> {
