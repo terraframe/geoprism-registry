@@ -7,6 +7,29 @@
   color: black;
 }
 
+.legend {
+	  position: absolute;
+	  right: 5px;
+	  top: 53px;
+}
+
+.legend .legend-item {
+	  display: table;
+}
+
+.legend .square {
+	  width: 25px;
+	  height: 25px;
+	  margin-right: 5px;
+	  float: left;
+}
+
+.legend label {
+	  float: left;
+	  line-height: 25px;
+	  height: 25px;
+}
+
 .map-button {
     background-color: white;
     margin-top:150px;

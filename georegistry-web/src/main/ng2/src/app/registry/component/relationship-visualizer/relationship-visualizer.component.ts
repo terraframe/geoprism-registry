@@ -20,6 +20,8 @@ import * as ColorGen from "color-generator";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
+export const SELECTED_NODE_COLOR: string = "#4287f5";
+
 export const GRAPH_GO_LABEL_COLOR: string = "black";
 export const GRAPH_CIRCLE_FILL: string = "#999";
 export const GRAPH_LINE_COLOR: string = "#999";
@@ -90,6 +92,8 @@ export class RelationshipVisualizerComponent implements OnInit {
     private data: {edges: Edge[], verticies: Vertex[]} = null;
 
     public DIMENSIONS = DIMENSIONS;
+
+    public SELECTED_NODE_COLOR = SELECTED_NODE_COLOR;
 
     relationships: Relationship[];
 
@@ -223,10 +227,12 @@ export class RelationshipVisualizerComponent implements OnInit {
         this.colorSchema = {};
 
         this.data.verticies.forEach(vertex => {
-            if (!this.colorSchema[vertex.typeCode]) {
+            if (vertex.id.substring(2) !== this.geoObject.properties.uid && !this.colorSchema[vertex.typeCode]) {
                 this.colorSchema[vertex.typeCode] = ColorGen().hexString();
             }
         });
+
+        this.colorSchema[this.geoObject.properties.type] = SELECTED_NODE_COLOR;
     }
 
     collapseAnimation(id: string): Promise<void> {

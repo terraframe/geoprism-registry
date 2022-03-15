@@ -10,6 +10,14 @@
       <option *ngIf="relationships.length === 0"></option>
       <option *ngFor="let loopRel of relationships" [value]="loopRel.oid">{{loopRel.label.localizedValue}}</option>
     </select>
+    
+    <div class="legend">
+      <div class="legend-item" *ngFor="let item of colorSchema | keyvalue">
+        <div class="square" [ngStyle]="{ background: item.value }"></div>
+        
+        <label>{{item.key}}</label>
+      </div>
+    </div>
 
     <div *ngIf="relationships" style="height:100%; width:100%;">
       <div class="hierarchy-content" style="height:100%; width:100%;">
@@ -33,7 +41,7 @@
             <ng-template #nodeTemplate let-node>
               <svg:g (click)="onClickNode(node)" class="node">
                 <svg:polygon [attr.points]="getHexagonPoints(node)"
-                  [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? '#4287f5' : this.colorSchema[node.typeCode])"
+                  [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? SELECTED_NODE_COLOR : this.colorSchema[node.typeCode])"
                   >
                   </polygon>
 
