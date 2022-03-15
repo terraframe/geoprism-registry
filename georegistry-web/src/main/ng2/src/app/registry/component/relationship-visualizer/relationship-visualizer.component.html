@@ -39,7 +39,7 @@
 
             <!-- Node Template -->
             <ng-template #nodeTemplate let-node>
-              <svg:g (click)="onClickNode(node)" class="node">
+              <svg:g (click)="onClickNode(node)" class="node" [ngStyle]="{ 'cursor': ('g-' + geoObject.properties.uid) === node.id ? null : 'pointer' }">
                 <svg:polygon [attr.points]="getHexagonPoints(node)"
                   [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? SELECTED_NODE_COLOR : this.colorSchema[node.typeCode])"
                   >
