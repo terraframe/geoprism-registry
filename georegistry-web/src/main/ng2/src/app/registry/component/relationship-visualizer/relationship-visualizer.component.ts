@@ -24,6 +24,8 @@ export const GRAPH_GO_LABEL_COLOR: string = "black";
 export const GRAPH_CIRCLE_FILL: string = "#999";
 export const GRAPH_LINE_COLOR: string = "#999";
 
+export const COLLAPSE_ANIMATION_TIME: number = 500; // in ms
+
 export interface Relationship {
     oid: string,
     label: LocalizedValue,
@@ -240,8 +242,26 @@ export class RelationshipVisualizerComponent implements OnInit {
         all.forEach((el: SVGGraphicsElement) => {
             if (el.id !== activeEl.id) {
                 let bbox2 = this.getBBox(el, false);
-                let translate = "translate(" + (bbox.x - bbox2.x) + "," + (bbox.y - bbox2.y) + ")";
-                el.setAttribute("transform", translate);
+
+                // let translate = "translate(" + (bbox.x - bbox2.x) + "," + (bbox.y - bbox2.y) + ")";
+                // el.setAttribute("transform", translate);
+
+                let animateTransform = document.createElementNS("http://www.w3.org/2000/svg", "animateTransform") as unknown as SVGGraphicsElement;
+
+                animateTransform.setAttribute("attributeName", "transform");
+                animateTransform.setAttribute("attributeType", "XML");
+                animateTransform.setAttribute("type", "translate");
+                animateTransform.setAttribute("fill", "freeze");
+                // animateTransform.setAttribute("from", 0 + " " + 0);
+                animateTransform.setAttribute("to", (bbox.x - bbox2.x) + " " + (bbox.y - bbox2.y));
+                animateTransform.setAttribute("begin", "indefinite");
+                animateTransform.setAttribute("additive", "replace");
+                animateTransform.setAttribute("dur", COLLAPSE_ANIMATION_TIME + "ms");
+                animateTransform.setAttribute("repeatCount", "0");
+
+                el.appendChild(animateTransform);
+
+                animateTransform.beginElement(); // Tells the element to animate now
             }
         });
 
@@ -258,7 +278,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                 });
 
                 resolve();
-            }, 500);
+            }, COLLAPSE_ANIMATION_TIME);
         });
 
         return promise;
