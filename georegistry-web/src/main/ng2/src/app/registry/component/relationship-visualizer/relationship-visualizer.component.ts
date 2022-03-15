@@ -246,7 +246,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                 // let translate = "translate(" + (bbox.x - bbox2.x) + "," + (bbox.y - bbox2.y) + ")";
                 // el.setAttribute("transform", translate);
 
-                let animateTransform = document.createElementNS("http://www.w3.org/2000/svg", "animateTransform") as unknown as SVGGraphicsElement;
+                let animateTransform = document.createElementNS("http://www.w3.org/2000/svg", "animateTransform") as unknown as SVGAnimateTransformElement;
 
                 animateTransform.setAttribute("attributeName", "transform");
                 animateTransform.setAttribute("attributeType", "XML");
@@ -261,7 +261,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
                 el.appendChild(animateTransform);
 
-                animateTransform.beginElement(); // Tells the element to animate now
+                (animateTransform as any).beginElement(); // Tells the element to animate now
             }
         });
 
