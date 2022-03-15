@@ -11,7 +11,7 @@
       <option *ngFor="let loopRel of relationships" [value]="loopRel.oid">{{loopRel.label.localizedValue}}</option>
     </select>
 
-    <div *ngIf="relationships" style="height:100%; width:100%;" class="row">
+    <div *ngIf="relationships" style="height:100%; width:100%;">
       <div class="hierarchy-content" style="height:100%; width:100%;">
         <div id="graph-container" style="height:100%; width:100%;">
           <ngx-graph *ngIf="data" class="chart-container" [view]="[svgWidth, svgHeight]" [links]="data.edges"
