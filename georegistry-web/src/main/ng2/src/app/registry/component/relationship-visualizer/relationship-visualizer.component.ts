@@ -5,7 +5,7 @@ import { BsModalService } from "ngx-bootstrap/modal";
 
 import { ErrorHandler } from "@shared/component";
 
-import { GeoObject } from "@registry/model/registry";
+import { GeoObject, GeoObjectTypeCache } from "@registry/model/registry";
 import { Subject } from "rxjs";
 import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
 import { Layout, Orientation } from "@swimlane/ngx-graph";
@@ -17,6 +17,7 @@ import { LocalizedValue } from "@shared/model/core";
 import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
 import * as ColorGen from "color-generator";
+import { RegistryCacheService } from "@registry/service/registry-cache.service";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -110,12 +111,16 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     public colorSchema: any = {};
 
+    public typeCache: GeoObjectTypeCache;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService,
         private spinner: NgxSpinnerService,
-        private vizService: RelationshipVisualizationService) { }
+        private vizService: RelationshipVisualizationService,
+        private cacheService: RegistryCacheService) { }
 
     ngOnInit(): void {
+        this.typeCache = this.cacheService.getTypeCache();
     }
 
     ngOnChanges(changes: SimpleChanges) {

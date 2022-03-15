@@ -15,7 +15,7 @@
       <div class="legend-item" *ngFor="let item of colorSchema | keyvalue">
         <div class="square" [ngStyle]="{ background: item.value }"></div>
         
-        <label>{{item.key}}</label>
+        <label>{{typeCache.getTypeByCode(item.key).label.localizedValue}}</label>
       </div>
     </div>
 

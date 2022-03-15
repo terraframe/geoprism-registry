@@ -136,6 +136,8 @@ import { ClassificationService } from "./service/classification.service";
 import { ClassificationFieldComponent } from "./component/form-fields/classification-field/classification-field.component";
 import { ClassificationFieldModalComponent } from "./component/form-fields/classification-field/classification-field-modal.component";
 
+import { RegistryCacheService } from "./service/registry-cache.service"
+
 @NgModule({
     imports: [
         CommonModule,
@@ -271,6 +273,7 @@ import { ClassificationFieldModalComponent } from "./component/form-fields/class
         ChangeRequestService,
         IOService,
         RegistryService,
+        RegistryCacheService,
         TaskService,
         DatePipe,
         ToEpochDateTimePipe,

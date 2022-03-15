@@ -27,6 +27,7 @@ import { OverlayerIdentifier } from "@registry/model/constants";
 import { NgxSpinnerService } from "ngx-spinner";
 import { ModalTypes } from "@shared/model/modal";
 import { FeaturePanelComponent } from "./feature-panel.component";
+import { RegistryCacheService } from "@registry/service/registry-cache.service";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -180,6 +181,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         private modalService: BsModalService,
         private spinner: NgxSpinnerService,
         private service: RegistryService,
+        private cacheService: RegistryCacheService,
         private listService: ListTypeService,
         private mapService: MapService,
         private geomService: GeometryService,
@@ -204,10 +206,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.handleFeatureSearch(observer);
         });
 
-        this.typeCache = new GeoObjectTypeCache(this.service);
-        this.typeCache.refresh().then(types => {
-            this.handleParameterChange(this.params);
-        });
+        this.typeCache = this.cacheService.getTypeCache();
     }
 
     ngOnDestroy(): void {
