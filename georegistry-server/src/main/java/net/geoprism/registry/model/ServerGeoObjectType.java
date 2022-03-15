@@ -101,6 +101,9 @@ import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.SearchService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 public class ServerGeoObjectType implements ServerElement
 {
@@ -242,6 +245,8 @@ public class ServerGeoObjectType implements ServerElement
       // refresh because the GeoObjectType is
       // embedded in the HierarchyType
       ServiceFactory.getRegistryService().refreshMetadataCache();
+      
+      NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
     }
     catch (RuntimeException e)
     {

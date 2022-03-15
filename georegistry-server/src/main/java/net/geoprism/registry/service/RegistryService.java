@@ -113,6 +113,9 @@ import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.query.graph.AbstractVertexRestriction;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 public class RegistryService
 {
@@ -648,6 +651,8 @@ public class RegistryService
 
     // If this did not error out then add to the cache
     ServiceFactory.getMetadataCache().addGeoObjectType(type);
+    
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
 
     return type.getType();
   }
@@ -668,6 +673,8 @@ public class RegistryService
     GeoRegistryUtil.importTypes(orgCode, istream);
 
     this.refreshMetadataCache();
+    
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
   }
 
   /**
@@ -689,6 +696,8 @@ public class RegistryService
     ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(geoObjectType.getOrganizationCode(), serverGeoObjectType, geoObjectType.getIsPrivate());
 
     serverGeoObjectType.update(geoObjectType);
+    
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
 
     return serverGeoObjectType.getType();
   }
