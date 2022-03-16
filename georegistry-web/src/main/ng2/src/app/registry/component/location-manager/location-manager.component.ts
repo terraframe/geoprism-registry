@@ -869,37 +869,39 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             });
         }
 
-        const type: GeoObjectType = this.typeCache.getTypeByCode(typeCode);
+        this.typeCache.waitOnTypes().then(() => {
+            const type: GeoObjectType = this.typeCache.getTypeByCode(typeCode);
 
-        this.record = {
-            recordType: "GEO_OBJECT",
-            type: type,
-            code: code,
-            forDate: this.state.currentDate === "" ? null : this.state.currentDate
-        };
+            this.record = {
+                recordType: "GEO_OBJECT",
+                type: type,
+                code: code,
+                forDate: this.state.currentDate === "" ? null : this.state.currentDate
+            };
 
-        this.geomService.destroy(false);
-        this.geomService.initialize(this.map, this.record.type.geometryType, false);
+            this.geomService.destroy(false);
+            this.geomService.initialize(this.map, this.record.type.geometryType, false);
 
-        if (geoObject == null) {
-            if (code !== "__NEW__") {
-                this.spinner.show(this.CONSTANTS.OVERLAY);
+            if (geoObject == null) {
+                if (code !== "__NEW__") {
+                    this.spinner.show(this.CONSTANTS.OVERLAY);
 
-                this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
-                    this.current = geoObject;
-                    this.requestedDate = this.record.forDate === "" ? null : this.record.forDate;
-                    this.zoomToFeature(this.current, null);
-                }).catch((err: HttpErrorResponse) => {
-                    this.error(err);
-                }).finally(() => {
-                    this.spinner.hide(this.CONSTANTS.OVERLAY);
-                });
+                    this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
+                        this.current = geoObject;
+                        this.requestedDate = this.record.forDate === "" ? null : this.record.forDate;
+                        this.zoomToFeature(this.current, null);
+                    }).catch((err: HttpErrorResponse) => {
+                        this.error(err);
+                    }).finally(() => {
+                        this.spinner.hide(this.CONSTANTS.OVERLAY);
+                    });
+                }
+            } else {
+                this.current = geoObject;
+                this.requestedDate = this.record.forDate === "" ? null : this.record.forDate;
+                this.zoomToFeature(this.current, null);
             }
-        } else {
-            this.current = geoObject;
-            this.requestedDate = this.record.forDate === "" ? null : this.record.forDate;
-            this.zoomToFeature(this.current, null);
-        }
+        });
     }
 
     setData(data: GeoObject[]): void {
