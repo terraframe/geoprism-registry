@@ -245,7 +245,7 @@ public class ServerGeoObjectType implements ServerElement
       // refresh because the GeoObjectType is
       // embedded in the HierarchyType
       ServiceFactory.getRegistryService().refreshMetadataCache();
-      
+
       NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
     }
     catch (RuntimeException e)
@@ -1111,6 +1111,16 @@ public class ServerGeoObjectType implements ServerElement
       if (root != null)
       {
         Classification classification = Classification.get(classificationType, root.getCode());
+
+        if (classification == null)
+        {
+          net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+          ex.setTypeLabel(classificationType.getDisplayLabel().getValue());
+          ex.setDataIdentifier(root.getCode());
+          ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+
+          throw ex;
+        }
 
         mdAttributeTerm.setValue(MdAttributeClassification.ROOT, classification.getOid());
       }
