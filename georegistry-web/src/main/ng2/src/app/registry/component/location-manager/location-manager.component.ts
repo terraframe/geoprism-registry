@@ -152,9 +152,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     // Flag denoting if the map in loaded and initialized
     ready: boolean = false;
 
-    // Flag denoting if the map in loaded and initialized
-    searchFeatures: boolean = false;
-
     // Flag denoting if the search and results panel is enabled at all
     searchEnabled: boolean = true;
 
@@ -670,10 +667,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
             ]
         });
-    }
-
-    onToggleSearch(): void {
-        this.searchFeatures = !this.searchFeatures;
     }
 
     search(): void {

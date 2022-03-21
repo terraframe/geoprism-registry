@@ -96,13 +96,13 @@ ul li:last-child:before {
 	transition: all 0.3s;
   	padding:0;
     vertical-align: top;
-    height: calc(100vh - 143px);
+    height: calc(100vh - 50px);
     overflow-x: hidden;
     overflow-y: auto;
 }
 
 .hierarchy-content {
-	height: calc(100vh - 143px);
+	height: calc(100vh - 50px);
     overflow: auto;
 }
 

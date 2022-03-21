@@ -26,3 +26,7 @@
 .map-button-icon > span.glyphicon {
     line-height: 30px;
 }
+
+:host /deep/ .graph .panning-rect {
+	cursor: grab;
+}

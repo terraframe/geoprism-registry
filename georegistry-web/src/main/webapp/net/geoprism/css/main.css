@@ -175,7 +175,7 @@ label.btn.full-width-radio-button.error {
 .navbar.navbar-default {
     background-color: #3E2A5A; /* IE fallback */
     background-color: var(--theme-primary-color);
-    height: 144px;
+    height: 40px;
     border-radius: 0;
     border: none;
     margin-bottom: 0;
@@ -196,7 +196,7 @@ label.btn.full-width-radio-button.error {
     color: #DBD7A5; /* IE fallback */
     color: var(--theme-accent-color);
     vertical-align: middle;
-    margin-right: 20px;
+    margin-right: 15px;
 }
 .glyphicon.glyphicon-menu-hamburger:hover {
     color: #e5e4d2; /* IE fallback */
@@ -204,16 +204,19 @@ label.btn.full-width-radio-button.error {
 }
 
 .nav.navbar-nav.navbar-right .dropdown .dropdown-toggle .glyphicon.glyphicon-menu-hamburger {
-    line-height: 144px;
+    line-height: 50px;
 }
 
 .navbar-header {
-    padding: 46px 0 46px 0;
+    padding: inherit;
     float: left;
 }
 .navbar-default .navbar-header > a > img {
-    height: 50px;
     margin-right: 20px;
+    height: 80%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .nav.navbar-nav.navbar-right {
@@ -221,14 +224,16 @@ label.btn.full-width-radio-button.error {
 }
 
 .nav.navbar-nav.navbar-right .dropdown-toggle {
-    line-height: 144px !important; 
+    line-height: 50px !important; 
     padding: 0 !important; 
 }
 
 .navbar-default .navbar-header > a:first-child.navbar-brand {
-    line-height: 144px;
+    line-height: 50px;
     padding: 0;
-    margin-left: 20px;
+}
+.navbar-default .navbar-header > a:nth-of-type(2).navbar-brand {
+    margin-left: 35px;
 }
 
 .navbar-default .navbar-header .navbar-brand:hover {
@@ -237,7 +242,7 @@ label.btn.full-width-radio-button.error {
 .navbar-default .navbar-nav .navbar-username {
 	color: #777;
 	background-color:transparent;
-	line-height: 144px;
+	line-height: 50px;
     padding: 0 10px;
     margin-right: 15px;
 }
@@ -261,7 +266,7 @@ label.btn.full-width-radio-button.error {
 .dropdown-menu {
   font-size: 18px;
   overflow-y: auto;
-  max-height: calc(100vh - 144px);
+  max-height: calc(100vh - 50px);
 }
 .dropdown-menu>li>a:hover, 
 .dropdown-menu>li>a:focus {
