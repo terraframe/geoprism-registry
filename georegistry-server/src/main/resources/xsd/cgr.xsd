@@ -156,6 +156,7 @@
       <xs:enumeration value="POINT" />
       <xs:enumeration value="LINE" />
       <xs:enumeration value="POLYGON" />
+      <xs:enumeration value="MIXED" />      
     </xs:restriction>
   </xs:simpleType>
 </xs:schema>

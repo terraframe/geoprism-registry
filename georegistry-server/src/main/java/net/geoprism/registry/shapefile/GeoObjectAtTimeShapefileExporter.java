@@ -73,6 +73,7 @@ import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -454,6 +455,10 @@ public class GeoObjectAtTimeShapefileExporter
     else if (geometryType.equals(GeometryType.MULTIPOLYGON))
     {
       return MultiPolygon.class;
+    }
+    else if (geometryType.equals(GeometryType.MIXED))
+    {
+      return Geometry.class;
     }
 
     throw new UnsupportedOperationException("Unsupported geometry type [" + geometryType.name() + "]");

@@ -1,0 +1,25 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version_gis.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <update>
+      <mdGeoVertex name="net.geoprism.registry.graph.GeoVertex">
+       <create>
+          <attributes>
+            <shape name="shape" label="Shape" srid="4326" dimension="2"/>
+          </attributes>
+        </create>
+      </mdGeoVertex>    
+    </update>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="georegistry.geometry.mixed">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="georegistry.geometry.mixed" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Mixed Geometries" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

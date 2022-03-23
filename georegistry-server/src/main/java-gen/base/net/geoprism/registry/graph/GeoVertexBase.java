@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = 2107105832)
+@com.runwaysdk.business.ClassSignature(hash = 1794115256)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -39,7 +21,8 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String OID = "oid";
   public static java.lang.String SEQ = "seq";
-  private static final long serialVersionUID = 2107105832;
+  public static java.lang.String SHAPE = "shape";
+  private static final long serialVersionUID = 1794115256;
   
   public GeoVertexBase()
   {
@@ -61,7 +44,7 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
   {
     this.setValue(CREATEDATE, value);
   }
-    
+  
   public com.vividsolutions.jts.geom.LineString getGeoLine()
   {
     return (com.vividsolutions.jts.geom.LineString) this.getObjectValue(GEOLINE);
@@ -201,25 +184,25 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     this.setValue(SEQ, value);
   }
   
+  public com.vividsolutions.jts.geom.Geometry getShape()
+  {
+    return (com.vividsolutions.jts.geom.Geometry) this.getObjectValue(SHAPE);
+  }
+  
+  public static com.runwaysdk.gis.dataaccess.MdAttributeShapeDAOIF getShapeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.GeoVertex.CLASS);
+    return (com.runwaysdk.gis.dataaccess.MdAttributeShapeDAOIF)mdClassIF.definesAttribute(SHAPE);
+  }
+  
+  public void setShape(com.vividsolutions.jts.geom.Geometry value)
+  {
+    this.setValue(SHAPE, value);
+  }
+  
   protected String getDeclaredType()
   {
     return CLASS;
-  }
-  
-  public com.runwaysdk.business.graph.EdgeObject addAroundChild(net.geoprism.registry.graph.GeoVertex geoVertex)
-  {
-    return super.addChild(geoVertex, "net.geoprism.registry.graph.Around");
-  }
-  
-  public void removeAroundChild(net.geoprism.registry.graph.GeoVertex geoVertex)
-  {
-    super.removeChild(geoVertex, "net.geoprism.registry.graph.Around");
-  }
-  
-  
-  public java.util.List<net.geoprism.registry.graph.GeoVertex> getAroundChildGeoVertexs()
-  {
-    return super.getChildren("net.geoprism.registry.graph.Around",net.geoprism.registry.graph.GeoVertex.class);
   }
   
   public com.runwaysdk.business.graph.EdgeObject addGeoVertexHasSynonymChild(net.geoprism.registry.graph.GeoVertexSynonym geoVertexSynonym)
@@ -232,7 +215,7 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     super.removeChild(geoVertexSynonym, "net.geoprism.registry.graph.GeoVertexHasSynonym");
   }
   
-  
+  @SuppressWarnings("unchecked")
   public java.util.List<net.geoprism.registry.graph.GeoVertexSynonym> getGeoVertexHasSynonymChildGeoVertexSynonyms()
   {
     return super.getChildren("net.geoprism.registry.graph.GeoVertexHasSynonym",net.geoprism.registry.graph.GeoVertexSynonym.class);
@@ -248,26 +231,10 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     super.removeChild(geoVertex, "net.geoprism.registry.graph.LocatedIn");
   }
   
-  
+  @SuppressWarnings("unchecked")
   public java.util.List<net.geoprism.registry.graph.GeoVertex> getLocatedInChildGeoVertexs()
   {
     return super.getChildren("net.geoprism.registry.graph.LocatedIn",net.geoprism.registry.graph.GeoVertex.class);
-  }
-  
-  public com.runwaysdk.business.graph.EdgeObject addAroundParent(net.geoprism.registry.graph.GeoVertex geoVertex)
-  {
-    return super.addParent(geoVertex, "net.geoprism.registry.graph.Around");
-  }
-  
-  public void removeAroundParent(net.geoprism.registry.graph.GeoVertex geoVertex)
-  {
-    super.removeParent(geoVertex, "net.geoprism.registry.graph.Around");
-  }
-  
-  
-  public java.util.List<net.geoprism.registry.graph.GeoVertex> getAroundParentGeoVertexs()
-  {
-    return super.getParents("net.geoprism.registry.graph.Around", net.geoprism.registry.graph.GeoVertex.class);
   }
   
   public com.runwaysdk.business.graph.EdgeObject addExternalIDParent(net.geoprism.registry.graph.ExternalSystem externalSystem)
@@ -280,7 +247,7 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     super.removeParent(externalSystem, "net.geoprism.registry.graph.ExternalID");
   }
   
-  
+  @SuppressWarnings("unchecked")
   public java.util.List<net.geoprism.registry.graph.ExternalSystem> getExternalIDParentExternalSystems()
   {
     return super.getParents("net.geoprism.registry.graph.ExternalID", net.geoprism.registry.graph.ExternalSystem.class);
@@ -296,10 +263,26 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     super.removeParent(geoVertex, "net.geoprism.registry.graph.LocatedIn");
   }
   
-  
+  @SuppressWarnings("unchecked")
   public java.util.List<net.geoprism.registry.graph.GeoVertex> getLocatedInParentGeoVertexs()
   {
     return super.getParents("net.geoprism.registry.graph.LocatedIn", net.geoprism.registry.graph.GeoVertex.class);
+  }
+  
+  public com.runwaysdk.business.graph.EdgeObject addSearchLinkDefaultParent(com.runwaysdk.business.graph.VertexObject searchDefault)
+  {
+    return super.addParent(searchDefault, "net.geoprism.registry.search.SearchLinkDefault");
+  }
+  
+  public void removeSearchLinkDefaultParent(com.runwaysdk.business.graph.VertexObject searchDefault)
+  {
+    super.removeParent(searchDefault, "net.geoprism.registry.search.SearchLinkDefault");
+  }
+  
+  @SuppressWarnings("unchecked")
+  public java.util.List<com.runwaysdk.business.graph.VertexObject> getSearchLinkDefaultParentSearchDefaults()
+  {
+    return super.getParents("net.geoprism.registry.search.SearchLinkDefault", com.runwaysdk.business.graph.VertexObject.class);
   }
   
   public static GeoVertex get(String oid)
