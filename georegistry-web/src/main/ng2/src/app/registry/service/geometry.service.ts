@@ -315,6 +315,17 @@ export class GeometryService {
                         uncombine_features: false
                     }
                 });
+            } else if (this.geometryType === "MIXED") {
+                this.editingControl = new MapboxDraw({
+                    controls: {
+                        point: true,
+                        line_string: true,
+                        polygon: true,
+                        trash: true,
+                        combine_features: false,
+                        uncombine_features: false
+                    }
+                });
             }
 
             if (this.map.getSource("mapbox-gl-draw-cold") == null) {
@@ -522,7 +533,7 @@ export class GeometryService {
     public static createEmptyGeometryValue(geometryType: String): any {
         let value = { type: geometryType, coordinates: [] };
 
-        if (geometryType === "MULTIPOLYGON") {
+        if (geometryType === "MULTIPOLYGON" || geometryType === "MIXED") {
             value.type = "MultiPolygon";
         } else if (geometryType === "POLYGON") {
             value.type = "Polygon";
@@ -560,7 +571,7 @@ export class GeometryService {
                             essential: true
                         });
                     }
-                } else if (this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON") {
+                } else if (this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON" || this.geometryType === "MIXED") {
                     let coords = layer.geojson.coordinates;
 
                     if (coords) {

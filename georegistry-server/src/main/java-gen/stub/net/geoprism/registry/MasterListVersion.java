@@ -113,6 +113,7 @@ import com.runwaysdk.system.gis.metadata.MdAttributeMultiPoint;
 import com.runwaysdk.system.gis.metadata.MdAttributeMultiPolygon;
 import com.runwaysdk.system.gis.metadata.MdAttributePoint;
 import com.runwaysdk.system.gis.metadata.MdAttributePolygon;
+import com.runwaysdk.system.gis.metadata.MdAttributeShape;
 import com.runwaysdk.system.metadata.MdAttribute;
 import com.runwaysdk.system.metadata.MdAttributeBoolean;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
@@ -489,6 +490,10 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
     else if (attributeType.equals(GeometryType.MULTIPOLYGON))
     {
       mdAttribute = new MdAttributeMultiPolygon();
+    }
+    else if (attributeType.equals(GeometryType.MIXED))
+    {
+      mdAttribute = new MdAttributeShape();
     }
 
     mdAttribute.setAttributeName(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);

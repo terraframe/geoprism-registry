@@ -123,7 +123,7 @@ public class GeoObjectExcelExporter
 
     Row header = sheet.createRow(0);
 
-    boolean includeCoordinates = this.type.getGeometryType().equals(GeometryType.POINT);
+    boolean includeCoordinates = this.type.getGeometryType().equals(GeometryType.POINT) || this.type.getGeometryType().equals(GeometryType.MIXED);
     Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, locales).attributes(this.type.getType());
 
     // Get the ancestors of the type
