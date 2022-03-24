@@ -162,6 +162,8 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
   @Override
   public ServerParentGraphNode addParent(VertexServerGeoObject geoObject, VertexServerGeoObject parent, Date startDate, Date endDate)
   {
+    GraphValidationService.validate(type, parent, parent);
+    
     if (this.isCycle(geoObject, parent, startDate, endDate))
     {
       throw new UnsupportedOperationException("Cannot add a cycle");

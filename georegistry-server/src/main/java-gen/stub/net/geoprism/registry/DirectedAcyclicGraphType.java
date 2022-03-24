@@ -169,7 +169,7 @@ public class DirectedAcyclicGraphType extends DirectedAcyclicGraphTypeBase imple
       MdVertexDAOIF mdBusGeoEntity = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS);
 
       MdEdgeDAO mdEdgeDAO = MdEdgeDAO.newInstance();
-      mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.UNIVERSAL_GRAPH_PACKAGE);
+      mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.DAG_PACKAGE);
       mdEdgeDAO.setValue(MdEdgeInfo.NAME, code);
       mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, mdBusGeoEntity.getOid());
       mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, mdBusGeoEntity.getOid());

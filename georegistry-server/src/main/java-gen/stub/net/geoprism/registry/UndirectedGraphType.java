@@ -170,7 +170,7 @@ public class UndirectedGraphType extends UndirectedGraphTypeBase implements Json
       MdVertexDAOIF mdBusGeoEntity = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS);
 
       MdEdgeDAO mdEdgeDAO = MdEdgeDAO.newInstance();
-      mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.UNIVERSAL_GRAPH_PACKAGE);
+      mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.UNDIRECTED_GRAPH_PACKAGE);
       mdEdgeDAO.setValue(MdEdgeInfo.NAME, code);
       mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, mdBusGeoEntity.getOid());
       mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, mdBusGeoEntity.getOid());
