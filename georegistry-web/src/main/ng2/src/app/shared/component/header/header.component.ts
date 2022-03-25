@@ -7,7 +7,7 @@ import { AuthService, ProfileService, LocalizationService } from "@shared/servic
 
 import { RegistryRoleType, LocaleView } from "@shared/model/core";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; 
+import { GeoRegistryConfiguration } from "@core/model/registry";
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -28,6 +28,8 @@ export class CgrHeaderComponent {
     locales: LocaleView[];
     locale: string;
 
+    enableBusinessData: boolean = false;
+
     @Input() loggedIn: boolean = true;
 
     constructor(
@@ -40,6 +42,8 @@ export class CgrHeaderComponent {
         this.isAdmin = service.isAdmin();
         this.isMaintainer = this.isAdmin || service.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
+
+        this.enableBusinessData = registry.enableBusinessData || false;
 
         if (localizationService.getLocales()) {
             this.locales = localizationService.getLocales().filter(locale => locale.toString !== "defaultLocale");
@@ -69,9 +73,9 @@ export class CgrHeaderComponent {
         } else if (item === "LISTS") {
             // return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC) || this.service.hasExactRole(RegistryRoleType.AC);
             return true;
-        } else if (item === "BUSINESS" && registry.enableBusinessData) {
+        } else if (item === "BUSINESS-TYPES" && registry.enableBusinessData) {
             return true;
-        } else if (this.service.hasExactRole(RegistryRoleType.SRA)) {
+        } else if (this.service.hasExactRole(RegistryRoleType.SRA) && item !== "BUSINESS-TYPES") {
             return true;
         } else if (item === "IMPORT") {
             return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
