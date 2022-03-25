@@ -630,6 +630,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       return GeoVertex.GEOMULTIPOLYGON;
     }
+    else if (geometryType.equals(GeometryType.MIXED))
+    {
+      return GeoVertex.SHAPE;
+    }
 
     throw new UnsupportedOperationException("Unsupported geometry type [" + geometryType.name() + "]");
   }

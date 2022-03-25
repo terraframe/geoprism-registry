@@ -52,6 +52,10 @@ public class GeometryTypeFactory
     {
       return org.commongeoregistry.adapter.constants.GeometryType.MULTIPOLYGON;
     }
+    else if (geoPrismGeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.SHAPE))
+    {
+      return org.commongeoregistry.adapter.constants.GeometryType.MIXED;
+    }
     else
     {
       return null;
@@ -89,6 +93,10 @@ public class GeometryTypeFactory
     else if (adapterGeometryType.equals(org.commongeoregistry.adapter.constants.GeometryType.MULTIPOLYGON))
     {
       return com.runwaysdk.system.gis.geo.GeometryType.MULTIPOLYGON;
+    }
+    else if (adapterGeometryType.equals(org.commongeoregistry.adapter.constants.GeometryType.MIXED))
+    {
+      return com.runwaysdk.system.gis.geo.GeometryType.SHAPE;
     }
     else
     {

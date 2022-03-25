@@ -18,8 +18,11 @@
 # License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
 # Run this with sudo
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
 
 export ORIENTDB_CONTAINER_NAME=orientdb
 export ORIENTDB_ROOT_PASS=root

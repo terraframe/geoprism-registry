@@ -18,8 +18,11 @@
 # License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
 # Run this with sudo
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
 
 export POSTGRES_CONTAINER_NAME=cgr-postgres
 export POSTGRES_PORT=5443

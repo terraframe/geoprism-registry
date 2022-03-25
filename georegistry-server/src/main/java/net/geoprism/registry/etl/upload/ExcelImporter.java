@@ -295,7 +295,7 @@ public class ExcelImporter implements FormatSpecificImporterIF
           {
             ServerGeoObjectType type = ( (GeoObjectImportConfiguration) configuration ).getType();
 
-            if (type.getGeometryType().equals(GeometryType.POINT))
+            if (type.getGeometryType().equals(GeometryType.POINT) || type.getGeometryType().equals(GeometryType.MIXED))
             {
               return new Point(new CoordinateSequence2D(lon, lat), factory);
             }

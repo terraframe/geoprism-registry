@@ -148,6 +148,8 @@ export class GeometryPanelComponent implements OnInit {
             vot.value.type = "Line";
         } else if (this.geoObjectType.geometryType === "MULTILINE") {
             vot.value.type = "MultiLine";
+        } else if (this.geoObjectType.geometryType === "MIXED") {
+            vot.value.type = "Mixed";
         }
 
         votArr.push(vot);

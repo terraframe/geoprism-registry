@@ -469,6 +469,10 @@ public class XMLImporter
     {
       return GeometryType.MULTIPOLYGON;
     }
+    else if (geometryType.equalsIgnoreCase("MIXED"))
+    {
+      return GeometryType.MIXED;
+    }
 
     throw new ProgrammingErrorException("Unknown geometry type [" + geometryType + "]");
   }

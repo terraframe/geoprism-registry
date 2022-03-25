@@ -315,6 +315,17 @@ export class GeometryService {
                         uncombine_features: false
                     }
                 });
+            } else if (this.geometryType === "MIXED") {
+                this.editingControl = new MapboxDraw({
+                    controls: {
+                        point: true,
+                        line_string: true,
+                        polygon: true,
+                        trash: true,
+                        combine_features: false,
+                        uncombine_features: false
+                    }
+                });
             }
 
             if (this.map.getSource("mapbox-gl-draw-cold") == null) {
@@ -340,18 +351,8 @@ export class GeometryService {
 
         let sourceName: string = prefix + "-geoobject";
 
-        if (this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON") {
-            if (this.map.getLayer(sourceName + "-polygon") != null) {
-                this.map.removeLayer(sourceName + "-polygon");
-            }
-        } else if (this.geometryType === "POINT" || this.geometryType === "MULTIPOINT") {
-            if (this.map.getLayer(sourceName + "-point") != null) {
-                this.map.removeLayer(sourceName + "-point");
-            }
-        } else if (this.geometryType === "LINE" || this.geometryType === "MultiLine") {
-            if (this.map.getLayer(sourceName + "-line") != null) {
-                this.map.removeLayer(sourceName + "-line");
-            }
+        if (this.map.getLayer(sourceName + "-layer") != null) {
+            this.map.removeLayer(sourceName + "-layer");
         }
 
         if (this.map.getSource(sourceName) != null) {
@@ -401,10 +402,12 @@ export class GeometryService {
             }
         });
 
-        if (this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON") {
+        const geometryType = geometry.type != null ? geometry.type.toUpperCase() : this.geometryType;
+
+        if (geometryType === "MULTIPOLYGON" || geometryType === "POLYGON") {
             // Polygon Layer
             this.map.addLayer({
-                id: finalSourceName + "-polygon",
+                id: finalSourceName + "-layer",
                 type: "fill",
                 source: finalSourceName,
                 paint: {
@@ -416,7 +419,7 @@ export class GeometryService {
         } else if (this.geometryType === "POINT" || this.geometryType === "MULTIPOINT") {
             // Point layer
             this.map.addLayer({
-                id: finalSourceName + "-point",
+                id: finalSourceName + "-layer",
                 type: "circle",
                 source: finalSourceName,
                 paint: {
@@ -428,7 +431,7 @@ export class GeometryService {
             });
         } else if (this.geometryType === "LINE" || this.geometryType === "MULTILINE") {
             this.map.addLayer({
-                id: finalSourceName + "-line",
+                id: finalSourceName + "-layer",
                 source: finalSourceName,
                 type: "line",
                 layout: {
@@ -522,7 +525,7 @@ export class GeometryService {
     public static createEmptyGeometryValue(geometryType: String): any {
         let value = { type: geometryType, coordinates: [] };
 
-        if (geometryType === "MULTIPOLYGON") {
+        if (geometryType === "MULTIPOLYGON" || geometryType === "MIXED") {
             value.type = "MultiPolygon";
         } else if (geometryType === "POLYGON") {
             value.type = "Polygon";
@@ -542,7 +545,9 @@ export class GeometryService {
     zoomToLayersExtent(): void {
         this.layers.forEach(layer => {
             if (layer.geojson != null) {
-                if (this.geometryType === "MULTIPOINT" || this.geometryType === "POINT") {
+                const geometryType = layer.geojson.type != null ? layer.geojson.type.toUpperCase() : this.geometryType;
+
+                if (geometryType === "MULTIPOINT" || geometryType === "POINT") {
                     let coords = layer.geojson.coordinates;
 
                     if (coords) {
@@ -560,7 +565,7 @@ export class GeometryService {
                             essential: true
                         });
                     }
-                } else if (this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON") {
+                } else if (geometryType === "MULTIPOLYGON" || geometryType === "POLYGON" || geometryType === "MIXED") {
                     let coords = layer.geojson.coordinates;
 
                     if (coords) {
@@ -577,7 +582,7 @@ export class GeometryService {
                             padding: 20
                         });
                     }
-                } else if (this.geometryType === "LINE" || this.geometryType === "MULTILINE") {
+                } else if (geometryType === "LINE" || geometryType === "MULTILINE") {
                     let coords = layer.geojson.coordinates;
 
                     if (coords) {

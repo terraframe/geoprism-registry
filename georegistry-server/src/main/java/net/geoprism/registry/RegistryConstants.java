@@ -28,6 +28,10 @@ public interface RegistryConstants
 
   public static final String UNIVERSAL_GRAPH_PACKAGE          = REGISTRY_PACKAGE + ".graph";
 
+  public static final String DAG_PACKAGE                      = REGISTRY_PACKAGE + ".dag";
+
+  public static final String UNDIRECTED_GRAPH_PACKAGE         = REGISTRY_PACKAGE + ".undirected";
+
   public static final String UNIVERSAL_MDBUSINESS_PACKAGE     = REGISTRY_PACKAGE + ".universal";
 
   public static final String TABLE_PACKAGE                    = REGISTRY_PACKAGE + ".table";
