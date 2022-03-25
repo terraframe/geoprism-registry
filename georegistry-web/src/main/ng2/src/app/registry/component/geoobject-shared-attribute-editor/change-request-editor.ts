@@ -27,7 +27,7 @@ export class ChangeRequestEditor {
 
     private _isValid: boolean;
 
-    onChangeSubject : Subject<any> = new Subject<any>();
+    onChangeSubject : Subject<ChangeType> = new Subject<ChangeType>();
 
     localizationService: LocalizationService;
 

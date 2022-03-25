@@ -155,8 +155,8 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
         }
     }
 
-    editorForDateChange($event) {
-        this.forDateChange.emit($event);
+    editorForDateChange(date: string) {
+        this.forDateChange.emit(date);
     }
 
     onCancelInternal(): void {

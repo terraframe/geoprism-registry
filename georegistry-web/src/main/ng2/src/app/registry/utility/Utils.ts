@@ -103,10 +103,10 @@ export default class Utils {
             return true;
         } else if (attributeType.type === "_PARENT_" && val1.parents && val2.parents) {
             for (const [gotCode, data] of Object.entries(val1.parents)) {
-                let parentData: {text: string, geoObject: GeoObject} = data as {text: string, geoObject: GeoObject};
+                let parentData: { text: string, geoObject: GeoObject } = data as { text: string, geoObject: GeoObject };
 
                 if (val2.parents[gotCode]) {
-                    let parentData2: {text: string, geoObject: GeoObject} = val2.parents[gotCode];
+                    let parentData2: { text: string, geoObject: GeoObject } = val2.parents[gotCode];
 
                     if (parentData.geoObject == null && parentData2.geoObject == null) {
                         // equal, keep looping
@@ -136,6 +136,16 @@ export default class Utils {
 
     public static getValueAtLocale(lv: LocalizedValue, locale: string) {
         return new LocalizedValue(lv.localizedValue, lv.localeValues).getValue(locale);
+    }
+
+    static arrayMove(arr: any[], oldIndex: number, newIndex: number): void {
+        if (newIndex >= arr.length) {
+            let k = newIndex - arr.length + 1;
+            while (k--) {
+                arr.push(undefined);
+            }
+        }
+        arr.splice(newIndex, 0, arr.splice(oldIndex, 1)[0]);
     }
 
 }

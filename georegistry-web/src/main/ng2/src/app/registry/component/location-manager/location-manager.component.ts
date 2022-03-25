@@ -778,8 +778,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     featurePanelForDateChange(date: string) {
-        this.geomService.destroy(false);
-        this.calculatedDate = date;
+        if (date !== null) {
+            this.geomService.destroy(false);
+        }
     }
 
     select(node: any, event: MouseEvent): void {
