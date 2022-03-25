@@ -1,5 +1,8 @@
 package net.geoprism.registry.model;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,12 +10,16 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.registry.CannotDeleteClassificationWithChildrenException;
@@ -432,6 +439,58 @@ public class Classification implements JsonSerializable
     ClassificationType type = ClassificationType.getByCode(classificationTypeCode);
 
     return Classification.get(type, code);
+  }
+
+  public static JsonObject exportToJson(String classificationTypeCode, String code)
+  {
+    ClassificationType type = ClassificationType.getByCode(classificationTypeCode);
+    Classification classification = Classification.get(type, code);
+
+    return exportToJson(classification);
+  }
+
+  private static JsonObject exportToJson(Classification classification)
+  {
+    JsonArray children = new JsonArray();
+
+    Page<Classification> page = classification.getChildren();
+
+    for (Classification child : page)
+    {
+      children.add(exportToJson(child));
+    }
+
+    JsonObject json = classification.toJSON();
+    json.add("children", children);
+    return json;
+  }
+
+  public static void importJsonTree(String classificationTypeCode, ApplicationResource resource) throws IOException
+  {
+    ClassificationType type = ClassificationType.getByCode(classificationTypeCode);
+
+    try (InputStream stream = resource.openNewStream())
+    {
+      JsonObject object = JsonParser.parseReader(new InputStreamReader(stream)).getAsJsonObject();
+
+      importJsonTree(type, null, object);
+    }
+  }
+
+  private static void importJsonTree(ClassificationType type, Classification parent, JsonObject object)
+  {
+    Classification classification = Classification.construct(type, object, true);
+    classification.populate(object);
+    classification.apply(parent);
+
+    JsonArray children = object.get("children").getAsJsonArray();
+
+    for (int i = 0; i < children.size(); i++)
+    {
+      JsonObject child = children.get(i).getAsJsonObject();
+
+      importJsonTree(type, classification, child);
+    }
   }
 
 }

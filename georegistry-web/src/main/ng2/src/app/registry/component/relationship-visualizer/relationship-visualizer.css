@@ -1,10 +1,33 @@
 #relationship-visualizer-root-node {
 	border-radius:4px;
-	position: absolute;
+/* 	position: absolute; */
 }
 
 .visualize-mode-hierarchy {
   color: black;
+}
+
+.legend {
+	  position: absolute;
+	  padding: 10px;
+      bottom: 0;
+}
+
+.legend .legend-item {
+	  display: table;
+}
+
+.legend .square {
+	  width: 25px;
+	  height: 25px;
+	  margin-right: 5px;
+	  float: left;
+}
+
+.legend label {
+	  float: left;
+	  line-height: 25px;
+	  height: 25px;
 }
 
 .map-button {
@@ -30,3 +53,4 @@
 :host /deep/ .graph .panning-rect {
 	cursor: grab;
 }
+

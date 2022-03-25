@@ -37,3 +37,15 @@
     -moz-box-shadow: inset 0 0 0 0.2em #6BA542;
     box-shadow: inset 0 0 0 0.2em #6BA542;
 }
+
+:host::ng-deep .ui-table {
+    height: calc(100vh - 295px);
+}
+
+:host::ng-deep .ui-table .ui-table-wrapper {
+	height: 100%;
+}
+
+:host::ng-deep .ui-table .ui-table-scrollable-wrapper {
+	height: 100%;
+}

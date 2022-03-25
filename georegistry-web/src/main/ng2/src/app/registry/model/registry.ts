@@ -9,23 +9,47 @@ import { RegistryService } from "@registry/service";
 
 export const PRESENT: string = "5000-12-31";
 
+/**
+ * Provides a reusable TypeCache which can be used across the app. Types will be automatically fetched
+ * from the server when the cache is constructed, however since Javascript is non-blocking they are not
+ * guaranteed to be available, especially if they are in the process of being fetched from the server.
+ * If you have an operation which needs to wait on the types, you may call the waitOnTypes method.
+ */
 export class GeoObjectTypeCache {
 
     private registryService: RegistryService;
 
     private types: GeoObjectType[];
 
+    private refreshPromise: Promise<GeoObjectType[]>;
+
     public constructor(registryService: RegistryService) {
         this.registryService = registryService;
+
+        this.refreshPromise = this.refresh();
     }
 
-    public refresh(): Promise<void | GeoObjectType[]> {
+    public waitOnTypes(): Promise<GeoObjectType[]> {
+        if (this.refreshPromise) {
+            return this.refreshPromise;
+        } else {
+            return new Promise<GeoObjectType[]>((resolve, reject) => resolve(this.types));
+        }
+    }
+
+    public refresh(): Promise<GeoObjectType[]> {
         return this.registryService.getGeoObjectTypes(null, null).then(types => {
+            this.refreshPromise = null;
             this.types = types;
+            return this.types;
         });
     }
 
     public getTypeByCode(code: string): GeoObjectType {
+        if (!this.types) {
+            return null;
+        }
+
         let index = this.types.findIndex(type => type.code === code);
 
         if (index === -1) {
@@ -33,6 +57,10 @@ export class GeoObjectTypeCache {
         } else {
             return this.types[index];
         }
+    }
+
+    public getTypes() {
+        return this.types;
     }
 
 }

@@ -5,7 +5,7 @@ import { BsModalService } from "ngx-bootstrap/modal";
 
 import { ErrorHandler } from "@shared/component";
 
-import { GeoObject } from "@registry/model/registry";
+import { GeoObject, GeoObjectTypeCache } from "@registry/model/registry";
 import { Subject } from "rxjs";
 import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
 import { Layout, Orientation } from "@swimlane/ngx-graph";
@@ -16,13 +16,18 @@ import * as shape from "d3-shape";
 import { LocalizedValue } from "@shared/model/core";
 import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
-import { timeout } from "d3";
+import * as ColorGen from "color-generator";
+import { RegistryCacheService } from "@registry/service/registry-cache.service";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
+
+export const SELECTED_NODE_COLOR: string = "#4287f5";
 
 export const GRAPH_GO_LABEL_COLOR: string = "black";
 export const GRAPH_CIRCLE_FILL: string = "#999";
 export const GRAPH_LINE_COLOR: string = "#999";
+
+export const COLLAPSE_ANIMATION_TIME: number = 500; // in ms
 
 export interface Relationship {
     oid: string,
@@ -41,6 +46,21 @@ export const DIMENSIONS = {
         NODE_EDGE: 5
     }
 };
+
+export interface Vertex {
+    code: string,
+    typeCode: string,
+    id: string,
+    label: string,
+    relation: "PARENT" | "CHILD" | "SELECTED"
+}
+
+export interface Edge {
+    id: string,
+    label: string,
+    source: string,
+    target: string
+}
 
 @Component({
 
@@ -70,14 +90,13 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     @Output() changeRelationship = new EventEmitter<string>();
 
-    private data: any = null;
+    private data: {edges: Edge[], verticies: Vertex[]} = null;
 
     public DIMENSIONS = DIMENSIONS;
 
-    relationships: Relationship[];
+    public SELECTED_NODE_COLOR = SELECTED_NODE_COLOR;
 
-    public left: number = 10;
-    public top: number = 40;
+    relationships: Relationship[];
 
     public svgHeight: number = null;
     public svgWidth: number = null;
@@ -90,12 +109,18 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     public curve = shape.curveLinear;
 
+    public colorSchema: any = {};
+
+    public typeCache: GeoObjectTypeCache;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService,
         private spinner: NgxSpinnerService,
-        private vizService: RelationshipVisualizationService) { }
+        private vizService: RelationshipVisualizationService,
+        private cacheService: RegistryCacheService) { }
 
     ngOnInit(): void {
+        this.typeCache = this.cacheService.getTypeCache();
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -193,6 +218,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                     this.data = data;
 
                     this.resizeDimensions();
+                    this.calculateColorSchema();
                 }, 0);
 
                 this.resizeDimensions();
@@ -200,6 +226,18 @@ export class RelationshipVisualizerComponent implements OnInit {
                 this.spinner.hide(this.CONSTANTS.OVERLAY);
             });
         }
+    }
+
+    calculateColorSchema() {
+        this.colorSchema = {};
+
+        this.data.verticies.forEach(vertex => {
+            if (vertex.id.substring(2) !== this.geoObject.properties.uid && !this.colorSchema[vertex.typeCode]) {
+                this.colorSchema[vertex.typeCode] = ColorGen().hexString();
+            }
+        });
+
+        this.colorSchema[this.geoObject.properties.type] = SELECTED_NODE_COLOR;
     }
 
     collapseAnimation(id: string): Promise<void> {
@@ -215,8 +253,26 @@ export class RelationshipVisualizerComponent implements OnInit {
         all.forEach((el: SVGGraphicsElement) => {
             if (el.id !== activeEl.id) {
                 let bbox2 = this.getBBox(el, false);
-                let translate = "translate(" + (bbox.x - bbox2.x) + "," + (bbox.y - bbox2.y) + ")";
-                el.setAttribute("transform", translate);
+
+                // let translate = "translate(" + (bbox.x - bbox2.x) + "," + (bbox.y - bbox2.y) + ")";
+                // el.setAttribute("transform", translate);
+
+                let animateTransform = document.createElementNS("http://www.w3.org/2000/svg", "animateTransform") as unknown as SVGAnimateTransformElement;
+
+                animateTransform.setAttribute("attributeName", "transform");
+                animateTransform.setAttribute("attributeType", "XML");
+                animateTransform.setAttribute("type", "translate");
+                animateTransform.setAttribute("fill", "freeze");
+                // animateTransform.setAttribute("from", 0 + " " + 0);
+                animateTransform.setAttribute("to", (bbox.x - bbox2.x) + " " + (bbox.y - bbox2.y));
+                animateTransform.setAttribute("begin", "indefinite");
+                animateTransform.setAttribute("additive", "replace");
+                animateTransform.setAttribute("dur", COLLAPSE_ANIMATION_TIME + "ms");
+                animateTransform.setAttribute("repeatCount", "0");
+
+                el.appendChild(animateTransform);
+
+                (animateTransform as any).beginElement(); // Tells the element to animate now
             }
         });
 
@@ -233,7 +289,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                 });
 
                 resolve();
-            }, 500);
+            }, COLLAPSE_ANIMATION_TIME);
         });
 
         return promise;

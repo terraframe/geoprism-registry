@@ -58,6 +58,7 @@
     		locale:'<%=request.getAttribute("locale")%>', 
     		locales:<%=request.getAttribute("ilocales")%>,
     		searchEnabled:<%=GeoregistryProperties.isSearchEnabled().toString()%>,
+    		graphVisualizerEnabled:<%=GeoregistryProperties.isGraphVisualizerEnabled().toString()%>,    		
         enableBusinessData:<%=GeoregistryProperties.isBusinessDataEnabled()%>,
     		defaultMapBounds: JSON.parse("<%=GeoregistryProperties.getDefaultMapBounds()%>")
     }; 

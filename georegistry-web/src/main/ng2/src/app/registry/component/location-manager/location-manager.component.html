@@ -26,7 +26,7 @@
 					<!-- 
                     		Search features from the working versions of lists
                 	-->
-                	<article class="panel-toggle" [ngClass]="{'detached' : data.length === 0}">
+                	<article class="panel-toggle" [ngClass]="{'detached' : data.length === 0 && !record}">
 						<ng-container *ngIf="searchEnabled">
 <!-- 							<div class="col-md-4"> -->
 <!-- 								<date-field [(value)]="state.date" label="" [inputName]="'date'" [allowInfinity]="false" -->
@@ -108,7 +108,7 @@
 							</span>
 						</div>
 					</div>
-					<span *ngIf="current" class="map-button visualize-mode-toggle"> 
+					<span *ngIf="current && graphVisualizerEnabled" class="map-button visualize-mode-toggle"> 
 						<i style="margin-right: initial" class="visualize-mode-hierarchy clickable fa fa-share-alt" aria-hidden="true"
 						[title]="(graphPanelOpen ? 'explorer.resize.closeGraphViz' : 'explorer.resize.openGraphViz') | localize"
 						(click)="toggleGraphPanel()"></i>

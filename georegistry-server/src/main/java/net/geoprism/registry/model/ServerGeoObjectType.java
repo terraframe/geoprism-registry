@@ -101,6 +101,9 @@ import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.SearchService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 public class ServerGeoObjectType implements ServerElement
 {
@@ -242,6 +245,8 @@ public class ServerGeoObjectType implements ServerElement
       // refresh because the GeoObjectType is
       // embedded in the HierarchyType
       ServiceFactory.getRegistryService().refreshMetadataCache();
+
+      NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
     }
     catch (RuntimeException e)
     {
@@ -1106,6 +1111,16 @@ public class ServerGeoObjectType implements ServerElement
       if (root != null)
       {
         Classification classification = Classification.get(classificationType, root.getCode());
+
+        if (classification == null)
+        {
+          net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+          ex.setTypeLabel(classificationType.getDisplayLabel().getValue());
+          ex.setDataIdentifier(root.getCode());
+          ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+
+          throw ex;
+        }
 
         mdAttributeTerm.setValue(MdAttributeClassification.ROOT, classification.getOid());
       }

@@ -13,7 +13,9 @@ export class GeoRegistryConfiguration {
             "label": any
         }
     ];
+
     searchEnabled: boolean;
+    graphVisualizerEnabled: boolean;
     enableBusinessData: boolean;
     defaultMapBounds: [[number]];
 

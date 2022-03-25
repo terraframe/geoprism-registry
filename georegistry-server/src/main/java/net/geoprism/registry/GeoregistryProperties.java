@@ -85,6 +85,11 @@ public class GeoregistryProperties
     return Singleton.INSTANCE.props.getBoolean("cgr.search.enabled", true);
   }
   
+  public static Boolean isGraphVisualizerEnabled()
+  {
+    return Singleton.INSTANCE.props.getBoolean("cgr.graph.visualizer.enabled", true);
+  }
+  
   public static List<String> getCorsWhitelist()
   {
     String whitelist = Singleton.INSTANCE.props.getString("cgr.cors.whitelist", "");
