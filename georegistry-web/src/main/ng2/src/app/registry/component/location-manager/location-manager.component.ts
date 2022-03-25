@@ -348,7 +348,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 if (this.params.layersPanelSize) {
                     this.layersPanelSize = Number.parseInt(this.params.layersPanelSize);
                 } else {
-                    this.layersPanelSize = (this.pageMode === "EXPLORER") ? PANEL_SIZE_STATE.WINDOWED : this.layersPanelSize;
+                    this.layersPanelSize = (this.pageMode === "EXPLORER") ? PANEL_SIZE_STATE.FULLSCREEN : this.layersPanelSize;
                 }
 
                 if (this.params.attrPanelOpen) {
