@@ -7,7 +7,7 @@ import { AuthService, ProfileService, LocalizationService } from "@shared/servic
 
 import { RegistryRoleType, LocaleView } from "@shared/model/core";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; 
+import { GeoRegistryConfiguration } from "@core/model/registry";
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -69,8 +69,12 @@ export class CgrHeaderComponent {
         } else if (item === "LISTS") {
             // return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC) || this.service.hasExactRole(RegistryRoleType.AC);
             return true;
-        } else if (item === "BUSINESS" && registry.enableBusinessData) {
-            return true;
+        } else if (item === "BUSINESS") {
+            if (registry.enableBusinessData) {
+                return true;
+            } else {
+                return false;
+            }
         } else if (this.service.hasExactRole(RegistryRoleType.SRA)) {
             return true;
         } else if (item === "IMPORT") {
