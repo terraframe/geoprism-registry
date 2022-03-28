@@ -971,3 +971,8 @@ td.clickable:focus {
 typeahead-container {
     z-index: 1100 !important;
 }
+
+/* Popup for mapbox */
+.mapboxgl-popup-content {
+    width: 350px;
+}

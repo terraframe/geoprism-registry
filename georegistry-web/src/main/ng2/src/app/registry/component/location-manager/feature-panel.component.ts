@@ -25,7 +25,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
     };
 
     CONSTANTS = {
-        OVERLAY: OverlayerIdentifier.FEATURE_PANEL,
+        OVERLAY: OverlayerIdentifier.FEATURE_PANEL
     };
 
     @Input() datasetId: string;

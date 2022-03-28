@@ -117,21 +117,22 @@
                 </div>
               </ng-container>
 
-              <ng-container *ngIf="mode === MODE.VIEW && record != null">
-                <div *ngIf="record.recordType === 'GEO_OBJECT'" class="row">
+              <ng-container *ngIf="mode === MODE.VIEW && current != null">
                   <div class="col-md-12">
-                    <feature-panel #FeaturePanel [type]="record.type" [code]="record.code" [forDate]="record.forDate"
+                    <feature-panel #FeaturePanel [type]="current.type" [code]="current.code" [forDate]="current.forDate"
                       (forDateChange)="featurePanelForDateChange($event)" [readOnly]="false"
                       (modeChange)="onModeChange($event)" (panelCancel)="clearRecord()"
                       (panelSubmit)="onPanelSubmit($event)">
                     </feature-panel>
                   </div>
-                </div>
-                <div *ngIf="record.recordType === 'LIST'" class="row">
-                  <div class="col-md-12">
-                    <record-panel [record]="record" (close)="clearRecord()"></record-panel>
-                  </div>
-                </div>
+<!--
+
+  <div *ngIf="record.recordType === 'LIST'" class="row">
+    <div class="col-md-12">
+      <record-panel [record]="record" (close)="clearRecord()"></record-panel>
+    </div>
+  </div>
+-->                
               </ng-container>
             </div>
 
@@ -158,12 +159,12 @@
   <div class="col-md-1" *ngIf="showPanel" style="z-index:999;padding-top: 10px">
   </div>
 -->
-        <div [ngClass]="{'col-md-5':!showPanel, 'col-md-7':showPanel}" *ngIf="graphPanelOpen && graphVisualizerEnabled"
+        <div [ngClass]="{'col-md-5':!showPanel, 'col-md-7':showPanel}" *ngIf="graphPanelOpen && graphVisualizerEnabled && current != null"
           style="z-index:999;padding-top: 10px; overflow-y: auto;">
           <div id="graph-container" style="height: calc(100vh - 164px);">
             <div style="background-color: white; opacity: 100%; width: 100%; height: 100%;">
-              <relationship-visualizer *ngIf="record && record.recordType === 'GEO_OBJECT'"
-                [params]="{geoObject: current, graphOid: visualizingRelationship, date: calculatedDate}"
+              <relationship-visualizer
+                [params]="{geoObject: current.geoObject, graphOid: visualizingRelationship, date: calculatedDate}"
                 [panelOpen]="showPanel"                
                 (changeGeoObject)="onChangeGeoObject($event)" (changeRelationship)="visualizingRelationship = $event">
               </relationship-visualizer>

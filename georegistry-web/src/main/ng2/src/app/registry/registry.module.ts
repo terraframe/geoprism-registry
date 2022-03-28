@@ -124,6 +124,7 @@ import { ListComponent } from "./component/list-type/list.component";
 import { PublishVersionComponent } from "./component/list-type/publish-version.component";
 import { ExportFormatModalComponent } from "./component/list-type/export-format-modal.component";
 import { RecordPanelComponent } from "./component/location-manager/record-panel.component";
+import { RecordPopupComponent } from "./component/location-manager/record-popup.component";
 import { SelectTypeModalComponent } from "./component/location-manager/select-type-modal.component";
 import { CurationJobComponent } from "./component/curation/curation-job.component";
 import { CurationProblemModalComponent } from "./component/curation/curation-problem-modal.component";
@@ -136,7 +137,7 @@ import { ClassificationService } from "./service/classification.service";
 import { ClassificationFieldComponent } from "./component/form-fields/classification-field/classification-field.component";
 import { ClassificationFieldModalComponent } from "./component/form-fields/classification-field/classification-field-modal.component";
 
-import { RegistryCacheService } from "./service/registry-cache.service"
+import { RegistryCacheService } from "./service/registry-cache.service";
 
 @NgModule({
     imports: [
@@ -236,6 +237,8 @@ import { RegistryCacheService } from "./service/registry-cache.service"
         GeometryPanelComponent,
         TransitionEventTableComponent,
         TransitionEventModalComponent,
+        RecordPanelComponent,
+        RecordPopupComponent,
         // Business Type components
         BusinessTypeManagerComponent,
         CreateBusinessTypeModalComponent,
@@ -245,7 +248,6 @@ import { RegistryCacheService } from "./service/registry-cache.service"
         // Historical report components
         HistoricalReportComponent,
         HistoricalEventModuleComponent,
-        RecordPanelComponent,
         SelectTypeModalComponent,
         // List type
         ListTypeManagerComponent,
@@ -320,7 +322,8 @@ import { RegistryCacheService } from "./service/registry-cache.service"
         CurationProblemModalComponent,
         ClassificationTypePublishModalComponent,
         ClassificationPublishModalComponent,
-        ClassificationFieldModalComponent
+        ClassificationFieldModalComponent,
+        RecordPopupComponent
     ]
 })
 export class RegistryModule { }

@@ -381,30 +381,30 @@ public class ListTypeService
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
 
-    if (version.getWorking())
-    {
-      ListType type = version.getListType();
-
-      if (type.doesActorHaveExploratoryPermission())
-      {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-        ServerGeoObjectType geoObjectType = type.getGeoObjectType();
-        ServerGeoObjectIF geoObject = new ServerGeoObjectService().getGeoObject(uid, geoObjectType.getCode());
-
-        JsonObject object = new JsonObject();
-        object.addProperty("recordType", "GEO_OBJECT");
-        object.add("type", geoObject.getType().toJSON(new DefaultSerializer()));
-        object.addProperty("code", geoObject.getCode());
-        object.addProperty(ListTypeVersion.FORDATE, format.format(version.getForDate()));
-        
-        // Add geometry so we can zoom to it
-        object.add("geoObject", geoObject.toGeoObject(version.getForDate()).toJSON());
-
-        return object;
-      }
-    }
+//    if (version.getWorking())
+//    {
+//      ListType type = version.getListType();
+//
+//      if (type.doesActorHaveExploratoryPermission())
+//      {
+//        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+//        format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+//
+//        ServerGeoObjectType geoObjectType = type.getGeoObjectType();
+//        ServerGeoObjectIF geoObject = new ServerGeoObjectService().getGeoObject(uid, geoObjectType.getCode());
+//
+//        JsonObject object = new JsonObject();
+//        object.addProperty("recordType", "GEO_OBJECT");
+//        object.add("type", geoObject.getType().toJSON(new DefaultSerializer()));
+//        object.addProperty("code", geoObject.getCode());
+//        object.addProperty(ListTypeVersion.FORDATE, format.format(version.getForDate()));
+//        
+//        // Add geometry so we can zoom to it
+//        object.add("geoObject", geoObject.toGeoObject(version.getForDate()).toJSON());
+//
+//        return object;
+//      }
+//    }
 
     return version.record(uid);
   }

@@ -1743,10 +1743,14 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
     query.WHERE(query.get(DefaultAttribute.UID.getName()).EQ(uid));
 
+    ListType listType = this.getListType();
+    
     JsonObject record = new JsonObject();
     record.addProperty("recordType", "LIST");
     record.addProperty("version", this.getOid());
-    record.add("typeLabel", LocalizedValueConverter.convert(this.getListType().getDisplayLabel()).toJSON());
+    record.addProperty("typeCode", listType.getGeoObjectType().getCode());
+    record.addProperty("edit", this.getWorking() && listType.doesActorHaveExploratoryPermission());
+    record.add("typeLabel", LocalizedValueConverter.convertNoAutoCoalesce(listType.getDisplayLabel()).toJSON());
     record.add("attributes", this.getAttributesAsJson());
 
     try (OIterator<Business> iterator = query.getIterator())
