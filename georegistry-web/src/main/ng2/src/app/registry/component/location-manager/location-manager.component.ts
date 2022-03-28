@@ -19,7 +19,7 @@ import { ContextLayer } from "@registry/model/list-type";
 import { GRAPH_LAYER, LayerEvent } from "./layer-panel.component";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { timeout } from "d3-timer";
-import { Observable, Observer, Subscription } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { SelectTypeModalComponent } from "./select-type-modal.component";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
