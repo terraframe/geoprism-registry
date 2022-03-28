@@ -25,7 +25,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
     };
 
     CONSTANTS = {
-        OVERLAY: OverlayerIdentifier.FEATURE_PANEL,
+        OVERLAY: OverlayerIdentifier.FEATURE_PANEL
     };
 
     @Input() datasetId: string;
@@ -155,8 +155,8 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
         }
     }
 
-    editorForDateChange($event) {
-        this.forDateChange.emit($event);
+    editorForDateChange(date: string) {
+        this.forDateChange.emit(date);
     }
 
     onCancelInternal(): void {

@@ -33,7 +33,7 @@ export interface BaseLayer {
 @Component({
     selector: "layer-panel",
     templateUrl: "./layer-panel.component.html",
-    styleUrls: ["./location-manager.css"]
+    styleUrls: ["./location-manager.css", "./layer-panel.css"]
 })
 export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 

@@ -16,15 +16,15 @@
   background-color: red;
 }
 
-.actions-col {
-    width: 100px;
+:host ::ng-deep .actions-col {
+    width: 50px;
     text-align: center;
 }
 
-td,
-th {
-    width: 200px;
-}
+/* td, */
+/* th { */
+/*     width: 200px; */
+/* } */
 
 .ui-table-scrollable-header.ui-widget-header {
         overflow:visible;

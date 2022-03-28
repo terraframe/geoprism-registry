@@ -25,7 +25,7 @@ body{
 	/* min-width:1030px; */
     overflow: hidden;
 	background: white;
-	padding-top: 144px;
+	padding-top: 50px;
 }
 
 .new-admin-design-main {
@@ -266,6 +266,7 @@ button.btn {
     min-width: 104px;
 	height: 40px;
 	margin: 0 3px;
+	border-radius: 4px;
 }
 input[type=button]:focus,
 input[type=button]:active,
@@ -970,4 +971,9 @@ td.clickable:focus {
 
 typeahead-container {
     z-index: 1100 !important;
+}
+
+/* Popup for mapbox */
+.mapboxgl-popup-content {
+    width: 350px;
 }

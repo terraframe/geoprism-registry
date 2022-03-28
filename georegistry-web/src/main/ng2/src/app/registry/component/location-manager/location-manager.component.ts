@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, HostListener } from "@angular/core";
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, HostListener, Injector, ApplicationRef, ComponentFactoryResolver, EmbeddedViewRef } from "@angular/core";
 import { Location } from "@angular/common";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { Map, LngLatBoundsLike, NavigationControl, AttributionControl, IControl, LngLatBounds } from "mapbox-gl";
+import { Map, LngLatBoundsLike, NavigationControl, AttributionControl, IControl, LngLatBounds, Popup } from "mapbox-gl";
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
@@ -15,11 +15,11 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@shared/component";
 
 import { AuthService, LocalizationService } from "@shared/service";
-import { ContextLayer, LayerRecord } from "@registry/model/list-type";
+import { ContextLayer } from "@registry/model/list-type";
 import { GRAPH_LAYER, LayerEvent } from "./layer-panel.component";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { timeout } from "d3-timer";
-import { Observable, Observer, Subscription } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { SelectTypeModalComponent } from "./select-type-modal.component";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
@@ -28,8 +28,18 @@ import { NgxSpinnerService } from "ngx-spinner";
 import { ModalTypes } from "@shared/model/modal";
 import { FeaturePanelComponent } from "./feature-panel.component";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
+import { RecordPopupComponent } from "./record-popup.component";
 
 declare let registry: GeoRegistryConfiguration;
+
+class SelectedObject {
+
+    type: GeoObjectType;
+    code: string;
+    forDate: string;
+    geoObject: GeoObject;
+
+}
 
 const SELECTED_COLOR = "#800000";
 
@@ -75,12 +85,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     /*
      * Currently selected record
      */
-    record: LayerRecord;
-
-    /*
-     * If we're visualizing relationships of a Geo-Object then this is that GO.
-     */
-    current: GeoObject;
+    current: SelectedObject;
 
     requestedDate: string = null;
 
@@ -153,9 +158,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     // Flag denoting if the map in loaded and initialized
     ready: boolean = false;
 
-    // Flag denoting if the map in loaded and initialized
-    searchFeatures: boolean = false;
-
     // Flag denoting if the search and results panel is enabled at all
     searchEnabled: boolean = true;
 
@@ -187,7 +189,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         private geomService: GeometryService,
         private lService: LocalizationService,
         private authService: AuthService,
-        private location: Location) {
+        private location: Location,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private appRef: ApplicationRef,
+        private injector: Injector
+    ) {
         this.location = location;
     }
 
@@ -201,10 +207,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         this.searchEnabled = registry.searchEnabled && (this.authService.isRC(false) || this.authService.isRM() || this.authService.isRA());
         this.graphVisualizerEnabled = registry.graphVisualizerEnabled || false;
-
-        this.typeahead = new Observable((observer: Observer<any>) => {
-            this.handleFeatureSearch(observer);
-        });
 
         this.typeCache = this.cacheService.getTypeCache();
     }
@@ -291,8 +293,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         queryParams: { type: event.typeCode, code: event.code, uid: event.id, version: null, text: event.code },
                         queryParamsHandling: "merge" // remove to replace all query params by provided
                     });
-
-                    this.current = geoObj;
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
                 }).finally(() => {
@@ -330,7 +330,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 // Handle parameters for selecting a geo object
                 if (this.params.type != null && this.params.code != null) {
-                    if (this.record == null || this.record.type == null || this.record.type.code !== this.params.type || this.record.code !== this.params.code) {
+                    if (this.current == null || this.current.type == null || this.current.type.code !== this.params.type || this.current.code !== this.params.code) {
                         this.handleSelect(this.params.type, this.params.code, this.params.uid);
                     }
 
@@ -340,7 +340,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 // Handle parameters for select a record from a context layer
                 if (this.params.version != null && this.params.uid != null) {
-                    if (this.record == null || this.feature == null || this.feature.source !== this.params.version || this.feature.id !== this.params.uid) {
+                    if (this.current == null || this.feature == null || this.feature.source !== this.params.version || this.feature.id !== this.params.uid) {
                         this.handleRecord(this.params.version, this.params.uid);
                     }
 
@@ -355,7 +355,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 if (this.params.layersPanelSize) {
                     this.layersPanelSize = Number.parseInt(this.params.layersPanelSize);
                 } else {
-                    this.layersPanelSize = (this.pageMode === "EXPLORER") ? PANEL_SIZE_STATE.WINDOWED : this.layersPanelSize;
+                    this.layersPanelSize = (this.pageMode === "EXPLORER") ? PANEL_SIZE_STATE.FULLSCREEN : this.layersPanelSize;
                 }
 
                 if (this.params.attrPanelOpen) {
@@ -369,48 +369,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.changeMode(mode);
             this.setPanel(showPanel);
-        }
-    }
-
-    handleFeatureSearch(observer: Observer<any>): void {
-        const localeProperty = "displayLabel_" + navigator.language.toLowerCase();
-
-        // Search features
-        if (this.ready && this.map != null && this.state.featureText != null) {
-            const value = this.state.featureText.toLocaleLowerCase();
-            const features = this.map.queryRenderedFeatures().filter(feature => {
-                if (feature.source !== GRAPH_LAYER) {
-                    const localizedName = feature.properties[localeProperty];
-                    let name = localizedName != null && localizedName.length > 0 ? localizedName : feature.properties.displayLabel;
-                    name = name.toLowerCase();
-                    const code = feature.properties.code.toLowerCase();
-
-                    if (name.includes(value) || code.includes(value)) {
-                        return true;
-                    }
-                }
-
-                return false;
-            }).filter((value, index, self) => self.findIndex(feature => {
-                return feature.source === value.source && feature.properties.uid === value.properties.uid;
-            }) === index).map(feature => {
-                const localizedName = feature.properties[localeProperty];
-
-                let name = localizedName != null && localizedName.length > 0 ? localizedName : feature.properties.displayLabel;
-
-                const index = this.layers.findIndex(l => l.oid === feature.source);
-                const layer = this.layers[index];
-
-                return {
-                    id: feature.properties.uid,
-                    code: feature.properties.code,
-                    layer: layer,
-                    name: name,
-                    feature: feature
-                };
-            }).sort((a, b) => (a.name > b.name) ? 1 : -1);
-
-            observer.next(features);
         }
     }
 
@@ -448,7 +406,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 this.map.removeFeatureState(this.feature);
             }
 
-            this.record = null;
+            this.current = null;
             this.feature = null;
         }
     }
@@ -493,8 +451,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         this.handleParameterChange(this.params);
 
-        if (this.current) {
-            this.zoomToFeature(this.current, null);
+        if (this.current != null && this.current.geoObject != null) {
+            this.zoomToFeature(this.current.geoObject, null);
         } else if (this.layers.length > 0 && this.layers[0].oid !== GRAPH_LAYER) {
             this.onZoomTo(this.layers[0].oid);
         }
@@ -573,16 +531,20 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (features != null && features.length > 0) {
             const feature = features[0];
 
-            if (feature.properties.uid != null && (this.current == null || this.current.properties.uid !== feature.properties.uid)) {
+            if (feature.properties.uid != null) {
                 this.closeEditSessionSafeguard().then(() => {
                     if (feature.source === GRAPH_LAYER) {
-                        this.select(feature, null);
+                        if ((this.current == null || this.current.geoObject == null || this.current.geoObject.properties.uid !== feature.properties.uid)) {
+                            this.select(feature, null);
+                        }
                     } else {
                         this.router.navigate([], {
                             relativeTo: this.route,
                             queryParams: { type: null, code: null, version: feature.source, uid: feature.properties.uid },
                             queryParamsHandling: "merge" // remove to replace all query params by provided
                         });
+
+                        this.handleRecord(feature.source, feature.properties.uid);
                     }
                 });
             }
@@ -674,10 +636,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
-    onToggleSearch(): void {
-        this.searchFeatures = !this.searchFeatures;
-    }
-
     getGeoObjectTypeLabel(geoObject: GeoObject) {
         const type: GeoObjectType = this.typeCache.getTypeByCode(geoObject.properties.type);
 
@@ -699,7 +657,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.state.currentDate = date;
 
             if (this.data.length > 0) {
-                let source = (<any> this.map.getSource(GRAPH_LAYER));
+                let source = (<any>this.map.getSource(GRAPH_LAYER));
 
                 if (source != null) {
                     source.setData(data);
@@ -776,30 +734,39 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 });
             }
 
-            this.mode = this.MODE.VIEW;
+            if (record.recordType === "LIST") { // this happens when list type is NOT working
+                const bounds = record.bbox;
 
-            if (record.forDate === "") {
-                record.forDate = null;
-            }
-
-            this.record = record;
-
-            if (this.record.recordType === "GEO_OBJECT") { // this happens when list type is working
-                this.geomService.destroy(false);
-
-                this.geomService.initialize(this.map, record.type.geometryType, false);
-
-                this.current = this.record.geoObject;
-                this.zoomToFeature(this.record.geoObject, null);
-            } else if (this.record.recordType === "LIST") { // this happens when list type is NOT working
-                const bounds = this.record.bbox;
-
-                this.requestedDate = this.record.forDate === "" || this.record.forDate === undefined ? null : this.record.forDate;
+                this.requestedDate = record.forDate === "" || record.forDate === undefined ? null : record.forDate;
 
                 if (bounds && Array.isArray(bounds)) {
+                    // 1. Create a component reference from the component
+                    const componentRef = this.componentFactoryResolver
+                        .resolveComponentFactory(RecordPopupComponent)
+                        .create(this.injector);
+
+                    componentRef.instance.record = record;
+                    componentRef.instance.edit.subscribe(() => {
+                        const code: string = record.data["code"];
+                        const uid: string = record.data["uid"];
+
+                        this.handleSelect(record.typeCode, code, uid);
+                    });
+
+                    // 2. Attach component to the appRef so that it's inside the ng component tree
+                    this.appRef.attachView(componentRef.hostView);
+
+                    // 3. Get DOM element from component
+                    const domElem = (componentRef.hostView as EmbeddedViewRef<any>)
+                        .rootNodes[0] as HTMLElement;
+
+                    // 4. Append DOM element to the body
                     let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 
-                    this.map.fitBounds(llb, { padding: 50, animate: true, maxZoom: 20 });
+                    new Popup({ closeOnClick: true, closeButton: false })
+                        .setLngLat(llb.getCenter())
+                        .setDOMContent(domElem)
+                        .addTo(this.map);
                 }
             }
         }).catch((err: HttpErrorResponse) => {
@@ -831,8 +798,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     featurePanelForDateChange(date: string) {
-        this.geomService.destroy(false);
-        this.calculatedDate = date;
+        if (date !== null) {
+            this.geomService.destroy(false);
+        }
     }
 
     select(node: any, event: MouseEvent): void {
@@ -860,7 +828,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
 
         // Highlight the feature on the map
-        if (this.feature && code !== "__NEW__") {
+        if (this.feature && code !== "__NEW__" && this.map.getSource(GRAPH_LAYER) != null) {
             this.map.setFeatureState(this.feature = {
                 source: GRAPH_LAYER,
                 id: uid
@@ -872,24 +840,24 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.typeCache.waitOnTypes().then(() => {
             const type: GeoObjectType = this.typeCache.getTypeByCode(typeCode);
 
-            this.record = {
-                recordType: "GEO_OBJECT",
+            this.current = {
                 type: type,
                 code: code,
-                forDate: this.state.currentDate === "" ? null : this.state.currentDate
+                forDate: this.state.currentDate === "" ? null : this.state.currentDate,
+                geoObject: geoObject
             };
 
             this.geomService.destroy(false);
-            this.geomService.initialize(this.map, this.record.type.geometryType, false);
+            this.geomService.initialize(this.map, this.current.type.geometryType, false);
 
             if (geoObject == null) {
                 if (code !== "__NEW__") {
                     this.spinner.show(this.CONSTANTS.OVERLAY);
 
                     this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
-                        this.current = geoObject;
-                        this.requestedDate = this.record.forDate === "" ? null : this.record.forDate;
-                        this.zoomToFeature(this.current, null);
+                        this.current.geoObject = geoObject;
+                        this.requestedDate = this.current.forDate === "" ? null : this.current.forDate;
+                        this.zoomToFeature(this.current.geoObject, null);
                     }).catch((err: HttpErrorResponse) => {
                         this.error(err);
                     }).finally(() => {
@@ -897,9 +865,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     });
                 }
             } else {
-                this.current = geoObject;
-                this.requestedDate = this.record.forDate === "" ? null : this.record.forDate;
-                this.zoomToFeature(this.current, null);
+                this.requestedDate = this.current.forDate === "" ? null : this.current.forDate;
+                this.zoomToFeature(this.current.geoObject, null);
             }
         });
     }
@@ -930,6 +897,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.map.moveLayer(layer.oid + "-polygon");
             this.map.moveLayer(layer.oid + "-points");
+            this.map.moveLayer(layer.oid + "-line");
             this.map.moveLayer(layer.oid + "-label");
         }
     }
@@ -942,6 +910,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.map.removeLayer(source + "-polygon");
             this.map.removeLayer(source + "-points");
+            this.map.removeLayer(source + "-line");
             this.map.removeLayer(source + "-label");
             this.map.removeSource(source);
 

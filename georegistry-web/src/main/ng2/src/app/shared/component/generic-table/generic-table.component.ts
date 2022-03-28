@@ -17,7 +17,7 @@ export class GenericTableComponent implements OnInit, OnDestroy {
         resultSet: [],
         count: 0,
         pageNumber: 1,
-        pageSize: 10
+        pageSize: 30
     };
 
     @Input() cols: GenericTableColumn[] = [];

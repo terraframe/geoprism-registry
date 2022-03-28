@@ -15,6 +15,7 @@ import { ChangeRequestEditor } from "./change-request-editor";
 import { GeoObjectSharedAttributeEditorComponent } from "./geoobject-shared-attribute-editor.component";
 import { StandardAttributeCRModel } from "./StandardAttributeCRModel";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
+import { ChangeType } from "@registry/model/constants";
 
 export interface DateBoundary { date: string; isStart: boolean; isEnd: boolean }
 
@@ -93,8 +94,10 @@ export class StabilityPeriodComponent implements OnInit {
     ngOnInit(): void {
         this.generate();
 
-        this.changeRequestEditor.onChangeSubject.subscribe(() => {
-            this.generate();
+        this.changeRequestEditor.onChangeSubject.subscribe((type: ChangeType) => {
+            if (type === ChangeType.END_DATE || type === ChangeType.START_DATE) {
+                this.generate();
+            }
         });
 
         let timeline = this.timelines[0];

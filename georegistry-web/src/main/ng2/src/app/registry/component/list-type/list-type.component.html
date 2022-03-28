@@ -22,13 +22,15 @@
         </div>
         <div class="col-md-5" style="text-align: right;">
             <button type="submit" (click)="onEdit(entry, version)" class="btn btn-default" role="button">
-                <localize key="masterlist.button.metadata"></localize>
+                <localize *ngIf="version.working" key="masterlist.button.metadata"></localize>
+                <localize *ngIf="!version.working" key="masterlist.snapshot.button.metadata"></localize>
             </button>
             <button *ngIf="list.write && !version.working" type="submit" (click)="onDelete(entry, version)" class="btn btn-danger"
                 role="button">
                 <localize key="modal.button.delete"></localize>
             </button>
         </div>
+        
     </div>
 
     <div class="row" style="margin-bottom:5px;" [collapse]="!version.collapsed">
@@ -112,6 +114,9 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-12">
+                        	<button type="submit" (click)="onViewConfiguration(list)" class="btn btn-default" style="margin:0;" role="button">
+                                <localize key="masterlist.button.configuration"></localize>
+                            </button>
                             <h3>
                                 <ng-container *ngIf="entry.period.type === 'text'">
                                     {{entry.period.value}}
@@ -133,7 +138,9 @@
                     <ng-container [ngTemplateOutlet]="versionDetail"
                         [ngTemplateOutletContext]="{entry:entry, version:entry.versions[entry.versions.length - 1]}">
                     </ng-container>
-
+                    
+					<hr style="border-color:lightgrey;">
+					
                     <h4 style="margin-top:20px;"><localize key="list.type.published.versions.header"></localize></h4>
                     
                     

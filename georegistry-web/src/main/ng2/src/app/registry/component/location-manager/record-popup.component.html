@@ -1,0 +1,23 @@
+<div>
+
+  <h3>{{record.data['code']}} ({{record.typeLabel.localizedValue}})</h3>
+
+  <hr />
+
+  <ng-container *ngFor="let attr of record.attributes let i = index">
+
+    <div *ngIf="attr.name !== 'code' && record.data[attr.name] != null && record.data[attr.name].length > 0">
+      <span style="font-weight: bold;">{{attr.label}}</span>
+      -
+      {{record.data[attr.name]}}
+    </div>
+  </ng-container>
+
+  <div *ngIf="record.edit" class="button-holder text-right" style="margin-bottom: 20px;">
+    <hr>
+    <button type="button" class="btn btn-default" (click)="onEdit()">
+      <localize key="modal.button.edit"></localize>
+    </button>
+  </div>
+
+</div>

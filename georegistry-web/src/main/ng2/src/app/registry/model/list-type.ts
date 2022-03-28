@@ -84,7 +84,7 @@ export class ListTypeEntry {
         value: any
     };
 
-    wokring: ListTypeVersion;
+    working: ListTypeVersion;
     versions?: ListTypeVersion[];
     showAll?: boolean;
 
@@ -206,9 +206,11 @@ export class ListOrgGroup {
 export class LayerRecord {
 
     recordType: string;
+    edit: boolean;
 
     // Attributes required for the geo object properties panel
     type?: GeoObjectType;
+    typeCode?: string;
     code?: string;
     forDate?: string;
 

@@ -8,7 +8,7 @@
     background: #f1f1f1;
     transition: all 0.3s;
     vertical-align: top;
-    height: calc(100vh - 144px);
+    height: calc(100vh - 50px);
     overflow-x: hidden;
     overflow-y: auto;
 }

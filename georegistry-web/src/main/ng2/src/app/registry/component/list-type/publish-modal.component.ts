@@ -29,15 +29,7 @@ export class ListTypePublishModalComponent implements OnInit {
 
     tab: string = "LIST";
 
-    /*
-     * List of geo object types from the system
-     */
     readonly: boolean = false;
-
-    /*
-     * List of geo object types from the system
-     */
-    edit: boolean = false;
 
     isNew: boolean = false;
 

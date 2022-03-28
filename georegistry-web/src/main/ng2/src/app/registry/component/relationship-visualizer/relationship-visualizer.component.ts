@@ -148,7 +148,7 @@ export class RelationshipVisualizerComponent implements OnInit {
         let graphContainer = document.getElementById("graph-container");
 
         if (graphContainer) {
-            this.svgHeight = graphContainer.clientHeight - 144;
+            this.svgHeight = graphContainer.clientHeight - 50;
             this.svgWidth = graphContainer.clientWidth;
         }
     }

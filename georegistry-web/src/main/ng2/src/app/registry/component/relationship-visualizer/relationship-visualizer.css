@@ -1,6 +1,6 @@
 #relationship-visualizer-root-node {
 	border-radius:4px;
-	position: absolute;
+/* 	position: absolute; */
 }
 
 .visualize-mode-hierarchy {
@@ -9,8 +9,8 @@
 
 .legend {
 	  position: absolute;
-	  right: 5px;
-	  top: 53px;
+	  padding: 10px;
+      bottom: 0;
 }
 
 .legend .legend-item {
@@ -49,3 +49,8 @@
 .map-button-icon > span.glyphicon {
     line-height: 30px;
 }
+
+:host /deep/ .graph .panning-rect {
+	cursor: grab;
+}
+
