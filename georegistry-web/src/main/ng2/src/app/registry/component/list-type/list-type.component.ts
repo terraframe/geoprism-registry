@@ -5,6 +5,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ConfirmModalComponent } from "@shared/component";
 import { AuthService, LocalizationService } from "@shared/service";
 import { ListType, ListTypeEntry, ListTypeVersion } from "@registry/model/list-type";
+import { ListTypePublishModalComponent } from "./publish-modal.component";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { PublishVersionComponent } from "./publish-version.component";
 import { Router } from "@angular/router";
@@ -85,6 +86,15 @@ export class ListTypeComponent implements OnInit, OnDestroy {
             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(this.list, entry, version);
+    }
+
+    onViewConfiguration(list: ListType): void {
+        this.bsModalRef = this.modalService.show(ListTypePublishModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true
+        });
+        this.bsModalRef.content.init(list, null, list);
     }
 
     onDelete(entry: ListTypeEntry, version: ListTypeVersion): void {

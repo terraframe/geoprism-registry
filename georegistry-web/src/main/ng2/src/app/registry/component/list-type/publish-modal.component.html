@@ -301,15 +301,23 @@
     <ng-container *ngIf="list != null">
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div class="heading text-center">
-            <h1 *ngIf="isNew">
-                <localize key="type.publish.title"></localize>
-            </h1>
-            <h1 *ngIf="!isNew">
-                {{list.displayLabel.localizedValue}}
-                <localize key="type.publish.view.title"></localize>
-            </h1>
+<!--         <div class="heading text-center"> -->
+<!--             <h1 *ngIf="isNew"> -->
+<!--                 <localize key="type.publish.title"></localize> -->
+<!--             </h1> -->
+<!--             <h1 *ngIf="!isNew"> -->
+<!--                 {{list.displayLabel.localizedValue}} -->
+<!--                 <localize key="type.publish.view.title"></localize> -->
+<!--             </h1> -->
+<!--         </div> -->
+
+		<div class="text-center">
+            <h2>
+                <localize key="type.publish.configuration.header"></localize>
+            </h2>
+            <hr>
         </div>
+        
         <!-- <div class="col-md-12 order-md-1"> -->
         <form #form="ngForm" class="modal-form" autocomplete="off">
 
@@ -351,7 +359,7 @@
                     </div>
                     <div class="holder">
                         <input [(ngModel)]="list.code" name="code" type="text" class="form-control"
-                            [disabled]="readonly || edit" required />
+                            [disabled]="readonly || !isNew" required />
                     </div>
                 </div>
                 <div class="row-holder" *ngFor="let localeValue of list.displayLabel.localeValues">
@@ -437,7 +445,7 @@
 
                                         <!-- To enable add: (click)="parent.selected = !parent.selected" -->
                                         <div (click)="getIsDisabled($event) ? null : parent.selected = !parent.selected"
-                                            [ngClass]="{'chk-checked' : parent.selected, 'disabled' : readonly || edit}"
+                                            [ngClass]="{'chk-checked' : parent.selected, 'disabled' : readonly}"
                                             style="margin: 0;" class="jcf-unselectable chk-area" name="unique">
                                             <span></span>
                                         </div>
@@ -469,7 +477,7 @@
 
                                     <!-- To enable add: (click)="parent.selected = !parent.selected" -->
                                     <div (click)="getIsDisabled($event) ? null : hierarchy.selected = !hierarchy.selected"
-                                        [ngClass]="{'chk-checked' : hierarchy.selected, 'disabled' : readonly || edit}"
+                                        [ngClass]="{'chk-checked' : hierarchy.selected, 'disabled' : readonly}"
                                         style="margin: 0;" class="jcf-unselectable chk-area" name="unique">
                                         <span></span>
                                     </div>
@@ -518,7 +526,7 @@
                                     <localize key="georegistry.frequency.monthly"></localize>
                                 </option>
                             </select>
-                            <small *ngIf="(edit && frequency.dirty)" class="form-text text-danger">
+                            <small *ngIf="(frequency.dirty)" class="form-text text-danger">
                                 <localize key="listlist.change.frequency"></localize>
                             </small>
                         </div>
@@ -610,6 +618,14 @@
                 <div class="inner-col-content-wrapper" *ngIf="isNew" style="padding-top: 30px; margin-top: 10px;">
                     <div class="row">
                         <div class="col-md-12">
+                        
+                            <div class="text-center">
+					            <h2>
+					                <localize key="type.publish.metadata.header"></localize>
+					            </h2>
+					            <hr>
+					        </div>
+					        
                             <div class="label-holder"></div>
 
                             <div class="holder">

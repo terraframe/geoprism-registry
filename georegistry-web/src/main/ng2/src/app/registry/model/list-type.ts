@@ -84,7 +84,7 @@ export class ListTypeEntry {
         value: any
     };
 
-    wokring: ListTypeVersion;
+    working: ListTypeVersion;
     versions?: ListTypeVersion[];
     showAll?: boolean;
 

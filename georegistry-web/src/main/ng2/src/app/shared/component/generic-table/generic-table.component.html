@@ -1,5 +1,5 @@
 <div>
-	<p-table #dt [columns]="cols" [value]="page.resultSet" [autoLayout]="true" [scrollable]="true"
+	<p-table #dt [columns]="cols" [value]="page.resultSet" [autoLayout]="true" [scrollable]="false"
 		[resizableColumns]="true" sortMode="multiple" styleClass="p-datatable-gridlines" [lazy]="true"
 		(onLazyLoad)="onPageChange($event)" [paginator]="true" [totalRecords]="page.count" [rows]="page.pageSize"
 		[loading]="loading" [multiSortMeta]="config.sort != null ? [config.sort] : []"

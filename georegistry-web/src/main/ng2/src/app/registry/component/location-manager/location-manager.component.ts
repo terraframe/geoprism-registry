@@ -158,9 +158,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     // Flag denoting if the map in loaded and initialized
     ready: boolean = false;
 
-    // Flag denoting if the map in loaded and initialized
-    searchFeatures: boolean = false;
-
     // Flag denoting if the search and results panel is enabled at all
     searchEnabled: boolean = true;
 
@@ -210,10 +207,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         this.searchEnabled = registry.searchEnabled && (this.authService.isRC(false) || this.authService.isRM() || this.authService.isRA());
         this.graphVisualizerEnabled = registry.graphVisualizerEnabled || false;
-
-        this.typeahead = new Observable((observer: Observer<any>) => {
-            this.handleFeatureSearch(observer);
-        });
 
         this.typeCache = this.cacheService.getTypeCache();
     }
@@ -362,7 +355,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 if (this.params.layersPanelSize) {
                     this.layersPanelSize = Number.parseInt(this.params.layersPanelSize);
                 } else {
-                    this.layersPanelSize = (this.pageMode === "EXPLORER") ? PANEL_SIZE_STATE.WINDOWED : this.layersPanelSize;
+                    this.layersPanelSize = (this.pageMode === "EXPLORER") ? PANEL_SIZE_STATE.FULLSCREEN : this.layersPanelSize;
                 }
 
                 if (this.params.attrPanelOpen) {
@@ -376,48 +369,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.changeMode(mode);
             this.setPanel(showPanel);
-        }
-    }
-
-    handleFeatureSearch(observer: Observer<any>): void {
-        const localeProperty = "displayLabel_" + navigator.language.toLowerCase();
-
-        // Search features
-        if (this.ready && this.map != null && this.state.featureText != null) {
-            const value = this.state.featureText.toLocaleLowerCase();
-            const features = this.map.queryRenderedFeatures().filter(feature => {
-                if (feature.source !== GRAPH_LAYER) {
-                    const localizedName = feature.properties[localeProperty];
-                    let name = localizedName != null && localizedName.length > 0 ? localizedName : feature.properties.displayLabel;
-                    name = name.toLowerCase();
-                    const code = feature.properties.code.toLowerCase();
-
-                    if (name.includes(value) || code.includes(value)) {
-                        return true;
-                    }
-                }
-
-                return false;
-            }).filter((value, index, self) => self.findIndex(feature => {
-                return feature.source === value.source && feature.properties.uid === value.properties.uid;
-            }) === index).map(feature => {
-                const localizedName = feature.properties[localeProperty];
-
-                let name = localizedName != null && localizedName.length > 0 ? localizedName : feature.properties.displayLabel;
-
-                const index = this.layers.findIndex(l => l.oid === feature.source);
-                const layer = this.layers[index];
-
-                return {
-                    id: feature.properties.uid,
-                    code: feature.properties.code,
-                    layer: layer,
-                    name: name,
-                    feature: feature
-                };
-            }).sort((a, b) => (a.name > b.name) ? 1 : -1);
-
-            observer.next(features);
         }
     }
 
@@ -685,10 +636,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
-    onToggleSearch(): void {
-        this.searchFeatures = !this.searchFeatures;
-    }
-
     getGeoObjectTypeLabel(geoObject: GeoObject) {
         const type: GeoObjectType = this.typeCache.getTypeByCode(geoObject.properties.type);
 
@@ -851,8 +798,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     featurePanelForDateChange(date: string) {
-        this.geomService.destroy(false);
-        this.calculatedDate = date;
+        if (date !== null) {
+            this.geomService.destroy(false);
+        }
     }
 
     select(node: any, event: MouseEvent): void {
@@ -949,6 +897,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.map.moveLayer(layer.oid + "-polygon");
             this.map.moveLayer(layer.oid + "-points");
+            this.map.moveLayer(layer.oid + "-line");
             this.map.moveLayer(layer.oid + "-label");
         }
     }
@@ -961,6 +910,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.map.removeLayer(source + "-polygon");
             this.map.removeLayer(source + "-points");
+            this.map.removeLayer(source + "-line");
             this.map.removeLayer(source + "-label");
             this.map.removeSource(source);
 
