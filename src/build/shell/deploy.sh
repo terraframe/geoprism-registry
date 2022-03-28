@@ -103,7 +103,7 @@ if [ "$deploy" == "true" ]; then
   [ -h ../permissions ] && unlink ../permissions
   ln -s $WORKSPACE/geoprism-platform/permissions ../permissions
   
-  if [ -z "$geoprism_lib_extension_artifact_name" ]; then
+  if [ ! -z "$geoprism_lib_extension_artifact_name" ]; then
     # As far as I can tell Cloudsmith doesn't support fetching the latest version of an artifact from their REST API. So we're using Maven dependency:copy plugin.
     mkdir -p $WORKSPACE/georegistry/georegistry-web/target/artifact-download
     cp $WORKSPACE/georegistry/src/build/shell/artifact-download.pom.xml $WORKSPACE/georegistry/georegistry-web/target/artifact-download/pom.xml
