@@ -87,7 +87,7 @@ public class GeoregistryProperties
   
   public static Boolean isGraphVisualizerEnabled()
   {
-    return Singleton.INSTANCE.props.getBoolean("cgr.graph.visualizer.enabled", true);
+    return Singleton.INSTANCE.props.getBoolean("cgr.graph.visualizer.enabled", false);
   }
   
   public static List<String> getCorsWhitelist()

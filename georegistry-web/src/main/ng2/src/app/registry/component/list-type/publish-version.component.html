@@ -329,11 +329,19 @@
     <ng-container *ngIf="metadata != null">
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div class="heading text-center">
-            <h1>
-                <localize key="list.type.versionMetadata"></localize>
-            </h1>
-        </div>
+<!--         <div class="heading text-center"> -->
+<!--             <h1> -->
+<!--                 <localize key="list.type.versionMetadata"></localize> -->
+<!--             </h1> -->
+<!--         </div> -->
+
+		<div class="text-center">
+			<h2>
+				<localize key="type.publish.metadata.header"></localize>
+			</h2>
+			<hr>
+	    </div>
+					        
         <!-- <div class="col-md-12 order-md-1"> -->
         <form #form="ngForm" class="modal-form" autocomplete="off">
 

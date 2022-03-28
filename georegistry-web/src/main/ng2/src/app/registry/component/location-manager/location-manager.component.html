@@ -21,13 +21,12 @@
 		<div class="row" style="margin-top: 50px;">
 		
 			<div class="col-md-4" style="z-index: 999;" [hidden]="!showPanel">
-
-				<div class="row">
+				<div class="row" *ngIf="searchEnabled">
 					<!-- 
                     		Search features from the working versions of lists
                 	-->
                 	<article class="panel-toggle" [ngClass]="{'detached' : data.length === 0 && !record}">
-						<ng-container *ngIf="searchEnabled">
+						<ng-container>
 <!-- 							<div class="col-md-4"> -->
 <!-- 								<date-field [(value)]="state.date" label="" [inputName]="'date'" [allowInfinity]="false" -->
 <!-- 									[allowFutureDates]="false" [required]="false" [placement]="'right'" style="display:inline-grid;"> </date-field> -->
@@ -54,7 +53,7 @@
 					<div class="col-md-12">
 						<ng-container *ngIf="mode === MODE.SEARCH && searchEnabled">
 							<div class="row">
-								<div class="col-md-12" [ngClass]="{'full-height-sidebar' : data.length > 0}">
+								<div class="col-md-12" [ngClass]="{'full-height-sidebar' : data.length > 0 }">
 									<div id="hierarchy-tree-container" class="location-management-widget-section location-management-list-container">
 										<div class="list-group">
 		
@@ -80,7 +79,7 @@
 	
 						<ng-container *ngIf="mode === MODE.VIEW && record != null">
 							<div *ngIf="record.recordType === 'GEO_OBJECT'" class="row">
-								<div class="col-md-12" [ngClass]="{'full-height-sidebar' : record}">
+								<div class="col-md-12" [ngClass]="{'full-height-sidebar' : record, 'max-height' : !searchEnabled }">
 									<feature-panel #FeaturePanel [type]="record.type" [code]="record.code" [forDate]="record.forDate"
 										(forDateChange)="featurePanelForDateChange($event)" [readOnly]="false" (modeChange)="onModeChange($event)"
 										(panelCancel)="clearRecord()" (panelSubmit)="onPanelSubmit($event)"> </feature-panel>
@@ -100,7 +99,7 @@
 			<div [ngClass]="{'col-md-6':!showPanel, 'col-md-8':showPanel}" style="z-index:4;padding-top:10px;">
 			
 				<div style="z-index:999;padding-top:10px;overflow-y:auto;position:absolute;top:0;overflow:visible;">
-					<div class="map-button clickable" style="padding-bottom: 5px;" (click)="!isEdit && togglePanel()">
+					<div *ngIf="searchEnabled || record" class="map-button clickable" style="padding-bottom: 5px;" (click)="!isEdit && togglePanel()">
 						<div class="map-button-icon">
 							<span class="fa clickable" style="font-size: 35px;"
 								[title]="(showPanel ? 'explorer.resize.closeAttributePanel' : 'explorer.resize.openAttributePanel') | localize"
@@ -131,6 +130,7 @@
 	<div class="row">
 		<div class="col-md-12">
 			<div class="row">
+				
 				<article id="navigator-layer-panel" class="base-layer-panel"
 					[ngClass]="{'second-map-button' : searchEnabled && !showPanel}"
 					[ngStyle]="{'max-width': layersPanelSize === 2 ? '50%' : 'unset', 'padding-left': layersPanelSize === 2 ? '10px' : 'unset'}">

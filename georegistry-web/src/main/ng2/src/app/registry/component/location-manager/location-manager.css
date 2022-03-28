@@ -185,6 +185,10 @@
 	overflow:auto;top: 70px;
 	background:white;
 }
+.full-height-sidebar.max-height {
+	height: calc(100vh - 50px);
+	top: 0;
+}
 
 .collapse-sidebar,
 .collapse-sidebar [class*='col-'] {
