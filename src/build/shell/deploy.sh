@@ -103,7 +103,7 @@ if [ "$deploy" == "true" ]; then
   [ -h ../permissions ] && unlink ../permissions
   ln -s $WORKSPACE/geoprism-platform/permissions ../permissions
 
-  ansible-playbook georegistry.yml -vv -i inventory/georegistry/$environment.ini --extra-vars "clean_db=$clean_db clean_orientdb=$clean_db webserver_docker_image_tag=$tag docker_image_path=../../georegistry/src/build/docker/georegistry/target/georegistry.dimg.gz"
+  ansible-playbook georegistry.yml -vv -i inventory/georegistry/$environment.ini --extra-vars "geoprism_lib_extension=$geoprism_lib_extension clean_db=$clean_db clean_orientdb=$clean_db webserver_docker_image_tag=$tag docker_image_path=../../georegistry/src/build/docker/georegistry/target/georegistry.dimg.gz"
 
   if [ "$environment" == "demo" ]; then
     ansible-playbook $WORKSPACE/geoprism-platform/ansible/aws/snapshot.yml -i inventory/georegistry/aws-$environment.ini

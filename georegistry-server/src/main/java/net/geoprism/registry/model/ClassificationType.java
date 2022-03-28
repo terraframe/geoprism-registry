@@ -204,16 +204,24 @@ public class ClassificationType implements JsonSerializable
   @Transaction
   public static ClassificationType apply(JsonObject json)
   {
+    String oid = (json.has(MdClassificationInfo.OID) && !json.get(MdClassificationInfo.OID).isJsonNull()) ? json.get(MdClassificationInfo.OID).getAsString() : null;
+    String code = json.get(DefaultAttribute.CODE.getName()).getAsString();
+    LocalizedValue displayLabel = LocalizedValue.fromJSON(json.get(MdClassificationInfo.DISPLAY_LABEL).getAsJsonObject());
+    LocalizedValue description = LocalizedValue.fromJSON(json.get(MdClassificationInfo.DESCRIPTION).getAsJsonObject());
+
+    return apply(oid, code, displayLabel, description);
+  }
+
+  public static ClassificationType apply(String oid, String code, LocalizedValue displayLabel, LocalizedValue description)
+  {
     MdClassificationDAO mdClassification = null;
 
-    if (json.has(MdClassificationInfo.OID) && !json.get(MdClassificationInfo.OID).isJsonNull())
+    if (oid != null)
     {
-      String oid = json.get(MdClassificationInfo.OID).getAsString();
       mdClassification = (MdClassificationDAO) MdClassificationDAO.get(oid).getBusinessDAO();
     }
     else
     {
-      String code = json.get(DefaultAttribute.CODE.getName()).getAsString();
 
       if (!MasterList.isValidName(code))
       {
@@ -226,10 +234,8 @@ public class ClassificationType implements JsonSerializable
       mdClassification.setValue(MdClassificationInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
     }
 
-    LocalizedValue displayLabel = LocalizedValue.fromJSON(json.get(MdClassificationInfo.DISPLAY_LABEL).getAsJsonObject());
     LocalizedValueConverter.populate(mdClassification, MdClassificationInfo.DISPLAY_LABEL, displayLabel);
 
-    LocalizedValue description = LocalizedValue.fromJSON(json.get(MdClassificationInfo.DESCRIPTION).getAsJsonObject());
     LocalizedValueConverter.populate(mdClassification, MdClassificationInfo.DESCRIPTION, description);
 
     boolean isNew = mdClassification.isNew() && !mdClassification.isAppliedToDB();
