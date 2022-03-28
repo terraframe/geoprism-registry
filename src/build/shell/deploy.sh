@@ -108,6 +108,7 @@ if [ "$deploy" == "true" ]; then
     mkdir -p $WORKSPACE/georegistry/georegistry-web/target/artifact-download
     cp $WORKSPACE/georegistry/src/build/shell/artifact-download.pom.xml $WORKSPACE/georegistry/georegistry-web/target/artifact-download/pom.xml
     cd $WORKSPACE/georegistry/georegistry-web/target/artifact-download
+    cd $WORKSPACE/geoprism-cloud/ansible
     
     mvn dependency:copy -Dartifact=$geoprism_lib_extension_artifact_package:$geoprism_lib_extension_artifact_name:$geoprism_lib_extension_artifact_version:jar -DoutputDirectory=../ -Dmdep.stripVersion=true
     
