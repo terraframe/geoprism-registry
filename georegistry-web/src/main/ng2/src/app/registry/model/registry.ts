@@ -32,6 +32,8 @@ export class GeoObjectTypeCache {
     public waitOnTypes(): Promise<GeoObjectType[]> {
         if (this.refreshPromise) {
             return this.refreshPromise;
+        } else if (this.types == null) {
+            return (this.refreshPromise = this.refresh());
         } else {
             return new Promise<GeoObjectType[]>((resolve, reject) => resolve(this.types));
         }
@@ -41,6 +43,11 @@ export class GeoObjectTypeCache {
         return this.registryService.getGeoObjectTypes(null, null).then(types => {
             this.refreshPromise = null;
             this.types = types;
+            return this.types;
+        }).catch(e => {
+            this.types = null;
+            this.refreshPromise = null;
+
             return this.types;
         });
     }
