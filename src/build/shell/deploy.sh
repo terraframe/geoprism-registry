@@ -108,9 +108,8 @@ if [ "$deploy" == "true" ]; then
     mkdir -p $WORKSPACE/georegistry/georegistry-web/target/artifact-download
     cp $WORKSPACE/georegistry/src/build/shell/artifact-download.pom.xml $WORKSPACE/georegistry/georegistry-web/target/artifact-download/pom.xml
     cd $WORKSPACE/georegistry/georegistry-web/target/artifact-download
-    cd $WORKSPACE/geoprism-cloud/ansible
-    
     mvn dependency:copy -Dartifact=$geoprism_lib_extension_artifact_package:$geoprism_lib_extension_artifact_name:$geoprism_lib_extension_artifact_version:jar -DoutputDirectory=../ -Dmdep.stripVersion=true
+    cd $WORKSPACE/geoprism-cloud/ansible
     
     ansible-playbook georegistry.yml -vv -i inventory/georegistry/$environment.ini --extra-vars "geoprism_lib_extension=$WORKSPACE/georegistry/georegistry-web/target/$geoprism_lib_extension_artifact_name.jar clean_db=$clean_db clean_orientdb=$clean_db webserver_docker_image_tag=$tag docker_image_path=../../georegistry/src/build/docker/georegistry/target/georegistry.dimg.gz"
   else
