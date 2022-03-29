@@ -65,6 +65,11 @@ public class ShapefileService
   @Request(RequestType.SESSION)
   public JSONObject getShapefileConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
   {
+    return this.getShapefileConfigurationInReq(type, startDate, endDate, fileName, fileStream, strategy, copyBlank);
+  }
+  
+  public JSONObject getShapefileConfigurationInReq(String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
+  {
     // Save the file to the file system
     try
     {

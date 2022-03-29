@@ -25,7 +25,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.google.gson.JsonArray;
@@ -35,7 +34,6 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
-import com.runwaysdk.system.scheduler.MockScheduler;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.GeoRegistryUtil;
@@ -299,7 +297,7 @@ public class CurationTest
     history.setVersion(version);
     history.apply();
 
-    ExecutionContext context = MockScheduler.executeJob(job, history);
+    ExecutionContext context = job.startSynchronously(history);
 
     ListCurationHistory hist = (ListCurationHistory) context.getHistory();
 

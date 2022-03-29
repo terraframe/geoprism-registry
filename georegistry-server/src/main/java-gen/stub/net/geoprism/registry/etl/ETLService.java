@@ -303,7 +303,7 @@ public class ETLService
     {
       List<JsonWrapper> results = it.getAll().stream().map(hist -> {
         DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
-        GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
+        GeoprismUser user = (job.getRunAsUser() == null) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
 
         return new JsonWrapper(serializeHistory(hist, user, job));
       }).collect(Collectors.toList());
@@ -328,7 +328,7 @@ public class ETLService
     {
       List<JsonWrapper> results = it.getAll().stream().map(hist -> {
         DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
-        GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
+        GeoprismUser user = (job.getRunAsUser() == null) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
 
         return new JsonWrapper(serializeHistory(hist, user, job));
       }).collect(Collectors.toList());
@@ -351,7 +351,7 @@ public class ETLService
 
     jo.addProperty("jobType", job.getType());
     jo.addProperty("status", hist.getStatus().get(0).name());
-    jo.addProperty("author", user.getUsername());
+    jo.addProperty("author", user == null ? "SYSTEM" : user.getUsername());
     jo.addProperty("createDate", formatDate(hist.getCreateDate()));
     jo.addProperty("lastUpdateDate", formatDate(hist.getLastUpdateDate()));
     jo.addProperty("workProgress", hist.getWorkProgress());
@@ -401,6 +401,11 @@ public class ETLService
   @Request(RequestType.SESSION)
   public JsonObject getImportErrors(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
+    return this.getImportErrorsInReq(historyId, onlyUnresolved, pageSize, pageNumber);
+  }
+  
+  public JsonObject getImportErrorsInReq(String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
+  {
     ImportErrorQuery query = new ImportErrorQuery(new QueryFactory());
 
     query.WHERE(query.getHistory().EQ(historyId));
@@ -420,11 +425,15 @@ public class ETLService
 
       return new Page<ImportError>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
     }
-
   }
-
+  
   @Request(RequestType.SESSION)
   public JsonObject getValidationProblems(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
+  {
+    return this.getValidationProblemsInReq(historyId, onlyUnresolved, pageSize, pageNumber);
+  }
+
+  public JsonObject getValidationProblemsInReq(String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
     ImportHistory hist = ImportHistory.get(historyId);
 
@@ -561,7 +570,7 @@ public class ETLService
   {
     ImportHistory hist = ImportHistory.get(historyId);
     DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
-    GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
+    GeoprismUser user = (job.getRunAsUser() == null) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
     hist.getConfig().enforceExecutePermissions();
 
     JsonObject jo = this.serializeHistory(hist, user, job);
@@ -583,7 +592,7 @@ public class ETLService
   {
     ExportHistory hist = ExportHistory.get(historyId);
     DataExportJob job = (DataExportJob) hist.getAllJob().getAll().get(0);
-    GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
+    GeoprismUser user = (job.getRunAsUser() == null) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
 
     JsonObject jo = this.serializeHistory(hist, user, job);
 

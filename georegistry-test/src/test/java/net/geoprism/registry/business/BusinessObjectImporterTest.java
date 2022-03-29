@@ -20,7 +20,6 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
-import com.runwaysdk.system.scheduler.MockScheduler;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.registry.BusinessType;
@@ -30,11 +29,11 @@ import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.etl.NullImportProgressListener;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
-import net.geoprism.registry.etl.upload.ImportConfiguration;
-import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.etl.upload.BusinessObjectImportConfiguration;
 import net.geoprism.registry.etl.upload.BusinessObjectImporter;
 import net.geoprism.registry.etl.upload.BusinessObjectRecordedErrorException;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.excel.MapFeatureRow;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.ParentCodeException;
@@ -469,7 +468,7 @@ public class BusinessObjectImporterTest
     hist.setGeoObjectTypeCode(type.getCode());
     hist.apply();
 
-    ExecutionContext context = MockScheduler.executeJob(job, hist);
+    ExecutionContext context = job.startSynchronously(hist);
 
     hist = (ImportHistory) context.getHistory();
     return hist;

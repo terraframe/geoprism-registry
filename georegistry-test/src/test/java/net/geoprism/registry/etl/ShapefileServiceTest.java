@@ -28,7 +28,6 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -54,7 +53,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.FilterFactory;
@@ -70,7 +68,6 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
-import com.runwaysdk.system.scheduler.MockScheduler;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -947,7 +944,7 @@ public class ShapefileServiceTest
     hist.setGeoObjectTypeCode(type.getCode());
     hist.apply();
     
-    ExecutionContext context = MockScheduler.executeJob(job, hist);
+    ExecutionContext context = job.startSynchronously(hist);
 
     hist = (ImportHistory) context.getHistory();
     return hist;

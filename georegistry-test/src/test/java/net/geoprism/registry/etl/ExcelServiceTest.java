@@ -49,23 +49,14 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.runwaysdk.business.SmartExceptionDTO;
-import com.runwaysdk.business.graph.VertexObject;
-import com.runwaysdk.constants.MdAttributeBooleanInfo;
-import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.constants.graph.MdClassificationInfo;
-import com.runwaysdk.dataaccess.MdVertexDAOIF;
-import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.AbstractClassification;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
-import com.runwaysdk.system.scheduler.MockScheduler;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -295,7 +286,7 @@ public class ExcelServiceTest
     hist.setGeoObjectTypeCode(type.getCode());
     hist.apply();
 
-    ExecutionContext context = MockScheduler.executeJob(job, hist);
+    ExecutionContext context = job.startSynchronously(hist);
 
     hist = (ImportHistory) context.getHistory();
     return hist;
