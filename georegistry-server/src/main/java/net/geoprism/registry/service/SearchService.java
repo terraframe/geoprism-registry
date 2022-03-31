@@ -254,9 +254,12 @@ public class SearchService
   }
 
   // @Transaction
-  public void insert(VertexServerGeoObject object)
+  public void insert(VertexServerGeoObject object, boolean isNew)
   {
-    this.remove(object.getCode());
+    if (!isNew)
+    {
+      this.remove(object.getCode());
+    }
 
     String suffix = this.getSuffix();
 

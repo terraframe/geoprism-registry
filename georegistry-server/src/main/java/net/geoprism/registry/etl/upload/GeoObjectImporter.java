@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
+import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
@@ -72,6 +73,7 @@ import net.geoprism.registry.etl.RowValidationProblem;
 import net.geoprism.registry.etl.TermReferenceProblem;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -685,7 +687,16 @@ public class GeoObjectImporter implements ObjectImporterIF
 
       if (parent != null)
       {
-        parent.addChild(serverGo, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
+        if (!isNew)
+        {
+          parent.addChild(serverGo, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
+        }
+        else
+        {
+          // If we're a new object, we can speed things up quite a bit here by just directly applying the edge object since the addChild method
+          //   does a lot of unnecessary validation.
+          ((VertexServerGeoObject) serverGo).addParentRaw(((VertexServerGeoObject)parent).getVertex(), this.configuration.getHierarchy().getMdEdge(), this.configuration.getStartDate(), this.configuration.getEndDate());
+        }
       }
       else if (isNew)
       {

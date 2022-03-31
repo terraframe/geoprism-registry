@@ -51,6 +51,7 @@ import org.xml.sax.SAXException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.dataaccess.transaction.TransactionState;
+import com.runwaysdk.resource.ApplicationResource;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.DirectedAcyclicGraphType;
@@ -78,14 +79,14 @@ public class XMLImporter
   }
 
   @Transaction
-  public List<ServerElement> importXMLDefinitions(Organization organization, InputStream istream)
+  public List<ServerElement> importXMLDefinitions(Organization organization, ApplicationResource resource)
   {
     TransactionState state = TransactionState.getCurrentTransactionState();
     state.putTransactionObject("transaction-state", this.cache);
 
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
 
-    try
+    try (InputStream istream = resource.openNewStream())
     {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       DocumentBuilder dBuilder = factory.newDocumentBuilder();

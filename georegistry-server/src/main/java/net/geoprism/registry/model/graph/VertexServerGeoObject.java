@@ -1160,8 +1160,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       throw new GeometryUpdateException();
     }
+    
+    final boolean isNew = this.vertex.isNew() || this.vertex.getObjectValue(GeoVertex.CREATEDATE) == null;
 
-    if (this.vertex.isNew() || this.vertex.getObjectValue(GeoVertex.CREATEDATE) == null)
+    if (isNew)
     {
       this.vertex.setValue(GeoVertex.CREATEDATE, new Date());
     }
@@ -1203,9 +1205,9 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     if (!this.getInvalid())
     {
-      new SearchService().insert(this);
+      new SearchService().insert(this, isNew);
     }
-    else
+    else if (!isNew)
     {
       new SearchService().remove(this.getCode());
     }
@@ -1410,11 +1412,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         if (hasValueChange)
         {
           edge.delete();
-
-          EdgeObject newEdge = this.getVertex().addParent(inGo.getVertex(), hierarchyType.getMdEdge());
-          newEdge.setValue(GeoVertex.START_DATE, startDate);
-          newEdge.setValue(GeoVertex.END_DATE, endDate);
-          newEdge.apply();
+          
+          EdgeObject newEdge = this.addParentRaw(inGo.getVertex(), hierarchyType.getMdEdge(), startDate, endDate);
 
           newEdges.add(newEdge);
         }
@@ -1456,10 +1455,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
       if (isNew)
       {
-        EdgeObject newEdge = this.getVertex().addParent( ( (VertexServerGeoObject) vot.getValue() ).getVertex(), hierarchyType.getMdEdge());
-        newEdge.setValue(GeoVertex.START_DATE, vot.getStartDate());
-        newEdge.setValue(GeoVertex.END_DATE, vot.getEndDate());
-        newEdge.apply();
+        EdgeObject newEdge = this.addParentRaw(((VertexServerGeoObject) vot.getValue()).getVertex(), hierarchyType.getMdEdge(), vot.getStartDate(), vot.getEndDate());
 
         newEdges.add(newEdge);
       }
@@ -1485,7 +1481,21 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return node;
   }
-
+  
+  /**
+   * Adds an edge, bypassing all validation (for performance reasons). Be careful with this method!! You probably want to call
+   * addChild or addParent instead.
+   */
+  public EdgeObject addParentRaw(VertexObject parent, MdEdgeDAOIF mdEdge, Date startDate, Date endDate)
+  {
+    EdgeObject newEdge = this.getVertex().addParent(parent, mdEdge);
+    newEdge.setValue(GeoVertex.START_DATE, startDate);
+    newEdge.setValue(GeoVertex.END_DATE, endDate);
+    newEdge.apply();
+    
+    return newEdge;
+  }
+  
   protected Date calculateDateMinusOneDay(Date source)
   {
     LocalDate localEnd = source.toInstant().atZone(ZoneId.of("Z")).toLocalDate().minusDays(1);

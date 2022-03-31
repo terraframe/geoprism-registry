@@ -72,7 +72,7 @@ public class SearchTablePatch
       {
         ServerGeoObjectType type = ServerGeoObjectType.get((MdVertexDAOIF) result.getMdClass());
 
-        service.insert(new VertexServerGeoObject(type, result));
+        service.insert(new VertexServerGeoObject(type, result), true);
       }
 
       skip += pageSize;

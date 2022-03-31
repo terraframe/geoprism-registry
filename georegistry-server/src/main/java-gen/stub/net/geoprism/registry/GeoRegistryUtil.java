@@ -41,6 +41,7 @@ import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.resource.ApplicationResource;
 
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.excel.ListTypeExcelExporter;
@@ -284,12 +285,12 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   }
 
   @Authenticate
-  public static void importTypes(String orgCode, InputStream istream)
+  public static void importTypes(String orgCode, ApplicationResource resource)
   {
     Organization organization = Organization.getByCode(orgCode);
 
     XMLImporter xmlImporter = new XMLImporter();
-    xmlImporter.importXMLDefinitions(organization, istream);
+    xmlImporter.importXMLDefinitions(organization, resource);
   }
 
 }
