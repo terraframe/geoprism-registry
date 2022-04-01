@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
-import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
@@ -73,7 +72,6 @@ import net.geoprism.registry.etl.RowValidationProblem;
 import net.geoprism.registry.etl.TermReferenceProblem;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
-import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -86,6 +84,7 @@ import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
+import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -137,6 +136,8 @@ public class GeoObjectImporter implements ObjectImporterIF
   protected ServerGeoObjectService         service;
 
   protected Map<String, ServerGeoObjectIF> parentCache;
+  
+  protected ClassifierCache classifierCache = new ClassifierCache();
 
   protected static final String            parentConcatToken          = "&";
 
@@ -1105,8 +1106,18 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           mdAttribute = (MdAttributeClassificationDAOIF) type.getSuperType().getMdBusinessDAO().definesAttribute(attributeName);
         }
+        
+        VertexObject classifier = this.classifierCache.getClassifier(mdAttribute.getMdClassificationDAOIF().definesType(), value.toString().trim());
 
-        VertexObject classifier = AbstractClassification.findMatchingClassification(value.toString().trim(), mdAttribute);
+        if (classifier == null)
+        {
+          classifier = AbstractClassification.findMatchingClassification(value.toString().trim(), mdAttribute);
+          
+          if (classifier != null)
+          {
+            this.classifierCache.putClassifier(mdAttribute.getMdClassificationDAOIF().definesType(), classifier.getObjectValue("code"), classifier);
+          }
+        }
 
         if (classifier == null)
         {
@@ -1121,7 +1132,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
         else
         {
-          entity.setValue(attributeName, classifier.getOid(), startDate, endDate);
+          entity.setValue(attributeName, classifier, startDate, endDate);
         }
       }
       catch (UnknownTermException e)

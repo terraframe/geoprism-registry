@@ -303,7 +303,11 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       {
         ShapefileFunction function = this.functions.get(attributeName);
 
-        if (function instanceof LocalizedValueFunction)
+        if (function instanceof BasicColumnFunction)
+        {
+          attribute.put(TARGET, function.toJson());
+        }
+        else if (function instanceof LocalizedValueFunction)
         {
           String locale = attribute.getString("locale");
 
@@ -314,8 +318,9 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
             attribute.put(TARGET, localeFunction.toJson());
           }
         }
-        else
+        else if (function instanceof ConstantShapefileFunction)
         {
+          attribute.put(TYPE, function.getClass().getName());
           attribute.put(TARGET, function.toJson());
         }
       }
@@ -456,22 +461,29 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
         // In the case of a spreadsheet, this ends up being the column header
         String target = attribute.getString(TARGET);
-
-        if (attribute.has("locale"))
+        
+        if (attribute.has("type") && attribute.getString("type").equals(ConstantShapefileFunction.class.getName()))
         {
-          String locale = attribute.getString("locale");
-
-          if (this.getFunction(attributeName) == null)
-          {
-            this.setFunction(attributeName, new LocalizedValueFunction());
-          }
-
-          LocalizedValueFunction function = (LocalizedValueFunction) this.getFunction(attributeName);
-          function.add(locale, new BasicColumnFunction(target));
+          this.setFunction(attributeName, new ConstantShapefileFunction(target));
         }
         else
         {
-          this.setFunction(attributeName, new BasicColumnFunction(target));
+          if (attribute.has("locale"))
+          {
+            String locale = attribute.getString("locale");
+  
+            if (this.getFunction(attributeName) == null)
+            {
+              this.setFunction(attributeName, new LocalizedValueFunction());
+            }
+  
+            LocalizedValueFunction function = (LocalizedValueFunction) this.getFunction(attributeName);
+            function.add(locale, new BasicColumnFunction(target));
+          }
+          else
+          {
+            this.setFunction(attributeName, new BasicColumnFunction(target));
+          }
         }
       }
     }
@@ -489,8 +501,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
         String target = location.getString(TARGET);
         ParentMatchStrategy matchStrategy = ParentMatchStrategy.valueOf(location.getString(MATCH_STRATEGY));
 
-        // This is supported for testing reasons. On a live server all data
-        // coming in with use BasicColumnFunctions
         if (location.has("type") && location.getString("type").equals(ConstantShapefileFunction.class.getName()))
         {
           this.addParent(new Location(pType, pHierarchy, new ConstantShapefileFunction(target), matchStrategy));
