@@ -44,6 +44,7 @@ import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
@@ -795,13 +796,13 @@ public class ETLService
   }
 
   @Request(RequestType.SESSION)
-  public void importEdgeJson(String sessionId, String relationshipType, String graphTypeCode, Date startDate, Date endDate, InputStream stream)
+  public void importEdgeJson(String sessionId, String relationshipType, String graphTypeCode, Date startDate, Date endDate, ApplicationResource resource)
   {
     try
     {
       GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
 
-      EdgeJsonImporter importer = new EdgeJsonImporter(stream, graphType, startDate, endDate);
+      EdgeJsonImporter importer = new EdgeJsonImporter(resource, graphType, startDate, endDate);
       importer.importData();
     }
     catch (JsonSyntaxException | IOException e)

@@ -22,7 +22,7 @@ public class EdgeJsonImporter
 {
   private static final Logger logger = LoggerFactory.getLogger(EdgeJsonImporter.class);
 
-  private InputStream         stream;
+  private ApplicationResource resource;
 
   private GraphType           graphType;
 
@@ -30,9 +30,9 @@ public class EdgeJsonImporter
 
   private Date                endDate;
 
-  public EdgeJsonImporter(InputStream stream, GraphType graphType, Date startDate, Date endDate)
+  public EdgeJsonImporter(ApplicationResource resource, GraphType graphType, Date startDate, Date endDate)
   {
-    this.stream = stream;
+    this.resource = resource;
     this.graphType = graphType;
     this.startDate = startDate;
     this.endDate = endDate;
@@ -42,25 +42,28 @@ public class EdgeJsonImporter
   {
     ServerGeoObjectService service = new ServerGeoObjectService();
 
-    JsonObject data = JsonParser.parseString(IOUtils.toString(stream, "UTF-8")).getAsJsonObject();
-
-    JsonArray edges = data.get("edges").getAsJsonArray();
-
-    logger.info("About to import [" + edges.size() + "] edges as MdEdge [" + this.graphType.getCode() + "].");
-
-    for (int i = 0; i < edges.size(); ++i)
+    try (InputStream stream = resource.openNewStream())
     {
-      JsonObject joEdge = edges.get(i).getAsJsonObject();
-
-      String sourceCode = joEdge.get("source").getAsString();
-      String sourceTypeCode = joEdge.get("sourceType").getAsString();
-      String targetCode = joEdge.get("target").getAsString();
-      String targetTypeCode = joEdge.get("targetType").getAsString();
-
-      ServerGeoObjectIF source = service.getGeoObjectByCode(sourceCode, sourceTypeCode);
-      ServerGeoObjectIF target = service.getGeoObjectByCode(targetCode, targetTypeCode);
-
-      source.addGraphChild(target, this.graphType, this.startDate, this.endDate);
+      JsonObject data = JsonParser.parseString(IOUtils.toString(stream, "UTF-8")).getAsJsonObject();
+  
+      JsonArray edges = data.get("edges").getAsJsonArray();
+  
+      logger.info("About to import [" + edges.size() + "] edges as MdEdge [" + this.graphType.getCode() + "].");
+  
+      for (int i = 0; i < edges.size(); ++i)
+      {
+        JsonObject joEdge = edges.get(i).getAsJsonObject();
+  
+        String sourceCode = joEdge.get("source").getAsString();
+        String sourceTypeCode = joEdge.get("sourceType").getAsString();
+        String targetCode = joEdge.get("target").getAsString();
+        String targetTypeCode = joEdge.get("targetType").getAsString();
+  
+        ServerGeoObjectIF source = service.getGeoObjectByCode(sourceCode, sourceTypeCode);
+        ServerGeoObjectIF target = service.getGeoObjectByCode(targetCode, targetTypeCode);
+  
+        source.addGraphChild(target, this.graphType, this.startDate, this.endDate);
+      }
     }
   }
 
