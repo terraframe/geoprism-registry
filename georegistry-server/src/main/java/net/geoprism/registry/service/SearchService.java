@@ -311,11 +311,14 @@ public class SearchService
     String attributeName = label.getValue(MdAttributeTextInfo.NAME);
     String className = mdVertex.getDBClassName();
     String indexName = className + "." + attributeName;
+    
+    String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
+    String escapedText = text.replaceAll(regex, "\\\\\\\\$1");
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT EXPAND(out('" + mdEdge.getDBClassName() + "'))");
     statement.append(" FROM " + mdVertex.getDBClassName());
-    statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", \"+" + label.getColumnName() + ":" + text + "*\") = true");
+    statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", \"+" + label.getColumnName() + ":" + escapedText + "*\") = true");
     statement.append(" OR :code = " + code.getColumnName() + ")");
 
     if (date != null)
@@ -334,7 +337,7 @@ public class SearchService
     {
       statement.append(" LIMIT " + limit);
     }
-
+    
     List<ServerGeoObjectIF> list = new LinkedList<ServerGeoObjectIF>();
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
     query.setParameter("code", text);
