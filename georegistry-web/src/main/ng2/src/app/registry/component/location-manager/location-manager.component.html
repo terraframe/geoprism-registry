@@ -66,9 +66,11 @@
 						                              <i class="fa fa-sitemap clickable" style="float:right;font-size:25px;" aria-hidden="true" (click)="visualizeRelationships(node, VISUALIZE_MODE.GRAPH, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
 						                              -->
 														<h4 class="clickable" style="word-break: break-all;" title="View Geo-Object details">
-															{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
+															{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}
+														</h4>
 													</div>
-												</div>
+													<div class="card-footer">{{node.properties.type}}</div>
+												</div>												
 											</div>
 		
 										</div>
