@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -64,7 +64,6 @@ import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.LocalStruct;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
@@ -84,8 +83,6 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMomentDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeNumberDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.MdClassificationDAOIF;
-import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
@@ -95,16 +92,15 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeFloatDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
-import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.localization.LocalizedValueStore;
 import com.runwaysdk.query.F;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.AbstractClassification;
 import com.runwaysdk.system.gis.metadata.MdAttributeGeometry;
 import com.runwaysdk.system.gis.metadata.MdAttributeLineString;
 import com.runwaysdk.system.gis.metadata.MdAttributeMultiLineString;
@@ -136,6 +132,7 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.curation.CurationService;
 import net.geoprism.registry.curation.ListCurationHistory;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.localization.DefaultLocaleView;
 import net.geoprism.registry.masterlist.ListTypeAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
 import net.geoprism.registry.model.Classification;
@@ -205,13 +202,13 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       {
         this.setListVisibility(ListType.PRIVATE);
       }
-      
+
       if (this.getGeospatialVisibility() == null || this.getGeospatialVisibility().length() == 0)
       {
         this.setGeospatialVisibility(ListType.PRIVATE);
       }
     }
-    
+
     super.apply();
 
     if (this.getGeospatialVisibility().equals(ListType.PUBLIC))
@@ -348,12 +345,12 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     return true;
   }
 
-  public static TableMetadata createMdAttributeFromAttributeType(ListTypeVersion version, ServerGeoObjectType type, AttributeType attributeType, Collection<Locale> locales)
+  public static TableMetadata createMdAttributeFromAttributeType(ListTypeVersion version, ServerGeoObjectType type, AttributeType attributeType, Collection<Locale> locales, String defaultLocaleLabel)
   {
     TableMetadata metadata = new TableMetadata();
     metadata.setMdBusiness(version.getMdBusiness());
 
-    createMdAttributeFromAttributeType(metadata, attributeType, type, locales);
+    createMdAttributeFromAttributeType(metadata, attributeType, type, locales, defaultLocaleLabel);
 
     Map<MdAttribute, MdAttribute> pairs = metadata.getPairs();
 
@@ -367,7 +364,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     return metadata;
   }
 
-  protected static void createMdAttributeFromAttributeType(TableMetadata metadata, AttributeType attributeType, ServerGeoObjectType type, Collection<Locale> locales)
+  protected static void createMdAttributeFromAttributeType(TableMetadata metadata, AttributeType attributeType, ServerGeoObjectType type, Collection<Locale> locales, String defaultLocaleLabel)
   {
     MdBusiness mdBusiness = metadata.getMdBusiness();
 
@@ -431,8 +428,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + DEFAULT_LOCALE);
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
       mdAttributeDefaultLocale.setDefiningMdClass(mdBusiness);
-      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), attributeType.getLabel(), " (defaultLocale)");
-      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (defaultLocale)");
+      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), attributeType.getLabel(), " (" + defaultLocaleLabel + ")");
+      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (" + defaultLocaleLabel + ")");
       mdAttributeDefaultLocale.apply();
 
       metadata.addPair(mdAttributeDefaultLocale, cloneAttribute);
@@ -468,8 +465,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + DEFAULT_LOCALE);
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
       mdAttributeDefaultLocale.setDefiningMdClass(mdBusiness);
-      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (defaultLocale)");
-      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (defaultLocale)");
+      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (" + defaultLocaleLabel + ")");
+      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (" + defaultLocaleLabel + ")");
       mdAttributeDefaultLocale.apply();
 
       for (Locale locale : locales)
@@ -527,6 +524,9 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
   private TableMetadata createTable()
   {
+    LocalizedValueStore lvs = LocalizedValueStore.getByKey(DefaultLocaleView.LABEL);
+    String defaultLocaleLabel = lvs.getStoreValue().getValue();
+
     ListType masterlist = this.getListType();
 
     TableMetadata metadata = new TableMetadata();
@@ -566,7 +566,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       if (this.isValid(attributeType))
       {
-        createMdAttributeFromAttributeType(metadata, attributeType, type, locales);
+        createMdAttributeFromAttributeType(metadata, attributeType, type, locales, defaultLocaleLabel);
       }
     }
 
@@ -644,7 +644,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeName + DEFAULT_LOCALE);
           mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
           mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
-          mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label + " (defaultLocale)");
+          mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label + " (" + defaultLocaleLabel + ")");
           mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, labelDescription.replaceAll("\\{locale\\}", "default"));
           mdAttributeDefaultLocale.apply();
 
@@ -698,7 +698,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeName + DEFAULT_LOCALE);
         mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
         mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
-        mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyLabel + " (defaultLocale)");
+        mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyLabel + " (" + defaultLocaleLabel + ")");
         mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, labelDescription.replaceAll("\\{locale\\}", "default"));
         mdAttributeDefaultLocale.apply();
 
@@ -1744,7 +1744,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     query.WHERE(query.get(DefaultAttribute.UID.getName()).EQ(uid));
 
     ListType listType = this.getListType();
-    
+
     JsonObject record = new JsonObject();
     record.addProperty("recordType", "LIST");
     record.addProperty("version", this.getOid());
@@ -1803,7 +1803,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         record.add("data", object);
       }
     }
-    
+
     JsonArray bbox = this.bbox(uid);
     if (bbox == null || bbox.size() == 0)
     {

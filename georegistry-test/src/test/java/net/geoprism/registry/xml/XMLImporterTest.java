@@ -36,6 +36,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.Organization;
@@ -91,7 +92,7 @@ public class XMLImporterTest
     {
       XMLImporter xmlImporter = new XMLImporter();
 
-      List<ServerElement> results = xmlImporter.importXMLDefinitions(organization, istream);
+      List<ServerElement> results = xmlImporter.importXMLDefinitions(organization, new StreamResource(istream, "test-domain.xml"));
 
       try
       {
