@@ -538,13 +538,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                             this.select(feature, null);
                         }
                     } else {
-                        this.router.navigate([], {
-                            relativeTo: this.route,
-                            queryParams: { type: null, code: null, version: feature.source, uid: feature.properties.uid },
-                            queryParamsHandling: "merge" // remove to replace all query params by provided
-                        });
-
-                        this.handleRecord(feature.source, feature.properties.uid);
+                        if (this.params.version == null || this.params.uid == null ||
+                            this.params.version !== feature.source ||
+                            this.params.uid !== feature.properties.uid) {
+                            this.router.navigate([], {
+                                relativeTo: this.route,
+                                queryParams: { type: null, code: null, version: feature.source, uid: feature.properties.uid },
+                                queryParamsHandling: "merge" // remove to replace all query params by provided
+                            });
+                        } else {
+                            this.handleRecord(feature.source, feature.properties.uid);
+                        }
                     }
                 });
             }
@@ -657,7 +661,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.state.currentDate = date;
 
             if (this.data.length > 0) {
-                let source = (<any>this.map.getSource(GRAPH_LAYER));
+                let source = (<any> this.map.getSource(GRAPH_LAYER));
 
                 if (source != null) {
                     source.setData(data);

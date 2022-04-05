@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -311,15 +311,23 @@ public class SearchService
     String attributeName = label.getValue(MdAttributeTextInfo.NAME);
     String className = mdVertex.getDBClassName();
     String indexName = className + "." + attributeName;
-    
-    String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
-    String escapedText = text.replaceAll(regex, "\\\\\\\\$1");
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT EXPAND(out('" + mdEdge.getDBClassName() + "'))");
     statement.append(" FROM " + mdVertex.getDBClassName());
-    statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", \"+" + label.getColumnName() + ":" + escapedText + "*\") = true");
-    statement.append(" OR :code = " + code.getColumnName() + ")");
+
+    if (text != null)
+    {
+      String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
+      String escapedText = text.replaceAll(regex, "\\\\\\\\$1");
+      
+      statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", \"+" + label.getColumnName() + ":" + escapedText + "*\") = true");
+      statement.append(" OR :code = " + code.getColumnName() + ")");
+    }
+    else
+    {
+      statement.append(" WHERE " + code.getColumnName() + " IS NOT NULL");
+    }
 
     if (date != null)
     {
@@ -337,10 +345,14 @@ public class SearchService
     {
       statement.append(" LIMIT " + limit);
     }
-    
+
     List<ServerGeoObjectIF> list = new LinkedList<ServerGeoObjectIF>();
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
-    query.setParameter("code", text);
+
+    if (text != null)
+    {
+      query.setParameter("code", text);
+    }
 
     if (date != null)
     {
