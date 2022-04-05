@@ -153,25 +153,28 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
 
   @SuppressWarnings("unchecked")
   @Override
-  public ServerParentGraphNode addChild(VertexServerGeoObject geoObject, VertexServerGeoObject child, Date startDate, Date endDate)
+  public ServerParentGraphNode addChild(VertexServerGeoObject geoObject, VertexServerGeoObject child, Date startDate, Date endDate, boolean validate)
   {
-    return this.addParent(child, geoObject, startDate, endDate);
+    return this.addParent(child, geoObject, startDate, endDate, validate);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public ServerParentGraphNode addParent(VertexServerGeoObject geoObject, VertexServerGeoObject parent, Date startDate, Date endDate)
+  public ServerParentGraphNode addParent(VertexServerGeoObject geoObject, VertexServerGeoObject parent, Date startDate, Date endDate, boolean validate)
   {
-    GraphValidationService.validate(type, parent, parent);
-    
-    if (this.isCycle(geoObject, parent, startDate, endDate))
+    if (validate)
     {
-      throw new UnsupportedOperationException("Cannot add a cycle");
-    }
+      GraphValidationService.validate(type, parent, parent);
 
-    if (this.getParentEdges(geoObject, parent, startDate, endDate).size() > 0)
-    {
-      throw new UnsupportedOperationException("Duplicate edge between child [" + geoObject.getCode() + "] and parent [" + parent.getCode() + "] with relationship type [" + DirectedAcyclicGraphType.CLASS + "].");
+      if (this.isCycle(geoObject, parent, startDate, endDate))
+      {
+        throw new UnsupportedOperationException("Cannot add a cycle");
+      }
+
+      if (this.getParentEdges(geoObject, parent, startDate, endDate).size() > 0)
+      {
+        throw new UnsupportedOperationException("Duplicate edge between child [" + geoObject.getCode() + "] and parent [" + parent.getCode() + "] with relationship type [" + DirectedAcyclicGraphType.CLASS + "].");
+      }
     }
 
     Set<ValueOverTime> votc = this.getParentCollection(geoObject);

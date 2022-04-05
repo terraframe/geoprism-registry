@@ -57,7 +57,7 @@ public abstract class GraphService
     // ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(),
     // parent.getType(), child.getType());
 
-    ServerGraphNode node = parent.addGraphChild(child, graphType, startDate, endDate);
+    ServerGraphNode node = parent.addGraphChild(child, graphType, startDate, endDate, true);
     return node.toJSON();
   }
 

@@ -141,23 +141,26 @@ public class UndirectedGraphStrategy implements GraphStrategy
   }
 
   @Override
-  public <T extends ServerGraphNode> T addChild(VertexServerGeoObject geoObject, VertexServerGeoObject child, Date startDate, Date endDate)
+  public <T extends ServerGraphNode> T addChild(VertexServerGeoObject geoObject, VertexServerGeoObject child, Date startDate, Date endDate, boolean validate)
   {
-    return this.addParent(child, geoObject, startDate, endDate);
+    return this.addParent(child, geoObject, startDate, endDate, validate);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T extends ServerGraphNode> T addParent(VertexServerGeoObject geoObject, VertexServerGeoObject parent, Date startDate, Date endDate)
+  public <T extends ServerGraphNode> T addParent(VertexServerGeoObject geoObject, VertexServerGeoObject parent, Date startDate, Date endDate, boolean validate)
   {
-    if (this.isCycle(geoObject, parent, startDate, endDate))
+    if (validate)
     {
-      throw new UnsupportedOperationException("Cyclic graph is not supported");
-    }
+      if (this.isCycle(geoObject, parent, startDate, endDate))
+      {
+        throw new UnsupportedOperationException("Cyclic graph is not supported");
+      }
 
-    if (this.getEdges(geoObject, parent, startDate, endDate).size() > 0)
-    {
-      throw new UnsupportedOperationException("Duplicate edge between child [" + geoObject.getCode() + "] and parent [" + parent.getCode() + "] with relationship type [" + UndirectedGraphType.CLASS + "].");
+      if (this.getEdges(geoObject, parent, startDate, endDate).size() > 0)
+      {
+        throw new UnsupportedOperationException("Duplicate edge between child [" + geoObject.getCode() + "] and parent [" + parent.getCode() + "] with relationship type [" + UndirectedGraphType.CLASS + "].");
+      }
     }
 
     Set<ValueOverTime> votc = this.getParentCollection(geoObject);

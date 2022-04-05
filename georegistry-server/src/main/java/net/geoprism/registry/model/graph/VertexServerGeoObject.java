@@ -2495,15 +2495,15 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Transaction
-  public <T extends ServerGraphNode> T addGraphChild(ServerGeoObjectIF child, GraphType type, Date startDate, Date endDate)
+  public <T extends ServerGraphNode> T addGraphChild(ServerGeoObjectIF child, GraphType type, Date startDate, Date endDate, boolean validate)
   {
-    return type.getStrategy().addChild(this, (VertexServerGeoObject) child, startDate, endDate);
+    return type.getStrategy().addChild(this, (VertexServerGeoObject) child, startDate, endDate, validate);
   }
 
   @Transaction
-  public <T extends ServerGraphNode> T addGraphParent(ServerGeoObjectIF parent, GraphType type, Date startDate, Date endDate)
+  public <T extends ServerGraphNode> T addGraphParent(ServerGeoObjectIF parent, GraphType type, Date startDate, Date endDate, boolean validate)
   {
-    return type.getStrategy().addParent(this, (VertexServerGeoObject) parent, startDate, endDate);
+    return type.getStrategy().addParent(this, (VertexServerGeoObject) parent, startDate, endDate, validate);
   }
 
   public <T extends ServerGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date)

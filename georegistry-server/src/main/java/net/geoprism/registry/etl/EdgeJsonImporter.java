@@ -28,11 +28,14 @@ public class EdgeJsonImporter
 
   private Date                endDate;
 
-  public EdgeJsonImporter(ApplicationResource resource, Date startDate, Date endDate)
+  private boolean             validate;
+
+  public EdgeJsonImporter(ApplicationResource resource, Date startDate, Date endDate, boolean validate)
   {
     this.resource = resource;
     this.startDate = startDate;
     this.endDate = endDate;
+    this.validate = validate;
   }
 
   public void importData() throws JsonSyntaxException, IOException
@@ -42,35 +45,35 @@ public class EdgeJsonImporter
     try (InputStream stream = resource.openNewStream())
     {
       JsonObject data = JsonParser.parseString(IOUtils.toString(stream, "UTF-8")).getAsJsonObject();
-      
+
       JsonArray graphTypes = data.get("graphTypes").getAsJsonArray();
-      
+
       for (int i = 0; i < graphTypes.size(); ++i)
       {
         JsonObject joGraphType = graphTypes.get(i).getAsJsonObject();
-        
+
         final String graphTypeClass = joGraphType.get("graphTypeClass").getAsString();
         final String code = joGraphType.get("code").getAsString();
-        
+
         final GraphType graphType = GraphType.getByCode(graphTypeClass, code);
-        
+
         JsonArray edges = joGraphType.get("edges").getAsJsonArray();
-        
+
         logger.info("About to import [" + edges.size() + "] edges as MdEdge [" + graphType.getCode() + "].");
-    
+
         for (int j = 0; j < edges.size(); ++j)
         {
           JsonObject joEdge = edges.get(j).getAsJsonObject();
-    
+
           String sourceCode = joEdge.get("source").getAsString();
           String sourceTypeCode = joEdge.get("sourceType").getAsString();
           String targetCode = joEdge.get("target").getAsString();
           String targetTypeCode = joEdge.get("targetType").getAsString();
-    
+
           ServerGeoObjectIF source = service.getGeoObjectByCode(sourceCode, sourceTypeCode);
           ServerGeoObjectIF target = service.getGeoObjectByCode(targetCode, targetTypeCode);
-    
-          source.addGraphChild(target, graphType, this.startDate, this.endDate);
+
+          source.addGraphChild(target, graphType, this.startDate, this.endDate, this.validate);
         }
       }
     }

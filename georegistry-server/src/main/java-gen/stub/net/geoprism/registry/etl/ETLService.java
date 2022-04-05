@@ -800,7 +800,7 @@ public class ETLService
   {
     try
     {
-      EdgeJsonImporter importer = new EdgeJsonImporter(resource, startDate, endDate);
+      EdgeJsonImporter importer = new EdgeJsonImporter(resource, startDate, endDate, true);
       importer.importData();
     }
     catch (JsonSyntaxException | IOException e)
