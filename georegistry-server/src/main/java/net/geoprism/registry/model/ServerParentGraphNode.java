@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
- * for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -24,10 +24,18 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+import org.commongeoregistry.adapter.dataaccess.TreeNode;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerParentGraphNode extends ServerGraphNode
 {
@@ -175,6 +183,65 @@ public class ServerParentGraphNode extends ServerGraphNode
     json.add(ParentTreeNode.JSON_PARENTS, jaParents);
 
     return json;
+  }
+  
+  public static ServerParentGraphNode fromJSON(JsonObject jo)
+  {
+    ServerGeoObjectIF goif = null;
+    
+    if (jo.has(TreeNode.JSON_GEO_OBJECT))
+    {
+      GeoObject go = GeoObject.fromJSON(ServiceFactory.getAdapter(), jo.get(TreeNode.JSON_GEO_OBJECT).toString());
+      
+      ServerGeoObjectType type = ServerGeoObjectType.get(go.getType());
+      ServerGeoObjectStrategyIF strategy = new ServerGeoObjectService().getStrategy(type);
+      goif = strategy.constructFromGeoObject(go, false);
+    }
+    
+    GraphType graphType = null;
+    
+    if (jo.has("graphType"))
+    {
+      String graphCode = jo.get("graphType").getAsString();
+      String graphTypeClass = jo.get("graphTypeClass").getAsString();
+      
+      graphType = GraphType.getByCode(graphTypeClass, graphCode);
+    }
+    
+    Date startDate = null;
+    
+    if (jo.has("startDate"))
+    {
+      startDate = GeoRegistryUtil.parseDate(jo.get("startDate").getAsString());
+    }
+    
+    Date endDate = null;
+    
+    if (jo.has("endDate"))
+    {
+      endDate = GeoRegistryUtil.parseDate(jo.get("startDate").getAsString());
+    }
+    
+    String oid = null;
+    
+    if (jo.has("oid"))
+    {
+      oid = jo.get("oid").getAsString();
+    }
+    
+    ServerParentGraphNode node = new ServerParentGraphNode(goif, graphType, startDate, endDate, oid);
+    
+    if (jo.has(ParentTreeNode.JSON_PARENTS))
+    {
+      JsonArray jaParents = jo.get(ParentTreeNode.JSON_PARENTS).getAsJsonArray();
+      
+      for (int i = 0; i < jaParents.size(); ++i)
+      {
+        node.addParent(ServerParentGraphNode.fromJSON(jaParents.get(i).getAsJsonObject()));
+      }
+    }
+    
+    return node;
   }
 
 }
