@@ -796,13 +796,11 @@ public class ETLService
   }
 
   @Request(RequestType.SESSION)
-  public void importEdgeJson(String sessionId, String relationshipType, String graphTypeCode, Date startDate, Date endDate, ApplicationResource resource)
+  public void importEdgeJson(String sessionId, Date startDate, Date endDate, ApplicationResource resource)
   {
     try
     {
-      GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
-
-      EdgeJsonImporter importer = new EdgeJsonImporter(resource, graphType, startDate, endDate);
+      EdgeJsonImporter importer = new EdgeJsonImporter(resource, startDate, endDate);
       importer.importData();
     }
     catch (JsonSyntaxException | IOException e)

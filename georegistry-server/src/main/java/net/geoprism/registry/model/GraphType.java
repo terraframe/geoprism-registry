@@ -18,11 +18,11 @@ public interface GraphType
   {
     if (relationshipType != null)
     {
-      if (relationshipType.equals("UndirectedGraphType"))
+      if (relationshipType.equals("UndirectedGraphType") || relationshipType.equals(UndirectedGraphType.CLASS))
       {
         return UndirectedGraphType.getByCode(code);
       }
-      else if (relationshipType.equals("DirectedAcyclicGraphType"))
+      else if (relationshipType.equals("DirectedAcyclicGraphType") || relationshipType.equals(DirectedAcyclicGraphType.CLASS))
       {
         return DirectedAcyclicGraphType.getByCode(code);
       }

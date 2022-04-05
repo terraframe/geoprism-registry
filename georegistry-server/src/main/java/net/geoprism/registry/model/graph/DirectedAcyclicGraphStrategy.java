@@ -171,7 +171,7 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
 
     if (this.getParentEdges(geoObject, parent, startDate, endDate).size() > 0)
     {
-      throw new UnsupportedOperationException("Duplicate edge");
+      throw new UnsupportedOperationException("Duplicate edge between child [" + geoObject.getCode() + "] and parent [" + parent.getCode() + "] with relationship type [" + DirectedAcyclicGraphType.CLASS + "].");
     }
 
     Set<ValueOverTime> votc = this.getParentCollection(geoObject);

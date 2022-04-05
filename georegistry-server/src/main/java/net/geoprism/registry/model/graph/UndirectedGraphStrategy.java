@@ -157,7 +157,7 @@ public class UndirectedGraphStrategy implements GraphStrategy
 
     if (this.getEdges(geoObject, parent, startDate, endDate).size() > 0)
     {
-      throw new UnsupportedOperationException("Duplicate edge");
+      throw new UnsupportedOperationException("Duplicate edge between child [" + geoObject.getCode() + "] and parent [" + parent.getCode() + "] with relationship type [" + UndirectedGraphType.CLASS + "].");
     }
 
     Set<ValueOverTime> votc = this.getParentCollection(geoObject);

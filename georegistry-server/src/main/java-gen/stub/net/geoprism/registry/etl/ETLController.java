@@ -160,14 +160,14 @@ public class ETLController
   }
   
   @Endpoint(url = "import-edge-json", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF importEdgeJson(ClientRequestIF request, @RequestParamter(name = "relationshipType") String relationshipType, @RequestParamter(name = "graphTypeCode") String graphTypeCode, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException, JSONException, ParseException
+  public ResponseIF importEdgeJson(ClientRequestIF request, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException, JSONException, ParseException
   {
     try (InputStream stream = file.getInputStream())
     {
       Date sDate = startDate != null ? GeoRegistryUtil.parseDate(startDate) : null;
       Date eDate = endDate != null ? GeoRegistryUtil.parseDate(endDate) : null;
 
-      service.importEdgeJson(request.getSessionId(), relationshipType, graphTypeCode, sDate, eDate, new StreamResource(stream, file.getFilename()));
+      service.importEdgeJson(request.getSessionId(), sDate, eDate, new StreamResource(stream, file.getFilename()));
 
       return new RestResponse();
     }

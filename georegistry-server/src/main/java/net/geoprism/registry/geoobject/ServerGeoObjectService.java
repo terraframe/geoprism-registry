@@ -297,7 +297,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     if (geoObject == null && throwException)
     {
-      DataNotFoundException ex = new DataNotFoundException();
+      DataNotFoundException ex = new DataNotFoundException("Could not find a GeoObject with code [" + code + "].");
       ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
       ex.setDataIdentifier(code);
       ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
