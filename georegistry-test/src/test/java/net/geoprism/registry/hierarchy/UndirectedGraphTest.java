@@ -36,12 +36,17 @@ import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.test.TestGeoObjectInfo;
+import net.geoprism.registry.test.TestUserInfo;
+import net.geoprism.registry.test.graph.UndirectedGraphControllerWrapper;
 
 public class UndirectedGraphTest
 {
   protected static FastTestDataset     testData;
 
   protected static UndirectedGraphType type;
+  
+  protected static String graphTypeCode;
 
   @BeforeClass
   @Request
@@ -51,6 +56,7 @@ public class UndirectedGraphTest
     testData.setUpMetadata();
 
     type = UndirectedGraphType.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"));
+    graphTypeCode = type.getCode();
   }
 
   @AfterClass
@@ -159,7 +165,7 @@ public class UndirectedGraphTest
 
     Assert.assertNotNull(node);
   }
-
+  
   @Test
   @Request
   public void testGetParents()
@@ -210,14 +216,26 @@ public class UndirectedGraphTest
   }
 
   @Test
-  @Request
   public void testAddChild()
   {
-    ServerGeoObjectIF parent = FastTestDataset.PROV_CENTRAL.getServerObject();
-    ServerGeoObjectIF child = FastTestDataset.PROV_WESTERN.getServerObject();
+    // Allowed Users
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN };
 
-    ServerParentGraphNode node = parent.addGraphChild(child, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE);
+    for (TestUserInfo user : allowedUsers)
+    {
+      FastTestDataset.runAsUser(user, (request, adapter) -> {
+        UndirectedGraphControllerWrapper controller = new UndirectedGraphControllerWrapper(adapter, request);
 
+        ServerParentGraphNode node = controller.addChild(FastTestDataset.PROV_CENTRAL.getCode(), FastTestDataset.PROV_CENTRAL.getGeoObjectType().getCode(), FastTestDataset.PROV_WESTERN.getCode(), FastTestDataset.PROV_WESTERN.getGeoObjectType().getCode(), graphTypeCode, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE);
+
+        validateAddChild(node, FastTestDataset.PROV_CENTRAL, FastTestDataset.PROV_WESTERN);
+      });
+    }
+  }
+  
+  @Request
+  private void validateAddChild(ServerParentGraphNode node, TestGeoObjectInfo parent, TestGeoObjectInfo child)
+  {
     Assert.assertNotNull(node);
 
     Assert.assertEquals(child.getCode(), node.getGeoObject().getCode());
@@ -232,21 +250,27 @@ public class UndirectedGraphTest
   }
 
   @Test
-  @Request
   public void testGetChildren()
   {
-    ServerGeoObjectIF parent = FastTestDataset.PROV_CENTRAL.getServerObject();
-    ServerGeoObjectIF child = FastTestDataset.PROV_WESTERN.getServerObject();
+    // Allowed Users
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN };
 
-    parent.addGraphChild(child, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
+    for (TestUserInfo user : allowedUsers)
+    {
+      FastTestDataset.runAsUser(user, (request, adapter) -> {
+        UndirectedGraphControllerWrapper controller = new UndirectedGraphControllerWrapper(adapter, request);
 
-    ServerChildGraphNode node = parent.getGraphChildren(type, false, FastTestDataset.DEFAULT_END_TIME_DATE);
+        controller.addChild(FastTestDataset.PROV_CENTRAL.getCode(), FastTestDataset.PROV_CENTRAL.getGeoObjectType().getCode(), FastTestDataset.PROV_WESTERN.getCode(), FastTestDataset.PROV_WESTERN.getGeoObjectType().getCode(), graphTypeCode, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
-    List<ServerChildGraphNode> children = node.getChildren();
+        ServerChildGraphNode node = controller.getChildren(FastTestDataset.PROV_WESTERN.getCode(), FastTestDataset.PROV_WESTERN.getGeoObjectType().getCode(), graphTypeCode, false, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertEquals(1, children.size());
+        List<ServerChildGraphNode> children = node.getChildren();
 
-    Assert.assertEquals(child.getCode(), children.get(0).getGeoObject().getCode());
+        Assert.assertEquals(1, children.size());
+
+        Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), children.get(0).getGeoObject().getCode());
+      });
+    }
   }
 
   @Test
@@ -268,16 +292,28 @@ public class UndirectedGraphTest
   }
 
   @Test
-  @Request
   public void testRemoveChild()
   {
-    ServerGeoObjectIF provCentral = FastTestDataset.PROV_CENTRAL.getServerObject();
-    ServerGeoObjectIF provWestern = FastTestDataset.PROV_WESTERN.getServerObject();
+    // Allowed Users
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN };
 
-    provCentral.addGraphChild(provWestern, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
-    provCentral.removeGraphChild(provWestern, type, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_END_TIME_DATE);
+    for (TestUserInfo user : allowedUsers)
+    {
+      FastTestDataset.runAsUser(user, (request, adapter) -> {
+        UndirectedGraphControllerWrapper controller = new UndirectedGraphControllerWrapper(adapter, request);
 
-    ServerChildGraphNode node = provCentral.getGraphChildren(type, false, FastTestDataset.DEFAULT_END_TIME_DATE);
+        controller.addChild(FastTestDataset.PROV_CENTRAL.getCode(), FastTestDataset.PROV_CENTRAL.getGeoObjectType().getCode(), FastTestDataset.PROV_WESTERN.getCode(), FastTestDataset.PROV_WESTERN.getGeoObjectType().getCode(), graphTypeCode, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE);
+        controller.removeChild(FastTestDataset.PROV_CENTRAL.getCode(), FastTestDataset.PROV_CENTRAL.getGeoObjectType().getCode(), FastTestDataset.PROV_WESTERN.getCode(), FastTestDataset.PROV_WESTERN.getGeoObjectType().getCode(), graphTypeCode, FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE);
+        
+        validateRemoveChild();
+      });
+    }
+  }
+
+  @Request
+  private void validateRemoveChild()
+  {
+    ServerChildGraphNode node = FastTestDataset.PROV_CENTRAL.getServerObject().getGraphChildren(type, false, FastTestDataset.DEFAULT_END_TIME_DATE);
 
     List<ServerChildGraphNode> children = node.getChildren();
 

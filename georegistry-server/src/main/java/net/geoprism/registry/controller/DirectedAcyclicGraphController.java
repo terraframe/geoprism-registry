@@ -52,8 +52,10 @@ public class DirectedAcyclicGraphController
       @RequestParamter(name="parentTypeCode", required = true) String parentTypeCode,
       @RequestParamter(name="directedGraphCode", required = true) String directedGraphCode,
       @RequestParamter(name="recursive", required = true) Boolean recursive,
-      @RequestParamter(name="date", required = true) Date date)
+      @RequestParamter(name="date", required = true) String sDate)
   {
+    Date date = GeoRegistryUtil.parseDate(sDate, true);
+    
     JsonObject response = this.service.getChildren(request.getSessionId(), parentCode, parentTypeCode, directedGraphCode, recursive, date);
     
     return new RestBodyResponse(response);
@@ -65,8 +67,10 @@ public class DirectedAcyclicGraphController
       @RequestParamter(name="childTypeCode", required = true) String childTypeCode,
       @RequestParamter(name="directedGraphCode", required = true) String directedGraphCode,
       @RequestParamter(name="recursive", required = true) Boolean recursive,
-      @RequestParamter(name="date", required = true) Date date)
+      @RequestParamter(name="date", required = true) String sDate)
   {
+    Date date = GeoRegistryUtil.parseDate(sDate, true);
+    
     JsonObject response = this.service.getParents(request.getSessionId(), childCode, childTypeCode, directedGraphCode, recursive, date);
     
     return new RestBodyResponse(response);

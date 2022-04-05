@@ -26,6 +26,10 @@ public interface GraphType
       {
         return DirectedAcyclicGraphType.getByCode(code);
       }
+      else
+      {
+        return (GraphType) com.runwaysdk.business.Business.get(relationshipType, code);
+      }
     }
 
     return ServerHierarchyType.get(code);

@@ -24,6 +24,8 @@ import org.commongeoregistry.adapter.dataaccess.TreeNode;
 
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.GeoRegistryUtil;
+
 public abstract class ServerGraphNode
 {
   private ServerGeoObjectIF geoObject;
@@ -101,6 +103,22 @@ public abstract class ServerGraphNode
     if (this.graphType != null) // The hierarchyType is null on the root node
     {
       json.addProperty("graphType", this.graphType.getCode());
+      json.addProperty("graphTypeClass", this.graphType.getClass().getName());
+    }
+    
+    if (this.oid != null)
+    {
+      json.addProperty("oid", this.oid);
+    }
+    
+    if (this.startDate != null)
+    {
+      json.addProperty("startDate", GeoRegistryUtil.formatDate(this.startDate, false));
+    }
+    
+    if (this.endDate != null)
+    {
+      json.addProperty("endDate", GeoRegistryUtil.formatDate(this.endDate, false));
     }
     
     return json;

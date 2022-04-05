@@ -52,8 +52,10 @@ public class UndirectedGraphController
       @RequestParamter(name="sourceTypeCode", required = true) String sourceTypeCode,
       @RequestParamter(name="undirectedRelationshipCode", required = true) String undirectedRelationshipCode,
       @RequestParamter(name="recursive", required = true) Boolean recursive,
-      @RequestParamter(name="date", required = true) Date date)
+      @RequestParamter(name="date", required = true) String sDate)
   {
+    Date date = GeoRegistryUtil.parseDate(sDate, true);
+    
     JsonObject response = this.service.getChildren(request.getSessionId(), sourceCode, sourceTypeCode, undirectedRelationshipCode, recursive, date);
     
     return new RestBodyResponse(response);

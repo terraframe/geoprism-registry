@@ -25,9 +25,17 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+import org.commongeoregistry.adapter.dataaccess.TreeNode;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerChildGraphNode extends ServerGraphNode
 {
@@ -81,6 +89,65 @@ public class ServerChildGraphNode extends ServerGraphNode
     json.add(ChildTreeNode.JSON_CHILDREN, jaChildren);
 
     return json;
+  }
+  
+  public static ServerChildGraphNode fromJSON(JsonObject jo)
+  {
+    ServerGeoObjectIF goif = null;
+    
+    if (jo.has(TreeNode.JSON_GEO_OBJECT))
+    {
+      GeoObject go = GeoObject.fromJSON(ServiceFactory.getAdapter(), jo.get(TreeNode.JSON_GEO_OBJECT).toString());
+      
+      ServerGeoObjectType type = ServerGeoObjectType.get(go.getType());
+      ServerGeoObjectStrategyIF strategy = new ServerGeoObjectService().getStrategy(type);
+      goif = strategy.constructFromGeoObject(go, false);
+    }
+    
+    GraphType graphType = null;
+    
+    if (jo.has("graphType"))
+    {
+      String graphCode = jo.get("graphType").getAsString();
+      String graphTypeClass = jo.get("graphTypeClass").getAsString();
+      
+      graphType = GraphType.getByCode(graphTypeClass, graphCode);
+    }
+    
+    Date startDate = null;
+    
+    if (jo.has("startDate"))
+    {
+      startDate = GeoRegistryUtil.parseDate(jo.get("startDate").getAsString());
+    }
+    
+    Date endDate = null;
+    
+    if (jo.has("endDate"))
+    {
+      endDate = GeoRegistryUtil.parseDate(jo.get("startDate").getAsString());
+    }
+    
+    String oid = null;
+    
+    if (jo.has("oid"))
+    {
+      oid = jo.get("oid").getAsString();
+    }
+    
+    ServerChildGraphNode node = new ServerChildGraphNode(goif, graphType, startDate, endDate, oid);
+    
+    if (jo.has(ChildTreeNode.JSON_CHILDREN))
+    {
+      JsonArray jaChildren = jo.get(ChildTreeNode.JSON_CHILDREN).getAsJsonArray();
+      
+      for (int i = 0; i < jaChildren.size(); ++i)
+      {
+        node.addChild(ServerChildGraphNode.fromJSON(jaChildren.get(i).getAsJsonObject()));
+      }
+    }
+    
+    return node;
   }
 
 }

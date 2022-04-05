@@ -41,7 +41,7 @@ public abstract class GraphService
     // ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(),
     // parent.getType(), child.getType());
 
-    ServerGraphNode node = child.getGraphChildren(graphType, recursive, date);
+    ServerGraphNode node = child.getGraphParents(graphType, recursive, date);
     return node.toJSON();
   }
 
