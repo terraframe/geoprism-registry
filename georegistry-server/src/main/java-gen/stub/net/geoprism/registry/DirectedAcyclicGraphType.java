@@ -84,9 +84,9 @@ public class DirectedAcyclicGraphType extends DirectedAcyclicGraphTypeBase imple
     {
       this.appLock();
 
-      if (object.has(DirectedAcyclicGraphType.JSON_LABEL))
+      if (object.has(DirectedAcyclicGraphType.DISPLAYLABEL))
       {
-        LocalizedValue label = LocalizedValue.fromJSON(object.getAsJsonObject(DirectedAcyclicGraphType.JSON_LABEL));
+        LocalizedValue label = LocalizedValue.fromJSON(object.getAsJsonObject(DirectedAcyclicGraphType.DISPLAYLABEL));
 
         LocalizedValueConverter.populate(this.getDisplayLabel(), label);
       }

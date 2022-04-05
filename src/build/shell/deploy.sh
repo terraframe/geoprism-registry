@@ -44,28 +44,6 @@ if [ "$build_artifact" == "true" ]; then
   node -v && npm -v
   node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
   
-  if [ "$run_tests" == "true" ]; then
-    ## Run the tests ##
-    cd $WORKSPACE/georegistry
-    mvn install -B
-    cd $WORKSPACE/georegistry/georegistry-server
-    mvn install -B -P database -Ddb.clean=true -Ddatabase.port=5432 -Ddb.patch=false -Ddb.rootUser=postgres -Ddb.rootPass=postgres -Ddb.rootDb=postgres
-    cd $WORKSPACE/georegistry/georegistry-test
-    set +e
-    mvn test -Dappcfg=$WORKSPACE/georegistry/envcfg/dev -Ddatabase.port=5432 -Dproject.basedir=$WORKSPACE/georegistry
-    ecode=$?
-    mkdir -p $TEST_OUTPUT/georegistry-test/surefire-reports && cp $WORKSPACE/georegistry/georegistry-test/target/surefire-reports/* $TEST_OUTPUT/georegistry-test/surefire-reports/ && chmod 777 -R $TEST_OUTPUT
-    set -e
-    [ "$ecode" != 0 ] && exit $ecode;
-  
-    ## Deploy the test results to s3 ##
-    cd $WORKSPACE/georegistry/georegistry-site
-    sed -i -e 's#../../common-geo-registry-adapter#../../adapter#g' pom.xml
-    mvn surefire-report:report-only -Daggregate=true
-    mvn site -DgenerateReports=false
-    mvn -rf net.geoprism:georegistry-site site:deploy -DgenerateReports=false
-  fi
-  
   cd $WORKSPACE/georegistry
   mvn clean deploy -B -Djavax.net.ssl.trustStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/tomcat.truststore -Djavax.net.ssl.trustStorePassword=2v8hVW2rPFncN6m -Djavax.net.ssl.keyStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/keystore.ks -Djavax.net.ssl.keyStorePassword=2v8hVW2rPFncN6m
 else
