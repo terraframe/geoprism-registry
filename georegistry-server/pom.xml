@@ -24,7 +24,7 @@
 	<parent>
 		<groupId>net.geoprism</groupId>
 		<artifactId>georegistry</artifactId>
-    <version>0.18.2-SNAPSHOT</version>
+    <version>0.19.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>georegistry-server</artifactId>
 	<packaging>jar</packaging>
@@ -35,7 +35,7 @@
 	<properties>
 		<!-- We need this property because it facilitates replacement via the Jenkins formal release job. -->
 		<hapifhir_version>5.7.2</hapifhir_version>
-		<cgr.adapter.version>0.18.2-SNAPSHOT</cgr.adapter.version>
+		<cgr.adapter.version>0.19.0</cgr.adapter.version>
 	</properties>
 
 	<dependencies>
@@ -235,7 +235,7 @@
 									<mainClass>com.runwaysdk.dataaccess.io.UndoAll</mainClass>
 									<arguments>
 										<argument>${project.basedir}/src/main/working</argument>
-										<argument/>
+										<argument />
 										<argument>false</argument>
 									</arguments>
 									<systemProperties>
@@ -280,7 +280,7 @@
 									<mainClass>net.geoprism.ImportSchema</mainClass>
 									<arguments>
 										<argument>${project.basedir}/src/main/working</argument>
-										<argument/>
+										<argument />
 										<argument>false</argument>
 									</arguments>
 									<systemProperties>
@@ -458,7 +458,7 @@
 		                </goals>
 		              </pluginExecutionFilter>
 		              <action>
-		                <ignore/>
+		                <ignore />
 		              </action>
 		            </pluginExecution>
 		          </pluginExecutions>
