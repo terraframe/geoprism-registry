@@ -266,7 +266,10 @@ public class GeoObjectImporter implements ObjectImporterIF
       final long curWorkProgress = this.progressListener.getWorkProgress();
       if ( ( this.lastValidateSessionRefresh + GeoObjectImporter.refreshSessionRecordCount ) < curWorkProgress)
       {
-        SessionFacade.renewSession(Session.getCurrentSession().getOid());
+        if (Session.getCurrentSession() != null)
+        {
+          SessionFacade.renewSession(Session.getCurrentSession().getOid());
+        }
         this.lastValidateSessionRefresh = curWorkProgress;
       }
 
@@ -477,7 +480,10 @@ public class GeoObjectImporter implements ObjectImporterIF
     final long curWorkProgress = this.progressListener.getWorkProgress();
     if ( ( this.lastImportSessionRefresh + GeoObjectImporter.refreshSessionRecordCount ) < curWorkProgress)
     {
-      SessionFacade.renewSession(Session.getCurrentSession().getOid());
+      if (Session.getCurrentSession() != null)
+      {
+        SessionFacade.renewSession(Session.getCurrentSession().getOid());
+      }
       this.lastImportSessionRefresh = curWorkProgress;
     }
 
