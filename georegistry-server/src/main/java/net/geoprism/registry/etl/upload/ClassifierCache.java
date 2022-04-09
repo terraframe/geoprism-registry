@@ -12,6 +12,8 @@ public class ClassifierCache
   
   protected Map<String, Map<String, VertexObject>> classifierCache = new HashMap<String, Map<String, VertexObject>>();
   
+  protected Map<String, Map<String, Boolean>> classifierAttributeValidationCache = new HashMap<String, Map<String, Boolean>>();
+  
   public ClassifierCache()
   {
     
@@ -40,5 +42,25 @@ public class ClassifierCache
     }
     
     this.classifierCache.get(classificationType).put(code, classifier);
+  }
+  
+  public Boolean getClassifierAttributeValidation(String attributeId, VertexObject classifier)
+  {
+    if (!this.classifierAttributeValidationCache.containsKey(attributeId))
+    {
+      this.classifierAttributeValidationCache.put(attributeId, new LinkedHashMap<String, Boolean>(this.cacheSize + 1, .75F, true));
+    }
+    
+    return this.classifierAttributeValidationCache.get(attributeId).get(classifier.getOid());
+  }
+  
+  public void putClassifierAttributeValidation(String attributeId, VertexObject classifier, Boolean validationResult)
+  {
+    if (!this.classifierAttributeValidationCache.containsKey(attributeId))
+    {
+      this.classifierAttributeValidationCache.put(attributeId, new LinkedHashMap<String, Boolean>(this.cacheSize + 1, .75F, true));
+    }
+    
+    this.classifierAttributeValidationCache.get(attributeId).put(classifier.getOid(), validationResult);
   }
 }

@@ -34,12 +34,14 @@ import net.geoprism.registry.etl.ValidationProblem;
 public class ImportHistoryProgressScribe implements ImportProgressListenerIF
 {
   private static Logger          logger                = LoggerFactory.getLogger(ImportHistoryProgressScribe.class);
+  
+  public static final Integer UPDATE_PROGRESS_EVERY_NUM = 10;
 
   private ImportHistory          history;
 
   private int                    recordedErrors        = 0;
 
-  private Long                   workProgress          = new Long(0);
+  private Long                   rowNumber          = new Long(0);
 
   private Long                   importedRecords       = new Long(0);
 
@@ -50,7 +52,7 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
   public ImportHistoryProgressScribe(ImportHistory history)
   {
     this.history = history;
-    this.workProgress = history.getWorkProgress();
+    this.rowNumber = history.getWorkProgress();
     this.importedRecords = history.getImportedRecords();
   }
 
@@ -65,22 +67,28 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
   }
 
   @Override
-  public void setWorkProgress(Long newWorkProgress)
+  public void setRowNumber(Long newRowNum)
   {
-    this.history.appLock();
-    this.history.setWorkProgress(newWorkProgress);
-    this.history.apply();
+    if (newRowNum % UPDATE_PROGRESS_EVERY_NUM == 0)
+    {
+      this.history.appLock();
+      this.history.setWorkProgress(newRowNum);
+      this.history.apply();
+    }
 
-    this.workProgress = newWorkProgress;
+    this.rowNumber = newRowNum;
   }
 
   @Override
   public void setImportedRecords(Long newImportedRecords)
   {
-    this.history.appLock();
-    this.history.setImportedRecords(newImportedRecords);
-    this.history.apply();
-
+    if (newImportedRecords % UPDATE_PROGRESS_EVERY_NUM == 0)
+    {
+      this.history.appLock();
+      this.history.setImportedRecords(newImportedRecords);
+      this.history.apply();
+    }
+    
     this.importedRecords = newImportedRecords;
   }
 
@@ -91,20 +99,19 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
   }
 
   @Override
-  public Long getWorkProgress()
+  public Long getRowNumber()
   {
-    return this.workProgress;
-    // return this.history.getWorkProgress();
+    return this.rowNumber;
   }
 
   @Override
-  public Long getRawWorkProgress()
+  public Long getWorkProgress()
   {
     return this.history.getWorkProgress();
   }
   
   @Override
-  public Long getRawImportedRecords()
+  public Long getImportedRecordProgress()
   {
     return this.history.getImportedRecords();
   }
@@ -113,8 +120,6 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
   public Long getImportedRecords()
   {
     return this.importedRecords;
-
-    // return this.history.getImportedRecords();
   }
 
   @Override
@@ -197,5 +202,14 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
       problem.setHistory(this.history);
       problem.apply();
     }
+  }
+
+  @Override
+  public void finalizeImport()
+  {
+    this.history.appLock();
+    this.history.setImportedRecords(this.importedRecords);
+    this.history.setWorkProgress(this.rowNumber);
+    this.history.apply();
   }
 }

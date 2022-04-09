@@ -258,11 +258,11 @@ public class BusinessObjectImporter implements ObjectImporterIF
     try
     {
       // Refresh the session because it might expire on long imports
-      final long curWorkProgress = this.progressListener.getWorkProgress();
-      if ( ( this.lastValidateSessionRefresh + BusinessObjectImporter.refreshSessionRecordCount ) < curWorkProgress)
+      final long curRowNumber = this.progressListener.getRowNumber();
+      if ( ( this.lastValidateSessionRefresh + BusinessObjectImporter.refreshSessionRecordCount ) < curRowNumber)
       {
         SessionFacade.renewSession(Session.getCurrentSession().getOid());
-        this.lastValidateSessionRefresh = curWorkProgress;
+        this.lastValidateSessionRefresh = curRowNumber;
       }
 
       try
@@ -320,13 +320,13 @@ public class BusinessObjectImporter implements ObjectImporterIF
       catch (Throwable t)
       {
         RowValidationProblem problem = new RowValidationProblem(t);
-        problem.addAffectedRowNumber(curWorkProgress + 1);
+        problem.addAffectedRowNumber(curRowNumber + 1);
         problem.setHistoryId(this.configuration.historyId);
 
         this.progressListener.addRowValidationProblem(problem);
       }
 
-      this.progressListener.setWorkProgress(curWorkProgress + 1);
+      this.progressListener.setRowNumber(curRowNumber + 1);
 
       if (Thread.interrupted())
       {
@@ -366,7 +366,12 @@ public class BusinessObjectImporter implements ObjectImporterIF
     {
       try
       {
-        this.importRowInTrans(row, data);
+        boolean imported = this.importRowInTrans(row, data);
+        
+        if (imported)
+        {
+          this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
+        }
       }
       catch (DuplicateDataException e)
       {
@@ -377,6 +382,8 @@ public class BusinessObjectImporter implements ObjectImporterIF
     {
       this.recordError(e);
     }
+    
+    this.progressListener.setRowNumber(this.progressListener.getRowNumber() + 1);
 
     if (Thread.interrupted())
     {
@@ -397,21 +404,21 @@ public class BusinessObjectImporter implements ObjectImporterIF
       obj.put("parents", parentBuilder.build());
     }
 
-    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getRawWorkProgress() + 1);
-    this.progressListener.setWorkProgress(this.progressListener.getRawWorkProgress() + 1);
-    this.progressListener.setImportedRecords(this.progressListener.getRawImportedRecords());
+    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getRowNumber());
     this.getConfiguration().addException(e);
   }
 
   @Transaction
-  public void importRowInTrans(FeatureRow row, RowData data)
+  public boolean importRowInTrans(FeatureRow row, RowData data)
   {
+    boolean imported = false;
+    
     // Refresh the session because it might expire on long imports
-    final long curWorkProgress = this.progressListener.getWorkProgress();
-    if ( ( this.lastImportSessionRefresh + BusinessObjectImporter.refreshSessionRecordCount ) < curWorkProgress)
+    final long curRowNum = this.progressListener.getRowNumber();
+    if ( ( this.lastImportSessionRefresh + BusinessObjectImporter.refreshSessionRecordCount ) < curRowNum)
     {
       SessionFacade.renewSession(Session.getCurrentSession().getOid());
-      this.lastImportSessionRefresh = curWorkProgress;
+      this.lastImportSessionRefresh = curRowNum;
     }
 
     BusinessObject businessObject = null;
@@ -504,6 +511,8 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
         businessObject.setGeoObject(geoObject);
         businessObject.apply();
+        
+        imported = true;
       }
 
       // We must ensure that any problems created during the transaction are
@@ -516,8 +525,6 @@ public class BusinessObjectImporter implements ObjectImporterIF
       {
         throw new ProblemException(null, new LinkedList<ProblemIF>(existingProblems));
       }
-
-      this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
     }
     catch (IgnoreRowException e)
     {
@@ -527,8 +534,8 @@ public class BusinessObjectImporter implements ObjectImporterIF
     {
       buildRecordException(businessObject.toJSON().toString(), isNew, builder, t);
     }
-
-    this.progressListener.setWorkProgress(curWorkProgress + 1);
+    
+    return imported;
   }
 
   private void buildRecordException(String goJson, boolean isNew, GeoObjectErrorBuilder parentBuilder, Throwable t)
@@ -752,7 +759,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
             String parentCode = ( parent == null ) ? null : parent.getCode();
 
             ParentReferenceProblem prp = new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context.toString());
-            prp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
+            prp.addAffectedRowNumber(this.progressListener.getRowNumber());
             prp.setHistoryId(this.configuration.historyId);
 
             this.progressListener.addReferenceProblem(prp);
@@ -789,7 +796,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
           Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
 
           TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
-          trp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
+          trp.addAffectedRowNumber(this.progressListener.getRowNumber());
           trp.setHistoryId(this.configuration.getHistoryId());
 
           this.progressListener.addReferenceProblem(trp);

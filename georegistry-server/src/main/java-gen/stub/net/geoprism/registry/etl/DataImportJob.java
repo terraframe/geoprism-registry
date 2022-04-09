@@ -289,7 +289,14 @@ public class DataImportJob extends DataImportJobBase
                                                                    // were.
     }
 
-    formatImporter.run(stage);
+    try
+    {
+      formatImporter.run(stage);
+    }
+    finally
+    {
+      progressListener.finalizeImport();
+    }
 
     return progressListener;
   }

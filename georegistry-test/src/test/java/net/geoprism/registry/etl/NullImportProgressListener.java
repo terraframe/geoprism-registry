@@ -36,20 +36,7 @@ public class NullImportProgressListener implements ImportProgressListenerIF
   }
 
   @Override
-  public void setWorkProgress(Long newWorkProgress)
-  {
-
-  }
-
-  @Override
   public Long getWorkProgress()
-  {
-
-    return 0L;
-  }
-
-  @Override
-  public Long getRawWorkProgress()
   {
 
     return 0L;
@@ -100,9 +87,27 @@ public class NullImportProgressListener implements ImportProgressListenerIF
   }
 
   @Override
-  public Long getRawImportedRecords()
+  public void setRowNumber(Long rowNumber)
+  {
+    
+  }
+
+  @Override
+  public Long getRowNumber()
+  {
+    return 1L;
+  }
+
+  @Override
+  public Long getImportedRecordProgress()
   {
     return 0L;
+  }
+
+  @Override
+  public void finalizeImport()
+  {
+    
   }
 
 }

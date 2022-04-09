@@ -55,6 +55,8 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.graph.attributes.AttributeClassification;
+import com.runwaysdk.dataaccess.graph.attributes.ClassificationValidationException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.RequestState;
 import com.runwaysdk.session.Session;
@@ -84,7 +86,6 @@ import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
-import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -263,14 +264,14 @@ public class GeoObjectImporter implements ObjectImporterIF
     try
     {
       // Refresh the session because it might expire on long imports
-      final long curWorkProgress = this.progressListener.getWorkProgress();
-      if ( ( this.lastValidateSessionRefresh + GeoObjectImporter.refreshSessionRecordCount ) < curWorkProgress)
+      final long curRowNumber = this.progressListener.getRowNumber();
+      if ( ( this.lastValidateSessionRefresh + GeoObjectImporter.refreshSessionRecordCount ) < curRowNumber)
       {
         if (Session.getCurrentSession() != null)
         {
           SessionFacade.renewSession(Session.getCurrentSession().getOid());
         }
-        this.lastValidateSessionRefresh = curWorkProgress;
+        this.lastValidateSessionRefresh = curRowNumber;
       }
 
       try
@@ -356,7 +357,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             }
           }
 
-          GeoObjectOverTime go = entity.toGeoObjectOverTime(false);
+          GeoObjectOverTime go = ((VertexServerGeoObject) entity).toGeoObjectOverTime(false, this.classifierCache);
           go.toJSON().toString();
 
           if (this.configuration.isExternalImport())
@@ -383,13 +384,13 @@ public class GeoObjectImporter implements ObjectImporterIF
       catch (Throwable t)
       {
         RowValidationProblem problem = new RowValidationProblem(t);
-        problem.addAffectedRowNumber(curWorkProgress + 1);
+        problem.addAffectedRowNumber(curRowNumber + 1);
         problem.setHistoryId(this.configuration.historyId);
 
         this.progressListener.addRowValidationProblem(problem);
       }
 
-      this.progressListener.setWorkProgress(curWorkProgress + 1);
+      this.progressListener.setRowNumber(curRowNumber + 1);
 
       if (Thread.interrupted())
       {
@@ -429,7 +430,12 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       try
       {
-        this.importRowInTrans(row, data);
+        boolean imported = this.importRowInTrans(row, data);
+        
+        if (imported)
+        {
+          this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
+        }
       }
       catch (DuplicateDataException e)
       {
@@ -447,6 +453,8 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       this.recordError(e);
     }
+    
+    this.progressListener.setRowNumber(this.progressListener.getRowNumber() + 1);
 
     if (Thread.interrupted())
     {
@@ -467,24 +475,24 @@ public class GeoObjectImporter implements ObjectImporterIF
       obj.put("parents", parentBuilder.build());
     }
 
-    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getRawWorkProgress() + 1);
-    this.progressListener.setWorkProgress(this.progressListener.getRawWorkProgress() + 1);
-    this.progressListener.setImportedRecords(this.progressListener.getRawImportedRecords());
+    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getRowNumber());
     this.getConfiguration().addException(e);
   }
 
   @Transaction
-  public void importRowInTrans(FeatureRow row, RowData data)
+  public boolean importRowInTrans(FeatureRow row, RowData data)
   {
+    boolean imported = false;
+    
     // Refresh the session because it might expire on long imports
-    final long curWorkProgress = this.progressListener.getWorkProgress();
-    if ( ( this.lastImportSessionRefresh + GeoObjectImporter.refreshSessionRecordCount ) < curWorkProgress)
+    final long curRowNum = this.progressListener.getRowNumber();
+    if ( ( this.lastImportSessionRefresh + GeoObjectImporter.refreshSessionRecordCount ) < curRowNum)
     {
       if (Session.getCurrentSession() != null)
       {
         SessionFacade.renewSession(Session.getCurrentSession().getOid());
       }
-      this.lastImportSessionRefresh = curWorkProgress;
+      this.lastImportSessionRefresh = curRowNum;
     }
 
     GeoObjectOverTime go = null;
@@ -646,7 +654,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
         }
 
-        go = serverGo.toGeoObjectOverTime(false);
+        go = ((VertexServerGeoObject) serverGo).toGeoObjectOverTime(false, this.classifierCache);
         goJson = go.toJSON().toString();
 
         /*
@@ -674,6 +682,8 @@ public class GeoObjectImporter implements ObjectImporterIF
         data.setParentBuilder(parentBuilder);
         
         serverGo.apply(true);
+        
+        imported = true;
       }
       finally
       {
@@ -730,8 +740,6 @@ public class GeoObjectImporter implements ObjectImporterIF
       {
         throw new ProblemException(null, problems2);
       }
-
-      this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
     }
     catch (IgnoreRowException e)
     {
@@ -741,8 +749,8 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       buildRecordException(goJson, isNew, parentBuilder, t);
     }
-
-    this.progressListener.setWorkProgress(curWorkProgress + 1);
+    
+    return imported;
   }
 
   private void buildRecordException(String goJson, boolean isNew, GeoObjectParentErrorBuilder parentBuilder, Throwable t)
@@ -973,7 +981,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             String parentCode = ( parent == null ) ? null : parent.getCode();
 
             ParentReferenceProblem prp = new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context.toString());
-            prp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
+            prp.addAffectedRowNumber(this.progressListener.getRowNumber());
             prp.setHistoryId(this.configuration.historyId);
 
             this.progressListener.addReferenceProblem(prp);
@@ -1077,7 +1085,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
 
           TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
-          trp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
+          trp.addAffectedRowNumber(this.progressListener.getRowNumber());
           trp.setHistoryId(this.configuration.getHistoryId());
 
           this.progressListener.addReferenceProblem(trp);
@@ -1138,7 +1146,33 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
         else
         {
-          entity.setValue(attributeName, classifier, startDate, endDate);
+          AttributeClassification attrClass = ((AttributeClassification) ((VertexServerGeoObject) entity).getVertex().getGraphObjectDAO().getAttribute(attributeName));
+          Boolean validationResult = this.classifierCache.getClassifierAttributeValidation(mdAttribute.getOid(), classifier);
+          
+          if (validationResult == null)
+          {
+            validationResult = attrClass.validateRid(classifier.getRID(), false);
+            
+            this.classifierCache.putClassifierAttributeValidation(mdAttribute.getOid(), classifier, validationResult);
+          }
+          
+          if (Boolean.TRUE.equals(validationResult))
+          {
+            attrClass.setSkipValidation(true);
+            
+            try
+            {
+              attrClass.setValue(classifier, startDate, endDate);
+            }
+            finally
+            {
+              attrClass.setSkipValidation(false);
+            }
+          }
+          else
+          {
+            throw new ClassificationValidationException("Value must be a child of the attribute root");
+          }
         }
       }
       catch (UnknownTermException e)

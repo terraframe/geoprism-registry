@@ -25,16 +25,18 @@ public interface ImportProgressListenerIF
   public void setWorkTotal(Long workTotal);
 
   public Long getWorkTotal();
+  
+  public void setRowNumber(Long rowNumber);
 
-  public void setWorkProgress(Long newWorkProgress);
-
-  public Long getWorkProgress();
-
-  public Long getRawWorkProgress();
+  public Long getRowNumber();
 
   public void setImportedRecords(Long newImportedRecords);
 
   public Long getImportedRecords();
+  
+  public Long getWorkProgress();
+  
+  public Long getImportedRecordProgress();
 
   public void recordError(Throwable ex, String objectJson, String objectType, long rowNum);
 
@@ -45,7 +47,7 @@ public interface ImportProgressListenerIF
   public void addRowValidationProblem(ValidationProblem problem);
 
   public void applyValidationProblems();
-
-  public Long getRawImportedRecords();
+  
+  public void finalizeImport();
 
 }

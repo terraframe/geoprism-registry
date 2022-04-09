@@ -111,6 +111,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.RequiredAttributeException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.etl.upload.ClassifierCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.geoobject.ValueOutOfRangeException;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -1603,8 +1604,13 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     return this.toGeoObjectOverTime(true);
   }
-
+  
   public GeoObjectOverTime toGeoObjectOverTime(boolean generateUid)
+  {
+    return toGeoObjectOverTime(generateUid, null);
+  }
+
+  public GeoObjectOverTime toGeoObjectOverTime(boolean generateUid, ClassifierCache classifierCache)
   {
     Map<String, ValueOverTimeCollectionDTO> votAttributeMap = GeoObjectOverTime.buildVotAttributeMap(type.getType());
     Map<String, Attribute> attributeMap = GeoObjectOverTime.buildAttributeMap(type.getType());
@@ -1690,12 +1696,30 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
               {
                 String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
                 ClassificationType classificationType = ClassificationType.getByCode(classificationTypeCode);
-                Classification classification = Classification.getByOid(classificationType, (String) value);
+                MdClassificationDAOIF mdClassificationDAO = classificationType.getMdClassification();
+                
+                VertexObject classifier = null;
+                if (classifierCache != null)
+                {
+                  classifier = classifierCache.getClassifier(classificationTypeCode, value.toString().trim());
+                }
+
+                if (classifier == null)
+                {
+                  MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
+
+                  classifier = VertexObject.get(mdVertexDAO, (String) value);
+                  
+                  if (classifier != null && classifierCache != null)
+                  {
+                    classifierCache.putClassifier(classificationTypeCode, value.toString().trim(), classifier);
+                  }
+                }
 
                 try
                 {
                   ValueOverTimeDTO votDTO = new ValueOverTimeDTO(vot.getOid(), vot.getStartDate(), vot.getEndDate(), votcDTO);
-                  votDTO.setValue(classification.toTerm());
+                  votDTO.setValue(new Classification(classificationType, classifier).toTerm());
                   votcDTO.add(votDTO);
                 }
                 catch (UnknownTermException e)
@@ -1744,15 +1768,31 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
             }
             else if (attribute instanceof AttributeClassificationType)
             {
-              String classificationType = ( (AttributeClassificationType) attribute ).getClassificationType();
-              MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
-              MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
+              String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
+              ClassificationType classificationType = ClassificationType.getByCode(classificationTypeCode);
+              MdClassificationDAOIF mdClassificationDAO = classificationType.getMdClassification();
+              
+              VertexObject classifier = null;
+              if (classifierCache != null)
+              {
+                classifier = classifierCache.getClassifier(classificationTypeCode, value.toString().trim());
+              }
 
-              VertexObject classification = VertexObject.get(mdVertexDAO, (String) value);
+              if (classifier == null)
+              {
+                MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
+
+                classifier = VertexObject.get(mdVertexDAO, (String) value);
+                
+                if (classifier != null && classifierCache != null)
+                {
+                  classifierCache.putClassifier(classificationTypeCode, value.toString().trim(), classifier);
+                }
+              }
 
               try
               {
-                geoObj.setValue(attributeName, classification.getObjectValue(AbstractClassification.CODE));
+                geoObj.setValue(attributeName, classifier.getObjectValue(AbstractClassification.CODE));
               }
               catch (UnknownTermException e)
               {
