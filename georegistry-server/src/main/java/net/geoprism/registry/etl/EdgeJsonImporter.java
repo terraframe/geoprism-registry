@@ -32,13 +32,16 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.runwaysdk.resource.ApplicationResource;
 
-import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 
 public class EdgeJsonImporter
 {
   private static final Logger logger = LoggerFactory.getLogger(EdgeJsonImporter.class);
+  
+  protected GeoObjectCache sourceCache = new GeoObjectCache();
+  
+  protected GeoObjectCache targetCache = new GeoObjectCache();
 
   private ApplicationResource resource;
 
@@ -58,8 +61,6 @@ public class EdgeJsonImporter
 
   public void importData() throws JsonSyntaxException, IOException
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
-
     try (InputStream stream = resource.openNewStream())
     {
       JsonObject data = JsonParser.parseString(IOUtils.toString(stream, "UTF-8")).getAsJsonObject();
@@ -88,8 +89,8 @@ public class EdgeJsonImporter
           String targetCode = joEdge.get("target").getAsString();
           String targetTypeCode = joEdge.get("targetType").getAsString();
 
-          ServerGeoObjectIF source = service.getGeoObjectByCode(sourceCode, sourceTypeCode);
-          ServerGeoObjectIF target = service.getGeoObjectByCode(targetCode, targetTypeCode);
+          ServerGeoObjectIF source = sourceCache.getByCode(sourceCode, sourceTypeCode);
+          ServerGeoObjectIF target = targetCache.getByCode(targetCode, targetTypeCode);
 
           source.addGraphChild(target, graphType, this.startDate, this.endDate, this.validate);
         }
