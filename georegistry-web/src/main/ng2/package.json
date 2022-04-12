@@ -24,7 +24,7 @@
 		"@turf/turf": "^5.1.6",
 		"@types/mapbox-gl": "1.11.1",
 		"@types/uuid": "8.0.0",
-		"bootstrap": "3.3.7",
+		"bootstrap": "3.4.1",
 		"color-generator": "^0.1.0",
 		"core-js": "3.6.5",
 		"d3": "^6.6.2",
