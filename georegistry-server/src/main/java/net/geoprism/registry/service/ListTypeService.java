@@ -368,10 +368,10 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject data(String sessionId, String oid, String criteria, Boolean includeGeometries)
+  public JsonObject data(String sessionId, String oid, String criteria, Boolean showInvalid, Boolean includeGeometries)
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
-    Page<JsonSerializable> page = version.data(JsonParser.parseString(criteria).getAsJsonObject(), includeGeometries);
+    Page<JsonSerializable> page = version.data(JsonParser.parseString(criteria).getAsJsonObject(), showInvalid, includeGeometries);
 
     return page.toJSON();
   }

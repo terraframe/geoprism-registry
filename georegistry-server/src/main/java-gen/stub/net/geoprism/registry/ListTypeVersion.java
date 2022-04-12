@@ -1635,7 +1635,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
   public BusinessQuery buildQuery(JsonObject criteria)
   {
-    return new ListTypeVersionPageQuery(this, criteria, false).getQuery();
+    return new ListTypeVersionPageQuery(this, criteria, false, false).getQuery();
   }
 
   public JsonArray bbox(String uid)
@@ -1694,7 +1694,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   public JsonArray values(String value, String attributeName, JsonObject criteria)
   {
     ValueQuery vQuery = new ValueQuery(new QueryFactory());
-    BusinessQuery query = new ListTypeVersionPageQuery(this, criteria, false).getQuery(vQuery);
+    BusinessQuery query = new ListTypeVersionPageQuery(this, criteria, true, false).getQuery(vQuery);
 
     DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     filterFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
@@ -1729,14 +1729,14 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     return results;
   }
 
-  public Page<JsonSerializable> data(JsonObject criteria, Boolean includeGeometries)
+  public Page<JsonSerializable> data(JsonObject criteria, Boolean showInvalid, Boolean includeGeometries)
   {
     if (includeGeometries == null)
     {
       includeGeometries = Boolean.FALSE;
     }
 
-    return new ListTypeVersionPageQuery(this, criteria, includeGeometries).getPage();
+    return new ListTypeVersionPageQuery(this, criteria, showInvalid, includeGeometries).getPage();
   }
 
   public BusinessQuery buildQuery(String filterJson)

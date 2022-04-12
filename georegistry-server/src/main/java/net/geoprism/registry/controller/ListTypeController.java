@@ -180,9 +180,10 @@ public class ListTypeController
   public ResponseIF data(ClientRequestIF request, 
       @RequestParamter(name = "oid", required = true) String oid, 
       @RequestParamter(name = "criteria", required = true) String criteria, 
+      @RequestParamter(name = "showInvalid", required = true) Boolean showInvalid,      
       @RequestParamter(name = "includeGeometries") Boolean includeGeometries)
   {
-    JsonObject response = this.service.data(request.getSessionId(), oid, criteria, includeGeometries);
+    JsonObject response = this.service.data(request.getSessionId(), oid, criteria, showInvalid, includeGeometries);
 
     return new RestBodyResponse(response);
   }

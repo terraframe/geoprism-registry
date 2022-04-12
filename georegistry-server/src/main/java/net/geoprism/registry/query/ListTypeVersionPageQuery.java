@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.query;
 
@@ -30,8 +30,13 @@ import org.wololo.jts2geojson.GeoJSONWriter;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.Business;
+import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.query.AttributeBoolean;
+import com.runwaysdk.query.ComponentQuery;
+import com.runwaysdk.query.Selectable;
+import com.runwaysdk.query.SelectableBoolean;
 import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -49,14 +54,17 @@ public class ListTypeVersionPageQuery extends AbstractBusinessPageQuery<JsonSeri
 
   private NumberFormat                             numberFormat;
 
+  private Boolean                                  showInvalid;
+
   private Boolean                                  includeGeometries;
 
   private List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
-  public ListTypeVersionPageQuery(ListTypeVersion version, JsonObject criteria, Boolean includeGeometries)
+  public ListTypeVersionPageQuery(ListTypeVersion version, JsonObject criteria, Boolean showInvalid, Boolean includeGeometries)
   {
     super(MdBusinessDAO.get(version.getMdBusinessOid()), criteria);
 
+    this.showInvalid = showInvalid;
     this.version = version;
     this.includeGeometries = includeGeometries;
     this.format = new SimpleDateFormat("yyyy-MM-dd");
@@ -64,6 +72,32 @@ public class ListTypeVersionPageQuery extends AbstractBusinessPageQuery<JsonSeri
 
     this.numberFormat = NumberFormat.getInstance(Session.getCurrentLocale());
     this.mdAttributes = this.getMdBusiness().definesAttributes();
+  }
+
+  @Override
+  protected void filterBoolean(ComponentQuery qQuery, Selectable selectable, Boolean value)
+  {
+    String attributeName = selectable.getMdAttributeIF().definesAttribute();
+
+    if (this.showInvalid || !attributeName.equals(DefaultAttribute.INVALID.getName()))
+    {
+      super.filterBoolean(qQuery, selectable, value);
+    }
+  }
+
+  @Override
+  protected BusinessQuery getQuery(ComponentQuery qQuery, BusinessQuery query)
+  {
+    super.getQuery(qQuery, query);
+
+    if (!showInvalid)
+    {
+      Selectable attribute = query.get(DefaultAttribute.INVALID.getName());
+
+      qQuery.WHERE( ( (SelectableBoolean) attribute ).EQ(Boolean.FALSE));
+    }
+
+    return query;
   }
 
   @Override

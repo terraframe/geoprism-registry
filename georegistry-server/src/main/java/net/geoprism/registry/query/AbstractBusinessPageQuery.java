@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.query;
 
@@ -104,7 +104,7 @@ public abstract class AbstractBusinessPageQuery<T extends JsonSerializable>
     return getQuery(vQuery, new BusinessQuery(vQuery, mdBusiness.definesType()));
   }
 
-  private BusinessQuery getQuery(ComponentQuery qQuery, BusinessQuery query)
+  protected BusinessQuery getQuery(ComponentQuery qQuery, BusinessQuery query)
   {
     if (criteria.has("sortField") && criteria.has("sortOrder"))
     {
@@ -172,7 +172,7 @@ public abstract class AbstractBusinessPageQuery<T extends JsonSerializable>
           {
             String value = filter.get("value").getAsString();
 
-            qQuery.WHERE( ( (SelectableBoolean) attribute ).EQ(Boolean.valueOf(value)));
+            filterBoolean(qQuery, attribute, Boolean.valueOf(value));
           }
           else if (mode.equals("contains"))
           {
@@ -194,94 +194,9 @@ public abstract class AbstractBusinessPageQuery<T extends JsonSerializable>
     return query;
   }
 
-  // private Map<MdAttributeConcreteDAOIF, Condition>
-  // buildQueryConditionsFromFilter(String filterJson, String ignoreAttribute,
-  // ComponentQuery query, MdBusinessDAOIF mdBusiness)
-  // {
-  // Map<MdAttributeConcreteDAOIF, Condition> conditionMap = new
-  // HashMap<MdAttributeConcreteDAOIF, Condition>();
-  //
-  // if (filterJson != null && filterJson.length() > 0)
-  // {
-  // DateFormat filterFormat = new
-  // SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-  // filterFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-  //
-  // JsonArray filters = JsonParser.parseString(filterJson).getAsJsonArray();
-  //
-  // for (int i = 0; i < filters.size(); i++)
-  // {
-  // JsonObject filter = filters.get(i).getAsJsonObject();
-  //
-  // String attribute = filter.get("attribute").getAsString();
-  //
-  // if (ignoreAttribute == null || !attribute.equals(ignoreAttribute))
-  // {
-  // MdAttributeConcreteDAOIF mdAttr = mdBusiness.definesAttribute(attribute);
-  //
-  // BasicCondition condition = null;
-  //
-  // if (mdAttr instanceof MdAttributeMomentDAOIF)
-  // {
-  // JsonObject jObject = filter.get("value").getAsJsonObject();
-  //
-  // try
-  // {
-  // if (jObject.has("start") && !jObject.get("start").isJsonNull())
-  // {
-  // String date = jObject.get("start").getAsString();
-  //
-  // if (date.length() > 0)
-  // {
-  // condition = query.aDateTime(attribute).GE(filterFormat.parse(date));
-  // }
-  // }
-  //
-  // if (jObject.has("end") && !jObject.get("end").isJsonNull())
-  // {
-  // String date = jObject.get("end").getAsString();
-  //
-  // if (date.length() > 0)
-  // {
-  // condition = query.aDateTime(attribute).LE(filterFormat.parse(date));
-  // }
-  // }
-  // }
-  // catch (ParseException e)
-  // {
-  // throw new ProgrammingErrorException(e);
-  // }
-  // }
-  // else if (mdAttr instanceof MdAttributeBooleanDAOIF)
-  // {
-  // String value = filter.get("value").getAsString();
-  //
-  // Boolean bVal = Boolean.valueOf(value);
-  //
-  // condition = ( (AttributeBoolean) query.get(attribute) ).EQ(bVal);
-  // }
-  // else
-  // {
-  // String value = filter.get("value").getAsString();
-  //
-  // condition = query.get(attribute).EQ(value);
-  // }
-  //
-  // if (condition != null)
-  // {
-  // if (conditionMap.containsKey(mdAttr))
-  // {
-  // conditionMap.put(mdAttr, conditionMap.get(mdAttr).OR(condition));
-  // }
-  // else
-  // {
-  // conditionMap.put(mdAttr, condition);
-  // }
-  // }
-  // }
-  // }
-  // }
-  //
-  // return conditionMap;
-  // }
+  protected void filterBoolean(ComponentQuery qQuery, Selectable attribute, Boolean value)
+  {
+    qQuery.WHERE( ( (SelectableBoolean) attribute ).EQ(value));
+  }
+
 }
