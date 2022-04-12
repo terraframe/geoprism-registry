@@ -764,4 +764,10 @@ public class ServerHierarchyType implements ServerElement, GraphType
     return ServiceFactory.getMetadataCache().getAllHierarchyTypes();
   }
 
+  @Override
+  public MdEdgeDAOIF getMdEdgeDAO()
+  {
+    return this.getMdEdge();
+  }
+
 }

@@ -20,12 +20,16 @@ package net.geoprism.registry.model;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
+import com.runwaysdk.dataaccess.MdEdgeDAOIF;
+
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.model.graph.GraphStrategy;
 
 public interface GraphType
 {
+  public MdEdgeDAOIF getMdEdgeDAO();
+  
   public GraphStrategy getStrategy();
 
   public String getCode();

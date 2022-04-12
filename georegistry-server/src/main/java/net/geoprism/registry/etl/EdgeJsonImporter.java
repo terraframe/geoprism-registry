@@ -20,7 +20,14 @@ package net.geoprism.registry.etl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -30,18 +37,37 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.runwaysdk.business.graph.EdgeObject;
+import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.graph.GraphDBService;
+import com.runwaysdk.dataaccess.graph.GraphRequest;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.resource.ApplicationResource;
+import com.runwaysdk.util.IDGenerator;
 
+import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class EdgeJsonImporter
 {
   private static final Logger logger = LoggerFactory.getLogger(EdgeJsonImporter.class);
   
-  protected GeoObjectCache sourceCache = new GeoObjectCache();
+  protected GeoObjectCache goCache = new GeoObjectCache();
   
-  protected GeoObjectCache targetCache = new GeoObjectCache();
+  protected Map<String, Object> goRidCache = new LinkedHashMap<String, Object>() {
+    public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
+    {
+      final int cacheSize = 10000;
+      return size() > cacheSize;
+    }
+  };
 
   private ApplicationResource resource;
 
@@ -89,13 +115,78 @@ public class EdgeJsonImporter
           String targetCode = joEdge.get("target").getAsString();
           String targetTypeCode = joEdge.get("targetType").getAsString();
 
-          ServerGeoObjectIF source = sourceCache.getByCode(sourceCode, sourceTypeCode);
-          ServerGeoObjectIF target = targetCache.getByCode(targetCode, targetTypeCode);
-
-          source.addGraphChild(target, graphType, this.startDate, this.endDate, this.validate);
+          long cacheSize;
+          
+          if (validate)
+          {
+            ServerGeoObjectIF source = goCache.getOrFetchByCode(sourceCode, sourceTypeCode);
+            ServerGeoObjectIF target = goCache.getOrFetchByCode(targetCode, targetTypeCode);
+  
+            source.addGraphChild(target, graphType, this.startDate, this.endDate, this.validate);
+            
+            cacheSize = goCache.getSize();
+          }
+          else
+          {
+            Object childRid = getOrFetchRid(sourceCode, sourceTypeCode);
+            Object parentRid = getOrFetchRid(targetCode, targetTypeCode);
+            
+            this.newEdge(childRid, parentRid, graphType, startDate, endDate);
+            
+            cacheSize = goRidCache.size();
+          }
+          
+          if (j % 50 == 0)
+          {
+            logger.info("Imported record " + j + ". Cache size is " + cacheSize);
+          }
         }
       }
     }
+  }
+  
+  private Object getOrFetchRid(String code, String typeCode)
+  {
+    String typeDbClassName = ServiceFactory.getMetadataCache().getGeoObjectType(typeCode).get().getMdVertex().getDBClassName();
+    
+    Object rid = this.goRidCache.get(typeCode + "$#!" + code);
+    
+    if (rid == null)
+    {
+      GraphQuery<Object> query = new GraphQuery<Object>("select @rid from " + typeDbClassName + " where code=:code;");
+      query.setParameter("code", code);
+      
+      rid = query.getSingleResult();
+      
+      if (rid == null)
+      {
+        throw new DataNotFoundException("Could not find Geo-Object with code " + code + " on table " + typeDbClassName);
+      }
+      
+      this.goRidCache.put(typeCode + "$#!" + code, rid);
+    }
+    
+    return rid;
+  }
+  
+  public void newEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate)
+  {
+    String clazz = type.getMdEdgeDAO().getDBClassName();
+    
+    String statement = "CREATE EDGE " + clazz + " FROM :childRid TO :parentRid";
+    statement += " SET startDate=:startDate, endDate=:endDate, oid=:oid";
+    
+    GraphDBService service = GraphDBService.getInstance();
+    GraphRequest request = service.getGraphDBRequest();
+    
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put("oid", IDGenerator.nextID());
+    parameters.put("childRid", childRid);
+    parameters.put("parentRid", parentRid);
+    parameters.put("startDate", startDate);
+    parameters.put("endDate", endDate);
+
+    service.command(request, statement, parameters);
   }
 
 }

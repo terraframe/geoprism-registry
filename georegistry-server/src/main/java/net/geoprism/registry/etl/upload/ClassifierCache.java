@@ -6,6 +6,8 @@ import java.util.Map;
 
 import com.runwaysdk.business.graph.VertexObject;
 
+import net.geoprism.registry.model.ServerGeoObjectIF;
+
 public class ClassifierCache
 {
   protected Integer cacheSize = 10000;
@@ -13,6 +15,20 @@ public class ClassifierCache
   protected Map<String, Map<String, VertexObject>> classifierCache = new HashMap<String, Map<String, VertexObject>>();
   
   protected Map<String, Map<String, Boolean>> classifierAttributeValidationCache = new HashMap<String, Map<String, Boolean>>();
+  
+  @SuppressWarnings("serial")
+  protected class LinkedHashMapCache<a,b> extends LinkedHashMap<a,b>
+  {
+    protected LinkedHashMapCache()
+    {
+      super(cacheSize + 1, .75F, true);
+    }
+    
+    protected boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
+    {
+      return size() > cacheSize;
+    }
+  };
   
   public ClassifierCache()
   {
@@ -28,7 +44,7 @@ public class ClassifierCache
   {
     if (!this.classifierCache.containsKey(classificationType))
     {
-      this.classifierCache.put(classificationType, new LinkedHashMap<String, VertexObject>(this.cacheSize + 1, .75F, true));
+      this.classifierCache.put(classificationType, new LinkedHashMapCache<String, VertexObject>());
     }
     
     return this.classifierCache.get(classificationType).get(code);
@@ -38,7 +54,7 @@ public class ClassifierCache
   {
     if (!this.classifierCache.containsKey(classificationType))
     {
-      this.classifierCache.put(classificationType, new LinkedHashMap<String, VertexObject>(this.cacheSize + 1, .75F, true));
+      this.classifierCache.put(classificationType, new LinkedHashMap<String, VertexObject>());
     }
     
     this.classifierCache.get(classificationType).put(code, classifier);
@@ -48,7 +64,7 @@ public class ClassifierCache
   {
     if (!this.classifierAttributeValidationCache.containsKey(attributeId))
     {
-      this.classifierAttributeValidationCache.put(attributeId, new LinkedHashMap<String, Boolean>(this.cacheSize + 1, .75F, true));
+      this.classifierAttributeValidationCache.put(attributeId, new LinkedHashMap<String, Boolean>());
     }
     
     return this.classifierAttributeValidationCache.get(attributeId).get(classifier.getOid());
@@ -58,7 +74,7 @@ public class ClassifierCache
   {
     if (!this.classifierAttributeValidationCache.containsKey(attributeId))
     {
-      this.classifierAttributeValidationCache.put(attributeId, new LinkedHashMap<String, Boolean>(this.cacheSize + 1, .75F, true));
+      this.classifierAttributeValidationCache.put(attributeId, new LinkedHashMap<String, Boolean>());
     }
     
     this.classifierAttributeValidationCache.get(attributeId).put(classifier.getOid(), validationResult);
