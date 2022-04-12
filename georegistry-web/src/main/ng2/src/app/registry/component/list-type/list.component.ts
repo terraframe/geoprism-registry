@@ -10,7 +10,7 @@ import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 import { GeoObjectEditorComponent } from "../geoobject-editor/geoobject-editor.component";
 
 import { ErrorHandler } from "@shared/component";
-import { LocalizationService, AuthService, ProgressService } from "@shared/service";
+import { AuthService, ProgressService } from "@shared/service";
 import { ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
@@ -18,7 +18,7 @@ import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
 import { LngLatBounds } from "mapbox-gl";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; 
+import { GeoRegistryConfiguration } from "@core/model/registry";
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -49,8 +49,6 @@ export class ListComponent implements OnInit, OnDestroy {
     */
     private bsModalRef: BsModalRef;
 
-    public searchPlaceholder = "";
-
     notifier: WebSocketSubject<{ type: string, content: any }>;
     subscription: Subscription = null;
 
@@ -60,9 +58,7 @@ export class ListComponent implements OnInit, OnDestroy {
         private service: ListTypeService,
         private pService: ProgressService,
         private modalService: BsModalService,
-        private localizeService: LocalizationService,
         private authService: AuthService) {
-        this.searchPlaceholder = localizeService.decode("masterlist.search");
     }
 
     ngOnInit(): void {
@@ -208,6 +204,11 @@ export class ListComponent implements OnInit, OnDestroy {
         });
     }
 
+    handleShowInvalidChange(): void {
+        this.refreshColumns();
+        this.refresh.next();
+    }
+
     handleProgressChange(progress: any): void {
         this.isRefreshing = (progress.current < progress.total);
 
@@ -219,41 +220,6 @@ export class ListComponent implements OnInit, OnDestroy {
             this.refresh.next();
         }
     }
-
-    // handleDateChange(attribute: any): void {
-    //     attribute.isCollapsed = true;
-
-    //     // Remove the current attribute filter if it exists
-    //     this.filter = this.filter.filter(f => f.attribute !== attribute.base);
-    //     this.selected = this.selected.filter(s => s !== attribute.base);
-
-    //     if (attribute.value != null && ((attribute.value.start != null && attribute.value.start !== "") || (attribute.value.end != null && attribute.value.end !== ""))) {
-    //         let label = "[" + attribute.label + "] : [";
-
-    //         if (attribute.value.start != null) {
-    //             label += attribute.value.start;
-    //         }
-
-    //         if (attribute.value.start != null && attribute.value.end != null) {
-    //             label += " - ";
-    //         }
-
-    //         if (attribute.value.end != null) {
-    //             label += attribute.value.end;
-    //         }
-
-    //         label += "]";
-
-    //         this.filter.push({ attribute: attribute.base, value: attribute.value, label: label });
-    //         this.selected.push(attribute.base);
-    //     }
-
-    //     this.onPageChange(1);
-    // }
-
-    // isFilterable(attribute: any): boolean {
-    //     return attribute.type !== "none" && attribute.name !== "invalid" && (attribute.dependency.length === 0 || this.selected.indexOf(attribute.base) !== -1 || this.selected.filter(value => attribute.dependency.includes(value)).length > 0);
-    // }
 
     onEdit(data): void {
         let editModal = this.modalService.show(GeoObjectEditorComponent, { backdrop: true, ignoreBackdropClick: true });

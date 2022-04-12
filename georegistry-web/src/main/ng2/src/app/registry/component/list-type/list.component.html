@@ -84,7 +84,7 @@
 
                     <span *ngIf="isWritable" class="clickable"
                         style="vertical-align:middle;display:inline-block;line-height:0;">
-                        <boolean-field [(value)]="showInvalid" (change)="refreshColumns()"
+                        <boolean-field [(value)]="showInvalid" (change)="handleShowInvalidChange()"
                             [localizeLabelKey]="'masterlist.showInvalid'"></boolean-field>
                     </span>
 
@@ -132,8 +132,9 @@
             <div *ngIf="list" class="col-md-12" style="max-height:calc(100vh - 460px); min-height:calc(100vh - 460px);">
 
                 <ng-container *ngIf="cols != null && config != null">
-                    <generic-table [cols]="cols" [config]="config" [refresh]="refresh" [pageConfig]="{oid: list.oid}"
-                        (click)="onClick($event)" (onFilter)="onFilter($event)"></generic-table>
+                    <generic-table [cols]="cols" [config]="config" [refresh]="refresh"
+                        [pageConfig]="{oid: list.oid, showInvalid: showInvalid}" (click)="onClick($event)"
+                        (onFilter)="onFilter($event)"></generic-table>
                 </ng-container>
 
             </div>

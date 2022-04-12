@@ -167,6 +167,7 @@ export class ListTypeService implements GenericTableService {
 
         let params = {
             oid: pageConfig.oid,
+            showInvalid: pageConfig.showInvalid,
             criteria: criteria
         } as any;
 
