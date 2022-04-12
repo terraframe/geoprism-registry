@@ -117,12 +117,12 @@
                           </td>
                           <td style="width:15%; vertical-align: middle;">
                               <span class="date-string-display">
-                                {{formatDate(job.createDate)}}
+                                <date-text [date]="job.createDate"></date-text>
                               </span>
                           </td>
                           <td style="width:15%; vertical-align: middle;">
                             <span class="date-string-display">
-                                {{formatDate(job.lastUpdateDate)}}
+                              <date-text [date]="job.lastUpdateDate"></date-text>
                             </span>
                           </td>
 	                        <td *ngIf="isAdmin || isMaintainer" style="width:15%;text-align: right;vertical-align: middle;">                                

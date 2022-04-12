@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1379138035)
+@com.runwaysdk.business.ClassSignature(hash = 1768105755)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -39,6 +21,7 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
   private com.runwaysdk.business.Struct displayLabel = null;
   
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static java.lang.String FILTERJSON = "filterJson";
   public static java.lang.String GEOSPATIALACCESSCONSTRAINTS = "geospatialAccessConstraints";
   private com.runwaysdk.business.Struct geospatialAccessConstraints = null;
   
@@ -124,7 +107,8 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
   public static java.lang.String VALID = "valid";
-  private static final long serialVersionUID = -1379138035;
+  @SuppressWarnings("unused")
+  private static final long serialVersionUID = 1768105755;
   
   public ListTypeBase()
   {
@@ -302,6 +286,34 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
     else
     {
       setValue(ENTITYDOMAIN, oid);
+    }
+  }
+  
+  public String getFilterJson()
+  {
+    return getValue(FILTERJSON);
+  }
+  
+  public void validateFilterJson()
+  {
+    this.validateAttribute(FILTERJSON);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getFilterJsonMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(FILTERJSON);
+  }
+  
+  public void setFilterJson(String value)
+  {
+    if(value == null)
+    {
+      setValue(FILTERJSON, "");
+    }
+    else
+    {
+      setValue(FILTERJSON, value);
     }
   }
   

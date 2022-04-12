@@ -55,7 +55,7 @@ public class UndirectedGraphTypeController
     return new RestBodyResponse(response);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "create")
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "update")
   public ResponseIF update(ClientRequestIF request, @RequestParamter(name = "type") String type)
   {
     JsonObject response = this.service.update(request.getSessionId(), type);

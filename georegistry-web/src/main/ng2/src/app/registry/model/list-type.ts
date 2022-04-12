@@ -150,6 +150,12 @@ export class ListType {
     intervalJson?: { startDate: string, endDate: string, readonly?: string, oid?: string }[]
 
     entries?: ListTypeEntry[];
+    filter?: {
+        attribute: string,
+        operation: string,
+        value: any,
+        id: string
+    }[];
 
 }
 

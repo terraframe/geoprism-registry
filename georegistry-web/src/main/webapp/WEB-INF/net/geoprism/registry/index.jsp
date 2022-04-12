@@ -60,7 +60,8 @@
     		searchEnabled:<%=GeoregistryProperties.isSearchEnabled().toString()%>,
     		graphVisualizerEnabled:<%=GeoregistryProperties.isGraphVisualizerEnabled().toString()%>,    		
         enableBusinessData:<%=GeoregistryProperties.isBusinessDataEnabled()%>,
-    		defaultMapBounds: JSON.parse("<%=GeoregistryProperties.getDefaultMapBounds()%>")
+    		defaultMapBounds: JSON.parse("<%=GeoregistryProperties.getDefaultMapBounds()%>"),
+    		localization: <%=LocalizationFacadeDTO.getJSON(clientRequest)%>
     }; 
     window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');   
     window.googleanalyticstoken = "<%=GeoregistryProperties.getGoogleAnalyticsToken()%>";
@@ -79,18 +80,6 @@
 	    }
 	  </style>
   </c:if>
-  
-  <!-- CSS imports -->
-  <jwr:style src="/bundles/datatable.css" useRandomParam="false"/>
-  <jwr:style src="/bundles/main.css" useRandomParam="false" />
-  <jwr:style src="/bundles/administration.css" useRandomParam="false" />
-  
-  <!-- Default imports -->  
-  <jwr:script src="/bundles/runway.js" useRandomParam="false"/> 
-  <jwr:script src="/bundles/main.js" useRandomParam="false"/>  
-  <jwr:script src="/bundles/localization.js" useRandomParam="false"/>
-    
-  <script type="text/javascript" src="${pageContext.request.contextPath}/net/geoprism/Localized.js.jsp"></script>
   
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-BZ81VQJG2N"></script>

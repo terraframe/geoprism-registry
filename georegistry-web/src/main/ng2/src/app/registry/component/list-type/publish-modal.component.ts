@@ -11,8 +11,9 @@ import { ErrorHandler } from "@shared/component";
 import { LocalizationService } from "@shared/service";
 import { ListType, ListTypeByType } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
-import { PRESENT } from "@registry/model/registry";
+import { AttributeType, GeoObjectType, PRESENT } from "@registry/model/registry";
 import Utils from "@registry/utility/Utils";
+import { RegistryCacheService } from "@registry/service/registry-cache.service";
 
 @Component({
     selector: "list-type-publish-modal",
@@ -26,6 +27,8 @@ export class ListTypePublishModalComponent implements OnInit {
     onListTypeChange: Subject<ListType> = null;
 
     list: ListType = null;
+
+    geoObjectType: GeoObjectType = null;
 
     tab: string = "LIST";
 
@@ -42,6 +45,7 @@ export class ListTypePublishModalComponent implements OnInit {
         private service: ListTypeService,
         private iService: IOService,
         private lService: LocalizationService,
+        private cacheService: RegistryCacheService,
         private bsModalRef: BsModalRef,
         private dateService: DateService) { }
 
@@ -51,6 +55,12 @@ export class ListTypePublishModalComponent implements OnInit {
     init(listByType: ListTypeByType, onListTypeChange: Subject<ListType>, list?: ListType): void {
         this.onListTypeChange = onListTypeChange;
         this.readonly = !listByType.write;
+
+        const cache = this.cacheService.getTypeCache();
+
+        cache.waitOnTypes().then(types => {
+            this.geoObjectType = cache.getTypeByCode(listByType.typeCode);
+        });
 
         if (list == null) {
             this.isNew = true;
@@ -163,6 +173,33 @@ export class ListTypePublishModalComponent implements OnInit {
         });
     }
 
+    getAttributeForFilter(filter: { attribute: string, comparator: string, value: any }): AttributeType {
+        if (filter.attribute != null && filter.attribute !== "") {
+            const attributeType = this.geoObjectType.attributes.find(attributeType => attributeType.code === filter.attribute);
+
+            return attributeType;
+        }
+
+        return null;
+    }
+
+    onNewFilter(): void {
+        if (this.list.filter == null) {
+            this.list.filter = [];
+        }
+
+        this.list.filter.push({
+            attribute: "",
+            operation: "EQ",
+            value: null,
+            id: uuid()
+        });
+    }
+
+    removeFilter(index: number): void {
+        this.list.filter.splice(index, 1);
+    }
+
     onNewInterval(): void {
         if (this.list.intervalJson == null) {
             this.list.intervalJson = [];
@@ -243,8 +280,8 @@ export class ListTypePublishModalComponent implements OnInit {
         }
     }
 
-    stringify(obj: any): string {
-        return JSON.stringify(obj);
+    getGeoObjectTypeTermAttributeOptions(termAttributeCode: string) {
+        return GeoObjectType.getGeoObjectTypeTermAttributeOptions(this.geoObjectType, termAttributeCode);
     }
 
     onCancel(): void {

@@ -44,28 +44,6 @@ if [ "$build_artifact" == "true" ]; then
   node -v && npm -v
   node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
   
-  if [ "$run_tests" == "true" ]; then
-    ## Run the tests ##
-    cd $WORKSPACE/georegistry
-    mvn install -B
-    cd $WORKSPACE/georegistry/georegistry-server
-    mvn install -B -P database -Ddb.clean=true -Ddatabase.port=5432 -Ddb.patch=false -Ddb.rootUser=postgres -Ddb.rootPass=postgres -Ddb.rootDb=postgres
-    cd $WORKSPACE/georegistry/georegistry-test
-    set +e
-    mvn test -Dappcfg=$WORKSPACE/georegistry/envcfg/dev -Ddatabase.port=5432 -Dproject.basedir=$WORKSPACE/georegistry
-    ecode=$?
-    mkdir -p $TEST_OUTPUT/georegistry-test/surefire-reports && cp $WORKSPACE/georegistry/georegistry-test/target/surefire-reports/* $TEST_OUTPUT/georegistry-test/surefire-reports/ && chmod 777 -R $TEST_OUTPUT
-    set -e
-    [ "$ecode" != 0 ] && exit $ecode;
-  
-    ## Deploy the test results to s3 ##
-    cd $WORKSPACE/georegistry/georegistry-site
-    sed -i -e 's#../../common-geo-registry-adapter#../../adapter#g' pom.xml
-    mvn surefire-report:report-only -Daggregate=true
-    mvn site -DgenerateReports=false
-    mvn -rf net.geoprism:georegistry-site site:deploy -DgenerateReports=false
-  fi
-  
   cd $WORKSPACE/georegistry
   mvn clean install -B -Djavax.net.ssl.trustStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/tomcat.truststore -Djavax.net.ssl.trustStorePassword=2v8hVW2rPFncN6m -Djavax.net.ssl.keyStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/keystore.ks -Djavax.net.ssl.keyStorePassword=2v8hVW2rPFncN6m
 else
@@ -93,33 +71,30 @@ fi
 :  Deploy to georegistry.geoprism.net
 : ----------------------------------
 :
-if [ "$deploy" == "true" ]; then
+cd $WORKSPACE/geoprism-cloud/ansible
+
+[ -h ./inventory ] && unlink ./inventory
+[ -d ./inventory ] && rm -r ./inventory
+ln -s $WORKSPACE/geoprism-platform/ansible/inventory ./inventory
+
+[ -h ../permissions ] && unlink ../permissions
+ln -s $WORKSPACE/geoprism-platform/permissions ../permissions
+
+if [ ! -z "$geoprism_lib_extension_artifact_name" ]; then
+  # As far as I can tell Cloudsmith doesn't support fetching the latest version of an artifact from their REST API. So we're using Maven dependency:copy plugin.
+  mkdir -p $WORKSPACE/georegistry/georegistry-web/target/artifact-download
+  cp $WORKSPACE/georegistry/src/build/shell/artifact-download.pom.xml $WORKSPACE/georegistry/georegistry-web/target/artifact-download/pom.xml
+  cd $WORKSPACE/georegistry/georegistry-web/target/artifact-download
+  mvn dependency:copy -Dartifact=$geoprism_lib_extension_artifact_package:$geoprism_lib_extension_artifact_name:$geoprism_lib_extension_artifact_version:jar -DoutputDirectory=../ -Dmdep.stripVersion=true
   cd $WORKSPACE/geoprism-cloud/ansible
-
-  [ -h ./inventory ] && unlink ./inventory
-  [ -d ./inventory ] && rm -r ./inventory
-  ln -s $WORKSPACE/geoprism-platform/ansible/inventory ./inventory
   
-  [ -h ../permissions ] && unlink ../permissions
-  ln -s $WORKSPACE/geoprism-platform/permissions ../permissions
-  
-  if [ ! -z "$geoprism_lib_extension_artifact_name" ]; then
-    # As far as I can tell Cloudsmith doesn't support fetching the latest version of an artifact from their REST API. So we're using Maven dependency:copy plugin.
-    mkdir -p $WORKSPACE/georegistry/georegistry-web/target/artifact-download
-    cp $WORKSPACE/georegistry/src/build/shell/artifact-download.pom.xml $WORKSPACE/georegistry/georegistry-web/target/artifact-download/pom.xml
-    cd $WORKSPACE/georegistry/georegistry-web/target/artifact-download
-    mvn dependency:copy -Dartifact=$geoprism_lib_extension_artifact_package:$geoprism_lib_extension_artifact_name:$geoprism_lib_extension_artifact_version:jar -DoutputDirectory=../ -Dmdep.stripVersion=true
-    cd $WORKSPACE/geoprism-cloud/ansible
-    
-    ansible-playbook georegistry.yml -vv -i inventory/georegistry/$environment.ini --extra-vars "geoprism_lib_extension=$WORKSPACE/georegistry/georegistry-web/target/$geoprism_lib_extension_artifact_name.jar clean_db=$clean_db clean_orientdb=$clean_db webserver_docker_image_tag=$tag docker_image_path=../../georegistry/src/build/docker/georegistry/target/georegistry.dimg.gz"
-  else
-    ansible-playbook georegistry.yml -vv -i inventory/georegistry/$environment.ini --extra-vars "clean_db=$clean_db clean_orientdb=$clean_db webserver_docker_image_tag=$tag docker_image_path=../../georegistry/src/build/docker/georegistry/target/georegistry.dimg.gz"
-  fi
+  ansible-playbook georegistry.yml -vv -i inventory/georegistry/$environment.ini --extra-vars "geoprism_lib_extension=$WORKSPACE/georegistry/georegistry-web/target/$geoprism_lib_extension_artifact_name.jar clean_db=$clean_db clean_orientdb=$clean_db webserver_docker_image_tag=$tag docker_image_path=../../georegistry/src/build/docker/georegistry/target/georegistry.dimg.gz"
+else
+  ansible-playbook georegistry.yml -vv -i inventory/georegistry/$environment.ini --extra-vars "clean_db=$clean_db clean_orientdb=$clean_db webserver_docker_image_tag=$tag docker_image_path=../../georegistry/src/build/docker/georegistry/target/georegistry.dimg.gz"
+fi
 
-  if [ "$environment" == "demo" ]; then
-    ansible-playbook $WORKSPACE/geoprism-platform/ansible/aws/snapshot.yml -i inventory/georegistry/aws-$environment.ini
-  fi
-
+if [ "$environment" == "demo" ]; then
+  ansible-playbook $WORKSPACE/geoprism-platform/ansible/aws/snapshot.yml -i inventory/georegistry/aws-$environment.ini
 fi
 
 exit 0;

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.query.graph;
 
@@ -29,22 +29,20 @@ import com.runwaysdk.business.graph.VertexObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.query.ServerGeoObjectQuery;
-import net.geoprism.registry.query.ServerGeoObjectRestriction;
 
-public class VertexGeoObjectQuery implements ServerGeoObjectQuery
+public class BasicVertexQuery
 {
-  private ServerGeoObjectType        type;
+  private ServerGeoObjectType    type;
 
-  private Date                       date;
+  private Date                   date;
 
-  private ServerGeoObjectRestriction restriction;
+  private BasicVertexRestriction restriction;
 
-  private Integer                    limit;
+  private Integer                limit;
 
-  private Long                       skip;
+  private Long                   skip;
 
-  public VertexGeoObjectQuery(ServerGeoObjectType type, Date date)
+  public BasicVertexQuery(ServerGeoObjectType type, Date date)
   {
     this.type = type;
     this.date = date;
@@ -60,12 +58,12 @@ public class VertexGeoObjectQuery implements ServerGeoObjectQuery
     this.type = type;
   }
 
-  public ServerGeoObjectRestriction getRestriction()
+  public BasicVertexRestriction getRestriction()
   {
     return restriction;
   }
 
-  public void setRestriction(ServerGeoObjectRestriction restriction)
+  public void setRestriction(BasicVertexRestriction restriction)
   {
     this.restriction = restriction;
   }
@@ -89,7 +87,7 @@ public class VertexGeoObjectQuery implements ServerGeoObjectQuery
   {
     this.skip = skip;
   }
-  
+
   public Date getDate()
   {
     return date;
@@ -99,23 +97,15 @@ public class VertexGeoObjectQuery implements ServerGeoObjectQuery
   {
     HashMap<String, Object> parameters = new HashMap<String, Object>();
 
-    // MATCH {class: district0, as: location, where:
-    // (coalesce(displayLabel.defaultLocale) = 'Anlong
-    // Veaeng')}.in('located_in0'){as: parent, where: (@class='cambodia0'),
-    // while: ($depth < 6)} RETURN location, parent
-
     StringBuilder statement = new StringBuilder();
-    statement.append("MATCH { ");
-    statement.append("class: " + this.type.getMdVertex().getDBClassName());
-    statement.append(", as: location");
+    statement.append("SELECT FROM " + this.type.getMdVertex().getDBClassName());
 
     if (this.restriction != null)
     {
-      this.restriction.create(this).restrict(statement, parameters);
+      this.restriction.restrict(statement, parameters);
     }
 
-    statement.append("} RETURN $elements");
-    statement.append(" ORDER BY location.code ASC");
+    statement.append(" ORDER BY code ASC");
 
     if (this.skip != null)
     {
@@ -135,16 +125,12 @@ public class VertexGeoObjectQuery implements ServerGeoObjectQuery
     HashMap<String, Object> parameters = new HashMap<String, Object>();
 
     StringBuilder statement = new StringBuilder();
-    statement.append("MATCH { ");
-    statement.append("class: " + this.type.getMdVertex().getDBClassName());
-    statement.append(", as: location");
+    statement.append("SELECT COUNT(*) FROM " + this.type.getMdVertex().getDBClassName());
 
     if (this.restriction != null)
     {
-      this.restriction.create(this).restrict(statement, parameters);
+      this.restriction.restrict(statement, parameters);
     }
-
-    statement.append("} RETURN count(location)");
 
     return new GraphQuery<Long>(statement.toString(), parameters);
   }

@@ -91,13 +91,13 @@
                     <localize key="tasks.createDateLabel"></localize>
                   </label>
                   <span class="date-string-display" style="margin-right:30px;">
-                    {{formatDate(task.createDate)}}
+                    <date-text [date]="task.createDate"></date-text>
                   </span>
                   <label style="margin-right:20px;">
                     <localize key="tasks.completeDateLabel"></localize>
                   </label>
                   <span class="date-string-display">
-                    {{formatDate(task.completedDate)}}
+                    <date-text [date]="task.completedDate"></date-text>
                   </span>
                 </div>
                 <div class="col-md-3" style="min-height: 90px; display: flex; align-items: center;">

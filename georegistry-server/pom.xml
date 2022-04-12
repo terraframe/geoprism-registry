@@ -34,8 +34,8 @@
 
 	<properties>
 		<!-- We need this property because it facilitates replacement via the Jenkins formal release job. -->
-		<hapifhir_version>5.7.2</hapifhir_version>
-		<cgr.adapter.version>0.19.0</cgr.adapter.version>
+    <hapifhir_version>5.7.2</hapifhir_version>
+		<cgr.adapter.version>0.19.1-SNAPSHOT</cgr.adapter.version>
 	</properties>
 
 	<dependencies>
@@ -144,12 +144,12 @@
       <artifactId>hapi-fhir-validation</artifactId>
       <version>${hapifhir_version}</version>
     </dependency> 
-<!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
-<dependency>
-    <groupId>com.github.ben-manes.caffeine</groupId>
-    <artifactId>caffeine</artifactId>
-    <version>2.9.2</version>
-</dependency>
+    <!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
+    <dependency>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>caffeine</artifactId>
+        <version>2.9.2</version>
+    </dependency>
        
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>

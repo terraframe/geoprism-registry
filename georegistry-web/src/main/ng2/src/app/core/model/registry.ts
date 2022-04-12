@@ -18,5 +18,6 @@ export class GeoRegistryConfiguration {
     graphVisualizerEnabled: boolean;
     enableBusinessData: boolean;
     defaultMapBounds: [[number]];
+    localization: any;
 
 }
