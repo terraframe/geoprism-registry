@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
@@ -59,12 +60,12 @@ import org.json.JSONException;
 import com.amazonaws.services.kms.model.UnsupportedOperationException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.LocalStruct;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
@@ -84,8 +85,6 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMomentDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeNumberDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.MdClassificationDAOIF;
-import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
@@ -95,16 +94,18 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeFloatDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
-import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.query.AttributeBoolean;
+import com.runwaysdk.query.BasicCondition;
+import com.runwaysdk.query.ComponentQuery;
+import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.F;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.AbstractClassification;
 import com.runwaysdk.system.gis.metadata.MdAttributeGeometry;
 import com.runwaysdk.system.gis.metadata.MdAttributeLineString;
 import com.runwaysdk.system.gis.metadata.MdAttributeMultiLineString;
@@ -149,6 +150,9 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.ListTypeVersionPageQuery;
+import net.geoprism.registry.query.ServerGeoObjectRestriction;
+import net.geoprism.registry.query.graph.BasicVertexQuery;
+import net.geoprism.registry.query.graph.BasicVertexRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
@@ -205,13 +209,13 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       {
         this.setListVisibility(ListType.PRIVATE);
       }
-      
+
       if (this.getGeospatialVisibility() == null || this.getGeospatialVisibility().length() == 0)
       {
         this.setGeospatialVisibility(ListType.PRIVATE);
       }
     }
-    
+
     super.apply();
 
     if (this.getGeospatialVisibility().equals(ListType.PUBLIC))
@@ -890,7 +894,11 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       // ServerGeoObjectQuery query = service.createQuery(type,
       // this.getPeriod());
 
-      VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, this.getForDate());
+      Date forDate = this.getForDate();
+
+      BasicVertexRestriction restriction = masterlist.getRestriction(type, forDate);
+      BasicVertexQuery query = new BasicVertexQuery(type, forDate);
+      query.setRestriction(restriction);
       Long count = query.getCount();
 
       if (count == null)
@@ -909,7 +917,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
         while (skip < count)
         {
-          query = new VertexGeoObjectQuery(type, this.getForDate());
+          query = new BasicVertexQuery(type, forDate);
+          query.setRestriction(restriction);
           query.setLimit(pageSize);
           query.setSkip(skip);
 
@@ -1730,6 +1739,109 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     return new ListTypeVersionPageQuery(this, criteria, includeGeometries).getPage();
   }
 
+  public BusinessQuery buildQuery(String filterJson)
+  {
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
+
+    BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
+
+    Map<MdAttributeConcreteDAOIF, Condition> conditionMap = this.buildQueryConditionsFromFilter(filterJson, null, query, mdBusiness);
+
+    for (Condition condition : conditionMap.values())
+    {
+      query.WHERE(condition);
+    }
+
+    return query;
+  }
+
+  private Map<MdAttributeConcreteDAOIF, Condition> buildQueryConditionsFromFilter(String filterJson, String ignoreAttribute, ComponentQuery query, MdBusinessDAOIF mdBusiness)
+  {
+    Map<MdAttributeConcreteDAOIF, Condition> conditionMap = new HashMap<MdAttributeConcreteDAOIF, Condition>();
+
+    if (filterJson != null && filterJson.length() > 0)
+    {
+      DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+      filterFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+
+      JsonArray filters = JsonParser.parseString(filterJson).getAsJsonArray();
+
+      for (int i = 0; i < filters.size(); i++)
+      {
+        JsonObject filter = filters.get(i).getAsJsonObject();
+
+        String attribute = filter.get("attribute").getAsString();
+
+        if (ignoreAttribute == null || !attribute.equals(ignoreAttribute))
+        {
+          MdAttributeConcreteDAOIF mdAttr = mdBusiness.definesAttribute(attribute);
+
+          BasicCondition condition = null;
+
+          if (mdAttr instanceof MdAttributeMomentDAOIF)
+          {
+            JsonObject jObject = filter.get("value").getAsJsonObject();
+
+            try
+            {
+              if (jObject.has("start") && !jObject.get("start").isJsonNull())
+              {
+                String date = jObject.get("start").getAsString();
+
+                if (date.length() > 0)
+                {
+                  condition = query.aDateTime(attribute).GE(filterFormat.parse(date));
+                }
+              }
+
+              if (jObject.has("end") && !jObject.get("end").isJsonNull())
+              {
+                String date = jObject.get("end").getAsString();
+
+                if (date.length() > 0)
+                {
+                  condition = query.aDateTime(attribute).LE(filterFormat.parse(date));
+                }
+              }
+            }
+            catch (ParseException e)
+            {
+              throw new ProgrammingErrorException(e);
+            }
+          }
+          else if (mdAttr instanceof MdAttributeBooleanDAOIF)
+          {
+            String value = filter.get("value").getAsString();
+
+            Boolean bVal = Boolean.valueOf(value);
+
+            condition = ( (AttributeBoolean) query.get(attribute) ).EQ(bVal);
+          }
+          else
+          {
+            String value = filter.get("value").getAsString();
+
+            condition = query.get(attribute).EQ(value);
+          }
+
+          if (condition != null)
+          {
+            if (conditionMap.containsKey(mdAttr))
+            {
+              conditionMap.put(mdAttr, conditionMap.get(mdAttr).OR(condition));
+            }
+            else
+            {
+              conditionMap.put(mdAttr, condition);
+            }
+          }
+        }
+      }
+    }
+
+    return conditionMap;
+  }
+
   public JsonObject record(String uid)
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -1799,7 +1911,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         record.add("data", object);
       }
     }
-    
+
     JsonArray bbox = this.bbox(uid);
     if (bbox == null || bbox.size() == 0)
     {

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -31,8 +31,13 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Optional;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
+import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -45,6 +50,10 @@ import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.constants.Constants;
 import com.runwaysdk.constants.MdAttributeDateTimeUtil;
+import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.MdClassificationDAOIF;
+import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
@@ -55,12 +64,19 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.GeoprismProperties;
+import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.etl.ListTypeJobQuery;
+import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.RolePermissionService;
+import net.geoprism.registry.query.graph.AttributeValueRestriction;
+import net.geoprism.registry.query.graph.BasicVertexRestriction;
+import net.geoprism.registry.query.graph.CompositeRestriction;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
 import net.geoprism.registry.service.LocaleSerializer;
@@ -105,6 +121,8 @@ public abstract class ListType extends ListTypeBase
   public static final String INTERVAL            = "interval";
 
   public static final String INCREMENTAL         = "incremental";
+
+  public static final String FILTER              = "filter";
 
   public ListType()
   {
@@ -307,6 +325,11 @@ public abstract class ListType extends ListTypeBase
       this.setSubtypeHierarchies(object.get(ListType.SUBTYPEHIERARCHIES).getAsJsonArray().toString());
     }
 
+    if (object.has(ListType.FILTER) && !object.get(ListType.FILTER).isJsonNull())
+    {
+      this.setFilterJson(object.get(ListType.FILTER).getAsJsonArray().toString());
+    }
+
     // Parse the list metadata
     // this.parseMetadata("list", object.get(LIST_METADATA).getAsJsonObject());
     // this.parseMetadata("geospatial",
@@ -393,6 +416,11 @@ public abstract class ListType extends ListTypeBase
     object.addProperty(ListType.CODE, this.getCode());
     object.add(ListType.HIERARCHIES, this.getHierarchiesAsJson());
     object.add(ListType.SUBTYPEHIERARCHIES, this.getSubtypeHierarchiesAsJson());
+
+    if (this.getFilterJson() != null && this.getFilterJson().length() > 0)
+    {
+      object.add(ListType.FILTER, JsonParser.parseString(this.getFilterJson()).getAsJsonArray());
+    }
 
     if (type.getGeometryType().equals(GeometryType.MULTIPOINT) || type.getGeometryType().equals(GeometryType.POINT))
     {
@@ -694,6 +722,85 @@ public abstract class ListType extends ListTypeBase
     }
   }
 
+  public BasicVertexRestriction getRestriction(ServerGeoObjectType type, Date forDate)
+  {
+    String filterJson = this.getFilterJson();
+
+    if (filterJson != null && filterJson.length() > 0)
+    {
+
+      JsonArray filters = JsonParser.parseString(filterJson).getAsJsonArray();
+
+      CompositeRestriction restriction = new CompositeRestriction();
+
+      for (int i = 0; i < filters.size(); i++)
+      {
+        JsonObject filter = filters.get(i).getAsJsonObject();
+        String attributeName = filter.get("attribute").getAsString();
+        String operation = filter.get("operation").getAsString();
+
+        AttributeType attributeType = type.getAttribute(attributeName).get();
+        MdAttributeDAOIF mdAttribute = type.getMdVertex().definesAttribute(attributeName);
+
+        if (attributeType instanceof AttributeDateType)
+        {
+          String value = filter.get("value").getAsString();
+
+          Date date = GeoRegistryUtil.parseDate(value, false);
+
+          restriction.add(new AttributeValueRestriction(mdAttribute, operation, date, forDate));
+
+        }
+        else if (attributeType instanceof AttributeBooleanType)
+        {
+          String value = filter.get("value").getAsString();
+
+          Boolean bVal = Boolean.valueOf(value);
+
+          restriction.add(new AttributeValueRestriction(mdAttribute, operation, bVal, forDate));
+        }
+        else if (attributeType instanceof AttributeTermType)
+        {
+          String code = filter.get("value").getAsString();
+
+          Term root = ( (AttributeTermType) attributeType ).getRootTerm();
+          String parent = TermConverter.buildClassifierKeyFromTermCode(root.getCode());
+
+          String classifierKey = Classifier.buildKey(parent, code);
+          Classifier classifier = Classifier.getByKey(classifierKey);
+
+          restriction.add(new AttributeValueRestriction(mdAttribute, operation, classifier.getOid(), forDate));
+        }
+        else if (attributeType instanceof AttributeClassificationType)
+        {
+          JsonObject object = filter.get("value").getAsJsonObject();
+          Term term = Term.fromJSON(object);
+          MdClassificationDAOIF mdClassification = ( (MdAttributeClassificationDAOIF) mdAttribute ).getMdClassificationDAOIF();
+          MdEdgeDAOIF mdEdge = mdClassification.getReferenceMdEdgeDAO();
+          ClassificationType classificationType = new ClassificationType(mdClassification);
+
+          Classification classification = Classification.get(classificationType, term.getCode());
+
+          restriction.add(new AttributeValueRestriction(mdAttribute, operation, classification.getVertex().getRID(), forDate));
+        }
+        else
+        {
+          String value = filter.get("value").getAsString();
+
+          restriction.add(new AttributeValueRestriction(mdAttribute, operation, value, forDate));
+        }
+
+      }
+
+      if (restriction.getRestrictions().size() > 0)
+      {
+        return restriction;
+      }
+    }
+
+    return null;
+  }
+
   public static ListType fromJSON(JsonObject object)
   {
     ListType list = null;
@@ -934,5 +1041,4 @@ public abstract class ListType extends ListTypeBase
   {
     return ServiceFactory.getGeoObjectPermissionService().canWrite(type.getOrganization().getCode(), type);
   }
-
 }

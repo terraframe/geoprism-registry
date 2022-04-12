@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 2117025910)
+@com.runwaysdk.business.ClassSignature(hash = 1773319556)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -180,6 +162,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.ListType.ENTITYDOMAIN);
 
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.ListType.ENTITYDOMAIN, mdAttributeIF, this, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getFilterJson()
+  {
+    return getFilterJson(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getFilterJson(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.FILTERJSON, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getFilterJson(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.FILTERJSON, alias, displayLabel);
 
   }
   public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints()
@@ -1381,6 +1380,9 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getFilterJson();
+    public com.runwaysdk.query.SelectableChar getFilterJson(String alias);
+    public com.runwaysdk.query.SelectableChar getFilterJson(String alias, String displayLabel);
     public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints();
     public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints(String alias);
     public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints(String alias, String displayLabel);
@@ -1675,6 +1677,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.ListType.ENTITYDOMAIN,  alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getFilterJson()
+  {
+    return getFilterJson(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getFilterJson(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.FILTERJSON, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getFilterJson(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.FILTERJSON, alias, displayLabel);
 
   }
   public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints()
@@ -2727,6 +2746,9 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getFilterJson();
+    public com.runwaysdk.query.SelectableChar getFilterJson(String alias);
+    public com.runwaysdk.query.SelectableChar getFilterJson(String alias, String displayLabel);
     public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints();
     public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints(String alias);
     public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints(String alias, String displayLabel);
@@ -3070,6 +3092,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.ListType.ENTITYDOMAIN,  alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getFilterJson()
+  {
+    return getFilterJson(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getFilterJson(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.FILTERJSON, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getFilterJson(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.FILTERJSON, alias, displayLabel);
 
   }
   public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints()

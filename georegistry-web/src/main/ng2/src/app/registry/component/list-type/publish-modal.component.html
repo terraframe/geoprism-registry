@@ -301,23 +301,23 @@
     <ng-container *ngIf="list != null">
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-<!--         <div class="heading text-center"> -->
-<!--             <h1 *ngIf="isNew"> -->
-<!--                 <localize key="type.publish.title"></localize> -->
-<!--             </h1> -->
-<!--             <h1 *ngIf="!isNew"> -->
-<!--                 {{list.displayLabel.localizedValue}} -->
-<!--                 <localize key="type.publish.view.title"></localize> -->
-<!--             </h1> -->
-<!--         </div> -->
+        <!--         <div class="heading text-center"> -->
+        <!--             <h1 *ngIf="isNew"> -->
+        <!--                 <localize key="type.publish.title"></localize> -->
+        <!--             </h1> -->
+        <!--             <h1 *ngIf="!isNew"> -->
+        <!--                 {{list.displayLabel.localizedValue}} -->
+        <!--                 <localize key="type.publish.view.title"></localize> -->
+        <!--             </h1> -->
+        <!--         </div> -->
 
-		<div class="text-center">
+        <div class="text-center">
             <h2>
                 <localize key="type.publish.configuration.header"></localize>
             </h2>
             <hr>
         </div>
-        
+
         <!-- <div class="col-md-12 order-md-1"> -->
         <form #form="ngForm" class="modal-form" autocomplete="off">
 
@@ -427,7 +427,7 @@
                 <div class="row-holder" *ngIf="list.hierarchies.length > 0">
                     <div class="label-holder"></div>
                     <div class="holder">
-                        <localize key="listlist.parents"></localize>
+                        <localize key="masterlist.parents"></localize>
                     </div>
                 </div>
 
@@ -539,7 +539,7 @@
                         </div>
                         <div class="holder">
                             <span *ngIf="readonly" style="line-height: 40px;" class="date-string-display">
-                            <date-text [date]="list.publishingStartDate"></date-text>
+                                <date-text [date]="list.publishingStartDate"></date-text>
                             </span>
                             <date-field *ngIf="!readonly" [(value)]="list.publishingStartDate"
                                 [classNames]="['form-control']" label="" [inputName]="'publishingStartDate'"
@@ -575,22 +575,23 @@
                                 <div class="row">
                                     <div class="col-md-5">
                                         <date-field [(value)]="interval.startDate" [classNames]="['form-control']"
-                                            label="" [inputName]="'startDate-' + interval.oid" [allowFutureDates]="false"
-                                            [required]="true" [disable]="readonly || (!isNew && interval.readonly != null)"
+                                            label="" [inputName]="'startDate-' + interval.oid"
+                                            [allowFutureDates]="false" [required]="true"
+                                            [disable]="readonly || (!isNew && interval.readonly != null)"
                                             (valueChange)="handleDateChange()"></date-field>
 
                                     </div>
                                     <div class="col-md-5">
                                         <date-field [(value)]="interval.endDate" [classNames]="['form-control']"
-                                            label="" [inputName]="'endDate-' + interval.oid" [allowInfinity]="true" [required]="true"
+                                            label="" [inputName]="'endDate-' + interval.oid" [allowInfinity]="true"
+                                            [required]="true"
                                             [disable]="readonly || (!isNew && interval.readonly == 'BOTH')"
                                             (valueChange)="handleDateChange()"></date-field>
 
                                     </div>
                                     <div class="col-md-2">
                                         <i class="fa fa-times delete-btn clickable"
-                                            *ngIf="(isNew || interval.readonly == null)"
-                                            (click)="removeInterval(i)"
+                                            *ngIf="(isNew || interval.readonly == null)" (click)="removeInterval(i)"
                                             [title]="'button.delete.helptext' | localize">
                                         </i>
                                     </div>
@@ -614,18 +615,118 @@
                     </div>
                 </ng-container>
 
+                <ng-container
+                    *ngIf="geoObjectType != null && (isNew || (list.filter != null  && list.filter.length > 0))">
+                    <div class="row-holder">
+                        <div class="label-holder">
+                            <label>
+                                <localize key="button.filter.helptext"></localize>
+                            </label>
+                        </div>
+                        <div class="holder">
+                            <div *ngFor="let filter of list.filter; let j = index;">
+
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <select class="select-area" [name]="'filter' + filter.id"
+                                            [(ngModel)]="filter.attribute" [disabled]="readonly || !isNew" required>
+                                            <option></option>
+                                            <ng-container *ngFor="let attribute of geoObjectType.attributes;">
+                                                <option *ngIf="attribute.isChangeOverTime && attribute.type !== 'local'"
+                                                    [value]="attribute.code">
+                                                    {{attribute.label.localizedValue}}
+                                                </option>
+                                            </ng-container>
+                                        </select>
+                                    </div>
+                                    <ng-container *ngIf="getAttributeForFilter(filter) as attributeType">
+                                        <div class="col-md-3">
+                                            <select class="select-area" [name]="'filter-operation' + filter.id"
+                                                [(ngModel)]="filter.operation" [disabled]="readonly || !isNew" required>
+                                                <option value="EQ">
+                                                    <localize key="list.type.equals"></localize>
+                                                </option>
+                                                <option *ngIf="attributeType.type === 'classification'" value="EXACT">
+                                                    <localize key="list.type.exact"></localize>
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <ng-container [ngSwitch]="attributeType.type">
+                                                <ng-container *ngSwitchCase="'classification'">
+                                                    <classification-field
+                                                        [classificationType]="attributeType.classificationType"
+                                                        [name]="'filter-value' + filter.id" container="body"
+                                                        [(value)]="filter.value" [disabled]="!isNew">
+                                                    </classification-field>
+                                                </ng-container>
+                                                <ng-container *ngSwitchCase="'term'">
+                                                    <select [name]="'filter-value' + filter.id" class="select-area"
+                                                        [(ngModel)]="filter.value" [disabled]="!isNew">
+                                                        <option value=""></option>
+                                                        <option
+                                                            *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attributeType.code)"
+                                                            [value]="option.code">{{option.label.localizedValue}}
+                                                        </option>
+                                                    </select>
+                                                </ng-container>
+                                                <ng-container *ngSwitchCase="'boolean'">
+                                                    <boolean-field [disable]="!isNew" [(value)]="filter.value"
+                                                        localizeLabelKey="change.request.boolean.option.true">
+                                                    </boolean-field>
+                                                </ng-container>
+                                                <ng-container *ngSwitchCase="'date'">
+                                                    <date-field [(value)]="filter.value" [classNames]="['form-control']"
+                                                        label="" [inputName]="'filter-value' + filter.id"
+                                                        [disable]="!isNew">
+                                                    </date-field>
+                                                </ng-container>
+                                                <ng-container *ngSwitchCase="'float'">
+                                                    <input [(ngModel)]="filter.value"
+                                                        [name]="'filter-value' + filter.id" type="number"
+                                                        class="form-control" [disabled]="!isNew" [required]="false" />
+                                                </ng-container>
+                                                <ng-container *ngSwitchDefault>
+                                                    <input [(ngModel)]="filter.value"
+                                                        [name]="'filter-value' + filter.id" type="text"
+                                                        class="form-control" [disabled]="!isNew" [required]="false" />
+                                                </ng-container>
+
+                                            </ng-container>
+                                        </div>
+                                    </ng-container>
+                                    <div class="col-md-2">
+                                        <i class="fa fa-times delete-btn clickable" *ngIf="isNew"
+                                            (click)="removeFilter(i)" [title]="'button.delete.helptext' | localize">
+                                        </i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" *ngIf="isNew && !readonly">
+                                <div class="col-md-12">
+                                    <button type="button" (click)="onNewFilter()" class="btn btn-primary" role="button"
+                                        style="margin:15px 0;">
+                                        <localize key="changeovertime.manageVersions.summaryKey.NEW"></localize>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+
 
                 <div class="inner-col-content-wrapper" *ngIf="isNew" style="padding-top: 30px; margin-top: 10px;">
                     <div class="row">
                         <div class="col-md-12">
-                        
+
                             <div class="text-center">
-					            <h2>
-					                <localize key="type.publish.metadata.header"></localize>
-					            </h2>
-					            <hr>
-					        </div>
-					        
+                                <h2>
+                                    <localize key="type.publish.metadata.header"></localize>
+                                </h2>
+                                <hr>
+                            </div>
+
                             <div class="label-holder"></div>
 
                             <div class="holder">
