@@ -1,4 +1,4 @@
-<div id="relationship-visualizer-root-node" *ngIf="geoObject">
+<div id="relationship-visualizer-root-node" *ngIf="geoObject" style="height:100%; overflow:hidden;">
 
   <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.OVERLAY" type="ball-clip-rotate-multiple" size="medium">
   </ngx-spinner>
@@ -19,9 +19,9 @@
       </div>
     </div>
 
-    <div *ngIf="relationships" style="height:100%; width:100%;">
-      <div class="hierarchy-content" style="height:100%; width:100%;">
-        <div id="graph-container" style="height:100%; width:100%;">
+    <div *ngIf="relationships">
+      <div class="hierarchy-content">
+        <div id="graph-container">
           <ngx-graph *ngIf="data" class="chart-container" [view]="[svgWidth, svgHeight]" [links]="data.edges"
             [nodes]="data.verticies" [animate]="false" [autoZoom]="true" [autoCenter]="true" [layout]="layout"
             [layoutSettings]="{orientation: relationship.isHierarchy ? CONSTANTS.ORIENTATION.TOP_TO_BOTTOM : CONSTANTS.ORIENTATION.LEFT_TO_RIGHT}"
