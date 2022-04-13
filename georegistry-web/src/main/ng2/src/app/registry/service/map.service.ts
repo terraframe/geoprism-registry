@@ -7,13 +7,14 @@ import { LocationInformation } from "@registry/model/location-manager";
 import { EventService } from "@shared/service";
 import { GeoObject } from "@registry/model/registry";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/registry";
+declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class MapService {
 
     constructor(private http: HttpClient, private eventService: EventService) {
-        (mapboxgl as any).accessToken = "pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNWE5bWkwazYwNGFtb3loOGxsbjR1In0.ZNEwT-pBnGookEb-BF_jQQ";
+        (mapboxgl as any).accessToken = registry.mapboxAccessToken;
     }
 
     roots(typeCode: string, hierarchyCode: string, date: string): Promise<LocationInformation> {

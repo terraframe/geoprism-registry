@@ -20,6 +20,7 @@
 --%>
 <%@page import="net.geoprism.registry.service.RegistryService"%>
 <%@ page import="net.geoprism.registry.GeoregistryProperties"%>
+<%@ page import="net.geoprism.gis.geoserver.GeoserverProperties"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="/WEB-INF/tlds/geoprism.tld" prefix="gdb"%>
@@ -58,8 +59,9 @@
     		locale:'<%=request.getAttribute("locale")%>', 
     		locales:<%=request.getAttribute("ilocales")%>,
     		searchEnabled:<%=GeoregistryProperties.isSearchEnabled().toString()%>,
-    		graphVisualizerEnabled:<%=GeoregistryProperties.isGraphVisualizerEnabled().toString()%>,    		
-        enableBusinessData:<%=GeoregistryProperties.isBusinessDataEnabled()%>,
+    		graphVisualizerEnabled:<%=GeoregistryProperties.isGraphVisualizerEnabled().toString()%>,
+    		mapboxAccessToken:'<%=GeoserverProperties.getMapboxglAccessToken()%>',
+    		enableBusinessData:<%=GeoregistryProperties.isBusinessDataEnabled()%>,
     		defaultMapBounds: JSON.parse("<%=GeoregistryProperties.getDefaultMapBounds()%>"),
     		localization: <%=LocalizationFacadeDTO.getJSON(clientRequest)%>
     }; 
