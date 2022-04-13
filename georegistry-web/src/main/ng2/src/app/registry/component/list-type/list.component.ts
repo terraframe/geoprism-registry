@@ -44,20 +44,25 @@ export class ListComponent implements OnInit, OnDestroy {
 
     showInvalid = false;
 
+    historyOid: string = null;
+
     /*
      * Reference to the modal current showing
     */
     private bsModalRef: BsModalRef;
 
-    notifier: WebSocketSubject<{ type: string, content: any }>;
-    subscription: Subscription = null;
+    progressNotifier: WebSocketSubject<{ type: string, content: any }>;
+    progressSubscription: Subscription = null;
+
+    jobNotifier: WebSocketSubject<{ type: string, message: string }>;
+    jobSubscription: Subscription = null;
 
     constructor(
         private router: Router,
         private route: ActivatedRoute,
+        private modalService: BsModalService,
         private service: ListTypeService,
         private pService: ProgressService,
-        private modalService: BsModalService,
         private authService: AuthService) {
     }
 
@@ -90,13 +95,18 @@ export class ListComponent implements OnInit, OnDestroy {
 
         let baseUrl = WebSockets.buildBaseUrl();
 
-        this.notifier = webSocket(baseUrl + "/websocket/progress/" + oid);
-        this.subscription = this.notifier.subscribe(message => {
+        this.progressNotifier = webSocket(baseUrl + "/websocket/progress/" + oid);
+        this.progressSubscription = this.progressNotifier.subscribe(message => {
             if (message.content != null) {
                 this.handleProgressChange(message.content);
             } else {
                 this.handleProgressChange(message);
             }
+        });
+
+        this.jobNotifier = webSocket(baseUrl + "/websocket/notify");
+        this.jobSubscription = this.jobNotifier.subscribe(message => {
+            this.handleJobChange();
         });
 
         this.refresh = new Subject<void>();
@@ -107,11 +117,17 @@ export class ListComponent implements OnInit, OnDestroy {
             this.refresh.unsubscribe();
         }
 
-        if (this.subscription != null) {
-            this.subscription.unsubscribe();
+        if (this.progressSubscription != null) {
+            this.progressSubscription.unsubscribe();
         }
 
-        this.notifier.complete();
+        this.progressNotifier.complete();
+
+        if (this.jobSubscription != null) {
+            this.jobSubscription.unsubscribe();
+        }
+
+        this.jobNotifier.complete();
     }
 
     ngAfterViewInit() {
@@ -221,6 +237,24 @@ export class ListComponent implements OnInit, OnDestroy {
         }
     }
 
+    handleJobChange(): void {
+        if (this.historyOid != null) {
+            this.service.getJob(this.historyOid).then(job => {
+                if (job != null) {
+                    if (job.status === "SUCCESS" || job.status === "FAILURE") {
+                        this.handleProgressChange({ current: 1, total: 1 });
+
+                        this.historyOid = null;
+                    }
+
+                    if (job.status === "FAILURE" && job.exception != null) {
+                        this.message = job.exception.message;
+                    }
+                }
+            });
+        }
+    }
+
     onEdit(data): void {
         let editModal = this.modalService.show(GeoObjectEditorComponent, { backdrop: true, ignoreBackdropClick: true });
         editModal.content.configureAsExisting(data.code, this.list.typeCode, this.list.forDate, this.list.isGeometryEditable);
@@ -235,9 +269,10 @@ export class ListComponent implements OnInit, OnDestroy {
     onPublish(): void {
         this.message = null;
 
-        this.service.publishList(this.list.oid).toPromise().then((historyOid: string) => {
+        this.service.publishList(this.list.oid).toPromise().then((result: { jobOid: string }) => {
             this.isRefreshing = true;
             this.list.curation = {};
+            this.historyOid = result.jobOid;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });

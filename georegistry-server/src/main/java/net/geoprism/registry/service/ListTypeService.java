@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -43,6 +43,7 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
+import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
@@ -91,11 +92,13 @@ public class ListTypeService
     ListType mList = ListType.apply(list);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
-    
-    // Auto publish the working versions of the lists 
+
+    // Auto publish the working versions of the lists
     List<ListTypeVersion> versions = mList.getVersions();
-    for (ListTypeVersion version : versions) {
-      if (version.getWorking()) {
+    for (ListTypeVersion version : versions)
+    {
+      if (version.getWorking())
+      {
         this.publishVersion(sessionId, version.getOid());
       }
     }
@@ -180,55 +183,6 @@ public class ListTypeService
     return version.toJSON(false);
   }
 
-  // @Request(RequestType.SESSION)
-  // public void createPublishedVersions(String sessionId, String oid, )
-  // {
-  // ListType listType = ListType.get(oid);
-  //
-  // this.enforceWritePermissions(listType);
-  //
-  // listType.getEntries().forEach(entry -> {
-  // entry.publish(config);
-  // });
-  // }
-
-  @Request(RequestType.SESSION)
-  public String createPublishedVersionsJob(String sessionId, String oid)
-  {
-    ListType listType = ListType.get(oid);
-
-    this.enforceWritePermissions(listType);
-
-    QueryFactory factory = new QueryFactory();
-
-    // PublishListTypeJobQuery query = new PublishListTypeJobQuery(factory);
-    // query.WHERE(query.getListType().EQ(listType));
-    //
-    // JobHistoryQuery q = new JobHistoryQuery(factory);
-    // q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED,
-    // AllJobStatus.RUNNING));
-    // q.AND(q.job(query));
-    //
-    // if (q.getCount() > 0)
-    // {
-    // throw new DuplicateJobException("This master list has already been queued
-    // for publication");
-    // }
-    //
-    // PublishListTypeJob job = new PublishListTypeJob();
-    // job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
-    // job.setListType(listType);
-    // job.apply();
-    //
-    // NotificationFacade.queue(new
-    // GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
-    //
-    // final JobHistory history = job.start();
-    // return history.getOid();
-
-    return null;
-  }
-
   @Request(RequestType.SESSION)
   public JsonObject getPublishJobs(String sessionId, String oid, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
@@ -249,6 +203,19 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
+  public JsonObject getPublishJob(String sessionId, String historyOid)
+  {
+    JobHistory history = JobHistory.get(historyOid);
+
+    try (OIterator<? extends ExecutableJob> it = history.getAllJob())
+    {
+      PublishListTypeVersionJob job = (PublishListTypeVersionJob) it.next();
+
+      return job.toJSON(history);
+    }
+  }
+
+  @Request(RequestType.SESSION)
   public JsonObject publishVersion(String sessionId, String oid)
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
@@ -258,7 +225,7 @@ public class ListTypeService
     {
       throw new UnsupportedOperationException();
     }
-    
+
     this.enforceReadPermissions(version.getListType());
 
     QueryFactory factory = new QueryFactory();
@@ -398,7 +365,7 @@ public class ListTypeService
         object.add("type", geoObject.getType().toJSON(new DefaultSerializer()));
         object.addProperty("code", geoObject.getCode());
         object.addProperty(ListTypeVersion.FORDATE, format.format(version.getForDate()));
-        
+
         // Add geometry so we can zoom to it
         object.add("geoObject", geoObject.toGeoObject(version.getForDate()).toJSON());
 
@@ -541,14 +508,14 @@ public class ListTypeService
             object.add("versions", new JsonArray());
 
             listMap.put(listType.getOid(), object);
-            
+
             String gotCode = listType.getGeoObjectType().getCode();
             if (!typeMap.containsKey(gotCode))
             {
               typeMap.put(gotCode, new HashSet<String>());
             }
             typeMap.get(gotCode).add(listType.getOid());
-            
+
             String orgCode = listType.getOrganization().getCode();
             if (!orgMap.containsKey(orgCode))
             {
@@ -566,61 +533,61 @@ public class ListTypeService
         }
       }
     }
-    
+
     JsonArray jaOrgs = new JsonArray();
 
     for (String orgCode : orgMap.keySet())
     {
       Organization org = ServiceFactory.getMetadataCache().getOrganization(orgCode).get();
-      
+
       JsonObject joOrg = new JsonObject();
-      
+
       joOrg.addProperty("orgCode", orgCode);
-      
+
       joOrg.add("orgLabel", LocalizedValueConverter.convertNoAutoCoalesce(org.getDisplayLabel()).toJSON());
-      
+
       JsonArray jaTypes = new JsonArray();
-      
+
       for (String gotCode : orgMap.get(orgCode))
       {
         ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode).get();
-        
+
         JsonObject joType = new JsonObject();
-        
+
         joType.addProperty("typeCode", gotCode);
-        
+
         joType.add("typeLabel", type.getLabel().toJSON());
-        
+
         JsonArray jaLists = new JsonArray();
-        
+
         for (String listOid : typeMap.get(gotCode))
         {
           JsonObject joListType = listMap.get(listOid);
-          
+
           JsonArray jaVersions = joListType.get("versions").getAsJsonArray();
-          
+
           if (jaVersions.size() > 0)
           {
             jaLists.add(joListType);
           }
         }
-        
+
         joType.add("lists", jaLists);
-        
+
         if (jaLists.size() > 0)
         {
           jaTypes.add(joType);
         }
       }
-      
+
       joOrg.add("types", jaTypes);
-      
+
       if (jaTypes.size() > 0)
       {
         jaOrgs.add(joOrg);
       }
     }
-    
+
     return jaOrgs;
   }
 
@@ -656,7 +623,7 @@ public class ListTypeService
       throw ex;
     }
   }
-  
+
   private void enforceReadPermissions(ListType listType)
   {
     ServerGeoObjectType geoObjectType = listType.getGeoObjectType();
