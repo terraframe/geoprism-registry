@@ -122,20 +122,6 @@ public class ListTypeController
     return new RestBodyResponse(response);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "publish-versions")
-  public ResponseIF publishVersions(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid) throws ParseException
-  {
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-    final String jobId = this.service.createPublishedVersionsJob(request.getSessionId(), oid);
-
-    final RestResponse response = new RestResponse();
-    response.set("job", jobId);
-
-    return response;
-  }
-
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
   public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
@@ -180,9 +166,10 @@ public class ListTypeController
   public ResponseIF data(ClientRequestIF request, 
       @RequestParamter(name = "oid", required = true) String oid, 
       @RequestParamter(name = "criteria", required = true) String criteria, 
+      @RequestParamter(name = "showInvalid", required = true) Boolean showInvalid,      
       @RequestParamter(name = "includeGeometries") Boolean includeGeometries)
   {
-    JsonObject response = this.service.data(request.getSessionId(), oid, criteria, includeGeometries);
+    JsonObject response = this.service.data(request.getSessionId(), oid, criteria, showInvalid, includeGeometries);
 
     return new RestBodyResponse(response);
   }
@@ -288,6 +275,15 @@ public class ListTypeController
     return new RestBodyResponse(config.toString());
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-publish-job")
+  public ResponseIF getPublishJob(ClientRequestIF request, 
+      @RequestParamter(name = "historyOid", required = true) String historyOid)
+  {
+    JsonObject job = this.service.getPublishJob(request.getSessionId(), historyOid);
+    
+    return new RestBodyResponse(job);
+  }
+  
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF tile(ClientRequestIF request, 
       @RequestParamter(name = "x", required = true) Integer x, 

@@ -35,7 +35,7 @@
 								
 								<div class="input-group">
 								<date-field [(value)]="state.date" label="" [inputName]="'date'" [allowInfinity]="false"
-									[allowFutureDates]="false" [required]="false" [placement]="'right'" style="display:table-cell;vertical-align:middle;width:175px;"> </date-field>
+									[allowFutureDates]="false" [required]="false" style="display:table-cell;vertical-align:middle;width:175px;"> </date-field>
 									
 									<input type="text" class="form-control" [placeholder]="'explorer.search.placeholder' | localize"
 										(keyup.enter)="search()" [(ngModel)]="state.text" name="text"> <span class="input-group-btn">

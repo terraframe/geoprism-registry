@@ -19,5 +19,6 @@ export class GeoRegistryConfiguration {
     enableBusinessData: boolean;
     defaultMapBounds: [[number]];
     localization: any;
+    mapboxAccessToken: string;
 
 }

@@ -498,7 +498,7 @@ public class ListTypeTest
 
           Assert.assertNotNull(mdTable);
 
-          Page<JsonSerializable> data = version.data(new JsonObject(), includeGeometries);
+          Page<JsonSerializable> data = version.data(new JsonObject(), true, includeGeometries);
 
           // Entries should be HP_1, HP_2, HS_1, HS_2
           Assert.assertEquals(new Long(4), data.getCount());

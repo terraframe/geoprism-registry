@@ -10,7 +10,6 @@ import { ScheduledJob, ScheduledJobOverview } from "@registry/model/registry";
 
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService, AuthService } from "@shared/service";
-import { DateService } from "@shared/service/date.service";
 import { ModalTypes } from "@shared/model/modal";
 import { PageResult } from "@shared/model/core";
 
@@ -53,8 +52,12 @@ export class ScheduledJobsComponent implements OnInit {
 
     isViewAllOpen: boolean = false;
 
-    constructor(public service: RegistryService, private modalService: BsModalService, private router: Router, private dateService: DateService,
-        private localizeService: LocalizationService, authService: AuthService, public ioService: IOService) {
+    constructor(public service: RegistryService,
+        private modalService: BsModalService,
+        private router: Router,
+        private localizeService: LocalizationService,
+        private ioService: IOService,
+        authService: AuthService) {
         this.isAdmin = authService.isAdmin();
         this.isMaintainer = this.isAdmin || authService.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();

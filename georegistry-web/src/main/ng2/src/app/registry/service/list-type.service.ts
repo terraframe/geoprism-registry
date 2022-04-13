@@ -10,6 +10,7 @@ import { Observable } from "rxjs";
 import { GeoRegistryConfiguration } from "@core/model/registry";
 import { PageResult } from "@shared/model/core";
 import { GenericTableService } from "@shared/model/generic-table";
+import { ScheduledJob } from "@registry/model/registry";
 declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
@@ -167,6 +168,7 @@ export class ListTypeService implements GenericTableService {
 
         let params = {
             oid: pageConfig.oid,
+            showInvalid: pageConfig.showInvalid,
             criteria: criteria
         } as any;
 
@@ -248,12 +250,12 @@ export class ListTypeService implements GenericTableService {
             .toPromise();
     }
 
-    publishList(oid: string): Observable<string> {
+    publishList(oid: string): Observable<{ jobOid: string }> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
 
-        return this.http.post<string>(registry.contextPath + "/list-type/publish", JSON.stringify({ oid: oid }), { headers: headers });
+        return this.http.post<{ jobOid: string }>(registry.contextPath + "/list-type/publish", JSON.stringify({ oid: oid }), { headers: headers });
     }
 
     getAllLists(): Promise<{ label: string, oid: string }[]> {
@@ -377,6 +379,15 @@ export class ListTypeService implements GenericTableService {
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
+            .toPromise();
+    }
+
+    getJob(historyOid: string): Promise<ScheduledJob> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("historyOid", historyOid);
+
+        return this.http
+            .get<ScheduledJob>(registry.contextPath + "/list-type/get-publish-job", { params: params })
             .toPromise();
     }
 

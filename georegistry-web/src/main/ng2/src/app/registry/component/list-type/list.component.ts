@@ -10,7 +10,7 @@ import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 import { GeoObjectEditorComponent } from "../geoobject-editor/geoobject-editor.component";
 
 import { ErrorHandler } from "@shared/component";
-import { LocalizationService, AuthService, ProgressService } from "@shared/service";
+import { AuthService, ProgressService } from "@shared/service";
 import { ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
@@ -18,7 +18,7 @@ import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
 import { LngLatBounds } from "mapbox-gl";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; 
+import { GeoRegistryConfiguration } from "@core/model/registry";
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -44,25 +44,26 @@ export class ListComponent implements OnInit, OnDestroy {
 
     showInvalid = false;
 
+    historyOid: string = null;
+
     /*
      * Reference to the modal current showing
     */
     private bsModalRef: BsModalRef;
 
-    public searchPlaceholder = "";
+    progressNotifier: WebSocketSubject<{ type: string, content: any }>;
+    progressSubscription: Subscription = null;
 
-    notifier: WebSocketSubject<{ type: string, content: any }>;
-    subscription: Subscription = null;
+    jobNotifier: WebSocketSubject<{ type: string, message: string }>;
+    jobSubscription: Subscription = null;
 
     constructor(
         private router: Router,
         private route: ActivatedRoute,
+        private modalService: BsModalService,
         private service: ListTypeService,
         private pService: ProgressService,
-        private modalService: BsModalService,
-        private localizeService: LocalizationService,
         private authService: AuthService) {
-        this.searchPlaceholder = localizeService.decode("masterlist.search");
     }
 
     ngOnInit(): void {
@@ -94,13 +95,18 @@ export class ListComponent implements OnInit, OnDestroy {
 
         let baseUrl = WebSockets.buildBaseUrl();
 
-        this.notifier = webSocket(baseUrl + "/websocket/progress/" + oid);
-        this.subscription = this.notifier.subscribe(message => {
+        this.progressNotifier = webSocket(baseUrl + "/websocket/progress/" + oid);
+        this.progressSubscription = this.progressNotifier.subscribe(message => {
             if (message.content != null) {
                 this.handleProgressChange(message.content);
             } else {
                 this.handleProgressChange(message);
             }
+        });
+
+        this.jobNotifier = webSocket(baseUrl + "/websocket/notify");
+        this.jobSubscription = this.jobNotifier.subscribe(message => {
+            this.handleJobChange();
         });
 
         this.refresh = new Subject<void>();
@@ -111,11 +117,17 @@ export class ListComponent implements OnInit, OnDestroy {
             this.refresh.unsubscribe();
         }
 
-        if (this.subscription != null) {
-            this.subscription.unsubscribe();
+        if (this.progressSubscription != null) {
+            this.progressSubscription.unsubscribe();
         }
 
-        this.notifier.complete();
+        this.progressNotifier.complete();
+
+        if (this.jobSubscription != null) {
+            this.jobSubscription.unsubscribe();
+        }
+
+        this.jobNotifier.complete();
     }
 
     ngAfterViewInit() {
@@ -208,6 +220,11 @@ export class ListComponent implements OnInit, OnDestroy {
         });
     }
 
+    handleShowInvalidChange(): void {
+        this.refreshColumns();
+        this.refresh.next();
+    }
+
     handleProgressChange(progress: any): void {
         this.isRefreshing = (progress.current < progress.total);
 
@@ -220,40 +237,23 @@ export class ListComponent implements OnInit, OnDestroy {
         }
     }
 
-    // handleDateChange(attribute: any): void {
-    //     attribute.isCollapsed = true;
+    handleJobChange(): void {
+        if (this.historyOid != null) {
+            this.service.getJob(this.historyOid).then(job => {
+                if (job != null) {
+                    if (job.status === "SUCCESS" || job.status === "FAILURE") {
+                        this.handleProgressChange({ current: 1, total: 1 });
 
-    //     // Remove the current attribute filter if it exists
-    //     this.filter = this.filter.filter(f => f.attribute !== attribute.base);
-    //     this.selected = this.selected.filter(s => s !== attribute.base);
+                        this.historyOid = null;
+                    }
 
-    //     if (attribute.value != null && ((attribute.value.start != null && attribute.value.start !== "") || (attribute.value.end != null && attribute.value.end !== ""))) {
-    //         let label = "[" + attribute.label + "] : [";
-
-    //         if (attribute.value.start != null) {
-    //             label += attribute.value.start;
-    //         }
-
-    //         if (attribute.value.start != null && attribute.value.end != null) {
-    //             label += " - ";
-    //         }
-
-    //         if (attribute.value.end != null) {
-    //             label += attribute.value.end;
-    //         }
-
-    //         label += "]";
-
-    //         this.filter.push({ attribute: attribute.base, value: attribute.value, label: label });
-    //         this.selected.push(attribute.base);
-    //     }
-
-    //     this.onPageChange(1);
-    // }
-
-    // isFilterable(attribute: any): boolean {
-    //     return attribute.type !== "none" && attribute.name !== "invalid" && (attribute.dependency.length === 0 || this.selected.indexOf(attribute.base) !== -1 || this.selected.filter(value => attribute.dependency.includes(value)).length > 0);
-    // }
+                    if (job.status === "FAILURE" && job.exception != null) {
+                        this.message = job.exception.message;
+                    }
+                }
+            });
+        }
+    }
 
     onEdit(data): void {
         let editModal = this.modalService.show(GeoObjectEditorComponent, { backdrop: true, ignoreBackdropClick: true });
@@ -269,9 +269,10 @@ export class ListComponent implements OnInit, OnDestroy {
     onPublish(): void {
         this.message = null;
 
-        this.service.publishList(this.list.oid).toPromise().then((historyOid: string) => {
+        this.service.publishList(this.list.oid).toPromise().then((result: { jobOid: string }) => {
             this.isRefreshing = true;
             this.list.curation = {};
+            this.historyOid = result.jobOid;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
