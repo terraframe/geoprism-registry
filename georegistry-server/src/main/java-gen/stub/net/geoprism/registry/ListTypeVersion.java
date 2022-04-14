@@ -967,8 +967,6 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   {
     VertexServerGeoObject vertexGo = (VertexServerGeoObject) go;
 
-    boolean hasData = false;
-
     business.setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, go.getGeometry());
 
     for (AttributeType attribute : attributes)
@@ -986,10 +984,6 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           if (value instanceof LocalizedValue && ( (LocalizedValue) value ).isNull())
           {
             continue;
-          }
-          if (!name.equals(DefaultAttribute.CODE.getName()) && !name.equals(DefaultAttribute.INVALID.getName()) && attribute.isChangeOverTime() && ( !name.equals(DefaultAttribute.EXISTS.getName()) || ( value instanceof Boolean && ( (Boolean) value ) ) ))
-          {
-            hasData = true;
           }
 
           if (attribute instanceof AttributeTermType)
@@ -1056,89 +1050,86 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       }
     }
 
-    if (hasData)
+    Set<Entry<ServerHierarchyType, List<ServerGeoObjectType>>> entries = ancestorMap.entrySet();
+
+    for (Entry<ServerHierarchyType, List<ServerGeoObjectType>> entry : entries)
     {
-      Set<Entry<ServerHierarchyType, List<ServerGeoObjectType>>> entries = ancestorMap.entrySet();
+      ServerHierarchyType hierarchy = entry.getKey();
 
-      for (Entry<ServerHierarchyType, List<ServerGeoObjectType>> entry : entries)
+      Map<String, LocationInfo> map = vertexGo.getAncestorMap(hierarchy, entry.getValue());
+
+      Set<Entry<String, LocationInfo>> locations = map.entrySet();
+
+      for (Entry<String, LocationInfo> location : locations)
       {
-        ServerHierarchyType hierarchy = entry.getKey();
+        String pCode = location.getKey();
+        LocationInfo vObject = location.getValue();
 
-        Map<String, LocationInfo> map = vertexGo.getAncestorMap(hierarchy, entry.getValue());
-
-        Set<Entry<String, LocationInfo>> locations = map.entrySet();
-
-        for (Entry<String, LocationInfo> location : locations)
+        if (vObject != null)
         {
-          String pCode = location.getKey();
-          LocationInfo vObject = location.getValue();
+          String attributeName = hierarchy.getCode().toLowerCase() + pCode.toLowerCase();
 
-          if (vObject != null)
-          {
-            String attributeName = hierarchy.getCode().toLowerCase() + pCode.toLowerCase();
-
-            this.setValue(business, attributeName, vObject.getCode());
-            this.setValue(business, attributeName + DEFAULT_LOCALE, vObject.getLabel());
-
-            for (Locale locale : locales)
-            {
-              this.setValue(business, attributeName + locale.toString(), vObject.getLabel(locale));
-            }
-          }
-        }
-      }
-
-      for (ServerHierarchyType hierarchy : hierarchiesOfSubTypes)
-      {
-        ServerParentTreeNode node = go.getParentsForHierarchy(hierarchy, false, this.getForDate());
-        List<ServerParentTreeNode> parents = node.getParents();
-
-        if (parents.size() > 0)
-        {
-          ServerParentTreeNode parent = parents.get(0);
-
-          String attributeName = hierarchy.getCode().toLowerCase();
-          ServerGeoObjectIF geoObject = parent.getGeoObject();
-          LocalizedValue label = geoObject.getDisplayLabel();
-
-          this.setValue(business, attributeName, geoObject.getCode());
-          this.setValue(business, attributeName + DEFAULT_LOCALE, label.getValue(DEFAULT_LOCALE));
+          this.setValue(business, attributeName, vObject.getCode());
+          this.setValue(business, attributeName + DEFAULT_LOCALE, vObject.getLabel());
 
           for (Locale locale : locales)
           {
-            this.setValue(business, attributeName + locale.toString(), label.getValue(locale));
+            this.setValue(business, attributeName + locale.toString(), vObject.getLabel(locale));
           }
         }
       }
+    }
 
-      if (type.getGeometryType().equals(GeometryType.MULTIPOINT) || type.getGeometryType().equals(GeometryType.POINT) && listType.getIncludeLatLong())
+    for (ServerHierarchyType hierarchy : hierarchiesOfSubTypes)
+    {
+      ServerParentTreeNode node = go.getParentsForHierarchy(hierarchy, false, this.getForDate());
+      List<ServerParentTreeNode> parents = node.getParents();
+
+      if (parents.size() > 0)
       {
-        Geometry geom = vertexGo.getGeometry();
+        ServerParentTreeNode parent = parents.get(0);
 
-        if (geom instanceof MultiPoint)
+        String attributeName = hierarchy.getCode().toLowerCase();
+        ServerGeoObjectIF geoObject = parent.getGeoObject();
+        LocalizedValue label = geoObject.getDisplayLabel();
+
+        this.setValue(business, attributeName, geoObject.getCode());
+        this.setValue(business, attributeName + DEFAULT_LOCALE, label.getValue(DEFAULT_LOCALE));
+
+        for (Locale locale : locales)
         {
-          MultiPoint mp = (MultiPoint) geom;
-
-          Coordinate[] coords = mp.getCoordinates();
-
-          Coordinate firstCoord = coords[0];
-
-          this.setValue(business, "latitude", String.valueOf(firstCoord.y));
-          this.setValue(business, "longitude", String.valueOf(firstCoord.x));
-        }
-        else if (geom instanceof Point)
-        {
-          Point point = (Point) geom;
-
-          Coordinate firstCoord = point.getCoordinate();
-
-          this.setValue(business, "latitude", String.valueOf(firstCoord.y));
-          this.setValue(business, "longitude", String.valueOf(firstCoord.x));
+          this.setValue(business, attributeName + locale.toString(), label.getValue(locale));
         }
       }
-
-      business.apply();
     }
+
+    if (type.getGeometryType().equals(GeometryType.MULTIPOINT) || type.getGeometryType().equals(GeometryType.POINT) && listType.getIncludeLatLong())
+    {
+      Geometry geom = vertexGo.getGeometry();
+
+      if (geom instanceof MultiPoint)
+      {
+        MultiPoint mp = (MultiPoint) geom;
+
+        Coordinate[] coords = mp.getCoordinates();
+
+        Coordinate firstCoord = coords[0];
+
+        this.setValue(business, "latitude", String.valueOf(firstCoord.y));
+        this.setValue(business, "longitude", String.valueOf(firstCoord.x));
+      }
+      else if (geom instanceof Point)
+      {
+        Point point = (Point) geom;
+
+        Coordinate firstCoord = point.getCoordinate();
+
+        this.setValue(business, "latitude", String.valueOf(firstCoord.y));
+        this.setValue(business, "longitude", String.valueOf(firstCoord.x));
+      }
+    }
+
+    business.apply();
   }
 
   private void setValue(Business business, String name, Object value)
