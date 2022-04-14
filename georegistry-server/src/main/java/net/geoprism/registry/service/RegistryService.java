@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -170,18 +170,31 @@ public class RegistryService
       it.close();
     }
 
-    HierarchicalRelationshipType.getAll().forEach(relationship -> {
+    // We must build the hierarchy types which are inherited first
+    // Otherwise you will end up with a NPE when building the hierarchies
+    // which inherit the inherited hierarchy if it hasn't been built
+    HierarchicalRelationshipType.getInheritedTypes().forEach(relationship -> {
       ServerHierarchyType ht = new ServerHierarchyTypeBuilder().get(relationship, false);
 
       ServiceFactory.getMetadataCache().addHierarchyType(ht);
     });
 
+    HierarchicalRelationshipType.getAll().forEach(relationship -> {
+      ServerHierarchyType ht = new ServerHierarchyTypeBuilder().get(relationship, false);
+
+      if (!ServiceFactory.getMetadataCache().getHierachyType(ht.getCode()).isPresent())
+      {
+        ServiceFactory.getMetadataCache().addHierarchyType(ht);
+      }
+    });
+
     // Due to inherited hierarchy references, this has to wait until all types
     // exist in the cache.
-    for (ServerHierarchyType type : ServiceFactory.getMetadataCache().getAllHierarchyTypes())
-    {
-//      type.buildHierarchyNodes();
-    }
+    // for (ServerHierarchyType type :
+    // ServiceFactory.getMetadataCache().getAllHierarchyTypes())
+    // {
+    //// type.buildHierarchyNodes();
+    // }
 
     try
     {
@@ -651,7 +664,7 @@ public class RegistryService
 
     // If this did not error out then add to the cache
     ServiceFactory.getMetadataCache().addGeoObjectType(type);
-    
+
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
 
     return type.getType();
@@ -673,7 +686,7 @@ public class RegistryService
     GeoRegistryUtil.importTypes(orgCode, istream);
 
     this.refreshMetadataCache();
-    
+
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
   }
 
@@ -696,7 +709,7 @@ public class RegistryService
     ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(geoObjectType.getOrganizationCode(), serverGeoObjectType, geoObjectType.getIsPrivate());
 
     serverGeoObjectType.update(geoObjectType);
-    
+
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
 
     return serverGeoObjectType.getType();
