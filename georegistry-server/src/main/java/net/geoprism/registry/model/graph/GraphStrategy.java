@@ -25,9 +25,9 @@ import net.geoprism.registry.model.ServerGraphNode;
 public interface GraphStrategy
 {
 
-  public <T extends ServerGraphNode> T getChildren(VertexServerGeoObject geoObject, Boolean recursive, Date date);
+  public <T extends ServerGraphNode> T getChildren(VertexServerGeoObject geoObject, Boolean recursive, Date date, String boundsWKT);
 
-  public <T extends ServerGraphNode> T getParents(VertexServerGeoObject geoObject, Boolean recursive, Date date);
+  public <T extends ServerGraphNode> T getParents(VertexServerGeoObject geoObject, Boolean recursive, Date date, String boundsWKT);
 
   public <T extends ServerGraphNode> T addChild(VertexServerGeoObject geoObject, VertexServerGeoObject child, Date startDate, Date endDate, boolean validate);
 

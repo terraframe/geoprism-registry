@@ -2546,14 +2546,26 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return type.getStrategy().addParent(this, (VertexServerGeoObject) parent, startDate, endDate, validate);
   }
 
-  public <T extends ServerGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date)
+  public <T extends ServerGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date, String boundsWKT)
   {
-    return type.getStrategy().getChildren(this, recursive, date);
+    return type.getStrategy().getChildren(this, recursive, date, boundsWKT);
   }
 
+  public <T extends ServerGraphNode> T getGraphParents(GraphType type, Boolean recursive, Date date, String boundsWKT)
+  {
+    return type.getStrategy().getParents(this, recursive, date, boundsWKT);
+  }
+
+  @Override
+  public <T extends ServerGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date)
+  {
+    return this.getGraphChildren(type, recursive, date, null);
+  }
+
+  @Override
   public <T extends ServerGraphNode> T getGraphParents(GraphType type, Boolean recursive, Date date)
   {
-    return type.getStrategy().getParents(this, recursive, date);
+    return this.getGraphParents(type, recursive, date, null);
   }
 
 }

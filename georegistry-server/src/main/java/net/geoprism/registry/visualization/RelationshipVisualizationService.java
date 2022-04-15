@@ -44,7 +44,7 @@ import net.geoprism.registry.service.ServiceFactory;
 public class RelationshipVisualizationService
 {
   @Request(RequestType.SESSION)
-  public JsonElement tree(String sessionId, Date date, String relationshipType, String graphTypeCode, String geoObjectCode, String geoObjectTypeCode)
+  public JsonElement tree(String sessionId, Date date, String relationshipType, String graphTypeCode, String geoObjectCode, String geoObjectTypeCode, String boundsWKT)
   {
     final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
 
@@ -73,23 +73,23 @@ public class RelationshipVisualizationService
       {
         // get parent and get children return the same thing for an undirected
         // graph
-        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies);
+        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, boundsWKT);
       }
       else if(graphType instanceof DirectedAcyclicGraphType)
       {
         // Out is children
-        fetchParentsData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies);
+        fetchParentsData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, boundsWKT);
         
         // In is parents
-        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies);
+        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, boundsWKT);
       }
       else
       {
         // Out is children
-        fetchParentsData(true, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies);
+        fetchParentsData(true, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, boundsWKT);
 
         // In is parents
-        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies);
+        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, boundsWKT);
       }
     }
 
@@ -137,9 +137,9 @@ public class RelationshipVisualizationService
     return view;
   }
 
-  private void fetchParentsData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setEdges, Set<String> setVerticies)
+  private void fetchParentsData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setEdges, Set<String> setVerticies, String boundsWKT)
   {
-    ServerParentGraphNode node = vertexGo.getGraphParents(graphType, recursive, date);
+    ServerParentGraphNode node = vertexGo.getGraphParents(graphType, recursive, date, boundsWKT);
 
     processParentNode(node, graphType, jaEdges, jaVerticies, setVerticies);
   }
@@ -171,9 +171,9 @@ public class RelationshipVisualizationService
     });
   }
 
-  private void fetchChildrenData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setEdges, Set<String> setVerticies)
+  private void fetchChildrenData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setEdges, Set<String> setVerticies, String boundsWKT)
   {
-    ServerChildGraphNode node = vertexGo.getGraphChildren(graphType, recursive, date);
+    ServerChildGraphNode node = vertexGo.getGraphChildren(graphType, recursive, date, boundsWKT);
 
     this.processChildNode(node, graphType, jaEdges, jaVerticies, setVerticies);
   }

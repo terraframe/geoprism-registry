@@ -176,6 +176,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     windowWidth: number;
     windowHeight: number;
 
+    private mapBounds: LngLatBounds;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private route: ActivatedRoute,
@@ -430,8 +432,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
 
         this.map.on("moveend", (event: any) => {
-            const bounds: LngLatBounds = this.map.getBounds();
-            const array = bounds.toArray();
+            this.mapBounds = this.map.getBounds();
+            const array = this.mapBounds.toArray();
 
             let url = this.router.createUrlTree([], {
                 relativeTo: this.route,

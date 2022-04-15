@@ -34,9 +34,9 @@ import net.geoprism.registry.GeoRegistryUtil;
 public class RelationshipVisualizationController
 {
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "tree")
-  public ResponseIF tree(ClientRequestIF request, @RequestParamter(name = "relationshipType") String relationshipType, @RequestParamter(name = "graphTypeCode") String graphTypeCode, @RequestParamter(name = "geoObjectCode") String geoObjectCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "date") String sDate)
+  public ResponseIF tree(ClientRequestIF request, @RequestParamter(name = "relationshipType") String relationshipType, @RequestParamter(name = "graphTypeCode") String graphTypeCode, @RequestParamter(name = "geoObjectCode") String geoObjectCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "date") String sDate, @RequestParamter(name = "boundsWKT") String boundsWKT)
   {
-    JsonElement json = new RelationshipVisualizationService().tree(request.getSessionId(), GeoRegistryUtil.parseDate(sDate), relationshipType, graphTypeCode, geoObjectCode, geoObjectTypeCode);
+    JsonElement json = new RelationshipVisualizationService().tree(request.getSessionId(), GeoRegistryUtil.parseDate(sDate), relationshipType, graphTypeCode, geoObjectCode, geoObjectTypeCode, boundsWKT);
 
     return new RestBodyResponse(json);
   }

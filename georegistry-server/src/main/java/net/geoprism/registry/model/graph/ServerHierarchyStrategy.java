@@ -35,18 +35,19 @@ import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentGraphNode;
 
-public class ServerHierarchyStrategy implements GraphStrategy
+public class ServerHierarchyStrategy extends AbstractGraphStrategy implements GraphStrategy
 {
   private ServerHierarchyType hierarchy;
 
   public ServerHierarchyStrategy(ServerHierarchyType hierarchy)
   {
+    super(hierarchy);
     this.hierarchy = hierarchy;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public ServerChildGraphNode getChildren(VertexServerGeoObject parent, Boolean recursive, Date date)
+  public ServerChildGraphNode getChildren(VertexServerGeoObject parent, Boolean recursive, Date date, String boundsWKT)
   {
     ServerChildGraphNode tnRoot = new ServerChildGraphNode(parent, this.hierarchy, date, null, null);
 
@@ -66,6 +67,11 @@ public class ServerHierarchyStrategy implements GraphStrategy
 
     statement.append(") FROM :rid");
 
+    if (boundsWKT != null)
+    {
+      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "out", date, boundsWKT, parameters));
+    }
+    
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
     List<EdgeObject> edges = query.getResults();
@@ -84,7 +90,7 @@ public class ServerHierarchyStrategy implements GraphStrategy
 
       if (recursive)
       {
-        tnParent = this.getChildren(child, recursive, date);
+        tnParent = this.getChildren(child, recursive, date, boundsWKT);
         tnParent.setOid(edge.getOid());
       }
       else
@@ -100,7 +106,7 @@ public class ServerHierarchyStrategy implements GraphStrategy
 
   @SuppressWarnings("unchecked")
   @Override
-  public ServerParentGraphNode getParents(VertexServerGeoObject child, Boolean recursive, Date date)
+  public ServerParentGraphNode getParents(VertexServerGeoObject child, Boolean recursive, Date date, String boundsWKT)
   {
     ServerParentGraphNode tnRoot = new ServerParentGraphNode(child, this.hierarchy, date, null, null);
 
@@ -119,6 +125,11 @@ public class ServerHierarchyStrategy implements GraphStrategy
     }
 
     statement.append(") FROM :rid");
+    
+    if (boundsWKT != null)
+    {
+      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "in", date, boundsWKT, parameters));
+    }
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
@@ -138,7 +149,7 @@ public class ServerHierarchyStrategy implements GraphStrategy
 
       if (recursive)
       {
-        tnParent = this.getParents(parent, recursive, date);
+        tnParent = this.getParents(parent, recursive, date, boundsWKT);
         tnParent.setOid(edge.getOid());
       }
       else

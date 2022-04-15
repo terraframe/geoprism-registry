@@ -33,7 +33,7 @@ export class RelationshipVisualizationService {
 
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    tree(relationshipType: string, graphTypeCode: string, geoObjectCode: string, geoObjectTypeCode: string, date: string): Promise<any> {
+    tree(relationshipType: string, graphTypeCode: string, geoObjectCode: string, geoObjectTypeCode: string, date: string, boundsWKT: string): Promise<any> {
         let params: HttpParams = new HttpParams();
         params = params.set("graphTypeCode", graphTypeCode);
         params = params.set("geoObjectCode", geoObjectCode);
@@ -45,6 +45,10 @@ export class RelationshipVisualizationService {
 
         if (date) {
             params = params.set("date", date);
+        }
+
+        if (boundsWKT) {
+            params = params.set("boundsWKT", boundsWKT);
         }
 
         // this.eventService.start();

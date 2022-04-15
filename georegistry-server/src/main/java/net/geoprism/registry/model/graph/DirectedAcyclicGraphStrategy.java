@@ -40,30 +40,19 @@ import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerParentGraphNode;
 
-public class DirectedAcyclicGraphStrategy implements GraphStrategy
+public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implements GraphStrategy
 {
-  private static class EdgeComparator implements Comparator<EdgeObject>
-  {
-    @Override
-    public int compare(EdgeObject o1, EdgeObject o2)
-    {
-      Date d1 = o1.getObjectValue(GeoVertex.START_DATE);
-      Date d2 = o2.getObjectValue(GeoVertex.START_DATE);
-
-      return d1.compareTo(d2);
-    }
-  }
-
   private DirectedAcyclicGraphType type;
 
   public DirectedAcyclicGraphStrategy(DirectedAcyclicGraphType type)
   {
+    super(type);
     this.type = type;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public ServerChildGraphNode getChildren(VertexServerGeoObject parent, Boolean recursive, Date date)
+  public ServerChildGraphNode getChildren(VertexServerGeoObject parent, Boolean recursive, Date date, String boundsWKT)
   {
     ServerChildGraphNode tnRoot = new ServerChildGraphNode(parent, this.type, date, null, null);
 
@@ -82,6 +71,11 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
     }
 
     statement.append(") FROM :rid");
+    
+    if (boundsWKT != null)
+    {
+      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "out", date, boundsWKT, parameters));
+    }
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
@@ -101,7 +95,7 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
 
       if (recursive)
       {
-        tnParent = this.getChildren(child, recursive, date);
+        tnParent = this.getChildren(child, recursive, date, boundsWKT);
         tnParent.setOid(edge.getOid());
       }
       else
@@ -117,7 +111,7 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
 
   @SuppressWarnings("unchecked")
   @Override
-  public ServerParentGraphNode getParents(VertexServerGeoObject child, Boolean recursive, Date date)
+  public ServerParentGraphNode getParents(VertexServerGeoObject child, Boolean recursive, Date date, String boundsWKT)
   {
     ServerParentGraphNode tnRoot = new ServerParentGraphNode(child, this.type, date, null, null);
 
@@ -136,6 +130,11 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
     }
 
     statement.append(") FROM :rid");
+    
+    if (boundsWKT != null)
+    {
+      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "in", date, boundsWKT, parameters));
+    }
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
@@ -155,7 +154,7 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
 
       if (recursive)
       {
-        tnParent = this.getParents(parent, recursive, date);
+        tnParent = this.getParents(parent, recursive, date, boundsWKT);
         tnParent.setOid(edge.getOid());
       }
       else
@@ -382,21 +381,6 @@ public class DirectedAcyclicGraphStrategy implements GraphStrategy
     }
 
     return newEdges;
-  }
-
-  private SortedSet<EdgeObject> getParentEdges(VertexServerGeoObject geoObject)
-  {
-    TreeSet<EdgeObject> set = new TreeSet<EdgeObject>(new EdgeComparator());
-
-    String statement = "SELECT expand(inE('" + this.type.getMdEdgeDAO().getDBClassName() + "'))";
-    statement += " FROM :child";
-
-    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
-    query.setParameter("child", geoObject.getVertex().getRID());
-
-    set.addAll(query.getResults());
-
-    return set;
   }
 
   private SortedSet<EdgeObject> getParentEdges(VertexServerGeoObject geoObject, VertexServerGeoObject parent, Date startDate, Date endDate)

@@ -18,6 +18,7 @@ import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
 import * as ColorGen from "color-generator";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
+import { LngLatBounds } from "mapbox-gl";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -76,7 +77,7 @@ export class RelationshipVisualizerComponent implements OnInit {
         ORIENTATION: Orientation
     }
 
-    @Input() params: { geoObject: GeoObject, graphOid: string, date: string } = null;
+    @Input() params: { geoObject: GeoObject, graphOid: string, date: string, mapBounds: LngLatBounds } = null;
 
     @Input() panelOpen: boolean;
 
@@ -214,7 +215,7 @@ export class RelationshipVisualizerComponent implements OnInit {
         if (this.relationship != null) {
             this.spinner.show(this.CONSTANTS.OVERLAY);
 
-            this.vizService.tree(this.relationship.type, this.relationship.code, this.geoObject.properties.code, this.geoObject.properties.type, this.params.date).then(data => {
+            this.vizService.tree(this.relationship.type, this.relationship.code, this.geoObject.properties.code, this.geoObject.properties.type, this.params.date, this.convertBoundsToWKT(this.params.mapBounds)).then(data => {
                 this.data = null;
 
                 window.setTimeout(() => {
@@ -229,6 +230,21 @@ export class RelationshipVisualizerComponent implements OnInit {
                 this.spinner.hide(this.CONSTANTS.OVERLAY);
             });
         }
+    }
+
+    private convertBoundsToWKT(bounds: LngLatBounds): string {
+      let se = bounds.getSouthEast();
+      let sw = bounds.getSouthWest();
+      let nw = bounds.getNorthWest();
+      let ne = bounds.getNorthEast();
+
+      return "POLYGON ((" +
+        se.lng + " " + se.lat + "," +
+        sw.lng + " " + sw.lat + "," +
+        nw.lng + " " + nw.lat + "," +
+        ne.lng + " " + ne.lat + "," +
+        se.lng + " " + se.lat +
+      "))";
     }
 
     calculateColorSchema() {

@@ -41,39 +41,28 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.model.ServerParentGraphNode;
 
-public class UndirectedGraphStrategy implements GraphStrategy
+public class UndirectedGraphStrategy extends AbstractGraphStrategy implements GraphStrategy
 {
-  private static class EdgeComparator implements Comparator<EdgeObject>
-  {
-    @Override
-    public int compare(EdgeObject o1, EdgeObject o2)
-    {
-      Date d1 = o1.getObjectValue(GeoVertex.START_DATE);
-      Date d2 = o2.getObjectValue(GeoVertex.START_DATE);
-
-      return d1.compareTo(d2);
-    }
-  }
-
   private UndirectedGraphType type;
 
   public UndirectedGraphStrategy(UndirectedGraphType type)
   {
+    super(type);
     this.type = type;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T extends ServerGraphNode> T getChildren(VertexServerGeoObject source, Boolean recursive, Date date)
+  public <T extends ServerGraphNode> T getChildren(VertexServerGeoObject source, Boolean recursive, Date date, String boundsWKT)
   {
-    return (T) getChildren(source, recursive, date, new TreeSet<String>());
+    return (T) getChildren(source, recursive, date, new TreeSet<String>(), boundsWKT);
   }
 
-  private ServerChildGraphNode getChildren(VertexServerGeoObject source, Boolean recursive, Date date, TreeSet<String> visited)
+  private ServerChildGraphNode getChildren(VertexServerGeoObject source, Boolean recursive, Date date, TreeSet<String> visited, String boundsWKT)
   {
     ServerChildGraphNode tnRoot = new ServerChildGraphNode(source, this.type, date, null, null);
 
-    List<EdgeObject> edges = this.getEdges(source, date);
+    List<EdgeObject> edges = this.getEdges(source, date, boundsWKT, "out");
 
     for (EdgeObject edge : edges)
     {
@@ -95,7 +84,7 @@ public class UndirectedGraphStrategy implements GraphStrategy
         {
           visited.add(target.getUid());
 
-          tnParent = this.getChildren(target, recursive, date, visited);
+          tnParent = this.getChildren(target, recursive, date, visited, boundsWKT);
           tnParent.setOid(edge.getOid());
         }
         else
@@ -112,16 +101,16 @@ public class UndirectedGraphStrategy implements GraphStrategy
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T extends ServerGraphNode> T getParents(VertexServerGeoObject child, Boolean recursive, Date date)
+  public <T extends ServerGraphNode> T getParents(VertexServerGeoObject child, Boolean recursive, Date date, String boundsWKT)
   {
-    return (T) getParents(child, recursive, date, new TreeSet<String>());
+    return (T) getParents(child, recursive, date, new TreeSet<String>(), boundsWKT);
   }
 
-  private ServerParentGraphNode getParents(VertexServerGeoObject source, Boolean recursive, Date date, TreeSet<String> visited)
+  private ServerParentGraphNode getParents(VertexServerGeoObject source, Boolean recursive, Date date, TreeSet<String> visited, String boundsWKT)
   {
     ServerParentGraphNode tnRoot = new ServerParentGraphNode(source, this.type, date, null, null);
 
-    List<EdgeObject> edges = this.getEdges(source, date);
+    List<EdgeObject> edges = this.getEdges(source, date, boundsWKT, "in");
 
     for (EdgeObject edge : edges)
     {
@@ -143,7 +132,7 @@ public class UndirectedGraphStrategy implements GraphStrategy
         {
           visited.add(target.getUid());
 
-          tnParent = this.getParents(target, recursive, date, visited);
+          tnParent = this.getParents(target, recursive, date, visited, boundsWKT);
           tnParent.setOid(edge.getOid());
         }
         else
@@ -335,20 +324,7 @@ public class UndirectedGraphStrategy implements GraphStrategy
     return newEdges;
   }
 
-  private SortedSet<EdgeObject> getParentEdges(VertexServerGeoObject geoObject)
-  {
-    String statement = "SELECT expand(inE('" + this.type.getMdEdgeDAO().getDBClassName() + "'))";
-    statement += " FROM :child";
-
-    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
-    query.setParameter("child", geoObject.getVertex().getRID());
-
-    TreeSet<EdgeObject> set = new TreeSet<EdgeObject>(new EdgeComparator());
-    set.addAll(query.getResults());
-    return set;
-  }
-
-  private List<EdgeObject> getEdges(VertexServerGeoObject geoObject, Date date)
+  private List<EdgeObject> getEdges(VertexServerGeoObject geoObject, Date date, String boundsWKT, String inOrOut)
   {
     Map<String, Object> parameters = new HashedMap<String, Object>();
     parameters.put("rid", geoObject.getVertex().getRID());
@@ -365,7 +341,12 @@ public class UndirectedGraphStrategy implements GraphStrategy
     }
 
     statement.append(") FROM :rid");
-
+    
+    if (boundsWKT != null)
+    {
+      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), inOrOut, date, boundsWKT, parameters));
+    }
+    
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
     return query.getResults();
