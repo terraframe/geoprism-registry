@@ -215,6 +215,8 @@ export class ManageVersionsComponent implements OnInit {
     calculateViewModels(): void {
         let viewModels: VersionDiffView[] = [];
 
+        this.viewModels.forEach(viewModel => viewModel.destroy(this));
+
         let editors = this.changeRequestAttributeEditor.getEditors(this.showAllInstances);
         editors.forEach((editor: ValueOverTimeCREditor) => {
             if (this.filterDate == null || this.dateService.between(this.filterDate, editor.startDate, editor.endDate)) {

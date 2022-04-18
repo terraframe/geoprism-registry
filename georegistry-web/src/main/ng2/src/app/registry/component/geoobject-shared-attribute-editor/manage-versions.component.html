@@ -241,7 +241,7 @@
                                     <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
                                   </h5>
                               
-                                  <date-field #dateFieldComponents [customStyles]="(viewModel.oldStartDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE' || filterDate != null" [title]="(filterDate && !readonly ? 'changeovertime.manageVersions.date.editing.needs.fullview.message' : '') | localize" ></date-field>
+                                  <date-field #dateFieldComponents [customStyles]="(viewModel.oldStartDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="true" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE' || filterDate != null" [title]="(filterDate && !readonly ? 'changeovertime.manageVersions.date.editing.needs.fullview.message' : '') | localize" ></date-field>
                                   
                                   <div *ngIf="viewModel.oldStartDate && !isNew">
                                     <p class="warning-text display-current-value">
