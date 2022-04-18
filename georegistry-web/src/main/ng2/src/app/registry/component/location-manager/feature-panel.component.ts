@@ -232,10 +232,10 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
     onEditAttributes(): void {
         this.setEditMode(!this.isEdit);
 
-        window.document.getElementById("navigator-left-sidebar").scroll({
-            top: 0,
-            behavior: "smooth"
-        });
+        // window.document.getElementById("navigator-left-sidebar").scroll({
+        //     top: 0,
+        //     behavior: "smooth"
+        // });
     }
 
     setEditMode(value: boolean): void {
