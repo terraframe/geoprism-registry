@@ -77,7 +77,7 @@ public class AbstractGraphStrategy
     
     for (String geometryType : geometryTypes)
     {
-      geometryRestrictions.add(inOrOut + "." + geometryType + " CONTAINS ( " + dateRestriction + " ST_WITHIN(value, :bounds) = true )");
+      geometryRestrictions.add(inOrOut + "." + geometryType + " CONTAINS ( " + dateRestriction + " ST_INTERSECTS(value, :bounds) = true )");
     }
     
     statement.append(StringUtils.join(geometryRestrictions, " OR "));
