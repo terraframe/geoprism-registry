@@ -86,7 +86,7 @@
             <div class="form-group row">
                 <label class="col-md-2 text-right" for="startDate"><localize key="io.startDate"></localize></label>
                 <div class="col-md-8">
-                  <date-field #dateFieldComponents [(value)]="startDate" label="" [inputName]="'startDate'" (change)="checkDates()" [allowFutureDates]="false"></date-field>
+                  <date-field #dateFieldComponents [(value)]="startDate" label="" [inputName]="'startDate'" (change)="checkDates()" [allowFutureDates]="true"></date-field>
                 </div>
                 
                 <div class="col-md-2"></div>

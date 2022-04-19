@@ -8,7 +8,8 @@ import {
     ViewChildren,
     QueryList,
     ElementRef,
-    SimpleChanges
+    SimpleChanges,
+    OnDestroy
 } from "@angular/core";
 import {
     trigger,
@@ -68,7 +69,7 @@ import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-cha
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }]
 
 })
-export class ManageVersionsComponent implements OnInit {
+export class ManageVersionsComponent implements OnInit, OnDestroy {
 
     // height (as number) in pixels
     mapRowHeight: number;
@@ -133,6 +134,10 @@ export class ManageVersionsComponent implements OnInit {
         if (this.isInitialized && changes.showAllInstances && changes.showAllInstances.previousValue !== changes.showAllInstances.currentValue) {
             this.calculateViewModels();
         }
+    }
+
+    ngOnDestroy(): void {
+        this.viewModels.forEach(vm => vm.destroy(this));
     }
 
     setFilterDate(filterDate: string, refresh: boolean = true): void {
@@ -214,6 +219,8 @@ export class ManageVersionsComponent implements OnInit {
 
     calculateViewModels(): void {
         let viewModels: VersionDiffView[] = [];
+
+        this.viewModels.forEach(viewModel => viewModel.destroy(this));
 
         let editors = this.changeRequestAttributeEditor.getEditors(this.showAllInstances);
         editors.forEach((editor: ValueOverTimeCREditor) => {
