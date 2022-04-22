@@ -74,7 +74,7 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
     
     if (boundsWKT != null)
     {
-      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "out", date, boundsWKT, parameters));
+      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "in", date, boundsWKT, parameters));
     }
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
@@ -133,7 +133,7 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
     
     if (boundsWKT != null)
     {
-      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "in", date, boundsWKT, parameters));
+      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "out", date, boundsWKT, parameters));
     }
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);

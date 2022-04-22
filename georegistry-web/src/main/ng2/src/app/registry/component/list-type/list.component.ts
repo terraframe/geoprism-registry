@@ -8,10 +8,11 @@ import { Subject, Subscription } from "rxjs";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
 import { GeoObjectEditorComponent } from "../geoobject-editor/geoobject-editor.component";
+import * as ColorGen from "color-generator";
 
 import { ErrorHandler } from "@shared/component";
 import { AuthService, ProgressService } from "@shared/service";
-import { ListTypeVersion } from "@registry/model/list-type";
+import { ContextLayer, ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
@@ -284,7 +285,7 @@ export class ListComponent implements OnInit, OnDestroy {
         }
 
         const params: any = {
-            layers: JSON.stringify([this.list.oid]),
+            layers: JSON.stringify([this.layerFromList(this.list)]),
             type: type,
             code: "__NEW__"
         };
@@ -324,8 +325,19 @@ export class ListComponent implements OnInit, OnDestroy {
         event.preventDefault();
     }
 
+    layerFromList(version: ListTypeVersion): ContextLayer {
+        let layer: ContextLayer = new ContextLayer();
+        layer.oid = version.oid;
+        layer.color = ColorGen().hexString();
+        layer.label = version.displayLabel;
+        layer.rendered = true;
+        layer.forDate = version.forDate;
+        layer.versionNumber = version.versionNumber;
+        return layer;
+    }
+
     onGotoMap(result: any): void {
-        const params: any = { layers: JSON.stringify([this.list.oid]) };
+        const params: any = { layers: JSON.stringify([this.layerFromList(this.list)]) };
 
         if (result != null) {
             params.version = this.list.oid;

@@ -18,12 +18,12 @@
     <div *ngIf="list.open" class="list-group">
       <div *ngFor="let version of list.versions">
         <div class="layer-toggle-wrapper">
-			      <a *ngIf="version.oid !== CONSTANTS.GRAPH_LAYER" class="fa" style="padding-right: 10px;" [ngClass]='{"fa-minus" : version.showOnLegend, "fa-plus" : !version.showOnLegend}' [title]="(version.showOnLegend ? 'explorer.layerPanel.removeFromLegend' : 'explorer.layerPanel.addToLegend') | localize" (click)="clickToggleLayerShowOnLegend(version, list)"></a>
-			      <boolean-field *ngIf="version.showOnLegend" [value]="version.rendered" label="" [disable]="false" (change)="clickToggleLayerRendered(version, list)" style="line-height:0;"></boolean-field>
+			      <a class="fa" style="padding-right: 10px;" [ngClass]='{"fa-minus" : version.layer, "fa-plus" : !version.layer}' [title]="(version.layer ? 'explorer.layerPanel.removeFromLegend' : 'explorer.layerPanel.addToLegend') | localize" (click)="clickToggleLayerShowOnLegend(version, list)"></a>
+			      <boolean-field *ngIf="version.layer" [value]="version.layer.rendered" label="" [disable]="false" (change)="clickToggleLayerRendered(version.layer, list)" style="line-height:0;"></boolean-field>
 			  
 			      <div class="label-wrapper">
               		<date-text [date]="version.forDate"></date-text>
-			        <ng-container *ngIf="version.oid !== CONSTANTS.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
+			        <ng-container *ngIf="version.oid !== CONSTANTS.SEARCH_LAYER && version.versionNumber !== -1" [ngTemplateOutlet]="versionDetail"
 			          [ngTemplateOutletContext]="{layer:version}">
 			        </ng-container>
 			        <div *ngIf="version.color != null" class="layer-legend-square" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"
@@ -51,7 +51,7 @@
   	</div>
   </div>
 
-  <div *ngIf="panelSize === 1 && layers.length > 0">
+  <div *ngIf="panelSize !== 0 && layers.length > 0">
     <div style="margin-bottom: 10px;">
       <!--
       <h4>
@@ -70,15 +70,15 @@
               
               <div class="label-wrapper">
                 {{layer.label}}
-                <span *ngIf="layer.oid !== CONSTANTS.GRAPH_LAYER">- {{ layer.forDate }}</span>
-                <ng-container *ngIf="layer.oid !== CONSTANTS.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
+                <span *ngIf="layer.oid !== CONSTANTS.SEARCH_LAYER">- {{ layer.forDate }}</span>
+                <ng-container *ngIf="layer.oid !== CONSTANTS.SEARCH_LAYER && layer.versionNumber !== -1" [ngTemplateOutlet]="versionDetail"
                   [ngTemplateOutletContext]="{layer:layer}">
                 </ng-container>
                 <div class="layer-legend-square" [ngStyle]="{'background-color': layer.color}" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"> </div>
 <!--                 <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i> -->
 <!--                 <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i> -->
-                <i *ngIf="layer.oid !== CONSTANTS.GRAPH_LAYER" [title]="'explorer.layerPanel.zoomToFeature' | localize" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
-                <i *ngIf="layer.versionNumber === 0 && !layer.isAbstract" [title]="'explorer.layerPanel.addNewGeoObject' | localize" class="fa fa-plus" aria-hidden="true"
+                <i *ngIf="layer.versionNumber !== -1" [title]="'explorer.layerPanel.zoomToFeature' | localize" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
+                <i *ngIf="layer.versionNumber === 0 && !layerVersionMap[layer.oid].isAbstract" [title]="'explorer.layerPanel.addNewGeoObject' | localize" class="fa fa-plus" aria-hidden="true"
                   (click)="onCreate(layer)"></i>
               </div>
             </div>

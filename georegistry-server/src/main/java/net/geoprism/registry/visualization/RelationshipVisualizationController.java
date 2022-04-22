@@ -41,6 +41,14 @@ public class RelationshipVisualizationController
     return new RestBodyResponse(json);
   }
   
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "treeAsGeoJson")
+  public ResponseIF treeAsGeoJson(ClientRequestIF request, @RequestParamter(name = "relationshipType") String relationshipType, @RequestParamter(name = "graphTypeCode") String graphTypeCode, @RequestParamter(name = "geoObjectCode") String geoObjectCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "date") String sDate, @RequestParamter(name = "boundsWKT") String boundsWKT)
+  {
+    JsonElement json = new RelationshipVisualizationService().treeAsGeoJson(request.getSessionId(), GeoRegistryUtil.parseDate(sDate), relationshipType, graphTypeCode, geoObjectCode, geoObjectTypeCode, boundsWKT);
+
+    return new RestBodyResponse(json);
+  }
+  
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "relationships")
   public ResponseIF relationships(ClientRequestIF request, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode)
   {

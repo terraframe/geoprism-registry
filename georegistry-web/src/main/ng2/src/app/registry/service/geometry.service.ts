@@ -27,6 +27,8 @@ export class GeometryService {
 
     editingLayer: Layer;
 
+    layerGeometries: any = {};
+
     @Output() geometryChange = new EventEmitter<any>();
 
     // eslint-disable-next-line no-useless-constructor
@@ -54,6 +56,10 @@ export class GeometryService {
         });
     }
 
+    public setGeometryType(geometryType: string) {
+        this.geometryType = geometryType;
+    }
+
     destroy(destroyMap: boolean = true): void {
         if (this.editingControl != null) {
             this.map.removeControl(this.editingControl);
@@ -76,6 +82,18 @@ export class GeometryService {
 
         this.editingLayer = null;
         this.layers = [];
+    }
+
+    public getMap() {
+        return this.map;
+    }
+
+    public setLayerGeometry(oid: string, geometry: any) {
+        this.layerGeometries[oid] = geometry;
+    }
+
+    public getLayerGeometry(oid: string) {
+        return this.layerGeometries[oid];
     }
 
     startEditing(layer: Layer) {

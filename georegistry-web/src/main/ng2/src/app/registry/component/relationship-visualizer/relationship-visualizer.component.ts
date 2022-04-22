@@ -15,10 +15,17 @@ import { DagreNodesOnlyLayout } from "./relationship-viz-layout";
 import * as shape from "d3-shape";
 import { LocalizedValue } from "@shared/model/core";
 import { NgxSpinnerService } from "ngx-spinner";
-import { OverlayerIdentifier } from "@registry/model/constants";
+import { LayerColor, OverlayerIdentifier } from "@registry/model/constants";
 import * as ColorGen from "color-generator";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { LngLatBounds } from "mapbox-gl";
+import { GeometryService } from "@registry/service";
+import { Layer } from "../geoobject-shared-attribute-editor/manage-versions-model";
+import { Router } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
+import { Subscription } from "rxjs";
+import { Params } from "@angular/router";
+import { ContextLayer } from "@registry/model/list-type";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -91,7 +98,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     @Output() changeRelationship = new EventEmitter<string>();
 
-    private data: {edges: Edge[], verticies: Vertex[]} = null;
+    private data: { edges: Edge[], verticies: Vertex[], geoJson: any } = null;
 
     public DIMENSIONS = DIMENSIONS;
 
@@ -114,14 +121,24 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     public typeCache: GeoObjectTypeCache;
 
+    subscription: Subscription;
+
+    routeParams: Params = null;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService,
         private spinner: NgxSpinnerService,
         private vizService: RelationshipVisualizationService,
-        private cacheService: RegistryCacheService) { }
+        private cacheService: RegistryCacheService,
+        private geomService: GeometryService,
+        private router: Router,
+        private route: ActivatedRoute) { }
 
     ngOnInit(): void {
         this.typeCache = this.cacheService.getTypeCache();
+        this.subscription = this.route.queryParams.subscribe(params => {
+            this.routeParams = params;
+        });
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -223,6 +240,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
                     this.resizeDimensions();
                     this.calculateColorSchema();
+                    this.addLayers(this.data.geoJson);
                 }, 0);
 
                 this.resizeDimensions();
@@ -230,6 +248,60 @@ export class RelationshipVisualizerComponent implements OnInit {
                 this.spinner.hide(this.CONSTANTS.OVERLAY);
             });
         }
+    }
+
+    private addLayers(typeCollections: any) {
+      let layers: ContextLayer[] = this.routeParams.layers != null ? JSON.parse(this.routeParams.layers) : [];
+
+      // Remove any existing layer from map that is graph related that isn't part of this new data
+      layers = layers.filter(layer => !layer.oid.startsWith("GRAPH-") ||
+          (
+            layer.oid.split("-").length === 3 &&
+            Object.keys(typeCollections).indexOf(layer.oid.split("-")[1]) !== -1 &&
+            layer.oid.split("-")[2] === this.relationship.code
+          )
+      );
+
+      for (const [typeCode, featureCollection] of Object.entries(typeCollections)) {
+        let oid = "GRAPH-" + typeCode + "-" + this.relationship.code;
+
+        let existingIndex = layers.findIndex(layer => layer.oid === oid);
+
+        // Add layer to map if it doesn't exist
+        if (existingIndex === -1) {
+            let layer: ContextLayer = new ContextLayer();
+            layer.oid = oid;
+            layer.forDate = this.params.date;
+            layer.versionNumber = -1;
+            layer.rendered = true;
+            layer.showOnLegend = true;
+            layer.color = this.colorSchema[typeCode];
+            layer.label = this.relationship.label.localizedValue + " " + typeCode;
+
+            layers.push(layer);
+        }
+
+        this.geomService.setLayerGeometry(oid, featureCollection);
+
+        let data3 = featureCollection;
+        setTimeout(() => {
+            let map = this.geomService.getMap();
+
+            if (map) {
+                let source = map.getSource(oid);
+
+                if (source) {
+                    (<any> source).setData(data3);
+                }
+            }
+        }, 50);
+      }
+
+      this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: { layers: JSON.stringify(layers) },
+          queryParamsHandling: "merge" // remove to replace all query params by provided
+      });
     }
 
     private convertBoundsToWKT(bounds: LngLatBounds): string {
@@ -250,13 +322,24 @@ export class RelationshipVisualizerComponent implements OnInit {
     calculateColorSchema() {
         this.colorSchema = {};
 
+        // If we already have layers which are using specific colors then we want to use those same colors
+        const layers = this.routeParams.layers != null ? JSON.parse(this.routeParams.layers) : [];
+
         this.data.verticies.forEach(vertex => {
-            if (vertex.id.substring(2) !== this.geoObject.properties.uid && !this.colorSchema[vertex.typeCode]) {
-                this.colorSchema[vertex.typeCode] = ColorGen().hexString();
+            if (!this.colorSchema[vertex.typeCode]) { // vertex.id.substring(2) !== this.geoObject.properties.uid &&
+                let existingIndex = layers.findIndex(layer => layer.oid === "GRAPH-" + vertex.typeCode + "-" + this.relationship.code);
+
+                if (existingIndex !== -1) {
+                    this.colorSchema[vertex.typeCode] = layers[existingIndex].color;
+                } else {
+                    this.colorSchema[vertex.typeCode] = ColorGen().hexString();
+                }
             }
         });
 
-        this.colorSchema[this.geoObject.properties.type] = SELECTED_NODE_COLOR;
+        if (!this.colorSchema[this.geoObject.properties.type]) {
+            this.colorSchema[this.geoObject.properties.type] = SELECTED_NODE_COLOR;
+        }
     }
 
     collapseAnimation(id: string): Promise<void> {

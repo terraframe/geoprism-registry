@@ -1,7 +1,7 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, OnDestroy } from "@angular/core";
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 
-import { ContextLayer, ContextList, ListOrgGroup } from "@registry/model/list-type";
+import { ContextLayer, ContextList, ListOrgGroup, ListVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { LocalizationService } from "@shared/service";
 import * as ColorGen from "color-generator";
@@ -12,7 +12,7 @@ import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
 import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
 
-export const GRAPH_LAYER = "graph";
+export const SEARCH_LAYER = "search";
 
 export interface LayerEvent {
 
@@ -35,7 +35,7 @@ export interface BaseLayer {
     templateUrl: "./layer-panel.component.html",
     styleUrls: ["./location-manager.css", "./layer-panel.css"]
 })
-export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
+export class LayerPanelComponent implements OnInit, OnDestroy {
 
     draggable = {
         // note that data is handled with JSON.stringify/JSON.parse
@@ -48,22 +48,22 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 
     // Hack to allow the constant to be used in the html
     CONSTANTS = {
-        GRAPH_LAYER: GRAPH_LAYER,
+        SEARCH_LAYER: SEARCH_LAYER,
         OVERLAY: OverlayerIdentifier.LAYER_PANEL
     }
 
     @Input() filter: string[] = [];
-    @Input() includeGraphLayer: boolean = false;
+    @Input() includeSearchLayer: boolean = false;
     @Input() visualizeMode: number;
 
-    @Output() layerChange = new EventEmitter<LayerEvent>();
     @Output() baseLayerChange = new EventEmitter<BaseLayer>();
-    @Output() reorder = new EventEmitter<ContextLayer[]>();
     @Output() zoomTo = new EventEmitter<ContextLayer>();
     @Output() create = new EventEmitter<ContextLayer>();
 
     @Input() panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
     @Output() panelSizeChange = new EventEmitter<number>();
+
+    layerVersionMap = {};
 
     listOrgGroups: ListOrgGroup[] = [];
     // lists: ContextList[] = [];
@@ -123,31 +123,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         this.subscription.unsubscribe();
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes.includeGraphLayer != null) {
-            if (changes.includeGraphLayer.currentValue) {
-                let graphLayer = {
-                    oid: GRAPH_LAYER,
-                    forDate: this.form.endDate,
-                    versionNumber: -1
-                };
-
-                this.graphList = {
-                    oid: GRAPH_LAYER,
-                    label: this.lService.decode("explorer.search.layer"),
-                    versions: [graphLayer],
-                    open: undefined
-                };
-
-                this.toggleLayerShowOnLegend(graphLayer, this.graphList);
-            } else {
-                if (this.graphList != null) {
-                    this.toggleLayerShowOnLegend(this.graphList.versions[0], this.graphList);
-                }
-            }
-        }
-    }
-
     setPanelSize(size: number) {
         this.panelSize = size;
 
@@ -192,10 +167,11 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
             isSearchRequired = true;
         }
 
-        const layers = this.params.layers != null ? JSON.parse(this.params.layers) : [];
+        const layers: ContextLayer[] = this.params.layers != null ? JSON.parse(this.params.layers) : [];
+        this.layers = layers;
 
         layers.forEach(layer => {
-            if (layer !== GRAPH_LAYER && this.findVersionById(layer) == null) {
+            if (layer.oid !== SEARCH_LAYER && !layer.oid.startsWith("GRAPH-") && this.findVersionById(layer.oid) == null) {
                 isSearchRequired = true;
             }
         });
@@ -206,67 +182,27 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
             // into the data model.
             // OR the search dates have been updated, so a new search must be performed.
 
-            this.handleSearch().then(lists => {
-                layers.reverse().forEach(oid => {
-                    this.toggleLayersWithCondition(layer => layer.oid === oid);
-                });
-            });
-        } else {
-            // Determine if an existing version in the data model needs to be toggled on based on the state
-            // of the URL 'layers' parameters
-            layers.forEach(layer => {
-                const index = this.layers.findIndex(l => l.oid === layer);
-
-                if (index === -1) {
-                    this.toggleLayersWithCondition(l => l.oid === layer);
-                }
-            });
-
-            // Determine if any existing layers which need to be toggled off based on the state of the URL ''
-            this.layers.filter(l => l.oid !== GRAPH_LAYER && layers.indexOf(l.oid) === -1).forEach(layer => {
-                this.toggleLayersWithCondition(l => l.oid === layer.oid);
-            });
+            this.handleSearch();
         }
 
-        // Determine if the order of the layers has changed
-        if (this.params.layers != null) {
-            let isEqual = true;
-            for (let i = 0; i < this.layers.length; i++) {
-                if (this.layers[i].oid !== layers[i]) {
-                    isEqual = false;
-                }
-            }
-
-            if (!isEqual) {
-                const indecies = {};
-                for (let i = 0; i < layers.length; i++) {
-                    indecies[layers[i]] = i;
-                }
-
-                this.layers = this.layers.sort((a, b) => {
-                    return indecies[a.oid] - indecies[b.oid];
-                });
-
-                this.reorder.emit(this.layers);
-            }
-        }
+        this.refreshListLayerReferences();
     }
 
     onConfirm(): void {
         if (this.params.startDate == null && this.params.endDate == null && this.params.layers == null && this.form.startDate === null && this.form.endDate === null) {
-            // A new search should null out any currently select layers and any record which has been clicked on
+            // A new search should null out any record which has been clicked on
             this.router.navigate([], {
                 relativeTo: this.route,
-                queryParams: { layers: null, version: null },
+                queryParams: { version: null },
                 queryParamsHandling: "merge"
             });
 
             this.handleSearch();
         } else {
-            // A new search should null out any currently select layers and any record which has been clicked on
+            // A new search should null out any record which has been clicked on
             this.router.navigate([], {
                 relativeTo: this.route,
-                queryParams: { startDate: this.form.startDate, endDate: this.form.endDate, layers: null, version: null },
+                queryParams: { startDate: this.form.startDate, endDate: this.form.endDate, version: null },
                 queryParamsHandling: "merge"
             });
         }
@@ -276,25 +212,39 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         this.spinner.show(this.CONSTANTS.OVERLAY);
 
         return this.service.getGeospatialVersions(this.form.startDate, this.form.endDate).then(listOrgGroups => {
-            // Remove all current lists
-            this.toggleLayersWithCondition(layer => layer.showOnLegend && layer.oid !== GRAPH_LAYER);
-
             this.form.currentStartDate = this.form.startDate;
             this.form.currentEndDate = this.form.endDate;
 
             this.listOrgGroups = listOrgGroups;
 
-            this.listOrgGroups.forEach(listOrgGroup => {
-                listOrgGroup.types.forEach(listTypeGroup => {
-                    listTypeGroup.lists.forEach(list => {
-                        list.versions = list.versions.filter(v => this.filter.indexOf(v.oid) === -1);
-                    });
-                });
-            });
+            this.refreshListLayerReferences();
 
             return listOrgGroups;
         }).finally(() => {
             this.spinner.hide(this.CONSTANTS.OVERLAY);
+        });
+    }
+
+    private refreshListLayerReferences() {
+        this.layerVersionMap = {};
+
+        this.listOrgGroups.forEach(listOrgGroup => {
+            listOrgGroup.types.forEach(listTypeGroup => {
+                listTypeGroup.lists.forEach(list => {
+                    list.versions = list.versions.filter(v => this.filter.indexOf(v.oid) === -1);
+
+                    for (let i = 0; i < list.versions.length; ++i) {
+                        let version = list.versions[i];
+
+                        let layerIndex = this.layers.findIndex(l => l.oid === version.oid);
+                        if (layerIndex !== -1) {
+                            let layer = this.layers[layerIndex];
+                            version.layer = layer;
+                            this.layerVersionMap[layer.oid] = layer;
+                        }
+                    }
+                });
+            });
         });
     }
 
@@ -316,18 +266,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         return response;
     }
 
-    toggleLayersWithCondition(condition: (layer: ContextLayer) => boolean) {
-        this.listOrgGroups.forEach(listOrgGroup => {
-            listOrgGroup.types.forEach(listTypeGroup => {
-                listTypeGroup.lists.forEach(list => {
-                    list.versions.filter(condition).forEach(v => {
-                        this.toggleLayerShowOnLegend(v, list);
-                    });
-                });
-            });
-        });
-    }
-
     clickToggleLayerRendered(layer: ContextLayer, list: ContextList) {
         this.toggleLayerRendered(layer);
     }
@@ -335,78 +273,31 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     clickToggleLayerShowOnLegend(layer: ContextLayer, list: ContextList): void {
         const index = this.layers.findIndex(l => l.oid === layer.oid);
 
-        let layers = this.layers.filter(l => l.oid !== GRAPH_LAYER).map(l => l.oid);
-
         if (index === -1) {
-            layers.unshift(layer.oid);
+            layer.rendered = true;
+            layer.showOnLegend = true;
+            layer.label = list.label;
+            layer.color = ColorGen().hexString();
+            this.layers.push(layer);
         } else {
-            layers = layers.filter(l => l !== layer.oid);
+            this.layers = this.layers.filter(l => l.oid !== layer.oid);
         }
 
         this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: { layers: JSON.stringify(layers) },
+            queryParams: { layers: JSON.stringify(this.layers) },
             queryParamsHandling: "merge" // remove to replace all query params by provided
         });
-    }
-
-    toggleLayerShowOnLegend(layer: ContextLayer, list: ContextList): void {
-        layer.showOnLegend = !layer.showOnLegend;
-        layer.rendered = layer.showOnLegend;
-
-        if (layer.rendered && layer.color == null) {
-            layer.color = ColorGen().hexString();
-            layer.label = list.label;
-        }
-
-        let index: number = 0;
-
-        if (layer.showOnLegend) {
-            if (layer.oid === GRAPH_LAYER && this.params && this.params.layers != null) {
-                const i = JSON.parse(this.params.layers).indexOf(GRAPH_LAYER);
-
-                if (i !== -1) {
-                    index = i;
-                }
-            }
-
-            this.layers.splice(index, 0, layer);
-
-            list.open = true;
-        } else {
-            const index = this.layers.findIndex(l => l.oid === layer.oid);
-
-            if (index !== -1) {
-                this.layers.splice(index, 1);
-            }
-        }
-
-        this.layerChange.emit({ layer: layer });
-
-        if (index !== 0) {
-            this.reorder.emit(this.layers);
-        }
     }
 
     toggleLayerRendered(layer: ContextLayer): void {
         layer.rendered = !layer.rendered;
 
-        const event: LayerEvent = {
-            layer: layer
-        };
-
-        if (layer.rendered) {
-            const index = this.layers.findIndex(l => l.oid === layer.oid);
-
-            // Find the first rendered layer
-            for (let i = (index - 1); i >= 0; i--) {
-                if (event.prevLayer == null && this.layers[i].rendered) {
-                    event.prevLayer = this.layers[i];
-                }
-            }
-        }
-
-        this.layerChange.emit(event);
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { layers: JSON.stringify(this.layers) },
+            queryParamsHandling: "merge" // remove to replace all query params by provided
+        });
     }
 
     onGotoBounds(layer: ContextLayer): void {
@@ -446,12 +337,10 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    moveLayer(oldLayers: ContextLayer[]): void {
-        let layers = oldLayers.map(l => l.oid);
-
+    moveLayer(newLayers: ContextLayer[]): void {
         this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: { layers: JSON.stringify(layers) },
+            queryParams: { layers: JSON.stringify(newLayers) },
             queryParamsHandling: "merge" // remove to replace all query params by provided
         });
     }

@@ -6,6 +6,7 @@ import { Map, LngLatBoundsLike, NavigationControl, AttributionControl, IControl,
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import bbox from "@turf/bbox";
+import * as ColorGen from "color-generator";
 
 import { GeoObject, GeoObjectType, GeoObjectTypeCache } from "@registry/model/registry";
 import { ModalState, PANEL_SIZE_STATE } from "@registry/model/location-manager";
@@ -16,7 +17,7 @@ import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@sha
 
 import { AuthService, LocalizationService } from "@shared/service";
 import { ContextLayer } from "@registry/model/list-type";
-import { GRAPH_LAYER, LayerEvent } from "./layer-panel.component";
+import { SEARCH_LAYER, LayerEvent } from "./layer-panel.component";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { timeout } from "d3-timer";
 import { Observable, Subscription } from "rxjs";
@@ -270,6 +271,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.map = new Map(mapConfig);
 
         this.map.on("load", () => {
+            this.geomService.initialize(this.map, null, false);
             this.ready = true;
 
             this.initMap();
@@ -317,6 +319,27 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             let showPanel = this.showPanel;
 
             if (this.params != null) {
+                if (this.params.layers != null) {
+                    let paramLayers: ContextLayer[] = JSON.parse(this.params.layers);
+
+                    if (this.ready) {
+                        // Remove all existing layers
+                        let len = this.layers.length;
+                        for (let i = 0; i < len; ++i) {
+                            this.removeLayer(this.layers[0]);
+                        }
+
+                        // Add layers from the params 1 by 1
+                        let prevLayer = null;
+                        paramLayers.forEach(paramLayer => {
+                            if (paramLayer.rendered) {
+                                this.addLayer(paramLayer, prevLayer);
+                                prevLayer = paramLayer;
+                            }
+                        });
+                    }
+                }
+
                 // Handle parameters for searching for a geo object
                 if (this.params.text != null) {
                     if (this.params.text !== this.state.currentText || this.params.date !== this.state.currentDate) {
@@ -454,12 +477,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         if (this.current != null && this.current.geoObject != null) {
             this.zoomToFeature(this.current.geoObject, null);
-        } else if (this.layers.length > 0 && this.layers[0].oid !== GRAPH_LAYER) {
+        } else if (this.layers.length > 0 && this.layers[0].oid !== SEARCH_LAYER) {
             this.onZoomTo(this.layers[0].oid);
         }
     }
 
     onZoomTo(oid: string): void {
+        if (oid.startsWith("GRAPH-")) {
+            console.log("TODO: Zooming on a graph layer?");
+            return;
+        }
+
         this.listService.getBounds(oid).then(bounds => {
             if (bounds && Array.isArray(bounds)) {
                 let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
@@ -534,7 +562,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             if (feature.properties.uid != null) {
                 this.closeEditSessionSafeguard().then(() => {
-                    if (feature.source === GRAPH_LAYER) {
+                    if (feature.source === SEARCH_LAYER) {
                         if ((this.current == null || this.current.geoObject == null || this.current.geoObject.properties.uid !== feature.properties.uid)) {
                             this.select(feature, null);
                         }
@@ -661,15 +689,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.state.currentText = text;
             this.state.currentDate = date;
 
+            this.setData(data.features);
+
             if (this.data.length > 0) {
-                let source = (<any> this.map.getSource(GRAPH_LAYER));
+                let source = (<any> this.map.getSource(SEARCH_LAYER));
 
                 if (source != null) {
                     source.setData(data);
                 }
             }
-
-            this.setData(data.features);
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -735,7 +763,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             };
             if (this.layers.findIndex(lFind => this.feature.source === lFind.oid) !== -1) {
                 this.map.setFeatureState(this.feature, {
-                    hover: true
+                    selected: true
                 });
             }
 
@@ -833,12 +861,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
 
         // Highlight the feature on the map
-        if (this.feature && code !== "__NEW__" && this.map.getSource(GRAPH_LAYER) != null) {
+        if (this.feature && code !== "__NEW__" && this.map.getSource(SEARCH_LAYER) != null) {
             this.map.setFeatureState(this.feature = {
-                source: GRAPH_LAYER,
+                source: SEARCH_LAYER,
                 id: uid
             }, {
-                hover: true
+                selected: true
             });
         }
 
@@ -853,7 +881,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             };
 
             this.geomService.destroy(false);
-            this.geomService.initialize(this.map, this.current.type.geometryType, false);
+            this.geomService.setGeometryType(this.current.type.geometryType);
 
             if (geoObject == null) {
                 if (code !== "__NEW__") {
@@ -878,6 +906,25 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     setData(data: GeoObject[]): void {
         this.data = data;
+
+        if (this.data && this.layers.findIndex(layer => layer.oid === SEARCH_LAYER) === -1) {
+            let layers = JSON.parse(JSON.stringify(this.layers));
+
+            layers.push({
+                oid: SEARCH_LAYER,
+                label: this.lService.decode("explorer.search.layer"),
+                color: ColorGen().hexString(),
+                rendered: true,
+                forDate: this.state.date,
+                versionNumber: -1
+            });
+
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { layers: JSON.stringify(layers) },
+                queryParamsHandling: "merge" // remove to replace all query params by provided
+            });
+        }
     }
 
     onLayerChange(event: LayerEvent): void {
@@ -900,10 +947,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         for (let i = layers.length - 1; i > -1; i--) {
             const layer = layers[i];
 
-            this.map.moveLayer(layer.oid + "-polygon");
-            this.map.moveLayer(layer.oid + "-points");
-            this.map.moveLayer(layer.oid + "-line");
-            this.map.moveLayer(layer.oid + "-label");
+            this.map.moveLayer(layer.oid + "-POLYGON");
+            this.map.moveLayer(layer.oid + "-POINT");
+            this.map.moveLayer(layer.oid + "-LINE");
+            this.map.moveLayer(layer.oid + "-LABEL");
         }
     }
 
@@ -913,34 +960,96 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (index !== -1) {
             const source = layer.oid;
 
-            this.map.removeLayer(source + "-polygon");
-            this.map.removeLayer(source + "-points");
-            this.map.removeLayer(source + "-line");
-            this.map.removeLayer(source + "-label");
+            this.map.removeLayer(source + "-POLYGON");
+            this.map.removeLayer(source + "-POINT");
+            this.map.removeLayer(source + "-LINE");
+            this.map.removeLayer(source + "-LABEL");
             this.map.removeSource(source);
 
             this.layers.splice(index, 1);
         }
     }
-
+/*
     addLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
-        if (layer.oid === GRAPH_LAYER) {
-            if (this.ready) {
-                const source = layer.oid;
-                const prevLayer = otherLayer != null ? otherLayer.oid + "-polygon" : null;
+        let zIndex = this.layers.findIndex(lFind => layer.oid === lFind.oid);
+        if (zIndex === -1) {
+            zIndex = this.layers.length;
+            this.layers.push(layer);
+        }
 
-                this.map.addSource(source, {
-                    type: "geojson",
-                    data: {
+        if (this.ready) {
+            if (layer.oid === SEARCH_LAYER || layer.oid.startsWith("GRAPH-")) {
+                this.geomService.addLayer({
+                    oid: layer.oid,
+                    isRendering: true,
+                    color: layer.color,
+                    selectedColor: SELECTED_COLOR,
+                    zindex: zIndex,
+                    sourceData: {
                         type: "FeatureCollection",
                         features: this.data as any
                     },
+                    label: {}
+                }, otherLayer == null ? null : otherLayer.oid);
+            } else {
+                let protocol = window.location.protocol;
+                let host = window.location.host;
+
+                this.geomService.addLayer({
+                    oid: layer.oid,
+                    isRendering: true,
+                    color: layer.color,
+                    selectedColor: SELECTED_COLOR,
+                    zindex: zIndex,
+                    label: {},
+                    source: {
+                        type: "vector",
+                        tiles: [protocol + "//" + host + registry.contextPath + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: layer.oid }))],
+                        promoteId: "uid"
+                    }
+                }, otherLayer == null ? null : otherLayer.oid);
+            }
+
+            // Highlight
+            if (this.feature && this.feature.source === layer.oid) {
+                this.map.setFeatureState(this.feature, {
+                    selected: true
+                });
+            }
+        }
+    }
+*/
+
+    addLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
+        if (layer.oid === SEARCH_LAYER || layer.oid.startsWith("GRAPH-")) {
+            if (this.ready) {
+                let data: any = {
+                    type: "FeatureCollection",
+                    features: this.data as any
+                };
+                if (layer.oid.startsWith("GRAPH-")) {
+                    data = this.geomService.getLayerGeometry(layer.oid);
+
+                    if (!data) {
+                        data = {
+                            type: "FeatureCollection",
+                            features: []
+                        };
+                    }
+                }
+
+                const source = layer.oid;
+                const prevLayer = otherLayer != null ? otherLayer.oid + "-POLYGON" : null;
+
+                this.map.addSource(source, {
+                    type: "geojson",
+                    data: data,
                     promoteId: "uid"
                 });
 
                 // Polygon layer
                 this.map.addLayer({
-                    id: source + "-polygon",
+                    id: source + "-POLYGON",
                     type: "fill",
                     source: source,
                     layout: {},
@@ -961,7 +1070,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 // Line layer
                 this.map.addLayer({
-                    id: source + "-line",
+                    id: source + "-LINE",
                     type: "line",
                     source: source,
                     paint: {
@@ -980,7 +1089,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 // Point layer
                 this.map.addLayer({
-                    id: source + "-points",
+                    id: source + "-POINT",
                     type: "circle",
                     source: source,
                     paint: {
@@ -1001,7 +1110,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 // Label layer
                 this.map.addLayer({
-                    id: source + "-label",
+                    id: source + "-LABEL",
                     source: source,
                     type: "symbol",
                     paint: {
@@ -1030,7 +1139,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     addVectorLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
         if (this.ready) {
             const source = layer.oid;
-            const prevLayer = otherLayer != null ? otherLayer.oid + "-polygon" : null;
+            const prevLayer = otherLayer != null ? otherLayer.oid + "-POLYGON" : null;
 
             let protocol = window.location.protocol;
             let host = window.location.host;
@@ -1043,7 +1152,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             // Polygon layer
             this.map.addLayer({
-                id: source + "-polygon",
+                id: source + "-POLYGON",
                 type: "fill",
                 source: source,
                 "source-layer": "context",
@@ -1065,7 +1174,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             // Line layer
             this.map.addLayer({
-                id: source + "-line",
+                id: source + "-LINE",
                 type: "line",
                 source: source,
                 "source-layer": "context",
@@ -1085,7 +1194,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             // Point layer
             this.map.addLayer({
-                id: source + "-points",
+                id: source + "-POINT",
                 type: "circle",
                 source: source,
                 "source-layer": "context",
@@ -1107,7 +1216,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             // Label layer
             this.map.addLayer({
-                id: source + "-label",
+                id: source + "-LABEL",
                 source: source,
                 "source-layer": "context",
                 type: "symbol",
@@ -1132,7 +1241,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             // Highlight
             if (this.feature && this.feature.source === source) {
                 this.map.setFeatureState(this.feature, {
-                    hover: true
+                    selected: true
                 });
             }
         }

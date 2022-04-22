@@ -19,8 +19,16 @@
 package net.geoprism.registry.visualization;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.CustomSerializer;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -43,6 +51,82 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public class RelationshipVisualizationService
 {
+  public static final int maxResults = 100;
+  
+  @Request(RequestType.SESSION)
+  public JsonElement treeAsGeoJson(String sessionId, Date date, String relationshipType, String graphTypeCode, String geoObjectCode, String geoObjectTypeCode, String boundsWKT)
+  {
+    final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
+    final ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
+    final CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
+    
+    
+    // 1. Build a list of all children (or parents... or both)
+    List<GeoObject> geoObjects = new LinkedList<GeoObject>();
+    
+    if (typePermissions.canRead(type.getOrganization().getCode(), type, type.getIsPrivate()))
+    {
+      VertexServerGeoObject rootGo = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(geoObjectCode, type);
+
+      final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
+      
+      geoObjects.add(rootGo.toGeoObject(date));
+
+      if (graphType instanceof UndirectedGraphType)
+      {
+        // get parent and get children return the same thing for an undirected graph
+        geoObjects.add(rootGo.toGeoObject(date));
+        geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults));
+      }
+      else if(graphType instanceof DirectedAcyclicGraphType)
+      {
+        geoObjects.add(rootGo.toGeoObject(date));
+        geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults/2));
+        geoObjects.addAll(getParents(rootGo.getGraphParents(graphType, false, date, boundsWKT), date, maxResults/2));
+      }
+      else
+      {
+        geoObjects.add(rootGo.toGeoObject(date));
+        geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults/2));
+        geoObjects.addAll(getParents(rootGo.getGraphParents(graphType, false, date, boundsWKT), date, maxResults/2));
+      }
+    }
+    
+    
+    // 2. Group them by type and serialize
+    Map<String, JsonArray> typeSortedObjects = new HashMap<String, JsonArray>();
+    
+    for (GeoObject object : geoObjects)
+    {
+      String typeCode = object.getType().getCode();
+      
+      if (!typeSortedObjects.containsKey(typeCode))
+      {
+        typeSortedObjects.put(typeCode, new JsonArray());
+      }
+      
+      JsonArray array = typeSortedObjects.get(typeCode);
+      
+      array.add(object.toJSON(serializer));
+    }
+    
+    
+    // 3. Wrap them in a feature collection
+    JsonObject view = new JsonObject();
+    
+    for (Entry<String, JsonArray> entry : typeSortedObjects.entrySet())
+    {
+      JsonObject featureCollection = new JsonObject();
+      featureCollection.addProperty("type", "FeatureCollection");
+      
+      featureCollection.add("features", entry.getValue());
+      
+      view.add(entry.getKey(), featureCollection);
+    }
+    
+    return view;
+  }
+  
   @Request(RequestType.SESSION)
   public JsonElement tree(String sessionId, Date date, String relationshipType, String graphTypeCode, String geoObjectCode, String geoObjectTypeCode, String boundsWKT)
   {
@@ -92,8 +176,46 @@ public class RelationshipVisualizationService
         fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, boundsWKT);
       }
     }
+    
+    view.add("geoJson", this.treeAsGeoJson(sessionId, date, relationshipType, graphTypeCode, geoObjectCode, geoObjectTypeCode, boundsWKT));
 
     return view;
+  }
+  
+  public List<GeoObject> getChildren(ServerChildGraphNode node, Date date, int maxResults)
+  {
+    List<GeoObject> geoObjects = new LinkedList<GeoObject>();
+    
+    List<ServerChildGraphNode> children = node.getChildren();
+    
+    int endIndex = (children.size() > maxResults) ? maxResults : children.size();
+    
+    for (int i = 0; i < endIndex; ++i)
+    {
+      ServerChildGraphNode child = children.get(i);
+      
+      geoObjects.add(child.getGeoObject().toGeoObject(date));
+    }
+    
+    return geoObjects;
+  }
+  
+  public List<GeoObject> getParents(ServerParentGraphNode node, Date date, int maxResults)
+  {
+    List<GeoObject> geoObjects = new LinkedList<GeoObject>();
+    
+    List<ServerParentGraphNode> parents = node.getParents();
+    
+    int endIndex = (parents.size() > maxResults) ? maxResults : parents.size();
+    
+    for (int i = 0; i < endIndex; ++i)
+    {
+      ServerParentGraphNode parent = parents.get(i);
+      
+      geoObjects.add(parent.getGeoObject().toGeoObject(date));
+    }
+    
+    return geoObjects;
   }
 
   @Request(RequestType.SESSION)

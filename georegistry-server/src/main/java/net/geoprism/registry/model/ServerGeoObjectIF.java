@@ -152,11 +152,11 @@ public interface ServerGeoObjectIF
   // GRAPH ENDPOINTS
   public void removeGraphChild(ServerGeoObjectIF child, GraphType type, Date startDate, Date endDate);
 
-  public <T extends ServerGraphNode> T addGraphChild(ServerGeoObjectIF child, GraphType type, Date startDate, Date endDate, boolean validate);
+  public <T extends ServerChildGraphNode> T addGraphChild(ServerGeoObjectIF child, GraphType type, Date startDate, Date endDate, boolean validate);
 
-  public <T extends ServerGraphNode> T addGraphParent(ServerGeoObjectIF parent, GraphType type, Date startDate, Date endDate, boolean validate);
+  public <T extends ServerParentGraphNode> T addGraphParent(ServerGeoObjectIF parent, GraphType type, Date startDate, Date endDate, boolean validate);
 
-  public <T extends ServerGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date);
+  public <T extends ServerChildGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date);
 
-  public <T extends ServerGraphNode> T getGraphParents(GraphType type, Boolean recursive, Date date);
+  public <T extends ServerParentGraphNode> T getGraphParents(GraphType type, Boolean recursive, Date date);
 }

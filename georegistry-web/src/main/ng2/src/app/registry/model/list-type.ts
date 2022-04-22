@@ -184,11 +184,20 @@ export class ContextLayer {
 
 }
 
+export class ListVersion {
+
+    oid: string;
+    forDate: string;
+    versionNumber: number;
+    layer: ContextLayer;
+
+}
+
 export class ContextList {
 
     oid: string;
     label: string;
-    versions: ContextLayer[];
+    versions: ListVersion[];
     open?: boolean;
 
 }

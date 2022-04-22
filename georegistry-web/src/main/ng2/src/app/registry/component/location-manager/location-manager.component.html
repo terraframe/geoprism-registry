@@ -135,9 +135,8 @@
 				<article id="navigator-layer-panel" class="base-layer-panel"
 					[ngClass]="{'second-map-button' : searchEnabled && !showPanel}"
 					[ngStyle]="{'max-width': layersPanelSize === 2 ? '50%' : 'unset', 'padding-left': layersPanelSize === 2 ? '10px' : 'unset'}">
-					<layer-panel (layerChange)="onLayerChange($event)" (reorder)="onReorderLayers($event)"
-						(zoomTo)="onZoomTo($event.oid)" (create)="onCreate($event)" [panelSize]="layersPanelSize"
-						[includeGraphLayer]="data != null && data.length > 0"> </layer-panel>
+					<layer-panel
+						(zoomTo)="onZoomTo($event.oid)" (create)="onCreate($event)" [panelSize]="layersPanelSize"> </layer-panel>
 				</article>
 
 				<div id="map" class="map-view-port"></div>
