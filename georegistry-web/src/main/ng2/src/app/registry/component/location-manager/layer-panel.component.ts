@@ -270,17 +270,18 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         this.toggleLayerRendered(layer);
     }
 
-    clickToggleLayerShowOnLegend(layer: ContextLayer, list: ContextList): void {
-        const index = this.layers.findIndex(l => l.oid === layer.oid);
-
-        if (index === -1) {
-            layer.rendered = true;
-            layer.showOnLegend = true;
-            layer.label = list.label;
-            layer.color = ColorGen().hexString();
-            this.layers.push(layer);
+    toggleVersionLayer(version: ListVersion, list: ContextList): void {
+        if (!version.layer) {
+            version.layer = new ContextLayer();
+            version.layer.oid = version.oid;
+            version.layer.rendered = true;
+            version.layer.showOnLegend = true;
+            version.layer.label = list.label;
+            version.layer.color = ColorGen().hexString();
+            this.layers.push(version.layer);
         } else {
-            this.layers = this.layers.filter(l => l.oid !== layer.oid);
+            this.layers = this.layers.filter(l => l.oid !== version.layer.oid);
+            delete version.layer;
         }
 
         this.router.navigate([], {

@@ -18,7 +18,7 @@
     <div *ngIf="list.open" class="list-group">
       <div *ngFor="let version of list.versions">
         <div class="layer-toggle-wrapper">
-			      <a class="fa" style="padding-right: 10px;" [ngClass]='{"fa-minus" : version.layer, "fa-plus" : !version.layer}' [title]="(version.layer ? 'explorer.layerPanel.removeFromLegend' : 'explorer.layerPanel.addToLegend') | localize" (click)="clickToggleLayerShowOnLegend(version, list)"></a>
+			      <a class="fa" style="padding-right: 10px;" [ngClass]='{"fa-minus" : version.layer, "fa-plus" : !version.layer}' [title]="(version.layer ? 'explorer.layerPanel.removeFromLegend' : 'explorer.layerPanel.addToLegend') | localize" (click)="toggleVersionLayer(version, list)"></a>
 			      <boolean-field *ngIf="version.layer" [value]="version.layer.rendered" label="" [disable]="false" (change)="clickToggleLayerRendered(version.layer, list)" style="line-height:0;"></boolean-field>
 			  
 			      <div class="label-wrapper">
@@ -131,11 +131,13 @@
             </button>
           </div>
         </div>
+        <!--
         <div *ngIf="listOrgGroups.length > 0" class="row">
           <div class="col-md-12">
             <p style="font-style:italic;color:grey;"><localize key="explorer.search.note"></localize></p>
           </div>
         </div>
+        -->
 
         <div class="row">
           <div class="col-md-12">
