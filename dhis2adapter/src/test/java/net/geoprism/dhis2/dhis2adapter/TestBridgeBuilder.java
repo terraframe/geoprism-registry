@@ -36,6 +36,18 @@ public class TestBridgeBuilder
     }
   }
   
+  public static String getVersionResponseSnapshot(Integer version)
+  {
+    try
+    {
+      return IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/default/system-info-snapshot.json"), "UTF-8");
+    }
+    catch (IOException t)
+    {
+      throw new RuntimeException(t);
+    }
+  }
+  
   public static DHIS2Bridge buildDefault(String response, Integer version, int statusCode)
   {
     return new DHIS2Bridge(new TestSingleResponseConnector(response, getVersionResponse(version), statusCode), version);

@@ -319,7 +319,7 @@ public class SearchService
     if (text != null)
     {
       String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
-      String escapedText = text.replaceAll(regex, "\\\\\\\\$1");
+      String escapedText = text.replaceAll(regex, "\\\\\\\\$1").trim();
       
       statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", \"+" + label.getColumnName() + ":" + escapedText + "*\") = true");
       statement.append(" OR :code = " + code.getColumnName() + ")");
