@@ -312,8 +312,19 @@ public class SearchService
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT EXPAND(out('" + mdEdge.getDBClassName() + "'))");
     statement.append(" FROM " + mdVertex.getDBClassName());
-    statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", \"+" + label.getColumnName() + ":" + text + "*\") = true");
-    statement.append(" OR :code = " + code.getColumnName() + ")");
+
+    if (text != null)
+    {
+      String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
+      String escapedText = text.replaceAll(regex, "\\\\\\\\$1").trim();
+      
+      statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", \"+" + label.getColumnName() + ":" + escapedText + "*\") = true");
+      statement.append(" OR :code = " + code.getColumnName() + ")");
+    }
+    else
+    {
+      statement.append(" WHERE " + code.getColumnName() + " IS NOT NULL");
+    }
 
     if (date != null)
     {
@@ -334,7 +345,11 @@ public class SearchService
 
     List<ServerGeoObjectIF> list = new LinkedList<ServerGeoObjectIF>();
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
-    query.setParameter("code", text);
+
+    if (text != null)
+    {
+      query.setParameter("code", text);
+    }
 
     if (date != null)
     {
