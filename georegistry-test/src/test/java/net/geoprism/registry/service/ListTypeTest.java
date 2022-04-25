@@ -42,7 +42,11 @@ import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.scheduler.AllJobStatus;
+import com.runwaysdk.system.scheduler.JobHistory;
+import com.runwaysdk.system.scheduler.JobHistoryQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -58,9 +62,11 @@ import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SingleListType;
 import net.geoprism.registry.classification.ClassificationTypeTest;
+import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
@@ -300,6 +306,8 @@ public class ListTypeTest
     JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
 
     String oid = result.get(ComponentInfo.OID).getAsString();
+    
+    this.waitUntilPublished(oid);
 
     service.remove(testData.clientRequest.getSessionId(), oid);
 
@@ -313,6 +321,9 @@ public class ListTypeTest
 
     ListTypeService service = new ListTypeService();
     JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
+    
+    String oid = result.get(ComponentInfo.OID).getAsString();
+    this.waitUntilPublished(oid);
 
     try
     {
@@ -327,7 +338,6 @@ public class ListTypeTest
     }
     finally
     {
-      String oid = result.get(ComponentInfo.OID).getAsString();
       service.remove(testData.clientRequest.getSessionId(), oid);
     }
   }
@@ -339,6 +349,9 @@ public class ListTypeTest
 
     ListTypeService service = new ListTypeService();
     JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
+    
+    String oid = result.get(ComponentInfo.OID).getAsString();
+    this.waitUntilPublished(oid);
 
     try
     {
@@ -356,7 +369,6 @@ public class ListTypeTest
     }
     finally
     {
-      String oid = result.get(ComponentInfo.OID).getAsString();
       service.remove(testData.clientRequest.getSessionId(), oid);
     }
   }
@@ -614,22 +626,22 @@ public class ListTypeTest
 
     for (TestUserInfo user : users)
     {
-      try
-      {
-        USATestData.runAsUser(user, (request, adapter) -> {
-          
-          ListTypeService service = new ListTypeService();
-          
+      USATestData.runAsUser(user, (request, adapter) -> {
+        
+        ListTypeService service = new ListTypeService();
+        
+        try
+        {
           service.apply(request.getSessionId(), listJson);
           
           Assert.fail("Expected an exception to be thrown.");
-          
-        });
-      }
-      catch (SmartExceptionDTO e)
-      {
-        // This is expected
-      }
+        }
+        catch (SmartExceptionDTO e)
+        {
+          // This is expected
+        }
+        
+      });
     }
   }
 
@@ -641,29 +653,91 @@ public class ListTypeTest
     ListTypeService service = new ListTypeService();
     JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
     String oid = result.get(ComponentInfo.OID).getAsString();
+    
+    this.waitUntilPublished(oid);
 
     try
     {
-      TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_ADMIN, USATestData.USER_PPP_RA };
+      TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_PPP_RA };
 
       for (TestUserInfo user : users)
       {
-        try
-        {
-          USATestData.runAsUser(user, (request, adapter) -> {
-
+        USATestData.runAsUser(user, (request, adapter) -> {
+          
+          try
+          {
             service.remove(request.getSessionId(), oid);
-          });
-        }
-        catch (SmartExceptionDTO e)
-        {
-          // This is expected
-        }
+            
+            Assert.fail("Expected an exception to be thrown.");
+          }
+          catch (SmartExceptionDTO e)
+          {
+            // This is expected
+          }
+          
+        });
       }
     }
     finally
     {
       service.remove(testData.clientRequest.getSessionId(), oid);
+    }
+  }
+  
+  @Request
+  private void waitUntilPublished(String oid)
+  {
+    List<? extends JobHistory> histories = null;
+    int waitTime = 0;
+    
+    while (histories == null)
+    {
+      if (waitTime > 10000)
+      {
+        Assert.fail("Job was never scheduled. Unable to find any associated history.");
+      }
+      
+      QueryFactory qf = new QueryFactory();
+      
+      PublishListTypeVersionJobQuery jobQuery = new PublishListTypeVersionJobQuery(qf);
+      jobQuery.WHERE(jobQuery.getListType().EQ(oid));
+      
+      JobHistoryQuery jhq = new JobHistoryQuery(qf);
+      jhq.WHERE(jhq.job(jobQuery));
+      
+      List<? extends JobHistory> potentialHistories = jhq.getIterator().getAll();
+    
+      if (potentialHistories.size() > 0)
+      {
+        histories = potentialHistories;
+      }
+      else
+      {
+        try
+        {
+          Thread.sleep(1000);
+        }
+        catch (InterruptedException e)
+        {
+          e.printStackTrace();
+          Assert.fail("Interrupted while waiting");
+        }
+        
+        waitTime += 1000;
+      }
+    }
+    
+    for (JobHistory history : histories)
+    {
+      try
+      {
+        SchedulerTestUtils.waitUntilStatus(history.getOid(), AllJobStatus.SUCCESS);
+      }
+      catch (InterruptedException e)
+      {
+        e.printStackTrace();
+        Assert.fail("Interrupted while waiting");
+      }
     }
   }
 
