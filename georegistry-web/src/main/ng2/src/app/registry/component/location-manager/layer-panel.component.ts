@@ -153,59 +153,12 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
      *
      * */
     handleParams(): void {
-        let isSearchRequired = false;
-
-        if (this.params.startDate != null && this.params.startDate !== this.form.currentStartDate) {
-            this.form.startDate = this.params.startDate;
-
-            isSearchRequired = true;
-        }
-
-        if (this.params.endDate != null && this.params.endDate !== this.form.currentEndDate) {
-            this.form.endDate = this.params.endDate;
-
-            isSearchRequired = true;
-        }
-
-        const layers: ContextLayer[] = this.params.layers != null ? JSON.parse(this.params.layers) : [];
-        this.layers = layers;
-
-        layers.forEach(layer => {
-            if (layer.oid !== SEARCH_LAYER && !layer.oid.startsWith("GRAPH-") && this.findVersionById(layer.oid) == null) {
-                isSearchRequired = true;
-            }
-        });
-
-        if (isSearchRequired) {
-            // One of the enabled layers specified in the URL is not currently in the list/versions data model
-            // As such we must do a new search for the valid list/versions in order to populate the option
-            // into the data model.
-            // OR the search dates have been updated, so a new search must be performed.
-
-            this.handleSearch();
+        if (this.params.layers != null) {
+            const layers: ContextLayer[] = this.params.layers != null ? JSON.parse(this.params.layers) : [];
+            this.layers = layers;
         }
 
         this.refreshListLayerReferences();
-    }
-
-    onConfirm(): void {
-        if (this.params.startDate == null && this.params.endDate == null && this.params.layers == null && this.form.startDate === null && this.form.endDate === null) {
-            // A new search should null out any record which has been clicked on
-            this.router.navigate([], {
-                relativeTo: this.route,
-                queryParams: { version: null },
-                queryParamsHandling: "merge"
-            });
-
-            this.handleSearch();
-        } else {
-            // A new search should null out any record which has been clicked on
-            this.router.navigate([], {
-                relativeTo: this.route,
-                queryParams: { startDate: this.form.startDate, endDate: this.form.endDate, version: null },
-                queryParamsHandling: "merge"
-            });
-        }
     }
 
     handleSearch(): Promise<ListOrgGroup[]> {
