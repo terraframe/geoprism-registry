@@ -148,7 +148,8 @@ public class RelationshipVisualizationService
 
       final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
       
-      jaVerticies.add(serializeVertex(rootGo, (graphType instanceof UndirectedGraphType) ? "PARENT" : "SELECTED"));
+      // jaVerticies.add(serializeVertex(rootGo, (graphType instanceof UndirectedGraphType) ? "PARENT" : "SELECTED"));
+      jaVerticies.add(serializeVertex(rootGo, "PARENT"));
 
       Set<String> setEdges = new HashSet<String>();
       Set<String> setVerticies = new HashSet<String>();
@@ -355,14 +356,7 @@ public class RelationshipVisualizationService
     joVertex.addProperty("typeCode", vertex.getType().getCode());
 
     String label = vertex.getDisplayLabel().getValue();
-    joVertex.addProperty("label", label == null ? "" : label); // If we write an
-                                                               // object with a
-                                                               // null label ngx
-                                                               // graph freaks
-                                                               // out. So we're
-                                                               // just going to
-                                                               // write ""
-                                                               // instead.
+    joVertex.addProperty("label", (label == null || label.length() == 0) ?  vertex.getCode() : label); // ngx graph freaks out if we put null here
 
     joVertex.addProperty("relation", relation);
     
