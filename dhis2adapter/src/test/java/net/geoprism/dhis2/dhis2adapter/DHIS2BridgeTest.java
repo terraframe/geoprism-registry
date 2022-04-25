@@ -53,6 +53,7 @@ public class DHIS2BridgeTest
     facade.initialize();
   }
   
+  @Test
   public void testGetVersion() throws Exception
   {
     final String versionRemote = Constants.DHIS2_VERSION;
@@ -60,6 +61,27 @@ public class DHIS2BridgeTest
     final Integer versionApiCompat = versionApiRemote - 2;
     
     String versionResponse = TestBridgeBuilder.getVersionResponse(versionApiRemote);
+    
+    DHIS2Bridge facade = new DHIS2Bridge(new TestSingleResponseConnector(null, versionResponse, 200), versionApiCompat);
+    
+    facade.initialize();
+    
+    Assert.assertEquals(versionApiRemote, facade.getVersionRemoteServerApi());
+    Assert.assertEquals(versionApiCompat, facade.getVersionApiCompat());
+    Assert.assertEquals(versionRemote, facade.getVersionRemoteServer());
+  }
+  
+  /**
+   * Get version test but in this scenario the server responds a version with a SNAPSHOT in it.
+   */
+  @Test
+  public void testGetVersionSnapshot() throws Exception
+  {
+    final String versionRemote = "2.35.12-SNAPSHOT";
+    final Integer versionApiRemote = 35;
+    final Integer versionApiCompat = versionApiRemote - 2;
+    
+    String versionResponse = TestBridgeBuilder.getVersionResponseSnapshot(versionApiRemote);
     
     DHIS2Bridge facade = new DHIS2Bridge(new TestSingleResponseConnector(null, versionResponse, 200), versionApiCompat);
     

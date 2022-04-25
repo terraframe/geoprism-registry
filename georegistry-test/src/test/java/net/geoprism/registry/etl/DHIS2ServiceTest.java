@@ -797,5 +797,53 @@ public class DHIS2ServiceTest
 
     Assert.assertEquals("AllAttrGO_ALL", orgUnit.get("code").getAsString());
   }
+  
+  /*
+   * Tests exporting GeoObjects when the remote server is a snapshot version
+   */
+  @Request
+  @Test
+  public void testExportGeoObjectsSnapshotServer() throws InterruptedException
+  {
+    DHIS2ExternalSystem system = new DHIS2ExternalSystem();
+    system.setId("DHIS2ExportTest");
+    system.setOrganization(AllAttributesDataset.ORG.getServerObject());
+    system.getEmbeddedComponent(ExternalSystem.LABEL).setValue("defaultLocale", "Test");
+    system.getEmbeddedComponent(ExternalSystem.DESCRIPTION).setValue("defaultLocale", "Test");
+    system.setUsername("mock");
+    system.setPassword("mock");
+    system.setUrl("mock");
+    system.setVersion("2.31.9-SNAPSHOT");
+    system.apply();
+    
+    SynchronizationConfig config = createSyncConfig(system, null);
+
+    SynchronizationConfigService service = new SynchronizationConfigService();
+
+    JsonObject joHist = service.run(testData.clientSession.getSessionId(), config.getOid());
+    ExportHistory hist = ExportHistory.get(joHist.get("historyId").getAsString());
+
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+
+    hist = ExportHistory.get(hist.getOid());
+    Assert.assertEquals(new Long(1), hist.getWorkTotal());
+    Assert.assertEquals(new Long(1), hist.getWorkProgress());
+    Assert.assertEquals(ImportStage.COMPLETE.name(), hist.getStage().get(0).name());
+
+    LinkedList<Dhis2Payload> payloads = this.dhis2.getPayloads();
+    Assert.assertEquals(1, payloads.size());
+
+    Dhis2Payload payload = payloads.get(0);
+
+    JsonObject data = JsonParser.parseString(payload.getData()).getAsJsonObject();
+
+    JsonArray orgUnits = data.get("organisationUnits").getAsJsonArray();
+
+    Assert.assertEquals(1, orgUnits.size());
+
+    JsonObject orgUnit = orgUnits.get(0).getAsJsonObject();
+
+    Assert.assertEquals("AllAttrGO_ALL", orgUnit.get("code").getAsString());
+  }
 
 }
