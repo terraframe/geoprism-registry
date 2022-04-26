@@ -1,0 +1,30 @@
+{
+  "contextPath": "https://play.dhis2.org/2.35.12",
+  "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
+  "calendar": "iso8601",
+  "dateFormat": "yyyy-mm-dd",
+  "serverDate": "2022-04-21T01:46:38.356",
+  "lastAnalyticsTableSuccess": "2022-04-19T10:27:36.800",
+  "intervalSinceLastAnalyticsTableSuccess": "39 h, 19 m, 1 s",
+  "lastAnalyticsTableRuntime": "00:02:50.700",
+  "lastSystemMonitoringSuccess": "2021-02-02T13:49:37.911",
+  "lastAnalyticsTablePartitionSuccess": "2021-02-28T23:51:03.083",
+  "intervalSinceLastAnalyticsTablePartitionSuccess": "9985 h, 55 m, 35 s",
+  "lastAnalyticsTablePartitionRuntime": "3 m, 20 s",
+  "version": "2.35.12-SNAPSHOT",
+  "revision": "cf758bb",
+  "buildTime": "2022-02-09T23:06:20.000",
+  "jasperReportsVersion": "6.3.1",
+  "environmentVariable": "DHIS2_HOME",
+  "databaseInfo": {
+    "spatialSupport": true
+  },
+  "encryption": false,
+  "emailConfigured": true,
+  "redisEnabled": false,
+  "systemId": "redacted",
+  "systemName": "redacted",
+  "clusterHostname": "",
+  "isMetadataVersionEnabled": true,
+  "metadataSyncEnabled": false
+}
