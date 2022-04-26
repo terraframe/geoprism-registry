@@ -63,8 +63,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     @Input() panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
     @Output() panelSizeChange = new EventEmitter<number>();
 
-    layerVersionMap = {};
-
     listOrgGroups: ListOrgGroup[] = [];
     // lists: ContextList[] = [];
     layers: ContextLayer[] = [];
@@ -179,8 +177,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     }
 
     private refreshListLayerReferences() {
-        this.layerVersionMap = {};
-
         this.listOrgGroups.forEach(listOrgGroup => {
             listOrgGroup.types.forEach(listTypeGroup => {
                 listTypeGroup.lists.forEach(list => {
@@ -193,7 +189,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
                         if (layerIndex !== -1) {
                             let layer = this.layers[layerIndex];
                             version.layer = layer;
-                            this.layerVersionMap[layer.oid] = layer;
                         }
                     }
                 });
@@ -231,6 +226,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
             version.layer.showOnLegend = true;
             version.layer.label = list.label;
             version.layer.color = ColorGen().hexString();
+            version.layer.versionNumber = version.versionNumber;
             this.layers.push(version.layer);
         } else {
             this.layers = this.layers.filter(l => l.oid !== version.layer.oid);

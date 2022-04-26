@@ -1,12 +1,12 @@
-<ng-template #versionDetail let-layer='layer'>
+<ng-template #versionDetail let-versionOrLayer='versionOrLayer'>
   (
-  <a *ngIf="layer.versionNumber !== 0" [routerLink]="'/registry/master-list/' + layer.oid" routerLinkActive="active">
+  <a *ngIf="versionOrLayer.versionNumber !== 0" [routerLink]="'/registry/master-list/' + versionOrLayer.oid" routerLinkActive="active">
     <localize key="list.type.version"></localize>
-    {{layer.versionNumber}}
+    {{versionOrLayer.versionNumber}}
   </a>
   
-  <a *ngIf="layer.versionNumber === 0" [routerLink]="'/registry/master-list/' + layer.oid" routerLinkActive="active">
-    <localize *ngIf="layer.versionNumber === 0" key="list.type.working.version"></localize>
+  <a *ngIf="versionOrLayer.versionNumber === 0" [routerLink]="'/registry/master-list/' + versionOrLayer.oid" routerLinkActive="active">
+    <localize *ngIf="versionOrLayer.versionNumber === 0" key="list.type.working.version"></localize>
   </a>
   )
 </ng-template>
@@ -24,7 +24,7 @@
 			      <div class="label-wrapper">
               		<date-text [date]="version.forDate"></date-text>
 			        <ng-container *ngIf="version.oid !== CONSTANTS.SEARCH_LAYER && version.versionNumber !== -1" [ngTemplateOutlet]="versionDetail"
-			          [ngTemplateOutletContext]="{layer:version}">
+			          [ngTemplateOutletContext]="{versionOrLayer:version}">
 			        </ng-container>
 			        <div *ngIf="version.color != null" class="layer-legend-square" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"
 			          [ngStyle]="{'background-color': version.color}"> </div>
@@ -71,14 +71,14 @@
               <div class="label-wrapper">
                 {{layer.label}}
                 <span *ngIf="layer.oid !== CONSTANTS.SEARCH_LAYER">- {{ layer.forDate }}</span>
-                <ng-container *ngIf="layer.oid !== CONSTANTS.SEARCH_LAYER && layer.versionNumber !== -1" [ngTemplateOutlet]="versionDetail"
-                  [ngTemplateOutletContext]="{layer:layer}">
+                <ng-container *ngIf="layer.versionNumber !== -1" [ngTemplateOutlet]="versionDetail"
+                  [ngTemplateOutletContext]="{versionOrLayer:layer}">
                 </ng-container>
                 <div class="layer-legend-square" [ngStyle]="{'background-color': layer.color}" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"> </div>
 <!--                 <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i> -->
 <!--                 <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i> -->
                 <i *ngIf="layer.versionNumber !== -1" [title]="'explorer.layerPanel.zoomToFeature' | localize" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
-                <i *ngIf="layer.versionNumber === 0 && !layerVersionMap[layer.oid].isAbstract" [title]="'explorer.layerPanel.addNewGeoObject' | localize" class="fa fa-plus" aria-hidden="true"
+                <i *ngIf="layer.versionNumber === 0" [title]="'explorer.layerPanel.addNewGeoObject' | localize" class="fa fa-plus" aria-hidden="true"
                   (click)="onCreate(layer)"></i>
               </div>
             </div>
