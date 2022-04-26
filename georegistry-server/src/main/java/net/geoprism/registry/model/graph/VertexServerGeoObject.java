@@ -129,6 +129,7 @@ import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.ServerParentTreeNode;
@@ -2535,35 +2536,35 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Transaction
-  public <T extends ServerChildGraphNode> T addGraphChild(ServerGeoObjectIF child, GraphType type, Date startDate, Date endDate, boolean validate)
+  public <T extends ServerGraphNode> T addGraphChild(ServerGeoObjectIF child, GraphType type, Date startDate, Date endDate, boolean validate)
   {
     return type.getStrategy().addChild(this, (VertexServerGeoObject) child, startDate, endDate, validate);
   }
 
   @Transaction
-  public <T extends ServerParentGraphNode> T addGraphParent(ServerGeoObjectIF parent, GraphType type, Date startDate, Date endDate, boolean validate)
+  public <T extends ServerGraphNode> T addGraphParent(ServerGeoObjectIF parent, GraphType type, Date startDate, Date endDate, boolean validate)
   {
     return type.getStrategy().addParent(this, (VertexServerGeoObject) parent, startDate, endDate, validate);
   }
 
-  public <T extends ServerChildGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date, String boundsWKT)
+  public <T extends ServerGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date, String boundsWKT)
   {
     return type.getStrategy().getChildren(this, recursive, date, boundsWKT);
   }
 
-  public <T extends ServerParentGraphNode> T getGraphParents(GraphType type, Boolean recursive, Date date, String boundsWKT)
+  public <T extends ServerGraphNode> T getGraphParents(GraphType type, Boolean recursive, Date date, String boundsWKT)
   {
     return type.getStrategy().getParents(this, recursive, date, boundsWKT);
   }
 
   @Override
-  public <T extends ServerChildGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date)
+  public <T extends ServerGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date)
   {
     return this.getGraphChildren(type, recursive, date, null);
   }
 
   @Override
-  public <T extends ServerParentGraphNode> T getGraphParents(GraphType type, Boolean recursive, Date date)
+  public <T extends ServerGraphNode> T getGraphParents(GraphType type, Boolean recursive, Date date)
   {
     return this.getGraphParents(type, recursive, date, null);
   }

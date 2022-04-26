@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
@@ -321,7 +322,11 @@ public class BusinessObjectImporterTest
     {
       Assert.assertNotNull(result);
 
-      VertexServerGeoObject geoObject = result.getGeoObject();
+      List<VertexServerGeoObject> results = result.getGeoObjects();
+      
+      Assert.assertEquals(1, results.size());
+      
+      VertexServerGeoObject geoObject = results.get(0);
 
       Assert.assertNotNull(geoObject);
       Assert.assertEquals(FastTestDataset.DIST_CENTRAL.getCode(), geoObject.getCode());

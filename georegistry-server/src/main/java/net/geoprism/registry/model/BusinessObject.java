@@ -4,19 +4,22 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 
@@ -28,7 +31,6 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 
 import net.geoprism.registry.BusinessType;
-import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class BusinessObject
@@ -90,30 +92,27 @@ public class BusinessObject
     this.vertex.delete();
   }
 
-  public void setGeoObject(ServerGeoObjectIF geoObject)
+  public void addGeoObject(ServerGeoObjectIF geoObject)
   {
-    if (geoObject instanceof VertexServerGeoObject)
+    if (geoObject != null && geoObject instanceof VertexServerGeoObject)
     {
       VertexObject geoVertex = ( (VertexServerGeoObject) geoObject ).getVertex();
 
-      this.vertex.setValue(BusinessType.GEO_OBJECT, geoVertex);
+      geoVertex.addChild(this.vertex, this.type.getMdEdgeDAO()).apply();
     }
   }
 
-  public VertexServerGeoObject getGeoObject()
+  public List<VertexServerGeoObject> getGeoObjects()
   {
-    String oid = this.vertex.getObjectValue(BusinessType.GEO_OBJECT);
+    List<VertexObject> geoObjects = this.vertex.getParents(this.type.getMdEdgeDAO(), VertexObject.class);
 
-    if (oid != null)
-    {
-      VertexObject geoVertex = VertexObject.get(GeoVertex.CLASS, oid);
+    return geoObjects.stream().map(geoVertex -> {
       MdVertexDAOIF mdVertex = (MdVertexDAOIF) geoVertex.getMdClass();
       ServerGeoObjectType vertexType = ServerGeoObjectType.get(mdVertex);
 
       return new VertexServerGeoObject(vertexType, geoVertex);
-    }
 
-    return null;
+    }).collect(Collectors.toList());
   }
 
   public static BusinessObject newInstance(BusinessType type)

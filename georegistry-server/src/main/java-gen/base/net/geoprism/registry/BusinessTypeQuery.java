@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1257186974)
+@com.runwaysdk.business.ClassSignature(hash = 1207449417)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -239,6 +221,29 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.BusinessType.LOCKEDBY, mdAttributeIF, this, alias, displayLabel);
 
   }
+  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge()
+  {
+    return getMdEdge(null);
+
+  }
+ 
+  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge(String alias)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.BusinessType.MDEDGE);
+
+    return (com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.BusinessType.MDEDGE, mdAttributeIF, this, alias, null);
+
+  }
+ 
+  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge(String alias, String displayLabel)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.BusinessType.MDEDGE);
+
+    return (com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.BusinessType.MDEDGE, mdAttributeIF, this, alias, displayLabel);
+
+  }
   public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getMdVertex()
   {
     return getMdVertex(null);
@@ -396,6 +401,10 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
     {
        return new com.runwaysdk.system.SingleActorQuery.SingleActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
+    else if (name.equals(net.geoprism.registry.BusinessType.MDEDGE)) 
+    {
+       return new com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
     else if (name.equals(net.geoprism.registry.BusinessType.MDVERTEX)) 
     {
        return new com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
@@ -489,6 +498,9 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy();
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy(String alias);
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy(String alias, String displayLabel);
+    public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge();
+    public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge(String alias);
+    public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getMdVertex();
     public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getMdVertex(String alias);
     public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getMdVertex(String alias, String displayLabel);
@@ -698,6 +710,23 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.get(net.geoprism.registry.BusinessType.LOCKEDBY,  alias, displayLabel);
 
   }
+  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge()
+  {
+    return getMdEdge(null);
+
+  }
+ 
+  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge(String alias)
+  {
+    return (com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF)this.get(net.geoprism.registry.BusinessType.MDEDGE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF)this.get(net.geoprism.registry.BusinessType.MDEDGE,  alias, displayLabel);
+
+  }
   public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getMdVertex()
   {
     return getMdVertex(null);
@@ -837,6 +866,10 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
     {
        return new com.runwaysdk.system.SingleActorQuery.SingleActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
+    else if (name.equals(net.geoprism.registry.BusinessType.MDEDGE)) 
+    {
+       return new com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
     else if (name.equals(net.geoprism.registry.BusinessType.MDVERTEX)) 
     {
        return new com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
@@ -907,6 +940,9 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy();
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy(String alias);
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getLockedBy(String alias, String displayLabel);
+    public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge();
+    public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge(String alias);
+    public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getMdVertex();
     public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getMdVertex(String alias);
     public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getMdVertex(String alias, String displayLabel);
@@ -1165,6 +1201,23 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.get(net.geoprism.registry.BusinessType.LOCKEDBY,  alias, displayLabel);
 
   }
+  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge()
+  {
+    return getMdEdge(null);
+
+  }
+ 
+  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge(String alias)
+  {
+    return (com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF)this.get(net.geoprism.registry.BusinessType.MDEDGE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getMdEdge(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF)this.get(net.geoprism.registry.BusinessType.MDEDGE,  alias, displayLabel);
+
+  }
   public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getMdVertex()
   {
     return getMdVertex(null);
@@ -1303,6 +1356,10 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
     else if (name.equals(net.geoprism.registry.BusinessType.LOCKEDBY)) 
     {
        return new com.runwaysdk.system.SingleActorQuery.SingleActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.BusinessType.MDEDGE)) 
+    {
+       return new com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.BusinessType.MDVERTEX)) 
     {

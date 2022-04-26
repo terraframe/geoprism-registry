@@ -97,6 +97,49 @@ public class SearchServiceTest
   
   @Test
   @Request
+  public void testWhitespace()
+  {
+    SearchService service = new SearchService();
+    service.clear();
+    service.deleteSearchTable();
+    service.createSearchTable();
+    
+    new SearchTablePatch().createRecords(service);
+    
+    Date date = USATestData.DEFAULT_OVER_TIME_DATE;
+    
+    List<ServerGeoObjectIF> results = service.search(USATestData.CO_D_ONE.getDisplayLabel() + " ", date, 10L);
+    
+    Assert.assertEquals(1, results.size());
+    
+    ServerGeoObjectIF result = results.get(0);
+    
+    Assert.assertEquals(result.getCode(), USATestData.CO_D_ONE.getCode());
+    
+    Assert.assertEquals(3, service.search(USATestData.TEST_DATA_KEY + "ColoradoDistrict", date, 10L).size());
+    Assert.assertEquals(1, service.search(USATestData.TEST_DATA_KEY, date, 1L).size());
+  }
+  
+  @Test
+  @Request
+  public void testSpecialCharacters()
+  {
+    SearchService service = new SearchService();
+    service.clear();
+    service.deleteSearchTable();
+    service.createSearchTable();
+    
+    new SearchTablePatch().createRecords(service);
+    
+    Date date = USATestData.DEFAULT_OVER_TIME_DATE;
+    
+    List<ServerGeoObjectIF> results = service.search(":~", date, 10L);
+    
+    Assert.assertEquals(0, results.size());    
+  }
+  
+  @Test
+  @Request
   public void testSearchNull()
   {
     SearchService service = new SearchService();
@@ -110,13 +153,6 @@ public class SearchServiceTest
     
     List<ServerGeoObjectIF> results = service.search(null, date, 10L);
     
-    Assert.assertEquals(1, results.size());
-    
-    ServerGeoObjectIF result = results.get(0);
-    
-    Assert.assertEquals(result.getCode(), USATestData.CO_D_ONE.getCode());
-    
-    Assert.assertEquals(3, service.search(USATestData.TEST_DATA_KEY + "ColoradoDistrict", date, 10L).size());
-    Assert.assertEquals(1, service.search(USATestData.TEST_DATA_KEY, date, 1L).size());
+    Assert.assertTrue(results.size() > 0);    
   }
 }

@@ -46,12 +46,12 @@ export class BusinessTableComponent implements OnInit {
 
                 this.cols.push({ header: attribute.label.localizedValue, field: attribute.code, type: type, sortable: sortable, filter: sortable });
             });
-            this.cols.push({
-                header: this.localizationService.decode("dropdown.select.geoobject.label"),
-                field: "geoObject",
-                type: "TEXT",
-                sortable: true
-            });
+            // this.cols.push({
+            //     header: this.localizationService.decode("dropdown.select.geoobject.label"),
+            //     field: "geoObject",
+            //     type: "TEXT",
+            //     sortable: true
+            // });
 
             // this.cols.push({ header: "", type: "ACTIONS", sortable: false });
 

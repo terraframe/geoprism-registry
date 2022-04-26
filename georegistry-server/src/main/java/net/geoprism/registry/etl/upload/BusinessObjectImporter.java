@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -147,7 +147,8 @@ public class BusinessObjectImporter implements ObjectImporterIF
     {
       private static final long serialVersionUID = 1L;
 
-      public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
+      public boolean removeEldestEntry(@SuppressWarnings("rawtypes")
+      Map.Entry eldest)
       {
         return size() > MAX_ENTRIES;
       }
@@ -367,7 +368,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
       try
       {
         boolean imported = this.importRowInTrans(row, data);
-        
+
         if (imported)
         {
           this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
@@ -382,7 +383,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
     {
       this.recordError(e);
     }
-    
+
     this.progressListener.setRowNumber(this.progressListener.getRowNumber() + 1);
 
     if (Thread.interrupted())
@@ -412,7 +413,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
   public boolean importRowInTrans(FeatureRow row, RowData data)
   {
     boolean imported = false;
-    
+
     // Refresh the session because it might expire on long imports
     final long curRowNum = this.progressListener.getRowNumber();
     if ( ( this.lastImportSessionRefresh + BusinessObjectImporter.refreshSessionRecordCount ) < curRowNum)
@@ -488,32 +489,33 @@ public class BusinessObjectImporter implements ObjectImporterIF
             this.setValue(businessObject, attributeType, attributeName, null);
           }
         }
-
-        /*
-         * Try to get the parent and ensure that this row is not ignored. The
-         * getParent method will throw a IgnoreRowException if the parent is
-         * configured to be ignored.
-         */
-        if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
-        {
-          geoObject = this.getGeoObject(row);
-        }
-        builder.setGeoObject(geoObject);
-
-        if (this.progressListener.hasValidationProblems())
-        {
-          throw new RuntimeException("Did not expect to encounter validation problems during import.");
-        }
-
-        data.setGoJson(businessObject.toJSON().toString());
-        data.setNew(isNew);
-        data.setParentBuilder(builder);
-
-        businessObject.setGeoObject(geoObject);
-        businessObject.apply();
-        
-        imported = true;
       }
+      
+      /*
+       * Try to get the parent and ensure that this row is not ignored. The
+       * getParent method will throw a IgnoreRowException if the parent is
+       * configured to be ignored.
+       */
+      if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
+      {
+        geoObject = this.getGeoObject(row);
+      }
+      builder.setGeoObject(geoObject);
+
+      if (this.progressListener.hasValidationProblems())
+      {
+        throw new RuntimeException("Did not expect to encounter validation problems during import.");
+      }
+
+      data.setGoJson(businessObject.toJSON().toString());
+      data.setNew(isNew);
+      data.setParentBuilder(builder);
+
+      businessObject.apply();
+
+      businessObject.addGeoObject(geoObject);
+
+      imported = true;
 
       // We must ensure that any problems created during the transaction are
       // logged now instead of when the request returns. As such, if any
@@ -534,7 +536,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
     {
       buildRecordException(businessObject.toJSON().toString(), isNew, builder, t);
     }
-    
+
     return imported;
   }
 
