@@ -28,15 +28,6 @@ export ANSIBLE_HOST_KEY_CHECKING=false
 : ----------------------------------
 :
 if [ "$build_artifact" == "true" ]; then
-  cd $WORKSPACE/adapter/java
-  
-  set +e
-  mvn clean install -B
-  aecode=$?
-  mkdir -p $TEST_OUTPUT/adapter/surefire-reports && cp $WORKSPACE/adapter/java/common/target/surefire-reports/* $TEST_OUTPUT/adapter/surefire-reports/ && chmod 777 -R $TEST_OUTPUT
-  set -e
-  [ "$aecode" != 0 ] && exit $aecode;
-  
   ## Build angular source ##
   npm version
   cd $WORKSPACE/georegistry/georegistry-web/src/main/ng2

@@ -1,0 +1,10 @@
+/target
+/.classpath
+/cache
+/.settings
+/lib/
+/plugins/
+/vault
+/bin
+
+/target/
