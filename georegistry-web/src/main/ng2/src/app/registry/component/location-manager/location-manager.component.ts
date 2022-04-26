@@ -453,8 +453,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             let fullRebuild = diffs.length > 0 || paramLayers.length !== this.layers.length;
 
-            console.log(diffs);
-
             if (diffs.length === 1 && diffs[0].type === "RENDERED_CHANGE") {
                 // They just toggled whether a layer was rendered
 
@@ -494,10 +492,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 for (let i = this.layers.length - 1; i > -1; i--) {
                     const layer = this.layers[i];
 
-                    this.map.moveLayer(layer.oid + "-POLYGON");
-                    this.map.moveLayer(layer.oid + "-POINT");
-                    this.map.moveLayer(layer.oid + "-LINE");
-                    this.map.moveLayer(layer.oid + "-LABEL");
+                    if (this.map.getLayer(layer.oid + "-POLYGON")) {
+                        this.map.moveLayer(layer.oid + "-POLYGON");
+                    }
+                    if (this.map.getLayer(layer.oid + "-POINT")) {
+                        this.map.moveLayer(layer.oid + "-POINT");
+                    }
+                    if (this.map.getLayer(layer.oid + "-LINE")) {
+                        this.map.moveLayer(layer.oid + "-LINE");
+                    }
+                    if (this.map.getLayer(layer.oid + "-LABEL")) {
+                        this.map.moveLayer(layer.oid + "-LABEL");
+                    }
                 }
                 fullRebuild = false;
             }
@@ -1192,7 +1198,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     mapVectorLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
         if (this.ready) {
             const source = layer.oid;
-            const prevLayer = otherLayer != null ? otherLayer.oid + "-POLYGON" : null;
+
+            let prevLayer = null;
+            if (otherLayer) {
+                if (this.map.getLayer(otherLayer.oid + "-POLYGON")) {
+                    prevLayer = otherLayer.oid + "-POLYGON";
+                } else if (this.map.getLayer(otherLayer.oid + "-POINT")) {
+                    prevLayer = otherLayer.oid + "-POINT";
+                } else if (this.map.getLayer(otherLayer.oid + "-LINE")) {
+                    prevLayer = otherLayer.oid + "-LINE";
+                }
+            }
 
             let protocol = window.location.protocol;
             let host = window.location.host;
