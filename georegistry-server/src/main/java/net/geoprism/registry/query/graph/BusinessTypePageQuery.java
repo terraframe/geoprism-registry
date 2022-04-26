@@ -119,11 +119,6 @@ public class BusinessTypePageQuery extends AbstractGraphPageQuery<HashMap<String
   @Override
   protected String getColumnName(MdAttributeDAOIF mdAttribute)
   {
-    if (mdAttribute.definesAttribute().equals(BusinessType.GEO_OBJECT))
-    {
-      return BusinessType.GEO_OBJECT + "." + DefaultAttribute.CODE.getName();
-    }
-
     return mdAttribute.getColumnName();
   }
 

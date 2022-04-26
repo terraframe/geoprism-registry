@@ -80,6 +80,7 @@ public class BusinessTypeTest
       Assert.assertEquals(orgCode, type.getOrganization().getCode());
       Assert.assertEquals(label, type.getDisplayLabel().getValue());
       Assert.assertNotNull(type.getMdVertex());
+      Assert.assertNotNull(type.getMdEdge());
     }
     finally
     {

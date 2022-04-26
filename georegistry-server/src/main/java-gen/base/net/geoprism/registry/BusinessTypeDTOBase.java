@@ -1,28 +1,11 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1234313493)
+@com.runwaysdk.business.ClassSignature(hash = -216682094)
 public abstract class BusinessTypeDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.BusinessType";
-  private static final long serialVersionUID = -1234313493;
+  @SuppressWarnings("unused")
+  private static final long serialVersionUID = -216682094;
   
   protected BusinessTypeDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -54,6 +37,7 @@ public abstract class BusinessTypeDTOBase extends com.runwaysdk.business.Busines
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
   public static java.lang.String LOCKEDBY = "lockedBy";
+  public static java.lang.String MDEDGE = "mdEdge";
   public static java.lang.String MDVERTEX = "mdVertex";
   public static java.lang.String OID = "oid";
   public static java.lang.String ORGANIZATION = "organization";
@@ -368,6 +352,55 @@ public abstract class BusinessTypeDTOBase extends com.runwaysdk.business.Busines
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getLockedByMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(LOCKEDBY).getAttributeMdDTO();
+  }
+  
+  public com.runwaysdk.system.metadata.MdEdgeDTO getMdEdge()
+  {
+    if(getValue(MDEDGE) == null || getValue(MDEDGE).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return com.runwaysdk.system.metadata.MdEdgeDTO.get(getRequest(), getValue(MDEDGE));
+    }
+  }
+  
+  public String getMdEdgeOid()
+  {
+    return getValue(MDEDGE);
+  }
+  
+  public void setMdEdge(com.runwaysdk.system.metadata.MdEdgeDTO value)
+  {
+    if(value == null)
+    {
+      setValue(MDEDGE, "");
+    }
+    else
+    {
+      setValue(MDEDGE, value.getOid());
+    }
+  }
+  
+  public boolean isMdEdgeWritable()
+  {
+    return isWritable(MDEDGE);
+  }
+  
+  public boolean isMdEdgeReadable()
+  {
+    return isReadable(MDEDGE);
+  }
+  
+  public boolean isMdEdgeModified()
+  {
+    return isModified(MDEDGE);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getMdEdgeMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(MDEDGE).getAttributeMdDTO();
   }
   
   public com.runwaysdk.system.metadata.MdVertexDTO getMdVertex()

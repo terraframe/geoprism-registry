@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -37,17 +37,18 @@ import com.runwaysdk.constants.IndexTypes;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
-import com.runwaysdk.constants.MdAttributeGraphReferenceInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.constants.graph.MdEdgeInfo;
 import com.runwaysdk.constants.graph.MdVertexInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
+import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
-import com.runwaysdk.dataaccess.metadata.MdAttributeGraphReferenceDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.MdGeoVertexInfo;
@@ -56,6 +57,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.metadata.MdAttributeConcrete;
+import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.ontology.Classifier;
@@ -73,8 +75,6 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
 {
   private static final long  serialVersionUID = 88826735;
 
-  public static final String GEO_OBJECT       = "geoObject";
-
   public static final String JSON_ATTRIBUTES  = "attributes";
 
   public static final String JSON_CODE        = "code";
@@ -89,15 +89,22 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
   public void delete()
   {
     MdVertex mdVertex = this.getMdVertex();
+    MdEdge mdEdge = this.getMdEdge();
 
     super.delete();
 
+    mdEdge.delete();
     mdVertex.delete();
   }
 
   public MdVertexDAOIF getMdVertexDAO()
   {
     return MdVertexDAO.get(this.getMdVertexOid());
+  }
+
+  public MdEdgeDAOIF getMdEdgeDAO()
+  {
+    return MdEdgeDAO.get(this.getMdEdgeOid());
   }
 
   public AttributeType createAttributeType(AttributeType attributeType)
@@ -187,7 +194,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
     MdVertexDAOIF mdVertex = this.getMdVertexDAO();
 
     return mdVertex.definesAttributes().stream().filter(attr -> {
-      return !attr.isSystem() && !attr.definesAttribute().equals(BusinessType.SEQ) && !attr.definesAttribute().equals(BusinessType.GEO_OBJECT);
+      return !attr.isSystem() && !attr.definesAttribute().equals(BusinessType.SEQ);
     }).map(attr -> converter.build(attr)).collect(Collectors.toMap(AttributeType::getName, attr -> attr));
   }
 
@@ -286,12 +293,25 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
       // TODO CREATE the edge between this class and GeoVertex??
       MdVertexDAOIF mdGeoVertexDAO = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS);
 
-      MdAttributeGraphReferenceDAO mdGeoObject = MdAttributeGraphReferenceDAO.newInstance();
-      mdGeoObject.setValue(MdAttributeGraphReferenceInfo.REFERENCE_MD_VERTEX, mdGeoVertexDAO.getOid());
-      mdGeoObject.setValue(MdAttributeGraphReferenceInfo.DEFINING_MD_CLASS, mdVertex.getOid());
-      mdGeoObject.setValue(MdAttributeGraphReferenceInfo.NAME, GEO_OBJECT);
-      mdGeoObject.setStructValue(MdAttributeGraphReferenceInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "Geo Object");
-      mdGeoObject.apply();
+      MdEdgeDAO mdEdge = MdEdgeDAO.newInstance();
+      mdEdge.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.BUSINESS_GRAPH_PACKAGE);
+      mdEdge.setValue(MdEdgeInfo.NAME, code + "Edge");
+      mdEdge.setValue(MdEdgeInfo.PARENT_MD_VERTEX, mdVertex.getOid());
+      mdEdge.setValue(MdEdgeInfo.CHILD_MD_VERTEX, mdGeoVertexDAO.getOid());
+      LocalizedValueConverter.populate(mdEdge, MdEdgeInfo.DISPLAY_LABEL, localizedValue);
+      mdEdge.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
+      mdEdge.apply();
+
+      // MdAttributeGraphReferenceDAO mdGeoObject =
+      // MdAttributeGraphReferenceDAO.newInstance();
+      // mdGeoObject.setValue(MdAttributeGraphReferenceInfo.REFERENCE_MD_VERTEX,
+      // mdGeoVertexDAO.getOid());
+      // mdGeoObject.setValue(MdAttributeGraphReferenceInfo.DEFINING_MD_CLASS,
+      // mdVertex.getOid());
+      // mdGeoObject.setValue(MdAttributeGraphReferenceInfo.NAME, GEO_OBJECT);
+      // mdGeoObject.setStructValue(MdAttributeGraphReferenceInfo.DESCRIPTION,
+      // MdAttributeLocalInfo.DEFAULT_LOCALE, "Geo Object");
+      // mdGeoObject.apply();
 
       // DefaultAttribute.CODE
       MdAttributeCharacterDAO vertexCodeMdAttr = MdAttributeCharacterDAO.newInstance();
@@ -305,6 +325,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
       vertexCodeMdAttr.apply();
 
       businessType.setMdVertexId(mdVertex.getOid());
+      businessType.setMdEdgeId(mdEdge.getOid());
 
       // Assign permissions
       Roles role = Roles.findRoleByName(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
