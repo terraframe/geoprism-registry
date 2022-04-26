@@ -28,15 +28,6 @@ export ANSIBLE_HOST_KEY_CHECKING=false
 : ----------------------------------
 :
 
-cd $WORKSPACE/adapter/java
-
-set +e
-mvn clean install -B
-aecode=$?
-mkdir -p $TEST_OUTPUT/adapter/surefire-reports && cp $WORKSPACE/adapter/java/common/target/surefire-reports/* $TEST_OUTPUT/adapter/surefire-reports/ && chmod 777 -R $TEST_OUTPUT
-set -e
-[ "$aecode" != 0 ] && exit $aecode;
-
 ## Build angular source ##
 npm version
 cd $WORKSPACE/georegistry/georegistry-web/src/main/ng2
@@ -54,12 +45,13 @@ set +e
 mvn test -Dappcfg=$WORKSPACE/georegistry/envcfg/dev -Ddatabase.port=5432 -Dproject.basedir=$WORKSPACE/georegistry
 ecode=$?
 mkdir -p $TEST_OUTPUT/georegistry-test/surefire-reports && cp $WORKSPACE/georegistry/georegistry-test/target/surefire-reports/* $TEST_OUTPUT/georegistry-test/surefire-reports/ && chmod 777 -R $TEST_OUTPUT
+mkdir -p $TEST_OUTPUT/adapter/surefire-reports && cp $WORKSPACE/georegistry/georegistry-adapter/java/common/target/surefire-reports/* $TEST_OUTPUT/adapter/surefire-reports/ && chmod 777 -R $TEST_OUTPUT
+mkdir -p $TEST_OUTPUT/dhis2adapter/surefire-reports && cp $WORKSPACE/georegistry/dhis2adapter/target/surefire-reports/* $TEST_OUTPUT/dhis2adapter/surefire-reports/ && chmod 777 -R $TEST_OUTPUT
 set -e
 [ "$ecode" != 0 ] && exit $ecode;
 
 ## Deploy the test results to s3 ##
 cd $WORKSPACE/georegistry/georegistry-site
-sed -i -e 's#../../common-geo-registry-adapter#../../adapter#g' pom.xml
 mvn surefire-report:report-only -Daggregate=true
 mvn site -DgenerateReports=false
 mvn -rf net.geoprism:georegistry-site site:deploy -DgenerateReports=false
