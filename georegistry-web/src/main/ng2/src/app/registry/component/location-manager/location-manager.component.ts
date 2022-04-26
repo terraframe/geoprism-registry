@@ -323,20 +323,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     let paramLayers: ContextLayer[] = JSON.parse(this.params.layers);
 
                     if (this.ready) {
-                        // Remove all existing layers
-                        let len = this.layers.length;
-                        for (let i = 0; i < len; ++i) {
-                            this.removeLayer(this.layers[0]);
-                        }
-
-                        // Add layers from the params 1 by 1
-                        let prevLayer = null;
-                        paramLayers.forEach(paramLayer => {
-                            if (paramLayer.rendered) {
-                                this.addLayer(paramLayer, prevLayer);
-                                prevLayer = paramLayer;
-                            }
-                        });
+                        this.updateLayersFromParameters(paramLayers);
                     }
                 }
 
@@ -396,6 +383,151 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
+    updateLayersFromParameters(paramLayers: ContextLayer[]) {
+        if (this.ready) {
+            // Calculate a diff
+            let diffs = [];
+            let iterations = paramLayers.length > this.layers.length ? paramLayers.length : this.layers.length;
+            for (let i = 0; i < iterations; ++i) {
+                if (i >= paramLayers.length) {
+                    let existingLayer = this.layers[i];
+
+                    let existingLayerExistsElsewhere = paramLayers.findIndex(findLayer => findLayer.oid === existingLayer.oid);
+
+                    if (existingLayerExistsElsewhere !== -1) {
+                        diffs.push({
+                            type: "LAYER_REORDER",
+                            index: i,
+                            moveTo: existingLayerExistsElsewhere
+                        });
+                    } else {
+                        diffs.push({
+                            type: "REMOVE_LAYER",
+                            index: i
+                        });
+                    }
+                } else if (i >= this.layers.length) {
+                    let paramLayer = paramLayers[i];
+
+                    let paramLayerExistsElsewhere = this.layers.findIndex(findLayer => findLayer.oid === paramLayer.oid);
+
+                    if (paramLayerExistsElsewhere !== -1) {
+                        diffs.push({
+                            type: "LAYER_REORDER",
+                            index: i,
+                            moveTo: paramLayerExistsElsewhere
+                        });
+                    } else {
+                        diffs.push({
+                            type: "NEW_LAYER",
+                            index: i
+                        });
+                    }
+                } else {
+                    let paramLayer = paramLayers[i];
+                    let layer = this.layers[i];
+
+                    if (paramLayer.oid !== layer.oid) {
+                        let paramLayerExistsElsewhere = this.layers.findIndex(findLayer => findLayer.oid === paramLayer.oid);
+
+                        if (paramLayerExistsElsewhere !== -1) {
+                            diffs.push({
+                                type: "LAYER_REORDER",
+                                index: i,
+                                moveTo: paramLayerExistsElsewhere
+                            });
+                        } else {
+                            diffs.push({
+                                type: "NEW_LAYER",
+                                index: i
+                            });
+                        }
+                    } else if (paramLayer.rendered !== layer.rendered) {
+                        diffs.push({
+                            type: "RENDERED_CHANGE",
+                            index: i
+                        });
+                    }
+                }
+            }
+
+            let fullRebuild = diffs.length > 0 || paramLayers.length !== this.layers.length;
+
+            if (diffs.length === 1 && diffs[0].type === "RENDERED_CHANGE") {
+                // They just toggled whether a layer was rendered
+
+                let prevLayer = null;
+                const layerCount = this.layers.length;
+                for (let i = 0; i < layerCount; ++i) {
+                    let paramLayer = paramLayers[i];
+                    let layer = this.layers[i];
+
+                    if (paramLayer.rendered !== layer.rendered) {
+                        if (paramLayer.rendered) {
+                            this.mapLayer(paramLayer, prevLayer);
+                        } else {
+                            this.unmapLayer(layer);
+                        }
+
+                        layer.rendered = paramLayer.rendered;
+                    } else {
+                        this.layers[i] = JSON.parse(JSON.stringify(paramLayer));
+                    }
+
+                    if (paramLayer.rendered) {
+                        prevLayer = this.layers[i];
+                    }
+                }
+
+                fullRebuild = false;
+            } else if (diffs.length === 1 && diffs[0].type === "NEW_LAYER" && diffs[0].index === this.layers.length) {
+                // Added a layer at the end
+
+                this.mapLayer(paramLayers[paramLayers.length - 1], this.layers.length > 0 ? this.layers[this.layers.length - 1] : null);
+                fullRebuild = false;
+            } else if (diffs.length > 0 && paramLayers.length === this.layers.length && diffs.filter(diff => diff.type !== "LAYER_REORDER").length === 0) {
+                // Layers changed order but are otherwise the same.
+
+                this.layers = JSON.parse(JSON.stringify(paramLayers));
+                for (let i = this.layers.length - 1; i > -1; i--) {
+                    const layer = this.layers[i];
+
+                    if (this.map.getLayer(layer.oid + "-POLYGON")) {
+                        this.map.moveLayer(layer.oid + "-POLYGON");
+                    }
+                    if (this.map.getLayer(layer.oid + "-POINT")) {
+                        this.map.moveLayer(layer.oid + "-POINT");
+                    }
+                    if (this.map.getLayer(layer.oid + "-LINE")) {
+                        this.map.moveLayer(layer.oid + "-LINE");
+                    }
+                    if (this.map.getLayer(layer.oid + "-LABEL")) {
+                        this.map.moveLayer(layer.oid + "-LABEL");
+                    }
+                }
+                fullRebuild = false;
+            }
+
+            if (fullRebuild) {
+                // Remove all existing layers
+                let len = this.layers.length;
+                for (let i = 0; i < len; ++i) {
+                    if (this.layers[i].rendered) {
+                        this.unmapLayer(this.layers[i]);
+                    }
+                }
+
+                this.layers = JSON.parse(JSON.stringify(paramLayers));
+                this.mapAllLayers();
+            } else {
+                // Make sure attribute changes are reflected
+                this.layers = JSON.parse(JSON.stringify(paramLayers));
+            }
+        } else {
+            this.layers = JSON.parse(JSON.stringify(paramLayers));
+        }
+    }
+
     setPanel(showPanel: boolean): void {
         if (this.showPanel !== showPanel) {
             this.showPanel = showPanel;
@@ -441,10 +573,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     initMap(): void {
         this.map.on("style.load", () => {
-            this.addLayers();
+            this.mapAllLayers();
         });
 
-        this.addLayers();
+        this.mapAllLayers();
 
         // Add zoom and rotation controls to the map.
         this.map.addControl(new AttributionControl({ compact: true }), "bottom-right");
@@ -628,9 +760,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    addLayers(): void {
+    mapAllLayers(): void {
+        let prevLayer = null;
         this.layers.forEach(cLayer => {
-            this.addLayer(cLayer);
+            if (cLayer.rendered) {
+                this.mapLayer(cLayer, prevLayer);
+                prevLayer = cLayer;
+            }
         });
     }
 
@@ -927,100 +1063,27 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    onLayerChange(event: LayerEvent): void {
-        const layer = event.layer;
+    unmapLayer(layer: ContextLayer): void {
+        const source = layer.oid;
 
-        if (layer.rendered) {
-            let existingIndex = this.layers.findIndex((findLayer: any) => { return findLayer.oid === layer.oid; });
-
-            if (existingIndex !== -1) {
-                this.removeLayer(layer);
-            }
-
-            this.addLayer(layer, event.prevLayer);
-        } else {
-            this.removeLayer(layer);
-        }
-    }
-
-    onReorderLayers(layers: ContextLayer[]): void {
-        for (let i = layers.length - 1; i > -1; i--) {
-            const layer = layers[i];
-
-            this.map.moveLayer(layer.oid + "-POLYGON");
-            this.map.moveLayer(layer.oid + "-POINT");
-            this.map.moveLayer(layer.oid + "-LINE");
-            this.map.moveLayer(layer.oid + "-LABEL");
-        }
-    }
-
-    removeLayer(layer: ContextLayer): void {
-        const index = this.layers.findIndex(l => l.oid === layer.oid);
-
-        if (index !== -1) {
-            const source = layer.oid;
-
+        if (this.map.getLayer(source + "-POLYGON") != null) {
             this.map.removeLayer(source + "-POLYGON");
+        }
+        if (this.map.getLayer(source + "-POINT") != null) {
             this.map.removeLayer(source + "-POINT");
+        }
+        if (this.map.getLayer(source + "-LINE") != null) {
             this.map.removeLayer(source + "-LINE");
+        }
+        if (this.map.getLayer(source + "-LABEL") != null) {
             this.map.removeLayer(source + "-LABEL");
+        }
+        if (this.map.getSource(source) != null) {
             this.map.removeSource(source);
-
-            this.layers.splice(index, 1);
         }
     }
-/*
-    addLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
-        let zIndex = this.layers.findIndex(lFind => layer.oid === lFind.oid);
-        if (zIndex === -1) {
-            zIndex = this.layers.length;
-            this.layers.push(layer);
-        }
 
-        if (this.ready) {
-            if (layer.oid === SEARCH_LAYER || layer.oid.startsWith("GRAPH-")) {
-                this.geomService.addLayer({
-                    oid: layer.oid,
-                    isRendering: true,
-                    color: layer.color,
-                    selectedColor: SELECTED_COLOR,
-                    zindex: zIndex,
-                    sourceData: {
-                        type: "FeatureCollection",
-                        features: this.data as any
-                    },
-                    label: {}
-                }, otherLayer == null ? null : otherLayer.oid);
-            } else {
-                let protocol = window.location.protocol;
-                let host = window.location.host;
-
-                this.geomService.addLayer({
-                    oid: layer.oid,
-                    isRendering: true,
-                    color: layer.color,
-                    selectedColor: SELECTED_COLOR,
-                    zindex: zIndex,
-                    label: {},
-                    source: {
-                        type: "vector",
-                        tiles: [protocol + "//" + host + registry.contextPath + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: layer.oid }))],
-                        promoteId: "uid"
-                    }
-                }, otherLayer == null ? null : otherLayer.oid);
-            }
-
-            // Highlight
-            if (this.feature && this.feature.source === layer.oid) {
-                this.map.setFeatureState(this.feature, {
-                    selected: true
-                });
-            }
-        }
-    }
-*/
-
-    addLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
+    mapLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
         if (layer.oid === SEARCH_LAYER || layer.oid.startsWith("GRAPH-")) {
             if (this.ready) {
                 let data: any = {
@@ -1127,19 +1190,25 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     }
                 }, prevLayer);
             }
-
-            if (this.layers.findIndex(lFind => layer.oid === lFind.oid) === -1) {
-                this.layers.push(layer);
-            }
         } else {
-            this.addVectorLayer(layer, otherLayer);
+            this.mapVectorLayer(layer, otherLayer);
         }
     }
 
-    addVectorLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
+    mapVectorLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
         if (this.ready) {
             const source = layer.oid;
-            const prevLayer = otherLayer != null ? otherLayer.oid + "-POLYGON" : null;
+
+            let prevLayer = null;
+            if (otherLayer) {
+                if (this.map.getLayer(otherLayer.oid + "-POLYGON")) {
+                    prevLayer = otherLayer.oid + "-POLYGON";
+                } else if (this.map.getLayer(otherLayer.oid + "-POINT")) {
+                    prevLayer = otherLayer.oid + "-POINT";
+                } else if (this.map.getLayer(otherLayer.oid + "-LINE")) {
+                    prevLayer = otherLayer.oid + "-LINE";
+                }
+            }
 
             let protocol = window.location.protocol;
             let host = window.location.host;
@@ -1244,10 +1313,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     selected: true
                 });
             }
-        }
-
-        if (this.layers.findIndex(lFind => layer.oid === lFind.oid) === -1) {
-            this.layers.push(layer);
         }
     }
 

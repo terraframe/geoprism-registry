@@ -63,8 +63,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     @Input() panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
     @Output() panelSizeChange = new EventEmitter<number>();
 
-    layerVersionMap = {};
-
     listOrgGroups: ListOrgGroup[] = [];
     // lists: ContextList[] = [];
     layers: ContextLayer[] = [];
@@ -179,8 +177,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     }
 
     private refreshListLayerReferences() {
-        this.layerVersionMap = {};
-
         this.listOrgGroups.forEach(listOrgGroup => {
             listOrgGroup.types.forEach(listTypeGroup => {
                 listTypeGroup.lists.forEach(list => {
@@ -193,7 +189,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
                         if (layerIndex !== -1) {
                             let layer = this.layers[layerIndex];
                             version.layer = layer;
-                            this.layerVersionMap[layer.oid] = layer;
                         }
                     }
                 });
@@ -231,6 +226,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
             version.layer.showOnLegend = true;
             version.layer.label = list.label;
             version.layer.color = ColorGen().hexString();
+            version.layer.versionNumber = version.versionNumber;
             this.layers.push(version.layer);
         } else {
             this.layers = this.layers.filter(l => l.oid !== version.layer.oid);
@@ -245,11 +241,13 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     }
 
     toggleLayerRendered(layer: ContextLayer): void {
-        layer.rendered = !layer.rendered;
+        let eventLayers = JSON.parse(JSON.stringify(this.layers));
+        let eventLayer = eventLayers[eventLayers.findIndex(l => l.oid === layer.oid)];
+        eventLayer.rendered = !eventLayer.rendered;
 
         this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: { layers: JSON.stringify(this.layers) },
+            queryParams: { layers: JSON.stringify(eventLayers) },
             queryParamsHandling: "merge" // remove to replace all query params by provided
         });
     }
@@ -272,37 +270,18 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         this.baseLayerChange.emit(layer);
     }
 
-    moveLayerIncrementally(layer: ContextLayer, offset: number): void {
-        const index = this.layers.findIndex(l => l.oid === layer.oid);
-        const target = (index + offset);
-
-        if (index !== -1 && target > -1 && target <= this.layers.length - 1) {
-            let layers = this.layers.map(l => l.oid);
-
-            const a = layers[index];
-            layers[index] = layers[index + offset];
-            layers[index + offset] = a;
-
-            this.router.navigate([], {
-                relativeTo: this.route,
-                queryParams: { layers: JSON.stringify(layers) },
-                queryParamsHandling: "merge" // remove to replace all query params by provided
-            });
-        }
-    }
-
-    moveLayer(newLayers: ContextLayer[]): void {
+    moveLayer(eventLayers: ContextLayer[]): void {
         this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: { layers: JSON.stringify(newLayers) },
+            queryParams: { layers: JSON.stringify(eventLayers) },
             queryParamsHandling: "merge" // remove to replace all query params by provided
         });
     }
 
     drop(event: CdkDragDrop<string[]>) {
-        let oldLayers = JSON.parse(JSON.stringify(this.layers));
-        moveItemInArray(oldLayers, event.previousIndex, event.currentIndex);
-        this.moveLayer(oldLayers);
+        let eventLayers = JSON.parse(JSON.stringify(this.layers));
+        moveItemInArray(eventLayers, event.previousIndex, event.currentIndex);
+        this.moveLayer(eventLayers);
     }
 
 }
