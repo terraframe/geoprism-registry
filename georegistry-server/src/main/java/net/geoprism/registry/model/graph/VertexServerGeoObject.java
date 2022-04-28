@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.graph;
 
@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.ArrayUtils;
@@ -101,6 +102,7 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DuplicateGeoObjectCodeException;
 import net.geoprism.registry.DuplicateGeoObjectException;
 import net.geoprism.registry.DuplicateGeoObjectMultipleException;
@@ -118,6 +120,7 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexSynonym;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.AbstractServerGeoObject;
+import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.GeoObjectMetadata;
@@ -125,13 +128,11 @@ import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.LocationInfoHolder;
-import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
@@ -1162,7 +1163,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       throw new GeometryUpdateException();
     }
-    
+
     final boolean isNew = this.vertex.isNew() || this.vertex.getObjectValue(GeoVertex.CREATEDATE) == null;
 
     if (isNew)
@@ -1414,7 +1415,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         if (hasValueChange)
         {
           edge.delete();
-          
+
           EdgeObject newEdge = this.addParentRaw(inGo.getVertex(), hierarchyType.getMdEdge(), startDate, endDate);
 
           newEdges.add(newEdge);
@@ -1457,7 +1458,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
       if (isNew)
       {
-        EdgeObject newEdge = this.addParentRaw(((VertexServerGeoObject) vot.getValue()).getVertex(), hierarchyType.getMdEdge(), vot.getStartDate(), vot.getEndDate());
+        EdgeObject newEdge = this.addParentRaw( ( (VertexServerGeoObject) vot.getValue() ).getVertex(), hierarchyType.getMdEdge(), vot.getStartDate(), vot.getEndDate());
 
         newEdges.add(newEdge);
       }
@@ -1483,10 +1484,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return node;
   }
-  
+
   /**
-   * Adds an edge, bypassing all validation (for performance reasons). Be careful with this method!! You probably want to call
-   * addChild or addParent instead.
+   * Adds an edge, bypassing all validation (for performance reasons). Be
+   * careful with this method!! You probably want to call addChild or addParent
+   * instead.
    */
   public EdgeObject addParentRaw(VertexObject parent, MdEdgeDAOIF mdEdge, Date startDate, Date endDate)
   {
@@ -1494,10 +1496,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     newEdge.setValue(GeoVertex.START_DATE, startDate);
     newEdge.setValue(GeoVertex.END_DATE, endDate);
     newEdge.apply();
-    
+
     return newEdge;
   }
-  
+
   protected Date calculateDateMinusOneDay(Date source)
   {
     LocalDate localEnd = source.toInstant().atZone(ZoneId.of("Z")).toLocalDate().minusDays(1);
@@ -1519,8 +1521,9 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     EdgeObject edge = this.getEdge(parent, hierarchyType, startDate, endDate);
     edge.delete();
-//    
-//    this.getVertex().removeParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
+    //
+    // this.getVertex().removeParent( ( (VertexComponent) parent ).getVertex(),
+    // hierarchyType.getMdEdge());
   }
 
   @Override
@@ -1605,7 +1608,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     return this.toGeoObjectOverTime(true);
   }
-  
+
   public GeoObjectOverTime toGeoObjectOverTime(boolean generateUid)
   {
     return toGeoObjectOverTime(generateUid, null);
@@ -1698,7 +1701,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
                 String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
                 ClassificationType classificationType = ClassificationType.getByCode(classificationTypeCode);
                 MdClassificationDAOIF mdClassificationDAO = classificationType.getMdClassification();
-                
+
                 VertexObject classifier = null;
                 if (classifierCache != null)
                 {
@@ -1710,7 +1713,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
                   MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
 
                   classifier = VertexObject.get(mdVertexDAO, (String) value);
-                  
+
                   if (classifier != null && classifierCache != null)
                   {
                     classifierCache.putClassifier(classificationTypeCode, value.toString().trim(), classifier);
@@ -1772,7 +1775,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
               String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
               ClassificationType classificationType = ClassificationType.getByCode(classificationTypeCode);
               MdClassificationDAOIF mdClassificationDAO = classificationType.getMdClassification();
-              
+
               VertexObject classifier = null;
               if (classifierCache != null)
               {
@@ -1784,7 +1787,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
                 MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
 
                 classifier = VertexObject.get(mdVertexDAO, (String) value);
-                
+
                 if (classifier != null && classifierCache != null)
                 {
                   classifierCache.putClassifier(classificationTypeCode, value.toString().trim(), classifier);
@@ -2567,6 +2570,50 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public <T extends ServerGraphNode> T getGraphParents(GraphType type, Boolean recursive, Date date)
   {
     return this.getGraphParents(type, recursive, date, null);
+  }
+
+  @Override
+  public List<BusinessObject> getBusinessObjects(BusinessType type)
+  {
+    List<VertexObject> objects = this.vertex.getChildren(type.getMdEdgeDAO(), VertexObject.class);
+
+    return objects.stream().map(object -> {
+
+      return new BusinessObject(object, type);
+
+    }).collect(Collectors.toList());
+  }
+
+  @Override
+  public List<BusinessObject> getBusinessObjects()
+  {
+    Map<String, Object> parameters = new HashedMap<String, Object>();
+    parameters.put("rid", this.getVertex().getRID());
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT EXPAND(outE()) FROM :rid");
+
+    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
+
+    List<EdgeObject> edges = query.getResults();
+
+    List<BusinessObject> results = new LinkedList<BusinessObject>();
+
+    for (EdgeObject edge : edges)
+    {
+      MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
+
+      BusinessType businessType = BusinessType.getByMdEdge(mdEdge);
+
+      if (businessType != null)
+      {
+        VertexObject childVertex = edge.getChild();
+
+        results.add(new BusinessObject(childVertex, businessType));
+      }
+    }
+
+    return results;
   }
 
 }

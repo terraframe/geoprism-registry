@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.geoobject;
 
@@ -41,6 +41,7 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.InvalidRegistryIdException;
@@ -55,6 +56,7 @@ import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
 import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
+import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -130,7 +132,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     parent.removeChild(child, hierarchyCode, startDate, endDate);
   }
-  
+
   @Transaction
   public ServerGeoObjectIF apply(GeoObject object, Date startDate, Date endDate, boolean isNew, boolean isImport)
   {
@@ -623,5 +625,18 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     jo.addProperty("invalid", vsgo.getInvalid());
 
     return jo;
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonArray getBusinessObjects(String sessionId, String typeCode, String code, String businessTypeCode)
+  {
+    VertexServerGeoObject vsgo = (VertexServerGeoObject) new ServerGeoObjectService().getGeoObjectByCode(code, typeCode);
+
+    BusinessType businessType = BusinessType.getByCode(businessTypeCode);
+
+    List<BusinessObject> objects = vsgo.getBusinessObjects(businessType);
+
+    return objects.stream().map(object -> object.toJSON()).collect(() -> new JsonArray(), (array, element) -> array.add(element), (listA, listB) -> {
+    });
   }
 }

@@ -489,6 +489,19 @@ public class RegistryController
 
     return new RestBodyResponse(tn.toJSON());
   }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/business-objects")
+  public ResponseIF getBusinessObjects(ClientRequestIF request, 
+      @RequestParamter(name = "typeCode", required = true) String typeCode,
+      @RequestParamter(name = "code", required = true) String code, 
+      @RequestParamter(name = "businessTypeCode", required = true) String businessTypeCode)
+  {
+    JsonArray objects = ServiceFactory.getGeoObjectService().getBusinessObjects(request.getSessionId(), typeCode, code, businessTypeCode);
+
+    return new RestBodyResponse(objects);
+  }
+
+  
 
   /**
    * Get parents of the given GeoObject

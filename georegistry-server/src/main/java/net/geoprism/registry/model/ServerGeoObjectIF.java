@@ -33,6 +33,7 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.vividsolutions.jts.geom.Geometry;
 
+import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -159,4 +160,9 @@ public interface ServerGeoObjectIF
   public <T extends ServerGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date);
 
   public <T extends ServerGraphNode> T getGraphParents(GraphType type, Boolean recursive, Date date);
+  
+  public List<BusinessObject> getBusinessObjects(BusinessType type);
+  
+  public List<BusinessObject> getBusinessObjects();
+
 }

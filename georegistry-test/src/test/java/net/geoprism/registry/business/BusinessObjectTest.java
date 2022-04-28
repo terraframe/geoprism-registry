@@ -4,21 +4,22 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.business;
 
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import java.util.List;
+
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -32,6 +33,8 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.test.FastTestDataset;
 
 public class BusinessObjectTest
@@ -49,6 +52,7 @@ public class BusinessObjectTest
   {
     testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
+    testData.setUpInstanceData();
 
     setUpClassInRequest();
   }
@@ -77,6 +81,7 @@ public class BusinessObjectTest
 
     if (testData != null)
     {
+      testData.tearDownInstanceData();
       testData.tearDownMetadata();
     }
   }
@@ -169,4 +174,150 @@ public class BusinessObjectTest
       object.delete();
     }
   }
+
+  @Test
+  @Request
+  public void testAddGetGeoObjects()
+  {
+    ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
+
+    BusinessObject object = BusinessObject.newInstance(type);
+    object.setValue(attribute.getName(), "Test Text");
+    object.setCode(TEST_CODE);
+    object.apply();
+
+    try
+    {
+      object.addGeoObject(serverObject);
+
+      List<VertexServerGeoObject> results = object.getGeoObjects();
+
+      Assert.assertEquals(1, results.size());
+
+      VertexServerGeoObject result = results.get(0);
+
+      Assert.assertEquals(serverObject.getCode(), result.getCode());
+    }
+    finally
+    {
+      object.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testRemoveGeoObjects()
+  {
+    ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
+
+    BusinessObject object = BusinessObject.newInstance(type);
+    object.setValue(attribute.getName(), "Test Text");
+    object.setCode(TEST_CODE);
+    object.apply();
+
+    try
+    {
+      object.addGeoObject(serverObject);
+      object.removeGeoObject(serverObject);
+
+      Assert.assertEquals(0, object.getGeoObjects().size());
+    }
+    finally
+    {
+      object.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testDuplicateGeoObjects()
+  {
+    ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
+
+    BusinessObject object = BusinessObject.newInstance(type);
+    object.setValue(attribute.getName(), "Test Text");
+    object.setCode(TEST_CODE);
+    object.apply();
+
+    try
+    {
+      object.addGeoObject(serverObject);
+      object.addGeoObject(serverObject);
+      object.addGeoObject(serverObject);
+      object.addGeoObject(serverObject);
+
+      List<VertexServerGeoObject> results = object.getGeoObjects();
+
+      Assert.assertEquals(1, results.size());
+
+      VertexServerGeoObject result = results.get(0);
+
+      Assert.assertEquals(serverObject.getCode(), result.getCode());
+    }
+    finally
+    {
+      object.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testGetBusinessObjects()
+  {
+    ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
+    
+    BusinessObject object = BusinessObject.newInstance(type);
+    object.setValue(attribute.getName(), "Test Text");
+    object.setCode(TEST_CODE);
+    object.apply();
+    
+    try
+    {
+      object.addGeoObject(serverObject);
+      
+      List<BusinessObject> results = serverObject.getBusinessObjects(type);
+      
+      
+      Assert.assertEquals(1, results.size());
+      
+      BusinessObject result = results.get(0);
+      
+      Assert.assertEquals(object.getCode(), result.getCode());
+    }
+    finally
+    {
+      object.delete();
+    }
+  }
+  
+  @Test
+  @Request
+  public void testGetBusinessObjects_NoType()
+  {
+    ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
+    
+    BusinessObject object = BusinessObject.newInstance(type);
+    object.setValue(attribute.getName(), "Test Text");
+    object.setCode(TEST_CODE);
+    object.apply();
+    
+    try
+    {
+      object.addGeoObject(serverObject);
+      
+      List<BusinessObject> results = serverObject.getBusinessObjects();
+      
+      
+      Assert.assertEquals(1, results.size());
+      
+      BusinessObject result = results.get(0);
+      
+      Assert.assertEquals(object.getCode(), result.getCode());
+    }
+    finally
+    {
+      object.delete();
+    }
+  }
+  
 }

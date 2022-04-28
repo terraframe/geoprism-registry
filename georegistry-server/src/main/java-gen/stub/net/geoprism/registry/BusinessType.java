@@ -246,6 +246,11 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
     return object;
   }
 
+  public Page<JsonSerializable> data(JsonObject criteria)
+  {
+    return new BusinessTypePageQuery(this, criteria).getPage();
+  }
+
   @Transaction
   public static BusinessType apply(JsonObject object)
   {
@@ -423,9 +428,25 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
     return response;
   }
 
-  public Page<JsonSerializable> data(JsonObject criteria)
+  public static boolean isEdgeABusinessType(MdEdgeDAOIF mdEdge)
   {
-    return new BusinessTypePageQuery(this, criteria).getPage();
+    return ( BusinessType.getByMdEdge(mdEdge) != null );
+  }
+
+  public static BusinessType getByMdEdge(MdEdgeDAOIF mdEdge)
+  {
+    BusinessTypeQuery query = new BusinessTypeQuery(new QueryFactory());
+    query.WHERE(query.getMdEdge().EQ(mdEdge.getOid()));
+
+    try (OIterator<? extends BusinessType> it = query.getIterator())
+    {
+      if (it.hasNext())
+      {
+        return it.next();
+      }
+    }
+
+    return null;
   }
 
 }

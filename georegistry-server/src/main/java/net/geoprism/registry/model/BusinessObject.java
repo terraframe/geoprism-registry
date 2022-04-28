@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
@@ -31,6 +32,7 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 
 import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class BusinessObject
@@ -92,9 +94,35 @@ public class BusinessObject
     this.vertex.delete();
   }
 
-  public void addGeoObject(ServerGeoObjectIF geoObject)
+  public boolean exists(ServerGeoObjectIF geoObject)
   {
     if (geoObject != null && geoObject instanceof VertexServerGeoObject)
+    {
+      return getEdge(geoObject) != null;
+    }
+    
+    return false;
+  }
+
+  protected EdgeObject getEdge(ServerGeoObjectIF geoObject)
+  {
+    VertexObject geoVertex = ( (VertexServerGeoObject) geoObject ).getVertex();
+
+    String statement = "SELECT FROM " + this.type.getMdEdgeDAO().getDBClassName();
+    statement += " WHERE out = :parent";
+    statement += " AND in = :child";
+
+    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
+    query.setParameter("parent", geoVertex.getRID());
+    query.setParameter("child", this.getVertex().getRID());
+
+
+    return query.getSingleResult();
+  }
+  
+  public void addGeoObject(ServerGeoObjectIF geoObject)
+  {
+    if (geoObject != null && geoObject instanceof VertexServerGeoObject && !this.exists(geoObject))
     {
       VertexObject geoVertex = ( (VertexServerGeoObject) geoObject ).getVertex();
 
@@ -102,6 +130,16 @@ public class BusinessObject
     }
   }
 
+  public void removeGeoObject(ServerGeoObjectIF geoObject)
+  {
+    if (geoObject != null && geoObject instanceof VertexServerGeoObject)
+    {
+      VertexObject geoVertex = ( (VertexServerGeoObject) geoObject ).getVertex();
+      
+      geoVertex.removeChild(this.vertex, this.type.getMdEdgeDAO());
+    }
+  }
+  
   public List<VertexServerGeoObject> getGeoObjects()
   {
     List<VertexObject> geoObjects = this.vertex.getParents(this.type.getMdEdgeDAO(), VertexObject.class);
