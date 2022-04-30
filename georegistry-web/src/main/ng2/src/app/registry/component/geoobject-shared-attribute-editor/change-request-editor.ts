@@ -1,7 +1,7 @@
 import { ChangeType } from "@registry/model/constants";
 import { ChangeRequest } from "@registry/model/crtable";
 import { AttributeType, GeoObjectOverTime, GeoObjectType, HierarchyOverTime, ValueOverTime } from "@registry/model/registry";
-import { RegistryService } from "@registry/service";
+import { GeoJsonLayerDataSource, GeometryService, LayerDataSource, ParamLayer, RegistryService, Layer, GeoJsonLayer } from "@registry/service";
 import { DateService, LocalizationService } from "@shared/service";
 import { Subject } from "rxjs";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
@@ -35,7 +35,9 @@ export class ChangeRequestEditor {
 
     registryService: RegistryService;
 
-    constructor(changeRequest: ChangeRequest, geoObject: GeoObjectOverTime, geoObjectType: GeoObjectType, hierarchies: HierarchyOverTime[], geometryAttributeType: AttributeType, parentAttributeType: AttributeType, localizationService: LocalizationService, dateService: DateService, registryService: RegistryService) {
+    geomService: GeometryService;
+
+    constructor(changeRequest: ChangeRequest, geoObject: GeoObjectOverTime, geoObjectType: GeoObjectType, hierarchies: HierarchyOverTime[], geometryAttributeType: AttributeType, parentAttributeType: AttributeType, localizationService: LocalizationService, dateService: DateService, registryService: RegistryService, geomService: GeometryService) {
         this.changeRequest = changeRequest;
         this.geoObject = geoObject;
         this.geoObjectType = geoObjectType;
@@ -48,6 +50,17 @@ export class ChangeRequestEditor {
 
         this.attributeEditors = this.generateAttributeEditors();
         this.validate();
+
+        let crEditor = this;
+        this.geomService.registerDataSourceProvider({
+            getId(): string {
+                return changeRequest.oid;
+            },
+            getDataSource(dataSourceId: string): LayerDataSource {
+                let editor = crEditor.findEditorForValueOverTime(dataSourceId);
+                return editor.getEditor(dataSourceId);
+            }
+        });
     }
 
     private generateAttributeEditors() {
@@ -125,6 +138,16 @@ export class ChangeRequestEditor {
         }
 
         return null;
+    }
+
+    findEditorForValueOverTime(oid: string): ChangeRequestChangeOverTimeAttributeEditor {
+        for (let i = 0; i < this.attributeEditors.length; ++i) {
+            let editor = this.attributeEditors[i];
+
+            if (editor instanceof ChangeRequestChangeOverTimeAttributeEditor) {
+                return editor;
+            }
+        }
     }
 
     public getEditorForAttribute(attribute: AttributeType, hierarchy: HierarchyOverTime = null): ChangeRequestChangeOverTimeAttributeEditor | StandardAttributeCRModel {

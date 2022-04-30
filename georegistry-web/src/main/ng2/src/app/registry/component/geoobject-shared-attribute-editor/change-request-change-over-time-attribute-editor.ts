@@ -139,16 +139,21 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
         return valid;
     }
 
-    findExistingValueOverTimeByOid(oid: string, attributeCode: string) {
-        if (this.changeRequestEditor.geoObject.attributes[attributeCode]) {
-            let index = this.changeRequestEditor.geoObject.attributes[attributeCode].values.findIndex((vot: ValueOverTime) => vot.oid === oid);
+    findExistingValueOverTimeByOid(oid: string) {
+        if (this.changeRequestEditor.geoObject.attributes[this.attribute.code]) {
+            let index = this.changeRequestEditor.geoObject.attributes[this.attribute.code].values.findIndex((vot: ValueOverTime) => vot.oid === oid);
 
             if (index !== -1) {
-                return this.changeRequestEditor.geoObject.attributes[attributeCode].values[index];
+                return this.changeRequestEditor.geoObject.attributes[this.attribute.code].values[index];
             }
         }
 
         return null;
+    }
+
+    public getEditor(oid: string) {
+        let matches = this.editors.filter(editor => editor.oid === oid);
+        return matches.length > 0 ? matches[0] : null;
     }
 
     public getEditors(includeUnmodified: boolean = true): ValueOverTimeCREditor[] {
@@ -248,11 +253,9 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
             let editors = this.getEditors(true);
 
             if (editors.length > 0) {
-
                 if (original != null) {
                     editor.value = JSON.parse(JSON.stringify(original.value));
-                }
-                else {
+                } else {
                     editor.value = JSON.parse(JSON.stringify(editors[editors.length - 1].value));
                 }
             } else {

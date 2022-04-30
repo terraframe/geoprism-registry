@@ -23,7 +23,7 @@
 			  
 			      <div class="label-wrapper">
               		<date-text [date]="version.forDate"></date-text>
-			        <ng-container *ngIf="version.oid !== CONSTANTS.SEARCH_LAYER && version.versionNumber !== -1" [ngTemplateOutlet]="versionDetail"
+			        <ng-container *ngIf="version.versionNumber" [ngTemplateOutlet]="versionDetail"
 			          [ngTemplateOutletContext]="{versionOrLayer:version}">
 			        </ng-container>
 			        <div *ngIf="version.color != null" class="layer-legend-square" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"
@@ -69,15 +69,15 @@
               <boolean-field [value]="layer.rendered" label="" [disable]="false" (change)="toggleLayerRendered(layer)" style="line-height:0;" ></boolean-field>
               
               <div class="label-wrapper">
-                {{layer.label}}
-                <span *ngIf="layer.oid !== CONSTANTS.SEARCH_LAYER">- {{ layer.forDate }}</span>
-                <ng-container *ngIf="layer.versionNumber !== -1" [ngTemplateOutlet]="versionDetail"
+                {{layer.legendLabel}}
+                <span *ngIf="layer.forDate">- {{ layer.forDate }}</span>
+                <ng-container *ngIf="layer.versionNumber" [ngTemplateOutlet]="versionDetail"
                   [ngTemplateOutletContext]="{versionOrLayer:layer}">
                 </ng-container>
                 <div class="layer-legend-square" [ngStyle]="{'background-color': layer.color}" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"> </div>
 <!--                 <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i> -->
 <!--                 <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i> -->
-                <i *ngIf="layer.versionNumber !== -1" [title]="'explorer.layerPanel.zoomToFeature' | localize" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
+                <i *ngIf="layer.versionNumber" [title]="'explorer.layerPanel.zoomToFeature' | localize" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
                 <i *ngIf="layer.versionNumber === 0" [title]="'explorer.layerPanel.addNewGeoObject' | localize" class="fa fa-plus" aria-hidden="true"
                   (click)="onCreate(layer)"></i>
               </div>

@@ -39,11 +39,6 @@ export enum ChangeType {
     ADD = "add"
 }
 
-export enum LayerColor {
-    "OLD" = "#A4A4A4",
-    "NEW" = "#0062AA"
-}
-
 export const OverlayerIdentifier = {
     LAYER_PANEL: "layer-panel",
     FEATURE_PANEL: "feature-panel",

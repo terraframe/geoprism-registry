@@ -4,12 +4,12 @@ import { v4 as uuid } from "uuid";
 // eslint-disable-next-line camelcase
 import turf_booleanequal from "@turf/boolean-equal";
 import { LocalizedValue } from "@shared/model/core";
-import { GeometryService } from "@registry/service";
+import { GeometryService, GeoJsonLayerDataSource, Layer, GeoJsonLayer } from "@registry/service";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { Subject } from "rxjs";
-import { ChangeType, ConflictType } from "@registry/model/constants";
+import { ChangeType } from "@registry/model/constants";
 
-export class ValueOverTimeCREditor implements TimeRangeEntry {
+export class ValueOverTimeCREditor implements TimeRangeEntry, GeoJsonLayerDataSource {
 
     diff?: ValueOverTimeDiff; // Any existing diff which may be associated with this object.
     valueOverTime?: ValueOverTime; // Represents a vot on an existing GeoObject. If this is set and the action is UpdateAttribute, we must be doing an UPDATE, and valueOverTime represents the original value in the DB.
@@ -69,7 +69,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
         this.conflictMessages.delete(missingReference);
 
         if (this.changeRequestAttributeEditor.changeRequestEditor.changeRequest.type === "UpdateGeoObject" && this.diff != null && this.diff.action !== "CREATE") {
-            let existingVot = this.findExistingValueOverTimeByOid(this.diff.oid, this.attr.code);
+            let existingVot = this.findExistingValueOverTimeByOid(this.diff.oid);
 
             if (existingVot == null) {
                 this._isValid = false;
@@ -79,12 +79,12 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
         }
     }
 
-    findExistingValueOverTimeByOid(oid: string, attributeCode: string) {
-        if (this.changeRequestAttributeEditor.changeRequestEditor.geoObject.attributes[attributeCode]) {
-            let index = this.changeRequestAttributeEditor.changeRequestEditor.geoObject.attributes[attributeCode].values.findIndex((vot: ValueOverTime) => vot.oid === oid);
+    findExistingValueOverTimeByOid(oid: string) {
+        if (this.changeRequestAttributeEditor.changeRequestEditor.geoObject.attributes[this.attr.code]) {
+            let index = this.changeRequestAttributeEditor.changeRequestEditor.geoObject.attributes[this.attr.code].values.findIndex((vot: ValueOverTime) => vot.oid === oid);
 
             if (index !== -1) {
-                return this.changeRequestAttributeEditor.changeRequestEditor.geoObject.attributes[attributeCode].values[index];
+                return this.changeRequestAttributeEditor.changeRequestEditor.geoObject.attributes[this.attr.code].values[index];
             }
         }
 
@@ -474,6 +474,53 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
 
     public isDelete() {
         return this.diff != null && this.diff.action === "DELETE";
+    }
+
+    /**
+     * Implemented from interface LayerDataSource
+    */
+
+    // @Override
+    setLayerData(data: any): void {
+        this.value = data;
+    }
+
+    // @Override
+    getLayerData() {
+        return this.value;
+    }
+
+    // @Override
+    buildMapboxSource() {
+        let geojson = this.getLayerData();
+
+        return {
+            type: "geojson",
+            data: {
+                type: "FeatureCollection",
+                features: geojson
+            }
+        };
+    }
+
+    // @Override
+    getGeometryType(): string {
+        return this.changeRequestAttributeEditor.changeRequestEditor.geoObjectType.geometryType;
+    }
+
+    // @Override
+    getDataSourceId(): string {
+        return this.oid;
+    }
+
+    // @Override
+    getDataSourceProviderId(): string {
+        return this.changeRequestAttributeEditor.changeRequestEditor.changeRequest.oid;
+    }
+
+    // @Override
+    createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer {
+        return new GeoJsonLayer(oid, legendLabel, this, rendered, color);
     }
 
 }

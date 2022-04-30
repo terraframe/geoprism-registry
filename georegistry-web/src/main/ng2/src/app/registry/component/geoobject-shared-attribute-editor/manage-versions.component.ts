@@ -21,20 +21,20 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { GeoObjectType, AttributeType, HierarchyOverTime } from "@registry/model/registry";
 import { SummaryKey } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
-import { GovernanceStatus, LayerColor } from "@registry/model/constants";
+import { GovernanceStatus } from "@registry/model/constants";
 import { AuthService } from "@shared/service/auth.service";
 
 import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
 import { ErrorHandler } from "@shared/component";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
-import { RegistryService, GeometryService } from "@registry/service";
+import { RegistryService, GeometryService, Layer, GeoJsonLayer, NEW_LAYER_COLOR, OLD_LAYER_COLOR } from "@registry/service";
 import { ChangeRequestService } from "@registry/service/change-request.service";
 import { DateService } from "@shared/service/date.service";
 
 import { LocalizationService } from "@shared/service";
 
-import { VersionDiffView, Layer } from "./manage-versions-model";
+import { VersionDiffView } from "./manage-versions-model";
 import { ControlContainer, NgForm } from "@angular/forms";
 import { Observable, Observer } from "rxjs";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
@@ -365,7 +365,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
      */
 
     toggleGeometryEditing(view: VersionDiffView) {
-        this.geomService.setEditing(!view.newLayer.isEditing, view.newLayer);
+        this.geomService.setEditing(!view.newLayer.editing, view.newLayer);
 
         if (this.geoObjectType.geometryType === "POINT" || this.geoObjectType.geometryType === "MULTIPOINT") {
             view.coordinate = {};
@@ -378,35 +378,36 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
             this.mapRowHeight = this.elementRef.nativeElement.children[0].getElementsByClassName("attribute-element-wrapper")[0].offsetHeight;
         }, 0);
 
-        let layer: Layer = this.getOrCreateLayer(view, "NEW");
+        let layer = this.getOrCreateLayer(view, "NEW");
 
-        if (layer.isEditing) {
+        if (layer.editing) {
             this.geomService.stopEditing();
         }
 
-        this.geomService.setRendering(!layer.isRendering, layer);
+        layer.rendered = !layer.rendered;
+
+        this.geomService.addOrUpdateLayer(layer.toParamLayer(), 0);
     }
 
     toggleOldGeometryView(view: VersionDiffView) {
         let layer: Layer = this.getOrCreateLayer(view, "OLD");
 
-        this.geomService.setRendering(!layer.isRendering, layer);
+        layer.rendered = !layer.rendered;
+
+        if (view.oldLayer) {
+            this.geomService.addOrUpdateLayer(layer.toParamLayer(), 1);
+        } else {
+            this.geomService.addOrUpdateLayer(layer.toParamLayer(), 0);
+        }
     }
 
-    getOrCreateLayer(view: VersionDiffView, context: string): Layer {
+    getOrCreateLayer(view: VersionDiffView, context: string): GeoJsonLayer {
         if (context === "NEW") {
             if (view.newLayer != null) {
                 return view.newLayer;
             }
 
-            view.newLayer = new Layer();
-            view.newLayer.oid = "NEW_" + view.editor.oid;
-            view.newLayer.isEditing = false;
-            view.newLayer.isRendering = false;
-            view.newLayer.zindex = 1;
-            view.newLayer.color = LayerColor.NEW;
-            view.newLayer.geojson = view.editor.value;
-            view.newLayer.editPropagator = view.editor;
+            view.newLayer = view.editor.createLayer("NEW_" + view.editor.oid, view.oid, true, NEW_LAYER_COLOR) as GeoJsonLayer;
 
             return view.newLayer;
         } else {
@@ -414,14 +415,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
                 return view.oldLayer;
             }
 
-            view.oldLayer = new Layer();
-            view.oldLayer.oid = "OLD_" + view.editor.oid;
-            view.oldLayer.isEditing = false;
-            view.oldLayer.isRendering = false;
-            view.oldLayer.zindex = 0;
-            view.oldLayer.color = LayerColor.OLD;
-            view.oldLayer.geojson = view.editor.oldValue;
-            view.oldLayer.editPropagator = null;
+            view.oldLayer = view.editor.createLayer("OLD_" + view.editor.oid, view.oid, true, OLD_LAYER_COLOR) as GeoJsonLayer;
 
             return view.oldLayer;
         }

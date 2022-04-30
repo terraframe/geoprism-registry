@@ -20,6 +20,8 @@ import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/mode
 import { LngLatBounds } from "mapbox-gl";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
+import { ParamLayer } from "@registry/service/geometry.service";
+import { VECTOR_LAYER_DATASET_PROVIDER_ID } from "../location-manager/layer-panel.component";
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -326,14 +328,7 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     layerFromList(version: ListTypeVersion): ContextLayer {
-        let layer: ContextLayer = new ContextLayer();
-        layer.oid = version.oid;
-        layer.color = ColorGen().hexString();
-        layer.label = version.displayLabel;
-        layer.rendered = true;
-        layer.forDate = version.forDate;
-        layer.versionNumber = version.versionNumber;
-        return layer;
+        return new ParamLayer(version.oid, version.displayLabel, true, ColorGen().hexString(), version.oid, VECTOR_LAYER_DATASET_PROVIDER_ID);
     }
 
     onGotoMap(result: any): void {

@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 
-import { ContextLayer, ContextList, ListOrgGroup, ListVersion } from "@registry/model/list-type";
+import { ContextLayer, ContextList, ListOrgGroup, ListTypeVersion, ListVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { LocalizationService } from "@shared/service";
 import * as ColorGen from "color-generator";
@@ -11,15 +11,12 @@ import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
 import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
+import { DataSourceProvider, GeometryService, Layer, LayerDataSource } from "@registry/service/geometry.service";
+import { GeoRegistryConfiguration } from "@core/model/registry";
 
-export const SEARCH_LAYER = "search";
+declare let registry: GeoRegistryConfiguration;
 
-export interface LayerEvent {
-
-    layer: ContextLayer;
-    prevLayer?: ContextLayer;
-
-}
+export const VECTOR_LAYER_DATASET_PROVIDER_ID = "LAYER_PANEL_VECTOR";
 
 export interface BaseLayer {
     name: string,
@@ -48,7 +45,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
 
     // Hack to allow the constant to be used in the html
     CONSTANTS = {
-        SEARCH_LAYER: SEARCH_LAYER,
         OVERLAY: OverlayerIdentifier.LAYER_PANEL
     }
 
@@ -66,6 +62,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     listOrgGroups: ListOrgGroup[] = [];
     // lists: ContextList[] = [];
     layers: ContextLayer[] = [];
+
+    versionMap = {};
 
     graphList: ContextList = null;
 
@@ -101,20 +99,57 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
 
     params: Params = null;
 
+    vectorLayerDataSourceProvider: DataSourceProvider;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private route: ActivatedRoute,
         private router: Router,
         private spinner: NgxSpinnerService,
         private service: ListTypeService,
-        private lService: LocalizationService) { }
+        private lService: LocalizationService,
+        private geomService: GeometryService) { }
 
     ngOnInit(): void {
-        this.subscription = this.route.queryParams.subscribe(params => {
-            this.params = params;
-
-            this.handleParams();
+        this.subscription = this.geomService.layersChange.subscribe(paramLayers => {
+            this.layersChange(paramLayers);
         });
+
+        this.vectorLayerDataSourceProvider = {
+            getId(): string {
+                return VECTOR_LAYER_DATASET_PROVIDER_ID;
+            },
+            getDataSource(dataSourceId: string): LayerDataSource {
+                return {
+                    buildMapboxSource(): any {
+                        let protocol = window.location.protocol;
+                        let host = window.location.host;
+
+                        return {
+                            type: "vector",
+                            tiles: [protocol + "//" + host + registry.contextPath + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: dataSourceId }))],
+                            promoteId: "uid"
+                        };
+                    },
+                    getGeometryType(): string {
+                        return "MIXED";
+                    },
+                    createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer {
+                        return new Layer(oid, legendLabel, this, rendered, color);
+                    },
+                    getDataSourceId(): string {
+                        return dataSourceId;
+                    },
+                    getDataSourceProviderId(): string {
+                        return VECTOR_LAYER_DATASET_PROVIDER_ID;
+                    },
+                    configureMapboxLayer(layerConfig: any): void {
+                        layerConfig["source-layer"] = "context";
+                    }
+                };
+            }
+        };
+        this.geomService.registerDataSourceProvider(this.vectorLayerDataSourceProvider);
     }
 
     ngOnDestroy(): void {
@@ -144,16 +179,24 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         this.setPanelSize(this.panelSize === 0 ? 1 : 0);
     }
 
-    /**
-     *
-     * Method responsible for parsing the state from the URL parameters and determining if
-     * the model of the widget needs to be updated or not.
-     *
-     * */
-    handleParams(): void {
-        if (this.params.layers != null) {
-            const layers: ContextLayer[] = this.params.layers != null ? JSON.parse(this.params.layers) : [];
-            this.layers = layers;
+    layersChange(paramLayers): void {
+        this.layers = paramLayers;
+
+        let layersWithoutVersions = this.layers.filter(layer => this.versionMap[layer.oid] == null && layer.dataSourceProviderId === VECTOR_LAYER_DATASET_PROVIDER_ID).map(layer => layer.oid);
+        if (layersWithoutVersions.length > 0) {
+            this.service.fetchVersionsAsListVersion(layersWithoutVersions).then((versions: ListVersion[]) => {
+                versions.forEach(version => {
+                    this.versionMap[version.oid] = version;
+
+                    let layerIndex = this.layers.findIndex(l => l.oid === version.oid);
+                    if (layerIndex !== -1) {
+                        let layer = this.layers[layerIndex];
+                        version.layer = layer;
+                        layer.forDate = version.forDate;
+                        layer.versionNumber = version.versionNumber;
+                    }
+                });
+            });
         }
 
         this.refreshListLayerReferences();
@@ -189,29 +232,15 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
                         if (layerIndex !== -1) {
                             let layer = this.layers[layerIndex];
                             version.layer = layer;
+                            layer.forDate = version.forDate;
+                            layer.versionNumber = version.versionNumber;
                         }
+
+                        this.versionMap[version.oid] = version;
                     }
                 });
             });
         });
-    }
-
-    findVersionById(id: string): ContextLayer {
-        let response: ContextLayer = null;
-
-        this.listOrgGroups.forEach(listOrgGroup => {
-            listOrgGroup.types.forEach(listTypeGroup => {
-                listTypeGroup.lists.forEach(list => {
-                    list.versions.forEach(version => {
-                        if (version.oid === id) {
-                            response = version;
-                        }
-                    });
-                });
-            });
-        });
-
-        return response;
     }
 
     clickToggleLayerRendered(layer: ContextLayer, list: ContextList) {
@@ -220,24 +249,13 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
 
     toggleVersionLayer(version: ListVersion, list: ContextList): void {
         if (!version.layer) {
-            version.layer = new ContextLayer();
-            version.layer.oid = version.oid;
-            version.layer.rendered = true;
-            version.layer.showOnLegend = true;
-            version.layer.label = list.label;
-            version.layer.color = ColorGen().hexString();
+            version.layer = new ContextLayer(version.oid, list.label, true, ColorGen().hexString(), version.oid, VECTOR_LAYER_DATASET_PROVIDER_ID);
             version.layer.versionNumber = version.versionNumber;
-            this.layers.push(version.layer);
+            version.layer.forDate = version.forDate;
+            this.geomService.addOrUpdateLayer(version.layer);
         } else {
-            this.layers = this.layers.filter(l => l.oid !== version.layer.oid);
-            delete version.layer;
+            this.geomService.removeLayer(version.layer.oid);
         }
-
-        this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: { layers: JSON.stringify(this.layers) },
-            queryParamsHandling: "merge" // remove to replace all query params by provided
-        });
     }
 
     toggleLayerRendered(layer: ContextLayer): void {

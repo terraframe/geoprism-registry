@@ -18,6 +18,7 @@ import { UpdateAttributeOverTimeAction, AbstractAction, CreateGeoObjectAction, C
 import { ActionTypes } from "@registry/model/constants";
 import { ChangeRequestEditor } from "./change-request-editor";
 import { ManageVersionsComponent } from "./manage-versions.component";
+import { v4 as uuid } from "uuid";
 
 @Component({
     selector: "geoobject-shared-attribute-editor",
@@ -144,7 +145,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             }
         }
 
-        this.changeRequestEditor = new ChangeRequestEditor(this.changeRequest, this.postGeoObject, this.geoObjectType, this.hierarchies, this.geometryAttributeType, this.parentAttributeType, this.lService, this.dateService, this.registryService);
+        this.changeRequestEditor = new ChangeRequestEditor(this.changeRequest, this.postGeoObject, this.geoObjectType, this.hierarchies, this.geometryAttributeType, this.parentAttributeType, this.lService, this.dateService, this.registryService, this.geomService);
 
         if (this.shouldForceSetExist()) {
             this.changePage(3);
@@ -158,8 +159,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         let orgCode = got.organizationCode;
 
         // Don't show the stability bar on the Change Requests page.
-        // Change Requests don't have oid when the page is loaded for non-change request use cases.
-        if (!this.changeRequest.oid) {
+        if (this.changeRequest.isNew) {
             this.showStabilityPeriods = (this.authService.isSRA() || this.authService.isOrganizationRA(orgCode) || this.authService.isGeoObjectTypeOrSuperRM(got) || this.authService.isGeoObjectTypeOrSuperRC(got));
         }
 
@@ -182,6 +182,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     createNewChangeRequest(): ChangeRequest {
         let cr = new ChangeRequest();
+        cr.oid = uuid();
         cr.approvalStatus = "PENDING";
         cr.actions = [];
 

@@ -15,17 +15,12 @@ import { DagreNodesOnlyLayout } from "./relationship-viz-layout";
 import * as shape from "d3-shape";
 import { LocalizedValue } from "@shared/model/core";
 import { NgxSpinnerService } from "ngx-spinner";
-import { LayerColor, OverlayerIdentifier } from "@registry/model/constants";
+import { OverlayerIdentifier } from "@registry/model/constants";
 import * as ColorGen from "color-generator";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { LngLatBounds } from "mapbox-gl";
-import { GeometryService } from "@registry/service";
-import { Layer } from "../geoobject-shared-attribute-editor/manage-versions-model";
-import { Router } from "@angular/router";
-import { ActivatedRoute } from "@angular/router";
-import { Subscription } from "rxjs";
-import { Params } from "@angular/router";
-import { ContextLayer } from "@registry/model/list-type";
+import { DataSourceProvider, GeoJsonLayer, GeoJsonLayerDataSource, GeometryService, Layer, LayerDataSource, ParamLayer } from "@registry/service";
+import { Router, ActivatedRoute } from "@angular/router";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -36,6 +31,8 @@ export const GRAPH_CIRCLE_FILL: string = "#999";
 export const GRAPH_LINE_COLOR: string = "#999";
 
 export const COLLAPSE_ANIMATION_TIME: number = 500; // in ms
+
+export const RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER = "RelationshipVisualizer";
 
 export interface Relationship {
     oid: string,
@@ -121,9 +118,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     public typeCache: GeoObjectTypeCache;
 
-    subscription: Subscription;
-
-    routeParams: Params = null;
+    layerDataSourceProvider: DataSourceProvider;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService,
@@ -136,9 +131,52 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     ngOnInit(): void {
         this.typeCache = this.cacheService.getTypeCache();
-        this.subscription = this.route.queryParams.subscribe(params => {
-            this.routeParams = params;
-        });
+
+        let component = this;
+        this.layerDataSourceProvider = {
+            getId(): string {
+                return RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER;
+            },
+            getDataSource(dataSourceId: string): LayerDataSource {
+                return {
+                    buildMapboxSource(): any {
+                        return {
+                            type: "geojson",
+                            data: {
+                                type: "FeatureCollection",
+                                features: this.getLayerData()
+                            }
+                        };
+                    },
+                    getGeometryType(): string {
+                        return "MIXED";
+                    },
+                    getLayerData(): any {
+                        for (const [typeCode, featureCollection] of Object.entries(component.data.geoJson)) {
+                            let oid = "GRAPH-" + typeCode + "-" + component.relationship.code;
+
+                            if (oid === dataSourceId) {
+                                return featureCollection;
+                            }
+                        }
+                    },
+                    setLayerData(data: any) {
+                        // eslint-disable-next-line no-console
+                        console.log("Cannot set data");
+                    },
+                    createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer {
+                        return new GeoJsonLayer(oid, legendLabel, this, rendered, color);
+                    },
+                    getDataSourceId(): string {
+                        return dataSourceId;
+                    },
+                    getDataSourceProviderId(): string {
+                        return RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER;
+                    }
+                } as GeoJsonLayerDataSource;
+            }
+        };
+        this.geomService.registerDataSourceProvider(this.layerDataSourceProvider);
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -251,57 +289,24 @@ export class RelationshipVisualizerComponent implements OnInit {
     }
 
     private addLayers(typeCollections: any) {
-      let layers: ContextLayer[] = this.routeParams.layers != null ? JSON.parse(this.routeParams.layers) : [];
+        let layers: ParamLayer[] = this.geomService.serializeAllLayers();
 
-      // Remove any existing layer from map that is graph related that isn't part of this new data
-      layers = layers.filter(layer => !layer.oid.startsWith("GRAPH-") ||
-          (
-            layer.oid.split("-").length === 3 &&
-            Object.keys(typeCollections).indexOf(layer.oid.split("-")[1]) !== -1 &&
-            layer.oid.split("-")[2] === this.relationship.code
-          )
-      );
+        // Remove any existing layer from map that is graph related that isn't part of this new data
+        layers = layers.filter(layer => !layer.oid.startsWith("GRAPH-") ||
+            (
+              layer.oid.split("-").length === 3 &&
+              Object.keys(typeCollections).indexOf(layer.oid.split("-")[1]) !== -1 &&
+              layer.oid.split("-")[2] === this.relationship.code
+            )
+        );
 
-      for (const [typeCode, featureCollection] of Object.entries(typeCollections)) {
-        let oid = "GRAPH-" + typeCode + "-" + this.relationship.code;
+        for (const [typeCode] of Object.entries(typeCollections)) {
+          let oid = "GRAPH-" + typeCode + "-" + this.relationship.code;
 
-        let existingIndex = layers.findIndex(layer => layer.oid === oid);
-
-        // Add layer to map if it doesn't exist
-        if (existingIndex === -1) {
-            let layer: ContextLayer = new ContextLayer();
-            layer.oid = oid;
-            layer.forDate = this.params.date;
-            layer.versionNumber = -1;
-            layer.rendered = true;
-            layer.showOnLegend = true;
-            layer.color = this.colorSchema[typeCode];
-            layer.label = this.relationship.label.localizedValue + " " + typeCode;
-
-            layers.push(layer);
+          layers.push(new ParamLayer(oid, this.relationship.label.localizedValue + " " + typeCode, true, this.colorSchema[typeCode], oid, RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER));
         }
 
-        this.geomService.setLayerGeometry(oid, featureCollection);
-
-        let data3 = featureCollection;
-        setTimeout(() => {
-            let map = this.geomService.getMap();
-
-            if (map) {
-                let source = map.getSource(oid);
-
-                if (source) {
-                    (<any> source).setData(data3);
-                }
-            }
-        }, 50);
-      }
-
-      this.router.navigate([], {
-          relativeTo: this.route,
-          queryParams: { layers: JSON.stringify(layers) },
-          queryParamsHandling: "merge" // remove to replace all query params by provided
-      });
+        this.geomService.setLayers(layers);
     }
 
     private convertBoundsToWKT(bounds: LngLatBounds): string {
@@ -323,7 +328,7 @@ export class RelationshipVisualizerComponent implements OnInit {
         this.colorSchema = {};
 
         // If we already have layers which are using specific colors then we want to use those same colors
-        const layers = this.routeParams.layers != null ? JSON.parse(this.routeParams.layers) : [];
+        const layers = this.geomService.getLayers();
 
         this.data.verticies.forEach(vertex => {
             if (!this.colorSchema[vertex.typeCode]) { // vertex.id.substring(2) !== this.geoObject.properties.uid &&
