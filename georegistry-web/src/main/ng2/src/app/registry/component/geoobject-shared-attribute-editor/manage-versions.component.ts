@@ -413,9 +413,12 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
             */
 
             let geoObject = this.changeRequestEditor.geoObject;
+            let displayLabel = (geoObject.attributes["displayLabel"].values && geoObject.attributes["displayLabel"].values.length > 0) ? geoObject.attributes["displayLabel"].values[0].value.localizedValue : geoObject.attributes.code;
+            let typeLabel = geoObject.geoObjectType.label.localizedValue;
+            let label = displayLabel + " (" + typeLabel + ")";
             let dataSourceId = geoObject.attributes["code"] + "~" + geoObject.geoObjectType.code;
             let dataSource = this.geomService.getDataSourceProvider(GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID).getDataSource(dataSourceId);
-            return new Layer("NEW_" + view.editor.oid, view.oid, dataSource, false, NEW_LAYER_COLOR);
+            return new Layer("NEW_" + view.editor.oid, label, dataSource, false, NEW_LAYER_COLOR);
         } else {
             if (view.oldLayer != null) {
                 return view.oldLayer;
