@@ -111,8 +111,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         private geomService: GeometryService) { }
 
     ngOnInit(): void {
-        this.subscription = this.geomService.layersChange.subscribe(paramLayers => {
-            this.layersChange(paramLayers);
+        this.subscription = this.geomService.layersChange.subscribe((layers: Layer[]) => {
+            this.layersChange(layers);
         });
 
         this.vectorLayerDataSourceProvider = {
@@ -179,8 +179,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         this.setPanelSize(this.panelSize === 0 ? 1 : 0);
     }
 
-    layersChange(paramLayers): void {
-        this.layers = paramLayers;
+    layersChange(layers: Layer[]): void {
+        this.layers = this.geomService.serializeAllLayers();
 
         let layersWithoutVersions = this.layers.filter(layer => this.versionMap[layer.oid] == null && layer.dataSourceProviderId === VECTOR_LAYER_DATASET_PROVIDER_ID).map(layer => layer.oid);
         if (layersWithoutVersions.length > 0) {
@@ -255,19 +255,14 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
             this.geomService.addOrUpdateLayer(version.layer);
         } else {
             this.geomService.removeLayer(version.layer.oid);
+            delete version.layer;
         }
     }
 
     toggleLayerRendered(layer: ContextLayer): void {
-        let eventLayers = JSON.parse(JSON.stringify(this.layers));
-        let eventLayer = eventLayers[eventLayers.findIndex(l => l.oid === layer.oid)];
-        eventLayer.rendered = !eventLayer.rendered;
+        layer.rendered = !layer.rendered;
 
-        this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: { layers: JSON.stringify(eventLayers) },
-            queryParamsHandling: "merge" // remove to replace all query params by provided
-        });
+        this.geomService.addOrUpdateLayer(layer);
     }
 
     onGotoBounds(layer: ContextLayer): void {
@@ -289,11 +284,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     }
 
     moveLayer(eventLayers: ContextLayer[]): void {
-        this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: { layers: JSON.stringify(eventLayers) },
-            queryParamsHandling: "merge" // remove to replace all query params by provided
-        });
+        this.geomService.setLayers(eventLayers);
     }
 
     drop(event: CdkDragDrop<string[]>) {

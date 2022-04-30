@@ -28,7 +28,7 @@ import { DateFieldComponent } from "../../../shared/component/form-fields/date-f
 import { ErrorHandler } from "@shared/component";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
-import { RegistryService, GeometryService, Layer, GeoJsonLayer, NEW_LAYER_COLOR, OLD_LAYER_COLOR } from "@registry/service";
+import { RegistryService, GeometryService, Layer, GeoJsonLayer, NEW_LAYER_COLOR, OLD_LAYER_COLOR, GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID } from "@registry/service";
 import { ChangeRequestService } from "@registry/service/change-request.service";
 import { DateService } from "@shared/service/date.service";
 
@@ -401,22 +401,27 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
         }
     }
 
-    getOrCreateLayer(view: VersionDiffView, context: string): GeoJsonLayer {
+    getOrCreateLayer(view: VersionDiffView, context: string): Layer {
         if (context === "NEW") {
+            /*
             if (view.newLayer != null) {
                 return view.newLayer;
             }
 
-            view.newLayer = view.editor.createLayer("NEW_" + view.editor.oid, view.oid, true, NEW_LAYER_COLOR) as GeoJsonLayer;
-
+            view.newLayer = view.editor.createLayer("NEW_" + view.editor.oid, view.oid, false, NEW_LAYER_COLOR) as GeoJsonLayer;
             return view.newLayer;
+            */
+
+            let geoObject = this.changeRequestEditor.geoObject;
+            let dataSourceId = geoObject.attributes["code"] + "~" + geoObject.geoObjectType.code;
+            let dataSource = this.geomService.getDataSourceProvider(GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID).getDataSource(dataSourceId);
+            return new Layer("NEW_" + view.editor.oid, view.oid, dataSource, false, NEW_LAYER_COLOR);
         } else {
             if (view.oldLayer != null) {
                 return view.oldLayer;
             }
 
-            view.oldLayer = view.editor.createLayer("OLD_" + view.editor.oid, view.oid, true, OLD_LAYER_COLOR) as GeoJsonLayer;
-
+            view.oldLayer = view.editor.createLayer("OLD_" + view.editor.oid, view.oid, false, OLD_LAYER_COLOR) as GeoJsonLayer;
             return view.oldLayer;
         }
     }

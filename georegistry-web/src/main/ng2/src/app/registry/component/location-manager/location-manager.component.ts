@@ -439,7 +439,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.mode = mode;
 
         if (this.isEdit) {
-            this.geomService.destroy(false);
+            this.geomService.stopEditing();
         }
 
         if (this.mode === this.MODE.SEARCH) {
@@ -695,7 +695,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     handleSearch(text: string, date: string): void {
-        this.geomService.destroy(false);
+        this.geomService.stopEditing();
         this.mapService.search(text, date, false).then(data => {
             this.state.currentText = text;
             this.state.currentDate = date;
@@ -820,7 +820,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     cancelEditingSession() {
         if (this.isEdit) {
-            this.geomService.destroy(false);
+            this.geomService.stopEditing();
         }
 
         this.isEdit = false;
@@ -843,7 +843,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     featurePanelForDateChange(date: string) {
         if (date !== null) {
-            this.geomService.destroy(false);
+            this.geomService.stopEditing();
         }
     }
 
@@ -891,7 +891,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 geoObject: geoObject
             };
 
-            this.geomService.destroy(false);
+            this.geomService.stopEditing();
             this.geomService.setGeometryType(this.current.type.geometryType);
 
             if (geoObject == null) {

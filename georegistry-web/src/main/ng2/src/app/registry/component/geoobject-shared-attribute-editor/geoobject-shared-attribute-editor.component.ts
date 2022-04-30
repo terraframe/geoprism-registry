@@ -253,7 +253,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             return;
         }
 
-        this.geomService.destroy(false);
+        this.geomService.stopEditing();
 
         this.tabIndex = nextPage;
     }

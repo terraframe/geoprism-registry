@@ -47,6 +47,7 @@ export class ChangeRequestEditor {
         this.localizationService = localizationService;
         this.dateService = dateService;
         this.registryService = registryService;
+        this.geomService = geomService;
 
         this.attributeEditors = this.generateAttributeEditors();
         this.validate();
@@ -144,7 +145,7 @@ export class ChangeRequestEditor {
         for (let i = 0; i < this.attributeEditors.length; ++i) {
             let editor = this.attributeEditors[i];
 
-            if (editor instanceof ChangeRequestChangeOverTimeAttributeEditor) {
+            if (editor instanceof ChangeRequestChangeOverTimeAttributeEditor && editor.getEditor(oid) != null) {
                 return editor;
             }
         }

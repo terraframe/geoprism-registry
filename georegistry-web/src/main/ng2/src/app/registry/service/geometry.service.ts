@@ -1,9 +1,12 @@
+
 import { Injectable, Output, EventEmitter, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 
 import * as MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { Map, LngLat, LngLatBounds } from "mapbox-gl";
 import { Subscription } from "rxjs";
+
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 export const OLD_LAYER_COLOR = "#A4A4A4";
 
@@ -95,6 +98,49 @@ export class GeoJsonLayer extends Layer {
 
 }
 
+export const GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID: string = "GEOOBJECT";
+
+export class GeoObjectLayerDataSourceProvider implements DataSourceProvider {
+
+    getDataSource(dataSourceId: string): LayerDataSource {
+        return {
+
+            createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer {
+                return new Layer(oid, legendLabel, this, rendered, color);
+            },
+
+            getDataSourceProviderId(): string {
+                return GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID;
+            },
+
+            getDataSourceId(): string {
+                return dataSourceId;
+            },
+
+            getGeometryType(): string {
+                return "MIXED";
+            },
+
+            buildMapboxSource() {
+                let idSplit = dataSourceId.split("~");
+
+                let url = registry.contextPath + "/cgr/geoobject/get-code" + "?" + "code=" + idSplit[0] + "&typeCode=" + idSplit[1];
+
+                return {
+                    type: "geojson",
+                    data: url
+                };
+            }
+
+        };
+    }
+
+    getId(): string {
+        return GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID;
+    }
+
+}
+
 /**
  * This service provides a global abstraction for mapping and editing layers across many different components (simultaneously) and
  * serializing / deserializing these layers to / from the url parameters to facilitate saving + loading of layer state.
@@ -146,6 +192,7 @@ export class GeometryService implements OnDestroy {
     ) {}
 
     ngOnInit() {
+        // TODO : Not sure that this method is ever invoked...
         window.onbeforeunload = () => this.destroy();
     }
 
@@ -153,6 +200,7 @@ export class GeometryService implements OnDestroy {
         this.syncLayersWithUrlParams = syncLayersWithUrlParams;
         this.map = map;
         this.geometryType = geometryType;
+        this.registerDataSourceProvider(new GeoObjectLayerDataSourceProvider());
         // this.editingControl = null;
 
         if (syncLayersWithUrlParams) {
@@ -294,7 +342,7 @@ export class GeometryService implements OnDestroy {
                 }
 
                 fullRebuild = false;
-            } else if (diffs.length === 1 && diffs[0].type === "NEW_LAYER" && diffs[0].index === this.layers.length) {
+            } else if (diffs.length === 1 && diffs[0].type === "NEW_LAYER" && diffs[0].index === this.layers.length && this.layers.length > 0) {
                 // Added a layer at the end
 
                 this.mapLayer(layers[layers.length - 1], this.layers.length > 0 ? this.layers[this.layers.length - 1] : null);
@@ -368,6 +416,10 @@ export class GeometryService implements OnDestroy {
 
     public registerDataSourceProvider(dataSourceProvider: DataSourceProvider) {
         this.dataSourceProviders[dataSourceProvider.getId()] = dataSourceProvider;
+    }
+
+    public getDataSourceProvider(dataSourceProviderId: string): DataSourceProvider {
+        return this.dataSourceProviders[dataSourceProviderId];
     }
 
     getDataSource(paramLayer: ParamLayer): LayerDataSource {
@@ -568,8 +620,7 @@ export class GeometryService implements OnDestroy {
         let existingIndex = newLayers.findIndex((findLayer: ParamLayer) => { return findLayer.oid === newLayer.oid; });
 
         if (existingIndex !== -1) {
-            newLayers.splice(existingIndex, 1);
-            newLayers.push(newLayer);
+            newLayers[existingIndex] = newLayer;
         } else {
             if (orderingIndex) {
                 newLayers.splice(orderingIndex, 0, newLayer);
@@ -751,7 +802,7 @@ export class GeometryService implements OnDestroy {
     mapLayer(layer: Layer, otherLayer?: Layer): void {
         if (!this.map) { return; }
 
-        this.map.addSource(layer.oid, layer.dataSource.buildMapboxSource());
+        this.map.addSource(layer.dataSource.getDataSourceId(), layer.dataSource.buildMapboxSource());
 
         if (layer.dataSource.getGeometryType() === "MIXED") {
             this.mapLayerAsType("POLYGON", layer, otherLayer);
