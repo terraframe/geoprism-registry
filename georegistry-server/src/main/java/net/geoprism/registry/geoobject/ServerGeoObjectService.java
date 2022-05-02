@@ -632,9 +632,18 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   {
     VertexServerGeoObject vsgo = (VertexServerGeoObject) new ServerGeoObjectService().getGeoObjectByCode(code, typeCode);
 
-    BusinessType businessType = BusinessType.getByCode(businessTypeCode);
+    List<BusinessObject> objects = null;
 
-    List<BusinessObject> objects = vsgo.getBusinessObjects(businessType);
+    if (businessTypeCode != null && businessTypeCode.length() > 0)
+    {
+      BusinessType businessType = BusinessType.getByCode(businessTypeCode);
+
+      objects = vsgo.getBusinessObjects(businessType);
+    }
+    else
+    {
+      objects = vsgo.getBusinessObjects();
+    }
 
     return objects.stream().map(object -> object.toJSON()).collect(() -> new JsonArray(), (array, element) -> array.add(element), (listA, listB) -> {
     });
