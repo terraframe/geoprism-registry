@@ -25,12 +25,12 @@
                 <localize *ngIf="version.working" key="masterlist.button.metadata"></localize>
                 <localize *ngIf="!version.working" key="masterlist.snapshot.button.metadata"></localize>
             </button>
-            <button *ngIf="list.write && !version.working" type="submit" (click)="onDelete(entry, version)" class="btn btn-danger"
-                role="button">
+            <button *ngIf="list.write && !version.working" type="submit" (click)="onDelete(entry, version)"
+                class="btn btn-danger" role="button">
                 <localize key="modal.button.delete"></localize>
             </button>
         </div>
-        
+
     </div>
 
     <div class="row" style="margin-bottom:5px;" [collapse]="!version.collapsed">
@@ -98,15 +98,20 @@
             </div>
         </div>
     </div>
-    
-    <div class="row" *ngIf="list.listType === 'incremental'">
-            <div class="col-md-12" style="padding: 20px 15px;">
-                    <button type="submit" (click)="onCreateEntries()" class="btn btn-primary" style="margin:0;"
-                        role="button">
-                        <localize key="list.type.create.entries"></localize>
-                    </button>
-            </div>
+
+    <div class="row">
+        <div class="col-md-12" style="padding: 20px 15px;">
+            <button type="submit" (click)="onViewConfiguration(list)" class="btn btn-default" style="padding-right: 10px;"
+                role="button">
+                <localize key="masterlist.button.configuration"></localize>
+            </button>
+
+            <button *ngIf="list.listType === 'incremental'" type="submit" (click)="onCreateEntries()" class="btn btn-primary" style="margin:0;" role="button">
+                <localize key="list.type.create.entries"></localize>
+            </button>
+        </div>
     </div>
+
 
     <div *ngFor="let entry of list.entries" class="row" style="margin-bottom: 5px;">
         <div class="col-md-12">
@@ -114,9 +119,6 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-md-12">
-                        	<button type="submit" (click)="onViewConfiguration(list)" class="btn btn-default" style="margin:0;" role="button">
-                                <localize key="masterlist.button.configuration"></localize>
-                            </button>
                             <h3>
                                 <ng-container *ngIf="entry.period.type === 'text'">
                                     {{entry.period.value}}
@@ -135,44 +137,49 @@
                     </div>
 
 
-                    <ng-container [ngTemplateOutlet]="versionDetail"
+                    <ng-container *ngIf="entry.versions.length > 0 && entry.versions[entry.versions.length - 1].working"
+                        [ngTemplateOutlet]="versionDetail"
                         [ngTemplateOutletContext]="{entry:entry, version:entry.versions[entry.versions.length - 1]}">
                     </ng-container>
-                    
-					<hr style="border-color:lightgrey;">
-					
-                    <h4 style="margin-top:20px;"><localize key="list.type.published.versions.header"></localize></h4>
-                    
-                    
+
+                    <hr style="border-color:lightgrey;">
+
+                    <h4 style="margin-top:20px;">
+                        <localize key="list.type.published.versions.header"></localize>
+                    </h4>
+
+
                     <div>
-                        <button *ngIf="list.write" type="submit" (click)="onCreate(entry)" class="btn btn-primary" style="margin:0;" role="button">
+                        <button *ngIf="list.write" type="submit" (click)="onCreate(entry)" class="btn btn-primary"
+                            style="margin:0;" role="button">
                             <localize key="list.type.new.version"></localize>
                         </button>
-                        
+
                         <button *ngIf="entry.versions.length > 2" type="submit" (click)="toggleVersions(entry)"
-                                    class="btn btn-default" role="button">
-                                    <localize *ngIf="!entry.showAll" key="list.type.see.versions"></localize>
-                                    <localize *ngIf="entry.showAll" key="list.type.hide.versions"></localize>
-                                </button>
+                            class="btn btn-default" role="button">
+                            <localize *ngIf="!entry.showAll" key="list.type.see.versions"></localize>
+                            <localize *ngIf="entry.showAll" key="list.type.hide.versions"></localize>
+                        </button>
                     </div>
-                    
+
                     <ng-container *ngIf="entry.versions.length > 1">
                         <ng-container *ngFor="let version of entry.versions; let j = index;">
-                            <ng-container *ngIf="j === 0 || (entry.showAll && j !== (entry.versions.length -1))" [ngTemplateOutlet]="versionDetail"
+                            <ng-container *ngIf="j === 0 || (entry.showAll && j !== (entry.versions.length -1))"
+                                [ngTemplateOutlet]="versionDetail"
                                 [ngTemplateOutletContext]="{entry:entry, version:version}">
                             </ng-container>
                         </ng-container>
-<!--                         <div class="row" style="margin-bottom: 5px;"> -->
-<!--                             <div class="col-md-12" style="text-align: left;"> -->
-<!--                                 <button *ngIf="entry.versions.length > 2" type="submit" (click)="toggleVersions(entry)" -->
-<!--                                     class="btn btn-default" role="button"> -->
-<!--                                     <localize *ngIf="!entry.showAll" key="list.type.see.versions"></localize> -->
-<!--                                     <localize *ngIf="entry.showAll" key="list.type.hide.versions"></localize> -->
-<!--                                 </button> -->
-<!--                             </div> -->
-<!--                         </div> -->
+                        <!--                         <div class="row" style="margin-bottom: 5px;"> -->
+                        <!--                             <div class="col-md-12" style="text-align: left;"> -->
+                        <!--                                 <button *ngIf="entry.versions.length > 2" type="submit" (click)="toggleVersions(entry)" -->
+                        <!--                                     class="btn btn-default" role="button"> -->
+                        <!--                                     <localize *ngIf="!entry.showAll" key="list.type.see.versions"></localize> -->
+                        <!--                                     <localize *ngIf="entry.showAll" key="list.type.hide.versions"></localize> -->
+                        <!--                                 </button> -->
+                        <!--                             </div> -->
+                        <!--                         </div> -->
                     </ng-container>
-                    
+
                     <div class="row" *ngIf="entry.versions.length === 1">
                         <div class="col-md-12">
                             <localize key="list.type.no.versions" style="color:grey;font-style:italic;"></localize>

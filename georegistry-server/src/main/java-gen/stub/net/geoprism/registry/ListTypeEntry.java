@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -69,6 +69,7 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
     ListType listType = this.getListType();
 
     ServerGeoObjectType type = ServerGeoObjectType.get(listType.getUniversal());
+    Organization organization = type.getOrganization();
 
     JsonObject object = new JsonObject();
 
@@ -79,7 +80,7 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
 
     object.addProperty(ListType.DISPLAYLABEL, listType.getDisplayLabel().getValue());
     object.addProperty(ListTypeVersion.TYPE_CODE, type.getCode());
-    object.addProperty(ListTypeVersion.ORG_CODE, type.getOrganization().getCode());
+    object.addProperty(ListTypeVersion.ORG_CODE, organization.getCode());
     object.addProperty(ListTypeVersion.LISTTYPE, listType.getOid());
     object.addProperty(ListTypeVersion.FORDATE, GeoRegistryUtil.formatDate(this.getForDate(), false));
     object.addProperty(ListTypeVersion.CREATEDATE, GeoRegistryUtil.formatDate(this.getCreateDate(), false));
@@ -89,9 +90,14 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
 
     JsonArray jVersions = new JsonArray();
 
-    for (ListTypeVersion entry : versions)
+    for (ListTypeVersion version : versions)
     {
-      jVersions.add(entry.toJSON(false));
+      // Only include the versions the user has access to
+
+      if (version.getListVisibility().equals(ListType.PUBLIC) || version.getGeospatialVisibility().equals(ListType.PUBLIC) || Organization.isMember(organization))
+      {
+        jVersions.add(version.toJSON(false));
+      }
     }
 
     object.add(ListTypeEntry.VERSIONS, jVersions);
