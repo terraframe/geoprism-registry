@@ -58,8 +58,11 @@ export class ChangeRequestEditor {
                 return changeRequest.oid;
             },
             getDataSource(dataSourceId: string): LayerDataSource {
-                let editor = crEditor.findEditorForValueOverTime(dataSourceId);
-                return editor.getEditor(dataSourceId);
+                let type = dataSourceId.substring(0, 3);
+                let votId = dataSourceId.substring(4);
+
+                let editor = crEditor.findEditorForValueOverTime(votId);
+                return editor.getEditor(votId).buildDataSource(type);
             }
         });
     }

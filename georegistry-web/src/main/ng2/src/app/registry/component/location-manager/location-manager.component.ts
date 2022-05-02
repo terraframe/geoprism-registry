@@ -11,12 +11,12 @@ import * as ColorGen from "color-generator";
 import { GeoObject, GeoObjectType, GeoObjectTypeCache } from "@registry/model/registry";
 import { ModalState, PANEL_SIZE_STATE } from "@registry/model/location-manager";
 
-import { MapService, RegistryService, GeometryService, ParamLayer, DataSourceProvider, LayerDataSource, GeoJsonLayerDataSource, Layer, GeoJsonLayer } from "@registry/service";
+import { MapService, RegistryService, GeometryService, ParamLayer, DataSourceProvider, LayerDataSource, GeoJsonLayerDataSource, Layer, GeoJsonLayer, GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT, GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID } from "@registry/service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@shared/component";
 
 import { AuthService, LocalizationService } from "@shared/service";
-import { ContextLayer } from "@registry/model/list-type";
+import { ContextLayer, LayerRecord } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { timeout } from "d3-timer";
 import { Observable, Subscription } from "rxjs";
@@ -29,6 +29,7 @@ import { ModalTypes } from "@shared/model/modal";
 import { FeaturePanelComponent } from "./feature-panel.component";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { RecordPopupComponent } from "./record-popup.component";
+import { VECTOR_LAYER_DATASET_PROVIDER_ID } from "./layer-panel.component";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -223,17 +224,24 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         buildMapboxSource(): any {
                             return {
                                 type: "geojson",
-                                data: {
-                                    type: "FeatureCollection",
-                                    features: this.getLayerData()
-                                }
+                                data: this.getLayerData()
                             };
                         },
                         getGeometryType(): string {
                             return "MIXED";
                         },
                         getLayerData(): any {
-                            return locationManager.data;
+                            // Turf freaks out if we don't have a geometry. But it's allowed to be null no problem...
+                            locationManager.data.forEach(feature => {
+                                if (!feature.geometry) {
+                                    feature.geometry = null;
+                                }
+                            });
+
+                            return {
+                                type: "FeatureCollection",
+                                features: locationManager.data
+                            };
                         },
                         setLayerData(data: any) {
                             this.data = data;
@@ -246,6 +254,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         },
                         getDataSourceProviderId(): string {
                             return SEARCH_LAYER;
+                        },
+                        getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBoundsLike> {
+                            return new Promise((resolve, reject) => {
+                                resolve(bbox(this.getLayerData()) as LngLatBoundsLike);
+                            });
                         }
                     } as GeoJsonLayerDataSource;
                 }
@@ -494,26 +507,19 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             let layers = this.geomService.getLayers().filter(layer => layer.rendered && layer.oid !== SEARCH_LAYER);
 
             if (layers && layers.length > 0) {
-                this.onZoomTo(layers[0].oid);
+                this.onZoomTo(layers[0]);
             }
         }
     }
 
-    onZoomTo(oid: string): void {
-        if (oid.startsWith("GRAPH-")) {
-            console.log("TODO: Zooming on a graph layer?");
-            return;
+    onZoomTo(layer: Layer): void {
+        if (layer && layer.dataSource) {
+            layer.dataSource.getBounds(layer, this.service, this.listService).then((bounds: LngLatBounds) => {
+                this.map.fitBounds(bounds, this.calculateZoomConfig(null));
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
         }
-
-        this.listService.getBounds(oid).then(bounds => {
-            if (bounds && Array.isArray(bounds)) {
-                let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
-
-                this.map.fitBounds(llb, this.calculateZoomConfig(null));
-            }
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
     }
 
     onCreate(layer: ContextLayer): void {
@@ -583,17 +589,32 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         if ((this.current == null || this.current.geoObject == null || this.current.geoObject.properties.uid !== feature.properties.uid)) {
                             this.select(feature, null);
                         }
-                    } else {
-                        if (this.params.version == null || this.params.uid == null ||
-                            this.params.version !== feature.source ||
-                            this.params.uid !== feature.properties.uid) {
-                            this.router.navigate([], {
-                                relativeTo: this.route,
-                                queryParams: { type: null, code: null, version: feature.source, uid: feature.properties.uid },
-                                queryParamsHandling: "merge" // remove to replace all query params by provided
-                            });
-                        } else {
-                            this.handleRecord(feature.source, feature.properties.uid);
+                    } else if (feature.layer) {
+                        let layer: Layer = this.geomService.getLayerFromMapboxLayer(feature.layer);
+
+                        if (layer) {
+                            if (layer.dataSource.getDataSourceProviderId() === VECTOR_LAYER_DATASET_PROVIDER_ID) {
+                                if (this.params.version == null || this.params.uid == null ||
+                                    this.params.version !== feature.source ||
+                                    this.params.uid !== feature.properties.uid) {
+                                    this.router.navigate([], {
+                                        relativeTo: this.route,
+                                        queryParams: { type: null, code: null, version: feature.source, uid: feature.properties.uid },
+                                        queryParamsHandling: "merge" // remove to replace all query params by provided
+                                    });
+                                } else {
+                                    this.handleRecord(feature.source, feature.properties.uid);
+                                }
+                            } else if (layer.dataSource.getDataSourceProviderId() === GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID) {
+                                let idSplit = layer.dataSource.getDataSourceId().split(GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT);
+
+                                let code = decodeURIComponent(idSplit[0]);
+                                let typeCode = decodeURIComponent(idSplit[1]);
+                                // let date = decodeURIComponent(idSplit[2]);
+
+                                // TODO : People are going to want that record popup here but one step at a time...
+                                this.changeGeoObject(typeCode, code, feature.properties.uid);
+                            }
                         }
                     }
                 });
@@ -975,388 +996,4 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
     }
 
-/*
-    updateLayersFromParameters(paramLayers: ContextLayer[]) {
-        if (this.ready) {
-            // Calculate a diff
-            let diffs = [];
-            let iterations = paramLayers.length > this.layers.length ? paramLayers.length : this.layers.length;
-            for (let i = 0; i < iterations; ++i) {
-                if (i >= paramLayers.length) {
-                    let existingLayer = this.layers[i];
-
-                    let existingLayerExistsElsewhere = paramLayers.findIndex(findLayer => findLayer.oid === existingLayer.oid);
-
-                    if (existingLayerExistsElsewhere !== -1) {
-                        diffs.push({
-                            type: "LAYER_REORDER",
-                            index: i,
-                            moveTo: existingLayerExistsElsewhere
-                        });
-                    } else {
-                        diffs.push({
-                            type: "REMOVE_LAYER",
-                            index: i
-                        });
-                    }
-                } else if (i >= this.layers.length) {
-                    let paramLayer = paramLayers[i];
-
-                    let paramLayerExistsElsewhere = this.layers.findIndex(findLayer => findLayer.oid === paramLayer.oid);
-
-                    if (paramLayerExistsElsewhere !== -1) {
-                        diffs.push({
-                            type: "LAYER_REORDER",
-                            index: i,
-                            moveTo: paramLayerExistsElsewhere
-                        });
-                    } else {
-                        diffs.push({
-                            type: "NEW_LAYER",
-                            index: i
-                        });
-                    }
-                } else {
-                    let paramLayer = paramLayers[i];
-                    let layer = this.layers[i];
-
-                    if (paramLayer.oid !== layer.oid) {
-                        let paramLayerExistsElsewhere = this.layers.findIndex(findLayer => findLayer.oid === paramLayer.oid);
-
-                        if (paramLayerExistsElsewhere !== -1) {
-                            diffs.push({
-                                type: "LAYER_REORDER",
-                                index: i,
-                                moveTo: paramLayerExistsElsewhere
-                            });
-                        } else {
-                            diffs.push({
-                                type: "NEW_LAYER",
-                                index: i
-                            });
-                        }
-                    } else if (paramLayer.rendered !== layer.rendered) {
-                        diffs.push({
-                            type: "RENDERED_CHANGE",
-                            index: i
-                        });
-                    }
-                }
-            }
-
-            let fullRebuild = diffs.length > 0 || paramLayers.length !== this.layers.length;
-
-            if (diffs.length === 1 && diffs[0].type === "RENDERED_CHANGE") {
-                // They just toggled whether a layer was rendered
-
-                let prevLayer = null;
-                const layerCount = this.layers.length;
-                for (let i = 0; i < layerCount; ++i) {
-                    let paramLayer = paramLayers[i];
-                    let layer = this.layers[i];
-
-                    if (paramLayer.rendered !== layer.rendered) {
-                        if (paramLayer.rendered) {
-                            this.mapLayer(paramLayer, prevLayer);
-                        } else {
-                            this.unmapLayer(layer);
-                        }
-
-                        layer.rendered = paramLayer.rendered;
-                    } else {
-                        this.layers[i] = JSON.parse(JSON.stringify(paramLayer));
-                    }
-
-                    if (paramLayer.rendered) {
-                        prevLayer = this.layers[i];
-                    }
-                }
-
-                fullRebuild = false;
-            } else if (diffs.length === 1 && diffs[0].type === "NEW_LAYER" && diffs[0].index === this.layers.length) {
-                // Added a layer at the end
-
-                this.mapLayer(paramLayers[paramLayers.length - 1], this.layers.length > 0 ? this.layers[this.layers.length - 1] : null);
-                fullRebuild = false;
-            } else if (diffs.length > 0 && paramLayers.length === this.layers.length && diffs.filter(diff => diff.type !== "LAYER_REORDER").length === 0) {
-                // Layers changed order but are otherwise the same.
-
-                this.layers = JSON.parse(JSON.stringify(paramLayers));
-                for (let i = this.layers.length - 1; i > -1; i--) {
-                    const layer = this.layers[i];
-
-                    if (this.map.getLayer(layer.oid + "-POLYGON")) {
-                        this.map.moveLayer(layer.oid + "-POLYGON");
-                    }
-                    if (this.map.getLayer(layer.oid + "-POINT")) {
-                        this.map.moveLayer(layer.oid + "-POINT");
-                    }
-                    if (this.map.getLayer(layer.oid + "-LINE")) {
-                        this.map.moveLayer(layer.oid + "-LINE");
-                    }
-                    if (this.map.getLayer(layer.oid + "-LABEL")) {
-                        this.map.moveLayer(layer.oid + "-LABEL");
-                    }
-                }
-                fullRebuild = false;
-            }
-
-            if (fullRebuild) {
-                // Remove all existing layers
-                let len = this.layers.length;
-                for (let i = 0; i < len; ++i) {
-                    if (this.layers[i].rendered) {
-                        this.unmapLayer(this.layers[i]);
-                    }
-                }
-
-                this.layers = JSON.parse(JSON.stringify(paramLayers));
-                this.mapAllLayers();
-            } else {
-                // Make sure attribute changes are reflected
-                this.layers = JSON.parse(JSON.stringify(paramLayers));
-            }
-        } else {
-            this.layers = JSON.parse(JSON.stringify(paramLayers));
-        }
-    }
-
-    mapLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
-        if (layer.oid === SEARCH_LAYER || layer.oid.startsWith("GRAPH-")) {
-            if (this.ready) {
-                let data: any = {
-                    type: "FeatureCollection",
-                    features: this.data as any
-                };
-                if (layer.oid.startsWith("GRAPH-")) {
-                    data = this.geomService.getLayerGeometry(layer.oid);
-
-                    if (!data) {
-                        data = {
-                            type: "FeatureCollection",
-                            features: []
-                        };
-                    }
-                }
-
-                const source = layer.oid;
-                const prevLayer = otherLayer != null ? otherLayer.oid + "-POLYGON" : null;
-
-                this.map.addSource(source, {
-                    type: "geojson",
-                    data: data,
-                    promoteId: "uid"
-                });
-
-                // Polygon layer
-                this.map.addLayer({
-                    id: source + "-POLYGON",
-                    type: "fill",
-                    source: source,
-                    layout: {},
-                    paint: {
-                        "fill-color": [
-                            "case",
-                            ["boolean", ["feature-state", "hover"], false],
-                            SELECTED_COLOR,
-                            layer.color
-                        ],
-                        "fill-opacity": 0.8,
-                        "fill-outline-color": "black"
-                    },
-                    filter: ["all",
-                        ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
-                    ]
-                }, prevLayer);
-
-                // Line layer
-                this.map.addLayer({
-                    id: source + "-LINE",
-                    type: "line",
-                    source: source,
-                    paint: {
-                        "line-width": 3,
-                        "line-color": [
-                            "case",
-                            ["boolean", ["feature-state", "hover"], false],
-                            SELECTED_COLOR,
-                            layer.color
-                        ]
-                    },
-                    filter: ["all",
-                        ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false]
-                    ]
-                }, prevLayer);
-
-                // Point layer
-                this.map.addLayer({
-                    id: source + "-POINT",
-                    type: "circle",
-                    source: source,
-                    paint: {
-                        "circle-radius": 10,
-                        "circle-color": [
-                            "case",
-                            ["boolean", ["feature-state", "hover"], false],
-                            SELECTED_COLOR,
-                            layer.color
-                        ],
-                        "circle-stroke-width": 2,
-                        "circle-stroke-color": "#FFFFFF"
-                    },
-                    filter: ["all",
-                        ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
-                    ]
-                }, prevLayer);
-
-                // Label layer
-                this.map.addLayer({
-                    id: source + "-LABEL",
-                    source: source,
-                    type: "symbol",
-                    paint: {
-                        "text-color": "black",
-                        "text-halo-color": "#fff",
-                        "text-halo-width": 2
-                    },
-                    layout: {
-                        // "text-field": ["get", "localizedValue", ["get", "displayLabel"]],
-                        "text-field": ["case",
-                            ["has", "displayLabel_" + navigator.language.toLowerCase()],
-                            ["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
-                            ["string", ["get", "displayLabel"]]
-                        ],
-                        "text-font": ["NotoSansRegular"],
-                        "text-offset": [0, 0.6],
-                        "text-anchor": "top",
-                        "text-size": 12
-                    }
-                }, prevLayer);
-            }
-        } else {
-            this.mapVectorLayer(layer, otherLayer);
-        }
-    }
-
-    mapVectorLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
-        if (this.ready) {
-            const source = layer.oid;
-
-            let prevLayer = null;
-            if (otherLayer) {
-                if (this.map.getLayer(otherLayer.oid + "-POLYGON")) {
-                    prevLayer = otherLayer.oid + "-POLYGON";
-                } else if (this.map.getLayer(otherLayer.oid + "-POINT")) {
-                    prevLayer = otherLayer.oid + "-POINT";
-                } else if (this.map.getLayer(otherLayer.oid + "-LINE")) {
-                    prevLayer = otherLayer.oid + "-LINE";
-                }
-            }
-
-            let protocol = window.location.protocol;
-            let host = window.location.host;
-
-            this.map.addSource(source, {
-                type: "vector",
-                tiles: [protocol + "//" + host + registry.contextPath + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: source }))],
-                promoteId: "uid"
-            });
-
-            // Polygon layer
-            this.map.addLayer({
-                id: source + "-POLYGON",
-                type: "fill",
-                source: source,
-                "source-layer": "context",
-                layout: {},
-                paint: {
-                    "fill-color": [
-                        "case",
-                        ["boolean", ["feature-state", "hover"], false],
-                        SELECTED_COLOR,
-                        layer.color
-                    ],
-                    "fill-opacity": 0.8,
-                    "fill-outline-color": "black"
-                },
-                filter: ["all",
-                    ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
-                ]
-            }, prevLayer);
-
-            // Line layer
-            this.map.addLayer({
-                id: source + "-LINE",
-                type: "line",
-                source: source,
-                "source-layer": "context",
-                paint: {
-                    "line-width": 3,
-                    "line-color": [
-                        "case",
-                        ["boolean", ["feature-state", "hover"], false],
-                        SELECTED_COLOR,
-                        layer.color
-                    ]
-                },
-                filter: ["all",
-                    ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false]
-                ]
-            }, prevLayer);
-
-            // Point layer
-            this.map.addLayer({
-                id: source + "-POINT",
-                type: "circle",
-                source: source,
-                "source-layer": "context",
-                paint: {
-                    "circle-radius": 10,
-                    "circle-color": [
-                        "case",
-                        ["boolean", ["feature-state", "hover"], false],
-                        SELECTED_COLOR,
-                        layer.color
-                    ],
-                    "circle-stroke-width": 2,
-                    "circle-stroke-color": "#FFFFFF"
-                },
-                filter: ["all",
-                    ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
-                ]
-            }, prevLayer);
-
-            // Label layer
-            this.map.addLayer({
-                id: source + "-LABEL",
-                source: source,
-                "source-layer": "context",
-                type: "symbol",
-                paint: {
-                    "text-color": "black",
-                    "text-halo-color": "#fff",
-                    "text-halo-width": 2
-                },
-                layout: {
-                    "text-field": ["case",
-                        ["has", "displayLabel_" + navigator.language.toLowerCase()],
-                        ["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
-                        ["string", ["get", "displayLabel"]]
-                    ],
-                    "text-font": ["NotoSansRegular"],
-                    "text-offset": [0, 0.6],
-                    "text-anchor": "top",
-                    "text-size": 12
-                }
-            }, prevLayer);
-
-            // Highlight
-            if (this.feature && this.feature.source === source) {
-                this.map.setFeatureState(this.feature, {
-                    selected: true
-                });
-            }
-        }
-    }
-*/
 }

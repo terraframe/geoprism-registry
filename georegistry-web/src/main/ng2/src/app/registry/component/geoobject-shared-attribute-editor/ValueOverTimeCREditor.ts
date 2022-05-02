@@ -3,13 +3,16 @@ import { CreateGeoObjectAction, UpdateAttributeOverTimeAction, AbstractAction, V
 import { v4 as uuid } from "uuid";
 // eslint-disable-next-line camelcase
 import turf_booleanequal from "@turf/boolean-equal";
+import bbox from "@turf/bbox";
 import { LocalizedValue } from "@shared/model/core";
-import { GeometryService, GeoJsonLayerDataSource, Layer, GeoJsonLayer } from "@registry/service";
+import { GeometryService, Layer, GeoJsonLayer, RegistryService } from "@registry/service";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { Subject } from "rxjs";
 import { ChangeType } from "@registry/model/constants";
+import { ListTypeService } from "@registry/service/list-type.service";
+import { LngLatBoundsLike } from "mapbox-gl";
 
-export class ValueOverTimeCREditor implements TimeRangeEntry, GeoJsonLayerDataSource {
+export class ValueOverTimeCREditor implements TimeRangeEntry {
 
     diff?: ValueOverTimeDiff; // Any existing diff which may be associated with this object.
     valueOverTime?: ValueOverTime; // Represents a vot on an existing GeoObject. If this is set and the action is UpdateAttribute, we must be doing an UPDATE, and valueOverTime represents the original value in the DB.
@@ -476,51 +479,50 @@ export class ValueOverTimeCREditor implements TimeRangeEntry, GeoJsonLayerDataSo
         return this.diff != null && this.diff.action === "DELETE";
     }
 
-    /**
-     * Implemented from interface LayerDataSource
-    */
-
-    // @Override
-    setLayerData(data: any): void {
-        this.value = data;
-    }
-
-    // @Override
-    getLayerData() {
-        return this.value;
-    }
-
-    // @Override
-    buildMapboxSource() {
-        let geojson = this.getLayerData();
-
+    buildDataSource(type: string) {
+        let votEditor = this;
         return {
-            type: "geojson",
-            data: {
-                type: "FeatureCollection",
-                features: geojson
+            setLayerData(data: any): void {
+                if (type === "NEW") {
+                    votEditor.value = data;
+                } else {
+                    // eslint-disable-next-line no-console
+                    console.log("ERROR. Cannot edit old geometry");
+                }
+            },
+            getLayerData() {
+                if (type === "NEW") {
+                    return votEditor.value;
+                } else {
+                    return votEditor.oldValue;
+                }
+            },
+            buildMapboxSource() {
+                let geojson = this.getLayerData();
+
+                return {
+                    type: "geojson",
+                    data: geojson
+                };
+            },
+            getGeometryType(): string {
+                return votEditor.changeRequestAttributeEditor.changeRequestEditor.geoObjectType.geometryType;
+            },
+            getDataSourceId(): string {
+                return type + "_" + votEditor.oid;
+            },
+            getDataSourceProviderId(): string {
+                return votEditor.changeRequestAttributeEditor.changeRequestEditor.changeRequest.oid;
+            },
+            createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer {
+                return new GeoJsonLayer(oid, legendLabel, this, rendered, color);
+            },
+            getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBoundsLike> {
+                return new Promise((resolve, reject) => {
+                    resolve(bbox(this.getLayerData()) as LngLatBoundsLike);
+                });
             }
         };
-    }
-
-    // @Override
-    getGeometryType(): string {
-        return this.changeRequestAttributeEditor.changeRequestEditor.geoObjectType.geometryType;
-    }
-
-    // @Override
-    getDataSourceId(): string {
-        return this.oid;
-    }
-
-    // @Override
-    getDataSourceProviderId(): string {
-        return this.changeRequestAttributeEditor.changeRequestEditor.changeRequest.oid;
-    }
-
-    // @Override
-    createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer {
-        return new GeoJsonLayer(oid, legendLabel, this, rendered, color);
     }
 
 }

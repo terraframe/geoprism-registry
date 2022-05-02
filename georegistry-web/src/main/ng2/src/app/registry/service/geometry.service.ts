@@ -3,10 +3,13 @@ import { Injectable, Output, EventEmitter, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 
 import * as MapboxDraw from "@mapbox/mapbox-gl-draw";
-import { Map, LngLat, LngLatBounds } from "mapbox-gl";
+import { Map, LngLat, LngLatBounds, LngLatBoundsLike } from "mapbox-gl";
 import { Subscription } from "rxjs";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/registry";
+import { RegistryService } from "./registry.service";
+import { ListTypeService } from "./list-type.service";
+declare let registry: GeoRegistryConfiguration;
 
 export const OLD_LAYER_COLOR = "#A4A4A4";
 
@@ -48,6 +51,9 @@ export interface LayerDataSource {
     createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer;
 
     configureMapboxLayer?(layerConfig: any): void;
+
+    // eslint-disable-next-line no-use-before-define
+    getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBoundsLike>;
 
 }
 
@@ -99,6 +105,7 @@ export class GeoJsonLayer extends Layer {
 }
 
 export const GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID: string = "GEOOBJECT";
+export const GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT = "~`-='";
 
 export class GeoObjectLayerDataSourceProvider implements DataSourceProvider {
 
@@ -122,14 +129,30 @@ export class GeoObjectLayerDataSourceProvider implements DataSourceProvider {
             },
 
             buildMapboxSource() {
-                let idSplit = dataSourceId.split("~");
+                let idSplit = dataSourceId.split(GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT);
 
-                let url = registry.contextPath + "/cgr/geoobject/get-code" + "?" + "code=" + idSplit[0] + "&typeCode=" + idSplit[1];
+                let url = registry.contextPath + "/cgr/geoobject/get-code" + "?" + "code=" + idSplit[0] + "&typeCode=" + idSplit[1] + "&date=" + idSplit[2];
 
                 return {
                     type: "geojson",
                     data: url
                 };
+            },
+
+            getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBoundsLike> {
+                let idSplit = dataSourceId.split(GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT);
+
+                let code = decodeURIComponent(idSplit[0]);
+                let typeCode = decodeURIComponent(idSplit[1]);
+                let date = decodeURIComponent(idSplit[2]);
+
+                return registryService.getGeoObjectBoundsAtDate(code, typeCode, date).then((bounds: number[]) => {
+                    if (bounds && Array.isArray(bounds)) {
+                        return new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+                    } else {
+                        return null;
+                    }
+                });
             }
 
         };
@@ -205,7 +228,11 @@ export class GeometryService implements OnDestroy {
 
         if (syncLayersWithUrlParams) {
             this.queryParamSubscription = this.route.queryParams.subscribe(params => {
-                this.handleParameterChange(params);
+                try {
+                    this.handleParameterChange(params);
+                } catch (err) {
+                    console.log (err); // We will be unsubscribed if we throw an unhandled error and we don't want that to happen
+                }
             });
         }
 
@@ -436,6 +463,26 @@ export class GeometryService implements OnDestroy {
         this.geometryType = geometryType;
     }
 
+    public getLayerFromMapboxLayer(mapboxLayer: any) {
+        let id = mapboxLayer.id;
+
+        if (id.endsWith("-POINT")) {
+            id = id.substring(0, id.length - "-POINT".length);
+        } else if (id.endsWith("-POLYGON")) {
+            id = id.substring(0, id.length - "-POLYGON".length);
+        } else if (id.endsWith("-LINE")) {
+            id = id.substring(0, id.length - "-LINE".length);
+        }
+
+        let layers = this.getLayers().filter(l => l.oid === id);
+
+        if (layers.length > 0) {
+            let layer: Layer = layers[0];
+
+            return layer;
+        }
+    }
+
     destroy(destroyMap: boolean = true): void {
         if (this.editingControl != null) {
             this.map.removeControl(this.editingControl);
@@ -622,7 +669,7 @@ export class GeometryService implements OnDestroy {
         if (existingIndex !== -1) {
             newLayers[existingIndex] = newLayer;
         } else {
-            if (orderingIndex) {
+            if (orderingIndex != null) {
                 newLayers.splice(orderingIndex, 0, newLayer);
             } else {
                 newLayers.push(newLayer);
@@ -646,6 +693,14 @@ export class GeometryService implements OnDestroy {
 
             this.setLayers(newLayers);
         }
+    }
+
+    public removeLayers(oids: string[]) {
+        let newLayers = this.serializeAllLayers();
+
+        newLayers = newLayers.filter(layer => oids.indexOf(layer.oid) === -1);
+
+        this.setLayers(newLayers);
     }
 
     getLayers(): Layer[] {
@@ -804,6 +859,10 @@ export class GeometryService implements OnDestroy {
 
         this.map.addSource(layer.dataSource.getDataSourceId(), layer.dataSource.buildMapboxSource());
 
+        if (otherLayer && !otherLayer.rendered) {
+            otherLayer = null;
+        }
+
         if (layer.dataSource.getGeometryType() === "MIXED") {
             this.mapLayerAsType("POLYGON", layer, otherLayer);
             this.mapLayerAsType("POINT", layer, otherLayer);
@@ -844,12 +903,11 @@ export class GeometryService implements OnDestroy {
 
     mapLayerAsType(geometryType: string, layer: Layer, otherLayer?: Layer): void {
         let layerConfig: any;
-        let otherLayerConfig: any;
 
         if (geometryType === "MULTIPOLYGON" || geometryType === "POLYGON") {
             // Polygon Layer
             layerConfig = {
-                id: layer.oid + "-POLYGON",
+                id: layer.oid + "-" + this.getLayerIdGeomTypePostfix(geometryType),
                 type: "fill",
                 source: layer.dataSource.getDataSourceId(),
                 paint: {
@@ -866,11 +924,10 @@ export class GeometryService implements OnDestroy {
                     ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
                 ]
             };
-            otherLayerConfig = otherLayer ? otherLayer.oid + "-POLYGON" : null;
         } else if (geometryType === "POINT" || geometryType === "MULTIPOINT") {
             // Point layer
             layerConfig = {
-                id: layer.oid + "-POINT",
+                id: layer.oid + "-" + this.getLayerIdGeomTypePostfix(geometryType),
                 type: "circle",
                 source: layer.dataSource.getDataSourceId(),
                 paint: {
@@ -888,10 +945,9 @@ export class GeometryService implements OnDestroy {
                     ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
                 ]
             };
-            otherLayerConfig = otherLayer ? otherLayer.oid + "-POINT" : null;
         } else if (geometryType === "LINE" || geometryType === "MULTILINE") {
             layerConfig = {
-                id: layer.oid + "-LINE",
+                id: layer.oid + "-" + this.getLayerIdGeomTypePostfix(geometryType),
                 source: layer.dataSource.getDataSourceId(),
                 type: "line",
                 layout: {
@@ -911,7 +967,6 @@ export class GeometryService implements OnDestroy {
                     ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false]
                 ]
             };
-            otherLayerConfig = otherLayer ? otherLayer.oid + "-LINE" : null;
         } else {
             // eslint-disable-next-line no-console
             console.log("Unexpected geometry type [" + geometryType + "]");
@@ -922,7 +977,19 @@ export class GeometryService implements OnDestroy {
             layer.dataSource.configureMapboxLayer(layerConfig);
         }
 
-        this.map.addLayer(layerConfig, otherLayerConfig);
+        this.map.addLayer(layerConfig, otherLayer ? otherLayer.oid + "-" + this.getLayerIdGeomTypePostfix(otherLayer.dataSource.getGeometryType()) : null);
+    }
+
+    private getLayerIdGeomTypePostfix(geometryType: string) {
+        if (geometryType === "MULTIPOLYGON" || geometryType === "POLYGON") {
+            return "POLYGON";
+        } else if (geometryType === "POINT" || geometryType === "MULTIPOINT") {
+            return "POINT";
+        } else if (geometryType === "LINE" || geometryType === "MULTILINE") {
+            return "LINE";
+        } else {
+            return "POLYGON";
+        }
     }
 
     getDrawGeometry(): any {

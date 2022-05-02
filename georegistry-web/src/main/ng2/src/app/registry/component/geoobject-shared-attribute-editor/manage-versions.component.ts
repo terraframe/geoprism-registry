@@ -28,7 +28,7 @@ import { DateFieldComponent } from "../../../shared/component/form-fields/date-f
 import { ErrorHandler } from "@shared/component";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
-import { RegistryService, GeometryService, Layer, GeoJsonLayer, NEW_LAYER_COLOR, OLD_LAYER_COLOR, GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID } from "@registry/service";
+import { RegistryService, GeometryService, Layer, GeoJsonLayer, NEW_LAYER_COLOR, OLD_LAYER_COLOR, GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID, GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT } from "@registry/service";
 import { ChangeRequestService } from "@registry/service/change-request.service";
 import { DateService } from "@shared/service/date.service";
 
@@ -133,6 +133,15 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
     ngOnChanges(changes: SimpleChanges) {
         if (this.isInitialized && changes.showAllInstances && changes.showAllInstances.previousValue !== changes.showAllInstances.currentValue) {
             this.calculateViewModels();
+        }
+        if (changes.readonly && changes.readonly.previousValue !== changes.readonly.currentValue) {
+            this.viewModels.forEach(vm => {
+                vm.destroy(this);
+                if (vm.objectLayer != null) {
+                    this.geomService.removeLayer(vm.objectLayer.oid);
+                    vm.objectLayer = null;
+                }
+            });
         }
     }
 
@@ -365,7 +374,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
      */
 
     toggleGeometryEditing(view: VersionDiffView) {
-        this.geomService.setEditing(!view.newLayer.editing, view.newLayer);
+        this.geomService.setEditing(!view.editingLayer.editing, view.editingLayer);
 
         if (this.geoObjectType.geometryType === "POINT" || this.geoObjectType.geometryType === "MULTIPOINT") {
             view.coordinate = {};
@@ -378,54 +387,49 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
             this.mapRowHeight = this.elementRef.nativeElement.children[0].getElementsByClassName("attribute-element-wrapper")[0].offsetHeight;
         }, 0);
 
-        let layer = this.getOrCreateLayer(view, "NEW");
-
-        if (layer.editing) {
-            this.geomService.stopEditing();
+        if (this.readonly) {
+            if (view.objectLayer) {
+                this.geomService.removeLayer(view.objectLayer.oid);
+                delete view.objectLayer;
+            } else {
+                let geoObject = this.changeRequestEditor.geoObject;
+                let displayLabel = (geoObject.attributes["displayLabel"].values && geoObject.attributes["displayLabel"].values.length > 0) ? geoObject.attributes["displayLabel"].values[0].value.localizedValue : geoObject.attributes.code;
+                let typeLabel = geoObject.geoObjectType.label.localizedValue;
+                let label = displayLabel + " " + this.dateService.formatDateForDisplay(view.editor.startDate) + " (" + typeLabel + ")";
+                let dataSourceId = encodeURIComponent(geoObject.attributes["code"]) + GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT + encodeURIComponent(geoObject.geoObjectType.code) + GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT + view.editor.startDate;
+                let dataSource = this.geomService.getDataSourceProvider(GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID).getDataSource(dataSourceId);
+                view.objectLayer = new Layer(view.editor.oid, label, dataSource, true, NEW_LAYER_COLOR);
+                this.geomService.addOrUpdateLayer(view.objectLayer.toParamLayer(), 0);
+            }
+        } else {
+            if (view.editingLayer) {
+                if (view.editingLayer.editing) {
+                    this.geomService.stopEditing();
+                }
+                this.geomService.removeLayer(view.editingLayer.oid);
+                delete view.editingLayer;
+            } else {
+                let geoObject = this.changeRequestEditor.geoObject;
+                let displayLabel = (geoObject.attributes["displayLabel"].values && geoObject.attributes["displayLabel"].values.length > 0) ? geoObject.attributes["displayLabel"].values[0].value.localizedValue : geoObject.attributes.code;
+                let typeLabel = geoObject.geoObjectType.label.localizedValue;
+                let label = displayLabel + "* " + this.dateService.formatDateForDisplay(view.editor.startDate) + " (" + typeLabel + ")";
+                view.editingLayer = view.editor.buildDataSource("NEW").createLayer("EDITING_" + view.editor.oid, label, true, NEW_LAYER_COLOR) as GeoJsonLayer;
+                this.geomService.addOrUpdateLayer(view.editingLayer.toParamLayer(), 0);
+            }
         }
-
-        layer.rendered = !layer.rendered;
-
-        this.geomService.addOrUpdateLayer(layer.toParamLayer(), 0);
     }
 
     toggleOldGeometryView(view: VersionDiffView) {
-        let layer: Layer = this.getOrCreateLayer(view, "OLD");
-
-        layer.rendered = !layer.rendered;
-
-        if (view.oldLayer) {
-            this.geomService.addOrUpdateLayer(layer.toParamLayer(), 1);
+        if (view.oldLayer != null) {
+            this.geomService.removeLayer(view.oldLayer.oid);
+            delete view.oldLayer;
         } else {
-            this.geomService.addOrUpdateLayer(layer.toParamLayer(), 0);
-        }
-    }
-
-    getOrCreateLayer(view: VersionDiffView, context: string): Layer {
-        if (context === "NEW") {
-            /*
-            if (view.newLayer != null) {
-                return view.newLayer;
-            }
-
-            view.newLayer = view.editor.createLayer("NEW_" + view.editor.oid, view.oid, false, NEW_LAYER_COLOR) as GeoJsonLayer;
-            return view.newLayer;
-            */
-
             let geoObject = this.changeRequestEditor.geoObject;
             let displayLabel = (geoObject.attributes["displayLabel"].values && geoObject.attributes["displayLabel"].values.length > 0) ? geoObject.attributes["displayLabel"].values[0].value.localizedValue : geoObject.attributes.code;
             let typeLabel = geoObject.geoObjectType.label.localizedValue;
-            let label = displayLabel + " (" + typeLabel + ")";
-            let dataSourceId = geoObject.attributes["code"] + "~" + geoObject.geoObjectType.code;
-            let dataSource = this.geomService.getDataSourceProvider(GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID).getDataSource(dataSourceId);
-            return new Layer("NEW_" + view.editor.oid, label, dataSource, false, NEW_LAYER_COLOR);
-        } else {
-            if (view.oldLayer != null) {
-                return view.oldLayer;
-            }
-
-            view.oldLayer = view.editor.createLayer("OLD_" + view.editor.oid, view.oid, false, OLD_LAYER_COLOR) as GeoJsonLayer;
-            return view.oldLayer;
+            let label = displayLabel + " " + this.dateService.formatDateForDisplay(view.editor.startDate) + " (" + typeLabel + ")";
+            view.oldLayer = view.editor.buildDataSource("OLD").createLayer("OLD_" + view.editor.oid, label, true, OLD_LAYER_COLOR) as GeoJsonLayer;
+            this.geomService.addOrUpdateLayer(view.oldLayer.toParamLayer(), 1);
         }
     }
 

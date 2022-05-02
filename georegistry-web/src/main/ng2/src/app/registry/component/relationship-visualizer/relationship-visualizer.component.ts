@@ -18,9 +18,11 @@ import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
 import * as ColorGen from "color-generator";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
-import { LngLatBounds } from "mapbox-gl";
-import { DataSourceProvider, GeoJsonLayer, GeoJsonLayerDataSource, GeometryService, Layer, LayerDataSource, ParamLayer } from "@registry/service";
+import { DataSourceProvider, GeoJsonLayer, GeoJsonLayerDataSource, GeometryService, Layer, LayerDataSource, ParamLayer, RegistryService } from "@registry/service";
 import { Router, ActivatedRoute } from "@angular/router";
+import { LngLatBounds, LngLatBoundsLike } from "mapbox-gl";
+import bbox from "@turf/bbox";
+import { ListTypeService } from "@registry/service/list-type.service";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -140,12 +142,11 @@ export class RelationshipVisualizerComponent implements OnInit {
             getDataSource(dataSourceId: string): LayerDataSource {
                 return {
                     buildMapboxSource(): any {
+                        let geojson = this.getLayerData();
+
                         return {
                             type: "geojson",
-                            data: {
-                                type: "FeatureCollection",
-                                features: this.getLayerData()
-                            }
+                            data: geojson
                         };
                     },
                     getGeometryType(): string {
@@ -172,6 +173,11 @@ export class RelationshipVisualizerComponent implements OnInit {
                     },
                     getDataSourceProviderId(): string {
                         return RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER;
+                    },
+                    getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBoundsLike> {
+                        return new Promise((resolve, reject) => {
+                            resolve(bbox(this.getLayerData()) as LngLatBoundsLike);
+                        });
                     }
                 } as GeoJsonLayerDataSource;
             }
@@ -292,7 +298,7 @@ export class RelationshipVisualizerComponent implements OnInit {
         let layers: ParamLayer[] = this.geomService.serializeAllLayers();
 
         // Remove any existing layer from map that is graph related that isn't part of this new data
-        layers = layers.filter(layer => !layer.oid.startsWith("GRAPH-") ||
+        layers = layers.filter(layer => layer.dataSourceProviderId !== RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER ||
             (
               layer.oid.split("-").length === 3 &&
               Object.keys(typeCollections).indexOf(layer.oid.split("-")[1]) !== -1 &&
@@ -303,7 +309,9 @@ export class RelationshipVisualizerComponent implements OnInit {
         for (const [typeCode] of Object.entries(typeCollections)) {
           let oid = "GRAPH-" + typeCode + "-" + this.relationship.code;
 
-          layers.push(new ParamLayer(oid, this.relationship.label.localizedValue + " " + typeCode, true, this.colorSchema[typeCode], oid, RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER));
+          if (layers.findIndex(l => l.oid === oid) === -1) {
+              layers.push(new ParamLayer(oid, this.relationship.label.localizedValue + " " + typeCode, true, this.colorSchema[typeCode], oid, RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER));
+          }
         }
 
         this.geomService.setLayers(layers);

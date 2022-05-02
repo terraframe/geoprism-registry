@@ -13,6 +13,9 @@ import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
 import { DataSourceProvider, GeometryService, Layer, LayerDataSource } from "@registry/service/geometry.service";
 import { GeoRegistryConfiguration } from "@core/model/registry";
+import { LngLatBounds } from "mapbox-gl";
+import { HttpErrorResponse } from "@angular/common/http";
+import { RegistryService } from "@registry/service/registry.service";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -53,7 +56,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     @Input() visualizeMode: number;
 
     @Output() baseLayerChange = new EventEmitter<BaseLayer>();
-    @Output() zoomTo = new EventEmitter<ContextLayer>();
+    @Output() zoomTo = new EventEmitter<Layer>();
     @Output() create = new EventEmitter<ContextLayer>();
 
     @Input() panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
@@ -145,6 +148,15 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
                     },
                     configureMapboxLayer(layerConfig: any): void {
                         layerConfig["source-layer"] = "context";
+                    },
+                    getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBounds> {
+                        return listService.getBounds(layer.oid).then((bounds: number[]) => {
+                            if (bounds && Array.isArray(bounds)) {
+                                return new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+                            } else {
+                                return null;
+                            }
+                        });
                     }
                 };
             }
@@ -266,7 +278,11 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     }
 
     onGotoBounds(layer: ContextLayer): void {
-        this.zoomTo.emit(layer);
+        let layers = this.geomService.getLayers().filter(l => l.oid === layer.oid);
+
+        if (layers.length > 0) {
+            this.zoomTo.emit(layers[0]);
+        }
     }
 
     onCreate(layer: ContextLayer): void {
