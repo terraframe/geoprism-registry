@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from "@angular/core";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -14,10 +14,17 @@ import { Subject } from "rxjs";
     templateUrl: "./lists-for-type.component.html",
     styleUrls: ["./list-type-manager.css"]
 })
-export class ListsForTypeComponent implements OnInit, OnDestroy {
+export class ListsForTypeComponent implements OnInit, OnDestroy, OnChanges {
 
     @Input() listByType: ListTypeByType = null;
     @Output() error = new EventEmitter<HttpErrorResponse>();
+
+    groups = {
+        single: [],
+        interval: [],
+        incremental: []
+    };
+
     /*
      * Observable subject for ListType changes.  Called when an update is successful
      */
@@ -48,6 +55,26 @@ export class ListsForTypeComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.onListTypeChange.unsubscribe();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes.listByType != null) {
+            this.groups = {
+                single: [],
+                interval: [],
+                incremental: []
+            };
+
+            changes.listByType.currentValue.lists.forEach(list => {
+                if (list.listType === "single") {
+                    this.groups.single.push(list);
+                } else if (list.listType === "interval") {
+                    this.groups.interval.push(list);
+                } else if (list.listType === "incremental") {
+                    this.groups.incremental.push(list);
+                }
+            });
+        }
     }
 
     onCreate(): void {

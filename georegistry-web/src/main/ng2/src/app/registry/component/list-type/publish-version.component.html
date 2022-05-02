@@ -51,18 +51,6 @@
                 [disabled]="readonly" />
         </div>
     </div>
-    <div class="row-holder">
-        <div class="label-holder">
-            <label>
-                <localize key="list.type.collection.date"></localize>
-            </label>
-        </div>
-        <div class="holder">
-            <date-field [(value)]="metadata.collectionDate" [classNames]="['form-control']" label=""
-                [inputName]="'collectionDate'" [allowFutureDates]="false" name="collectionDate" [disable]="readonly">
-            </date-field>
-        </div>
-    </div>
     <div class="row-holder" *ngFor="let localeValue of metadata.description.localeValues">
         <div class="label-holder">
             <label>

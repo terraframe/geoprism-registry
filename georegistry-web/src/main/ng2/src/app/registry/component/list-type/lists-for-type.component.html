@@ -1,25 +1,5 @@
-<ng-container>
-    <div class="heading">
-        <h2>
-            {{listByType.orgLabel}} : {{listByType.typeLabel}}
-        </h2>
-    </div>
-    <div class="subheading">
-        <h3>
-            <localize key="list.type.heading"></localize>
-        </h3>
-    </div>
-    <hr />
-    <div *ngIf="listByType.write" style="margin-top:30px;margin-bottom:30px;" class="row">
-        <div class="col-md-6">
-            <div>
-                <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
-                    <localize key="list.type.button.create"></localize>
-                </button>
-            </div>
-        </div>
-    </div>
-    <div *ngFor="let list of listByType.lists; let i = index;" class="row" style="margin-bottom: 5px;">
+<ng-template #groupDetail let-lists='lists' let-listByType="listByType">
+    <div *ngFor="let list of lists; let i = index;" class="row" style="margin-bottom: 5px;">
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-body">
@@ -28,10 +8,13 @@
                             <i *ngIf="list.listType === 'single'" class="fa fa-table" aria-hidden="true"></i>
                             <span *ngIf="list.listType !== 'single'" class="fa-stack fa-lg">
                                 <i class="fa fa-table fa-stack-2x"></i>
-                                <i class="fa fa-table fa-stack-1x second-stacked-el" style="margin-left:8px;margin-top:-4px;"></i>
+                                <i class="fa fa-table fa-stack-1x second-stacked-el"
+                                    style="margin-left:8px;margin-top:-4px;"></i>
                             </span>
 
-                            <a [routerLink]="'/registry/master-lists'" [queryParams]="{typeCode:listByType.typeCode, listId: list.oid}" routerLinkActive="active" style="font-size:18px;">
+                            <a [routerLink]="'/registry/master-lists'"
+                                [queryParams]="{typeCode:listByType.typeCode, listId: list.oid}"
+                                routerLinkActive="active" style="font-size:18px;">
                                 {{list.displayLabel.localizedValue}}
                             </a>
                         </div>
@@ -74,7 +57,7 @@
                             <ul class="unstyled-list">
                                 <li *ngFor="let interval of list.intervalJson">
                                     <date-text [date]="interval.startDate"></date-text>
-                                    - 
+                                    -
                                     <date-text [date]="interval.endDate"></date-text>
                                 </li>
                             </ul>
@@ -91,6 +74,59 @@
         </div>
 
     </div>
+
+</ng-template>
+
+
+<ng-container>
+    <div class="heading">
+        <h2>
+            {{listByType.orgLabel}} : {{listByType.typeLabel}}
+        </h2>
+    </div>
+    <div class="subheading">
+        <h3>
+            <localize key="list.type.heading"></localize>
+        </h3>
+    </div>
+    <hr />
+    <div *ngIf="listByType.write" style="margin-top:30px;margin-bottom:30px;" class="row">
+        <div class="col-md-6">
+            <div>
+                <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
+                    <localize key="list.type.button.create"></localize>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="groups.single.length > 0">
+        <h3>
+            <localize key="list.type.single.date"></localize>
+        </h3>
+        <ng-container [ngTemplateOutlet]="groupDetail"
+            [ngTemplateOutletContext]="{lists:groups.single, listByType:listByType}">
+        </ng-container>
+    </div>
+
+    <div *ngIf="groups.incremental.length > 0">
+        <h3>
+            <localize key="list.type.incremental.series"></localize>
+        </h3>
+        <ng-container [ngTemplateOutlet]="groupDetail"
+            [ngTemplateOutletContext]="{lists:groups.incremental, listByType:listByType}">
+        </ng-container>
+    </div>
+
+    <div *ngIf="groups.interval.length > 0">
+        <h3>
+            <localize key="list.type.interval.series"></localize>
+        </h3>
+        <ng-container [ngTemplateOutlet]="groupDetail"
+            [ngTemplateOutletContext]="{lists:groups.interval, listByType:listByType}">
+        </ng-container>
+    </div>
+
     <div *ngIf="listByType.lists.length === 0" style="font-style:italic;">
         <localize key="list.type.no.lists.message"></localize>
     </div>
