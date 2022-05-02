@@ -42,6 +42,7 @@ import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 import { HierarchyCREditor } from "./HierarchyCREditor";
 import { ChangeRequestEditor } from "./change-request-editor";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
+import * as ColorGen from "color-generator";
 
 @Component({
     selector: "manage-versions",
@@ -387,18 +388,18 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
             this.mapRowHeight = this.elementRef.nativeElement.children[0].getElementsByClassName("attribute-element-wrapper")[0].offsetHeight;
         }, 0);
 
-        if (this.readonly) {
+        if (this.readonly && !this.isGeometryInlined) {
             if (view.objectLayer) {
                 this.geomService.removeLayer(view.objectLayer.oid);
                 delete view.objectLayer;
             } else {
                 let geoObject = this.changeRequestEditor.geoObject;
                 let displayLabel = (geoObject.attributes["displayLabel"].values && geoObject.attributes["displayLabel"].values.length > 0) ? geoObject.attributes["displayLabel"].values[0].value.localizedValue : geoObject.attributes.code;
-                let typeLabel = geoObject.geoObjectType.label.localizedValue;
+                let typeLabel = this.changeRequestEditor.geoObjectType.label.localizedValue;
                 let label = displayLabel + " " + this.dateService.formatDateForDisplay(view.editor.startDate) + " (" + typeLabel + ")";
-                let dataSourceId = encodeURIComponent(geoObject.attributes["code"]) + GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT + encodeURIComponent(geoObject.geoObjectType.code) + GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT + view.editor.startDate;
+                let dataSourceId = encodeURIComponent(geoObject.attributes["code"]) + GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT + encodeURIComponent(this.changeRequestEditor.geoObjectType.code) + GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT + view.editor.startDate;
                 let dataSource = this.geomService.getDataSourceProvider(GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID).getDataSource(dataSourceId);
-                view.objectLayer = new Layer(view.editor.oid, label, dataSource, true, NEW_LAYER_COLOR);
+                view.objectLayer = new Layer(view.editor.oid, label, dataSource, true, ColorGen().hexString());
                 this.geomService.addOrUpdateLayer(view.objectLayer.toParamLayer(), 0);
             }
         } else {
@@ -411,9 +412,9 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
             } else {
                 let geoObject = this.changeRequestEditor.geoObject;
                 let displayLabel = (geoObject.attributes["displayLabel"].values && geoObject.attributes["displayLabel"].values.length > 0) ? geoObject.attributes["displayLabel"].values[0].value.localizedValue : geoObject.attributes.code;
-                let typeLabel = geoObject.geoObjectType.label.localizedValue;
+                let typeLabel = this.changeRequestEditor.geoObjectType.label.localizedValue;
                 let label = displayLabel + "* " + this.dateService.formatDateForDisplay(view.editor.startDate) + " (" + typeLabel + ")";
-                view.editingLayer = view.editor.buildDataSource("NEW").createLayer("EDITING_" + view.editor.oid, label, true, NEW_LAYER_COLOR) as GeoJsonLayer;
+                view.editingLayer = view.editor.buildDataSource("NEW").createLayer("EDITING_" + view.editor.oid, label, true, ColorGen().hexString()) as GeoJsonLayer;
                 this.geomService.addOrUpdateLayer(view.editingLayer.toParamLayer(), 0);
             }
         }
@@ -426,7 +427,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
         } else {
             let geoObject = this.changeRequestEditor.geoObject;
             let displayLabel = (geoObject.attributes["displayLabel"].values && geoObject.attributes["displayLabel"].values.length > 0) ? geoObject.attributes["displayLabel"].values[0].value.localizedValue : geoObject.attributes.code;
-            let typeLabel = geoObject.geoObjectType.label.localizedValue;
+            let typeLabel = this.changeRequestEditor.geoObjectType.label.localizedValue;
             let label = displayLabel + " " + this.dateService.formatDateForDisplay(view.editor.startDate) + " (" + typeLabel + ")";
             view.oldLayer = view.editor.buildDataSource("OLD").createLayer("OLD_" + view.editor.oid, label, true, OLD_LAYER_COLOR) as GeoJsonLayer;
             this.geomService.addOrUpdateLayer(view.oldLayer.toParamLayer(), 1);

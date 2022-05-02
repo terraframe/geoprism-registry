@@ -212,7 +212,9 @@ export class GeometryService implements OnDestroy {
     constructor(
       private route: ActivatedRoute,
       private router: Router
-    ) {}
+    ) {
+        this.registerDataSourceProvider(new GeoObjectLayerDataSourceProvider());
+    }
 
     ngOnInit() {
         // TODO : Not sure that this method is ever invoked...
@@ -223,7 +225,6 @@ export class GeometryService implements OnDestroy {
         this.syncLayersWithUrlParams = syncLayersWithUrlParams;
         this.map = map;
         this.geometryType = geometryType;
-        this.registerDataSourceProvider(new GeoObjectLayerDataSourceProvider());
         // this.editingControl = null;
 
         if (syncLayersWithUrlParams) {
@@ -420,7 +421,7 @@ export class GeometryService implements OnDestroy {
     }
 
     public setLayers(paramLayers: ParamLayer[]) {
-        if (this.queryParamSubscription) {
+        if (this.syncLayersWithUrlParams) {
             this.router.navigate([], {
                 relativeTo: this.route,
                 queryParams: { layers: JSON.stringify(paramLayers) },
@@ -455,7 +456,7 @@ export class GeometryService implements OnDestroy {
             return provider.getDataSource(paramLayer.dataSourceId);
         } else {
             // eslint-disable-next-line no-console
-            console.log("ERROR? Could not find provider for dataSourceProviderId [" + paramLayer.dataSourceProviderId + "]", paramLayer);
+            console.log("Could not find provider for dataSourceProviderId [" + paramLayer.dataSourceProviderId + "]", paramLayer);
         }
     }
 

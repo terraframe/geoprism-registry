@@ -264,6 +264,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
             }
         };
+        this.geomService.registerDataSourceProvider(this.dataSourceProvider);
     }
 
     ngOnDestroy(): void {
@@ -324,7 +325,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         this.map.on("load", () => {
             this.geomService.initialize(this.map, null, true);
-            this.geomService.registerDataSourceProvider(this.dataSourceProvider);
             this.ready = true;
 
             this.initMap();
@@ -784,7 +784,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         // Get the feature data from the server and populate the left-hand panel
         this.listService.record(list, uid, false).then(record => {
             if (this.feature != null) {
-                this.map.removeFeatureState(this.feature);
+                if (this.map.getLayer(this.feature.id) != null) {
+                    this.map.removeFeatureState(this.feature);
+                }
             }
 
             // Highlight the feature on the map
@@ -794,9 +796,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 id: uid
             };
             if (this.geomService.getLayers().findIndex(lFind => this.feature.source === lFind.oid) !== -1) {
-                this.map.setFeatureState(this.feature, {
-                    selected: true
-                });
+                if (this.map.getLayer(this.feature.id) != null) {
+                    this.map.setFeatureState(this.feature, {
+                        selected: true
+                    });
+                }
             }
 
             if (record.recordType === "LIST") { // this happens when list type is NOT working

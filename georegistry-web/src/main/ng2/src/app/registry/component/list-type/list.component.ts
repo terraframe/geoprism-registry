@@ -12,7 +12,7 @@ import * as ColorGen from "color-generator";
 
 import { ErrorHandler } from "@shared/component";
 import { AuthService, ProgressService } from "@shared/service";
-import { ContextLayer, ListTypeVersion } from "@registry/model/list-type";
+import { ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
@@ -327,7 +327,7 @@ export class ListComponent implements OnInit, OnDestroy {
         event.preventDefault();
     }
 
-    layerFromList(version: ListTypeVersion): ContextLayer {
+    layerFromList(version: ListTypeVersion): ParamLayer {
         return new ParamLayer(version.oid, version.displayLabel, true, ColorGen().hexString(), version.oid, VECTOR_LAYER_DATASET_PROVIDER_ID);
     }
 

@@ -10,6 +10,9 @@ import { ListTypeService } from "@registry/service/list-type.service";
 import { PublishVersionComponent } from "./publish-version.component";
 import { Router } from "@angular/router";
 import { LngLatBounds } from "mapbox-gl";
+import { ParamLayer } from "@registry/service/geometry.service";
+import * as ColorGen from "color-generator";
+import { VECTOR_LAYER_DATASET_PROVIDER_ID } from "../location-manager/layer-panel.component";
 
 @Component({
     selector: "list-type",
@@ -120,10 +123,14 @@ export class ListTypeComponent implements OnInit, OnDestroy {
         });
     }
 
+    layerFromList(version: ListTypeVersion): ParamLayer {
+        return new ParamLayer(version.oid, version.displayLabel, true, ColorGen().hexString(), version.oid, VECTOR_LAYER_DATASET_PROVIDER_ID);
+    }
+
     onGotoMap(version: ListTypeVersion): void {
         this.service.getBounds(version.oid).then(bounds => {
             const queryParams: any = {
-                layers: JSON.stringify([version.oid])
+                layers: JSON.stringify([this.layerFromList(version)])
             };
 
             if (bounds && Array.isArray(bounds)) {
