@@ -952,7 +952,15 @@ public abstract class ListType extends ListTypeBase
     try (OIterator<? extends ListType> it = query.getIterator())
     {
       it.getAll().stream().sorted((a, b) -> {
-        return a.getDisplayLabel().getValue().compareTo(b.getDisplayLabel().getValue());
+
+        int compareTo = a.getType().compareTo(b.getType());
+
+        if (compareTo == 0)
+        {
+          return a.getDisplayLabel().getValue().compareTo(b.getDisplayLabel().getValue());
+        }
+        
+        return compareTo;
       }).filter(f -> {
         // TODO Make visible if the type has a public version???
         // return isMember;
