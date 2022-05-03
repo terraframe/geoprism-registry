@@ -3,11 +3,14 @@ import { CreateGeoObjectAction, UpdateAttributeOverTimeAction, AbstractAction, V
 import { v4 as uuid } from "uuid";
 // eslint-disable-next-line camelcase
 import turf_booleanequal from "@turf/boolean-equal";
+import bbox from "@turf/bbox";
 import { LocalizedValue } from "@shared/model/core";
-import { GeometryService } from "@registry/service";
+import { GeometryService, Layer, GeoJsonLayer, RegistryService } from "@registry/service";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { Subject } from "rxjs";
-import { ChangeType, ConflictType } from "@registry/model/constants";
+import { ChangeType } from "@registry/model/constants";
+import { ListTypeService } from "@registry/service/list-type.service";
+import { LngLatBoundsLike } from "mapbox-gl";
 
 export class ValueOverTimeCREditor implements TimeRangeEntry {
 
@@ -69,7 +72,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
         this.conflictMessages.delete(missingReference);
 
         if (this.changeRequestAttributeEditor.changeRequestEditor.changeRequest.type === "UpdateGeoObject" && this.diff != null && this.diff.action !== "CREATE") {
-            let existingVot = this.findExistingValueOverTimeByOid(this.diff.oid, this.attr.code);
+            let existingVot = this.findExistingValueOverTimeByOid(this.diff.oid);
 
             if (existingVot == null) {
                 this._isValid = false;
@@ -79,12 +82,12 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
         }
     }
 
-    findExistingValueOverTimeByOid(oid: string, attributeCode: string) {
-        if (this.changeRequestAttributeEditor.changeRequestEditor.geoObject.attributes[attributeCode]) {
-            let index = this.changeRequestAttributeEditor.changeRequestEditor.geoObject.attributes[attributeCode].values.findIndex((vot: ValueOverTime) => vot.oid === oid);
+    findExistingValueOverTimeByOid(oid: string) {
+        if (this.changeRequestAttributeEditor.changeRequestEditor.geoObject.attributes[this.attr.code]) {
+            let index = this.changeRequestAttributeEditor.changeRequestEditor.geoObject.attributes[this.attr.code].values.findIndex((vot: ValueOverTime) => vot.oid === oid);
 
             if (index !== -1) {
-                return this.changeRequestAttributeEditor.changeRequestEditor.geoObject.attributes[attributeCode].values[index];
+                return this.changeRequestAttributeEditor.changeRequestEditor.geoObject.attributes[this.attr.code].values[index];
             }
         }
 
@@ -474,6 +477,52 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
 
     public isDelete() {
         return this.diff != null && this.diff.action === "DELETE";
+    }
+
+    buildDataSource(type: string) {
+        let votEditor = this;
+        return {
+            setLayerData(data: any): void {
+                if (type === "NEW") {
+                    votEditor.value = data;
+                } else {
+                    // eslint-disable-next-line no-console
+                    console.log("ERROR. Cannot edit old geometry");
+                }
+            },
+            getLayerData() {
+                if (type === "NEW") {
+                    return votEditor.value;
+                } else {
+                    return votEditor.oldValue;
+                }
+            },
+            buildMapboxSource() {
+                let geojson = this.getLayerData();
+
+                return {
+                    type: "geojson",
+                    data: geojson
+                };
+            },
+            getGeometryType(): string {
+                return votEditor.changeRequestAttributeEditor.changeRequestEditor.geoObjectType.geometryType;
+            },
+            getDataSourceId(): string {
+                return type + "_" + votEditor.oid;
+            },
+            getDataSourceProviderId(): string {
+                return votEditor.changeRequestAttributeEditor.changeRequestEditor.changeRequest.oid;
+            },
+            createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer {
+                return new GeoJsonLayer(oid, legendLabel, this, rendered, color);
+            },
+            getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBoundsLike> {
+                return new Promise((resolve, reject) => {
+                    resolve(bbox(this.getLayerData()) as LngLatBoundsLike);
+                });
+            }
+        };
     }
 
 }

@@ -4,7 +4,7 @@ import { finalize } from "rxjs/operators";
 import { FilterMetadata } from "primeng/api";
 
 import { EventService } from "@shared/service";
-import { CurationJob, CurationProblem, LayerRecord, ListOrgGroup, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
+import { CurationJob, CurationProblem, LayerRecord, ListOrgGroup, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersion, ListVersionMetadata } from "@registry/model/list-type";
 import { Observable } from "rxjs";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
@@ -65,6 +65,19 @@ export class ListTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http.get<ListTypeVersion>(registry.contextPath + "/list-type/version", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+    fetchVersionsAsListVersion(oids: string[]): Promise<ListVersion[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("oids", oids.join(","));
+
+        this.eventService.start();
+
+        return this.http.get<ListVersion[]>(registry.contextPath + "/list-type/fetchVersionsAsListVersion", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

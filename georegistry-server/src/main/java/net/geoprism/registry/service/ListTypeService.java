@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.metadata.DefaultSerializer;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -327,6 +328,19 @@ public class ListTypeService
   {
     return ListTypeVersion.get(oid).toJSON(true);
   }
+  
+  @Request(RequestType.SESSION)
+  public JsonArray fetchVersionsAsListVersion(String sessionId, String oids)
+  {
+    JsonArray ja = new JsonArray();
+    
+    for (String oid : StringUtils.split(oids, ","))
+    {
+      ja.add(serializeVersionAsListVersion(ListTypeVersion.get(oid)));
+    }
+    
+    return ja;
+  }
 
   @Request(RequestType.SESSION)
   public JsonArray getBounds(String sessionId, String oid, String uid)
@@ -524,10 +538,7 @@ public class ListTypeService
             orgMap.get(orgCode).add(gotCode);
           }
 
-          JsonObject object = new JsonObject();
-          object.addProperty("oid", version.getOid());
-          object.addProperty("forDate", GeoRegistryUtil.formatDate(version.getForDate(), false));
-          object.addProperty("versionNumber", version.getVersionNumber());
+          JsonObject object = serializeVersionAsListVersion(version);
 
           listMap.get(listType.getOid()).get("versions").getAsJsonArray().add(object);
         }
@@ -589,6 +600,15 @@ public class ListTypeService
     }
 
     return jaOrgs;
+  }
+  
+  private JsonObject serializeVersionAsListVersion(ListTypeVersion version)
+  {
+    JsonObject object = new JsonObject();
+    object.addProperty("oid", version.getOid());
+    object.addProperty("forDate", GeoRegistryUtil.formatDate(version.getForDate(), false));
+    object.addProperty("versionNumber", version.getVersionNumber());
+    return object;
   }
 
   @Request(RequestType.SESSION)

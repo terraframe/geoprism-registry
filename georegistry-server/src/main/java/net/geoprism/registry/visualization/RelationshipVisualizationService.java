@@ -75,20 +75,17 @@ public class RelationshipVisualizationService
       if (graphType instanceof UndirectedGraphType)
       {
         // get parent and get children return the same thing for an undirected graph
-        geoObjects.add(rootGo.toGeoObject(date));
         geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults));
       }
       else if(graphType instanceof DirectedAcyclicGraphType)
       {
-        geoObjects.add(rootGo.toGeoObject(date));
         geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults/2));
-        geoObjects.addAll(getParents(rootGo.getGraphParents(graphType, false, date, boundsWKT), date, maxResults/2));
+        geoObjects.addAll(getParents(rootGo.getGraphParents(graphType, false, date, boundsWKT), date, false, maxResults/2));
       }
       else
       {
-        geoObjects.add(rootGo.toGeoObject(date));
         geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults/2));
-        geoObjects.addAll(getParents(rootGo.getGraphParents(graphType, false, date, boundsWKT), date, maxResults/2));
+        geoObjects.addAll(getParents(rootGo.getGraphParents(graphType, true, date, boundsWKT), date, true, maxResults/2));
       }
     }
     
@@ -201,7 +198,7 @@ public class RelationshipVisualizationService
     return geoObjects;
   }
   
-  public List<GeoObject> getParents(ServerParentGraphNode node, Date date, int maxResults)
+  public List<GeoObject> getParents(ServerParentGraphNode node, Date date, boolean recursive, int maxResults)
   {
     List<GeoObject> geoObjects = new LinkedList<GeoObject>();
     
@@ -214,6 +211,11 @@ public class RelationshipVisualizationService
       ServerParentGraphNode parent = parents.get(i);
       
       geoObjects.add(parent.getGeoObject().toGeoObject(date));
+      
+      if (recursive)
+      {
+        geoObjects.addAll(getParents(parent, date, true, maxResults / 2));
+      }
     }
     
     return geoObjects;

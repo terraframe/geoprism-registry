@@ -19,12 +19,12 @@
 package net.geoprism.registry.controller;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.constants.ClientRequestIF;
@@ -38,7 +38,6 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
-import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.etl.ListTypeJob;
@@ -150,6 +149,14 @@ public class ListTypeController
   public ResponseIF version(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
   {
     JsonObject response = this.service.getVersion(request.getSessionId(), oid);
+
+    return new RestBodyResponse(response);
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "fetchVersionsAsListVersion")
+  public ResponseIF fetchVersionsAsListVersion(ClientRequestIF request, @RequestParamter(name = "oids", required = true) String oid)
+  {
+    JsonElement response = this.service.fetchVersionsAsListVersion(request.getSessionId(), oid);
 
     return new RestBodyResponse(response);
   }

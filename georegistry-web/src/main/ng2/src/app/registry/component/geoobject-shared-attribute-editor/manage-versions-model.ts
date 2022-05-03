@@ -2,21 +2,9 @@
 import { ManageVersionsComponent } from "./manage-versions.component";
 import { SummaryKey } from "@registry/model/crtable";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
-import { LayerColor } from "@registry/model/constants";
 import { LocalizedValue } from "@shared/model/core";
 import { AttributeTermType, Term } from "@registry/model/registry";
-
-export class Layer {
-
-    oid: string;
-    isEditing: boolean;
-    isRendering: boolean;
-    color: LayerColor;
-    zindex: number;
-    geojson: any;
-    editPropagator: ValueOverTimeCREditor;
-
-}
+import { GeoJsonLayer, Layer } from "@registry/service/geometry.service";
 
 /*
  * This class exists purely for the purpose of storing what data to be rendered to the front-end. Any storage or submission of this data to the back-end must be translated
@@ -27,8 +15,9 @@ export class VersionDiffView {
     component: ManageVersionsComponent;
     summaryKeyData: SummaryKey;
     summaryKeyLocalized: string; // If we try to localize this in the html with a localize element then it won't update as frequently as we need so we're doing stuff manually here.
-    newLayer: Layer = null;
-    oldLayer: Layer = null;
+    objectLayer: Layer = null;
+    editingLayer: GeoJsonLayer = null;
+    oldLayer: GeoJsonLayer = null;
     coordinate?: any;
     newCoordinateX?: any;
     newCoordinateY?: any;
@@ -266,13 +255,18 @@ export class VersionDiffView {
     }
 
     destroy(component: ManageVersionsComponent): void {
+        let removeLayers = [];
+
+        if (this.editingLayer != null) {
+            removeLayers.push(this.editingLayer.oid);
+            this.editingLayer = null;
+        }
         if (this.oldLayer != null) {
-            component.geomService.setRendering(false, this.oldLayer);
+            removeLayers.push(this.oldLayer.oid);
+            this.oldLayer = null;
         }
 
-        if (this.newLayer != null) {
-            component.geomService.setRendering(false, this.newLayer);
-        }
+        component.geomService.removeLayers(removeLayers);
     }
 
 }

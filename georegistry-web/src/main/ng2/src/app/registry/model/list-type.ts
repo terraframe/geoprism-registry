@@ -1,3 +1,4 @@
+import { ParamLayer } from "@registry/service/geometry.service";
 import { LocalizedValue, PageResult } from "@shared/model/core";
 import { GeoObject, GeoObjectType } from "./registry";
 
@@ -172,15 +173,10 @@ export class ListTypeByType {
 
 }
 
-export class ContextLayer {
+export class ContextLayer extends ParamLayer {
 
-    oid: string;
-    forDate: string;
-    versionNumber: number;
-    rendered?: boolean;
-    showOnLegend?: boolean;
-    color?: string;
-    label?: string;
+    forDate?: string;
+    versionNumber?: number;
 
 }
 

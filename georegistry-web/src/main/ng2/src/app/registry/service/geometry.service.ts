@@ -1,15 +1,178 @@
-import { Injectable, Output, EventEmitter } from "@angular/core";
+
+import { Injectable, Output, EventEmitter, OnDestroy } from "@angular/core";
+import { ActivatedRoute, Params, Router } from "@angular/router";
 
 import * as MapboxDraw from "@mapbox/mapbox-gl-draw";
-import { Map, LngLat, LngLatBounds } from "mapbox-gl";
+import { Map, LngLat, LngLatBounds, LngLatBoundsLike } from "mapbox-gl";
+import { Subscription } from "rxjs";
 
-import { Layer } from "../component/geoobject-shared-attribute-editor/manage-versions-model";
+import { GeoRegistryConfiguration } from "@core/model/registry";
+import { RegistryService } from "./registry.service";
+import { ListTypeService } from "./list-type.service";
+declare let registry: GeoRegistryConfiguration;
+
+export const OLD_LAYER_COLOR = "#A4A4A4";
+
+export const NEW_LAYER_COLOR = "#0062AA";
+
+export const SELECTED_COLOR = "#800000";
+
+export class ParamLayer {
+
+    constructor(oid: string, legendLabel: string, rendered: boolean, color: string, dataSourceId: string, dataSourceProviderId: string) {
+        this.oid = oid;
+        this.legendLabel = legendLabel;
+        this.rendered = rendered;
+        this.color = color;
+        this.dataSourceId = dataSourceId;
+        this.dataSourceProviderId = dataSourceProviderId;
+    }
+
+    oid: string;
+    legendLabel: string;
+    rendered: boolean;
+    color: string;
+    dataSourceId: string;
+    dataSourceProviderId: string;
+
+}
+
+export interface LayerDataSource {
+
+    buildMapboxSource(): any;
+
+    getGeometryType(): string;
+
+    getDataSourceId(): string;
+
+    getDataSourceProviderId(): string;
+
+    // eslint-disable-next-line no-use-before-define
+    createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer;
+
+    configureMapboxLayer?(layerConfig: any): void;
+
+    // eslint-disable-next-line no-use-before-define
+    getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBoundsLike>;
+
+}
+
+export interface GeoJsonLayerDataSource extends LayerDataSource {
+
+    getLayerData(): any;
+    setLayerData(data: any): void;
+
+}
+
+export interface DataSourceProvider {
+
+    getId(): string;
+    getDataSource(dataSourceId: string): LayerDataSource;
+
+}
+
+export class Layer {
+
+    constructor(oid: string, legendLabel: string, dataSource: LayerDataSource, rendered: boolean, color: string) {
+        this.oid = oid;
+        this.legendLabel = legendLabel;
+        this.dataSource = dataSource;
+        this.rendered = rendered;
+        this.color = color;
+    }
+
+    oid: string;
+    legendLabel: string;
+    dataSource: LayerDataSource;
+    rendered: boolean;
+    color: string;
+
+    toParamLayer(): ParamLayer {
+        return new ParamLayer(this.oid, this.legendLabel, this.rendered, this.color, this.dataSource.getDataSourceId(), this.dataSource.getDataSourceProviderId());
+    }
+
+}
+
+export class GeoJsonLayer extends Layer {
+
+    constructor(oid: string, legendLabel: string, dataSource: LayerDataSource, rendered: boolean, color: string) {
+        super(oid, legendLabel, dataSource, rendered, color);
+        this.editing = false;
+    }
+
+    editing: boolean;
+
+}
+
+export const GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID: string = "GEOOBJECT";
+export const GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT = "~`-='";
+
+export class GeoObjectLayerDataSourceProvider implements DataSourceProvider {
+
+    getDataSource(dataSourceId: string): LayerDataSource {
+        return {
+
+            createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer {
+                return new Layer(oid, legendLabel, this, rendered, color);
+            },
+
+            getDataSourceProviderId(): string {
+                return GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID;
+            },
+
+            getDataSourceId(): string {
+                return dataSourceId;
+            },
+
+            getGeometryType(): string {
+                return "MIXED";
+            },
+
+            buildMapboxSource() {
+                let idSplit = dataSourceId.split(GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT);
+
+                let url = registry.contextPath + "/cgr/geoobject/get-code" + "?" + "code=" + idSplit[0] + "&typeCode=" + idSplit[1] + "&date=" + idSplit[2];
+
+                return {
+                    type: "geojson",
+                    data: url
+                };
+            },
+
+            getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBoundsLike> {
+                let idSplit = dataSourceId.split(GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT);
+
+                let code = decodeURIComponent(idSplit[0]);
+                let typeCode = decodeURIComponent(idSplit[1]);
+                let date = decodeURIComponent(idSplit[2]);
+
+                return registryService.getGeoObjectBoundsAtDate(code, typeCode, date).then((bounds: number[]) => {
+                    if (bounds && Array.isArray(bounds)) {
+                        return new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+                    } else {
+                        return null;
+                    }
+                });
+            }
+
+        };
+    }
+
+    getId(): string {
+        return GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID;
+    }
+
+}
 
 /**
- * This is a generic service used for rendering layers from ValueOverTime objects
+ * This service provides a global abstraction for mapping and editing layers across many different components (simultaneously) and
+ * serializing / deserializing these layers to / from the url parameters to facilitate saving + loading of layer state.
+ *
+ * Layers contain references to data source providers, which are invoked when deserializing from the url param to facilitate
+ * population of layer data.
  */
 @Injectable()
-export class GeometryService {
+export class GeometryService implements OnDestroy {
 
     map: Map;
 
@@ -19,31 +182,66 @@ export class GeometryService {
 
     readOnly: boolean;
 
-    // @Output() layersChange: EventEmitter<VersionOverTimeLayer[]> = new EventEmitter();
-
     editingControl: any = null;
 
     simpleEditControl: any = null;
 
-    editingLayer: Layer;
+    editingLayer: GeoJsonLayer;
 
     layerGeometries: any = {};
 
     @Output() geometryChange = new EventEmitter<any>();
 
+    @Output() layersChange: EventEmitter<Layer[]> = new EventEmitter();
+
+    /*
+    * Subscription for changes to the URL parameters
+    */
+    queryParamSubscription: Subscription;
+
+    /*
+     * URL pamaters
+     */
+    syncLayersWithUrlParams: boolean = false;
+
+    params: any = null;
+
+    dataSourceProviders: any = {};
+
     // eslint-disable-next-line no-useless-constructor
-    constructor() { }
+    constructor(
+      private route: ActivatedRoute,
+      private router: Router
+    ) {
+        this.registerDataSourceProvider(new GeoObjectLayerDataSourceProvider());
+    }
 
     ngOnInit() {
+        // TODO : Not sure that this method is ever invoked...
         window.onbeforeunload = () => this.destroy();
     }
 
-    initialize(map: Map, geometryType: String, readOnly: boolean) {
+    initialize(map: Map, geometryType: String, syncLayersWithUrlParams: boolean) {
+        this.syncLayersWithUrlParams = syncLayersWithUrlParams;
         this.map = map;
         this.geometryType = geometryType;
         // this.editingControl = null;
 
-        this.addLayers();
+        if (syncLayersWithUrlParams) {
+            this.queryParamSubscription = this.route.queryParams.subscribe(params => {
+                try {
+                    this.handleParameterChange(params);
+                } catch (err) {
+                    console.log (err); // We will be unsubscribed if we throw an unhandled error and we don't want that to happen
+                }
+            });
+        }
+
+        // this.mapAllLayers();
+
+        this.map.on("style.load", () => {
+            // this.mapAllLayers();
+        });
 
         this.map.on("draw.create", () => {
             this.saveEdits();
@@ -56,8 +254,234 @@ export class GeometryService {
         });
     }
 
+    ngOnDestroy(): void {
+        if (this.queryParamSubscription) {
+            this.queryParamSubscription.unsubscribe();
+        }
+    }
+
+    handleParameterChange(params: Params): void {
+        this.params = params;
+
+        if (this.params != null) {
+            if (this.params.layers != null) {
+                let paramLayers: ParamLayer[] = JSON.parse(this.params.layers);
+
+                if (this.map) {
+                    this.internalUpdateLayers(paramLayers);
+                }
+            }
+        }
+    }
+
+    private internalUpdateLayers(paramLayers: ParamLayer[]) {
+        let layers = [];
+        paramLayers.forEach(paramLayer => { let layer = this.buildLayerFromParamLayer(paramLayer); if (layer) { layers.push(layer); } });
+
+        if (this.map) {
+            // Calculate a diff
+            let diffs = [];
+            let iterations = paramLayers.length > this.layers.length ? paramLayers.length : this.layers.length;
+            for (let i = 0; i < iterations; ++i) {
+                if (i >= paramLayers.length) {
+                    let existingLayer = this.layers[i];
+
+                    let existingLayerExistsElsewhere = paramLayers.findIndex(findLayer => findLayer.oid === existingLayer.oid);
+
+                    if (existingLayerExistsElsewhere !== -1) {
+                        diffs.push({
+                            type: "LAYER_REORDER",
+                            index: i,
+                            moveTo: existingLayerExistsElsewhere
+                        });
+                    } else {
+                        diffs.push({
+                            type: "REMOVE_LAYER",
+                            index: i
+                        });
+                    }
+                } else if (i >= this.layers.length) {
+                    let paramLayer = paramLayers[i];
+
+                    let paramLayerExistsElsewhere = this.layers.findIndex(findLayer => findLayer.oid === paramLayer.oid);
+
+                    if (paramLayerExistsElsewhere !== -1) {
+                        diffs.push({
+                            type: "LAYER_REORDER",
+                            index: i,
+                            moveTo: paramLayerExistsElsewhere
+                        });
+                    } else {
+                        diffs.push({
+                            type: "NEW_LAYER",
+                            index: i
+                        });
+                    }
+                } else {
+                    let paramLayer = paramLayers[i];
+                    let layer = this.layers[i];
+
+                    if (paramLayer.oid !== layer.oid) {
+                        let paramLayerExistsElsewhere = this.layers.findIndex(findLayer => findLayer.oid === paramLayer.oid);
+
+                        if (paramLayerExistsElsewhere !== -1) {
+                            diffs.push({
+                                type: "LAYER_REORDER",
+                                index: i,
+                                moveTo: paramLayerExistsElsewhere
+                            });
+                        } else {
+                            diffs.push({
+                                type: "NEW_LAYER",
+                                index: i
+                            });
+                        }
+                    } else if (paramLayer.rendered !== layer.rendered) {
+                        diffs.push({
+                            type: "RENDERED_CHANGE",
+                            index: i
+                        });
+                    }
+                }
+            }
+
+            let fullRebuild = diffs.length > 0 || paramLayers.length !== this.layers.length;
+
+            if (diffs.length === 1 && diffs[0].type === "RENDERED_CHANGE") {
+                // They just toggled whether a layer was rendered
+
+                let prevLayer = null;
+                const layerCount = this.layers.length;
+                for (let i = 0; i < layerCount; ++i) {
+                    let paramLayer = paramLayers[i];
+                    let layer = this.layers[i];
+
+                    if (paramLayer.rendered !== layer.rendered) {
+                        if (paramLayer.rendered) {
+                            this.mapLayer(layers[i], prevLayer);
+                        } else {
+                            this.unmapLayer(layer);
+                        }
+                    }
+
+                    if (paramLayer.rendered) {
+                        prevLayer = this.layers[i];
+                    }
+                }
+
+                fullRebuild = false;
+            } else if (diffs.length === 1 && diffs[0].type === "NEW_LAYER" && diffs[0].index === this.layers.length && this.layers.length > 0) {
+                // Added a layer at the end
+
+                this.mapLayer(layers[layers.length - 1], this.layers.length > 0 ? this.layers[this.layers.length - 1] : null);
+                fullRebuild = false;
+            } else if (diffs.length > 0 && paramLayers.length === this.layers.length && diffs.filter(diff => diff.type !== "LAYER_REORDER").length === 0) {
+                // Layers changed order but are otherwise the same.
+
+                this.layers = JSON.parse(JSON.stringify(paramLayers));
+                for (let i = this.layers.length - 1; i > -1; i--) {
+                    const layer = this.layers[i];
+
+                    if (this.map.getLayer(layer.oid + "-POLYGON")) {
+                        this.map.moveLayer(layer.oid + "-POLYGON");
+                    }
+                    if (this.map.getLayer(layer.oid + "-POINT")) {
+                        this.map.moveLayer(layer.oid + "-POINT");
+                    }
+                    if (this.map.getLayer(layer.oid + "-LINE")) {
+                        this.map.moveLayer(layer.oid + "-LINE");
+                    }
+                    if (this.map.getLayer(layer.oid + "-LABEL")) {
+                        this.map.moveLayer(layer.oid + "-LABEL");
+                    }
+                }
+                fullRebuild = false;
+            }
+
+            if (fullRebuild) {
+                // Remove all existing layers
+                let len = this.layers.length;
+                for (let i = 0; i < len; ++i) {
+                    if (this.layers[i].rendered) {
+                        this.unmapLayer(this.layers[i]);
+                    }
+                }
+
+                this.layers = layers;
+                this.mapAllLayers();
+            } else {
+                // Make sure attribute changes are reflected
+                this.layers = layers;
+            }
+        } else {
+            this.layers = layers;
+        }
+
+        this.layersChange.emit(this.layers);
+    }
+
+    public setLayers(paramLayers: ParamLayer[]) {
+        if (this.syncLayersWithUrlParams) {
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { layers: JSON.stringify(paramLayers) },
+                queryParamsHandling: "merge" // remove to replace all query params by provided
+            });
+        } else {
+            this.internalUpdateLayers(paramLayers);
+        }
+    }
+
+    buildLayerFromParamLayer(pl: ParamLayer): Layer {
+        let dataSource = this.getDataSource(pl);
+
+        if (dataSource) {
+            return dataSource.createLayer(pl.oid, pl.legendLabel, pl.rendered, pl.color);
+        } else {
+            return null;
+        }
+    }
+
+    public registerDataSourceProvider(dataSourceProvider: DataSourceProvider) {
+        this.dataSourceProviders[dataSourceProvider.getId()] = dataSourceProvider;
+    }
+
+    public getDataSourceProvider(dataSourceProviderId: string): DataSourceProvider {
+        return this.dataSourceProviders[dataSourceProviderId];
+    }
+
+    getDataSource(paramLayer: ParamLayer): LayerDataSource {
+        if (this.dataSourceProviders[paramLayer.dataSourceProviderId]) {
+            let provider: DataSourceProvider = this.dataSourceProviders[paramLayer.dataSourceProviderId];
+            return provider.getDataSource(paramLayer.dataSourceId);
+        } else {
+            // eslint-disable-next-line no-console
+            console.log("Could not find provider for dataSourceProviderId [" + paramLayer.dataSourceProviderId + "]", paramLayer);
+        }
+    }
+
     public setGeometryType(geometryType: string) {
         this.geometryType = geometryType;
+    }
+
+    public getLayerFromMapboxLayer(mapboxLayer: any) {
+        let id = mapboxLayer.id;
+
+        if (id.endsWith("-POINT")) {
+            id = id.substring(0, id.length - "-POINT".length);
+        } else if (id.endsWith("-POLYGON")) {
+            id = id.substring(0, id.length - "-POLYGON".length);
+        } else if (id.endsWith("-LINE")) {
+            id = id.substring(0, id.length - "-LINE".length);
+        }
+
+        let layers = this.getLayers().filter(l => l.oid === id);
+
+        if (layers.length > 0) {
+            let layer: Layer = layers[0];
+
+            return layer;
+        }
     }
 
     destroy(destroyMap: boolean = true): void {
@@ -70,13 +494,15 @@ export class GeometryService {
             this.map.remove();
             this.map = null;
         } else if (this.map != null) {
-            this.removeLayers();
+            this.unmapAllLayers();
         }
 
         if (this.layers != null) {
             this.layers.forEach(layer => {
-                layer.isEditing = false;
-                layer.isRendering = false;
+                if (layer instanceof GeoJsonLayer) {
+                    layer.editing = false;
+                }
+                layer.rendered = false;
             });
         }
 
@@ -96,13 +522,13 @@ export class GeometryService {
         return this.layerGeometries[oid];
     }
 
-    startEditing(layer: Layer) {
+    startEditing(layer: GeoJsonLayer) {
         if (this.isEditing()) {
             this.stopEditing();
         }
 
         this.editingLayer = layer;
-        this.editingLayer.isEditing = true;
+        this.editingLayer.editing = true;
 
         if (!this.readOnly) {
             this.enableEditing();
@@ -115,7 +541,7 @@ export class GeometryService {
         if (this.isEditing()) {
             this.saveEdits(rerender);
 
-            this.editingLayer.isEditing = false;
+            this.editingLayer.editing = false;
             this.editingLayer = null;
 
             this.editingControl.deleteAll();
@@ -162,8 +588,8 @@ export class GeometryService {
 
             this.editingControl.set(this.editingLayer.value);
 
-            this.removeLayers();
-            this.addLayers();
+            this.unmapAllLayers();
+            this.mapAllLayers();
 
             this.editingControl.changeMode( 'simple_select', { featureIds: this.editingLayer.oid } );
             */
@@ -192,19 +618,19 @@ export class GeometryService {
         if (this.editingLayer != null) {
             let geoJson = this.getDrawGeometry();
 
-            this.editingLayer.editPropagator.value = geoJson;
+            (this.editingLayer.dataSource as unknown as GeoJsonLayerDataSource).setLayerData(geoJson);
 
             if (rerender) {
-                this.removeLayers();
-                this.addLayers();
+                this.unmapAllLayers();
+                this.mapAllLayers();
             }
         }
     }
 
     public reload(): void {
         if (this.map != null) {
-            this.removeLayers();
-            this.addLayers();
+            this.unmapAllLayers();
+            this.mapAllLayers();
 
             if (this.editingControl != null) {
                 this.editingControl.deleteAll();
@@ -214,41 +640,68 @@ export class GeometryService {
         }
     }
 
-    setEditing(isEditing: boolean, layer: Layer) {
+    setEditing(isEditing: boolean, layer: GeoJsonLayer) {
         if (this.isEditing()) {
             this.stopEditing();
         }
 
-        layer.isEditing = isEditing;
+        layer.editing = isEditing;
 
         if (isEditing) {
             this.startEditing(layer);
         }
     }
 
-    setRendering(isRendering: boolean, layer: Layer) {
-        layer.isRendering = isRendering;
-        this.addLayer(layer);
+    public serializeAllLayers(): ParamLayer[] {
+        let paramLayers: ParamLayer[] = [];
+
+        this.layers.forEach(layer => {
+            paramLayers.push(layer.toParamLayer());
+        });
+
+        return paramLayers;
     }
 
-    addLayer(newLayer: Layer) {
-        let existingIndex = this.layers.findIndex((findLayer: Layer) => { return findLayer.oid === newLayer.oid; });
+    public addOrUpdateLayer(newLayer: ParamLayer, orderingIndex?: number) {
+        let newLayers = this.serializeAllLayers();
+
+        let existingIndex = newLayers.findIndex((findLayer: ParamLayer) => { return findLayer.oid === newLayer.oid; });
 
         if (existingIndex !== -1) {
-            this.layers.splice(existingIndex, 1);
-            this.layers.push(newLayer);
+            newLayers[existingIndex] = newLayer;
         } else {
-            this.layers.push(newLayer);
+            if (orderingIndex != null) {
+                newLayers.splice(orderingIndex, 0, newLayer);
+            } else {
+                newLayers.push(newLayer);
+            }
         }
 
-        if (newLayer.isEditing) {
+        if (newLayer instanceof GeoJsonLayer && newLayer.editing) {
             this.startEditing(newLayer);
         }
 
-        this.layers = this.layers.sort((a, b) => { return a.zindex - b.zindex; });
+        this.setLayers(newLayers);
+    }
 
-        this.removeLayers();
-        this.addLayers();
+    public removeLayer(oid: string) {
+        let newLayers = this.serializeAllLayers();
+
+        let existingIndex = newLayers.findIndex((findLayer: ParamLayer) => { return findLayer.oid === oid; });
+
+        if (existingIndex !== -1) {
+            newLayers.splice(existingIndex, 1);
+
+            this.setLayers(newLayers);
+        }
+    }
+
+    public removeLayers(oids: string[]) {
+        let newLayers = this.serializeAllLayers();
+
+        newLayers = newLayers.filter(layer => oids.indexOf(layer.oid) === -1);
+
+        this.setLayers(newLayers);
     }
 
     getLayers(): Layer[] {
@@ -256,15 +709,7 @@ export class GeometryService {
     }
 
     getRenderedLayers(): Layer[] {
-        return this.layers.filter(layer => layer.isRendering);
-    }
-
-    setLayers(layers: Layer[]): void {
-        this.removeLayers();
-
-        this.layers = layers.sort((a, b) => { return a.zindex - b.zindex; });
-
-        this.addLayers();
+        return this.layers.filter(layer => layer.rendered);
     }
 
     enableEditing(): void {
@@ -354,116 +799,198 @@ export class GeometryService {
 
     addEditingLayers(): void {
         if (this.editingLayer != null && this.editingControl != null) {
-            let val = this.editingLayer.editPropagator.value;
+            let data = (this.editingLayer.dataSource as unknown as GeoJsonLayerDataSource).getLayerData();
 
-            if (val) {
-                this.editingControl.add(this.editingLayer.editPropagator.value);
+            if (data) {
+                this.editingControl.add(data);
             }
         }
     }
 
-    removeSource(prefix: string): void {
-        if (!this.map) {
-            return;
-        }
+    unmapLayer(layer: Layer): void {
+        if (this.map) {
+            const layerName = layer.oid;
 
-        let sourceName: string = prefix + "-geoobject";
-
-        if (this.map.getLayer(sourceName + "-layer") != null) {
-            this.map.removeLayer(sourceName + "-layer");
-        }
-
-        if (this.map.getSource(sourceName) != null) {
-            this.map.removeSource(sourceName);
+            if (this.map.getLayer(layerName + "-POLYGON") != null) {
+                this.map.removeLayer(layerName + "-POLYGON");
+            }
+            if (this.map.getLayer(layerName + "-POINT") != null) {
+                this.map.removeLayer(layerName + "-POINT");
+            }
+            if (this.map.getLayer(layerName + "-LINE") != null) {
+                this.map.removeLayer(layerName + "-LINE");
+            }
+            if (this.map.getLayer(layerName + "-LABEL") != null) {
+                this.map.removeLayer(layerName + "-LABEL");
+            }
+            if (this.map.getSource(layer.dataSource.getDataSourceId()) != null) {
+                this.map.removeSource(layer.dataSource.getDataSourceId());
+            }
         }
     }
 
-    removeLayers(): void {
+    unmapAllLayers(): void {
         if (this.layers != null && this.layers.length > 0) {
             let len = this.layers.length;
 
             for (let i = 0; i < len; ++i) {
                 let layer = this.layers[i];
-                this.removeSource(layer.oid);
+                this.unmapLayer(layer);
             }
         }
     }
 
-    addLayers(): void {
+    mapAllLayers(): void {
         if (this.layers != null && this.layers.length > 0) {
+            let prevLayer = null;
             let len = this.layers.length;
             for (let i = 0; i < len; ++i) {
                 let layer = this.layers[i];
 
-                if (layer.isRendering) {
-                    this.renderGeometryAsLayer(layer.editPropagator == null ? layer.geojson : layer.editPropagator.value, layer.oid, layer.color);
+                if (layer.rendered) {
+                    this.mapLayer(layer, prevLayer);
+                    prevLayer = layer;
                 }
             }
         }
     }
 
-    renderGeometryAsLayer(geometry: any, sourceName: string, color: string) {
-        let finalSourceName: string = sourceName + "-geoobject";
+    mapLayer(layer: Layer, otherLayer?: Layer): void {
+        if (!this.map) { return; }
 
-        if (!this.map) {
-            return;
-        }
-        if (!geometry) {
-            return;
+        this.map.addSource(layer.dataSource.getDataSourceId(), layer.dataSource.buildMapboxSource());
+
+        if (otherLayer && !otherLayer.rendered) {
+            otherLayer = null;
         }
 
-        this.map.addSource(finalSourceName, {
-            type: "geojson",
-            data: {
-                type: "FeatureCollection",
-                features: []
+        if (layer.dataSource.getGeometryType() === "MIXED") {
+            this.mapLayerAsType("POLYGON", layer, otherLayer);
+            this.mapLayerAsType("POINT", layer, otherLayer);
+            this.mapLayerAsType("LINE", layer, otherLayer);
+        } else {
+            this.mapLayerAsType(layer.dataSource.getGeometryType(), layer, otherLayer);
+        }
+
+        // Label layer
+        let labelConfig: any = {
+            id: layer.oid + "-LABEL",
+            source: layer.dataSource.getDataSourceId(),
+            type: "symbol",
+            paint: {
+                "text-color": "black",
+                "text-halo-color": "#fff",
+                "text-halo-width": 2
+            },
+            layout: {
+                "text-field": ["case",
+                    ["has", "displayLabel_" + navigator.language.toLowerCase()],
+                    ["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
+                    ["string", ["get", "displayLabel"]]
+                ],
+                "text-font": ["NotoSansRegular"],
+                "text-offset": [0, 0.6],
+                "text-anchor": "top",
+                "text-size": 12
             }
-        });
+        };
 
-        const geometryType = geometry.type != null ? geometry.type.toUpperCase() : this.geometryType;
+        if (layer.dataSource.configureMapboxLayer) {
+            layer.dataSource.configureMapboxLayer(labelConfig);
+        }
+
+        this.map.addLayer(labelConfig, otherLayer ? otherLayer.oid + "-LABEL" : null);
+    }
+
+    mapLayerAsType(geometryType: string, layer: Layer, otherLayer?: Layer): void {
+        let layerConfig: any;
 
         if (geometryType === "MULTIPOLYGON" || geometryType === "POLYGON") {
             // Polygon Layer
-            this.map.addLayer({
-                id: finalSourceName + "-layer",
+            layerConfig = {
+                id: layer.oid + "-" + this.getLayerIdGeomTypePostfix(geometryType),
                 type: "fill",
-                source: finalSourceName,
+                source: layer.dataSource.getDataSourceId(),
                 paint: {
-                    "fill-color": color,
+                    "fill-color": [
+                        "case",
+                        ["boolean", ["feature-state", "selected"], false],
+                        SELECTED_COLOR,
+                        layer.color
+                    ],
                     "fill-outline-color": "black",
                     "fill-opacity": 0.7
-                }
-            });
-        } else if (this.geometryType === "POINT" || this.geometryType === "MULTIPOINT") {
+                },
+                filter: ["all",
+                    ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+                ]
+            };
+        } else if (geometryType === "POINT" || geometryType === "MULTIPOINT") {
             // Point layer
-            this.map.addLayer({
-                id: finalSourceName + "-layer",
+            layerConfig = {
+                id: layer.oid + "-" + this.getLayerIdGeomTypePostfix(geometryType),
                 type: "circle",
-                source: finalSourceName,
+                source: layer.dataSource.getDataSourceId(),
                 paint: {
                     "circle-radius": 10,
-                    "circle-color": color,
+                    "circle-color": [
+                        "case",
+                        ["boolean", ["feature-state", "selected"], false],
+                        SELECTED_COLOR,
+                        layer.color
+                    ],
                     "circle-stroke-width": 2,
                     "circle-stroke-color": "#FFFFFF"
-                }
-            });
-        } else if (this.geometryType === "LINE" || this.geometryType === "MULTILINE") {
-            this.map.addLayer({
-                id: finalSourceName + "-layer",
-                source: finalSourceName,
+                },
+                filter: ["all",
+                    ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
+                ]
+            };
+        } else if (geometryType === "LINE" || geometryType === "MULTILINE") {
+            layerConfig = {
+                id: layer.oid + "-" + this.getLayerIdGeomTypePostfix(geometryType),
+                source: layer.dataSource.getDataSourceId(),
                 type: "line",
                 layout: {
                     "line-join": "round",
                     "line-cap": "round"
                 },
                 paint: {
-                    "line-color": color,
-                    "line-width": 2
-                }
-            });
+                    "line-color": [
+                        "case",
+                        ["boolean", ["feature-state", "selected"], false],
+                        SELECTED_COLOR,
+                        layer.color
+                    ],
+                    "line-width": 3
+                },
+                filter: ["all",
+                    ["match", ["geometry-type"], ["LineString", "MultiLineString"], true, false]
+                ]
+            };
+        } else {
+            // eslint-disable-next-line no-console
+            console.log("Unexpected geometry type [" + geometryType + "]");
+            return;
         }
 
-        (<any> this.map.getSource(finalSourceName)).setData(geometry);
+        if (layer.dataSource.configureMapboxLayer) {
+            layer.dataSource.configureMapboxLayer(layerConfig);
+        }
+
+        this.map.addLayer(layerConfig, otherLayer ? otherLayer.oid + "-" + this.getLayerIdGeomTypePostfix(otherLayer.dataSource.getGeometryType()) : null);
+    }
+
+    private getLayerIdGeomTypePostfix(geometryType: string) {
+        if (geometryType === "MULTIPOLYGON" || geometryType === "POLYGON") {
+            return "POLYGON";
+        } else if (geometryType === "POINT" || geometryType === "MULTIPOINT") {
+            return "POINT";
+        } else if (geometryType === "LINE" || geometryType === "MULTILINE") {
+            return "LINE";
+        } else {
+            return "POLYGON";
+        }
     }
 
     getDrawGeometry(): any {
@@ -562,60 +1089,64 @@ export class GeometryService {
 
     zoomToLayersExtent(): void {
         this.layers.forEach(layer => {
-            if (layer.geojson != null) {
-                const geometryType = layer.geojson.type != null ? layer.geojson.type.toUpperCase() : this.geometryType;
+            if (layer instanceof GeoJsonLayer) {
+                let geojson = (layer.dataSource as unknown as GeoJsonLayerDataSource).getLayerData();
 
-                if (geometryType === "MULTIPOINT" || geometryType === "POINT") {
-                    let coords = layer.geojson.coordinates;
+                if (geojson != null) {
+                    const geometryType = geojson.type != null ? geojson.type.toUpperCase() : this.geometryType;
 
-                    if (coords) {
-                        let bounds = new LngLatBounds();
-                        coords.forEach(coord => {
-                            bounds.extend(coord);
-                        });
+                    if (geometryType === "MULTIPOINT" || geometryType === "POINT") {
+                        let coords = geojson.coordinates;
 
-                        let center = bounds.getCenter();
-                        let pt = new LngLat(center.lng, center.lat);
+                        if (coords) {
+                            let bounds = new LngLatBounds();
+                            coords.forEach(coord => {
+                                bounds.extend(coord);
+                            });
 
-                        this.map.flyTo({
-                            center: pt,
-                            zoom: 9,
-                            essential: true
-                        });
-                    }
-                } else if (geometryType === "MULTIPOLYGON" || geometryType === "POLYGON" || geometryType === "MIXED") {
-                    let coords = layer.geojson.coordinates;
+                            let center = bounds.getCenter();
+                            let pt = new LngLat(center.lng, center.lat);
 
-                    if (coords) {
-                        let bounds = new LngLatBounds();
-                        coords.forEach(polys => {
-                            polys.forEach(subpoly => {
-                                subpoly.forEach(coord => {
-                                    bounds.extend(coord);
+                            this.map.flyTo({
+                                center: pt,
+                                zoom: 9,
+                                essential: true
+                            });
+                        }
+                    } else if (geometryType === "MULTIPOLYGON" || geometryType === "POLYGON" || geometryType === "MIXED") {
+                        let coords = geojson.coordinates;
+
+                        if (coords) {
+                            let bounds = new LngLatBounds();
+                            coords.forEach(polys => {
+                                polys.forEach(subpoly => {
+                                    subpoly.forEach(coord => {
+                                        bounds.extend(coord);
+                                    });
                                 });
                             });
-                        });
 
-                        this.map.fitBounds(bounds, {
-                            padding: 20
-                        });
-                    }
-                } else if (geometryType === "LINE" || geometryType === "MULTILINE") {
-                    let coords = layer.geojson.coordinates;
+                            this.map.fitBounds(bounds, {
+                                padding: 20
+                            });
+                        }
+                    } else if (geometryType === "LINE" || geometryType === "MULTILINE") {
+                        let coords = geojson.coordinates;
 
-                    if (coords) {
-                        let bounds = new LngLatBounds();
-                        coords.forEach(lines => {
-                            lines.forEach(subline => {
-                                subline.forEach(coord => {
-                                    bounds.extend(coord);
+                        if (coords) {
+                            let bounds = new LngLatBounds();
+                            coords.forEach(lines => {
+                                lines.forEach(subline => {
+                                    subline.forEach(coord => {
+                                        bounds.extend(coord);
+                                    });
                                 });
                             });
-                        });
 
-                        this.map.fitBounds(bounds, {
-                            padding: 20
-                        });
+                            this.map.fitBounds(bounds, {
+                                padding: 20
+                            });
+                        }
                     }
                 }
             }
