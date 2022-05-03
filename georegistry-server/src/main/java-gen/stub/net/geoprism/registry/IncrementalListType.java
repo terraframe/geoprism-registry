@@ -45,61 +45,61 @@ public class IncrementalListType extends IncrementalListTypeBase
   {
     JsonObject object = new JsonObject();
 
-    List<ChangeFrequency> frequency = this.getFrequency();
-
-    if (frequency.contains(ChangeFrequency.ANNUAL))
-    {
-      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-      calendar.setTime(version.getForDate());
-
-      object.addProperty("type", "text");
-      object.addProperty("value", Integer.toString(calendar.get(Calendar.YEAR)));
-    }
-    else if (frequency.contains(ChangeFrequency.BIANNUAL))
-    {
-      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-      calendar.setTime(version.getForDate());
-
-      int halfYear = ( calendar.get(Calendar.MONTH) / 6 ) + 1;
-
-      object.addProperty("type", "text");
-      object.addProperty("value", "H" + halfYear + " " + Integer.toString(calendar.get(Calendar.YEAR)));
-    }
-    else if (frequency.contains(ChangeFrequency.QUARTER))
-    {
-      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-      calendar.setTime(version.getForDate());
-
-      int quarter = ( calendar.get(Calendar.MONTH) / 3 ) + 1;
-
-      object.addProperty("type", "text");
-      object.addProperty("value", "Q" + quarter + " " + Integer.toString(calendar.get(Calendar.YEAR)));
-    }
-    else if (frequency.contains(ChangeFrequency.MONTHLY))
-    {
-      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-      calendar.setTime(version.getForDate());
-      calendar.set(Calendar.DAY_OF_MONTH, 1);
-
-      Date startOfWeek = calendar.getTime();
-
-      calendar.add(Calendar.MONTH, 1);
-      calendar.add(Calendar.DAY_OF_YEAR, -1);
-
-      Date endOfWeek = calendar.getTime();
-
-      JsonObject range = new JsonObject();
-      range.addProperty("startDate", GeoRegistryUtil.formatDate(startOfWeek, false));
-      range.addProperty("endDate", GeoRegistryUtil.formatDate(endOfWeek, false));
-
-      object.addProperty("type", "range");
-      object.add("value", range);
-    }
-    else
-    {
+//    List<ChangeFrequency> frequency = this.getFrequency();
+//
+//    if (frequency.contains(ChangeFrequency.ANNUAL))
+//    {
+//      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+//      calendar.setTime(version.getForDate());
+//
+//      object.addProperty("type", "text");
+//      object.addProperty("value", Integer.toString(calendar.get(Calendar.YEAR)));
+//    }
+//    else if (frequency.contains(ChangeFrequency.BIANNUAL))
+//    {
+//      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+//      calendar.setTime(version.getForDate());
+//
+//      int halfYear = ( calendar.get(Calendar.MONTH) / 6 ) + 1;
+//
+//      object.addProperty("type", "text");
+//      object.addProperty("value", "H" + halfYear + " " + Integer.toString(calendar.get(Calendar.YEAR)));
+//    }
+//    else if (frequency.contains(ChangeFrequency.QUARTER))
+//    {
+//      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+//      calendar.setTime(version.getForDate());
+//
+//      int quarter = ( calendar.get(Calendar.MONTH) / 3 ) + 1;
+//
+//      object.addProperty("type", "text");
+//      object.addProperty("value", "Q" + quarter + " " + Integer.toString(calendar.get(Calendar.YEAR)));
+//    }
+//    else if (frequency.contains(ChangeFrequency.MONTHLY))
+//    {
+//      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+//      calendar.setTime(version.getForDate());
+//      calendar.set(Calendar.DAY_OF_MONTH, 1);
+//
+//      Date startOfWeek = calendar.getTime();
+//
+//      calendar.add(Calendar.MONTH, 1);
+//      calendar.add(Calendar.DAY_OF_YEAR, -1);
+//
+//      Date endOfWeek = calendar.getTime();
+//
+//      JsonObject range = new JsonObject();
+//      range.addProperty("startDate", GeoRegistryUtil.formatDate(startOfWeek, false));
+//      range.addProperty("endDate", GeoRegistryUtil.formatDate(endOfWeek, false));
+//
+//      object.addProperty("type", "range");
+//      object.add("value", range);
+//    }
+//    else
+//    {
       object.addProperty("type", "date");
       object.addProperty("value", GeoRegistryUtil.formatDate(version.getForDate(), false));
-    }
+//    }
 
     return object;
   }
