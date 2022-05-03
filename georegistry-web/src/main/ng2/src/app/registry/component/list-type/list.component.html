@@ -121,7 +121,8 @@
                         </ul>
                     </span>
 
-                    <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
+                    <button *ngIf="list.listMetadata.visibility === 'PUBLIC' || list.geospatialMetadata.visibility === 'PUBLIC'"
+                     type="submit" (click)="onExport()" class="btn btn-primary" role="button">
                         <localize *ngIf="filters == null" key="io.export.allrows"></localize>
                         <localize *ngIf="filters != null" key="io.export.filteredrows"></localize>
                     </button>
