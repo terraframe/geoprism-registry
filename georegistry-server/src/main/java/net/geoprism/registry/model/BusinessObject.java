@@ -31,8 +31,8 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 
+import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
-import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class BusinessObject
@@ -100,7 +100,7 @@ public class BusinessObject
     {
       return getEdge(geoObject) != null;
     }
-    
+
     return false;
   }
 
@@ -116,10 +116,9 @@ public class BusinessObject
     query.setParameter("parent", geoVertex.getRID());
     query.setParameter("child", this.getVertex().getRID());
 
-
     return query.getSingleResult();
   }
-  
+
   public void addGeoObject(ServerGeoObjectIF geoObject)
   {
     if (geoObject != null && geoObject instanceof VertexServerGeoObject && !this.exists(geoObject))
@@ -135,11 +134,11 @@ public class BusinessObject
     if (geoObject != null && geoObject instanceof VertexServerGeoObject)
     {
       VertexObject geoVertex = ( (VertexServerGeoObject) geoObject ).getVertex();
-      
+
       geoVertex.removeChild(this.vertex, this.type.getMdEdgeDAO());
     }
   }
-  
+
   public List<VertexServerGeoObject> getGeoObjects()
   {
     List<VertexObject> geoObjects = this.vertex.getParents(this.type.getMdEdgeDAO(), VertexObject.class);
@@ -149,6 +148,82 @@ public class BusinessObject
       ServerGeoObjectType vertexType = ServerGeoObjectType.get(mdVertex);
 
       return new VertexServerGeoObject(vertexType, geoVertex);
+
+    }).collect(Collectors.toList());
+  }
+
+  public boolean exists(BusinessEdgeType type, BusinessObject parent, BusinessObject child)
+  {
+    return getEdge(type, parent, child) != null;
+  }
+
+  protected EdgeObject getEdge(BusinessEdgeType type, BusinessObject parent, BusinessObject child)
+  {
+    String statement = "SELECT FROM " + type.getMdEdgeDAO().getDBClassName();
+    statement += " WHERE out = :parent";
+    statement += " AND in = :child";
+
+    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
+    query.setParameter("parent", parent.getVertex().getRID());
+    query.setParameter("child", child.getVertex().getRID());
+
+    return query.getSingleResult();
+  }
+
+  public void addParent(BusinessEdgeType type, BusinessObject parent)
+  {
+    if (parent != null && !this.exists(type, parent, this))
+    {
+      this.vertex.addParent(parent.getVertex(), type.getMdEdgeDAO()).apply();
+    }
+  }
+
+  public void removeParent(BusinessEdgeType type, BusinessObject parent)
+  {
+    if (parent != null)
+    {
+      this.vertex.removeParent(parent.getVertex(), type.getMdEdgeDAO());
+    }
+  }
+
+  public List<BusinessObject> getParents(BusinessEdgeType type)
+  {
+    List<VertexObject> vertexObjects = this.vertex.getParents(type.getMdEdgeDAO(), VertexObject.class);
+
+    return vertexObjects.stream().map(vertex -> {
+      MdVertexDAOIF mdVertex = (MdVertexDAOIF) vertex.getMdClass();
+      BusinessType businessType = BusinessType.getByMdVertex(mdVertex);
+
+      return new BusinessObject(vertex, businessType);
+
+    }).collect(Collectors.toList());
+  }
+
+  public void addChild(BusinessEdgeType type, BusinessObject child)
+  {
+    if (child != null && !this.exists(type, this, child))
+    {
+      this.vertex.addChild(child.getVertex(), type.getMdEdgeDAO()).apply();
+    }
+  }
+
+  public void removeChild(BusinessEdgeType type, BusinessObject child)
+  {
+    if (child != null)
+    {
+      this.vertex.removeChild(child.getVertex(), type.getMdEdgeDAO());
+    }
+  }
+
+  public List<BusinessObject> getChildren(BusinessEdgeType type)
+  {
+    List<VertexObject> vertexObjects = this.vertex.getChildren(type.getMdEdgeDAO(), VertexObject.class);
+
+    return vertexObjects.stream().map(vertex -> {
+      MdVertexDAOIF mdVertex = (MdVertexDAOIF) vertex.getMdClass();
+      BusinessType businessType = BusinessType.getByMdVertex(mdVertex);
+
+      return new BusinessObject(vertex, businessType);
 
     }).collect(Collectors.toList());
   }

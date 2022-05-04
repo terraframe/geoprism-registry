@@ -449,4 +449,20 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
     return null;
   }
 
+  public static BusinessType getByMdVertex(MdVertexDAOIF mdVertex)
+  {
+    BusinessTypeQuery query = new BusinessTypeQuery(new QueryFactory());
+    query.WHERE(query.getMdVertex().EQ(mdVertex.getOid()));
+    
+    try (OIterator<? extends BusinessType> it = query.getIterator())
+    {
+      if (it.hasNext())
+      {
+        return it.next();
+      }
+    }
+    
+    return null;
+  }
+  
 }

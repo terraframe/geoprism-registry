@@ -31,6 +31,7 @@ import org.junit.Test;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -39,13 +40,15 @@ import net.geoprism.registry.test.FastTestDataset;
 
 public class BusinessObjectTest
 {
-  private static String          TEST_CODE = "TEST_OBJ";
+  private static String           TEST_CODE = "TEST_OBJ";
 
-  private static FastTestDataset testData;
+  private static FastTestDataset  testData;
 
-  private static BusinessType    type;
+  private static BusinessType     type;
 
-  private static AttributeType   attribute;
+  private static AttributeType    attribute;
+
+  private static BusinessEdgeType relationshipType;
 
   @BeforeClass
   public static void setUpClass()
@@ -72,6 +75,8 @@ public class BusinessObjectTest
     type = BusinessType.apply(object);
 
     attribute = type.createAttributeType(new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false));
+
+    relationshipType = BusinessEdgeType.create(FastTestDataset.ORG_CGOV.getCode(), "TEST_REL", new LocalizedValue("Test Rel"), new LocalizedValue("Test Rel"), type.getCode(), type.getCode());
   }
 
   @AfterClass
@@ -89,6 +94,11 @@ public class BusinessObjectTest
   @Request
   private static void cleanUpClassInRequest()
   {
+    if (relationshipType != null)
+    {
+      relationshipType.delete();
+    }
+
     if (type != null)
     {
       type.delete();
@@ -265,23 +275,22 @@ public class BusinessObjectTest
   public void testGetBusinessObjects()
   {
     ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
-    
+
     BusinessObject object = BusinessObject.newInstance(type);
     object.setValue(attribute.getName(), "Test Text");
     object.setCode(TEST_CODE);
     object.apply();
-    
+
     try
     {
       object.addGeoObject(serverObject);
-      
+
       List<BusinessObject> results = serverObject.getBusinessObjects(type);
-      
-      
+
       Assert.assertEquals(1, results.size());
-      
+
       BusinessObject result = results.get(0);
-      
+
       Assert.assertEquals(object.getCode(), result.getCode());
     }
     finally
@@ -289,29 +298,28 @@ public class BusinessObjectTest
       object.delete();
     }
   }
-  
+
   @Test
   @Request
   public void testGetBusinessObjects_NoType()
   {
     ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
-    
+
     BusinessObject object = BusinessObject.newInstance(type);
     object.setValue(attribute.getName(), "Test Text");
     object.setCode(TEST_CODE);
     object.apply();
-    
+
     try
     {
       object.addGeoObject(serverObject);
-      
+
       List<BusinessObject> results = serverObject.getBusinessObjects();
-      
-      
+
       Assert.assertEquals(1, results.size());
-      
+
       BusinessObject result = results.get(0);
-      
+
       Assert.assertEquals(object.getCode(), result.getCode());
     }
     finally
@@ -319,5 +327,237 @@ public class BusinessObjectTest
       object.delete();
     }
   }
-  
+
+  @Test
+  @Request
+  public void testAddParent()
+  {
+    BusinessObject parent = BusinessObject.newInstance(type);
+    parent.setValue(attribute.getName(), "Test Parnet");
+    parent.setCode("TEST_PARENT");
+    parent.apply();
+
+    try
+    {
+      BusinessObject child = BusinessObject.newInstance(type);
+      child.setValue(attribute.getName(), "Test Child");
+      child.setCode("TEST_CHILD");
+      child.apply();
+
+      try
+      {
+        child.addParent(relationshipType, parent);
+
+        List<BusinessObject> results = child.getParents(relationshipType);
+
+        Assert.assertEquals(1, results.size());
+
+        BusinessObject result = results.get(0);
+
+        Assert.assertEquals(parent.getCode(), result.getCode());
+      }
+      finally
+      {
+        child.delete();
+      }
+    }
+    finally
+    {
+      parent.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testRemoveParent()
+  {
+    BusinessObject parent = BusinessObject.newInstance(type);
+    parent.setValue(attribute.getName(), "Test Parnet");
+    parent.setCode("TEST_PARENT");
+    parent.apply();
+
+    try
+    {
+      BusinessObject child = BusinessObject.newInstance(type);
+      child.setValue(attribute.getName(), "Test Child");
+      child.setCode("TEST_CHILD");
+      child.apply();
+
+      try
+      {
+        child.addParent(relationshipType, parent);
+        child.removeParent(relationshipType, parent);
+
+        Assert.assertEquals(0, child.getParents(relationshipType).size());
+      }
+      finally
+      {
+        child.delete();
+      }
+    }
+    finally
+    {
+      parent.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testDuplicateParent()
+  {
+    BusinessObject parent = BusinessObject.newInstance(type);
+    parent.setValue(attribute.getName(), "Test Parnet");
+    parent.setCode("TEST_PARENT");
+    parent.apply();
+
+    try
+    {
+      BusinessObject child = BusinessObject.newInstance(type);
+      child.setValue(attribute.getName(), "Test Child");
+      child.setCode("TEST_CHILD");
+      child.apply();
+
+      try
+      {
+        child.addParent(relationshipType, parent);
+        child.addParent(relationshipType, parent);
+        child.addParent(relationshipType, parent);
+        child.addParent(relationshipType, parent);
+        child.addParent(relationshipType, parent);
+
+        List<BusinessObject> results = child.getParents(relationshipType);
+
+        Assert.assertEquals(1, results.size());
+
+        BusinessObject result = results.get(0);
+
+        Assert.assertEquals(parent.getCode(), result.getCode());
+      }
+      finally
+      {
+        child.delete();
+      }
+    }
+    finally
+    {
+      parent.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testAddChildren()
+  {
+    BusinessObject parent = BusinessObject.newInstance(type);
+    parent.setValue(attribute.getName(), "Test Parnet");
+    parent.setCode("TEST_PARENT");
+    parent.apply();
+
+    try
+    {
+      BusinessObject child = BusinessObject.newInstance(type);
+      child.setValue(attribute.getName(), "Test Child");
+      child.setCode("TEST_CHILD");
+      child.apply();
+
+      try
+      {
+        parent.addChild(relationshipType, child);
+
+        List<BusinessObject> results = parent.getChildren(relationshipType);
+
+        Assert.assertEquals(1, results.size());
+
+        BusinessObject result = results.get(0);
+
+        Assert.assertEquals(child.getCode(), result.getCode());
+      }
+      finally
+      {
+        child.delete();
+      }
+    }
+    finally
+    {
+      parent.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testRemoveChildren()
+  {
+    BusinessObject parent = BusinessObject.newInstance(type);
+    parent.setValue(attribute.getName(), "Test Parnet");
+    parent.setCode("TEST_PARENT");
+    parent.apply();
+
+    try
+    {
+      BusinessObject child = BusinessObject.newInstance(type);
+      child.setValue(attribute.getName(), "Test Child");
+      child.setCode("TEST_CHILD");
+      child.apply();
+
+      try
+      {
+        parent.addChild(relationshipType, child);
+        parent.removeChild(relationshipType, child);
+
+        Assert.assertEquals(0, parent.getChildren(relationshipType).size());
+      }
+      finally
+      {
+        child.delete();
+      }
+    }
+    finally
+    {
+      parent.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testDuplicateChildren()
+  {
+    BusinessObject parent = BusinessObject.newInstance(type);
+    parent.setValue(attribute.getName(), "Test Parnet");
+    parent.setCode("TEST_PARENT");
+    parent.apply();
+
+    try
+    {
+      BusinessObject child = BusinessObject.newInstance(type);
+      child.setValue(attribute.getName(), "Test Child");
+      child.setCode("TEST_CHILD");
+      child.apply();
+
+      try
+      {
+        parent.addChild(relationshipType, child);
+        parent.addChild(relationshipType, child);
+        parent.addChild(relationshipType, child);
+        parent.addChild(relationshipType, child);
+        parent.addChild(relationshipType, child);
+
+        List<BusinessObject> results = parent.getChildren(relationshipType);
+
+        Assert.assertEquals(1, results.size());
+
+        BusinessObject result = results.get(0);
+
+        Assert.assertEquals(child.getCode(), result.getCode());
+      }
+      finally
+      {
+        child.delete();
+      }
+    }
+    finally
+    {
+      parent.delete();
+    }
+  }
+
 }
