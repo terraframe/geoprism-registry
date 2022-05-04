@@ -32,7 +32,7 @@
           <reference
             name="organization"
             label="Organization"
-            required="false"
+            required="true"
             type="net.geoprism.registry.Organization" />          
         </attributes>
       </mdBusiness>    
