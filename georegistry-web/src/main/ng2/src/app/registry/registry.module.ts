@@ -136,6 +136,7 @@ import { ClassificationPublishModalComponent } from "./component/classification-
 import { ClassificationService } from "./service/classification.service";
 import { ClassificationFieldComponent } from "./component/form-fields/classification-field/classification-field.component";
 import { ClassificationFieldModalComponent } from "./component/form-fields/classification-field/classification-field-modal.component";
+import { GeometryService } from "@registry/service/geometry.service";
 
 import { RegistryCacheService } from "./service/registry-cache.service";
 
@@ -285,7 +286,8 @@ import { RegistryCacheService } from "./service/registry-cache.service";
         BusinessTypeService,
         ListTypeService,
         ClassificationTypeService,
-        ClassificationService
+        ClassificationService,
+        GeometryService
     ],
     entryComponents: [
         AddChildToHierarchyModalComponent,

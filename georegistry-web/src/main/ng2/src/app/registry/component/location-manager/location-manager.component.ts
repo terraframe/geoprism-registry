@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, HostListener, Injector, ApplicationRef, ComponentFactoryResolver, EmbeddedViewRef } from "@angular/core";
 import { Location } from "@angular/common";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { Map, LngLatBoundsLike, NavigationControl, AttributionControl, IControl, LngLatBounds, Popup } from "mapbox-gl";
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
@@ -16,7 +16,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@shared/component";
 
 import { AuthService, LocalizationService } from "@shared/service";
-import { ContextLayer, LayerRecord } from "@registry/model/list-type";
+import { ContextLayer } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { timeout } from "d3-timer";
 import { Observable, Subscription } from "rxjs";
@@ -42,6 +42,21 @@ class SelectedObject {
     forDate: string;
     geoObject: GeoObject;
 
+}
+
+export interface LocationManagerParams {
+  graphPanelOpen?: string,
+  graphOid?: string,
+  date?: string,
+  type?: string,
+  code?: string,
+  bounds?: string,
+  text?: string,
+  layersPanelSize?: string,
+  pageContext?: string,
+  version?: string,
+  attrPanelOpen?: string,
+  uid?: string
 }
 
 @Component({
@@ -112,8 +127,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
     mode: number = this.MODE.SEARCH;
 
-    visualizingRelationship: string = null;
-
     graphPanelOpen: boolean = false;
 
     /*
@@ -147,7 +160,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     /*
      * URL pamaters of the component
      */
-    params: any = null;
+    params: LocationManagerParams = null;
 
     /*
     * Subscription for changes to the URL parameters
@@ -364,7 +377,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     * the model of the widget needs to be updated or not.
     *
     * */
-    handleParameterChange(params: Params): void {
+    handleParameterChange(params: LocationManagerParams): void {
         this.params = params;
 
         if (this.ready) {
@@ -484,6 +497,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.mapBounds = this.map.getBounds();
             const array = this.mapBounds.toArray();
 
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { bounds: JSON.stringify(array) },
+                queryParamsHandling: "merge" // remove to replace all query params by provided
+            });
+
+/*
             let url = this.router.createUrlTree([], {
                 relativeTo: this.route,
                 queryParams: { bounds: JSON.stringify(array) },
@@ -491,6 +511,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }).toString();
 
             this.location.go(url);
+            */
         });
 
         // if (this.params.bounds != null && this.params.bounds.length > 0) {
@@ -515,7 +536,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     onZoomTo(layer: Layer): void {
         if (layer && layer.dataSource) {
             layer.dataSource.getBounds(layer, this.service, this.listService).then((bounds: LngLatBounds) => {
-                this.map.fitBounds(bounds, this.calculateZoomConfig(null));
+                if (bounds != null) {
+                    this.map.fitBounds(bounds, this.calculateZoomConfig(null));
+                }
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
@@ -586,7 +609,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             if (feature.properties.uid != null) {
                 this.closeEditSessionSafeguard().then(() => {
                     if (feature.source === SEARCH_LAYER) {
-                        if ((this.current == null || this.current.geoObject == null || this.current.geoObject.properties.uid !== feature.properties.uid)) {
+                        if ((this.current == null || this.current.geoObject == null || feature.properties == null || this.current.geoObject.properties.uid !== feature.properties.uid)) {
                             this.select(feature, null);
                         }
                     } else if (feature.layer) {
@@ -613,7 +636,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                                 // let date = decodeURIComponent(idSplit[2]);
 
                                 // TODO : People are going to want that record popup here but one step at a time...
-                                this.changeGeoObject(typeCode, code, feature.properties.uid);
+                                this.onChangeGeoObject({ typeCode: typeCode, code: code, id: feature.properties.uid, doIt: (fun) => { fun(); } });
                             }
                         }
                     }
@@ -784,23 +807,19 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         // Get the feature data from the server and populate the left-hand panel
         this.listService.record(list, uid, false).then(record => {
             if (this.feature != null) {
-                if (this.map.getLayer(this.feature.id) != null) {
-                    this.map.removeFeatureState(this.feature);
-                }
+                this.map.removeFeatureState(this.feature);
             }
 
             // Highlight the feature on the map
             this.feature = {
-                source: list,
+                source: record.version,
                 sourceLayer: "context",
                 id: uid
             };
-            if (this.geomService.getLayers().findIndex(lFind => this.feature.source === lFind.oid) !== -1) {
-                if (this.map.getLayer(this.feature.id) != null) {
-                    this.map.setFeatureState(this.feature, {
-                        selected: true
-                    });
-                }
+            if (this.geomService.getLayers().findIndex(lFind => lFind.dataSource.getDataSourceProviderId() === VECTOR_LAYER_DATASET_PROVIDER_ID && this.feature.source === lFind.oid) !== -1) {
+                this.map.setFeatureState(this.feature, {
+                    selected: true
+                });
             }
 
             if (record.recordType === "LIST") { // this happens when list type is NOT working
@@ -817,9 +836,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     componentRef.instance.record = record;
                     componentRef.instance.edit.subscribe(() => {
                         const code: string = record.data["code"];
-                        const uid: string = record.data["uid"];
+                        // const uid: string = record.data["originalOid"];
 
-                        this.handleSelect(record.typeCode, code, uid);
+                        // this.handleSelect(record.typeCode, code, uid);
+
+                        this.router.navigate([], {
+                            relativeTo: this.route,
+                            queryParams: { type: record.typeCode, code: code, uid: uid, version: record.version },
+                            queryParamsHandling: "merge" // remove to replace all query params by provided
+                        });
+
+                        // this.zoomToFeature(node, null);
                     });
 
                     // 2. Attach component to the appRef so that it's inside the ng component tree
@@ -874,6 +901,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     select(node: any, event: MouseEvent): void {
         if (!this.isEdit) {
+            if (this.feature != null) {
+                this.map.removeFeatureState(this.feature);
+                this.feature = null;
+            }
+
             this.router.navigate([], {
                 relativeTo: this.route,
                 queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null },
@@ -892,19 +924,22 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     changeGeoObject(typeCode: string, code: string, uid: string, geoObject: GeoObject = null) {
         // Highlight the feature on the map
-        if (this.feature != null) {
-            this.map.removeFeatureState(this.feature);
-        }
+        //if (this.feature != null) {
+        //    this.map.removeFeatureState(this.feature);
+        //}
 
         // Highlight the feature on the map
+        /*
         if (this.feature && code !== "__NEW__" && this.map.getSource(SEARCH_LAYER) != null) {
-            this.map.setFeatureState(this.feature = {
+            this.feature = {
                 source: SEARCH_LAYER,
                 id: uid
-            }, {
+            };
+            this.map.setFeatureState(this.feature, {
                 selected: true
             });
         }
+        */
 
         this.typeCache.waitOnTypes().then(() => {
             const type: GeoObjectType = this.typeCache.getTypeByCode(typeCode);

@@ -30,8 +30,6 @@ import { ForgotPasswordService } from "@core/service/forgotpassword.service";
 import { PasswordStrengthBarComponent } from "@shared/component/password-strength-bar/password-strength-bar.component";
 import { HubService } from "@core/service/hub.service";
 
-import { GeometryService } from "@registry/service/geometry.service";
-
 import { SharedModule } from "@shared/shared.module";
 
 import "./rxjs-extensions";
@@ -77,8 +75,7 @@ import "./rxjs-extensions";
         },
         ForgotPasswordService,
         PasswordStrengthBarComponent,
-        HubService,
-        GeometryService
+        HubService
     ],
     exports: [
         CgrAppComponent

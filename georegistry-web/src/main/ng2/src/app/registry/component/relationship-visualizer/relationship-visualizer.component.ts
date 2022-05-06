@@ -5,24 +5,23 @@ import { BsModalService } from "ngx-bootstrap/modal";
 
 import { ErrorHandler } from "@shared/component";
 
-import { GeoObject, GeoObjectTypeCache } from "@registry/model/registry";
-import { Subject } from "rxjs";
-import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
+import { GeoObjectTypeCache } from "@registry/model/registry";
+import { Subject, Subscription } from "rxjs";
+import { RelationshipVisualizationService, RelationshipVisualizerDataSourceProvider } from "@registry/service/relationship-visualization.service";
 import { Layout, Orientation } from "@swimlane/ngx-graph";
 
 import { DagreNodesOnlyLayout } from "./relationship-viz-layout";
 
 import * as shape from "d3-shape";
-import { LocalizedValue } from "@shared/model/core";
 import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
 import * as ColorGen from "color-generator";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
-import { DataSourceProvider, GeoJsonLayer, GeoJsonLayerDataSource, GeometryService, Layer, LayerDataSource, ParamLayer, RegistryService } from "@registry/service";
+import { GeometryService, ParamLayer } from "@registry/service";
 import { Router, ActivatedRoute } from "@angular/router";
-import { LngLatBounds, LngLatBoundsLike } from "mapbox-gl";
-import bbox from "@turf/bbox";
-import { ListTypeService } from "@registry/service/list-type.service";
+import { LngLatBounds } from "mapbox-gl";
+import { Relationship, RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER, TreeData } from "@registry/model/graph";
+import { LocationManagerParams } from "../location-manager/location-manager.component";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -34,16 +33,6 @@ export const GRAPH_LINE_COLOR: string = "#999";
 
 export const COLLAPSE_ANIMATION_TIME: number = 500; // in ms
 
-export const RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER = "RelationshipVisualizer";
-
-export interface Relationship {
-    oid: string,
-    label: LocalizedValue,
-    isHierarchy: boolean,
-    code: string,
-    type?: string
-}
-
 export const DIMENSIONS = {
     NODE: { WIDTH: 30, HEIGHT: 30 },
     LABEL: { WIDTH: 100, HEIGHT: 60, FONTSIZE: 14 },
@@ -53,21 +42,6 @@ export const DIMENSIONS = {
         NODE_EDGE: 5
     }
 };
-
-export interface Vertex {
-    code: string,
-    typeCode: string,
-    id: string,
-    label: string,
-    relation: "PARENT" | "CHILD" | "SELECTED"
-}
-
-export interface Edge {
-    id: string,
-    label: string,
-    source: string,
-    target: string
-}
 
 @Component({
 
@@ -83,27 +57,15 @@ export class RelationshipVisualizerComponent implements OnInit {
         ORIENTATION: Orientation
     }
 
-    @Input() params: { geoObject: GeoObject, graphOid: string, date: string, mapBounds: LngLatBounds } = null;
-
-    @Input() panelOpen: boolean;
-
-    geoObject: GeoObject = null;
-
-    graphOid: string = null;
-
-    relationship: Relationship = null;
+    params: LocationManagerParams = {};
 
     @Output() changeGeoObject = new EventEmitter<{ id: string, code: string, typeCode: string, doIt: any }>();
 
     @Output() changeRelationship = new EventEmitter<string>();
 
-    private data: { edges: Edge[], verticies: Vertex[], geoJson: any } = null;
-
     public DIMENSIONS = DIMENSIONS;
 
     public SELECTED_NODE_COLOR = SELECTED_NODE_COLOR;
-
-    relationships: Relationship[];
 
     public svgHeight: number = null;
     public svgWidth: number = null;
@@ -120,7 +82,26 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     public typeCache: GeoObjectTypeCache;
 
-    layerDataSourceProvider: DataSourceProvider;
+    relationship: Relationship = null;
+    relationships: Relationship[];
+
+    data: TreeData = null;
+
+    public dataSourceProvider: RelationshipVisualizerDataSourceProvider;
+
+    loadTreeDataSub: Subscription;
+    fetchTreeDataSub: Subscription;
+
+    loadRelationshipDataSub: Subscription;
+    fetchRelationshipDataSub: Subscription;
+
+    onFetchErrorSub: Subscription;
+
+    queryParamSub: Subscription;
+
+    panelOpen: boolean = true;
+
+    loading: boolean = true;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService,
@@ -134,79 +115,120 @@ export class RelationshipVisualizerComponent implements OnInit {
     ngOnInit(): void {
         this.typeCache = this.cacheService.getTypeCache();
 
-        let component = this;
-        this.layerDataSourceProvider = {
-            getId(): string {
-                return RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER;
-            },
-            getDataSource(dataSourceId: string): LayerDataSource {
-                return {
-                    buildMapboxSource(): any {
-                        let geojson = this.getLayerData();
+        this.dataSourceProvider = this.vizService.getDataSourceProvider(this.geomService);
 
-                        return {
-                            type: "geojson",
-                            data: geojson
-                        };
-                    },
-                    getGeometryType(): string {
-                        return "MIXED";
-                    },
-                    getLayerData(): any {
-                        for (const [typeCode, featureCollection] of Object.entries(component.data.geoJson)) {
-                            let oid = "GRAPH-" + typeCode + "-" + component.relationship.code;
+        this.loadTreeDataSub = this.dataSourceProvider.onLoadTreeData.subscribe((data) => {
+            this.spinner.hide(this.CONSTANTS.OVERLAY);
 
-                            if (oid === dataSourceId) {
-                                return featureCollection;
-                            }
-                        }
-                    },
-                    setLayerData(data: any) {
-                        // eslint-disable-next-line no-console
-                        console.log("Cannot set data");
-                    },
-                    createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer {
-                        return new GeoJsonLayer(oid, legendLabel, this, rendered, color);
-                    },
-                    getDataSourceId(): string {
-                        return dataSourceId;
-                    },
-                    getDataSourceProviderId(): string {
-                        return RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER;
-                    },
-                    getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBoundsLike> {
-                        return new Promise((resolve, reject) => {
-                            resolve(bbox(this.getLayerData()) as LngLatBoundsLike);
+            this.data = null;
+
+            window.setTimeout(() => {
+                this.data = data;
+
+                this.resizeDimensions();
+                this.calculateColorSchema();
+                this.addLayers(this.data.geoJson);
+            }, 0);
+
+            this.resizeDimensions();
+        });
+
+        this.fetchTreeDataSub = this.dataSourceProvider.onFetchTreeData.subscribe(() => {
+            this.spinner.show(this.CONSTANTS.OVERLAY);
+        });
+
+        this.loadRelationshipDataSub = this.dataSourceProvider.onLoadRelationshipData.subscribe((relationships) => {
+            this.spinner.hide(this.CONSTANTS.OVERLAY);
+
+            this.relationships = null;
+
+            window.setTimeout(() => { // If we don't set a timeout here then angular html doesn't update properly
+                this.relationships = relationships;
+
+                if (this.relationships && this.relationships.length > 0) {
+                    if (!this.params.graphOid || this.relationships.findIndex(rel => rel.oid === this.params.graphOid) === -1) {
+                        this.relationship = this.relationships[0];
+                        this.params.graphOid = this.relationship.oid;
+                        // this.changeRelationship.emit(this.params.graphOid);
+
+                        this.router.navigate([], {
+                            relativeTo: this.route,
+                            queryParams: { graphOid: this.params.graphOid },
+                            queryParamsHandling: "merge" // remove to replace all query params by provided
                         });
+                    } else {
+                        this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.params.graphOid)];
+                        this.params.graphOid = this.relationship.oid;
                     }
-                } as GeoJsonLayerDataSource;
+                }
+
+                if (this.data == null) {
+                    this.dataSourceProvider.fetchData();
+                }
+            }, 0);
+        });
+
+        this.fetchRelationshipDataSub = this.dataSourceProvider.onFetchRelationshipData.subscribe(() => {
+            this.spinner.show(this.CONSTANTS.OVERLAY);
+        });
+
+        this.onFetchErrorSub = this.dataSourceProvider.onFetchError.subscribe((err) => {
+            this.spinner.hide(this.CONSTANTS.OVERLAY);
+            this.error(err);
+        });
+
+        this.queryParamSub = this.route.queryParams.subscribe((params) => { this.queryParamChanges(params); });
+
+        // Angular keeps invoking our queryParamChanges in the early stages of component loading. We don't want to make expensive
+        // data requests unless we're certain that all the params are loaded.
+        window.setTimeout(() => {
+            this.loading = false;
+
+            this.data = this.dataSourceProvider.treeData;
+            this.relationships = this.dataSourceProvider.relationships;
+            this.relationship = this.dataSourceProvider.relationship;
+            if (this.data != null && this.relationship != null) {
+                this.calculateColorSchema();
             }
-        };
-        this.geomService.registerDataSourceProvider(this.layerDataSourceProvider);
+
+            this.queryParamChanges(this.params);
+        }, 10);
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-        if (changes.params && changes.params.previousValue !== changes.params.currentValue) {
-            this.graphOid = this.params.graphOid;
-            this.geoObject = this.params.geoObject;
+    ngOnDestroy(): void {
+        this.loadTreeDataSub.unsubscribe();
+        this.fetchTreeDataSub.unsubscribe();
+        this.loadRelationshipDataSub.unsubscribe();
+        this.fetchRelationshipDataSub.unsubscribe();
+        this.queryParamSub.unsubscribe();
+    }
 
-            if (this.relationships == null ||
-                changes.params.previousValue == null ||
-                changes.params.currentValue == null ||
-                changes.params.currentValue.geoObject == null ||
-                changes.params.previousValue.geoObject == null ||
-                changes.params.previousValue.geoObject.properties.type !== changes.params.currentValue.geoObject.properties.type) {
-                this.fetchRelationships();
-            } else if (this.relationships != null && this.relationship) {
-                this.fetchData();
-            }
+    queryParamChanges(params) {
+        if (params.type == null || params.code == null) {
+            return;
         }
 
-        if (changes.panelOpen != null) {
+        params = JSON.parse(JSON.stringify(params));
+
+        this.panelOpen = params.graphPanelOpen === "true";
+
+        if (params.graphOid && params.graphOid !== this.params.graphOid) {
+            this.params.graphOid = params.graphOid;
+
+            this.onSelectRelationship(false);
+        }
+
+        if (!this.loading) {
+          this.dataSourceProvider.queryParamChanges(params, this.params);
+        }
+
+        if (this.panelOpen) {
             window.setTimeout(() => {
                 this.resizeDimensions();
             }, 1);
         }
+
+        this.params = params;
     }
 
     resizeDimensions():void {
@@ -239,57 +261,26 @@ export class RelationshipVisualizerComponent implements OnInit {
         return points;
     }
 
-    private fetchRelationships(): void {
-        if (this.geoObject != null) {
-            this.relationships = [];
-            this.spinner.show(this.CONSTANTS.OVERLAY);
-
-            this.vizService.relationships(this.geoObject.properties.type).then(relationships => {
-                this.relationships = relationships;
-
-                if (this.relationships && this.relationships.length > 0) {
-                    if (!this.graphOid || this.relationships.findIndex(rel => rel.oid === this.graphOid) === -1) {
-                        this.relationship = this.relationships[0];
-                        this.graphOid = this.relationship.oid;
-                        this.onSelectRelationship();
-                    } else {
-                        this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
-                        this.fetchData();
-                    }
-                }
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            }).finally(() => {
-                this.spinner.hide(this.CONSTANTS.OVERLAY);
-            });
+    private onSelectRelationship(updateUrl: boolean = true) {
+        if (this.relationships == null) {
+            return;
         }
-    }
 
-    private onSelectRelationship() {
-        this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
+        this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.params.graphOid)];
 
-        //   this.fetchData();
-        this.changeRelationship.emit(this.graphOid);
-    }
+        this.dataSourceProvider.relationship = this.relationship;
 
-    private fetchData(): void {
-        if (this.relationship != null) {
-            this.spinner.show(this.CONSTANTS.OVERLAY);
+        if (!this.loading) {
+            this.dataSourceProvider.fetchData();
+        }
 
-            this.vizService.tree(this.relationship.type, this.relationship.code, this.geoObject.properties.code, this.geoObject.properties.type, this.params.date, this.convertBoundsToWKT(this.params.mapBounds)).then(data => {
-                this.data = null;
+        this.changeRelationship.emit(this.params.graphOid);
 
-                window.setTimeout(() => {
-                    this.data = data;
-
-                    this.resizeDimensions();
-                    this.calculateColorSchema();
-                    this.addLayers(this.data.geoJson);
-                }, 0);
-
-                this.resizeDimensions();
-            }).finally(() => {
-                this.spinner.hide(this.CONSTANTS.OVERLAY);
+        if (updateUrl) {
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { graphOid: this.params.graphOid },
+                queryParamsHandling: "merge" // remove to replace all query params by provided
             });
         }
     }
@@ -310,26 +301,11 @@ export class RelationshipVisualizerComponent implements OnInit {
           let oid = "GRAPH-" + typeCode + "-" + this.relationship.code;
 
           if (layers.findIndex(l => l.oid === oid) === -1) {
-              layers.push(new ParamLayer(oid, this.relationship.label.localizedValue + " " + typeCode, true, this.colorSchema[typeCode], oid, RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER));
+              layers.splice(0, 0, new ParamLayer(oid, this.relationship.label.localizedValue + " " + typeCode, true, this.colorSchema[typeCode], oid, RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER));
           }
         }
 
         this.geomService.setLayers(layers);
-    }
-
-    private convertBoundsToWKT(bounds: LngLatBounds): string {
-      let se = bounds.getSouthEast();
-      let sw = bounds.getSouthWest();
-      let nw = bounds.getNorthWest();
-      let ne = bounds.getNorthEast();
-
-      return "POLYGON ((" +
-        se.lng + " " + se.lat + "," +
-        sw.lng + " " + sw.lat + "," +
-        nw.lng + " " + nw.lat + "," +
-        ne.lng + " " + ne.lat + "," +
-        se.lng + " " + se.lat +
-      "))";
     }
 
     calculateColorSchema() {
@@ -350,13 +326,13 @@ export class RelationshipVisualizerComponent implements OnInit {
             }
         });
 
-        if (!this.colorSchema[this.geoObject.properties.type]) {
-            this.colorSchema[this.geoObject.properties.type] = SELECTED_NODE_COLOR;
+        if (!this.colorSchema[this.params.type]) {
+            this.colorSchema[this.params.type] = SELECTED_NODE_COLOR;
         }
     }
 
     collapseAnimation(id: string): Promise<void> {
-        if (!this.geoObject) { return new Promise<void>((resolve, reject) => { resolve(); }); }
+        if (!this.params.code) { return new Promise<void>((resolve, reject) => { resolve(); }); }
 
         let activeEl = document.getElementById(id) as unknown as SVGGraphicsElement;
         if (!activeEl) { return new Promise<void>((resolve, reject) => { resolve(); }); }
@@ -452,8 +428,8 @@ export class RelationshipVisualizerComponent implements OnInit {
     */
 
     public onClickNode(node: any): void {
-        if (node.code !== this.params.geoObject.properties.code &&
-            node.typeCode !== this.params.geoObject.type) {
+        if (node.code !== this.params.code &&
+            node.typeCode !== this.params.type) {
             let doIt = (resolve) => {
                 this.collapseAnimation(node.id).then(() => {
                     resolve();

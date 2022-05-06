@@ -9,6 +9,7 @@ import { Subscription } from "rxjs";
 import { GeoRegistryConfiguration } from "@core/model/registry";
 import { RegistryService } from "./registry.service";
 import { ListTypeService } from "./list-type.service";
+import { RelationshipVisualizationService } from "./relationship-visualization.service";
 declare let registry: GeoRegistryConfiguration;
 
 export const OLD_LAYER_COLOR = "#A4A4A4";
@@ -211,9 +212,11 @@ export class GeometryService implements OnDestroy {
     // eslint-disable-next-line no-useless-constructor
     constructor(
       private route: ActivatedRoute,
-      private router: Router
+      private router: Router,
+      private relVizService: RelationshipVisualizationService
     ) {
         this.registerDataSourceProvider(new GeoObjectLayerDataSourceProvider());
+        this.registerDataSourceProvider(this.relVizService.getDataSourceProvider(this));
     }
 
     ngOnInit() {
@@ -232,7 +235,8 @@ export class GeometryService implements OnDestroy {
                 try {
                     this.handleParameterChange(params);
                 } catch (err) {
-                    console.log (err); // We will be unsubscribed if we throw an unhandled error and we don't want that to happen
+                    // eslint-disable-next-line no-console
+                    console.log(err); // We will be unsubscribed if we throw an unhandled error and we don't want that to happen
                 }
             });
         }
@@ -418,6 +422,20 @@ export class GeometryService implements OnDestroy {
         }
 
         this.layersChange.emit(this.layers);
+    }
+
+    /*
+     * Notify the map that the datasets associated with a particular provider have changed and that the data sources must be rebuilt.
+     */
+    refreshDatasets(providerId: string) {
+        let otherLayer = null;
+        this.getLayers().forEach(layer => {
+            if (layer.dataSource.getDataSourceProviderId() === providerId) {
+                this.unmapLayer(layer);
+                this.mapLayer(layer, otherLayer);
+            }
+            otherLayer = layer;
+        });
     }
 
     public setLayers(paramLayers: ParamLayer[]) {
@@ -858,7 +876,13 @@ export class GeometryService implements OnDestroy {
     mapLayer(layer: Layer, otherLayer?: Layer): void {
         if (!this.map) { return; }
 
-        this.map.addSource(layer.dataSource.getDataSourceId(), layer.dataSource.buildMapboxSource());
+        let mapboxSource = layer.dataSource.buildMapboxSource();
+        if (!mapboxSource) {
+            return;
+        }
+
+        console.log("Adding source with id " + layer.dataSource.getDataSourceId(), layer);
+        this.map.addSource(layer.dataSource.getDataSourceId(), mapboxSource);
 
         if (otherLayer && !otherLayer.rendered) {
             otherLayer = null;

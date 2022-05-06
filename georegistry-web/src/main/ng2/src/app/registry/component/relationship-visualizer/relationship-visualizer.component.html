@@ -1,11 +1,11 @@
-<div id="relationship-visualizer-root-node" *ngIf="geoObject" style="height:100%; overflow:hidden;">
+<div id="relationship-visualizer-root-node" *ngIf="params.code" style="height:100%; overflow:hidden;">
 
   <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.OVERLAY" type="ball-clip-rotate-multiple" size="medium">
   </ngx-spinner>
 
   <div>
 
-    <select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="graphOid"
+    <select *ngIf="relationships" id="relationshipId" name="relationshipId" class="select-area" [(ngModel)]="params.graphOid"
       (change)="onSelectRelationship()" required style="margin:10px;width:auto;min-width:200px;">
       <option *ngIf="relationships.length === 0"></option>
       <option *ngFor="let loopRel of relationships" [value]="loopRel.oid">{{loopRel.label.localizedValue}}</option>
@@ -38,9 +38,9 @@
 
             <!-- Node Template -->
             <ng-template #nodeTemplate let-node>
-              <svg:g (click)="onClickNode(node)" class="node" [style.cursor]="'g-' + geoObject.properties.uid === node.id ? 'default' : 'pointer'" >
+              <svg:g (click)="onClickNode(node)" class="node" [style.cursor]="'g-' + params.uid === node.id ? 'default' : 'pointer'" >
                 <svg:polygon [attr.points]="getHexagonPoints(node)"
-                  [attr.fill]="geoObject == null ? node.data.color : this.colorSchema[node.typeCode]"
+                  [attr.fill]="params.code == null ? node.data.color : this.colorSchema[node.typeCode]"
                   >
                   </polygon>
 
@@ -50,7 +50,7 @@
                     [attr.width]="(DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL*8)" [attr.height]="DIMENSIONS.LABEL.HEIGHT">
                     <span [style]="'width:' + DIMENSIONS.LABEL.WIDTH + 'px; height:' + DIMENSIONS.LABEL.HEIGHT + 'px; overflow:hidden; display: inline-block;'">
                       <p xmlns="http://www.w3.org/1999/xhtml" text-anchor="start"
-                        [ngStyle]="{'text-align': relationship.isHierarchy ? (node.relation === 'CHILD' ? 'center' : 'left') : node.relation === 'SELECTED' ? 'center' : (node.relation === 'PARENT' ? 'right' : 'left'), 'color': ('g-' + geoObject.properties.uid) === node.id ? SELECTED_NODE_COLOR : 'unset', 'font-weight': ('g-' + geoObject.properties.uid) === node.id ? 'bold' : 'unset'}"
+                        [ngStyle]="{'text-align': relationship.isHierarchy ? (node.relation === 'CHILD' ? 'center' : 'left') : node.relation === 'SELECTED' ? 'center' : (node.relation === 'PARENT' ? 'right' : 'left'), 'color': ('g-' + params.uid) === node.id ? SELECTED_NODE_COLOR : 'unset', 'font-weight': ('g-' + params.uid) === node.id ? 'bold' : 'unset'}"
                         [style]="'font-size: ' + DIMENSIONS.LABEL.FONTSIZE + 'px; display: table-cell; vertical-align: middle; height:' + DIMENSIONS.LABEL.HEIGHT + 'px; width:' + DIMENSIONS.LABEL.WIDTH + 'px; line-height:' + DIMENSIONS.LABEL.FONTSIZE + 'px;'">
                         {{node.label}}</p>
                     </span>

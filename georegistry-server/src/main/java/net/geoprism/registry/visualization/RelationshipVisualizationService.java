@@ -35,6 +35,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.UndirectedGraphType;
@@ -59,7 +63,10 @@ public class RelationshipVisualizationService
     final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
     final ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
     final CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
-    
+   
+    if (!this.validateBounds(boundsWKT)) {
+      boundsWKT = null;
+    }
     
     // 1. Build a list of all children (or parents... or both)
     List<GeoObject> geoObjects = new LinkedList<GeoObject>();
@@ -130,6 +137,10 @@ public class RelationshipVisualizationService
     final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
 
     final ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
+    
+    if (!this.validateBounds(boundsWKT)) {
+      boundsWKT = null;
+    }
 
     JsonObject view = new JsonObject();
 
@@ -178,6 +189,45 @@ public class RelationshipVisualizationService
     view.add("geoJson", this.treeAsGeoJson(sessionId, date, relationshipType, graphTypeCode, geoObjectCode, geoObjectTypeCode, boundsWKT));
 
     return view;
+  }
+  
+  private boolean validateBounds(String boundsWKT)
+  {
+    if (boundsWKT == null) {
+      return false;
+    }
+    
+    Geometry boundsGeom;
+    
+    // Validate their bounds otherwise we will throw lots of big scary errors
+    WKTReader reader = new WKTReader();
+    try
+    {
+      boundsGeom = reader.read(boundsWKT);
+      
+      if (!boundsGeom.isValid())
+      {
+        return false;
+      }
+      
+      // A lat of 520 is perfectly valid according to jts... So we need to roll our own validation
+      Geometry geom = reader.read(boundsWKT);
+      Coordinate[] coordinates = geom.getCoordinates();
+
+      for (int i = 0; i < coordinates.length; ++i) {
+        Coordinate coord = coordinates[i];
+        
+        if (coord.x > 180 || coord.x < -180 || coord.y > 90 || coord.y < -90) {
+          return false;
+        }
+      }
+      
+      return true;
+    }
+    catch (ParseException e)
+    {
+      return false;
+    }
   }
   
   public List<GeoObject> getChildren(ServerChildGraphNode node, Date date, int maxResults)
