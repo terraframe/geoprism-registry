@@ -84,6 +84,8 @@ public class BusinessEdgeJsonImporter
         final String code = joGraphType.get("code").getAsString();
 
         final BusinessEdgeType edgeType = BusinessEdgeType.getByCode(code);
+        BusinessType sourceType = edgeType.getParent();
+        BusinessType targetType = edgeType.getChild();
 
         JsonArray edges = joGraphType.get("edges").getAsJsonArray();
 
@@ -94,16 +96,14 @@ public class BusinessEdgeJsonImporter
           JsonObject joEdge = edges.get(j).getAsJsonObject();
 
           String sourceCode = joEdge.get("source").getAsString();
-          String sourceTypeCode = joEdge.get("sourceType").getAsString();
           String targetCode = joEdge.get("target").getAsString();
-          String targetTypeCode = joEdge.get("targetType").getAsString();
 
           long cacheSize;
 
           if (validate)
           {
-            BusinessObject source = goCache.getOrFetchByCode(sourceCode, sourceTypeCode);
-            BusinessObject target = goCache.getOrFetchByCode(targetCode, targetTypeCode);
+            BusinessObject source = goCache.getOrFetchByCode(sourceCode, sourceType.getCode());
+            BusinessObject target = goCache.getOrFetchByCode(targetCode, targetType.getCode());
 
             source.addChild(edgeType, target);
 
@@ -111,8 +111,8 @@ public class BusinessEdgeJsonImporter
           }
           else
           {
-            Object childRid = getOrFetchRid(sourceCode, sourceTypeCode);
-            Object parentRid = getOrFetchRid(targetCode, targetTypeCode);
+            Object childRid = getOrFetchRid(sourceCode, sourceType);
+            Object parentRid = getOrFetchRid(targetCode, targetType);
 
             this.newEdge(childRid, parentRid, edgeType);
 
@@ -128,12 +128,11 @@ public class BusinessEdgeJsonImporter
     }
   }
 
-  private Object getOrFetchRid(String code, String typeCode)
+  private Object getOrFetchRid(String code, BusinessType businessType)
   {
-    BusinessType businessType = BusinessType.getByCode(code);
     String typeDbClassName = businessType.getMdVertexDAO().getDBClassName();
 
-    Object rid = this.goRidCache.get(typeCode + "$#!" + code);
+    Object rid = this.goRidCache.get(businessType.getCode() + "$#!" + code);
 
     if (rid == null)
     {
@@ -147,7 +146,7 @@ public class BusinessEdgeJsonImporter
         throw new DataNotFoundException("Could not find Geo-Object with code " + code + " on table " + typeDbClassName);
       }
 
-      this.goRidCache.put(typeCode + "$#!" + code, rid);
+      this.goRidCache.put(businessType.getCode() + "$#!" + code, rid);
     }
 
     return rid;
