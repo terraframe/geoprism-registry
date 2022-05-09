@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.xml;
 
@@ -48,18 +48,22 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.dataaccess.transaction.TransactionState;
 import com.runwaysdk.resource.ApplicationResource;
 
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.BusinessEdgeType;
+import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.model.AttributedType;
 import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -96,6 +100,8 @@ public class XMLImporter
       list.addAll(this.createHierarchies(organization, doc));
       list.addAll(this.createDirectedAcyclicGraphTypes(doc));
       list.addAll(this.createUndirectedGraphTypes(doc));
+      list.addAll(this.createBusinessTypes(organization, doc));
+      list.addAll(this.createBusinessEdgeTypes(organization, doc));
     }
     catch (ParserConfigurationException | IOException | SAXException e)
     {
@@ -130,6 +136,29 @@ public class XMLImporter
     return list;
   }
 
+  private List<ServerElement> createBusinessEdgeTypes(Organization organization, Document doc)
+  {
+    LinkedList<ServerElement> list = new LinkedList<ServerElement>();
+    
+    NodeList nList = doc.getElementsByTagName("business-edge");
+    
+    for (int i = 0; i < nList.getLength(); i++)
+    {
+      Node nNode = nList.item(i);
+      
+      if (nNode.getNodeType() == Node.ELEMENT_NODE)
+      {
+        Element elem = (Element) nNode;
+        
+        BusinessEdgeType type = createBusinessEdgeType(organization, elem);
+        list.add(type);
+        this.cache.put(type.getCode(), type);
+      }
+    }
+    
+    return list;
+  }
+  
   private List<ServerElement> createDirectedAcyclicGraphTypes(Document doc)
   {
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
@@ -199,6 +228,31 @@ public class XMLImporter
     return list;
   }
 
+  private List<ServerElement> createBusinessTypes(Organization organization, Document doc)
+  {
+    LinkedList<ServerElement> list = new LinkedList<ServerElement>();
+
+    NodeList nList = doc.getElementsByTagName("business-type");
+
+    for (int i = 0; i < nList.getLength(); i++)
+    {
+      Node nNode = nList.item(i);
+
+      if (nNode.getNodeType() == Node.ELEMENT_NODE)
+      {
+        Element elem = (Element) nNode;
+
+        BusinessType type = createBusinessType(organization, elem);
+        list.add(type);
+        this.cache.put(type.getCode(), type);
+
+        this.addAttributes(elem, type);
+      }
+    }
+
+    return list;
+  }
+
   private List<ServerElement> addGroupItems(Element root, ServerGeoObjectType superType)
   {
     List<ServerElement> list = new LinkedList<ServerElement>();
@@ -231,7 +285,7 @@ public class XMLImporter
     return list;
   }
 
-  private void addAttributes(Element root, ServerGeoObjectType type)
+  private void addAttributes(Element root, AttributedType type)
   {
     NodeList attributeList = root.getElementsByTagName("attributes");
 
@@ -403,6 +457,21 @@ public class XMLImporter
     return new ServerHierarchyTypeBuilder().createHierarchyType(type);
   }
 
+  private BusinessEdgeType createBusinessEdgeType(Organization organization, Element elem)
+  {
+    String code = elem.getAttribute("code");
+    LocalizedValue label = this.getLabel(elem);
+    LocalizedValue description = this.getDescription(elem);
+    String parentTypeCode = elem.getAttribute("parentTypeCode");
+    String childTypeCode = elem.getAttribute("childTypeCode");
+    
+    BusinessEdgeType type = BusinessEdgeType.create(organization.getCode(), code, label, description, parentTypeCode, childTypeCode);
+    
+    ServiceFactory.getHierarchyPermissionService().enforceCanCreate(organization.getCode());
+    
+    return type;
+  }
+  
   private ServerGeoObjectType createServerGeoObjectType(Organization organization, Element elem)
   {
     String code = elem.getAttribute("code");
@@ -420,6 +489,21 @@ public class XMLImporter
     ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(organization.getCode(), type.getIsPrivate());
 
     return new ServerGeoObjectTypeConverter().create(type);
+  }
+
+  private BusinessType createBusinessType(Organization organization, Element elem)
+  {
+    String code = elem.getAttribute("code");
+    LocalizedValue label = this.getLabel(elem);
+
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(organization.getCode(), false);
+
+    JsonObject object = new JsonObject();
+    object.addProperty(BusinessType.CODE, code);
+    object.addProperty(BusinessType.ORGANIZATION, organization.getCode());
+    object.add(BusinessType.DISPLAYLABEL, label.toJSON());
+
+    return BusinessType.apply(object);
   }
 
   private LocalizedValue getDescription(Element elem)
