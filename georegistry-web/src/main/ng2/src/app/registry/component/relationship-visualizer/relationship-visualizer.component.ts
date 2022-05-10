@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { Component, OnInit, Input, Output, SimpleChanges, EventEmitter } from "@angular/core";
+import { Component, OnInit, Output, EventEmitter } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService } from "ngx-bootstrap/modal";
 
@@ -7,7 +7,7 @@ import { ErrorHandler } from "@shared/component";
 
 import { GeoObjectTypeCache } from "@registry/model/registry";
 import { Subject, Subscription } from "rxjs";
-import { RelationshipVisualizationService, RelationshipVisualizerDataSourceProvider } from "@registry/service/relationship-visualization.service";
+import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
 import { Layout, Orientation } from "@swimlane/ngx-graph";
 
 import { DagreNodesOnlyLayout } from "./relationship-viz-layout";
@@ -17,11 +17,12 @@ import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
 import * as ColorGen from "color-generator";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
-import { GeometryService, ParamLayer } from "@registry/service";
+import { GeometryService } from "@registry/service";
 import { Router, ActivatedRoute } from "@angular/router";
 import { LngLatBounds } from "mapbox-gl";
-import { Relationship, RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER, TreeData } from "@registry/model/graph";
+import { Relationship, TreeData } from "@registry/model/graph";
 import { LocationManagerParams } from "../location-manager/location-manager.component";
+import { Layer, RelationshipVisualizionDataSource, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -84,16 +85,10 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     relationship: Relationship = null;
     relationships: Relationship[];
+    
+    graphOid: string;
 
     data: TreeData = null;
-
-    public dataSourceProvider: RelationshipVisualizerDataSourceProvider;
-
-    loadTreeDataSub: Subscription;
-    fetchTreeDataSub: Subscription;
-
-    loadRelationshipDataSub: Subscription;
-    fetchRelationshipDataSub: Subscription;
 
     onFetchErrorSub: Subscription;
 
@@ -115,68 +110,6 @@ export class RelationshipVisualizerComponent implements OnInit {
     ngOnInit(): void {
         this.typeCache = this.cacheService.getTypeCache();
 
-        this.dataSourceProvider = this.vizService.getDataSourceProvider(this.geomService);
-
-        this.loadTreeDataSub = this.dataSourceProvider.onLoadTreeData.subscribe((data) => {
-            this.spinner.hide(this.CONSTANTS.OVERLAY);
-
-            this.data = null;
-
-            window.setTimeout(() => {
-                this.data = data;
-
-                this.resizeDimensions();
-                this.calculateColorSchema();
-                this.addLayers(this.data.geoJson);
-            }, 0);
-
-            this.resizeDimensions();
-        });
-
-        this.fetchTreeDataSub = this.dataSourceProvider.onFetchTreeData.subscribe(() => {
-            this.spinner.show(this.CONSTANTS.OVERLAY);
-        });
-
-        this.loadRelationshipDataSub = this.dataSourceProvider.onLoadRelationshipData.subscribe((relationships) => {
-            this.spinner.hide(this.CONSTANTS.OVERLAY);
-
-            this.relationships = null;
-
-            window.setTimeout(() => { // If we don't set a timeout here then angular html doesn't update properly
-                this.relationships = relationships;
-
-                if (this.relationships && this.relationships.length > 0) {
-                    if (!this.params.graphOid || this.relationships.findIndex(rel => rel.oid === this.params.graphOid) === -1) {
-                        this.relationship = this.relationships[0];
-                        this.params.graphOid = this.relationship.oid;
-                        // this.changeRelationship.emit(this.params.graphOid);
-
-                        this.router.navigate([], {
-                            relativeTo: this.route,
-                            queryParams: { graphOid: this.params.graphOid },
-                            queryParamsHandling: "merge" // remove to replace all query params by provided
-                        });
-                    } else {
-                        this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.params.graphOid)];
-                        this.params.graphOid = this.relationship.oid;
-                    }
-                }
-
-                if (this.data == null) {
-                    this.dataSourceProvider.fetchData();
-                }
-            }, 0);
-        });
-
-        this.fetchRelationshipDataSub = this.dataSourceProvider.onFetchRelationshipData.subscribe(() => {
-            this.spinner.show(this.CONSTANTS.OVERLAY);
-        });
-
-        this.onFetchErrorSub = this.dataSourceProvider.onFetchError.subscribe((err) => {
-            this.spinner.hide(this.CONSTANTS.OVERLAY);
-            this.error(err);
-        });
-
         this.queryParamSub = this.route.queryParams.subscribe((params) => { this.queryParamChanges(params); });
 
         // Angular keeps invoking our queryParamChanges in the early stages of component loading. We don't want to make expensive
@@ -184,22 +117,11 @@ export class RelationshipVisualizerComponent implements OnInit {
         window.setTimeout(() => {
             this.loading = false;
 
-            this.data = this.dataSourceProvider.treeData;
-            this.relationships = this.dataSourceProvider.relationships;
-            this.relationship = this.dataSourceProvider.relationship;
-            if (this.data != null && this.relationship != null) {
-                this.calculateColorSchema();
-            }
-
             this.queryParamChanges(this.params);
         }, 10);
     }
 
     ngOnDestroy(): void {
-        this.loadTreeDataSub.unsubscribe();
-        this.fetchTreeDataSub.unsubscribe();
-        this.loadRelationshipDataSub.unsubscribe();
-        this.fetchRelationshipDataSub.unsubscribe();
         this.queryParamSub.unsubscribe();
     }
 
@@ -208,18 +130,25 @@ export class RelationshipVisualizerComponent implements OnInit {
             return;
         }
 
-        params = JSON.parse(JSON.stringify(params));
+        let newParams = JSON.parse(JSON.stringify(params));
+        let oldParams = JSON.parse(JSON.stringify(this.params));
+        this.params = newParams;
 
-        this.panelOpen = params.graphPanelOpen === "true";
+        this.panelOpen = newParams.graphPanelOpen === "true";
 
-        if (params.graphOid && params.graphOid !== this.params.graphOid) {
-            this.params.graphOid = params.graphOid;
-
-            this.onSelectRelationship(false);
+        if (newParams.graphOid && newParams.graphOid !== oldParams.graphOid && this.relationships != null) {
+            this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
         }
 
         if (!this.loading) {
-          this.dataSourceProvider.queryParamChanges(params, this.params);
+            if (this.relationships == null || this.relationship == null || newParams.type !== oldParams.type) {
+                this.relationships = null;
+                this.relationship = null;
+                this.graphOid = null;
+                this.fetchRelationships();
+            } else if (this.relationships != null && this.relationship && (newParams.bounds !== oldParams.bounds || newParams.code !== oldParams.code || newParams.date !== oldParams.date || newParams.uid !== oldParams.uid || newParams.graphOid !== oldParams.graphOid)) {
+                this.fetchData();
+            }
         }
 
         if (this.panelOpen) {
@@ -227,8 +156,6 @@ export class RelationshipVisualizerComponent implements OnInit {
                 this.resizeDimensions();
             }, 1);
         }
-
-        this.params = params;
     }
 
     resizeDimensions():void {
@@ -261,51 +188,107 @@ export class RelationshipVisualizerComponent implements OnInit {
         return points;
     }
 
-    private onSelectRelationship(updateUrl: boolean = true) {
-        if (this.relationships == null) {
-            return;
+    private fetchRelationships(): void {
+        if (this.params.type != null) {
+            this.relationships = [];
+            this.spinner.show(this.CONSTANTS.OVERLAY);
+
+            this.vizService.relationships(this.params.type).then(relationships => {
+                this.relationships = relationships;
+
+                if (this.relationships && this.relationships.length > 0) {
+                    if (!this.params.graphOid || this.relationships.findIndex(rel => rel.oid === this.params.graphOid) === -1) {
+                        this.relationship = this.relationships[0];
+                        this.graphOid = this.relationship.oid;
+                        this.onSelectRelationship(true);
+                    } else {
+                        this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.params.graphOid)];
+                        this.fetchData();
+                    }
+                }
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            }).finally(() => {
+                this.spinner.hide(this.CONSTANTS.OVERLAY);
+            });
         }
+    }
 
-        this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.params.graphOid)];
+    private onSelectRelationship(updateUrl: boolean) {
+        this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
 
-        this.dataSourceProvider.relationship = this.relationship;
-
-        if (!this.loading) {
-            this.dataSourceProvider.fetchData();
-        }
-
-        this.changeRelationship.emit(this.params.graphOid);
+        //   this.fetchData();
+        this.changeRelationship.emit(this.graphOid);
 
         if (updateUrl) {
             this.router.navigate([], {
                 relativeTo: this.route,
-                queryParams: { graphOid: this.params.graphOid },
+                queryParams: { graphOid: this.graphOid },
                 queryParamsHandling: "merge" // remove to replace all query params by provided
             });
         }
     }
 
+    private fetchData(): void {
+        if (this.relationship != null) {
+            this.spinner.show(this.CONSTANTS.OVERLAY);
+            
+            let mapBounds = new LngLatBounds(JSON.parse(this.params.bounds));
+
+            this.vizService.tree(this.relationship.type, this.relationship.code, this.params.code, this.params.type, this.params.date, this.convertBoundsToWKT(mapBounds)).then(data => {
+                this.data = null;
+
+                window.setTimeout(() => {
+                    this.data = data;
+
+                    this.resizeDimensions();
+                    this.calculateColorSchema();
+                    this.addLayers(this.data.geoJson);
+                }, 0);
+
+                this.resizeDimensions();
+            }).finally(() => {
+                this.spinner.hide(this.CONSTANTS.OVERLAY);
+            });
+        }
+    }
+
     private addLayers(typeCollections: any) {
-        let layers: ParamLayer[] = this.geomService.serializeAllLayers();
+        let layers: Layer[] = this.geomService.getLayers();
 
         // Remove any existing layer from map that is graph related that isn't part of this new data
-        layers = layers.filter(layer => layer.dataSourceProviderId !== RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER ||
+        layers = layers.filter(layer => layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE ||
             (
-              layer.oid.split("-").length === 3 &&
-              Object.keys(typeCollections).indexOf(layer.oid.split("-")[1]) !== -1 &&
-              layer.oid.split("-")[2] === this.relationship.code
+              Object.keys(typeCollections).indexOf((layer.dataSource as RelationshipVisualizionDataSource).getParentTypeCode()) !== -1 &&
+              (layer.dataSource as RelationshipVisualizionDataSource).getRelationshipCode() === this.relationship.code
             )
         );
 
         for (const [typeCode] of Object.entries(typeCollections)) {
-          let oid = "GRAPH-" + typeCode + "-" + this.relationship.code;
+          let dataSource = new RelationshipVisualizionDataSource(this.vizService, this.geomService, typeCode, this.relationship.type, this.relationship.code, this.params.type, this.params.code, this.params.bounds, this.params.date);
 
-          if (layers.findIndex(l => l.oid === oid) === -1) {
-              layers.splice(0, 0, new ParamLayer(oid, this.relationship.label.localizedValue + " " + typeCode, true, this.colorSchema[typeCode], oid, RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER));
+          if (layers.findIndex(l => l.dataSource.getId() === dataSource.getId()) === -1) {
+              let layer = dataSource.createLayer(this.relationship.label.localizedValue + " " + typeCode, true, this.colorSchema[typeCode]);
+              layers.push(layer);
           }
         }
 
         this.geomService.setLayers(layers);
+    }
+
+    private convertBoundsToWKT(bounds: LngLatBounds): string {
+      let se = bounds.getSouthEast();
+      let sw = bounds.getSouthWest();
+      let nw = bounds.getNorthWest();
+      let ne = bounds.getNorthEast();
+
+      return "POLYGON ((" +
+        se.lng + " " + se.lat + "," +
+        sw.lng + " " + sw.lat + "," +
+        nw.lng + " " + nw.lat + "," +
+        ne.lng + " " + ne.lat + "," +
+        se.lng + " " + se.lat +
+      "))";
     }
 
     calculateColorSchema() {
@@ -316,7 +299,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
         this.data.verticies.forEach(vertex => {
             if (!this.colorSchema[vertex.typeCode]) { // vertex.id.substring(2) !== this.geoObject.properties.uid &&
-                let existingIndex = layers.findIndex(layer => layer.oid === "GRAPH-" + vertex.typeCode + "-" + this.relationship.code);
+                let existingIndex = layers.findIndex(layer => layer.dataSource instanceof RelationshipVisualizionDataSource && (layer.dataSource as RelationshipVisualizionDataSource).getRelationshipCode() === this.relationship.code && (layer.dataSource as RelationshipVisualizionDataSource).getParentTypeCode() === vertex.typeCode);
 
                 if (existingIndex !== -1) {
                     this.colorSchema[vertex.typeCode] = layers[existingIndex].color;
@@ -332,7 +315,7 @@ export class RelationshipVisualizerComponent implements OnInit {
     }
 
     collapseAnimation(id: string): Promise<void> {
-        if (!this.params.code) { return new Promise<void>((resolve, reject) => { resolve(); }); }
+        if (!this.params.type) { return new Promise<void>((resolve, reject) => { resolve(); }); }
 
         let activeEl = document.getElementById(id) as unknown as SVGGraphicsElement;
         if (!activeEl) { return new Promise<void>((resolve, reject) => { resolve(); }); }

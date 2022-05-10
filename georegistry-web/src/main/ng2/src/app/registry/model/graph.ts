@@ -1,7 +1,5 @@
 import { LocalizedValue } from "@shared/model/core";
 
-export const RELATIONSHIP_VISUALIZER_LAYER_DATASET_PROVIDER = "RelationshipVisualizer";
-
 export interface Relationship {
     oid: string,
     label: LocalizedValue,

@@ -5,12 +5,13 @@ import { v4 as uuid } from "uuid";
 import turf_booleanequal from "@turf/boolean-equal";
 import bbox from "@turf/bbox";
 import { LocalizedValue } from "@shared/model/core";
-import { GeometryService, Layer, GeoJsonLayer, RegistryService } from "@registry/service";
+import { GeometryService, RegistryService } from "@registry/service";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { Subject } from "rxjs";
 import { ChangeType } from "@registry/model/constants";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { LngLatBoundsLike } from "mapbox-gl";
+import { GeoJsonLayer, Layer } from "@registry/service/layer-data-source";
 
 export class ValueOverTimeCREditor implements TimeRangeEntry {
 
@@ -515,7 +516,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
                 return votEditor.changeRequestAttributeEditor.changeRequestEditor.changeRequest.oid;
             },
             createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer {
-                return new GeoJsonLayer(oid, legendLabel, this, rendered, color);
+                return new GeoJsonLayer(this, legendLabel, rendered, color);
             },
             getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBoundsLike> {
                 return new Promise((resolve, reject) => {

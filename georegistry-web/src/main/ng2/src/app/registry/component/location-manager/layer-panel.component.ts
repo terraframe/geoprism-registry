@@ -1,9 +1,8 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 
-import { ContextLayer, ContextList, ListOrgGroup, ListTypeVersion, ListVersion } from "@registry/model/list-type";
+import { ContextList, ListOrgGroup, ListVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
-import { LocalizationService } from "@shared/service";
 import * as ColorGen from "color-generator";
 import { Subscription } from "rxjs";
 
@@ -11,15 +10,10 @@ import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
 import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
-import { DataSourceProvider, GeometryService, Layer, LayerDataSource } from "@registry/service/geometry.service";
-import { GeoRegistryConfiguration } from "@core/model/registry";
-import { LngLatBounds } from "mapbox-gl";
-import { HttpErrorResponse } from "@angular/common/http";
+import { GeometryService } from "@registry/service/geometry.service";
+import { DataSourceFactory, Layer, ListVectorLayerDataSource, LIST_VECTOR_SOURCE_TYPE } from "@registry/service/layer-data-source";
 import { RegistryService } from "@registry/service/registry.service";
-
-declare let registry: GeoRegistryConfiguration;
-
-export const VECTOR_LAYER_DATASET_PROVIDER_ID = "LAYER_PANEL_VECTOR";
+import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
 
 export interface BaseLayer {
     name: string,
@@ -57,14 +51,14 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
 
     @Output() baseLayerChange = new EventEmitter<BaseLayer>();
     @Output() zoomTo = new EventEmitter<Layer>();
-    @Output() create = new EventEmitter<ContextLayer>();
+    @Output() create = new EventEmitter<Layer>();
 
     @Input() panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
     @Output() panelSizeChange = new EventEmitter<number>();
 
     listOrgGroups: ListOrgGroup[] = [];
     // lists: ContextList[] = [];
-    layers: ContextLayer[] = [];
+    layers: Layer[] = [];
 
     versionMap = {};
 
@@ -102,66 +96,21 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
 
     params: Params = null;
 
-    vectorLayerDataSourceProvider: DataSourceProvider;
-
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private route: ActivatedRoute,
         private router: Router,
         private spinner: NgxSpinnerService,
         private service: ListTypeService,
-        private lService: LocalizationService,
-        private geomService: GeometryService) { }
+        private geomService: GeometryService,
+        private registryService: RegistryService,
+        private vizService: RelationshipVisualizationService,
+        private listService: ListTypeService) { }
 
     ngOnInit(): void {
         this.subscription = this.geomService.layersChange.subscribe((layers: Layer[]) => {
             this.layersChange(layers);
         });
-
-        this.vectorLayerDataSourceProvider = {
-            getId(): string {
-                return VECTOR_LAYER_DATASET_PROVIDER_ID;
-            },
-            getDataSource(dataSourceId: string): LayerDataSource {
-                return {
-                    buildMapboxSource(): any {
-                        let protocol = window.location.protocol;
-                        let host = window.location.host;
-
-                        return {
-                            type: "vector",
-                            tiles: [protocol + "//" + host + registry.contextPath + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: dataSourceId }))],
-                            promoteId: "uid"
-                        };
-                    },
-                    getGeometryType(): string {
-                        return "MIXED";
-                    },
-                    createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer {
-                        return new Layer(oid, legendLabel, this, rendered, color);
-                    },
-                    getDataSourceId(): string {
-                        return dataSourceId;
-                    },
-                    getDataSourceProviderId(): string {
-                        return VECTOR_LAYER_DATASET_PROVIDER_ID;
-                    },
-                    configureMapboxLayer(layerConfig: any): void {
-                        layerConfig["source-layer"] = "context";
-                    },
-                    getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBounds> {
-                        return listService.getBounds(layer.oid).then((bounds: number[]) => {
-                            if (bounds && Array.isArray(bounds)) {
-                                return new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
-                            } else {
-                                return null;
-                            }
-                        });
-                    }
-                };
-            }
-        };
-        this.geomService.registerDataSourceProvider(this.vectorLayerDataSourceProvider);
     }
 
     ngOnDestroy(): void {
@@ -192,20 +141,19 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     }
 
     layersChange(layers: Layer[]): void {
-        this.layers = this.geomService.serializeAllLayers();
+        this.layers = this.geomService.getLayers();
 
-        let layersWithoutVersions = this.layers.filter(layer => this.versionMap[layer.oid] == null && layer.dataSourceProviderId === VECTOR_LAYER_DATASET_PROVIDER_ID).map(layer => layer.oid);
+        let layersWithoutVersions = this.layers.filter(layer => this.versionMap[layer.getId()] == null && layer.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE).map(layer => (layer.dataSource as ListVectorLayerDataSource).getVersionId());
         if (layersWithoutVersions.length > 0) {
             this.service.fetchVersionsAsListVersion(layersWithoutVersions).then((versions: ListVersion[]) => {
                 versions.forEach(version => {
-                    this.versionMap[version.oid] = version;
-
-                    let layerIndex = this.layers.findIndex(l => l.oid === version.oid);
+                    let layerIndex = this.layers.findIndex(l => l.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE && (l.dataSource as ListVectorLayerDataSource).getVersionId() === version.oid);
                     if (layerIndex !== -1) {
                         let layer = this.layers[layerIndex];
                         version.layer = layer;
-                        layer.forDate = version.forDate;
-                        layer.versionNumber = version.versionNumber;
+                        (layer.dataSource as ListVectorLayerDataSource).forDate = version.forDate;
+                        (layer.dataSource as ListVectorLayerDataSource).versionNumber = version.versionNumber;
+                        this.versionMap[layer.getId()] = version;
                     }
                 });
             });
@@ -213,6 +161,21 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
 
         this.refreshListLayerReferences();
     }
+
+/*
+    private convertLayerToContextLayer(layer: Layer): ContextLayer {
+        let cLayer: ContextLayer = new ContextLayer(layer.getId(), layer.dataSource.getDataSourceType(), layer.legendLabel, layer.rendered, layer.color);
+        return cLayer;
+    }
+
+    private convertContextLayerToLayer(cLayer: ContextLayer): Layer {
+        let serializedLayer: any = cLayer;
+        delete serializedLayer.dataSourceType;
+        serializedLayer.dataSource = { dataSourceType: cLayer.dataSourceType };
+
+        return new DataSourceFactory(this.geomService, this.registryService, this.vizService).deserializeLayer();
+    }
+    */
 
     handleSearch(): Promise<ListOrgGroup[]> {
         this.spinner.show(this.CONSTANTS.OVERLAY);
@@ -240,15 +203,14 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
                     for (let i = 0; i < list.versions.length; ++i) {
                         let version = list.versions[i];
 
-                        let layerIndex = this.layers.findIndex(l => l.oid === version.oid);
+                        let layerIndex = this.layers.findIndex(l => l.getId() === version.oid);
                         if (layerIndex !== -1) {
                             let layer = this.layers[layerIndex];
                             version.layer = layer;
-                            layer.forDate = version.forDate;
-                            layer.versionNumber = version.versionNumber;
+                            (layer.dataSource as ListVectorLayerDataSource).forDate = version.forDate;
+                            (layer.dataSource as ListVectorLayerDataSource).versionNumber = version.versionNumber;
+                            this.versionMap[layer.getId()] = version;
                         }
-
-                        this.versionMap[version.oid] = version;
                     }
                 });
             });
@@ -257,47 +219,46 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         for (const [oid, v] of Object.entries(this.versionMap)) {
             let version: ListVersion = v as ListVersion;
 
-            let layerIndex = this.layers.findIndex(l => l.oid === oid);
+            let layerIndex = this.layers.findIndex(l => l.getId() === oid);
             if (layerIndex !== -1) {
                 let layer = this.layers[layerIndex];
                 version.layer = layer;
-                layer.forDate = version.forDate;
-                layer.versionNumber = version.versionNumber;
+                (layer.dataSource as ListVectorLayerDataSource).forDate = version.forDate;
+                (layer.dataSource as ListVectorLayerDataSource).versionNumber = version.versionNumber;
             }
         }
     }
 
-    clickToggleLayerRendered(layer: ContextLayer, list: ContextList) {
+    clickToggleLayerRendered(layer: Layer, list: ContextList) {
         this.toggleLayerRendered(layer);
     }
 
     toggleVersionLayer(version: ListVersion, list: ContextList): void {
         if (!version.layer) {
-            version.layer = new ContextLayer(version.oid, list.label, true, ColorGen().hexString(), version.oid, VECTOR_LAYER_DATASET_PROVIDER_ID);
-            version.layer.versionNumber = version.versionNumber;
-            version.layer.forDate = version.forDate;
+            let dataSource = new ListVectorLayerDataSource(this.listService, version.oid);
+            version.layer = dataSource.createLayer(list.label, true, ColorGen().hexString());
             this.geomService.addOrUpdateLayer(version.layer);
         } else {
-            this.geomService.removeLayer(version.layer.oid);
+            this.geomService.removeLayer(version.layer.getId());
             delete version.layer;
         }
     }
 
-    toggleLayerRendered(layer: ContextLayer): void {
+    toggleLayerRendered(layer: Layer): void {
         layer.rendered = !layer.rendered;
 
         this.geomService.addOrUpdateLayer(layer);
     }
 
-    onGotoBounds(layer: ContextLayer): void {
-        let layers = this.geomService.getLayers().filter(l => l.oid === layer.oid);
+    onGotoBounds(layer: Layer): void {
+        let layers = this.geomService.getLayers().filter(l => l.getId() === layer.getId());
 
         if (layers.length > 0) {
             this.zoomTo.emit(layers[0]);
         }
     }
 
-    onCreate(layer: ContextLayer): void {
+    onCreate(layer: Layer): void {
         this.create.emit(layer);
     }
 
@@ -311,12 +272,14 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         this.baseLayerChange.emit(layer);
     }
 
-    moveLayer(eventLayers: ContextLayer[]): void {
+    moveLayer(eventLayers: Layer[]): void {
         this.geomService.setLayers(eventLayers);
     }
 
     drop(event: CdkDragDrop<string[]>) {
-        let eventLayers = JSON.parse(JSON.stringify(this.layers));
+        let factory = this.geomService.getDataSourceFactory();
+        let eventLayers = factory.deserializeLayers(factory.serializeLayers(this.layers));
+
         moveItemInArray(eventLayers, event.previousIndex, event.currentIndex);
         this.moveLayer(eventLayers);
     }
