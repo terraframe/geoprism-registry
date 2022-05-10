@@ -65,13 +65,15 @@ import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.model.AttributedType;
+import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.graph.BusinessTypePageQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
-public class BusinessType extends BusinessTypeBase implements JsonSerializable
+public class BusinessType extends BusinessTypeBase implements JsonSerializable, ServerElement, AttributedType
 {
   private static final long  serialVersionUID = 88826735;
 
@@ -88,6 +90,10 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
   @Transaction
   public void delete()
   {
+    // Delete the term root
+    Classifier classRootTerm = TermConverter.buildIfNotExistdMdBusinessClassifier(this.getMdVertex());
+    classRootTerm.delete();
+
     MdVertex mdVertex = this.getMdVertex();
     MdEdge mdEdge = this.getMdEdge();
 
@@ -208,6 +214,11 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
     return converter.build(mdAttribute);
   }
 
+  public LocalizedValue getLabel()
+  {
+    return LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel());
+  }
+
   @Override
   public JsonObject toJSON()
   {
@@ -222,7 +233,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
     object.addProperty(BusinessType.CODE, this.getCode());
     object.addProperty(BusinessType.ORGANIZATION, organization.getCode());
     object.addProperty("organizationLabel", organization.getDisplayLabel().getValue());
-    object.add(BusinessType.DISPLAYLABEL, LocalizedValueConverter.convert(this.getDisplayLabel()).toJSON());
+    object.add(BusinessType.DISPLAYLABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
 
     if (this.isAppliedToDB())
     {
@@ -453,7 +464,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
   {
     BusinessTypeQuery query = new BusinessTypeQuery(new QueryFactory());
     query.WHERE(query.getMdVertex().EQ(mdVertex.getOid()));
-    
+
     try (OIterator<? extends BusinessType> it = query.getIterator())
     {
       if (it.hasNext())
@@ -461,8 +472,8 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable
         return it.next();
       }
     }
-    
+
     return null;
   }
-  
+
 }

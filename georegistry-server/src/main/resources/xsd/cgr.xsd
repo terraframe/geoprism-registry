@@ -24,9 +24,11 @@
   <xs:complexType name="rootOptions">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element name="type" type="type" />
+      <xs:element name="business-type" type="business-type" />
       <xs:element name="hierarchy" type="hierarchy" />
       <xs:element name="dag" type="graph" />
       <xs:element name="undirected-graph" type="graph" />      
+      <xs:element name="business-edge" type="business-edge" />      
     </xs:choice>
   </xs:complexType>
   <xs:complexType name="hierarchy">
@@ -44,6 +46,13 @@
     <xs:attribute name="accessConstraints" type="xs:string" use="optional" />
     <xs:attribute name="useConstraints" type="xs:string" use="optional" />
     <xs:attribute name="extends" type="xs:string" use="optional" />
+  </xs:complexType>
+  <xs:complexType name="business-edge">
+    <xs:attribute name="code" type="xs:string" use="required" />
+    <xs:attribute name="label" type="xs:string" use="required" />
+    <xs:attribute name="description" type="xs:string" use="optional" />
+    <xs:attribute name="parentTypeCode" type="xs:string" use="optional" />
+    <xs:attribute name="childTypeCode" type="xs:string" use="optional" />
   </xs:complexType>
   <xs:complexType name="graph">
     <xs:attribute name="code" type="xs:string" use="required" />
@@ -70,6 +79,16 @@
     <xs:attribute name="isGeometryEditable" type="xs:boolean" />
     <xs:attribute name="isGroup" type="xs:boolean" />
   </xs:complexType>
+  <xs:complexType name="business-type">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="attributes" type="attributes" minOccurs="0" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="code" type="xs:string" use="required" />
+    <xs:attribute name="label" type="xs:string" use="required" />
+    <xs:attribute name="description" type="xs:string" use="optional" />
+  </xs:complexType>
   <xs:complexType name="node">
     <xs:sequence>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -88,6 +107,7 @@
       <xs:element name="decimal" type="decimal" />
       <xs:element name="date" type="date" />
       <xs:element name="term" type="term" />
+      <xs:element name="classification" type="classification" />
     </xs:choice>
   </xs:complexType>
   <!-- Common Attributes of all attributes -->

@@ -42,31 +42,31 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.service.ServiceFactory;
 
-public class BusinessEdgeJsonImporter
+public class BusinessGeoobjectEdgeJsonImporter
 {
-  private static final Logger   logger     = LoggerFactory.getLogger(BusinessEdgeJsonImporter.class);
+  private static final Logger   logger   = LoggerFactory.getLogger(BusinessGeoobjectEdgeJsonImporter.class);
 
-  protected BusinessObjectCache goCache    = new BusinessObjectCache();
+  protected BusinessObjectCache boCache  = new BusinessObjectCache();
 
-  protected Map<String, Object> goRidCache = new LinkedHashMap<String, Object>()
+  protected GeoObjectCache      goCache  = new GeoObjectCache();
+
+  protected Map<String, Object> ridCache = new LinkedHashMap<String, Object>()
+                                         {
+                                           public boolean removeEldestEntry(@SuppressWarnings("rawtypes")
+                                           Map.Entry eldest)
                                            {
-                                             public boolean removeEldestEntry(@SuppressWarnings("rawtypes")
-                                             Map.Entry eldest)
-                                             {
-                                               final int cacheSize = 10000;
-                                               return size() > cacheSize;
-                                             }
-                                           };
+                                             final int cacheSize = 10000;
+                                             return size() > cacheSize;
+                                           }
+                                         };
 
   private ApplicationResource   resource;
 
-  private boolean               validate;
-
-  public BusinessEdgeJsonImporter(ApplicationResource resource, boolean validate)
+  public BusinessGeoobjectEdgeJsonImporter(ApplicationResource resource)
   {
     this.resource = resource;
-    this.validate = validate;
   }
 
   public void importData() throws JsonSyntaxException, IOException
@@ -75,64 +75,42 @@ public class BusinessEdgeJsonImporter
     {
       JsonObject data = JsonParser.parseString(IOUtils.toString(stream, "UTF-8")).getAsJsonObject();
 
-      JsonArray edgeTypes = data.get("edgeTypes").getAsJsonArray();
+      JsonArray edges = data.get("edges").getAsJsonArray();
 
-      for (int i = 0; i < edgeTypes.size(); ++i)
+      for (int j = 0; j < edges.size(); ++j)
       {
-        JsonObject joGraphType = edgeTypes.get(i).getAsJsonObject();
+        JsonObject joEdge = edges.get(j).getAsJsonObject();
 
-        final String code = joGraphType.get("code").getAsString();
+        String sourceCode = joEdge.get("source").getAsString();
+        String sourceTypeCode = joEdge.get("sourceType").getAsString();
+        String targetCode = joEdge.get("target").getAsString();
+        String targetTypeCode = joEdge.get("targetType").getAsString();
 
-        final BusinessEdgeType edgeType = BusinessEdgeType.getByCode(code);
-        BusinessType sourceType = edgeType.getParent();
-        BusinessType targetType = edgeType.getChild();
+        BusinessType targetType = BusinessType.getByCode(targetTypeCode);
 
-        JsonArray edges = joGraphType.get("edges").getAsJsonArray();
+        String sourceDbClassName = ServiceFactory.getMetadataCache().getGeoObjectType(sourceTypeCode).get().getMdVertex().getDBClassName();
+        String targetDbClassName = targetType.getMdVertexDAO().getDBClassName();
 
-        logger.info("About to import [" + edges.size() + "] edges as MdEdge [" + edgeType.getCode() + "].");
+        Object parentRid = getOrFetchRid(sourceCode, sourceDbClassName);
+        Object childRid = getOrFetchRid(targetCode, targetDbClassName);
 
-        for (int j = 0; j < edges.size(); ++j)
+        this.newEdge(childRid, parentRid, targetType);
+
+        long cacheSize = ridCache.size();
+
+        if (j % 50 == 0)
         {
-          JsonObject joEdge = edges.get(j).getAsJsonObject();
-
-          String sourceCode = joEdge.get("source").getAsString();
-          String targetCode = joEdge.get("target").getAsString();
-
-          long cacheSize;
-
-          if (validate)
-          {
-            BusinessObject source = goCache.getOrFetchByCode(sourceCode, sourceType.getCode());
-            BusinessObject target = goCache.getOrFetchByCode(targetCode, targetType.getCode());
-
-            source.addChild(edgeType, target);
-
-            cacheSize = goCache.getSize();
-          }
-          else
-          {
-            Object childRid = getOrFetchRid(sourceCode, sourceType);
-            Object parentRid = getOrFetchRid(targetCode, targetType);
-
-            this.newEdge(childRid, parentRid, edgeType);
-
-            cacheSize = goRidCache.size();
-          }
-
-          if (j % 50 == 0)
-          {
-            logger.info("Imported record " + j + ". Cache size is " + cacheSize);
-          }
+          logger.info("Imported record " + j + ". Cache size is " + cacheSize);
         }
       }
     }
+
   }
 
-  private Object getOrFetchRid(String code, BusinessType businessType)
+  private Object getOrFetchRid(String code, String typeDbClassName)
   {
-    String typeDbClassName = businessType.getMdVertexDAO().getDBClassName();
 
-    Object rid = this.goRidCache.get(businessType.getCode() + "$#!" + code);
+    Object rid = this.ridCache.get(typeDbClassName + "$#!" + code);
 
     if (rid == null)
     {
@@ -146,13 +124,13 @@ public class BusinessEdgeJsonImporter
         throw new DataNotFoundException("Could not find Geo-Object with code " + code + " on table " + typeDbClassName);
       }
 
-      this.goRidCache.put(businessType.getCode() + "$#!" + code, rid);
+      this.ridCache.put(typeDbClassName + "$#!" + code, rid);
     }
 
     return rid;
   }
 
-  public void newEdge(Object childRid, Object parentRid, BusinessEdgeType type)
+  public void newEdge(Object childRid, Object parentRid, BusinessType type)
   {
     String clazz = type.getMdEdgeDAO().getDBClassName();
 

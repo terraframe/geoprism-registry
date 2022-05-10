@@ -105,7 +105,7 @@ import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
 
-public class ServerGeoObjectType implements ServerElement
+public class ServerGeoObjectType implements ServerElement, AttributedType
 {
   // private Logger logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
 

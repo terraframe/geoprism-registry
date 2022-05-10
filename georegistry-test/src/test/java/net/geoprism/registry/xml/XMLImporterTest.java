@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.xml;
 
@@ -39,6 +39,8 @@ import org.junit.Test;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.BusinessEdgeType;
+import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.model.Classification;
@@ -98,7 +100,7 @@ public class XMLImporterTest
       {
         RegistryService.getInstance().refreshMetadataCache();
 
-        Assert.assertEquals(4, results.size());
+        Assert.assertEquals(7, results.size());
 
         ServerGeoObjectType type = ServerGeoObjectType.get(results.get(0).getCode());
 
@@ -207,6 +209,19 @@ public class XMLImporterTest
         node = nodes.get(0);
 
         Assert.assertEquals("TEST_VILLAGE", node.getGeoObjectType().getCode());
+
+        BusinessType businessType = BusinessType.getByCode(results.get(4).getCode());
+
+        Assert.assertEquals("BUSINESS_POP", businessType.getCode());
+        Assert.assertEquals("Business Pop", businessType.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+
+        AttributeType businessAttribute = businessType.getAttribute("TEST_TEXT");
+
+        Assert.assertEquals("Test Text", businessAttribute.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+        Assert.assertEquals("Test Text Description", businessAttribute.getDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
+
+        BusinessEdgeType businessEdge = BusinessEdgeType.getByCode(results.get(6).getCode());
+        Assert.assertEquals("BUS_EDGE", businessEdge.getCode());
       }
       finally
       {

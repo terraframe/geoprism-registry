@@ -6,11 +6,13 @@ import java.util.List;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.graph.MdEdgeInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -48,6 +50,16 @@ public class BusinessEdgeType extends BusinessEdgeTypeBase implements JsonSerial
   public MdEdgeDAOIF getMdEdgeDAO()
   {
     return MdEdgeDAO.get(this.getMdEdgeOid());
+  }
+
+  public BusinessType getParent()
+  {
+    return BusinessType.getByMdVertex((MdVertexDAOIF) BusinessFacade.getEntityDAO(this.getParentType()));
+  }
+
+  public BusinessType getChild()
+  {
+    return BusinessType.getByMdVertex((MdVertexDAOIF) BusinessFacade.getEntityDAO(this.getChildType()));
   }
 
   @Transaction
@@ -155,7 +167,7 @@ public class BusinessEdgeType extends BusinessEdgeTypeBase implements JsonSerial
     RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
     RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
     RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
-    
+
     BusinessType parentType = BusinessType.getByCode(parentTypeCode);
     BusinessType childType = BusinessType.getByCode(childTypeCode);
     Organization organization = Organization.getByCode(organizationCode);
