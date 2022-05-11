@@ -259,7 +259,7 @@ export const CHANGE_REQUEST_SOURCE_TYPE_NEW = "CRNEW";
 
 export const CHANGE_REQUEST_SOURCE_TYPE_OLD = "CROLD";
 
-export class ValueOverTimeDataSource extends LayerDataSource {
+export class ValueOverTimeDataSource extends GeoJsonLayerDataSource {
 
     votEditor: ValueOverTimeCREditor;
 
@@ -281,12 +281,14 @@ export class ValueOverTimeDataSource extends LayerDataSource {
         }
     }
 
-    getLayerData(): GeoJSON.GeoJSON {
-        if (this.getDataSourceType() === CHANGE_REQUEST_SOURCE_TYPE_NEW) {
-            return this.votEditor.value;
-        } else {
-            return this.votEditor.oldValue;
-        }
+    getLayerData(): Promise<GeoJSON.GeoJSON> {
+        return new Promise((resolve, reject) => {
+            if (this.getDataSourceType() === CHANGE_REQUEST_SOURCE_TYPE_NEW) {
+                return this.votEditor.value;
+            } else {
+                return this.votEditor.oldValue;
+            }
+        })
     }
 
     buildMapboxSource(): Promise<AnySourceData> {
