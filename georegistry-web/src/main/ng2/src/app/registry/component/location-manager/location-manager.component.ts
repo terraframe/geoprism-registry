@@ -698,6 +698,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         if ((this.current == null || this.current.geoObject == null || this.current.geoObject.properties.uid !== feature.properties.uid)) {
                             this.select(feature, null);
                         }
+                    } else if (feature.source.startsWith("GRAPH-")) {
+                        this.onChangeGeoObject({ typeCode: feature.properties.type, code: feature.properties.code, id: feature.properties.uid, doIt: (fun) => { fun(); } });
                     } else {
                         if (this.params.version == null || this.params.uid == null ||
                             this.params.version !== feature.source ||
