@@ -11,7 +11,7 @@ import * as ColorGen from "color-generator";
 import { GeoObject, GeoObjectType, GeoObjectTypeCache } from "@registry/model/registry";
 import { ModalState, PANEL_SIZE_STATE } from "@registry/model/location-manager";
 
-import { MapService, RegistryService, GeometryService, ParamLayer, DataSourceProvider, LayerDataSource, GeoJsonLayerDataSource, Layer, GeoJsonLayer, GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT, GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID } from "@registry/service";
+import { MapService, RegistryService, GeometryService } from "@registry/service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@shared/component";
 
@@ -29,11 +29,9 @@ import { ModalTypes } from "@shared/model/modal";
 import { FeaturePanelComponent } from "./feature-panel.component";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { RecordPopupComponent } from "./record-popup.component";
-import { VECTOR_LAYER_DATASET_PROVIDER_ID } from "./layer-panel.component";
+import { GeoObjectLayerDataSource, GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
 
 declare let registry: GeoRegistryConfiguration;
-
-export const SEARCH_LAYER = "search";
 
 class SelectedObject {
 
@@ -179,8 +177,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     typeCache: GeoObjectTypeCache;
 
-    dataSourceProvider: DataSourceProvider;
-
     public layersPanelSize: number = PANEL_SIZE_STATE.MINIMIZED;
 
     @ViewChild("simpleEditControl") simpleEditControl: IControl;
@@ -225,59 +221,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.graphVisualizerEnabled = registry.graphVisualizerEnabled || false;
 
         this.typeCache = this.cacheService.getTypeCache();
-
-        let locationManager = this;
-        this.dataSourceProvider = {
-            getId(): string {
-                return SEARCH_LAYER;
-            },
-            getDataSource(dataSourceId: string): LayerDataSource {
-                if (dataSourceId === SEARCH_LAYER) {
-                    return {
-                        buildMapboxSource(): any {
-                            return {
-                                type: "geojson",
-                                data: this.getLayerData()
-                            };
-                        },
-                        getGeometryType(): string {
-                            return "MIXED";
-                        },
-                        getLayerData(): any {
-                            // Turf freaks out if we don't have a geometry. But it's allowed to be null no problem...
-                            locationManager.data.forEach(feature => {
-                                if (!feature.geometry) {
-                                    feature.geometry = null;
-                                }
-                            });
-
-                            return {
-                                type: "FeatureCollection",
-                                features: locationManager.data
-                            };
-                        },
-                        setLayerData(data: any) {
-                            this.data = data;
-                        },
-                        createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer {
-                            return new GeoJsonLayer(oid, legendLabel, this, rendered, color);
-                        },
-                        getDataSourceId(): string {
-                            return dataSourceId;
-                        },
-                        getDataSourceProviderId(): string {
-                            return SEARCH_LAYER;
-                        },
-                        getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBoundsLike> {
-                            return new Promise((resolve, reject) => {
-                                resolve(bbox(this.getLayerData()) as LngLatBoundsLike);
-                            });
-                        }
-                    } as GeoJsonLayerDataSource;
-                }
-            }
-        };
-        this.geomService.registerDataSourceProvider(this.dataSourceProvider);
     }
 
     ngOnDestroy(): void {
@@ -354,7 +297,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 this.spinner.show(this.CONSTANTS.OVERLAY);
 
                 this.service.getGeoObject(event.id, event.typeCode, false).then(geoObj => {
-                    this.setData([geoObj]);
                     this.changeGeoObject(event.typeCode, event.code, event.id, geoObj);
 
                     this.router.navigate([], {
@@ -525,7 +467,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (this.current != null && this.current.geoObject != null) {
             this.zoomToFeature(this.current.geoObject, null);
         } else {
-            let layers = this.geomService.getLayers().filter(layer => layer.rendered && layer.oid !== SEARCH_LAYER);
+            let layers = this.geomService.getLayers();
 
             if (layers && layers.length > 0) {
                 this.onZoomTo(layers[0]);
@@ -535,7 +477,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     onZoomTo(layer: Layer): void {
         if (layer && layer.dataSource) {
-            layer.dataSource.getBounds(layer, this.service, this.listService).then((bounds: LngLatBounds) => {
+            layer.dataSource.getBounds(layer).then((bounds: LngLatBounds) => {
                 if (bounds != null) {
                     this.map.fitBounds(bounds, this.calculateZoomConfig(null));
                 }
@@ -608,7 +550,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             if (feature.properties.uid != null) {
                 this.closeEditSessionSafeguard().then(() => {
-                    if (feature.source === SEARCH_LAYER) {
+                    if (feature.source === SEARCH_DATASOURCE_TYPE) {
                         if ((this.current == null || this.current.geoObject == null || feature.properties == null || this.current.geoObject.properties.uid !== feature.properties.uid)) {
                             this.select(feature, null);
                         }
@@ -616,7 +558,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         let layer: Layer = this.geomService.getLayerFromMapboxLayer(feature.layer);
 
                         if (layer) {
-                            if (layer.dataSource.getDataSourceProviderId() === VECTOR_LAYER_DATASET_PROVIDER_ID) {
+                            if (layer.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE) {
                                 if (this.params.version == null || this.params.uid == null ||
                                     this.params.version !== feature.source ||
                                     this.params.uid !== feature.properties.uid) {
@@ -628,15 +570,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                                 } else {
                                     this.handleRecord(feature.source, feature.properties.uid);
                                 }
-                            } else if (layer.dataSource.getDataSourceProviderId() === GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID) {
-                                let idSplit = layer.dataSource.getDataSourceId().split(GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT);
-
-                                let code = decodeURIComponent(idSplit[0]);
-                                let typeCode = decodeURIComponent(idSplit[1]);
-                                // let date = decodeURIComponent(idSplit[2]);
+                            } else if (layer.dataSource.getDataSourceType() === GEO_OBJECT_DATA_SOURCE_TYPE) {
+                                let geoObjectDS = layer.dataSource as GeoObjectLayerDataSource;
 
                                 // TODO : People are going to want that record popup here but one step at a time...
-                                this.onChangeGeoObject({ typeCode: typeCode, code: code, id: feature.properties.uid, doIt: (fun) => { fun(); } });
+                                this.onChangeGeoObject({ typeCode: geoObjectDS.getTypeCode(), code: geoObjectDS.getCode(), id: feature.properties.uid, doIt: (fun) => { fun(); } });
+                            } else if (layer.dataSource.getDataSourceType() === RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE) {
+                                
                             }
                         }
                     }
@@ -740,21 +680,28 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     handleSearch(text: string, date: string): void {
         this.geomService.stopEditing();
-        this.mapService.search(text, date, false).then(data => {
+
+        // Sync with any existing search layer
+        let layers = this.geomService.getLayers();
+        let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
+        if (index !== -1) {
+            let existingSearchLayer = layers[index];
+            let ds = existingSearchLayer.dataSource as SearchLayerDataSource;
+
+            if (ds.getText() === text && ds.getDate() === date) {
+                return;
+            } else {
+                this.geomService.removeLayer(existingSearchLayer.getId());
+            }
+        }
+
+        let dataSource = new SearchLayerDataSource(this.mapService, text, date);
+        dataSource.getLayerData().then((data: any) => {
+            this.geomService.addOrUpdateLayer(dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + text + ")", true, ColorGen().hexString()));
+
+            this.data = data.features;
             this.state.currentText = text;
             this.state.currentDate = date;
-
-            this.setData(data.features);
-
-            if (this.data.length > 0) {
-                let source = (<any> this.map.getSource(SEARCH_LAYER));
-
-                if (source != null) {
-                    source.setData(data);
-                }
-            }
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
         });
     }
 
@@ -816,7 +763,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 sourceLayer: "context",
                 id: uid
             };
-            if (this.geomService.getLayers().findIndex(lFind => lFind.dataSource.getDataSourceProviderId() === VECTOR_LAYER_DATASET_PROVIDER_ID && this.feature.source === lFind.oid) !== -1) {
+            if (this.geomService.getLayers().findIndex(lFind => lFind.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE && this.feature.source === (lFind.dataSource as ListVectorLayerDataSource).getVersionId()) !== -1) {
                 this.map.setFeatureState(this.feature, {
                     selected: true
                 });
@@ -973,14 +920,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 this.zoomToFeature(this.current.geoObject, null);
             }
         });
-    }
-
-    setData(data: GeoObject[]): void {
-        this.data = data;
-
-        if (this.data && this.geomService.getLayers().findIndex(layer => layer.oid === SEARCH_LAYER) === -1) {
-            this.geomService.addOrUpdateLayer(new ParamLayer(SEARCH_LAYER, this.lService.decode("explorer.search.layer"), true, ColorGen().hexString(), SEARCH_LAYER, SEARCH_LAYER));
-        }
     }
 
     onFeatureSelect(event: any): void {

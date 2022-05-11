@@ -1,4 +1,4 @@
-import { ParamLayer } from "@registry/service/geometry.service";
+import { Layer } from "@registry/service/layer-data-source";
 import { LocalizedValue, PageResult } from "@shared/model/core";
 import { GeoObject, GeoObjectType } from "./registry";
 
@@ -173,8 +173,23 @@ export class ListTypeByType {
 
 }
 
-export class ContextLayer extends ParamLayer {
+export class ContextLayer {
 
+    constructor(oid: string, dataSourceType: string, legendLabel: string, rendered: boolean, color: string, forDate?: string, versionNumber?: number) {
+        this.oid = oid;
+        this.dataSourceType = dataSourceType;
+        this.legendLabel = legendLabel;
+        this.rendered = rendered;
+        this.color = color;
+        this.forDate = forDate;
+        this.versionNumber = versionNumber;
+    }
+
+    oid: string;
+    dataSourceType: string;
+    legendLabel: string;
+    rendered: boolean;
+    color: string;
     forDate?: string;
     versionNumber?: number;
 
@@ -185,7 +200,7 @@ export class ListVersion {
     oid: string;
     forDate: string;
     versionNumber: number;
-    layer: ContextLayer;
+    layer?: Layer;
 
 }
 

@@ -1,7 +1,7 @@
 import { ChangeType } from "@registry/model/constants";
 import { ChangeRequest } from "@registry/model/crtable";
 import { AttributeType, GeoObjectOverTime, GeoObjectType, HierarchyOverTime, ValueOverTime } from "@registry/model/registry";
-import { GeoJsonLayerDataSource, GeometryService, LayerDataSource, ParamLayer, RegistryService, Layer, GeoJsonLayer } from "@registry/service";
+import { GeometryService, RegistryService } from "@registry/service";
 import { DateService, LocalizationService } from "@shared/service";
 import { Subject } from "rxjs";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
@@ -51,20 +51,6 @@ export class ChangeRequestEditor {
 
         this.attributeEditors = this.generateAttributeEditors();
         this.validate();
-
-        let crEditor = this;
-        this.geomService.registerDataSourceProvider({
-            getId(): string {
-                return changeRequest.oid;
-            },
-            getDataSource(dataSourceId: string): LayerDataSource {
-                let type = dataSourceId.substring(0, 3);
-                let votId = dataSourceId.substring(4);
-
-                let editor = crEditor.findEditorForValueOverTime(votId);
-                return editor.getEditor(votId).buildDataSource(type);
-            }
-        });
     }
 
     private generateAttributeEditors() {

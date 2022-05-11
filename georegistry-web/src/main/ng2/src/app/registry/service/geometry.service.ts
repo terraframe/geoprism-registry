@@ -3,167 +3,20 @@ import { Injectable, Output, EventEmitter, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 
 import * as MapboxDraw from "@mapbox/mapbox-gl-draw";
-import { Map, LngLat, LngLatBounds, LngLatBoundsLike } from "mapbox-gl";
+import { Map, LngLat, LngLatBounds, AnySourceData } from "mapbox-gl";
 import { Subscription } from "rxjs";
 
-import { GeoRegistryConfiguration } from "@core/model/registry";
-import { RegistryService } from "./registry.service";
-import { ListTypeService } from "./list-type.service";
 import { RelationshipVisualizationService } from "./relationship-visualization.service";
-declare let registry: GeoRegistryConfiguration;
+import { DataSourceFactory, GeoJsonLayer, GeoJsonLayerDataSource, Layer, LayerDataSource } from "./layer-data-source";
+import { RegistryService } from "./registry.service";
+import { MapService } from "./map.service";
+import { ListTypeService } from "./list-type.service";
 
 export const OLD_LAYER_COLOR = "#A4A4A4";
 
 export const NEW_LAYER_COLOR = "#0062AA";
 
 export const SELECTED_COLOR = "#800000";
-
-export class ParamLayer {
-
-    constructor(oid: string, legendLabel: string, rendered: boolean, color: string, dataSourceId: string, dataSourceProviderId: string) {
-        this.oid = oid;
-        this.legendLabel = legendLabel;
-        this.rendered = rendered;
-        this.color = color;
-        this.dataSourceId = dataSourceId;
-        this.dataSourceProviderId = dataSourceProviderId;
-    }
-
-    oid: string;
-    legendLabel: string;
-    rendered: boolean;
-    color: string;
-    dataSourceId: string;
-    dataSourceProviderId: string;
-
-}
-
-export interface LayerDataSource {
-
-    buildMapboxSource(): any;
-
-    getGeometryType(): string;
-
-    getDataSourceId(): string;
-
-    getDataSourceProviderId(): string;
-
-    // eslint-disable-next-line no-use-before-define
-    createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer;
-
-    configureMapboxLayer?(layerConfig: any): void;
-
-    // eslint-disable-next-line no-use-before-define
-    getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBoundsLike>;
-
-}
-
-export interface GeoJsonLayerDataSource extends LayerDataSource {
-
-    getLayerData(): any;
-    setLayerData(data: any): void;
-
-}
-
-export interface DataSourceProvider {
-
-    getId(): string;
-    getDataSource(dataSourceId: string): LayerDataSource;
-
-}
-
-export class Layer {
-
-    constructor(oid: string, legendLabel: string, dataSource: LayerDataSource, rendered: boolean, color: string) {
-        this.oid = oid;
-        this.legendLabel = legendLabel;
-        this.dataSource = dataSource;
-        this.rendered = rendered;
-        this.color = color;
-    }
-
-    oid: string;
-    legendLabel: string;
-    dataSource: LayerDataSource;
-    rendered: boolean;
-    color: string;
-
-    toParamLayer(): ParamLayer {
-        return new ParamLayer(this.oid, this.legendLabel, this.rendered, this.color, this.dataSource.getDataSourceId(), this.dataSource.getDataSourceProviderId());
-    }
-
-}
-
-export class GeoJsonLayer extends Layer {
-
-    constructor(oid: string, legendLabel: string, dataSource: LayerDataSource, rendered: boolean, color: string) {
-        super(oid, legendLabel, dataSource, rendered, color);
-        this.editing = false;
-    }
-
-    editing: boolean;
-
-}
-
-export const GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID: string = "GEOOBJECT";
-export const GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT = "~`-='";
-
-export class GeoObjectLayerDataSourceProvider implements DataSourceProvider {
-
-    getDataSource(dataSourceId: string): LayerDataSource {
-        return {
-
-            createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer {
-                return new Layer(oid, legendLabel, this, rendered, color);
-            },
-
-            getDataSourceProviderId(): string {
-                return GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID;
-            },
-
-            getDataSourceId(): string {
-                return dataSourceId;
-            },
-
-            getGeometryType(): string {
-                return "MIXED";
-            },
-
-            buildMapboxSource() {
-                let idSplit = dataSourceId.split(GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT);
-
-                let url = registry.contextPath + "/cgr/geoobject/get-code" + "?" + "code=" + idSplit[0] + "&typeCode=" + idSplit[1] + "&date=" + idSplit[2];
-
-                return {
-                    type: "geojson",
-                    data: url
-                };
-            },
-
-            getBounds(layer: Layer, registryService: RegistryService, listService: ListTypeService): Promise<LngLatBoundsLike> {
-                let idSplit = dataSourceId.split(GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_GEO_OBJECT_CODE_SPLIT);
-
-                let code = decodeURIComponent(idSplit[0]);
-                let typeCode = decodeURIComponent(idSplit[1]);
-                let date = decodeURIComponent(idSplit[2]);
-
-                return registryService.getGeoObjectBoundsAtDate(code, typeCode, date).then((bounds: number[]) => {
-                    if (bounds && Array.isArray(bounds)) {
-                        return new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
-                    } else {
-                        return null;
-                    }
-                });
-            }
-
-        };
-    }
-
-    getId(): string {
-        return GEO_OBJECT_LAYER_DATA_SOURCE_PROVIDER_ID;
-    }
-
-}
 
 /**
  * This service provides a global abstraction for mapping and editing layers across many different components (simultaneously) and
@@ -189,8 +42,6 @@ export class GeometryService implements OnDestroy {
 
     editingLayer: GeoJsonLayer;
 
-    layerGeometries: any = {};
-
     @Output() geometryChange = new EventEmitter<any>();
 
     @Output() layersChange: EventEmitter<Layer[]> = new EventEmitter();
@@ -203,34 +54,30 @@ export class GeometryService implements OnDestroy {
     /*
      * URL pamaters
      */
-    syncLayersWithUrlParams: boolean = false;
+    syncWithUrlParams: boolean = false;
 
     params: any = null;
 
-    dataSourceProviders: any = {};
+    dataSourceFactory: DataSourceFactory;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
       private route: ActivatedRoute,
       private router: Router,
-      private relVizService: RelationshipVisualizationService
-    ) {
-        this.registerDataSourceProvider(new GeoObjectLayerDataSourceProvider());
-        this.registerDataSourceProvider(this.relVizService.getDataSourceProvider(this));
-    }
+      private registryService: RegistryService,
+      private relVizService: RelationshipVisualizationService,
+      private mapService: MapService,
+      private listService: ListTypeService
+    ) {}
 
-    ngOnInit() {
-        // TODO : Not sure that this method is ever invoked...
-        window.onbeforeunload = () => this.destroy();
-    }
-
-    initialize(map: Map, geometryType: String, syncLayersWithUrlParams: boolean) {
-        this.syncLayersWithUrlParams = syncLayersWithUrlParams;
+    initialize(map: Map, geometryType: String, syncWithUrlParams: boolean) {
+        this.syncWithUrlParams = syncWithUrlParams;
         this.map = map;
         this.geometryType = geometryType;
+        this.dataSourceFactory = new DataSourceFactory(this, this.registryService, this.relVizService, this.mapService, this.listService);
         // this.editingControl = null;
 
-        if (syncLayersWithUrlParams) {
+        if (syncWithUrlParams) {
             this.queryParamSubscription = this.route.queryParams.subscribe(params => {
                 try {
                     this.handleParameterChange(params);
@@ -256,6 +103,8 @@ export class GeometryService implements OnDestroy {
         this.map.on("draw.update", () => {
             this.saveEdits();
         });
+
+        window.onbeforeunload = () => this.destroy();
     }
 
     ngOnDestroy(): void {
@@ -269,28 +118,27 @@ export class GeometryService implements OnDestroy {
 
         if (this.params != null) {
             if (this.params.layers != null) {
-                let paramLayers: ParamLayer[] = JSON.parse(this.params.layers);
+                let deserializedLayers: any = JSON.parse(this.params.layers);
+
+                let layers = this.dataSourceFactory.deserializeLayers(deserializedLayers);
 
                 if (this.map) {
-                    this.internalUpdateLayers(paramLayers);
+                    this.internalUpdateLayers(layers);
                 }
             }
         }
     }
 
-    private internalUpdateLayers(paramLayers: ParamLayer[]) {
-        let layers = [];
-        paramLayers.forEach(paramLayer => { let layer = this.buildLayerFromParamLayer(paramLayer); if (layer) { layers.push(layer); } });
-
+    private internalUpdateLayers(newLayers: Layer[]) {
         if (this.map) {
             // Calculate a diff
             let diffs = [];
-            let iterations = paramLayers.length > this.layers.length ? paramLayers.length : this.layers.length;
+            let iterations = newLayers.length > this.layers.length ? newLayers.length : this.layers.length;
             for (let i = 0; i < iterations; ++i) {
-                if (i >= paramLayers.length) {
+                if (i >= newLayers.length) {
                     let existingLayer = this.layers[i];
 
-                    let existingLayerExistsElsewhere = paramLayers.findIndex(findLayer => findLayer.oid === existingLayer.oid);
+                    let existingLayerExistsElsewhere = newLayers.findIndex(findLayer => findLayer.getId() === existingLayer.getId());
 
                     if (existingLayerExistsElsewhere !== -1) {
                         diffs.push({
@@ -305,9 +153,9 @@ export class GeometryService implements OnDestroy {
                         });
                     }
                 } else if (i >= this.layers.length) {
-                    let paramLayer = paramLayers[i];
+                    let newLayer = newLayers[i];
 
-                    let paramLayerExistsElsewhere = this.layers.findIndex(findLayer => findLayer.oid === paramLayer.oid);
+                    let paramLayerExistsElsewhere = this.layers.findIndex(findLayer => findLayer.getId() === newLayer.getId());
 
                     if (paramLayerExistsElsewhere !== -1) {
                         diffs.push({
@@ -322,11 +170,11 @@ export class GeometryService implements OnDestroy {
                         });
                     }
                 } else {
-                    let paramLayer = paramLayers[i];
+                    let newLayer = newLayers[i];
                     let layer = this.layers[i];
 
-                    if (paramLayer.oid !== layer.oid) {
-                        let paramLayerExistsElsewhere = this.layers.findIndex(findLayer => findLayer.oid === paramLayer.oid);
+                    if (newLayer.getId() !== layer.getId()) {
+                        let paramLayerExistsElsewhere = this.layers.findIndex(findLayer => findLayer.getId() === newLayer.getId());
 
                         if (paramLayerExistsElsewhere !== -1) {
                             diffs.push({
@@ -340,7 +188,7 @@ export class GeometryService implements OnDestroy {
                                 index: i
                             });
                         }
-                    } else if (paramLayer.rendered !== layer.rendered) {
+                    } else if (newLayer.rendered !== layer.rendered) {
                         diffs.push({
                             type: "RENDERED_CHANGE",
                             index: i
@@ -349,7 +197,7 @@ export class GeometryService implements OnDestroy {
                 }
             }
 
-            let fullRebuild = diffs.length > 0 || paramLayers.length !== this.layers.length;
+            let fullRebuild = diffs.length > 0 || newLayers.length !== this.layers.length;
 
             if (diffs.length === 1 && diffs[0].type === "RENDERED_CHANGE") {
                 // They just toggled whether a layer was rendered
@@ -357,12 +205,12 @@ export class GeometryService implements OnDestroy {
                 let prevLayer = null;
                 const layerCount = this.layers.length;
                 for (let i = 0; i < layerCount; ++i) {
-                    let paramLayer = paramLayers[i];
+                    let paramLayer = newLayers[i];
                     let layer = this.layers[i];
 
                     if (paramLayer.rendered !== layer.rendered) {
                         if (paramLayer.rendered) {
-                            this.mapLayer(layers[i], prevLayer);
+                            this.mapLayer(newLayers[i], prevLayer);
                         } else {
                             this.unmapLayer(layer);
                         }
@@ -377,26 +225,26 @@ export class GeometryService implements OnDestroy {
             } else if (diffs.length === 1 && diffs[0].type === "NEW_LAYER" && diffs[0].index === this.layers.length && this.layers.length > 0) {
                 // Added a layer at the end
 
-                this.mapLayer(layers[layers.length - 1], this.layers.length > 0 ? this.layers[this.layers.length - 1] : null);
+                this.mapLayer(newLayers[newLayers.length - 1], this.layers.length > 0 ? this.layers[this.layers.length - 1] : null);
                 fullRebuild = false;
-            } else if (diffs.length > 0 && paramLayers.length === this.layers.length && diffs.filter(diff => diff.type !== "LAYER_REORDER").length === 0) {
+            } else if (diffs.length > 0 && newLayers.length === this.layers.length && diffs.filter(diff => diff.type !== "LAYER_REORDER").length === 0) {
                 // Layers changed order but are otherwise the same.
 
-                this.layers = JSON.parse(JSON.stringify(paramLayers));
+                this.layers = newLayers;
                 for (let i = this.layers.length - 1; i > -1; i--) {
                     const layer = this.layers[i];
 
-                    if (this.map.getLayer(layer.oid + "-POLYGON")) {
-                        this.map.moveLayer(layer.oid + "-POLYGON");
+                    if (this.map.getLayer(layer.getId() + "-POLYGON")) {
+                        this.map.moveLayer(layer.getId() + "-POLYGON");
                     }
-                    if (this.map.getLayer(layer.oid + "-POINT")) {
-                        this.map.moveLayer(layer.oid + "-POINT");
+                    if (this.map.getLayer(layer.getId() + "-POINT")) {
+                        this.map.moveLayer(layer.getId() + "-POINT");
                     }
-                    if (this.map.getLayer(layer.oid + "-LINE")) {
-                        this.map.moveLayer(layer.oid + "-LINE");
+                    if (this.map.getLayer(layer.getId() + "-LINE")) {
+                        this.map.moveLayer(layer.getId() + "-LINE");
                     }
-                    if (this.map.getLayer(layer.oid + "-LABEL")) {
-                        this.map.moveLayer(layer.oid + "-LABEL");
+                    if (this.map.getLayer(layer.getId() + "-LABEL")) {
+                        this.map.moveLayer(layer.getId() + "-LABEL");
                     }
                 }
                 fullRebuild = false;
@@ -411,26 +259,26 @@ export class GeometryService implements OnDestroy {
                     }
                 }
 
-                this.layers = layers;
+                this.layers = newLayers;
                 this.mapAllLayers();
             } else {
                 // Make sure attribute changes are reflected
-                this.layers = layers;
+                this.layers = newLayers;
             }
         } else {
-            this.layers = layers;
+            this.layers = newLayers;
         }
 
         this.layersChange.emit(this.layers);
     }
 
     /*
-     * Notify the map that the datasets associated with a particular provider have changed and that the data sources must be rebuilt.
+     * Notify the map that the datasets of a particular type have changed and that the data sources must be rebuilt.
      */
-    refreshDatasets(providerId: string) {
+    refreshDatasets(type: string) {
         let otherLayer = null;
         this.getLayers().forEach(layer => {
-            if (layer.dataSource.getDataSourceProviderId() === providerId) {
+            if (layer.dataSource.getDataSourceType() === type) {
                 this.unmapLayer(layer);
                 this.mapLayer(layer, otherLayer);
             }
@@ -438,43 +286,17 @@ export class GeometryService implements OnDestroy {
         });
     }
 
-    public setLayers(paramLayers: ParamLayer[]) {
-        if (this.syncLayersWithUrlParams) {
+    public setLayers(newLayers: Layer[]) {
+        if (this.syncWithUrlParams) {
+            let serialized = this.dataSourceFactory.serializeLayers(newLayers);
+
             this.router.navigate([], {
                 relativeTo: this.route,
-                queryParams: { layers: JSON.stringify(paramLayers) },
+                queryParams: { layers: JSON.stringify(serialized) },
                 queryParamsHandling: "merge" // remove to replace all query params by provided
             });
         } else {
-            this.internalUpdateLayers(paramLayers);
-        }
-    }
-
-    buildLayerFromParamLayer(pl: ParamLayer): Layer {
-        let dataSource = this.getDataSource(pl);
-
-        if (dataSource) {
-            return dataSource.createLayer(pl.oid, pl.legendLabel, pl.rendered, pl.color);
-        } else {
-            return null;
-        }
-    }
-
-    public registerDataSourceProvider(dataSourceProvider: DataSourceProvider) {
-        this.dataSourceProviders[dataSourceProvider.getId()] = dataSourceProvider;
-    }
-
-    public getDataSourceProvider(dataSourceProviderId: string): DataSourceProvider {
-        return this.dataSourceProviders[dataSourceProviderId];
-    }
-
-    getDataSource(paramLayer: ParamLayer): LayerDataSource {
-        if (this.dataSourceProviders[paramLayer.dataSourceProviderId]) {
-            let provider: DataSourceProvider = this.dataSourceProviders[paramLayer.dataSourceProviderId];
-            return provider.getDataSource(paramLayer.dataSourceId);
-        } else {
-            // eslint-disable-next-line no-console
-            console.log("Could not find provider for dataSourceProviderId [" + paramLayer.dataSourceProviderId + "]", paramLayer);
+            this.internalUpdateLayers(newLayers);
         }
     }
 
@@ -493,7 +315,7 @@ export class GeometryService implements OnDestroy {
             id = id.substring(0, id.length - "-LINE".length);
         }
 
-        let layers = this.getLayers().filter(l => l.oid === id);
+        let layers = this.getLayers().filter(l => l.getId() === id);
 
         if (layers.length > 0) {
             let layer: Layer = layers[0];
@@ -526,18 +348,27 @@ export class GeometryService implements OnDestroy {
 
         this.editingLayer = null;
         this.layers = [];
+        this.dataSourceFactory = new DataSourceFactory(this, this.registryService, this.relVizService, this.mapService, this.listService);
     }
 
     public getMap() {
         return this.map;
     }
 
-    public setLayerGeometry(oid: string, geometry: any) {
-        this.layerGeometries[oid] = geometry;
+    getDataSourceFactory() {
+        return this.dataSourceFactory;
     }
 
-    public getLayerGeometry(oid: string) {
-        return this.layerGeometries[oid];
+    setDataSourceFactory(fac) {
+        this.dataSourceFactory = fac;
+    }
+
+    registerDataSource(dataSource: LayerDataSource) {
+        this.dataSourceFactory.registerDataSource(dataSource);
+    }
+
+    unregisterDataSource(dataSourceType: string) {
+        this.dataSourceFactory.unregisterDataSource(dataSourceType);
     }
 
     startEditing(layer: GeoJsonLayer) {
@@ -578,14 +409,14 @@ export class GeometryService implements OnDestroy {
             this.editingControl.set({
                 type: "FeatureCollection",
                 features: [{
-                    id: this.editingLayer.oid,
+                    id: this.editingLayer.getId(),
                     type: "Feature",
                     properties: {},
                     geometry: { type: "Point", coordinates: [long, lat] }
                 }]
             });
 
-            this.editingControl.changeMode("simple_select", { featureIds: this.editingLayer.oid });
+            this.editingControl.changeMode("simple_select", { featureIds: this.editingLayer.getId() });
 
             this.saveEdits();
 
@@ -593,7 +424,7 @@ export class GeometryService implements OnDestroy {
             this.editingLayer.value = {
               type: 'FeatureCollection',
               features: [{
-              id: this.editingLayer.oid,
+              id: this.editingLayer.getId(),
                 type: 'Feature',
                 properties: {},
                 geometry: { type: 'Point', coordinates: [ long, lat ] }
@@ -609,7 +440,7 @@ export class GeometryService implements OnDestroy {
             this.unmapAllLayers();
             this.mapAllLayers();
 
-            this.editingControl.changeMode( 'simple_select', { featureIds: this.editingLayer.oid } );
+            this.editingControl.changeMode( 'simple_select', { featureIds: this.editingLayer.getId() } );
             */
         }
     }
@@ -670,20 +501,10 @@ export class GeometryService implements OnDestroy {
         }
     }
 
-    public serializeAllLayers(): ParamLayer[] {
-        let paramLayers: ParamLayer[] = [];
+    public addOrUpdateLayer(newLayer: Layer, orderingIndex?: number) {
+        let newLayers = this.getLayers();
 
-        this.layers.forEach(layer => {
-            paramLayers.push(layer.toParamLayer());
-        });
-
-        return paramLayers;
-    }
-
-    public addOrUpdateLayer(newLayer: ParamLayer, orderingIndex?: number) {
-        let newLayers = this.serializeAllLayers();
-
-        let existingIndex = newLayers.findIndex((findLayer: ParamLayer) => { return findLayer.oid === newLayer.oid; });
+        let existingIndex = newLayers.findIndex((findLayer: Layer) => { return findLayer.getId() === newLayer.getId(); });
 
         if (existingIndex !== -1) {
             newLayers[existingIndex] = newLayer;
@@ -703,9 +524,9 @@ export class GeometryService implements OnDestroy {
     }
 
     public removeLayer(oid: string) {
-        let newLayers = this.serializeAllLayers();
+        let newLayers = this.getLayers();
 
-        let existingIndex = newLayers.findIndex((findLayer: ParamLayer) => { return findLayer.oid === oid; });
+        let existingIndex = newLayers.findIndex((findLayer: Layer) => { return findLayer.getId() === oid; });
 
         if (existingIndex !== -1) {
             newLayers.splice(existingIndex, 1);
@@ -715,15 +536,15 @@ export class GeometryService implements OnDestroy {
     }
 
     public removeLayers(oids: string[]) {
-        let newLayers = this.serializeAllLayers();
+        let newLayers = this.getLayers();
 
-        newLayers = newLayers.filter(layer => oids.indexOf(layer.oid) === -1);
+        newLayers = newLayers.filter(layer => oids.indexOf(layer.getId()) === -1);
 
         this.setLayers(newLayers);
     }
 
     getLayers(): Layer[] {
-        return this.layers;
+        return this.dataSourceFactory.deserializeLayers(this.dataSourceFactory.serializeLayers(this.layers));
     }
 
     getRenderedLayers(): Layer[] {
@@ -827,7 +648,7 @@ export class GeometryService implements OnDestroy {
 
     unmapLayer(layer: Layer): void {
         if (this.map) {
-            const layerName = layer.oid;
+            const layerName = layer.getId();
 
             if (this.map.getLayer(layerName + "-POLYGON") != null) {
                 this.map.removeLayer(layerName + "-POLYGON");
@@ -841,8 +662,8 @@ export class GeometryService implements OnDestroy {
             if (this.map.getLayer(layerName + "-LABEL") != null) {
                 this.map.removeLayer(layerName + "-LABEL");
             }
-            if (this.map.getSource(layer.dataSource.getDataSourceId()) != null) {
-                this.map.removeSource(layer.dataSource.getDataSourceId());
+            if (this.map.getSource(layer.dataSource.getId()) != null) {
+                this.map.removeSource(layer.dataSource.getId());
             }
         }
     }
@@ -859,71 +680,79 @@ export class GeometryService implements OnDestroy {
     }
 
     mapAllLayers(): void {
-        if (this.layers != null && this.layers.length > 0) {
+        let layers = this.getLayers();
+
+        if (layers != null && layers.length > 0) {
             let prevLayer = null;
-            let len = this.layers.length;
+            let prevProm: Promise<void> = null;
+            let len = layers.length;
             for (let i = 0; i < len; ++i) {
-                let layer = this.layers[i];
+                let layer = layers[i];
 
                 if (layer.rendered) {
-                    this.mapLayer(layer, prevLayer);
+                    if (prevProm) {
+                        let prevLayer2 = prevLayer;
+                        prevProm = prevProm.then(() => {
+                            return this.mapLayer(layer, prevLayer2);
+                        });
+                    } else {
+                        prevProm = this.mapLayer(layer, prevLayer);
+                    }
+
                     prevLayer = layer;
                 }
             }
         }
     }
 
-    mapLayer(layer: Layer, otherLayer?: Layer): void {
+    mapLayer(layer: Layer, otherLayer?: Layer): Promise<void> {
         if (!this.map) { return; }
 
-        let mapboxSource = layer.dataSource.buildMapboxSource();
-        if (!mapboxSource) {
-            return;
-        }
+        let sourcePromise = layer.dataSource.buildMapboxSource();
 
-        console.log("Adding source with id " + layer.dataSource.getDataSourceId(), layer);
-        this.map.addSource(layer.dataSource.getDataSourceId(), mapboxSource);
+        return sourcePromise.then((mapboxSource: AnySourceData) => {
+            console.log("Adding source with id " + layer.dataSource.getId(), layer, otherLayer);
+            this.map.addSource(layer.dataSource.getId(), mapboxSource);
 
-        if (otherLayer && !otherLayer.rendered) {
-            otherLayer = null;
-        }
-
-        if (layer.dataSource.getGeometryType() === "MIXED") {
-            this.mapLayerAsType("POLYGON", layer, otherLayer);
-            this.mapLayerAsType("POINT", layer, otherLayer);
-            this.mapLayerAsType("LINE", layer, otherLayer);
-        } else {
-            this.mapLayerAsType(layer.dataSource.getGeometryType(), layer, otherLayer);
-        }
-
-        // Label layer
-        let labelConfig: any = {
-            id: layer.oid + "-LABEL",
-            source: layer.dataSource.getDataSourceId(),
-            type: "symbol",
-            paint: {
-                "text-color": "black",
-                "text-halo-color": "#fff",
-                "text-halo-width": 2
-            },
-            layout: {
-                "text-field": ["case",
-                    ["has", "displayLabel_" + navigator.language.toLowerCase()],
-                    ["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
-                    ["string", ["get", "displayLabel"]]
-                ],
-                "text-font": ["NotoSansRegular"],
-                "text-offset": [0, 0.6],
-                "text-anchor": "top",
-                "text-size": 12
+            if (otherLayer && !otherLayer.rendered) {
+                otherLayer = null;
             }
-        };
 
-        if (layer.dataSource.configureMapboxLayer) {
+            if (layer.dataSource.getGeometryType() === "MIXED") {
+                this.mapLayerAsType("POLYGON", layer, otherLayer);
+                this.mapLayerAsType("POINT", layer, otherLayer);
+                this.mapLayerAsType("LINE", layer, otherLayer);
+            } else {
+                this.mapLayerAsType(layer.dataSource.getGeometryType(), layer, otherLayer);
+            }
+
+            // Label layer
+            let labelConfig: any = {
+                id: layer.getId() + "-LABEL",
+                source: layer.dataSource.getId(),
+                type: "symbol",
+                paint: {
+                    "text-color": "black",
+                    "text-halo-color": "#fff",
+                    "text-halo-width": 2
+                },
+                layout: {
+                    "text-field": ["case",
+                        ["has", "displayLabel_" + navigator.language.toLowerCase()],
+                        ["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
+                        ["string", ["get", "displayLabel"]]
+                    ],
+                    "text-font": ["NotoSansRegular"],
+                    "text-offset": [0, 0.6],
+                    "text-anchor": "top",
+                    "text-size": 12
+                }
+            };
+
             layer.dataSource.configureMapboxLayer(labelConfig);
-        }
 
-        this.map.addLayer(labelConfig, otherLayer ? otherLayer.oid + "-LABEL" : null);
+            this.map.addLayer(labelConfig, otherLayer ? otherLayer.getId() + "-LABEL" : null);
+        });
     }
 
     mapLayerAsType(geometryType: string, layer: Layer, otherLayer?: Layer): void {
@@ -932,9 +761,9 @@ export class GeometryService implements OnDestroy {
         if (geometryType === "MULTIPOLYGON" || geometryType === "POLYGON") {
             // Polygon Layer
             layerConfig = {
-                id: layer.oid + "-" + this.getLayerIdGeomTypePostfix(geometryType),
+                id: layer.getId() + "-" + this.getLayerIdGeomTypePostfix(geometryType),
                 type: "fill",
-                source: layer.dataSource.getDataSourceId(),
+                source: layer.dataSource.getId(),
                 paint: {
                     "fill-color": [
                         "case",
@@ -952,9 +781,9 @@ export class GeometryService implements OnDestroy {
         } else if (geometryType === "POINT" || geometryType === "MULTIPOINT") {
             // Point layer
             layerConfig = {
-                id: layer.oid + "-" + this.getLayerIdGeomTypePostfix(geometryType),
+                id: layer.getId() + "-" + this.getLayerIdGeomTypePostfix(geometryType),
                 type: "circle",
-                source: layer.dataSource.getDataSourceId(),
+                source: layer.dataSource.getId(),
                 paint: {
                     "circle-radius": 10,
                     "circle-color": [
@@ -972,8 +801,8 @@ export class GeometryService implements OnDestroy {
             };
         } else if (geometryType === "LINE" || geometryType === "MULTILINE") {
             layerConfig = {
-                id: layer.oid + "-" + this.getLayerIdGeomTypePostfix(geometryType),
-                source: layer.dataSource.getDataSourceId(),
+                id: layer.getId() + "-" + this.getLayerIdGeomTypePostfix(geometryType),
+                source: layer.dataSource.getId(),
                 type: "line",
                 layout: {
                     "line-join": "round",
@@ -1002,7 +831,7 @@ export class GeometryService implements OnDestroy {
             layer.dataSource.configureMapboxLayer(layerConfig);
         }
 
-        this.map.addLayer(layerConfig, otherLayer ? otherLayer.oid + "-" + this.getLayerIdGeomTypePostfix(otherLayer.dataSource.getGeometryType()) : null);
+        this.map.addLayer(layerConfig, otherLayer ? otherLayer.getId() + "-" + this.getLayerIdGeomTypePostfix(otherLayer.dataSource.getGeometryType()) : null);
     }
 
     private getLayerIdGeomTypePostfix(geometryType: string) {
@@ -1112,10 +941,17 @@ export class GeometryService implements OnDestroy {
     }
 
     zoomToLayersExtent(): void {
-        this.layers.forEach(layer => {
-            if (layer instanceof GeoJsonLayer) {
-                let geojson = (layer.dataSource as unknown as GeoJsonLayerDataSource).getLayerData();
+        let layers = this.getLayers();
+        let geoJsonLayer: GeoJsonLayer = null;
 
+        layers.forEach(layer => {
+            if (layer instanceof GeoJsonLayer) {
+                geoJsonLayer = layer as GeoJsonLayer;
+            }
+        });
+
+        if (geoJsonLayer != null) {
+            (geoJsonLayer.dataSource as unknown as GeoJsonLayerDataSource).getLayerData().then((geojson: any) => {
                 if (geojson != null) {
                     const geometryType = geojson.type != null ? geojson.type.toUpperCase() : this.geometryType;
 
@@ -1173,8 +1009,8 @@ export class GeometryService implements OnDestroy {
                         }
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
 }
