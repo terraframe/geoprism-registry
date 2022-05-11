@@ -19,12 +19,9 @@
 package net.geoprism.registry.visualization;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -68,7 +65,7 @@ public class RelationshipVisualizationService
       boundsWKT = null;
     }
     
-    // 1. Build a list of all children (or parents... or both)
+    // 1. Build a list of all related objects
     List<GeoObject> geoObjects = new LinkedList<GeoObject>();
     
     if (typePermissions.canRead(type.getOrganization().getCode(), type, type.getIsPrivate()))
@@ -96,39 +93,20 @@ public class RelationshipVisualizationService
       }
     }
     
+    // 2. Serialize and wrap into a feature collection
+    JsonObject featureCollection = new JsonObject();
+    featureCollection.addProperty("type", "FeatureCollection");
     
-    // 2. Group them by type and serialize
-    Map<String, JsonArray> typeSortedObjects = new HashMap<String, JsonArray>();
+    JsonArray features = new JsonArray();
     
     for (GeoObject object : geoObjects)
     {
-      String typeCode = object.getType().getCode();
-      
-      if (!typeSortedObjects.containsKey(typeCode))
-      {
-        typeSortedObjects.put(typeCode, new JsonArray());
-      }
-      
-      JsonArray array = typeSortedObjects.get(typeCode);
-      
-      array.add(object.toJSON(serializer));
+      features.add(object.toJSON(serializer));
     }
     
+    featureCollection.add("features", features);
     
-    // 3. Wrap them in a feature collection
-    JsonObject view = new JsonObject();
-    
-    for (Entry<String, JsonArray> entry : typeSortedObjects.entrySet())
-    {
-      JsonObject featureCollection = new JsonObject();
-      featureCollection.addProperty("type", "FeatureCollection");
-      
-      featureCollection.add("features", entry.getValue());
-      
-      view.add(entry.getKey(), featureCollection);
-    }
-    
-    return view;
+    return featureCollection;
   }
   
   @Request(RequestType.SESSION)
@@ -141,6 +119,9 @@ public class RelationshipVisualizationService
     if (!this.validateBounds(boundsWKT)) {
       boundsWKT = null;
     }
+    
+    // Get a list of all possible types
+    Set<String> relatedTypes = new HashSet<String>();
 
     JsonObject view = new JsonObject();
 
@@ -158,6 +139,7 @@ public class RelationshipVisualizationService
       
       // jaVerticies.add(serializeVertex(rootGo, (graphType instanceof UndirectedGraphType) ? "PARENT" : "SELECTED"));
       jaVerticies.add(serializeVertex(rootGo, "PARENT"));
+      relatedTypes.add(rootGo.getType().getCode());
 
       Set<String> setEdges = new HashSet<String>();
       Set<String> setVerticies = new HashSet<String>();
@@ -166,27 +148,31 @@ public class RelationshipVisualizationService
       {
         // get parent and get children return the same thing for an undirected
         // graph
-        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, boundsWKT);
+        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
       }
       else if(graphType instanceof DirectedAcyclicGraphType)
       {
         // Out is children
-        fetchParentsData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, boundsWKT);
+        fetchParentsData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
         
         // In is parents
-        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, boundsWKT);
+        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
       }
       else
       {
         // Out is children
-        fetchParentsData(true, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, boundsWKT);
+        fetchParentsData(true, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
 
         // In is parents
-        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, boundsWKT);
+        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
       }
     }
     
-    view.add("geoJson", this.treeAsGeoJson(sessionId, date, relationshipType, graphTypeCode, geoObjectCode, geoObjectTypeCode, boundsWKT));
+    JsonArray jaRelatedTypes = new JsonArray();
+    for (String relatedType : relatedTypes) {
+      jaRelatedTypes.add(relatedType);
+    }
+    view.add("relatedTypes", jaRelatedTypes);
 
     return view;
   }
@@ -312,14 +298,14 @@ public class RelationshipVisualizationService
     return view;
   }
 
-  private void fetchParentsData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setEdges, Set<String> setVerticies, String boundsWKT)
+  private void fetchParentsData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setEdges, Set<String> setVerticies, Set<String> relatedTypes, String boundsWKT)
   {
     ServerParentGraphNode node = vertexGo.getGraphParents(graphType, recursive, date, boundsWKT);
 
-    processParentNode(node, graphType, jaEdges, jaVerticies, setVerticies);
+    processParentNode(node, graphType, jaEdges, jaVerticies, setVerticies, relatedTypes);
   }
 
-  private void processParentNode(ServerParentGraphNode root, GraphType graphType, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setVerticies)
+  private void processParentNode(ServerParentGraphNode root, GraphType graphType, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setVerticies, Set<String> relatedTypes)
   {
     final ServerGeoObjectIF vertexGo = root.getGeoObject();
 
@@ -334,6 +320,7 @@ public class RelationshipVisualizationService
           jaVerticies.add(serializeVertex(relatedGO, "PARENT"));
 
           setVerticies.add(relatedGO.getCode());
+          relatedTypes.add(relatedGO.getType().getCode());
         }
 
         if (!setVerticies.contains(node.getOid()))
@@ -342,18 +329,18 @@ public class RelationshipVisualizationService
         }
       }
 
-      this.processParentNode(node, graphType, jaEdges, jaVerticies, setVerticies);
+      this.processParentNode(node, graphType, jaEdges, jaVerticies, setVerticies, relatedTypes);
     });
   }
 
-  private void fetchChildrenData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setEdges, Set<String> setVerticies, String boundsWKT)
+  private void fetchChildrenData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setEdges, Set<String> setVerticies, Set<String> relatedTypes, String boundsWKT)
   {
     ServerChildGraphNode node = vertexGo.getGraphChildren(graphType, recursive, date, boundsWKT);
 
-    this.processChildNode(node, graphType, jaEdges, jaVerticies, setVerticies);
+    this.processChildNode(node, graphType, jaEdges, jaVerticies, setVerticies, relatedTypes);
   }
 
-  private void processChildNode(ServerChildGraphNode root, GraphType graphType, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setVerticies)
+  private void processChildNode(ServerChildGraphNode root, GraphType graphType, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setVerticies, Set<String> relatedTypes)
   {
     final ServerGeoObjectIF vertexGo = root.getGeoObject();
 
@@ -368,6 +355,7 @@ public class RelationshipVisualizationService
           jaVerticies.add(serializeVertex(relatedGO, "CHILD"));
 
           setVerticies.add(relatedGO.getCode());
+          relatedTypes.add(relatedGO.getType().getCode());
         }
 
         if (!setVerticies.contains(node.getOid()))
@@ -376,7 +364,7 @@ public class RelationshipVisualizationService
         }
       }
 
-      this.processChildNode(node, graphType, jaEdges, jaVerticies, setVerticies);
+      this.processChildNode(node, graphType, jaEdges, jaVerticies, setVerticies, relatedTypes);
     });
   }
 

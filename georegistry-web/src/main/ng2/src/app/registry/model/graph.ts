@@ -26,5 +26,5 @@ export interface Edge {
 export interface TreeData {
   edges: Edge[],
   verticies: Vertex[],
-  geoJson: any
+  relatedTypes: string[]
 }

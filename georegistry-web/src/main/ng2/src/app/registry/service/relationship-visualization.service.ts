@@ -28,6 +28,7 @@ import { GeoRegistryConfiguration } from "@core/model/registry";
 
 import { LocalizedValue } from "@shared/model/core";
 import { ActivatedRoute } from "@angular/router";
+import { TreeData } from "@registry/model/graph";
 declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
@@ -36,7 +37,7 @@ export class RelationshipVisualizationService {
     constructor(private http: HttpClient, private eventService: EventService, private route: ActivatedRoute) {
     }
 
-    tree(relationshipType: string, graphTypeCode: string, geoObjectCode: string, geoObjectTypeCode: string, date: string, boundsWKT: string): Promise<any> {
+    tree(relationshipType: string, graphTypeCode: string, geoObjectCode: string, geoObjectTypeCode: string, date: string, boundsWKT: string): Promise<TreeData> {
         let params: HttpParams = new HttpParams();
         params = params.set("graphTypeCode", graphTypeCode);
         params = params.set("geoObjectCode", geoObjectCode);
@@ -57,7 +58,7 @@ export class RelationshipVisualizationService {
         // this.eventService.start();
 
         return this.http
-            .get<any>(registry.contextPath + "/relationship-visualization/tree", { params: params })
+            .get<TreeData>(registry.contextPath + "/relationship-visualization/tree", { params: params })
             .pipe(finalize(() => {
                 // this.eventService.complete();
             }))

@@ -648,20 +648,30 @@ export class GeometryService implements OnDestroy {
 
     unmapLayer(layer: Layer): void {
         if (this.map) {
-            const layerName = layer.getId();
+            let unmapAllLayers = (lay: Layer) => {
+                const layerName = lay.getId();
 
-            if (this.map.getLayer(layerName + "-POLYGON") != null) {
-                this.map.removeLayer(layerName + "-POLYGON");
-            }
-            if (this.map.getLayer(layerName + "-POINT") != null) {
-                this.map.removeLayer(layerName + "-POINT");
-            }
-            if (this.map.getLayer(layerName + "-LINE") != null) {
-                this.map.removeLayer(layerName + "-LINE");
-            }
-            if (this.map.getLayer(layerName + "-LABEL") != null) {
-                this.map.removeLayer(layerName + "-LABEL");
-            }
+                if (this.map.getLayer(layerName + "-POLYGON") != null) {
+                    this.map.removeLayer(layerName + "-POLYGON");
+                }
+                if (this.map.getLayer(layerName + "-POINT") != null) {
+                    this.map.removeLayer(layerName + "-POINT");
+                }
+                if (this.map.getLayer(layerName + "-LINE") != null) {
+                    this.map.removeLayer(layerName + "-LINE");
+                }
+                if (this.map.getLayer(layerName + "-LABEL") != null) {
+                    this.map.removeLayer(layerName + "-LABEL");
+                }
+            };
+
+            unmapAllLayers(layer);
+
+            // If this source is used by other layers we have to ummap them as well...
+            this.getLayers().filter(l => l.dataSource.getId() === layer.dataSource.getId()).forEach(lay => {
+                unmapAllLayers(lay);
+            });
+
             if (this.map.getSource(layer.dataSource.getId()) != null) {
                 this.map.removeSource(layer.dataSource.getId());
             }
@@ -711,8 +721,9 @@ export class GeometryService implements OnDestroy {
         let sourcePromise = layer.dataSource.buildMapboxSource();
 
         return sourcePromise.then((mapboxSource: AnySourceData) => {
-            console.log("Adding source with id " + layer.dataSource.getId(), layer, otherLayer);
-            this.map.addSource(layer.dataSource.getId(), mapboxSource);
+            if (this.map.getSource(layer.dataSource.getId()) == null) {
+                this.map.addSource(layer.dataSource.getId(), mapboxSource);
+            }
 
             if (otherLayer && !otherLayer.rendered) {
                 otherLayer = null;
@@ -749,7 +760,7 @@ export class GeometryService implements OnDestroy {
                 }
             };
 
-            layer.dataSource.configureMapboxLayer(labelConfig);
+            layer.configureMapboxLayer(labelConfig);
 
             this.map.addLayer(labelConfig, otherLayer ? otherLayer.getId() + "-LABEL" : null);
         });
@@ -827,9 +838,7 @@ export class GeometryService implements OnDestroy {
             return;
         }
 
-        if (layer.dataSource.configureMapboxLayer) {
-            layer.dataSource.configureMapboxLayer(layerConfig);
-        }
+        layer.configureMapboxLayer(layerConfig);
 
         this.map.addLayer(layerConfig, otherLayer ? otherLayer.getId() + "-" + this.getLayerIdGeomTypePostfix(otherLayer.dataSource.getGeometryType()) : null);
     }
