@@ -529,9 +529,11 @@
                                     <localize key="georegistry.frequency.monthly"></localize>
                                 </option>
                             </select>
-                            <small *ngIf="(frequency.dirty)" class="form-text text-danger">
-                                <localize key="listlist.change.frequency"></localize>
-                            </small>
+                            <div *ngIf="!list.frequency && (frequency.dirty)" class="form-input-validation-error-message-wrapper">
+                            	<p class="error-message">
+                                	<localize key="list.change.frequency"></localize>
+                                </p>
+                            </div>
                         </div>
                     </div>
                     <div class="row-holder">
