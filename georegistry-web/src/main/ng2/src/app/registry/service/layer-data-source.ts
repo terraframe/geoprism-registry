@@ -319,9 +319,9 @@ export class ValueOverTimeDataSource extends GeoJsonLayerDataSource {
     getLayerData(): Promise<GeoJSON.GeoJSON> {
         return new Promise((resolve, reject) => {
             if (this.getDataSourceType() === CHANGE_REQUEST_SOURCE_TYPE_NEW) {
-                return this.votEditor.value;
+                resolve(this.votEditor.value);
             } else {
-                return this.votEditor.oldValue;
+                resolve(this.votEditor.oldValue);
             }
         });
     }
@@ -614,12 +614,19 @@ export class DataSourceFactory {
         } else if (this.dataSources[dataSourceType] != null) {
             return this.dataSources[dataSourceType];
         } else {
-            throw new Error("Cannot find data source of type '" + dataSourceType + "'");
+            let msg = "Cannot find data source of type '" + dataSourceType + "'";
+            // throw new Error(msg);
+            console.log(msg); // This can happen if they were editing and refreshed the map with editing layers
+            return null;
         }
     }
 
     public deserializeDataSource(obj: any): LayerDataSource {
         let dataSource = this.newDataSourceFromType(obj.dataSourceType);
+
+        if (dataSource == null) {
+            return null;
+        }
 
         dataSource.fromJSON(obj);
 
@@ -659,8 +666,12 @@ export class DataSourceFactory {
         let layers: Layer[] = [];
         let dataSources: LayerDataSource[] = [];
 
-        serialized.dataSources.forEach(ds => {
-            dataSources.push(this.deserializeDataSource(ds));
+        serialized.dataSources.forEach(sds => {
+            let ds = this.deserializeDataSource(sds);
+
+            if (ds != null) {
+                dataSources.push(ds);
+            }
         });
 
         serialized.layers.forEach(sl => {

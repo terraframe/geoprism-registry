@@ -532,6 +532,8 @@ export class GeometryService implements OnDestroy {
             newLayers.splice(existingIndex, 1);
 
             this.setLayers(newLayers);
+        } else {
+            console.log("Could not remove layer with id " + oid + " because one does not exist.");
         }
     }
 
@@ -638,11 +640,11 @@ export class GeometryService implements OnDestroy {
 
     addEditingLayers(): void {
         if (this.editingLayer != null && this.editingControl != null) {
-            let data = (this.editingLayer.dataSource as unknown as GeoJsonLayerDataSource).getLayerData();
-
-            if (data) {
-                this.editingControl.add(data);
-            }
+            (this.editingLayer.dataSource as unknown as GeoJsonLayerDataSource).getLayerData().then(data => {
+                if (data) {
+                    this.editingControl.add(data);
+                }
+            });
         }
     }
 
@@ -664,7 +666,7 @@ export class GeometryService implements OnDestroy {
             }
 
             // If this source is used by other layers we don't want to remove the source
-            let sourceHasOtherMappedLayers = this.getLayers().filter(l => layer.getId() !== l.getId() && l.dataSource.getId() === layer.dataSource.getId() && l.rendered).length > 0;
+            let sourceHasOtherMappedLayers = this.layers.filter(l => layer.getId() !== l.getId() && l.dataSource.getId() === layer.dataSource.getId() && l.rendered).length > 0;
 
             if (!sourceHasOtherMappedLayers && this.map.getSource(layer.dataSource.getId()) != null) {
                 this.map.removeSource(layer.dataSource.getId());
@@ -684,13 +686,11 @@ export class GeometryService implements OnDestroy {
     }
 
     mapAllLayers(): void {
-        let layers = this.getLayers();
-
-        if (layers != null && layers.length > 0) {
+        if (this.layers != null && this.layers.length > 0) {
             let prevLayer = null;
-            let len = layers.length;
+            let len = this.layers.length;
             for (let i = 0; i < len; ++i) {
-                let layer = layers[i];
+                let layer = this.layers[i];
 
                 if (layer.rendered) {
                     this.mapLayer(layer, prevLayer);
