@@ -75,9 +75,14 @@ public class BusinessObject
 
       Object value = this.getObjectValue(attributeName);
 
+      if (value instanceof Date)
+      {
+        return GeoRegistryUtil.formatDate((Date) value, false);
+      }
+
       return value.toString();
     }
-    
+
     return this.getCode();
   }
 
