@@ -156,7 +156,7 @@ public class BusinessEdgeJsonImporter
   {
     String clazz = type.getMdEdgeDAO().getDBClassName();
 
-    String statement = "CREATE EDGE " + clazz + " FROM :childRid TO :parentRid";
+    String statement = "CREATE EDGE " + clazz + " FROM :parentRid TO :childRid";
     statement += " SET oid=:oid";
 
     GraphDBService service = GraphDBService.getInstance();
@@ -164,8 +164,8 @@ public class BusinessEdgeJsonImporter
 
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put("oid", IDGenerator.nextID());
-    parameters.put("childRid", childRid);
     parameters.put("parentRid", parentRid);
+    parameters.put("childRid", childRid);
 
     service.command(request, statement, parameters);
   }

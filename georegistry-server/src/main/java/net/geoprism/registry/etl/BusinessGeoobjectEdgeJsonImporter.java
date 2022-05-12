@@ -134,7 +134,7 @@ public class BusinessGeoobjectEdgeJsonImporter
   {
     String clazz = type.getMdEdgeDAO().getDBClassName();
 
-    String statement = "CREATE EDGE " + clazz + " FROM :childRid TO :parentRid";
+    String statement = "CREATE EDGE " + clazz + " FROM :parentRid TO :childRid";
     statement += " SET oid=:oid";
 
     GraphDBService service = GraphDBService.getInstance();
