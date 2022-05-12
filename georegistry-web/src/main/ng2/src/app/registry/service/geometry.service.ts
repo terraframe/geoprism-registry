@@ -7,7 +7,7 @@ import { Map, LngLat, LngLatBounds, AnySourceData } from "mapbox-gl";
 import { Subscription } from "rxjs";
 
 import { RelationshipVisualizationService } from "./relationship-visualization.service";
-import { DataSourceFactory, GeoJsonLayer, GeoJsonLayerDataSource, Layer, LayerDataSource } from "./layer-data-source";
+import { DataSourceFactory, GeoJsonLayer, GeoJsonLayerDataSource, Layer, LayerDataSource, ListVectorLayerDataSource } from "./layer-data-source";
 import { RegistryService } from "./registry.service";
 import { MapService } from "./map.service";
 import { ListTypeService } from "./list-type.service";
@@ -62,13 +62,13 @@ export class GeometryService implements OnDestroy {
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
-      private route: ActivatedRoute,
-      private router: Router,
-      private registryService: RegistryService,
-      private relVizService: RelationshipVisualizationService,
-      private mapService: MapService,
-      private listService: ListTypeService
-    ) {}
+        private route: ActivatedRoute,
+        private router: Router,
+        private registryService: RegistryService,
+        private relVizService: RelationshipVisualizationService,
+        private mapService: MapService,
+        private listService: ListTypeService
+    ) { }
 
     initialize(map: Map, geometryType: String, syncWithUrlParams: boolean) {
         this.syncWithUrlParams = syncWithUrlParams;
@@ -741,17 +741,37 @@ export class GeometryService implements OnDestroy {
                 "text-halo-width": 2
             },
             layout: {
-                "text-field": ["case",
-                    ["has", "displayLabel_" + navigator.language.toLowerCase()],
-                    ["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
-                    ["string", ["get", "displayLabel"]]
-                ],
+                "text-field": ["get", "localizedValue", ["get", "displayLabel"]],
                 "text-font": ["NotoSansRegular"],
                 "text-offset": [0, 0.6],
                 "text-anchor": "top",
                 "text-size": 12
             }
         };
+
+        if (layer.dataSource instanceof ListVectorLayerDataSource) {
+            labelConfig = {
+                id: layer.getId() + "-LABEL",
+                source: layer.dataSource.getId(),
+                type: "symbol",
+                paint: {
+                    "text-color": "black",
+                    "text-halo-color": "#fff",
+                    "text-halo-width": 2
+                },
+                layout: {
+                    "text-field": ["case",
+                        ["has", "displayLabel_" + navigator.language.toLowerCase()],
+                        ["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
+                        ["string", ["get", "displayLabel"]]
+                    ],
+                    "text-font": ["NotoSansRegular"],
+                    "text-offset": [0, 0.6],
+                    "text-anchor": "top",
+                    "text-size": 12
+                }
+            };
+        }
 
         layer.configureMapboxLayer(labelConfig);
 
