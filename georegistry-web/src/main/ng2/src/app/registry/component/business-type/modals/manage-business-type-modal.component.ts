@@ -82,7 +82,6 @@ export class ManageBusinessTypeModalComponent implements OnInit {
 
         confirmBsModalRef.content.onConfirm.subscribe(data => {
             this.service.deleteAttributeType(this.type.code, attr.code).then(() => {
-
                 this.type.attributes.splice(this.type.attributes.indexOf(attr), 1);
 
                 this.onBusinessTypeChange.next(this.type);
@@ -111,15 +110,13 @@ export class ManageBusinessTypeModalComponent implements OnInit {
     }
 
     close(): void {
-
         if (this.type.oid != null) {
             this.service.unlock(this.type.oid).then(() => {
                 this.bsModalRef.hide();
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
-            });    
-        }
-        else {
+            });
+        } else {
             this.bsModalRef.hide();
         }
     }

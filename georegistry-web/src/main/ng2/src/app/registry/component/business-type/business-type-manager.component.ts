@@ -106,4 +106,5 @@ export class BusinessTypeManagerComponent implements OnInit {
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);
     }
+
 }

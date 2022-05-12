@@ -37,7 +37,8 @@ export class CreateBusinessTypeModalComponent implements OnInit {
             organization: "",
             displayLabel: this.lService.create(),
             description: this.lService.create(),
-            attributes: []
+            attributes: [],
+            labelAttribute: ""
         };
     }
 
@@ -63,4 +64,5 @@ export class CreateBusinessTypeModalComponent implements OnInit {
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);
     }
+
 }
