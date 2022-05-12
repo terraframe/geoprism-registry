@@ -42,10 +42,27 @@
             </label>
           </div>
           <div class="holder">
-            <span class="text"> <input type="text" [(ngModel)]="type.organizationLabel" name="organization" disabled
-                required></span>
+            <span class="text">
+              <input type="text" [(ngModel)]="type.organizationLabel" name="organization" disabled required>
+            </span>
           </div>
         </div>
+
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              Label Attribute
+            </label>
+          </div>
+          <div class="holder">
+            <select class="select-area" name="labelAttribute" [(ngModel)]="type.labelAttribute" [disabled]="readOnly">
+              <option *ngFor="let attr of type.attributes" [value]="attr.code">
+                {{attr.label.localizedValue}}
+              </option>
+            </select>
+          </div>
+        </div>
+
 
         <div class="row-holder">
           <div class="label-holder">
@@ -65,9 +82,10 @@
                         <td class="button-column" style="width: 60px;">
                           <ng-container *ngIf="!readOnly && !attr.isDefault">
                             <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
-                            [title]="'modal.button.edit' | localize"></a>
+                              [title]="'modal.button.edit' | localize"></a>
                             <a class="fa fa-trash-o ico-remove" [routerLink]=""
-                            (click)="removeAttributeType(attr, $event)" [title]="'modal.button.remove' | localize"></a>
+                              (click)="removeAttributeType(attr, $event)"
+                              [title]="'modal.button.remove' | localize"></a>
                           </ng-container>
                         </td>
                       </tr>
@@ -75,8 +93,8 @@
                   </table>
                 </div>
 
-                <i *ngIf="!readOnly" class="fa fa-plus clickable" style="font-size:20px;margin:10px 0 10px 0;" aria-hidden="true"
-                  (click)="createAttribute()">
+                <i *ngIf="!readOnly" class="fa fa-plus clickable" style="font-size:20px;margin:10px 0 10px 0;"
+                  aria-hidden="true" (click)="createAttribute()">
                   <localize key="modal.button.add"></localize>
                 </i>
               </div>

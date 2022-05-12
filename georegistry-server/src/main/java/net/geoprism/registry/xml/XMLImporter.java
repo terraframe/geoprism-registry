@@ -139,26 +139,26 @@ public class XMLImporter
   private List<ServerElement> createBusinessEdgeTypes(Organization organization, Document doc)
   {
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
-    
+
     NodeList nList = doc.getElementsByTagName("business-edge");
-    
+
     for (int i = 0; i < nList.getLength(); i++)
     {
       Node nNode = nList.item(i);
-      
+
       if (nNode.getNodeType() == Node.ELEMENT_NODE)
       {
         Element elem = (Element) nNode;
-        
+
         BusinessEdgeType type = createBusinessEdgeType(organization, elem);
         list.add(type);
         this.cache.put(type.getCode(), type);
       }
     }
-    
+
     return list;
   }
-  
+
   private List<ServerElement> createDirectedAcyclicGraphTypes(Document doc)
   {
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
@@ -244,9 +244,12 @@ public class XMLImporter
 
         BusinessType type = createBusinessType(organization, elem);
         list.add(type);
+
         this.cache.put(type.getCode(), type);
 
         this.addAttributes(elem, type);
+
+        this.updateBusinessType(type, elem);
       }
     }
 
@@ -464,14 +467,14 @@ public class XMLImporter
     LocalizedValue description = this.getDescription(elem);
     String parentTypeCode = elem.getAttribute("parentTypeCode");
     String childTypeCode = elem.getAttribute("childTypeCode");
-    
+
     BusinessEdgeType type = BusinessEdgeType.create(organization.getCode(), code, label, description, parentTypeCode, childTypeCode);
-    
+
     ServiceFactory.getHierarchyPermissionService().enforceCanCreate(organization.getCode());
-    
+
     return type;
   }
-  
+
   private ServerGeoObjectType createServerGeoObjectType(Organization organization, Element elem)
   {
     String code = elem.getAttribute("code");
@@ -504,6 +507,18 @@ public class XMLImporter
     object.add(BusinessType.DISPLAYLABEL, label.toJSON());
 
     return BusinessType.apply(object);
+  }
+
+  private void updateBusinessType(BusinessType type, Element elem)
+  {
+    String labelAttribute = elem.getAttribute("labelAttribute");
+
+    if (labelAttribute != null && labelAttribute.length() > 0)
+    {
+      type.appLock();
+      type.setLabelAttribute(labelAttribute);
+      type.apply();
+    }
   }
 
   private LocalizedValue getDescription(Element elem)

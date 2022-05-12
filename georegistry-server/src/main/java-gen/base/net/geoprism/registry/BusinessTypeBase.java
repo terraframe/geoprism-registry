@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 138694674)
+@com.runwaysdk.business.ClassSignature(hash = -743011208)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -19,6 +19,7 @@ public abstract class BusinessTypeBase extends com.runwaysdk.business.Business
   
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String KEYNAME = "keyName";
+  public static java.lang.String LABELATTRIBUTE = "labelAttribute";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
   public static java.lang.String LOCKEDBY = "lockedBy";
@@ -31,7 +32,7 @@ public abstract class BusinessTypeBase extends com.runwaysdk.business.Business
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 138694674;
+  private static final long serialVersionUID = -743011208;
   
   public BusinessTypeBase()
   {
@@ -204,6 +205,58 @@ public abstract class BusinessTypeBase extends com.runwaysdk.business.Business
     else
     {
       setValue(KEYNAME, value);
+    }
+  }
+  
+  public com.runwaysdk.system.metadata.MdAttribute getLabelAttribute()
+  {
+    if (getValue(LABELATTRIBUTE).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return com.runwaysdk.system.metadata.MdAttribute.get(getValue(LABELATTRIBUTE));
+    }
+  }
+  
+  public String getLabelAttributeOid()
+  {
+    return getValue(LABELATTRIBUTE);
+  }
+  
+  public void validateLabelAttribute()
+  {
+    this.validateAttribute(LABELATTRIBUTE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getLabelAttributeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.BusinessType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(LABELATTRIBUTE);
+  }
+  
+  public void setLabelAttribute(com.runwaysdk.system.metadata.MdAttribute value)
+  {
+    if(value == null)
+    {
+      setValue(LABELATTRIBUTE, "");
+    }
+    else
+    {
+      setValue(LABELATTRIBUTE, value.getOid());
+    }
+  }
+  
+  public void setLabelAttributeId(java.lang.String oid)
+  {
+    if(oid == null)
+    {
+      setValue(LABELATTRIBUTE, "");
+    }
+    else
+    {
+      setValue(LABELATTRIBUTE, oid);
     }
   }
   

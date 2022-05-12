@@ -214,6 +214,7 @@ public class XMLImporterTest
 
         Assert.assertEquals("BUSINESS_POP", businessType.getCode());
         Assert.assertEquals("Business Pop", businessType.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+        Assert.assertEquals("TEST_TEXT", businessType.getLabelAttribute().getAttributeName());
 
         AttributeType businessAttribute = businessType.getAttribute("TEST_TEXT");
 

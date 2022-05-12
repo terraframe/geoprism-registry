@@ -43,7 +43,7 @@
     </child>
   </hierarchy>
   
-  <business-type code="BUSINESS_POP" label="Business Pop" description="Business Pop Description">
+  <business-type code="BUSINESS_POP" label="Business Pop" description="Business Pop Description" labelAttribute="TEST_TEXT">
     <attributes>
       <text code="TEST_TEXT" label="Test Text" description="Test Text Description" />
       <boolean code="TEST_BOOLEAN" label="Test Boolean" description="Test Boolean Description" />

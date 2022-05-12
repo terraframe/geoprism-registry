@@ -41,6 +41,7 @@ import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.graph.MdEdgeInfo;
 import com.runwaysdk.constants.graph.MdVertexInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
@@ -143,6 +144,14 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
     return updateAttributeType(attrType);
   }
 
+  public void setLabelAttribute(String attributeName)
+  {
+    MdVertexDAOIF mdVertex = this.getMdVertexDAO();
+    MdAttributeDAOIF mdAttribute = mdVertex.definesAttribute(attributeName);
+
+    this.setLabelAttributeId(mdAttribute.getOid());
+  }
+
   public AttributeType updateAttributeType(AttributeType attrType)
   {
     MdAttributeConcrete mdAttribute = ServerGeoObjectType.updateMdAttributeFromAttributeType(this.getMdVertex(), attrType);
@@ -234,6 +243,15 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
     object.addProperty(BusinessType.ORGANIZATION, organization.getCode());
     object.addProperty("organizationLabel", organization.getDisplayLabel().getValue());
     object.add(BusinessType.DISPLAYLABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
+
+    if (this.getLabelAttributeOid() != null && this.getLabelAttributeOid().length() > 0)
+    {
+      object.addProperty(BusinessType.LABELATTRIBUTE, this.getLabelAttribute().getAttributeName());
+    }
+    else
+    {
+      object.addProperty(BusinessType.LABELATTRIBUTE, BusinessType.CODE);
+    }
 
     if (this.isAppliedToDB())
     {
@@ -351,6 +369,13 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
       roleDAO.grantPermission(Operation.DELETE, mdVertex.getOid());
       roleDAO.grantPermission(Operation.WRITE, mdVertex.getOid());
       roleDAO.grantPermission(Operation.WRITE_ALL, mdVertex.getOid());
+    }
+
+    if (object.has(BusinessType.LABELATTRIBUTE) && !object.get(BusinessType.LABELATTRIBUTE).isJsonNull())
+    {
+      String attributeName = object.get(BusinessType.LABELATTRIBUTE).getAsString();
+
+      businessType.setLabelAttribute(attributeName);
     }
 
     businessType.apply();

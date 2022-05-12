@@ -10,6 +10,7 @@ export class BusinessType implements AttributedType {
     displayLabel: LocalizedValue;
     description: LocalizedValue;
     attributes?: Array<AttributeType | AttributeTermType | AttributeDecimalType>;
+    labelAttribute?: string;
 
 }
 

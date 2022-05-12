@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1207449417)
+@com.runwaysdk.business.ClassSignature(hash = -437122463)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -156,6 +156,29 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
   public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.BusinessType.KEYNAME, alias, displayLabel);
+
+  }
+  public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute()
+  {
+    return getLabelAttribute(null);
+
+  }
+ 
+  public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute(String alias)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.BusinessType.LABELATTRIBUTE);
+
+    return (com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.BusinessType.LABELATTRIBUTE, mdAttributeIF, this, alias, null);
+
+  }
+ 
+  public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute(String alias, String displayLabel)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.BusinessType.LABELATTRIBUTE);
+
+    return (com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.BusinessType.LABELATTRIBUTE, mdAttributeIF, this, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getLastUpdateDate()
@@ -393,6 +416,10 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
     {
        return new com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
+    else if (name.equals(net.geoprism.registry.BusinessType.LABELATTRIBUTE)) 
+    {
+       return new com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
     else if (name.equals(net.geoprism.registry.BusinessType.LASTUPDATEDBY)) 
     {
        return new com.runwaysdk.system.SingleActorQuery.SingleActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
@@ -489,6 +516,9 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
+    public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute();
+    public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute(String alias);
+    public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate();
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate(String alias);
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate(String alias, String displayLabel);
@@ -657,6 +687,23 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
   public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.BusinessType.KEYNAME, alias, displayLabel);
+
+  }
+  public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute()
+  {
+    return getLabelAttribute(null);
+
+  }
+ 
+  public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute(String alias)
+  {
+    return (com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF)this.get(net.geoprism.registry.BusinessType.LABELATTRIBUTE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF)this.get(net.geoprism.registry.BusinessType.LABELATTRIBUTE,  alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getLastUpdateDate()
@@ -858,6 +905,10 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
     {
        return new com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
+    else if (name.equals(net.geoprism.registry.BusinessType.LABELATTRIBUTE)) 
+    {
+       return new com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
     else if (name.equals(net.geoprism.registry.BusinessType.LASTUPDATEDBY)) 
     {
        return new com.runwaysdk.system.SingleActorQuery.SingleActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
@@ -931,6 +982,9 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
+    public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute();
+    public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute(String alias);
+    public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate();
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate(String alias);
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate(String alias, String displayLabel);
@@ -1150,6 +1204,23 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.BusinessType.KEYNAME, alias, displayLabel);
 
   }
+  public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute()
+  {
+    return getLabelAttribute(null);
+
+  }
+ 
+  public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute(String alias)
+  {
+    return (com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF)this.get(net.geoprism.registry.BusinessType.LABELATTRIBUTE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF getLabelAttribute(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReferenceIF)this.get(net.geoprism.registry.BusinessType.LABELATTRIBUTE,  alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableMoment getLastUpdateDate()
   {
     return getLastUpdateDate(null);
@@ -1348,6 +1419,10 @@ public  class BusinessTypeQuery extends com.runwaysdk.query.GeneratedBusinessQue
     else if (name.equals(net.geoprism.registry.BusinessType.ENTITYDOMAIN)) 
     {
        return new com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.BusinessType.LABELATTRIBUTE)) 
+    {
+       return new com.runwaysdk.system.metadata.MdAttributeQuery.MdAttributeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.BusinessType.LASTUPDATEDBY)) 
     {

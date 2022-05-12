@@ -1,11 +1,11 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -216682094)
+@com.runwaysdk.business.ClassSignature(hash = 811006712)
 public abstract class BusinessTypeDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.BusinessType";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -216682094;
+  private static final long serialVersionUID = 811006712;
   
   protected BusinessTypeDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -34,6 +34,7 @@ public abstract class BusinessTypeDTOBase extends com.runwaysdk.business.Busines
   public static java.lang.String DISPLAYLABEL = "displayLabel";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String KEYNAME = "keyName";
+  public static java.lang.String LABELATTRIBUTE = "labelAttribute";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
   public static java.lang.String LOCKEDBY = "lockedBy";
@@ -253,6 +254,55 @@ public abstract class BusinessTypeDTOBase extends com.runwaysdk.business.Busines
   public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getKeyNameMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(KEYNAME).getAttributeMdDTO();
+  }
+  
+  public com.runwaysdk.system.metadata.MdAttributeDTO getLabelAttribute()
+  {
+    if(getValue(LABELATTRIBUTE) == null || getValue(LABELATTRIBUTE).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return com.runwaysdk.system.metadata.MdAttributeDTO.get(getRequest(), getValue(LABELATTRIBUTE));
+    }
+  }
+  
+  public String getLabelAttributeOid()
+  {
+    return getValue(LABELATTRIBUTE);
+  }
+  
+  public void setLabelAttribute(com.runwaysdk.system.metadata.MdAttributeDTO value)
+  {
+    if(value == null)
+    {
+      setValue(LABELATTRIBUTE, "");
+    }
+    else
+    {
+      setValue(LABELATTRIBUTE, value.getOid());
+    }
+  }
+  
+  public boolean isLabelAttributeWritable()
+  {
+    return isWritable(LABELATTRIBUTE);
+  }
+  
+  public boolean isLabelAttributeReadable()
+  {
+    return isReadable(LABELATTRIBUTE);
+  }
+  
+  public boolean isLabelAttributeModified()
+  {
+    return isModified(LABELATTRIBUTE);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getLabelAttributeMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(LABELATTRIBUTE).getAttributeMdDTO();
   }
   
   public java.util.Date getLastUpdateDate()
