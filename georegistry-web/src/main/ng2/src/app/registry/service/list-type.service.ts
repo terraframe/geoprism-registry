@@ -75,11 +75,11 @@ export class ListTypeService implements GenericTableService {
         let params: HttpParams = new HttpParams();
         params = params.set("oids", oids.join(","));
 
-        this.eventService.start();
+        // this.eventService.start();
 
         return this.http.get<ListVersion[]>(registry.contextPath + "/list-type/fetchVersionsAsListVersion", { params: params })
             .pipe(finalize(() => {
-                this.eventService.complete();
+                // this.eventService.complete();
             }))
             .toPromise();
     }

@@ -4,7 +4,7 @@ import { SummaryKey } from "@registry/model/crtable";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 import { LocalizedValue } from "@shared/model/core";
 import { AttributeTermType, Term } from "@registry/model/registry";
-import { GeoJsonLayer, Layer } from "@registry/service/geometry.service";
+import { GeoJsonLayer, Layer } from "@registry/service/layer-data-source";
 
 /*
  * This class exists purely for the purpose of storing what data to be rendered to the front-end. Any storage or submission of this data to the back-end must be translated
@@ -258,11 +258,11 @@ export class VersionDiffView {
         let removeLayers = [];
 
         if (this.editingLayer != null) {
-            removeLayers.push(this.editingLayer.oid);
+            removeLayers.push(this.editingLayer.getId());
             this.editingLayer = null;
         }
         if (this.oldLayer != null) {
-            removeLayers.push(this.oldLayer.oid);
+            removeLayers.push(this.oldLayer.getId());
             this.oldLayer = null;
         }
 
