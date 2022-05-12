@@ -17,6 +17,7 @@ export class LocationInformation {
 export class ModalState {
     SEARCH: number;
     VIEW: number;
+    BUSINESS: number;
 }
 
 export const PANEL_SIZE_STATE = {

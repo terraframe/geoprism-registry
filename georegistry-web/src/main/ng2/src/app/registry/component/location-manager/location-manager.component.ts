@@ -30,6 +30,7 @@ import { FeaturePanelComponent } from "./feature-panel.component";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { RecordPopupComponent } from "./record-popup.component";
 import { GeoObjectLayerDataSource, GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
+import { BusinessObject, BusinessType } from "@registry/model/business-type";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -74,7 +75,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     MODE: ModalState = {
         SEARCH: 0,
-        VIEW: 1
+        VIEW: 1,
+        BUSINESS: 2
     };
 
     CONSTANTS = {
@@ -95,6 +97,16 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         currentDate: string,
         featureText?: string
     } = { text: "", currentText: "", date: "", currentDate: "" }
+
+    /*
+     * Currently selected business object
+     */
+    businessObject: BusinessObject;
+
+    /*
+     * Currently selected business type
+     */
+    businessType: BusinessType;
 
     /*
      * Currently selected record

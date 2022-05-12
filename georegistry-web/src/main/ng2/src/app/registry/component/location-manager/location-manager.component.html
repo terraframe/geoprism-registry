@@ -79,18 +79,27 @@
 							</div>
 						</ng-container>
 
-              <ng-container *ngIf="mode === MODE.VIEW && current != null">
-                <div class="row">
-                  <div class="col-md-12" [ngClass]="{'full-height-sidebar' : (current != null), 'max-height' : !searchEnabled }">
-                    <feature-panel #FeaturePanel [type]="current.type" [code]="current.code" [forDate]="current.forDate"
-                      (forDateChange)="featurePanelForDateChange($event)" [readOnly]="false"
-                      (modeChange)="onModeChange($event)" (panelCancel)="clearRecord()"
-                      (panelSubmit)="onPanelSubmit($event)">
-                    </feature-panel>
-                </div>
-              </div>
-              
+			            <ng-container *ngIf="mode === MODE.VIEW && current != null">
+            				<div class="row">
+                  				<div class="col-md-12" [ngClass]="{'full-height-sidebar' : (current != null), 'max-height' : !searchEnabled }">
+                    				<feature-panel #FeaturePanel [type]="current.type" [code]="current.code" [forDate]="current.forDate"
+                      				  (forDateChange)="featurePanelForDateChange($event)" [readOnly]="false"
+                      				  (modeChange)="onModeChange($event)" (panelCancel)="clearRecord()"
+                      				  (panelSubmit)="onPanelSubmit($event)">
+				                    </feature-panel>
+                				</div>
+			                </div>
 						</ng-container>
+
+						<ng-container *ngIf="mode === MODE.BUSINESS && businessObject != null && businessType != null">
+							<div class="row">
+							  <div class="col-md-12" [ngClass]="{'full-height-sidebar' : (current != null), 'max-height' : !searchEnabled }">
+								<business-object-panel [type]="businessType" [object]="businessObject"
+								  (close)="mode = MODE.VIEW">
+								</business-object-panel>
+							  </div>
+						  </div>
+						</ng-container>			
 					</div>
 				</div>
 				

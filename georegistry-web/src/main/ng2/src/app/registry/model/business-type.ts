@@ -22,3 +22,10 @@ export class BusinessTypeByOrg {
     types: BusinessType[];
 
 }
+
+export interface BusinessObject {
+
+    code: string;
+    [key: string]: string | number;
+
+}

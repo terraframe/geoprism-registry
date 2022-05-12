@@ -139,6 +139,7 @@ import { ClassificationFieldModalComponent } from "./component/form-fields/class
 import { GeometryService } from "@registry/service/geometry.service";
 
 import { RegistryCacheService } from "./service/registry-cache.service";
+import { BusinessObjectPanelComponent } from "./component/location-manager/business-object-panel.component";
 
 @NgModule({
     imports: [
@@ -240,6 +241,7 @@ import { RegistryCacheService } from "./service/registry-cache.service";
         TransitionEventModalComponent,
         RecordPanelComponent,
         RecordPopupComponent,
+        BusinessObjectPanelComponent,
         // Business Type components
         BusinessTypeManagerComponent,
         CreateBusinessTypeModalComponent,
