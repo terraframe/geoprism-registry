@@ -18,7 +18,10 @@
  */
 package net.geoprism.registry.service;
 
+import java.util.Date;
 import java.util.List;
+
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -27,7 +30,9 @@ import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class BusinessObjectService
 {
@@ -63,6 +68,21 @@ public class BusinessObjectService
 
     List<BusinessObject> children = object.getChildren(relationshipType);
     return children.stream().map(child -> child.toJSON()).collect(() -> new JsonArray(), (array, element) -> array.add(element), (listA, listB) -> {
+    });
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonArray getGeoObjects(String sessionId, String businessTypeCode, String code, String dateStr)
+  {
+    BusinessType type = BusinessType.getByCode(businessTypeCode);
+    BusinessObject object = BusinessObject.getByCode(type, code);
+    Date date = GeoRegistryUtil.parseDate(dateStr, true);
+
+    List<VertexServerGeoObject> geoObjects = object.getGeoObjects();
+    return geoObjects.stream().map(child -> {
+      GeoObject geoObject = child.toGeoObject(date);
+      return geoObject.toJSON();
+    }).collect(() -> new JsonArray(), (array, element) -> array.add(element), (listA, listB) -> {
     });
   }
 

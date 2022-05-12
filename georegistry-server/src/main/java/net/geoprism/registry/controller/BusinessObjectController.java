@@ -18,10 +18,7 @@
  */
 package net.geoprism.registry.controller;
 
-import org.commongeoregistry.adapter.metadata.AttributeType;
-
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
@@ -30,10 +27,8 @@ import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.registry.service.BusinessObjectService;
-import net.geoprism.registry.service.BusinessTypeService;
 
 @Controller(url = "business-object")
 public class BusinessObjectController
@@ -73,6 +68,17 @@ public class BusinessObjectController
     JsonArray parents = this.service.getChildren(request.getSessionId(), businessTypeCode, code, businessEdgeTypeCode);
     
     return new RestBodyResponse(parents);
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-geo-objects")
+  public ResponseIF getGeoObjects(ClientRequestIF request, 
+      @RequestParamter(name = "businessTypeCode", required = true) String businessTypeCode,
+      @RequestParamter(name = "code", required = true) String code,
+      @RequestParamter(name = "date", required = true) String date)
+  {
+    JsonArray geoObjects = this.service.getGeoObjects(request.getSessionId(), businessTypeCode, code, date);
+    
+    return new RestBodyResponse(geoObjects);
   }
   
 }
