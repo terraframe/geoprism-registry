@@ -83,13 +83,17 @@ public class RelationshipVisualizationService
       }
       else if(graphType instanceof DirectedAcyclicGraphType)
       {
-        geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults/2));
-        geoObjects.addAll(getParents(rootGo.getGraphParents(graphType, false, date, boundsWKT), date, false, maxResults/2));
+        List<GeoObject> parents = getParents(rootGo.getGraphParents(graphType, false, date, boundsWKT), date, false, maxResults);
+        geoObjects.addAll(parents);
+        
+        geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults - parents.size()));
       }
       else
       {
-        geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults/2));
-        geoObjects.addAll(getParents(rootGo.getGraphParents(graphType, true, date, boundsWKT), date, true, maxResults/2));
+        List<GeoObject> parents = getParents(rootGo.getGraphParents(graphType, true, date, boundsWKT), date, true, maxResults);
+        geoObjects.addAll(parents);
+        
+        geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults - parents.size()));
       }
     }
     

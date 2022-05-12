@@ -57,7 +57,7 @@ export abstract class LayerDataSource {
 
     public abstract getKey(): string;
 
-    public abstract buildMapboxSource(): Promise<AnySourceData>;
+    public abstract buildMapboxSource(): AnySourceData;
 
     public abstract getGeometryType(): string;
 
@@ -69,6 +69,13 @@ export abstract class GeoJsonLayerDataSource extends LayerDataSource {
 
     public abstract getLayerData(): Promise<GeoJSON.GeoJSON>;
     public abstract setLayerData(data: GeoJSON.GeoJSON): void;
+
+    public buildMapboxSource(): AnySourceData {
+        return {
+            type: "geojson",
+            data: GeometryService.createEmptyGeometryValue(this.getGeometryType())
+        };
+    }
 
 }
 
@@ -95,6 +102,10 @@ export class Layer {
 
     public getId(): string {
         return this.dataSource.getId();
+    }
+
+    public getKey(): string {
+        return this.dataSource.getKey();
     }
 
     public configureMapboxLayer(layerConfig: any): void {
@@ -183,19 +194,17 @@ export class GeoObjectLayerDataSource extends LayerDataSource {
         return "MIXED";
     }
 
-    buildMapboxSource(): Promise<AnySourceData> {
-        return new Promise((resolve, reject) => {
-            let encodedCode = encodeURIComponent(this.code);
-            let encodedTypeCode = encodeURIComponent(this.typeCode);
-            let encodedDate = encodeURIComponent(this.date);
+    buildMapboxSource(): AnySourceData {
+        let encodedCode = encodeURIComponent(this.code);
+        let encodedTypeCode = encodeURIComponent(this.typeCode);
+        let encodedDate = encodeURIComponent(this.date);
 
-            let url = registry.contextPath + "/cgr/geoobject/get-code" + "?" + "code=" + encodedCode + "&typeCode=" + encodedTypeCode + "&date=" + encodedDate;
+        let url = registry.contextPath + "/cgr/geoobject/get-code" + "?" + "code=" + encodedCode + "&typeCode=" + encodedTypeCode + "&date=" + encodedDate;
 
-            return resolve({
-                type: "geojson",
-                data: url
-            });
-        });
+        return {
+            type: "geojson",
+            data: url
+        };
     }
 
     getBounds(layer: Layer): Promise<LngLatBoundsLike> {
@@ -246,17 +255,15 @@ export class ListVectorLayerDataSource extends LayerDataSource {
         return new ListVectorLayer(this, legendLabel, rendered, color);
     }
 
-    buildMapboxSource(): Promise<AnySourceData> {
-        return new Promise((resolve, reject) => {
-            let protocol = window.location.protocol;
-            let host = window.location.host;
+    buildMapboxSource(): AnySourceData {
+        let protocol = window.location.protocol;
+        let host = window.location.host;
 
-            resolve({
-                type: "vector",
-                tiles: [protocol + "//" + host + registry.contextPath + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: this.versionId }))],
-                promoteId: "uid"
-            });
-        });
+        return {
+            type: "vector",
+            tiles: [protocol + "//" + host + registry.contextPath + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: this.versionId }))],
+            promoteId: "uid"
+        };
     }
 
     getGeometryType(): string {
@@ -316,17 +323,6 @@ export class ValueOverTimeDataSource extends GeoJsonLayerDataSource {
             } else {
                 return this.votEditor.oldValue;
             }
-        });
-    }
-
-    buildMapboxSource(): Promise<AnySourceData> {
-        return new Promise((resolve, reject) => {
-            let geojson = this.getLayerData() as any;
-
-            resolve({
-                type: "geojson",
-                data: geojson
-            });
         });
     }
 
@@ -401,15 +397,6 @@ export class SearchLayerDataSource extends GeoJsonLayerDataSource {
         }
     }
 
-    buildMapboxSource(): Promise<AnySourceData> {
-        return this.getLayerData().then(data => {
-            return {
-                type: "geojson",
-                data: data
-            } as any;
-        });
-    }
-
     getGeometryType(): string {
         return "MIXED";
     }
@@ -467,7 +454,7 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
     }
 
     getKey(): string {
-        return RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE + this.relationshipCode + this.parentCode;
+        return RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE + this.relationshipCode + this.parentCode + this.parentTypeCode + this.bounds + ((this.date == null) ? "" : this.date);
     }
 
     createLayer(legendLabel: string, rendered: boolean, color: string): Layer {
@@ -514,15 +501,6 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
         }
     }
 
-    buildMapboxSource(): Promise<AnySourceData> {
-        return this.getLayerData().then(data => {
-            return {
-                type: "geojson",
-                data: data
-            } as any;
-        });
-    }
-
     private convertBoundsToWKT(bounds: LngLatBounds): string {
         let se = bounds.getSouthEast();
         let sw = bounds.getSouthWest();
@@ -566,6 +544,10 @@ export class RelationshipVisualizionLayer extends Layer {
 
     getId(): string {
         return this.relatedTypeFilter + this.dataSource.getId();
+    }
+
+    public getKey(): string {
+        return this.relatedTypeFilter + this.dataSource.getKey();
     }
 
     setRelatedTypeFilter(relatedTypeFilter: string) {
