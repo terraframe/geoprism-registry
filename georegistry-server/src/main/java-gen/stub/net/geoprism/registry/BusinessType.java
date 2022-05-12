@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collector;
@@ -381,6 +382,49 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
     businessType.apply();
 
     return businessType;
+  }
+
+  public List<BusinessEdgeType> getParentEdgeTypes()
+  {
+    BusinessEdgeTypeQuery query = new BusinessEdgeTypeQuery(new QueryFactory());
+    query.WHERE(query.getParentType().EQ(this.getMdVertex()));
+    query.ORDER_BY_DESC(query.getDisplayLabel().localize());
+
+    try (OIterator<? extends BusinessEdgeType> iterator = query.getIterator())
+    {
+      List<? extends BusinessEdgeType> results = iterator.getAll();
+
+      return new LinkedList<BusinessEdgeType>(results);
+    }
+  }
+
+  public List<BusinessEdgeType> getChildEdgeTypes()
+  {
+    BusinessEdgeTypeQuery query = new BusinessEdgeTypeQuery(new QueryFactory());
+    query.WHERE(query.getChildType().EQ(this.getMdVertex()));
+    query.ORDER_BY_DESC(query.getDisplayLabel().localize());
+
+    try (OIterator<? extends BusinessEdgeType> iterator = query.getIterator())
+    {
+      List<? extends BusinessEdgeType> results = iterator.getAll();
+
+      return new LinkedList<BusinessEdgeType>(results);
+    }
+  }
+
+  public List<BusinessEdgeType> getEdgeTypes()
+  {
+    BusinessEdgeTypeQuery query = new BusinessEdgeTypeQuery(new QueryFactory());
+    query.WHERE(query.getParentType().EQ(this.getMdVertex()));
+    query.OR(query.getChildType().EQ(this.getMdVertex()));
+    query.ORDER_BY_DESC(query.getDisplayLabel().localize());
+
+    try (OIterator<? extends BusinessEdgeType> iterator = query.getIterator())
+    {
+      List<? extends BusinessEdgeType> results = iterator.getAll();
+
+      return new LinkedList<BusinessEdgeType>(results);
+    }
   }
 
   public static BusinessType getByCode(String code)

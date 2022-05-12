@@ -20,6 +20,7 @@ package net.geoprism.registry.controller;
 
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
@@ -114,11 +115,19 @@ public class BusinessTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF data(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "criteria") String criteria)
+  public ResponseIF data(ClientRequestIF request, @RequestParamter(name = "typeCode", required = true) String typeCode, @RequestParamter(name = "criteria") String criteria)
   {
     JsonObject page = this.service.data(request.getSessionId(), typeCode, criteria);
 
     return new RestBodyResponse(page);
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-edge-types")
+  public ResponseIF getEdgeTypes(ClientRequestIF request, @RequestParamter(name = "typeCode", required = true) String typeCode)
+  {
+    JsonArray edgeTypes = this.service.getEdgeTypes(request.getSessionId(), typeCode);
+    
+    return new RestBodyResponse(edgeTypes);
+  }
+  
 }

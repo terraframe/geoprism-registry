@@ -4,19 +4,21 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
+
+import java.util.List;
 
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
@@ -27,6 +29,7 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 
 public class BusinessTypeService
@@ -175,6 +178,16 @@ public class BusinessTypeService
     BusinessType got = BusinessType.getByCode(businessTypeCode);
 
     return got.data(JsonParser.parseString(json).getAsJsonObject()).toJSON();
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonArray getEdgeTypes(String sessionId, String businessTypeCode)
+  {
+    BusinessType got = BusinessType.getByCode(businessTypeCode);
+    List<BusinessEdgeType> edgeTypes = got.getEdgeTypes();
+
+    return edgeTypes.stream().map(object -> object.toJSON()).collect(() -> new JsonArray(), (array, element) -> array.add(element), (listA, listB) -> {
+    });
   }
 
 }

@@ -41,10 +41,10 @@ public class BusinessObjectService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getParents(String sessionId, String businessTypeCode, String code, String relationshipTypeCode)
+  public JsonArray getParents(String sessionId, String businessTypeCode, String code, String businessEdgeTypeCode)
   {
     BusinessType type = BusinessType.getByCode(businessTypeCode);
-    BusinessEdgeType relationshipType = BusinessEdgeType.getByCode(relationshipTypeCode);
+    BusinessEdgeType relationshipType = BusinessEdgeType.getByCode(businessEdgeTypeCode);
 
     BusinessObject object = BusinessObject.getByCode(type, code);
 
@@ -54,10 +54,10 @@ public class BusinessObjectService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getChildren(String sessionId, String businessTypeCode, String code, String relationshipTypeCode)
+  public JsonArray getChildren(String sessionId, String businessTypeCode, String code, String businessEdgeTypeCode)
   {
     BusinessType type = BusinessType.getByCode(businessTypeCode);
-    BusinessEdgeType relationshipType = BusinessEdgeType.getByCode(relationshipTypeCode);
+    BusinessEdgeType relationshipType = BusinessEdgeType.getByCode(businessEdgeTypeCode);
 
     BusinessObject object = BusinessObject.getByCode(type, code);
 
