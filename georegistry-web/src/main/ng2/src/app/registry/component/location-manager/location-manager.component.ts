@@ -464,7 +464,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                             queryParams: { bounds: JSON.stringify(array) },
                             queryParamsHandling: "merge" // remove to replace all query params by provided
                         }).toString();
-            
+
                         this.location.go(url);
                         */
         });
@@ -563,32 +563,34 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             if (feature.properties.uid != null) {
                 this.closeEditSessionSafeguard().then(() => {
-                    if (feature.source === SEARCH_DATASOURCE_TYPE) {
-                        if ((this.current == null || this.current.geoObject == null || feature.properties == null || this.current.geoObject.properties.uid !== feature.properties.uid)) {
-                            this.select(feature, null);
-                        }
-                    } else if (feature.layer) {
+                    if (feature.layer) {
                         let layer: Layer = this.geomService.getLayerFromMapboxLayer(feature.layer);
 
-                        if (layer) {
-                            if (layer.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE) {
-                                const versionId = (layer.dataSource as ListVectorLayerDataSource).getVersionId();
+                        if (layer.dataSource.getDataSourceType() === SEARCH_DATASOURCE_TYPE) {
+                            if ((this.current == null || this.current.geoObject == null || feature.properties == null || this.current.geoObject.properties.uid !== feature.properties.uid)) {
+                                this.select(feature, null);
+                            }
+                        } else {
+                            if (layer) {
+                                if (layer.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE) {
+                                    const versionId = (layer.dataSource as ListVectorLayerDataSource).getVersionId();
 
-                                if (this.params.version == null || this.params.uid == null ||
-                                    this.params.version !== versionId ||
-                                    this.params.uid !== feature.properties.uid) {
-                                    this.router.navigate([], {
-                                        relativeTo: this.route,
-                                        queryParams: { type: null, code: null, version: versionId, uid: feature.properties.uid },
-                                        queryParamsHandling: "merge" // remove to replace all query params by provided
-                                    });
-                                } else {
-                                    this.handleRecord(versionId, feature.properties.uid);
+                                    if (this.params.version == null || this.params.uid == null ||
+                                        this.params.version !== versionId ||
+                                        this.params.uid !== feature.properties.uid) {
+                                        this.router.navigate([], {
+                                            relativeTo: this.route,
+                                            queryParams: { type: null, code: null, version: versionId, uid: feature.properties.uid },
+                                            queryParamsHandling: "merge" // remove to replace all query params by provided
+                                        });
+                                    } else {
+                                        this.handleRecord(versionId, feature.properties.uid);
+                                    }
+                                } else if (layer.dataSource.getDataSourceType() === GEO_OBJECT_DATA_SOURCE_TYPE) {
+                                    this.onChangeGeoObject({ typeCode: feature.properties.type, code: feature.properties.code, id: feature.properties.uid, doIt: (fun) => { fun(); } });
+                                } else if (layer.dataSource.getDataSourceType() === RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE) {
+                                    this.onChangeGeoObject({ typeCode: feature.properties.type, code: feature.properties.code, id: feature.properties.uid, doIt: (fun) => { fun(); } });
                                 }
-                            } else if (layer.dataSource.getDataSourceType() === GEO_OBJECT_DATA_SOURCE_TYPE) {
-                                this.onChangeGeoObject({ typeCode: feature.properties.type, code: feature.properties.code, id: feature.properties.uid, doIt: (fun) => { fun(); } });
-                            } else if (layer.dataSource.getDataSourceType() === RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE) {
-                                this.onChangeGeoObject({ typeCode: feature.properties.type, code: feature.properties.code, id: feature.properties.uid, doIt: (fun) => { fun(); } });
                             }
                         }
                     }
@@ -887,9 +889,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     changeGeoObject(typeCode: string, code: string, uid: string, geoObject: GeoObject = null) {
         // Highlight the feature on the map
-        //if (this.feature != null) {
+        // if (this.feature != null) {
         //    this.map.removeFeatureState(this.feature);
-        //}
+        // }
 
         // Highlight the feature on the map
         /*
