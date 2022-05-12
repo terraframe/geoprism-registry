@@ -41,7 +41,7 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.JsonWrapper;
 
-public class BusinessTypePageQuery extends AbstractGraphPageQuery<HashMap<String, Object>, JsonSerializable>
+public class BusinessObjectPageQuery extends AbstractGraphPageQuery<HashMap<String, Object>, JsonSerializable>
 {
   private SimpleDateFormat                         format;
 
@@ -49,7 +49,7 @@ public class BusinessTypePageQuery extends AbstractGraphPageQuery<HashMap<String
 
   private List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
-  public BusinessTypePageQuery(BusinessType businessType, JsonObject criteria)
+  public BusinessObjectPageQuery(BusinessType businessType, JsonObject criteria)
   {
     super(businessType.getMdVertexDAO().definesType(), criteria);
 

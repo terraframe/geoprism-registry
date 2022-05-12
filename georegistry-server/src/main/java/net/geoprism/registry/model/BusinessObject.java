@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.model;
 
+import java.text.NumberFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,13 +29,19 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
+import com.runwaysdk.session.Session;
 
+import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.view.JsonWrapper;
 
 public class BusinessObject
 {
@@ -81,7 +89,50 @@ public class BusinessObject
 
   public JsonObject toJSON()
   {
-    return new JsonObject();
+    JsonObject object = new JsonObject();
+    
+    List<? extends MdAttributeConcreteDAOIF> mdAttributes = this.type.getMdVertexDAO().definesAttributes();
+
+    object.addProperty(DefaultAttribute.CODE.getName(), (String) this.getCode());
+
+    for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
+    {
+      String attributeName = mdAttribute.definesAttribute();
+
+      Object value = this.vertex.getObjectValue(attributeName);
+
+      if (value != null)
+      {
+        if (mdAttribute instanceof MdAttributeTermDAOIF)
+        {
+          Classifier classifier = Classifier.get((String) value);
+
+          object.addProperty(mdAttribute.definesAttribute(), classifier.getDisplayLabel().getValue());
+        }
+        else if (value instanceof Number)
+        {
+          object.addProperty(mdAttribute.definesAttribute(), (Number) value);
+        }
+        else if (value instanceof Boolean)
+        {
+          object.addProperty(mdAttribute.definesAttribute(), (Boolean) value);
+        }
+        else if (value instanceof String)
+        {
+          object.addProperty(mdAttribute.definesAttribute(), (String) value);
+        }
+        else if (value instanceof Character)
+        {
+          object.addProperty(mdAttribute.definesAttribute(), (Character) value);
+        }
+        else if (value instanceof Date)
+        {
+          object.addProperty(mdAttribute.definesAttribute(), GeoRegistryUtil.formatDate((Date) value, false));
+        }
+      }
+    }
+
+    return object;
   }
 
   public void apply()

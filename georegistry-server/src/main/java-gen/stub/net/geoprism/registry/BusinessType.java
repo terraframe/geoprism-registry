@@ -70,7 +70,7 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.AttributedType;
 import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.query.graph.BusinessTypePageQuery;
+import net.geoprism.registry.query.graph.BusinessObjectPageQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
@@ -278,7 +278,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
 
   public Page<JsonSerializable> data(JsonObject criteria)
   {
-    return new BusinessTypePageQuery(this, criteria).getPage();
+    return new BusinessObjectPageQuery(this, criteria).getPage();
   }
 
   @Transaction
