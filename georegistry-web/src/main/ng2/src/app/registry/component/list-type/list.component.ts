@@ -20,7 +20,8 @@ import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/mode
 import { LngLatBounds } from "mapbox-gl";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
-import { Layer, ListVectorLayerDataSource } from "@registry/service/layer-data-source";
+import { ListVectorLayerDataSource } from "@registry/service/layer-data-source";
+import { GeometryService } from "@registry/service/geometry.service";
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -65,6 +66,7 @@ export class ListComponent implements OnInit, OnDestroy {
         private modalService: BsModalService,
         private service: ListTypeService,
         private pService: ProgressService,
+        private geomService: GeometryService,
         private authService: AuthService) {
     }
 
@@ -286,7 +288,7 @@ export class ListComponent implements OnInit, OnDestroy {
         }
 
         const params: any = {
-            layers: JSON.stringify([this.layerFromList(this.list)]),
+            layers: JSON.stringify(this.layerFromVersion(this.list)),
             type: type,
             code: "__NEW__"
         };
@@ -326,14 +328,14 @@ export class ListComponent implements OnInit, OnDestroy {
         event.preventDefault();
     }
 
-    layerFromList(version: ListTypeVersion): Layer {
+    layerFromVersion(version: ListTypeVersion): any {
         let dataSource = new ListVectorLayerDataSource(this.service, version.oid);
         let layer = dataSource.createLayer(version.displayLabel, true, ColorGen().hexString());
-        return layer;
+        return this.geomService.getDataSourceFactory().serializeLayers([layer]);
     }
 
     onGotoMap(result: any): void {
-        const params: any = { layers: JSON.stringify([this.layerFromList(this.list)]) };
+        const params: any = { layers: JSON.stringify(this.layerFromVersion(this.list)) };
 
         if (result != null) {
             params.version = this.list.oid;

@@ -12,6 +12,7 @@ import { Router } from "@angular/router";
 import { LngLatBounds } from "mapbox-gl";
 import * as ColorGen from "color-generator";
 import { Layer, ListVectorLayerDataSource } from "@registry/service/layer-data-source";
+import { GeometryService } from "@registry/service/geometry.service";
 
 @Component({
     selector: "list-type",
@@ -35,6 +36,7 @@ export class ListTypeComponent implements OnInit, OnDestroy {
         private service: ListTypeService,
         private modalService: BsModalService,
         private localizeService: LocalizationService,
+        private geomService: GeometryService,
         private authService: AuthService) { }
 
     ngOnInit(): void {
@@ -122,16 +124,16 @@ export class ListTypeComponent implements OnInit, OnDestroy {
         });
     }
 
-    layerFromList(version: ListTypeVersion): Layer {
+    layerFromVersion(version: ListTypeVersion): any {
         let dataSource = new ListVectorLayerDataSource(this.service, version.oid);
         let layer = dataSource.createLayer(version.displayLabel, true, ColorGen().hexString());
-        return layer;
+        return this.geomService.getDataSourceFactory().serializeLayers([layer]);
     }
 
     onGotoMap(version: ListTypeVersion): void {
         this.service.getBounds(version.oid).then(bounds => {
             const queryParams: any = {
-                layers: JSON.stringify([this.layerFromList(version)])
+                layers: JSON.stringify(this.layerFromVersion(version))
             };
 
             if (bounds && Array.isArray(bounds)) {

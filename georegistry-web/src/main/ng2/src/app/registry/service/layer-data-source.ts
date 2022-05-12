@@ -339,8 +339,8 @@ export class ValueOverTimeDataSource extends GeoJsonLayerDataSource {
     }
 
     getBounds(layer: Layer): Promise<LngLatBoundsLike> {
-        return new Promise((resolve, reject) => {
-            resolve(bbox(this.getLayerData() as any) as LngLatBoundsLike);
+        return this.getLayerData().then(data => {
+            return bbox(data as any) as LngLatBoundsLike;
         });
     }
 
@@ -614,9 +614,10 @@ export class DataSourceFactory {
         } else if (this.dataSources[dataSourceType] != null) {
             return this.dataSources[dataSourceType];
         } else {
-            let msg = "Cannot find data source of type '" + dataSourceType + "'";
-            // throw new Error(msg);
-            console.log(msg); // This can happen if they were editing and refreshed the map with editing layers
+            // This can happen if they were editing and refreshed the map with editing layers
+
+            // eslint-disable-next-line no-console
+            console.log("Cannot find data source of type '" + dataSourceType + "'");
             return null;
         }
     }

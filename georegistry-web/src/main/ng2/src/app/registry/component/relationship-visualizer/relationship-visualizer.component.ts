@@ -255,6 +255,12 @@ export class RelationshipVisualizerComponent implements OnInit {
     }
 
     private addLayers(relatedTypes: string[]) {
+        if (this.relationship.type === "BUSINESS") {
+            let layers: Layer[] = this.geomService.getLayers().filter(layer => layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE);
+            this.geomService.setLayers(layers);
+            return;
+        }
+
         let layers: Layer[] = this.geomService.getLayers();
 
         let dataSource = new RelationshipVisualizionDataSource(this.vizService, this.geomService, this.relationship.type, this.relationship.code, this.params.type, this.params.code, this.params.bounds, this.params.date);

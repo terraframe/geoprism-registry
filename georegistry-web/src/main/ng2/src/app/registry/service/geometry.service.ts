@@ -68,13 +68,14 @@ export class GeometryService implements OnDestroy {
         private relVizService: RelationshipVisualizationService,
         private mapService: MapService,
         private listService: ListTypeService
-    ) { }
+    ) {
+        this.dataSourceFactory = new DataSourceFactory(this, this.registryService, this.relVizService, this.mapService, this.listService);
+    }
 
     initialize(map: Map, geometryType: String, syncWithUrlParams: boolean) {
         this.syncWithUrlParams = syncWithUrlParams;
         this.map = map;
         this.geometryType = geometryType;
-        this.dataSourceFactory = new DataSourceFactory(this, this.registryService, this.relVizService, this.mapService, this.listService);
         // this.editingControl = null;
 
         if (syncWithUrlParams) {
