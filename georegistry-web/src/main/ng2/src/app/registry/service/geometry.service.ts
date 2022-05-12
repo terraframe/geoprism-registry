@@ -662,7 +662,11 @@ export class GeometryService implements OnDestroy {
             if (this.map.getLayer(layerName + "-LABEL") != null) {
                 this.map.removeLayer(layerName + "-LABEL");
             }
-            if (this.map.getSource(layer.dataSource.getId()) != null) {
+
+            // If this source is used by other layers we don't want to remove the source
+            let sourceHasOtherMappedLayers = this.getLayers().filter(l => layer.getId() !== l.getId() && l.dataSource.getId() === layer.dataSource.getId() && l.rendered).length > 0;
+
+            if (!sourceHasOtherMappedLayers && this.map.getSource(layer.dataSource.getId()) != null) {
                 this.map.removeSource(layer.dataSource.getId());
             }
         }
@@ -684,75 +688,74 @@ export class GeometryService implements OnDestroy {
 
         if (layers != null && layers.length > 0) {
             let prevLayer = null;
-            let prevProm: Promise<void> = null;
             let len = layers.length;
             for (let i = 0; i < len; ++i) {
                 let layer = layers[i];
 
                 if (layer.rendered) {
-                    if (prevProm) {
-                        let prevLayer2 = prevLayer;
-                        prevProm = prevProm.then(() => {
-                            return this.mapLayer(layer, prevLayer2);
-                        });
-                    } else {
-                        prevProm = this.mapLayer(layer, prevLayer);
-                    }
-
+                    this.mapLayer(layer, prevLayer);
                     prevLayer = layer;
                 }
             }
         }
     }
 
-    mapLayer(layer: Layer, otherLayer?: Layer): Promise<void> {
+    mapLayer(layer: Layer, otherLayer?: Layer): void {
         if (!this.map) { return; }
 
-        let sourcePromise = layer.dataSource.buildMapboxSource();
+        let mapboxSource: AnySourceData = layer.dataSource.buildMapboxSource();
 
-        return sourcePromise.then((mapboxSource: AnySourceData) => {
-            console.log("Adding source with id " + layer.dataSource.getId(), layer, otherLayer);
+        if (this.map.getSource(layer.dataSource.getId()) == null) {
             this.map.addSource(layer.dataSource.getId(), mapboxSource);
+        }
 
-            if (otherLayer && !otherLayer.rendered) {
-                otherLayer = null;
-            }
-
-            if (layer.dataSource.getGeometryType() === "MIXED") {
-                this.mapLayerAsType("POLYGON", layer, otherLayer);
-                this.mapLayerAsType("POINT", layer, otherLayer);
-                this.mapLayerAsType("LINE", layer, otherLayer);
-            } else {
-                this.mapLayerAsType(layer.dataSource.getGeometryType(), layer, otherLayer);
-            }
-
-            // Label layer
-            let labelConfig: any = {
-                id: layer.getId() + "-LABEL",
-                source: layer.dataSource.getId(),
-                type: "symbol",
-                paint: {
-                    "text-color": "black",
-                    "text-halo-color": "#fff",
-                    "text-halo-width": 2
-                },
-                layout: {
-                    "text-field": ["case",
-                        ["has", "displayLabel_" + navigator.language.toLowerCase()],
-                        ["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
-                        ["string", ["get", "displayLabel"]]
-                    ],
-                    "text-font": ["NotoSansRegular"],
-                    "text-offset": [0, 0.6],
-                    "text-anchor": "top",
-                    "text-size": 12
+        // If the layer wants to load some data asynchronously
+        if (layer.dataSource instanceof GeoJsonLayerDataSource) {
+            layer.dataSource.getLayerData().then(geojson => {
+                if (this.map.getSource(layer.dataSource.getId()) != null) {
+                    (this.map.getSource(layer.dataSource.getId()) as any).setData(geojson);
                 }
-            };
+            });
+        }
 
-            layer.dataSource.configureMapboxLayer(labelConfig);
+        if (otherLayer && !otherLayer.rendered) {
+            otherLayer = null;
+        }
 
-            this.map.addLayer(labelConfig, otherLayer ? otherLayer.getId() + "-LABEL" : null);
-        });
+        if (layer.dataSource.getGeometryType() === "MIXED") {
+            this.mapLayerAsType("POLYGON", layer, otherLayer);
+            this.mapLayerAsType("POINT", layer, otherLayer);
+            this.mapLayerAsType("LINE", layer, otherLayer);
+        } else {
+            this.mapLayerAsType(layer.dataSource.getGeometryType(), layer, otherLayer);
+        }
+
+        // Label layer
+        let labelConfig: any = {
+            id: layer.getId() + "-LABEL",
+            source: layer.dataSource.getId(),
+            type: "symbol",
+            paint: {
+                "text-color": "black",
+                "text-halo-color": "#fff",
+                "text-halo-width": 2
+            },
+            layout: {
+                "text-field": ["case",
+                    ["has", "displayLabel_" + navigator.language.toLowerCase()],
+                    ["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
+                    ["string", ["get", "displayLabel"]]
+                ],
+                "text-font": ["NotoSansRegular"],
+                "text-offset": [0, 0.6],
+                "text-anchor": "top",
+                "text-size": 12
+            }
+        };
+
+        layer.configureMapboxLayer(labelConfig);
+
+        this.map.addLayer(labelConfig, otherLayer ? otherLayer.getId() + "-LABEL" : null);
     }
 
     mapLayerAsType(geometryType: string, layer: Layer, otherLayer?: Layer): void {
@@ -827,9 +830,7 @@ export class GeometryService implements OnDestroy {
             return;
         }
 
-        if (layer.dataSource.configureMapboxLayer) {
-            layer.dataSource.configureMapboxLayer(layerConfig);
-        }
+        layer.configureMapboxLayer(layerConfig);
 
         this.map.addLayer(layerConfig, otherLayer ? otherLayer.getId() + "-" + this.getLayerIdGeomTypePostfix(otherLayer.dataSource.getGeometryType()) : null);
     }
@@ -923,17 +924,19 @@ export class GeometryService implements OnDestroy {
     public static createEmptyGeometryValue(geometryType: String): any {
         let value = { type: geometryType, coordinates: [] };
 
-        if (geometryType === "MULTIPOLYGON" || geometryType === "MIXED") {
+        let upperType = geometryType.toUpperCase();
+
+        if (upperType === "MULTIPOLYGON" || upperType === "MIXED") {
             value.type = "MultiPolygon";
-        } else if (geometryType === "POLYGON") {
+        } else if (upperType === "POLYGON") {
             value.type = "Polygon";
-        } else if (geometryType === "POINT") {
+        } else if (upperType === "POINT") {
             value.type = "Point";
-        } else if (geometryType === "MULTIPOINT") {
+        } else if (upperType === "MULTIPOINT") {
             value.type = "MultiPoint";
-        } else if (geometryType === "LINE") {
+        } else if (upperType === "LINE") {
             value.type = "Line";
-        } else if (geometryType === "MULTILINE") {
+        } else if (upperType === "MULTILINE") {
             value.type = "MultiLine";
         }
 
@@ -945,7 +948,7 @@ export class GeometryService implements OnDestroy {
         let geoJsonLayer: GeoJsonLayer = null;
 
         layers.forEach(layer => {
-            if (layer instanceof GeoJsonLayer) {
+            if (layer instanceof GeoJsonLayer && layer.rendered) {
                 geoJsonLayer = layer as GeoJsonLayer;
             }
         });
