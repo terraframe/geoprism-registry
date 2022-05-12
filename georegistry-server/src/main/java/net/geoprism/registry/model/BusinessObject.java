@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.model;
 
-import java.text.NumberFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,14 +33,13 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
-import com.runwaysdk.session.Session;
+import com.runwaysdk.system.metadata.MdAttribute;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.view.JsonWrapper;
 
 public class BusinessObject
 {
@@ -67,6 +65,22 @@ public class BusinessObject
     return vertex;
   }
 
+  public String getLabel()
+  {
+    MdAttribute labelAttribute = this.type.getLabelAttribute();
+
+    if (labelAttribute != null)
+    {
+      String attributeName = labelAttribute.getAttributeName();
+
+      Object value = this.getObjectValue(attributeName);
+
+      return value.toString();
+    }
+    
+    return this.getCode();
+  }
+
   public String getCode()
   {
     return this.getObjectValue(DefaultAttribute.CODE.getName());
@@ -90,7 +104,7 @@ public class BusinessObject
   public JsonObject toJSON()
   {
     JsonObject object = new JsonObject();
-    
+
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = this.type.getMdVertexDAO().definesAttributes();
 
     object.addProperty(DefaultAttribute.CODE.getName(), (String) this.getCode());
