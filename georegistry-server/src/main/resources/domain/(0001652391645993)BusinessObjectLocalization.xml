@@ -5,7 +5,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="graph.visualizer.showBusinessObjects" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Show Associated Business Objects" />
+          <attribute name="defaultLocale" value="Associated Business Objects" />
         </attributeStruct>
       </object>
     </createOrUpdate>
