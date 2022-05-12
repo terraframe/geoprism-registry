@@ -583,12 +583,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                                     this.handleRecord(feature.source, feature.properties.uid);
                                 }
                             } else if (layer.dataSource.getDataSourceType() === GEO_OBJECT_DATA_SOURCE_TYPE) {
-                                let geoObjectDS = layer.dataSource as GeoObjectLayerDataSource;
-
-                                // TODO : People are going to want that record popup here but one step at a time...
-                                this.onChangeGeoObject({ typeCode: geoObjectDS.getTypeCode(), code: geoObjectDS.getCode(), id: feature.properties.uid, doIt: (fun) => { fun(); } });
+                                this.onChangeGeoObject({ typeCode: feature.properties.type, code: feature.properties.code, id: feature.properties.uid, doIt: (fun) => { fun(); } });
                             } else if (layer.dataSource.getDataSourceType() === RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE) {
-                                
+                                this.onChangeGeoObject({ typeCode: feature.properties.type, code: feature.properties.code, id: feature.properties.uid, doIt: (fun) => { fun(); } });
                             }
                         }
                     }
@@ -693,23 +690,27 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     handleSearch(text: string, date: string): void {
         this.geomService.stopEditing();
 
-        // Sync with any existing search layer
-        let layers = this.geomService.getLayers();
-        let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
-        if (index !== -1) {
-            let existingSearchLayer = layers[index];
-            let ds = existingSearchLayer.dataSource as SearchLayerDataSource;
-
-            if (ds.getText() === text && ds.getDate() === date) {
-                return;
-            } else {
-                this.geomService.removeLayer(existingSearchLayer.getId());
-            }
-        }
-
         let dataSource = new SearchLayerDataSource(this.mapService, text, date);
         dataSource.getLayerData().then((data: any) => {
-            this.geomService.addOrUpdateLayer(dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + text + ")", true, ColorGen().hexString()));
+            let layers = this.geomService.getLayers();
+
+            // Remove any existing search layer
+            let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
+            if (index !== -1) {
+                let existingSearchLayer = layers[index];
+                let ds = existingSearchLayer.dataSource as SearchLayerDataSource;
+
+                if (ds.getText() === text && ds.getDate() === date) {
+                    return;
+                } else {
+                    layers.splice(index, 1);
+                }
+            }
+
+            // Add our search layer
+            layers.splice(0, 0, dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + text + ")", true, ColorGen().hexString()));
+
+            this.geomService.setLayers(layers);
 
             this.data = data.features;
             this.state.currentText = text;

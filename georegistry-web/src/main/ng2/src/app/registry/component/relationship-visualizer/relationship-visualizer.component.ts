@@ -22,7 +22,7 @@ import { Router, ActivatedRoute } from "@angular/router";
 import { LngLatBounds } from "mapbox-gl";
 import { Relationship, TreeData } from "@registry/model/graph";
 import { LocationManagerParams } from "../location-manager/location-manager.component";
-import { Layer, RelationshipVisualizionDataSource, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
+import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -85,7 +85,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     relationship: Relationship = null;
     relationships: Relationship[];
-    
+
     graphOid: string;
 
     data: TreeData = null;
@@ -145,6 +145,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                 this.relationships = null;
                 this.relationship = null;
                 this.graphOid = null;
+                this.data = null;
                 this.fetchRelationships();
             } else if (this.relationships != null && this.relationship && (newParams.bounds !== oldParams.bounds || newParams.code !== oldParams.code || newParams.date !== oldParams.date || newParams.uid !== oldParams.uid || newParams.graphOid !== oldParams.graphOid)) {
                 this.fetchData();
@@ -232,7 +233,7 @@ export class RelationshipVisualizerComponent implements OnInit {
     private fetchData(): void {
         if (this.relationship != null) {
             this.spinner.show(this.CONSTANTS.OVERLAY);
-            
+
             let mapBounds = new LngLatBounds(JSON.parse(this.params.bounds));
 
             this.vizService.tree(this.relationship.type, this.relationship.code, this.params.code, this.params.type, this.params.date, this.convertBoundsToWKT(mapBounds)).then(data => {
@@ -242,8 +243,8 @@ export class RelationshipVisualizerComponent implements OnInit {
                     this.data = data;
 
                     this.resizeDimensions();
-                    this.calculateColorSchema();
-                    this.addLayers(this.data.geoJson);
+                    this.calculateColorSchema(this.data.relatedTypes);
+                    this.addLayers(this.data.relatedTypes);
                 }, 0);
 
                 this.resizeDimensions();
@@ -253,25 +254,34 @@ export class RelationshipVisualizerComponent implements OnInit {
         }
     }
 
-    private addLayers(typeCollections: any) {
+    private addLayers(relatedTypes: string[]) {
         let layers: Layer[] = this.geomService.getLayers();
+
+        let dataSource = new RelationshipVisualizionDataSource(this.vizService, this.geomService, this.relationship.type, this.relationship.code, this.params.type, this.params.code, this.params.bounds, this.params.date);
 
         // Remove any existing layer from map that is graph related that isn't part of this new data
         layers = layers.filter(layer => layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE ||
-            (
-              Object.keys(typeCollections).indexOf((layer.dataSource as RelationshipVisualizionDataSource).getParentTypeCode()) !== -1 &&
-              (layer.dataSource as RelationshipVisualizionDataSource).getRelationshipCode() === this.relationship.code
-            )
-        );
+            (relatedTypes.indexOf((layer as RelationshipVisualizionLayer).getRelatedTypeFilter()) !== -1));
 
-        for (const [typeCode] of Object.entries(typeCollections)) {
-          let dataSource = new RelationshipVisualizionDataSource(this.vizService, this.geomService, typeCode, this.relationship.type, this.relationship.code, this.params.type, this.params.code, this.params.bounds, this.params.date);
+        // If the type is already rendered at a specific position in the layer stack, we want to preserve that positioning and overwrite any layer currently in that position
+        let existingRelatedTypes = {};
+        for (let i = 0; i < layers.length; ++i) {
+            if (layers[i].dataSource.getDataSourceType() === RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE) {
+                let layer: RelationshipVisualizionLayer = layers[i] as RelationshipVisualizionLayer;
 
-          if (layers.findIndex(l => l.dataSource.getId() === dataSource.getId()) === -1) {
-              let layer = dataSource.createLayer(this.relationship.label.localizedValue + " " + typeCode, true, this.colorSchema[typeCode]);
-              layers.push(layer);
-          }
+                existingRelatedTypes[layer.getRelatedTypeFilter()] = i;
+            }
         }
+
+        relatedTypes.forEach(relatedType => {
+            let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue + " " + relatedType, true, this.colorSchema[relatedType]) as RelationshipVisualizionLayer;
+            layer.setRelatedTypeFilter(relatedType);
+
+            if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
+                let index = existingRelatedTypes[relatedType];
+                index == null ? layers.push(layer) : layers.splice(index, 1, layer);
+            }
+        });
 
         this.geomService.setLayers(layers);
     }
@@ -291,20 +301,20 @@ export class RelationshipVisualizerComponent implements OnInit {
       "))";
     }
 
-    calculateColorSchema() {
+    calculateColorSchema(relatedTypes: string[]) {
         this.colorSchema = {};
 
         // If we already have layers which are using specific colors then we want to use those same colors
         const layers = this.geomService.getLayers();
 
-        this.data.verticies.forEach(vertex => {
-            if (!this.colorSchema[vertex.typeCode]) { // vertex.id.substring(2) !== this.geoObject.properties.uid &&
-                let existingIndex = layers.findIndex(layer => layer.dataSource instanceof RelationshipVisualizionDataSource && (layer.dataSource as RelationshipVisualizionDataSource).getRelationshipCode() === this.relationship.code && (layer.dataSource as RelationshipVisualizionDataSource).getParentTypeCode() === vertex.typeCode);
+        relatedTypes.forEach(relatedType => {
+            if (!this.colorSchema[relatedType]) {
+                let existingIndex = layers.findIndex(layer => layer instanceof RelationshipVisualizionLayer && (layer as RelationshipVisualizionLayer).getRelatedTypeFilter() === relatedType);
 
                 if (existingIndex !== -1) {
-                    this.colorSchema[vertex.typeCode] = layers[existingIndex].color;
+                    this.colorSchema[relatedType] = layers[existingIndex].color;
                 } else {
-                    this.colorSchema[vertex.typeCode] = ColorGen().hexString();
+                    this.colorSchema[relatedType] = ColorGen().hexString();
                 }
             }
         });

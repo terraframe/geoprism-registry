@@ -2,22 +2,27 @@ import { AnySourceData, LngLatBounds, LngLatBoundsLike } from "mapbox-gl";
 import { ListTypeService } from "./list-type.service";
 import { RegistryService } from "./registry.service";
 
+import { v4 as uuid } from "uuid";
 import bbox from "@turf/bbox";
 import { GeoJSON } from "geojson";
-import { GeoRegistryConfiguration } from "@core/model/registry";
 import { RelationshipVisualizationService } from "./relationship-visualization.service";
 import { GeometryService } from "./geometry.service";
 import { ValueOverTimeCREditor } from "@registry/component/geoobject-shared-attribute-editor/ValueOverTimeCREditor";
 import { MapService } from "./map.service";
 import { HttpParams } from "@angular/common/http";
+
+import { GeoRegistryConfiguration } from "@core/model/registry";
 declare let registry: GeoRegistryConfiguration;
 
 export abstract class LayerDataSource {
 
     private dataSourceType: string;
 
+    private id: string;
+
     constructor(dataSourceType: string) {
         this.dataSourceType = dataSourceType;
+        this.id = uuid();
     }
 
     public getDataSourceType(): string {
@@ -31,10 +36,6 @@ export abstract class LayerDataSource {
     }
     */
 
-    public configureMapboxLayer(layerConfig: any): void {
-
-    }
-
     createLayer(legendLabel: string, rendered: boolean, color: string): Layer {
         return new Layer(this, legendLabel, rendered, color);
     }
@@ -45,15 +46,18 @@ export abstract class LayerDataSource {
 
     public toJSON(): any {
         return {
-            dataSourceType: this.dataSourceType
+            dataSourceType: this.dataSourceType,
+            id: this.id
         };
     }
 
     public getId(): string {
-        return this.dataSourceType;
+        return this.id;
     }
 
-    public abstract buildMapboxSource(): Promise<AnySourceData>;
+    public abstract getKey(): string;
+
+    public abstract buildMapboxSource(): AnySourceData;
 
     public abstract getGeometryType(): string;
 
@@ -66,6 +70,13 @@ export abstract class GeoJsonLayerDataSource extends LayerDataSource {
     public abstract getLayerData(): Promise<GeoJSON.GeoJSON>;
     public abstract setLayerData(data: GeoJSON.GeoJSON): void;
 
+    public buildMapboxSource(): AnySourceData {
+        return {
+            type: "geojson",
+            data: GeometryService.createEmptyGeometryValue(this.getGeometryType())
+        };
+    }
+
 }
 
 export class Layer {
@@ -77,8 +88,28 @@ export class Layer {
         this.color = color;
     }
 
-    getId(): string {
+    public fromJSON(obj: any) {
+        Object.assign(this, obj);
+    }
+
+    public toJSON(): any {
+        return {
+            legendLabel: this.legendLabel,
+            rendered: this.rendered,
+            color: this.color
+        };
+    }
+
+    public getId(): string {
         return this.dataSource.getId();
+    }
+
+    public getKey(): string {
+        return this.dataSource.getKey();
+    }
+
+    public configureMapboxLayer(layerConfig: any): void {
+
     }
 
     legendLabel: string;
@@ -155,7 +186,7 @@ export class GeoObjectLayerDataSource extends LayerDataSource {
         return GEO_OBJECT_DATA_SOURCE_TYPE;
     }
 
-    getId(): string {
+    getKey(): string {
         return this.getDataSourceType() + this.getCode() + this.getTypeCode() + this.getDate();
     }
 
@@ -163,19 +194,17 @@ export class GeoObjectLayerDataSource extends LayerDataSource {
         return "MIXED";
     }
 
-    buildMapboxSource(): Promise<AnySourceData> {
-        return new Promise((resolve, reject) => {
-            let encodedCode = encodeURIComponent(this.code);
-            let encodedTypeCode = encodeURIComponent(this.typeCode);
-            let encodedDate = encodeURIComponent(this.date);
+    buildMapboxSource(): AnySourceData {
+        let encodedCode = encodeURIComponent(this.code);
+        let encodedTypeCode = encodeURIComponent(this.typeCode);
+        let encodedDate = encodeURIComponent(this.date);
 
-            let url = registry.contextPath + "/cgr/geoobject/get-code" + "?" + "code=" + encodedCode + "&typeCode=" + encodedTypeCode + "&date=" + encodedDate;
+        let url = registry.contextPath + "/cgr/geoobject/get-code" + "?" + "code=" + encodedCode + "&typeCode=" + encodedTypeCode + "&date=" + encodedDate;
 
-            return resolve({
-                type: "geojson",
-                data: url
-            });
-        });
+        return {
+            type: "geojson",
+            data: url
+        };
     }
 
     getBounds(layer: Layer): Promise<LngLatBoundsLike> {
@@ -198,8 +227,8 @@ export class ListVectorLayerDataSource extends LayerDataSource {
 
     private versionId: string;
 
+    // This state gets injected by the layer-panel when it fetches the version
     public forDate?: string;
-
     public versionNumber?: number;
 
     constructor(listService: ListTypeService, versionId?: string) {
@@ -218,29 +247,27 @@ export class ListVectorLayerDataSource extends LayerDataSource {
         return this.versionId;
     }
 
-    getId(): string {
+    getKey(): string {
         return this.getDataSourceType() + this.getVersionId();
     }
 
-    buildMapboxSource(): Promise<AnySourceData> {
-        return new Promise((resolve, reject) => {
-            let protocol = window.location.protocol;
-            let host = window.location.host;
+    createLayer(legendLabel: string, rendered: boolean, color: string): Layer {
+        return new ListVectorLayer(this, legendLabel, rendered, color);
+    }
 
-            resolve({
-                type: "vector",
-                tiles: [protocol + "//" + host + registry.contextPath + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: this.versionId }))],
-                promoteId: "uid"
-            });
-        });
+    buildMapboxSource(): AnySourceData {
+        let protocol = window.location.protocol;
+        let host = window.location.host;
+
+        return {
+            type: "vector",
+            tiles: [protocol + "//" + host + registry.contextPath + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: this.versionId }))],
+            promoteId: "uid"
+        };
     }
 
     getGeometryType(): string {
         return "MIXED";
-    }
-
-    configureMapboxLayer(layerConfig: any): void {
-        layerConfig["source-layer"] = "context";
     }
 
     getBounds(layer: Layer): Promise<LngLatBounds> {
@@ -251,6 +278,14 @@ export class ListVectorLayerDataSource extends LayerDataSource {
                 return null;
             }
         });
+    }
+
+}
+
+export class ListVectorLayer extends Layer {
+
+    configureMapboxLayer(layerConfig: any): void {
+        layerConfig["source-layer"] = "context";
     }
 
 }
@@ -284,21 +319,10 @@ export class ValueOverTimeDataSource extends GeoJsonLayerDataSource {
     getLayerData(): Promise<GeoJSON.GeoJSON> {
         return new Promise((resolve, reject) => {
             if (this.getDataSourceType() === CHANGE_REQUEST_SOURCE_TYPE_NEW) {
-                return this.votEditor.value;
+                resolve(this.votEditor.value);
             } else {
-                return this.votEditor.oldValue;
+                resolve(this.votEditor.oldValue);
             }
-        })
-    }
-
-    buildMapboxSource(): Promise<AnySourceData> {
-        return new Promise((resolve, reject) => {
-            let geojson = this.getLayerData() as any;
-
-            resolve({
-                type: "geojson",
-                data: geojson
-            });
         });
     }
 
@@ -306,7 +330,7 @@ export class ValueOverTimeDataSource extends GeoJsonLayerDataSource {
         return this.votEditor.changeRequestAttributeEditor.changeRequestEditor.geoObjectType.geometryType;
     }
 
-    getId(): string {
+    getKey(): string {
         return this.getDataSourceType() + this.votEditor.oid;
     }
 
@@ -373,24 +397,11 @@ export class SearchLayerDataSource extends GeoJsonLayerDataSource {
         }
     }
 
-    buildMapboxSource(): Promise<AnySourceData> {
-        return this.getLayerData().then(data => {
-            return {
-                type: "geojson",
-                data: data
-            } as any;
-        });
-    }
-
     getGeometryType(): string {
         return "MIXED";
     }
 
-    createLayer(legendLabel: string, rendered: boolean, color: string): Layer {
-        return new Layer(this, legendLabel, rendered, color);
-    }
-
-    getId(): string {
+    getKey(): string {
         return SEARCH_DATASOURCE_TYPE + this.text + (this.date == null ? "" : this.date);
     }
 
@@ -410,7 +421,6 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
     relationshipCode: string;
     parentTypeCode: string;
     parentCode: string;
-    layerFilterType: string;
     bounds: string;
     date: string;
 
@@ -420,7 +430,7 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
     vizService: RelationshipVisualizationService;
     geomService: GeometryService;
 
-    constructor(vizService: RelationshipVisualizationService, geomService: GeometryService, layerFilterType?: string, relationshipType?: string, relationshipCode?: string, parentTypeCode?: string, parentCode?: string, bounds?: string, date?: string) {
+    constructor(vizService: RelationshipVisualizationService, geomService: GeometryService, relationshipType?: string, relationshipCode?: string, parentTypeCode?: string, parentCode?: string, bounds?: string, date?: string) {
         super(RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE);
         this.vizService = vizService;
         this.geomService = geomService;
@@ -428,7 +438,6 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
         this.relationshipCode = relationshipCode;
         this.parentTypeCode = parentTypeCode;
         this.parentCode = parentCode;
-        this.layerFilterType = layerFilterType;
         this.bounds = bounds;
         this.date = date;
     }
@@ -439,14 +448,17 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
             relationshipCode: this.relationshipCode,
             parentTypeCode: this.parentTypeCode,
             parentCode: this.parentCode,
-            layerFilterType: this.layerFilterType,
             bounds: this.bounds,
             date: this.date
         });
     }
 
-    getId(): string {
-        return RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE + this.layerFilterType + this.relationshipCode + this.parentCode;
+    getKey(): string {
+        return RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE + this.relationshipCode + this.parentCode + this.parentTypeCode + this.bounds + ((this.date == null) ? "" : this.date);
+    }
+
+    createLayer(legendLabel: string, rendered: boolean, color: string): Layer {
+        return new RelationshipVisualizionLayer(this, legendLabel, rendered, color);
     }
 
     getRelationshipType(): string {
@@ -465,10 +477,6 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
         return this.parentCode;
     }
 
-    getLayerFilterType(): string {
-        return this.layerFilterType;
-    }
-
     getDate() {
         return this.date;
     }
@@ -480,7 +488,7 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
     public getLayerData(): Promise<GeoJSON> {
         if (this.data) {
             return new Promise((resolve, reject) => {
-                resolve(this.data[this.layerFilterType]);
+                resolve(this.data);
             });
         } else {
             let mapBounds = new LngLatBounds(JSON.parse(this.bounds));
@@ -488,18 +496,9 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
             return this.vizService.treeAsGeoJson(this.relationshipType, this.relationshipCode, this.parentCode, this.parentTypeCode, this.date, this.convertBoundsToWKT(mapBounds)).then((data: any) => {
                 this.data = data;
 
-                return this.data[this.layerFilterType];
+                return this.data;
             });
         }
-    }
-
-    buildMapboxSource(): Promise<AnySourceData> {
-        return this.getLayerData().then(data => {
-            return {
-                type: "geojson",
-                data: data
-            } as any;
-        });
     }
 
     private convertBoundsToWKT(bounds: LngLatBounds): string {
@@ -525,8 +524,46 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
         return this.getLayerData().then((geojson: any) => {
             if (geojson == null) { return null; }
 
+            geojson.features = geojson.features.filter(feature => feature.properties.type === (layer as RelationshipVisualizionLayer).getRelatedTypeFilter());
+
             return bbox(geojson) as LngLatBoundsLike;
         });
+    }
+
+}
+
+export class RelationshipVisualizionLayer extends Layer {
+
+    relatedTypeFilter: string;
+
+    public toJSON(): any {
+        return Object.assign(super.toJSON(), {
+            relatedTypeFilter: this.relatedTypeFilter
+        });
+    }
+
+    getId(): string {
+        return this.relatedTypeFilter + this.dataSource.getId();
+    }
+
+    public getKey(): string {
+        return this.relatedTypeFilter + this.dataSource.getKey();
+    }
+
+    setRelatedTypeFilter(relatedTypeFilter: string) {
+        this.relatedTypeFilter = relatedTypeFilter;
+    }
+
+    getRelatedTypeFilter(): string {
+        return this.relatedTypeFilter;
+    }
+
+    configureMapboxLayer(layerConfig: any): void {
+        let filter = ["match", ["get", "type"], this.relatedTypeFilter, true, false];
+
+        if (layerConfig["filter"] != null) {
+            layerConfig["filter"].push(filter);
+        }
     }
 
 }
@@ -577,12 +614,19 @@ export class DataSourceFactory {
         } else if (this.dataSources[dataSourceType] != null) {
             return this.dataSources[dataSourceType];
         } else {
-            throw new Error("Cannot find data source of type '" + dataSourceType + "'");
+            let msg = "Cannot find data source of type '" + dataSourceType + "'";
+            // throw new Error(msg);
+            console.log(msg); // This can happen if they were editing and refreshed the map with editing layers
+            return null;
         }
     }
 
     public deserializeDataSource(obj: any): LayerDataSource {
         let dataSource = this.newDataSourceFromType(obj.dataSourceType);
+
+        if (dataSource == null) {
+            return null;
+        }
 
         dataSource.fromJSON(obj);
 
@@ -590,61 +634,75 @@ export class DataSourceFactory {
     }
 
     public serializeDataSource(dataSource: LayerDataSource): any {
-        return dataSource.toJSON();
-    }
+        let sds = dataSource.toJSON();
 
-    public deserializeLayer(obj: any): Layer {
-        let layer: Layer;
-
-        if (Object.prototype.hasOwnProperty.call(obj, "editing")) {
-            layer = new GeoJsonLayer();
-            (layer as GeoJsonLayer).editing = obj.editing;
-        } else {
-            layer = new Layer();
+        if (sds == null) { // Not all data sources are serializable. In which case they just return null
+            sds = { dataSourceType: dataSource.getDataSourceType() };
         }
 
-        Object.assign(layer, obj);
+        return sds;
+    }
 
-        layer.dataSource = this.deserializeDataSource(obj.dataSource);
+    public deserializeLayer(sl: any, ds: LayerDataSource): Layer {
+        let layer: Layer;
+
+        layer = ds.createLayer(sl.legendLabel, sl.rendered, sl.color);
+
+        Object.assign(layer, sl); // This will set the dataSource on the layer to an id
+        layer.dataSource = ds; // So we need to reset the dataSource
 
         return layer;
     }
 
     public serializeLayer(layer: Layer): any {
-        let serialized: any = {};
+        let sl: any = layer.toJSON();
 
-        Object.assign(serialized, layer);
+        sl.dataSource = layer.dataSource.getId();
 
-        let serializedDataSource = this.serializeDataSource(layer.dataSource);
-        if (serializedDataSource != null) { // Not all data sources are serializable. In which case they just return null
-            serialized.dataSource = serializedDataSource;
-        } else {
-            serialized.dataSource = { dataSourceType: layer.dataSource.getDataSourceType() };
-        }
-
-        return serialized;
+        return sl;
     }
 
-    public deserializeLayers(serializedLayers: any[]): Layer[] {
+    public deserializeLayers(serialized: { layers: any[], dataSources: any[] }): Layer[] {
         let layers: Layer[] = [];
+        let dataSources: LayerDataSource[] = [];
 
-        serializedLayers.forEach(serialized => {
-            layers.push(this.deserializeLayer(serialized));
+        serialized.dataSources.forEach(sds => {
+            let ds = this.deserializeDataSource(sds);
+
+            if (ds != null) {
+                dataSources.push(ds);
+            }
+        });
+
+        serialized.layers.forEach(sl => {
+            let i = dataSources.findIndex(ds => ds.getId() === sl.dataSource);
+
+            if (i !== -1) {
+                layers.push(this.deserializeLayer(sl, dataSources[i]));
+            }
         });
 
         return layers;
     }
 
-    public serializeLayers(layers: Layer[]): any[] {
-        let serializedLayers: any[] = [];
+    public serializeLayers(layers: Layer[]): { layers: any[], dataSources: any[] } {
+        let ret = { layers: [], dataSources: [] };
+
+        layers.forEach(layer => {
+            if (ret.dataSources.findIndex(sds => sds.id === layer.dataSource.getId()) === -1) {
+                let sds = this.serializeDataSource(layer.dataSource);
+
+                ret.dataSources.push(sds);
+            }
+        });
 
         layers.forEach(layer => {
             let serializedLayer = this.serializeLayer(layer);
 
-            serializedLayers.push(serializedLayer);
+            ret.layers.push(serializedLayer);
         });
 
-        return serializedLayers;
+        return ret;
     }
 
 }
