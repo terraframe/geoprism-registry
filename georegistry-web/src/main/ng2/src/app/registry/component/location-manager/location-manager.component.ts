@@ -31,6 +31,7 @@ import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { RecordPopupComponent } from "./record-popup.component";
 import { GeoObjectLayerDataSource, GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
 import { BusinessObject, BusinessType } from "@registry/model/business-type";
+import { version } from "os";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -44,18 +45,18 @@ class SelectedObject {
 }
 
 export interface LocationManagerParams {
-  graphPanelOpen?: string,
-  graphOid?: string,
-  date?: string,
-  type?: string,
-  code?: string,
-  bounds?: string,
-  text?: string,
-  layersPanelSize?: string,
-  pageContext?: string,
-  version?: string,
-  attrPanelOpen?: string,
-  uid?: string
+    graphPanelOpen?: string,
+    graphOid?: string,
+    date?: string,
+    type?: string,
+    code?: string,
+    bounds?: string,
+    text?: string,
+    layersPanelSize?: string,
+    pageContext?: string,
+    version?: string,
+    attrPanelOpen?: string,
+    uid?: string
 }
 
 @Component({
@@ -457,15 +458,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 queryParamsHandling: "merge" // remove to replace all query params by provided
             });
 
-/*
-            let url = this.router.createUrlTree([], {
-                relativeTo: this.route,
-                queryParams: { bounds: JSON.stringify(array) },
-                queryParamsHandling: "merge" // remove to replace all query params by provided
-            }).toString();
-
-            this.location.go(url);
-            */
+            /*
+                        let url = this.router.createUrlTree([], {
+                            relativeTo: this.route,
+                            queryParams: { bounds: JSON.stringify(array) },
+                            queryParamsHandling: "merge" // remove to replace all query params by provided
+                        }).toString();
+            
+                        this.location.go(url);
+                        */
         });
 
         // if (this.params.bounds != null && this.params.bounds.length > 0) {
@@ -571,16 +572,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                         if (layer) {
                             if (layer.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE) {
+                                const versionId = (layer.dataSource as ListVectorLayerDataSource).getVersionId();
+
                                 if (this.params.version == null || this.params.uid == null ||
-                                    this.params.version !== feature.source ||
+                                    this.params.version !== versionId ||
                                     this.params.uid !== feature.properties.uid) {
                                     this.router.navigate([], {
                                         relativeTo: this.route,
-                                        queryParams: { type: null, code: null, version: feature.source, uid: feature.properties.uid },
+                                        queryParams: { type: null, code: null, version: versionId, uid: feature.properties.uid },
                                         queryParamsHandling: "merge" // remove to replace all query params by provided
                                     });
                                 } else {
-                                    this.handleRecord(feature.source, feature.properties.uid);
+                                    this.handleRecord(versionId, feature.properties.uid);
                                 }
                             } else if (layer.dataSource.getDataSourceType() === GEO_OBJECT_DATA_SOURCE_TYPE) {
                                 this.onChangeGeoObject({ typeCode: feature.properties.type, code: feature.properties.code, id: feature.properties.uid, doIt: (fun) => { fun(); } });
