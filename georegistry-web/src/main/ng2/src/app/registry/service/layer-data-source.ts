@@ -289,9 +289,9 @@ export class ListVectorLayer extends Layer {
         if (layerType === "LABEL") {
             layerConfig.layout["text-field"] = ["case",
                 ["has", "displayLabel_" + navigator.language.toLowerCase()],
-                ["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]], ["string", ["get", "code"]]],
-                ["string", ["get", "displayLabel"]]
-            ];
+                ["coalesce", ["get", "displayLabel_" + navigator.language.toLowerCase()], ["get", "displayLabel"], ["get", "code"]],
+                ["coalesce", ["get", "displayLabel"], ["string", ["get", "code"]]
+                ]];
         }
     }
 
