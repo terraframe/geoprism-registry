@@ -732,6 +732,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     handleSearch(text: string, date: string): void {
         this.geomService.stopEditing();
 
+        this.state.currentText = text;
+        this.state.currentDate = date;
+
         let dataSource = new SearchLayerDataSource(this.mapService, text, date);
         dataSource.getLayerData().then((data: any) => {
             let layers = this.geomService.getLayers();
@@ -755,8 +758,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.geomService.setLayers(layers);
 
             this.data = data.features;
-            this.state.currentText = text;
-            this.state.currentDate = date;
+        }).catch(() => {
+            this.state.currentText = "";
+            this.state.currentDate = "";
         });
     }
 
