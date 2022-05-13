@@ -255,6 +255,12 @@ export class RelationshipVisualizerComponent implements OnInit {
     }
 
     private addLayers(relatedTypes: string[]) {
+        if (this.relationship.type === "BUSINESS") {
+            let layers: Layer[] = this.geomService.getLayers().filter(layer => layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE);
+            this.geomService.setLayers(layers);
+            return;
+        }
+
         let layers: Layer[] = this.geomService.getLayers();
 
         let dataSource = new RelationshipVisualizionDataSource(this.vizService, this.geomService, this.relationship.type, this.relationship.code, this.params.type, this.params.code, this.params.bounds, this.params.date);
@@ -264,12 +270,12 @@ export class RelationshipVisualizerComponent implements OnInit {
             (relatedTypes.indexOf((layer as RelationshipVisualizionLayer).getRelatedTypeFilter()) !== -1));
 
         // If the type is already rendered at a specific position in the layer stack, we want to preserve that positioning and overwrite any layer currently in that position
-        let existingRelatedTypes = {};
+        let existingRelatedTypes: { [key: string] : { index: number, rendered: boolean } } = {};
         for (let i = 0; i < layers.length; ++i) {
             if (layers[i].dataSource.getDataSourceType() === RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE) {
                 let layer: RelationshipVisualizionLayer = layers[i] as RelationshipVisualizionLayer;
 
-                existingRelatedTypes[layer.getRelatedTypeFilter()] = i;
+                existingRelatedTypes[layer.getRelatedTypeFilter()] = { index: i, rendered: layer.rendered };
             }
         }
 
@@ -278,8 +284,14 @@ export class RelationshipVisualizerComponent implements OnInit {
             layer.setRelatedTypeFilter(relatedType);
 
             if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
-                let index = existingRelatedTypes[relatedType];
-                index == null ? layers.push(layer) : layers.splice(index, 1, layer);
+                let existingRelatedType = existingRelatedTypes[relatedType];
+
+                if (existingRelatedType == null) {
+                    layers.push(layer);
+                } else {
+                    layer.rendered = existingRelatedType.rendered;
+                    layers.splice(existingRelatedType.index, 1, layer);
+                }
             }
         });
 

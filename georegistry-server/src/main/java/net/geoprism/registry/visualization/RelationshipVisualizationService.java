@@ -25,11 +25,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -39,6 +41,7 @@ import com.vividsolutions.jts.io.WKTReader;
 
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -53,6 +56,8 @@ import net.geoprism.registry.service.ServiceFactory;
 public class RelationshipVisualizationService
 {
   public static final int maxResults = 100;
+  
+  public static final String SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE = "BUSINESS";
   
   @Request(RequestType.SESSION)
   public JsonElement treeAsGeoJson(String sessionId, Date date, String relationshipType, String graphTypeCode, String geoObjectCode, String geoObjectTypeCode, String boundsWKT)
@@ -138,37 +143,59 @@ public class RelationshipVisualizationService
     if (typePermissions.canRead(type.getOrganization().getCode(), type, type.getIsPrivate()))
     {
       VertexServerGeoObject rootGo = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(geoObjectCode, type);
-
-      final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
       
-      // jaVerticies.add(serializeVertex(rootGo, (graphType instanceof UndirectedGraphType) ? "PARENT" : "SELECTED"));
-      jaVerticies.add(serializeVertex(rootGo, "PARENT"));
-      relatedTypes.add(rootGo.getType().getCode());
-
       Set<String> setEdges = new HashSet<String>();
       Set<String> setVerticies = new HashSet<String>();
 
-      if (graphType instanceof UndirectedGraphType)
+      jaVerticies.add(serializeVertex(rootGo, "PARENT"));
+      relatedTypes.add(rootGo.getType().getCode());
+      
+      if (SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
       {
-        // get parent and get children return the same thing for an undirected
-        // graph
-        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
-      }
-      else if(graphType instanceof DirectedAcyclicGraphType)
-      {
-        // Out is children
-        fetchParentsData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
+        List<BusinessObject> objects = rootGo.getBusinessObjects();
         
-        // In is parents
-        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
+        int endIndex = (objects.size() > maxResults) ? maxResults : objects.size();
+        
+        for (int i = 0; i < endIndex; ++i)
+        {
+          BusinessObject bo = objects.get(i);
+          
+          if (!setVerticies.contains(bo.getCode()))
+          {
+            jaVerticies.add(serializeVertex(bo, "CHILD"));
+            jaEdges.add(serializeEdge(rootGo, bo));
+
+            setVerticies.add(bo.getCode());
+            relatedTypes.add(bo.getType().getCode());
+          }
+        }
       }
       else
       {
-        // Out is children
-        fetchParentsData(true, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
-
-        // In is parents
-        fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
+        final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
+  
+        if (graphType instanceof UndirectedGraphType)
+        {
+          // get parent and get children return the same thing for an undirected
+          // graph
+          fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
+        }
+        else if(graphType instanceof DirectedAcyclicGraphType)
+        {
+          // Out is children
+          fetchParentsData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
+          
+          // In is parents
+          fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
+        }
+        else
+        {
+          // Out is children
+          fetchParentsData(true, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
+  
+          // In is parents
+          fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
+        }
       }
     }
     
@@ -298,6 +325,16 @@ public class RelationshipVisualizationService
 
       view.add(jo);
     });
+    
+    // Show all business objects which are related to a Geo-Object
+    JsonObject jo = new JsonObject();
+    jo.addProperty("oid", SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE);
+    jo.addProperty("code", SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE);
+    jo.addProperty(UndirectedGraphType.TYPE, SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE);
+    jo.add("label", new LocalizedValue(LocalizationFacade.localize("graph.visualizer.showBusinessObjects")).toJSON());
+    jo.addProperty("isHierarchy", false);
+
+    view.add(jo);
 
     return view;
   }
@@ -392,6 +429,26 @@ public class RelationshipVisualizationService
     return joEdge;
   }
 
+  private JsonObject serializeEdge(ServerGeoObjectIF source, BusinessObject target)
+  {
+    JsonObject joEdge = new JsonObject();
+    joEdge.addProperty("id", "g-" + source.getUid() + "-" + target.getCode());
+    joEdge.addProperty("source", "g-" + source.getUid());
+    joEdge.addProperty("target", "g-" + target.getCode());
+
+    String label = "";
+    joEdge.addProperty("label", label == null ? "" : label); // If we write an
+                                                             // object with a
+                                                             // null label ngx
+                                                             // graph freaks
+                                                             // out. So we're
+                                                             // just going to
+                                                             // write ""
+                                                             // instead.
+
+    return joEdge;
+  }
+  
   private JsonObject serializeVertex(ServerGeoObjectIF vertex, String relation)
   {
     JsonObject joVertex = new JsonObject();
@@ -401,6 +458,21 @@ public class RelationshipVisualizationService
 
     String label = vertex.getDisplayLabel().getValue();
     joVertex.addProperty("label", (label == null || label.length() == 0) ?  vertex.getCode() : label); // ngx graph freaks out if we put null here
+
+    joVertex.addProperty("relation", relation);
+    
+    return joVertex;
+  }
+  
+  private JsonObject serializeVertex(BusinessObject bo, String relation)
+  {
+    JsonObject joVertex = new JsonObject();
+    joVertex.addProperty("id", "g-" + bo.getCode());
+    joVertex.addProperty("code", bo.getCode());
+    joVertex.addProperty("typeCode", bo.getType().getCode());
+
+     String label = bo.getLabel();
+     joVertex.addProperty("label", (label == null || label.length() == 0) ?  bo.getCode() : label); // ngx graph freaks out if we put null here
 
     joVertex.addProperty("relation", relation);
     

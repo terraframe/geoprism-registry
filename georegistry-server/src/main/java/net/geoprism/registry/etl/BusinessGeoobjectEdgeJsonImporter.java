@@ -98,7 +98,7 @@ public class BusinessGeoobjectEdgeJsonImporter
 
         long cacheSize = ridCache.size();
 
-        if (j % 50 == 0)
+        if (j % 500 == 0)
         {
           logger.info("Imported record " + j + ". Cache size is " + cacheSize);
         }
