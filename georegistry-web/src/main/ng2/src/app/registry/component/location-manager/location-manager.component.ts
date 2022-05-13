@@ -78,8 +78,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     MODE: ModalState = {
         SEARCH: 0,
-        VIEW: 1,
-        BUSINESS: 2
+        VIEW: 1
     };
 
     CONSTANTS = {
@@ -327,11 +326,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         this.spinner.hide(this.CONSTANTS.OVERLAY);
                     });
                 } else if (node.objectType === "BUSINESS") {
-                    this.spinner.show(this.CONSTANTS.OVERLAY);
-
                     this.router.navigate([], {
                         relativeTo: this.route,
-                        queryParams: { type: node.typeCode, code: node.code, objectType: node.objectType, uid: null, version: null },
+                        queryParams: { type: node.typeCode, code: node.code, objectType: node.objectType, uid: null, version: null, text: null },
                         queryParamsHandling: "merge" // remove to replace all query params by provided
                     });
                 }
@@ -406,7 +403,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 // Handle parameters for select a record from a context layer
                 if (this.params.version != null && this.params.uid != null) {
-                    if (this.current == null || this.feature == null || this.feature.source !== this.params.version || this.feature.id !== this.params.uid) {
+                    if (this.current == null || this.feature == null || this.feature.version !== this.params.version || this.feature.id !== this.params.uid) {
                         this.handleRecord(this.params.version, this.params.uid);
                     }
 
@@ -440,9 +437,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     selectBusinessObject(type: string, code: string) {
         this.businessObjectService.getTypeAndObject(type, code).then(resp => {
+            this.current = null;
             this.businessObject = resp.object;
             this.businessType = resp.type;
-            this.mode = this.MODE.BUSINESS;
+            this.mode = this.MODE.VIEW;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         }).finally(() => {
@@ -844,7 +842,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 this.feature = {
                     source: layer.dataSource.getId(),
                     sourceLayer: "context",
-                    id: uid
+                    id: uid,
+                    version: list
                 };
 
                 this.map.setFeatureState(this.feature, {
@@ -872,7 +871,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                         this.router.navigate([], {
                             relativeTo: this.route,
-                            queryParams: { type: record.typeCode, code: code, uid: uid, version: record.version },
+                            queryParams: { objectType: "GEOOBJECT", type: record.typeCode, code: code, uid: uid, version: record.version },
                             queryParamsHandling: "merge" // remove to replace all query params by provided
                         });
 
@@ -972,6 +971,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         */
 
         this.typeCache.waitOnTypes().then(() => {
+            this.businessObject = null;
+            this.businessType = null;
+
             const type: GeoObjectType = this.typeCache.getTypeByCode(typeCode);
 
             this.current = {
@@ -1012,7 +1014,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             const feature = event.item.feature;
 
             if (feature.properties.uid != null) {
-                this.listService.getBounds(feature.source, feature.properties.uid).then(bounds => {
+                this.listService.getBounds(feature.version, feature.properties.uid).then(bounds => {
                     if (bounds && Array.isArray(bounds)) {
                         let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 
@@ -1026,7 +1028,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             if (feature.properties.uid != null) {
                 this.router.navigate([], {
                     relativeTo: this.route,
-                    queryParams: { type: null, code: null, version: feature.source, uid: feature.properties.uid },
+                    queryParams: { type: null, code: null, version: feature.version, uid: feature.properties.uid },
                     queryParamsHandling: "merge" // remove to replace all query params by provided
                 });
             }

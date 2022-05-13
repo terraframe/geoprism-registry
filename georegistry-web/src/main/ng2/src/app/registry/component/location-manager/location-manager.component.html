@@ -25,7 +25,7 @@
 					<!-- 
                     		Search features from the working versions of lists
                 	-->
-                	<article class="panel-toggle" [ngClass]="{'detached' : data.length === 0 && current == null}">
+                	<article class="panel-toggle" [ngClass]="{'detached' : data.length === 0 && current == null && businessObject == null}">
 						<ng-container>
 <!-- 							<div class="col-md-4"> -->
 <!-- 								<date-field [(value)]="state.date" label="" [inputName]="'date'" [allowInfinity]="false" -->
@@ -79,27 +79,21 @@
 							</div>
 						</ng-container>
 
-			            <ng-container *ngIf="mode === MODE.VIEW && current != null">
+			            <ng-container *ngIf="mode === MODE.VIEW && (current != null || businessObject != null)">
             				<div class="row">
-                  				<div class="col-md-12" [ngClass]="{'full-height-sidebar' : (current != null), 'max-height' : !searchEnabled }">
-                    				<feature-panel #FeaturePanel [type]="current.type" [code]="current.code" [forDate]="current.forDate"
+                  				<div class="col-md-12" [ngClass]="{'full-height-sidebar' : (current != null || businessObject != null), 'max-height' : !searchEnabled }">
+                    				<feature-panel *ngIf="params.objectType === 'GEOOBJECT'" #FeaturePanel [type]="current.type" [code]="current.code" [forDate]="current.forDate"
                       				  (forDateChange)="featurePanelForDateChange($event)" [readOnly]="false"
                       				  (modeChange)="onModeChange($event)" (panelCancel)="clearRecord()"
                       				  (panelSubmit)="onPanelSubmit($event)">
 				                    </feature-panel>
+
+									<business-object-panel *ngIf="params.objectType === 'BUSINESS'" [type]="businessType" [object]="businessObject"
+  										(close)="mode = MODE.VIEW">
+								  	</business-object-panel>  
                 				</div>
 			                </div>
 						</ng-container>
-
-						<ng-container *ngIf="mode === MODE.BUSINESS && businessObject != null && businessType != null">
-							<div class="row">
-							  <div class="col-md-12" [ngClass]="{'full-height-sidebar' : (current != null), 'max-height' : !searchEnabled }">
-								<business-object-panel [type]="businessType" [object]="businessObject"
-								  (close)="mode = MODE.VIEW">
-								</business-object-panel>
-							  </div>
-						  </div>
-						</ng-container>			
 					</div>
 				</div>
 				
@@ -108,7 +102,7 @@
 			<div [ngClass]="{'col-md-6':!showPanel, 'col-md-8':showPanel}" style="z-index:4;padding-top:10px;">
 			
 				<div style="z-index:999;padding-top:10px;overflow-y:auto;position:absolute;top:0;overflow:visible;">
-					<div *ngIf="searchEnabled || current != null" class="map-button clickable" style="padding-bottom: 5px;" (click)="!isEdit && togglePanel()">
+					<div *ngIf="searchEnabled || (current != null || businessObject != null)" class="map-button clickable" style="padding-bottom: 5px;" (click)="!isEdit && togglePanel()">
 						<div class="map-button-icon">
 							<span class="fa clickable" style="font-size: 35px;"
 								[title]="(showPanel ? 'explorer.resize.closeAttributePanel' : 'explorer.resize.openAttributePanel') | localize"
@@ -116,7 +110,7 @@
 							</span>
 						</div>
 					</div>
-					<span *ngIf="current != null && graphVisualizerEnabled" class="map-button visualize-mode-toggle"> 
+					<span *ngIf="(current != null || businessObject != null) && graphVisualizerEnabled" class="map-button visualize-mode-toggle"> 
 						<i style="margin-right: initial" class="visualize-mode-hierarchy clickable fa fa-share-alt" aria-hidden="true"
 						[title]="(graphPanelOpen ? 'explorer.resize.closeGraphViz' : 'explorer.resize.openGraphViz') | localize"
 						(click)="toggleGraphPanel()"></i>
