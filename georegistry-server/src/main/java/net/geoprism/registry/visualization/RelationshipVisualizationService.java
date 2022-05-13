@@ -223,7 +223,7 @@ public class RelationshipVisualizationService
         }
         
         // Children
-        objects = source.getParents(edgeType);
+        objects = source.getChildren(edgeType);
         capacity = maxResults - verticies.size();
         endIndex = (objects.size() > capacity) ? capacity : objects.size();
         
