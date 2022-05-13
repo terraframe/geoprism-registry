@@ -427,24 +427,24 @@ public class RelationshipVisualizationService
 
   private void processParentNode(ServerParentGraphNode root, GraphType graphType, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes)
   {
-    final ServerGeoObjectIF sourceGO = root.getGeoObject();
+    final ServerGeoObjectIF childGO = root.getGeoObject();
 
     root.getParents().forEach(node -> {
 
       if (node.getOid() != null)
       {
-        ServerGeoObjectIF targetGO = node.getGeoObject();
+        ServerGeoObjectIF parentGO = node.getGeoObject();
 
-        if (!verticies.containsKey(targetGO.getUid()))
+        if (!verticies.containsKey(parentGO.getUid()))
         {
-          verticies.put(targetGO.getUid(), VertexView.fromGeoObject(targetGO, "PARENT"));
+          verticies.put(parentGO.getUid(), VertexView.fromGeoObject(parentGO, "PARENT"));
 
-          addRelatedType(relatedTypes, targetGO.getType());
+          addRelatedType(relatedTypes, parentGO.getType());
         }
 
-        if (!edges.containsKey(sourceGO.getUid() + "-" + targetGO.getUid()))
+        if (!edges.containsKey(childGO.getUid() + "-" + parentGO.getUid()))
         {
-          edges.put(sourceGO.getUid() + "-" + targetGO.getUid(), EdgeView.create(sourceGO, targetGO, graphType, node));
+          edges.put(parentGO.getUid() + "-" + childGO.getUid(), EdgeView.create(parentGO, childGO, graphType, node));
         }
       }
 
