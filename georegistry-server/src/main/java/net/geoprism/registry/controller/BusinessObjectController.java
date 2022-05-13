@@ -48,6 +48,14 @@ public class BusinessObjectController
     return new RestBodyResponse(service.get(request.getSessionId(), businessTypeCode, code));
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-type-and-object")
+  public ResponseIF getTypeAndObject(ClientRequestIF request, 
+      @RequestParamter(name = "businessTypeCode", required = true) String businessTypeCode,
+      @RequestParamter(name = "code", required = true) String code)
+  {
+    return new RestBodyResponse(service.getTypeAndObject(request.getSessionId(), businessTypeCode, code));
+  }
+  
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-parents")
   public ResponseIF getParents(ClientRequestIF request, 
       @RequestParamter(name = "businessTypeCode", required = true) String businessTypeCode,

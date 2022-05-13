@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-md-12">
       <h3>{{type.displayLabel.localizedValue}}</h3>
-    </div>      
+    </div>
   </div>
 
   <form class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
@@ -11,35 +11,31 @@
         <div class="col-md-12">
           <span class="text"></span>
           <ul class="list-group">
-            <li *ngFor="let attributeType of type.attributes" class="list-group-item"
-              style="text-align:left;border:none;padding:0;">
-              <div class="panel panel-default">
-                <div class="panel-heading">
-                  <h4 style="margin:0;">
-                    <span>
-                      {{attributeType.label}}
-                    </span>
-                  </h4>
-                </div>
-
-                <div class="panel-body">
-                  <ng-container ng-switch="attributeType.type">
-                    <ng-container ng-switch-when="'boolean'">
-                      <span style="padding-left:3px;">
-                        <localize *ngIf="object[attributeType.code]" key="change.request.boolean.option.true"></localize>
-                        <localize *ngIf="!object[attributeType.code]" key="change.request.boolean.option.false"></localize>
+            <ng-container *ngFor="let attributeType of type.attributes">
+              <li *ngIf="object.data[attributeType.code] != null" class="list-group-item"
+                style="text-align:left;border:none;padding:0;">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <h4 style="margin:0;">
+                      <span>
+                        {{attributeType.label.localizedValue}}
                       </span>
-                    </ng-container> 
-                    <ng-container ng-switch-when="'date'">
-                      <date-text [value]="object[attributeType.code]"></date-text>
-                    </ng-container> 
-                    <ng-container ng-switch-default>
-                      {{ object[attributeType.code] }}
-                    </ng-container> 
-                   </ng-container>
+                    </h4>
+                  </div>
+
+                  <div class="panel-body">
+                    <ng-container ng-switch="attributeType.type">
+                      <ng-container ng-switch-when="'date'">
+                        <date-text [value]="object.data[attributeType.code]"></date-text>
+                      </ng-container>
+                      <ng-container ng-switch-default>
+                        {{ object.data[attributeType.code] }}
+                      </ng-container>
+                    </ng-container>
+                  </div>
                 </div>
-              </div>
-            </li>
+              </li>
+            </ng-container>
           </ul>
         </div>
       </div>

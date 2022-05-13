@@ -28,6 +28,7 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
@@ -108,48 +109,55 @@ public class BusinessObject
 
   public JsonObject toJSON()
   {
-    JsonObject object = new JsonObject();
+    JsonObject data = new JsonObject();
 
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = this.type.getMdVertexDAO().definesAttributes();
-
-    object.addProperty(DefaultAttribute.CODE.getName(), (String) this.getCode());
 
     for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
     {
       String attributeName = mdAttribute.definesAttribute();
 
-      Object value = this.vertex.getObjectValue(attributeName);
-
-      if (value != null)
+      if (!attributeName.equals(CODE))
       {
-        if (mdAttribute instanceof MdAttributeTermDAOIF)
-        {
-          Classifier classifier = Classifier.get((String) value);
 
-          object.addProperty(mdAttribute.definesAttribute(), classifier.getDisplayLabel().getValue());
-        }
-        else if (value instanceof Number)
+        Object value = this.vertex.getObjectValue(attributeName);
+
+        if (value != null)
         {
-          object.addProperty(mdAttribute.definesAttribute(), (Number) value);
-        }
-        else if (value instanceof Boolean)
-        {
-          object.addProperty(mdAttribute.definesAttribute(), (Boolean) value);
-        }
-        else if (value instanceof String)
-        {
-          object.addProperty(mdAttribute.definesAttribute(), (String) value);
-        }
-        else if (value instanceof Character)
-        {
-          object.addProperty(mdAttribute.definesAttribute(), (Character) value);
-        }
-        else if (value instanceof Date)
-        {
-          object.addProperty(mdAttribute.definesAttribute(), GeoRegistryUtil.formatDate((Date) value, false));
+          if (mdAttribute instanceof MdAttributeTermDAOIF)
+          {
+            Classifier classifier = Classifier.get((String) value);
+
+            data.addProperty(mdAttribute.definesAttribute(), classifier.getDisplayLabel().getValue());
+          }
+          else if (value instanceof Number)
+          {
+            data.addProperty(mdAttribute.definesAttribute(), (Number) value);
+          }
+          else if (value instanceof Boolean)
+          {
+            data.addProperty(mdAttribute.definesAttribute(), (Boolean) value);
+          }
+          else if (value instanceof String)
+          {
+            data.addProperty(mdAttribute.definesAttribute(), (String) value);
+          }
+          else if (value instanceof Character)
+          {
+            data.addProperty(mdAttribute.definesAttribute(), (Character) value);
+          }
+          else if (value instanceof Date)
+          {
+            data.addProperty(mdAttribute.definesAttribute(), GeoRegistryUtil.formatDate((Date) value, false));
+          }
         }
       }
     }
+
+    JsonObject object = new JsonObject();
+    object.addProperty("code", this.getCode());
+    object.addProperty("label", this.getLabel());
+    object.add("data", data);
 
     return object;
   }

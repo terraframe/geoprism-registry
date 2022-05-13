@@ -46,6 +46,19 @@ public class BusinessObjectService
   }
 
   @Request(RequestType.SESSION)
+  public JsonObject getTypeAndObject(String sessionId, String businessTypeCode, String code)
+  {
+    BusinessType type = BusinessType.getByCode(businessTypeCode);
+    BusinessObject object = BusinessObject.getByCode(type, code);
+    
+    JsonObject response = new JsonObject();
+    response.add("type", type.toJSON(true));
+    response.add("object", object.toJSON());
+    
+    return response;
+  }
+  
+  @Request(RequestType.SESSION)
   public JsonArray getParents(String sessionId, String businessTypeCode, String code, String businessEdgeTypeCode)
   {
     BusinessType type = BusinessType.getByCode(businessTypeCode);

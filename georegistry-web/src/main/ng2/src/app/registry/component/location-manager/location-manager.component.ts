@@ -29,9 +29,9 @@ import { ModalTypes } from "@shared/model/modal";
 import { FeaturePanelComponent } from "./feature-panel.component";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { RecordPopupComponent } from "./record-popup.component";
-import { GeoObjectLayerDataSource, GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
+import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
 import { BusinessObject, BusinessType } from "@registry/model/business-type";
-import { version } from "os";
+import { BusinessObjectService } from "@registry/service/business-object.service";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -214,6 +214,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         private geomService: GeometryService,
         private lService: LocalizationService,
         private authService: AuthService,
+        private businessObjectService: BusinessObjectService,
         private location: Location,
         private componentFactoryResolver: ComponentFactoryResolver,
         private appRef: ApplicationRef,
@@ -307,9 +308,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     onGraphNodeSelect(node): void {
         this.closeEditSessionSafeguard().then(() => {
             node.selectAnimation(() => {
-                this.spinner.show(this.CONSTANTS.OVERLAY);
-
                 if (node.nodeType === "GEOOBJECT") {
+                    this.spinner.show(this.CONSTANTS.OVERLAY);
+
                     this.service.getGeoObject(node.id, node.typeCode, false).then(geoObj => {
                         this.changeGeoObject(node.typeCode, node.code, node.id, geoObj);
 
@@ -324,7 +325,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         this.spinner.hide(this.CONSTANTS.OVERLAY);
                     });
                 } else if (node.nodeType === "BUSINESS") {
-                    console.log(node);
+                    this.spinner.show(this.CONSTANTS.OVERLAY);
+
+                    this.businessObjectService.getTypeAndObject(node.typeCode, node.code).then(resp => {
+                        this.businessObject = resp.object;
+                        this.businessType = resp.type;
+                        this.mode = this.MODE.BUSINESS;
+                    }).catch((err: HttpErrorResponse) => {
+                        this.error(err);
+                    }).finally(() => {
+                        this.spinner.hide(this.CONSTANTS.OVERLAY);
+                    });
                 }
             });
         });
