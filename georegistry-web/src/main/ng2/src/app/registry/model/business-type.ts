@@ -23,9 +23,12 @@ export class BusinessTypeByOrg {
 
 }
 
-export interface BusinessObject {
+export class BusinessObject {
 
     code: string;
-    [key: string]: string | number;
+    label: string;
+    data: {
+        [key: string]: string | number;
+    }
 
 }

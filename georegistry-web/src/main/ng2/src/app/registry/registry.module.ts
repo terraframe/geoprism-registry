@@ -140,6 +140,7 @@ import { GeometryService } from "@registry/service/geometry.service";
 
 import { RegistryCacheService } from "./service/registry-cache.service";
 import { BusinessObjectPanelComponent } from "./component/location-manager/business-object-panel.component";
+import { BusinessObjectService } from "./service/business-object.service";
 
 @NgModule({
     imports: [
@@ -286,6 +287,7 @@ import { BusinessObjectPanelComponent } from "./component/location-manager/busin
         SynchronizationConfigService,
         TransitionEventService,
         BusinessTypeService,
+        BusinessObjectService,
         ListTypeService,
         ClassificationTypeService,
         ClassificationService,
