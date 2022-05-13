@@ -304,6 +304,32 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
+    onGraphNodeSelect(node): void {
+        this.closeEditSessionSafeguard().then(() => {
+            node.selectAnimation(() => {
+                this.spinner.show(this.CONSTANTS.OVERLAY);
+
+                if (node.nodeType === "GEOOBJECT") {
+                    this.service.getGeoObject(node.id, node.typeCode, false).then(geoObj => {
+                        this.changeGeoObject(node.typeCode, node.code, node.id, geoObj);
+
+                        this.router.navigate([], {
+                            relativeTo: this.route,
+                            queryParams: { type: node.typeCode, code: node.code, uid: node.id, version: null, text: node.code },
+                            queryParamsHandling: "merge" // remove to replace all query params by provided
+                        });
+                    }).catch((err: HttpErrorResponse) => {
+                        this.error(err);
+                    }).finally(() => {
+                        this.spinner.hide(this.CONSTANTS.OVERLAY);
+                    });
+                } else if (node.nodeType === "BUSINESS") {
+                    console.log(node);
+                }
+            });
+        });
+    }
+
     onChangeGeoObject(event: { id: string, code: string, typeCode: string, doIt: any }): void {
         this.closeEditSessionSafeguard().then(() => {
             event.doIt(() => {

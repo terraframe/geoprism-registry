@@ -126,7 +126,7 @@
 				<div *ngIf="graphPanelOpen && graphVisualizerEnabled && current != null" id="graph-container" style="height: calc(100vh - 74px);padding-left: 58px;">
 					<div style="background-color: white; opacity: 100%; width: 100%; height: 100%;">
               <relationship-visualizer
-                (changeGeoObject)="onChangeGeoObject($event)">
+                (nodeSelect)="onGraphNodeSelect($event)">
               </relationship-visualizer>
 					</div>
 				</div>
