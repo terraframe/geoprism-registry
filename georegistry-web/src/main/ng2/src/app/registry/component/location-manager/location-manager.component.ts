@@ -566,12 +566,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     if (feature.layer) {
                         let layer: Layer = this.geomService.getLayerFromMapboxLayer(feature.layer);
 
-                        if (layer.dataSource.getDataSourceType() === SEARCH_DATASOURCE_TYPE) {
-                            if ((this.current == null || this.current.geoObject == null || feature.properties == null || this.current.geoObject.properties.uid !== feature.properties.uid)) {
-                                this.select(feature, null);
-                            }
-                        } else {
-                            if (layer) {
+                        if (layer) {
+                            if (layer.dataSource.getDataSourceType() === SEARCH_DATASOURCE_TYPE) {
+                                if ((this.current == null || this.current.geoObject == null || feature.properties == null || this.current.geoObject.properties.uid !== feature.properties.uid)) {
+                                    this.select(feature, null);
+                                }
+                            } else {
                                 if (layer.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE) {
                                     const versionId = (layer.dataSource as ListVectorLayerDataSource).getVersionId();
 
@@ -773,15 +773,22 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.listService.record(list, uid, false).then(record => {
             if (this.feature != null) {
                 this.map.removeFeatureState(this.feature);
+
+                this.feature = null;
             }
 
-            // Highlight the feature on the map
-            this.feature = {
-                source: record.version,
-                sourceLayer: "context",
-                id: uid
-            };
-            if (this.geomService.getLayers().findIndex(lFind => lFind.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE && this.feature.source === (lFind.dataSource as ListVectorLayerDataSource).getVersionId()) !== -1) {
+            const index = this.geomService.getLayers().findIndex(lFind => lFind.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE && record.version === (lFind.dataSource as ListVectorLayerDataSource).getVersionId());
+
+            if (index !== -1) {
+                const layer = this.geomService.getLayers()[index];
+
+                // Highlight the feature on the map
+                this.feature = {
+                    source: layer.dataSource.getId(),
+                    sourceLayer: "context",
+                    id: uid
+                };
+
                 this.map.setFeatureState(this.feature, {
                     selected: true
                 });

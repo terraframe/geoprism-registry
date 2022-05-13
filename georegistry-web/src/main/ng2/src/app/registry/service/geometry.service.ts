@@ -762,7 +762,7 @@ export class GeometryService implements OnDestroy {
                 layout: {
                     "text-field": ["case",
                         ["has", "displayLabel_" + navigator.language.toLowerCase()],
-                        ["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
+                        ["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]], ["string", ["get", "code"]]],
                         ["string", ["get", "displayLabel"]]
                     ],
                     "text-font": ["NotoSansRegular"],
