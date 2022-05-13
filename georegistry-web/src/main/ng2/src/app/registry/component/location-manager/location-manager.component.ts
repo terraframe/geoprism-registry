@@ -32,6 +32,7 @@ import { RecordPopupComponent } from "./record-popup.component";
 import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
 import { BusinessObject, BusinessType } from "@registry/model/business-type";
 import { BusinessObjectService } from "@registry/service/business-object.service";
+import { Vertex } from "@registry/model/graph";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -306,10 +307,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    onGraphNodeSelect(node): void {
+    onGraphNodeSelect(node: Vertex): void {
         this.closeEditSessionSafeguard().then(() => {
-            node.selectAnimation(() => {
-                if (node.nodeType === "GEOOBJECT") {
+            (node as any).selectAnimation(() => {
+                if (node.objectType === "GEOOBJECT") {
                     this.spinner.show(this.CONSTANTS.OVERLAY);
 
                     this.service.getGeoObject(node.id, node.typeCode, false).then(geoObj => {
@@ -325,17 +326,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     }).finally(() => {
                         this.spinner.hide(this.CONSTANTS.OVERLAY);
                     });
-                } else if (node.nodeType === "BUSINESS") {
+                } else if (node.objectType === "BUSINESS") {
                     this.spinner.show(this.CONSTANTS.OVERLAY);
 
-                    this.businessObjectService.getTypeAndObject(node.typeCode, node.code).then(resp => {
-                        this.businessObject = resp.object;
-                        this.businessType = resp.type;
-                        this.mode = this.MODE.BUSINESS;
-                    }).catch((err: HttpErrorResponse) => {
-                        this.error(err);
-                    }).finally(() => {
-                        this.spinner.hide(this.CONSTANTS.OVERLAY);
+                    this.router.navigate([], {
+                        relativeTo: this.route,
+                        queryParams: { type: node.typeCode, code: node.code, objectType: node.objectType, uid: null, version: null },
+                        queryParamsHandling: "merge" // remove to replace all query params by provided
                     });
                 }
             });
@@ -391,13 +388,20 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
 
                 // Handle parameters for selecting a geo object
-                if (this.params.type != null && this.params.code != null) {
+                if ((this.params.objectType == null || this.params.objectType === "GEOOBJECT") && this.params.type != null && this.params.code != null) {
                     if (this.current == null || this.current.type == null || this.current.type.code !== this.params.type || this.current.code !== this.params.code) {
                         this.handleSelect(this.params.type, this.params.code, this.params.uid);
                     }
 
                     showPanel = true;
                     mode = this.MODE.VIEW;
+                }
+
+                // Handle parameters for selecting a business object
+                if (this.params.objectType === "BUSINESS" && this.params.type && this.params.code) {
+                    if (this.businessObject == null || this.businessObject.code !== this.params.code || this.businessType == null || this.businessType.code !== this.params.type) {
+                        this.selectBusinessObject(this.params.type, this.params.code);
+                    }
                 }
 
                 // Handle parameters for select a record from a context layer
@@ -432,6 +436,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.changeMode(mode);
             this.setPanel(showPanel);
         }
+    }
+
+    selectBusinessObject(type: string, code: string) {
+        this.businessObjectService.getTypeAndObject(type, code).then(resp => {
+            this.businessObject = resp.object;
+            this.businessType = resp.type;
+            this.mode = this.MODE.BUSINESS;
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        }).finally(() => {
+            this.spinner.hide(this.CONSTANTS.OVERLAY);
+        });
     }
 
     setPanel(showPanel: boolean): void {

@@ -60,7 +60,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     params: LocationManagerParams = {};
 
-    @Output() nodeSelect = new EventEmitter<{ nodeType: "BUSINESS" | "GEOOBJECT", id: string, code: string, typeCode: string, selectAnimation:(resolve) => void }>();
+    @Output() nodeSelect = new EventEmitter<{ objectType: "BUSINESS" | "GEOOBJECT", id: string, code: string, typeCode: string, selectAnimation:(resolve) => void }>();
 
     @Output() changeRelationship = new EventEmitter<string>();
 
@@ -257,7 +257,7 @@ export class RelationshipVisualizerComponent implements OnInit {
     }
 
     private addLayers(relatedTypes: [{ code: string, label: string }]) {
-        if (this.relationship.type === "BUSINESS") {
+        if (this.relationship.type === "BUSINESS" || this.params.objectType === "BUSINESS") {
             let layers: Layer[] = this.geomService.getLayers().filter(layer => layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE);
             this.geomService.setLayers(layers);
             return;
@@ -282,7 +282,7 @@ export class RelationshipVisualizerComponent implements OnInit {
         }
 
         relatedTypes.forEach(relatedType => {
-            let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue + " " + relatedType, true, this.typeLegend[relatedType.code].color) as RelationshipVisualizionLayer;
+            let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue + " " + relatedType.label, true, this.typeLegend[relatedType.code].color) as RelationshipVisualizionLayer;
             layer.setRelatedTypeFilter(relatedType.code);
 
             if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
@@ -443,7 +443,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                 });
             };
 
-            this.nodeSelect.emit({ nodeType: this.relationship.type === "BUSINESS" ? "BUSINESS" : "GEOOBJECT", id: node.id.substring(2), code: node.code, typeCode: node.typeCode, selectAnimation: doIt });
+            this.nodeSelect.emit({ objectType: node.objectType, id: node.id.substring(2), code: node.code, typeCode: node.typeCode, selectAnimation: doIt });
         }
     }
 

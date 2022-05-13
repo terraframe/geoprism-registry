@@ -202,7 +202,7 @@ public class RelationshipVisualizationService
         final BusinessObject source = BusinessObject.getByCode(type, sourceView.getCode());
         final BusinessEdgeType edgeType = BusinessEdgeType.getByCode(graphTypeCode);
         
-        verticies.put(source.getCode(), sourceView);
+        verticies.put(source.getCode(), VertexView.fromBusinessObject(source, "PARENT"));
         addRelatedType(relatedTypes, type);
         
         // Parents
