@@ -28,7 +28,7 @@ import { GeoRegistryConfiguration } from "@core/model/registry";
 
 import { LocalizedValue } from "@shared/model/core";
 import { ActivatedRoute } from "@angular/router";
-import { TreeData } from "@registry/model/graph";
+import { TreeData, Vertex } from "@registry/model/graph";
 declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
@@ -37,14 +37,16 @@ export class RelationshipVisualizationService {
     constructor(private http: HttpClient, private eventService: EventService, private route: ActivatedRoute) {
     }
 
-    tree(relationshipType: string, graphTypeCode: string, geoObjectCode: string, geoObjectTypeCode: string, date: string, boundsWKT: string): Promise<TreeData> {
+    tree(relationshipType: string, graphTypeCode: string, sourceVertex: Vertex, date: string, boundsWKT: string): Promise<TreeData> {
         let params: HttpParams = new HttpParams();
-        params = params.set("graphTypeCode", graphTypeCode);
-        params = params.set("geoObjectCode", geoObjectCode);
-        params = params.set("geoObjectTypeCode", geoObjectTypeCode);
+        params = params.set("sourceVertex", JSON.stringify(sourceVertex));
 
         if (relationshipType != null) {
             params = params.set("relationshipType", relationshipType);
+        }
+
+        if (graphTypeCode != null) {
+            params = params.set("graphTypeCode", graphTypeCode);
         }
 
         if (date) {
@@ -93,9 +95,10 @@ export class RelationshipVisualizationService {
             .toPromise();
     }
 
-    relationships(geoObjectTypeCode: string): Promise<{ oid:string, code: string, label: LocalizedValue, isHierarchy: boolean, type?: string }[]> {
+    relationships(objectType: "BUSINESS" | "GEOOBJECT", typeCode: string): Promise<{ oid:string, code: string, label: LocalizedValue, isHierarchy: boolean, type?: string }[]> {
         let params: HttpParams = new HttpParams();
-        params = params.set("geoObjectTypeCode", geoObjectTypeCode);
+        params = params.set("objectType", objectType);
+        params = params.set("typeCode", typeCode);
 
         // this.eventService.start();
 

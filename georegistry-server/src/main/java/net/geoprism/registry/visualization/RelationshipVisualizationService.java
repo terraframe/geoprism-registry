@@ -19,9 +19,10 @@
 package net.geoprism.registry.visualization;
 
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -39,6 +40,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
+import net.geoprism.registry.BusinessEdgeType;
+import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.model.BusinessObject;
@@ -46,7 +49,6 @@ import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
@@ -119,93 +121,157 @@ public class RelationshipVisualizationService
   }
   
   @Request(RequestType.SESSION)
-  public JsonElement tree(String sessionId, Date date, String relationshipType, String graphTypeCode, String geoObjectCode, String geoObjectTypeCode, String boundsWKT)
+  public JsonElement tree(String sessionId, Date date, String relationshipType, String graphTypeCode, String sourceVertex, String boundsWKT)
   {
     final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
 
-    final ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
-    
     if (!this.validateBounds(boundsWKT)) {
       boundsWKT = null;
     }
     
-    // Get a list of all possible types
-    Set<String> relatedTypes = new HashSet<String>();
-
-    JsonObject view = new JsonObject();
-
-    JsonArray jaEdges = new JsonArray();
-    view.add("edges", jaEdges);
-
-    JsonArray jaVerticies = new JsonArray();
-    view.add("verticies", jaVerticies);
-
-    if (typePermissions.canRead(type.getOrganization().getCode(), type, type.getIsPrivate()))
+    final Map<String, VertexView> verticies = new HashMap<String, VertexView>();
+    final Map<String, EdgeView> edges = new HashMap<String, EdgeView>();
+    final Map<String, JsonObject> relatedTypes = new HashMap<String, JsonObject>();
+    
+    VertexView sourceView = VertexView.fromJSON(sourceVertex);
+    
+    if (VertexView.ObjectType.GEOOBJECT.equals(sourceView.getObjectType()))
     {
-      VertexServerGeoObject rootGo = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(geoObjectCode, type);
-      
-      Set<String> setEdges = new HashSet<String>();
-      Set<String> setVerticies = new HashSet<String>();
-
-      jaVerticies.add(serializeVertex(rootGo, "PARENT"));
-      relatedTypes.add(rootGo.getType().getCode());
-      
-      if (SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
+      final ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(sourceView.getTypeCode()).get();
+  
+      if (typePermissions.canRead(type.getOrganization().getCode(), type, type.getIsPrivate()))
       {
-        List<BusinessObject> objects = rootGo.getBusinessObjects();
+        VertexServerGeoObject sourceGO = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(sourceView.getCode(), type);
         
-        int endIndex = (objects.size() > maxResults) ? maxResults : objects.size();
+        verticies.put(sourceGO.getUid(), VertexView.fromGeoObject(sourceGO, "PARENT"));
+        addRelatedType(relatedTypes, type);
+        
+        if (SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
+        {
+          List<BusinessObject> objects = sourceGO.getBusinessObjects();
+          
+          int endIndex = (objects.size() > maxResults) ? maxResults : objects.size();
+          
+          for (int i = 0; i < endIndex; ++i)
+          {
+            BusinessObject bo = objects.get(i);
+            
+            if (!verticies.containsKey(bo.getCode()))
+            {
+              verticies.put(bo.getCode(), VertexView.fromBusinessObject(bo, "CHILD"));
+              edges.put(sourceGO.getUid() + "-" + bo.getCode(), EdgeView.create(sourceGO, bo));
+              addRelatedType(relatedTypes, bo.getType());
+            }
+          }
+        }
+        else
+        {
+          final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
+    
+          if (graphType instanceof UndirectedGraphType)
+          {
+            // get parent and get children return the same thing for an undirected
+            // graph
+            fetchChildrenData(false, sourceGO, graphType, date, edges, verticies, relatedTypes, boundsWKT);
+          }
+          else if(graphType instanceof DirectedAcyclicGraphType)
+          {
+            // Out is children
+            fetchParentsData(false, sourceGO, graphType, date, edges, verticies, relatedTypes, boundsWKT);
+            
+            // In is parents
+            fetchChildrenData(false, sourceGO, graphType, date, edges, verticies, relatedTypes, boundsWKT);
+          }
+          else
+          {
+            // Out is children
+            fetchParentsData(true, sourceGO, graphType, date, edges, verticies, relatedTypes, boundsWKT);
+    
+            // In is parents
+            fetchChildrenData(false, sourceGO, graphType, date, edges, verticies, relatedTypes, boundsWKT);
+          }
+        }
+      }
+    }
+    else if (VertexView.ObjectType.BUSINESS.equals(sourceView.getObjectType()))
+    {
+      final BusinessType type = BusinessType.getByCode(sourceView.getTypeCode());
+      
+      if (true) // TODO check permissions
+      {
+        final BusinessObject source = BusinessObject.getByCode(type, sourceView.getCode());
+        final BusinessEdgeType edgeType = BusinessEdgeType.getByCode(graphTypeCode);
+        
+        verticies.put(source.getCode(), sourceView);
+        addRelatedType(relatedTypes, type);
+        
+        // Parents
+        List<BusinessObject> objects = source.getParents(edgeType);
+        int capacity = maxResults;
+        int endIndex = (objects.size() > capacity) ? capacity : objects.size();
         
         for (int i = 0; i < endIndex; ++i)
         {
           BusinessObject bo = objects.get(i);
           
-          if (!setVerticies.contains(bo.getCode()))
+          if (!verticies.containsKey(bo.getCode()))
           {
-            jaVerticies.add(serializeVertex(bo, "CHILD"));
-            jaEdges.add(serializeEdge(rootGo, bo));
-
-            setVerticies.add(bo.getCode());
-            relatedTypes.add(bo.getType().getCode());
+            verticies.put(bo.getCode(), VertexView.fromBusinessObject(bo, "PARENT"));
+            edges.put(source.getCode() + "-" + bo.getCode(), EdgeView.create(source, bo));
+            addRelatedType(relatedTypes, bo.getType());
           }
         }
-      }
-      else
-      {
-        final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
-  
-        if (graphType instanceof UndirectedGraphType)
+        
+        // Children
+        objects = source.getParents(edgeType);
+        capacity = maxResults - verticies.size();
+        endIndex = (objects.size() > capacity) ? capacity : objects.size();
+        
+        for (int i = 0; i < endIndex; ++i)
         {
-          // get parent and get children return the same thing for an undirected
-          // graph
-          fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
-        }
-        else if(graphType instanceof DirectedAcyclicGraphType)
-        {
-          // Out is children
-          fetchParentsData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
+          BusinessObject bo = objects.get(i);
           
-          // In is parents
-          fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
-        }
-        else
-        {
-          // Out is children
-          fetchParentsData(true, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
-  
-          // In is parents
-          fetchChildrenData(false, rootGo, graphType, date, jaEdges, jaVerticies, setEdges, setVerticies, relatedTypes, boundsWKT);
+          if (!verticies.containsKey(bo.getCode()))
+          {
+            verticies.put(bo.getCode(), VertexView.fromBusinessObject(bo, "CHILD"));
+            edges.put(source.getCode() + "-" + bo.getCode(), EdgeView.create(source, bo));
+            addRelatedType(relatedTypes, bo.getType());
+          }
         }
       }
     }
     
+    JsonObject view = new JsonObject();
+    
+    JsonArray jaVerticies = new JsonArray();
+    verticies.values().stream().sorted((a,b) -> a.getLabel().compareTo(b.getLabel())).forEach(vertex -> jaVerticies.add(vertex.toJson()));
+    view.add("verticies", jaVerticies);
+    
+    JsonArray jaEdges = new JsonArray();
+    edges.values().stream().sorted((a,b) -> a.getLabel().compareTo(b.getLabel())).forEach(edge -> jaEdges.add(edge.toJson()));
+    view.add("edges", jaEdges);
+    
     JsonArray jaRelatedTypes = new JsonArray();
-    for (String relatedType : relatedTypes) {
-      jaRelatedTypes.add(relatedType);
-    }
+    relatedTypes.values().stream().forEach(relatedType -> jaRelatedTypes.add(relatedType));
     view.add("relatedTypes", jaRelatedTypes);
 
     return view;
+  }
+  
+  private void addRelatedType(Map<String, JsonObject> relatedTypes, BusinessType type)
+  {
+    JsonObject view = new JsonObject();
+    view.addProperty("code", type.getCode());
+    view.addProperty("label", type.getLabel().getValue());
+    relatedTypes.put(type.getCode(), view);
+  }
+  
+  private void addRelatedType(Map<String, JsonObject> relatedTypes, ServerGeoObjectType type)
+  {
+    JsonObject view = new JsonObject();
+    view.addProperty("code", type.getCode());
+    view.addProperty("label", type.getLabel().getValue());
+    relatedTypes.put(type.getCode(), view);
   }
   
   private boolean validateBounds(String boundsWKT)
@@ -289,193 +355,134 @@ public class RelationshipVisualizationService
   }
 
   @Request(RequestType.SESSION)
-  public JsonElement getRelationshipTypes(String sessionId, String geoObjectTypeCode)
+  public JsonElement getRelationshipTypes(String sessionId, VertexView.ObjectType objectType, String typeCode)
   {
-    JsonArray view = new JsonArray();
+    JsonArray views = new JsonArray();
 
     // Hierarchy relationships
     final HierarchyTypePermissionServiceIF htpService = ServiceFactory.getHierarchyPermissionService();
 
-    ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectTypeCode);
-    type.getHierarchies().stream().filter(htp -> {
-      return htpService.canRead(htp.getOrganizationCode());
-    }).forEach(graphType -> {
-
+    if (objectType.equals(VertexView.ObjectType.GEOOBJECT))
+    {
+      ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+      type.getHierarchies().stream().filter(htp -> {
+        return htpService.canRead(htp.getOrganizationCode());
+      }).forEach(graphType -> {
+  
+        JsonObject jo = new JsonObject();
+        jo.addProperty("oid", graphType.getCode());
+        jo.addProperty("code", graphType.getCode());
+        jo.add("label", graphType.getLabel().toJSON());
+        jo.addProperty("isHierarchy", true);
+  
+        views.add(jo);
+  
+      });
+  
+      // Non-hierarchy relationships
+      UndirectedGraphType.getAll().forEach(graphType -> {
+        JsonObject jo = graphType.toJSON();
+        jo.addProperty("isHierarchy", false);
+  
+        views.add(jo);
+      });
+  
+      DirectedAcyclicGraphType.getAll().forEach(graphType -> {
+        JsonObject jo = graphType.toJSON();
+        jo.addProperty("isHierarchy", false);
+  
+        views.add(jo);
+      });
+      
+      // Show all business objects which are related to a Geo-Object
       JsonObject jo = new JsonObject();
-      jo.addProperty("oid", graphType.getCode());
-      jo.addProperty("code", graphType.getCode());
-      jo.add("label", graphType.getLabel().toJSON());
-      jo.addProperty("isHierarchy", true);
-
-      view.add(jo);
-
-    });
-
-    // Non-hierarchy relationships
-    UndirectedGraphType.getAll().forEach(graphType -> {
-      JsonObject jo = graphType.toJSON();
+      jo.addProperty("oid", SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE);
+      jo.addProperty("code", SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE);
+      jo.addProperty(UndirectedGraphType.TYPE, SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE);
+      jo.add("label", new LocalizedValue(LocalizationFacade.localize("graph.visualizer.showBusinessObjects")).toJSON());
       jo.addProperty("isHierarchy", false);
+      views.add(jo);
+    }
+    else if (objectType.equals(VertexView.ObjectType.BUSINESS))
+    {
+      BusinessEdgeType.getAll().forEach(edgeType -> {
+        JsonObject jo = new JsonObject();
+        jo.addProperty("oid", edgeType.getOid());
+        jo.addProperty("code", edgeType.getCode());
+        jo.add("label", edgeType.getLabel().toJSON());
+        jo.addProperty("isHierarchy", false);
+        views.add(jo);
+      });
+    }
 
-      view.add(jo);
-    });
-
-    DirectedAcyclicGraphType.getAll().forEach(graphType -> {
-      JsonObject jo = graphType.toJSON();
-      jo.addProperty("isHierarchy", false);
-
-      view.add(jo);
-    });
-    
-    // Show all business objects which are related to a Geo-Object
-    JsonObject jo = new JsonObject();
-    jo.addProperty("oid", SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE);
-    jo.addProperty("code", SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE);
-    jo.addProperty(UndirectedGraphType.TYPE, SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE);
-    jo.add("label", new LocalizedValue(LocalizationFacade.localize("graph.visualizer.showBusinessObjects")).toJSON());
-    jo.addProperty("isHierarchy", false);
-
-    view.add(jo);
-
-    return view;
+    return views;
   }
 
-  private void fetchParentsData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setEdges, Set<String> setVerticies, Set<String> relatedTypes, String boundsWKT)
+  private void fetchParentsData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes, String boundsWKT)
   {
     ServerParentGraphNode node = vertexGo.getGraphParents(graphType, recursive, date, boundsWKT);
 
-    processParentNode(node, graphType, jaEdges, jaVerticies, setVerticies, relatedTypes);
+    processParentNode(node, graphType, edges, verticies, relatedTypes);
   }
 
-  private void processParentNode(ServerParentGraphNode root, GraphType graphType, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setVerticies, Set<String> relatedTypes)
+  private void processParentNode(ServerParentGraphNode root, GraphType graphType, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes)
   {
-    final ServerGeoObjectIF vertexGo = root.getGeoObject();
+    final ServerGeoObjectIF sourceGO = root.getGeoObject();
 
     root.getParents().forEach(node -> {
 
       if (node.getOid() != null)
       {
-        ServerGeoObjectIF relatedGO = node.getGeoObject();
+        ServerGeoObjectIF targetGO = node.getGeoObject();
 
-        if (!setVerticies.contains(relatedGO.getCode()))
+        if (!verticies.containsKey(targetGO.getUid()))
         {
-          jaVerticies.add(serializeVertex(relatedGO, "PARENT"));
+          verticies.put(targetGO.getUid(), VertexView.fromGeoObject(targetGO, "PARENT"));
 
-          setVerticies.add(relatedGO.getCode());
-          relatedTypes.add(relatedGO.getType().getCode());
+          addRelatedType(relatedTypes, targetGO.getType());
         }
 
-        if (!setVerticies.contains(node.getOid()))
+        if (!edges.containsKey(sourceGO.getUid() + "-" + targetGO.getUid()))
         {
-          jaEdges.add(serializeEdge(relatedGO, vertexGo, graphType, node));
+          edges.put(sourceGO.getUid() + "-" + targetGO.getUid(), EdgeView.create(sourceGO, targetGO, graphType, node));
         }
       }
 
-      this.processParentNode(node, graphType, jaEdges, jaVerticies, setVerticies, relatedTypes);
+      this.processParentNode(node, graphType, edges, verticies, relatedTypes);
     });
   }
 
-  private void fetchChildrenData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setEdges, Set<String> setVerticies, Set<String> relatedTypes, String boundsWKT)
+  private void fetchChildrenData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes, String boundsWKT)
   {
     ServerChildGraphNode node = vertexGo.getGraphChildren(graphType, recursive, date, boundsWKT);
 
-    this.processChildNode(node, graphType, jaEdges, jaVerticies, setVerticies, relatedTypes);
+    this.processChildNode(node, graphType, edges, verticies, relatedTypes);
   }
 
-  private void processChildNode(ServerChildGraphNode root, GraphType graphType, JsonArray jaEdges, JsonArray jaVerticies, Set<String> setVerticies, Set<String> relatedTypes)
+  private void processChildNode(ServerChildGraphNode root, GraphType graphType, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes)
   {
-    final ServerGeoObjectIF vertexGo = root.getGeoObject();
+    final ServerGeoObjectIF sourceGO = root.getGeoObject();
 
     root.getChildren().forEach(node -> {
 
       if (node.getOid() != null)
       {
-        ServerGeoObjectIF relatedGO = node.getGeoObject();
+        ServerGeoObjectIF targetGO = node.getGeoObject();
 
-        if (!setVerticies.contains(relatedGO.getCode()))
+        if (!verticies.containsKey(targetGO.getUid()))
         {
-          jaVerticies.add(serializeVertex(relatedGO, "CHILD"));
+          verticies.put(targetGO.getUid(), VertexView.fromGeoObject(targetGO, "CHILD"));
 
-          setVerticies.add(relatedGO.getCode());
-          relatedTypes.add(relatedGO.getType().getCode());
+          addRelatedType(relatedTypes, targetGO.getType());
         }
 
-        if (!setVerticies.contains(node.getOid()))
+        if (!edges.containsKey(sourceGO.getUid() + "-" + targetGO.getUid()))
         {
-          jaEdges.add(serializeEdge(vertexGo, relatedGO, graphType, node));
+          edges.put(sourceGO.getUid() + "-" + targetGO.getUid(), EdgeView.create(sourceGO, targetGO, graphType, node));
         }
       }
 
-      this.processChildNode(node, graphType, jaEdges, jaVerticies, setVerticies, relatedTypes);
+      this.processChildNode(node, graphType, edges, verticies, relatedTypes);
     });
-  }
-
-  private JsonObject serializeEdge(ServerGeoObjectIF source, ServerGeoObjectIF target, GraphType graphType, ServerGraphNode node)
-  {
-    JsonObject joEdge = new JsonObject();
-    joEdge.addProperty("id", "g-" + node.getOid());
-    joEdge.addProperty("source", "g-" + source.getUid());
-    joEdge.addProperty("target", "g-" + target.getUid());
-
-    String label = graphType.getLabel().getValue();
-    joEdge.addProperty("label", label == null ? "" : label); // If we write an
-                                                             // object with a
-                                                             // null label ngx
-                                                             // graph freaks
-                                                             // out. So we're
-                                                             // just going to
-                                                             // write ""
-                                                             // instead.
-
-    return joEdge;
-  }
-
-  private JsonObject serializeEdge(ServerGeoObjectIF source, BusinessObject target)
-  {
-    JsonObject joEdge = new JsonObject();
-    joEdge.addProperty("id", "g-" + source.getUid() + "-" + target.getCode());
-    joEdge.addProperty("source", "g-" + source.getUid());
-    joEdge.addProperty("target", "g-" + target.getCode());
-
-    String label = "";
-    joEdge.addProperty("label", label == null ? "" : label); // If we write an
-                                                             // object with a
-                                                             // null label ngx
-                                                             // graph freaks
-                                                             // out. So we're
-                                                             // just going to
-                                                             // write ""
-                                                             // instead.
-
-    return joEdge;
-  }
-  
-  private JsonObject serializeVertex(ServerGeoObjectIF vertex, String relation)
-  {
-    JsonObject joVertex = new JsonObject();
-    joVertex.addProperty("id", "g-" + vertex.getUid());
-    joVertex.addProperty("code", vertex.getCode());
-    joVertex.addProperty("typeCode", vertex.getType().getCode());
-
-    String label = vertex.getDisplayLabel().getValue();
-    joVertex.addProperty("label", (label == null || label.length() == 0) ?  vertex.getCode() : label); // ngx graph freaks out if we put null here
-
-    joVertex.addProperty("relation", relation);
-    
-    return joVertex;
-  }
-  
-  private JsonObject serializeVertex(BusinessObject bo, String relation)
-  {
-    JsonObject joVertex = new JsonObject();
-    joVertex.addProperty("id", "g-" + bo.getCode());
-    joVertex.addProperty("code", bo.getCode());
-    joVertex.addProperty("typeCode", bo.getType().getCode());
-
-     String label = bo.getLabel();
-     joVertex.addProperty("label", (label == null || label.length() == 0) ?  bo.getCode() : label); // ngx graph freaks out if we put null here
-
-    joVertex.addProperty("relation", relation);
-    
-    return joVertex;
   }
 }

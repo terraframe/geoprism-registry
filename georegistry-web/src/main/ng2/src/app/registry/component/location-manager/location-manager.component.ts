@@ -29,9 +29,8 @@ import { ModalTypes } from "@shared/model/modal";
 import { FeaturePanelComponent } from "./feature-panel.component";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { RecordPopupComponent } from "./record-popup.component";
-import { GeoObjectLayerDataSource, GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
+import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
 import { BusinessObject, BusinessType } from "@registry/model/business-type";
-import { version } from "os";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -50,6 +49,7 @@ export interface LocationManagerParams {
     date?: string,
     type?: string,
     code?: string,
+    objectType?: "BUSINESS" | "GEOOBJECT",
     bounds?: string,
     text?: string,
     layersPanelSize?: string,
@@ -315,7 +315,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                         this.router.navigate([], {
                             relativeTo: this.route,
-                            queryParams: { type: node.typeCode, code: node.code, uid: node.id, version: null, text: node.code },
+                            queryParams: { type: node.typeCode, code: node.code, objectType: "GEOOBJECT", uid: node.id, version: null, text: node.code },
                             queryParamsHandling: "merge" // remove to replace all query params by provided
                         });
                     }).catch((err: HttpErrorResponse) => {
@@ -340,7 +340,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                     this.router.navigate([], {
                         relativeTo: this.route,
-                        queryParams: { type: event.typeCode, code: event.code, uid: event.id, version: null, text: event.code },
+                        queryParams: { type: event.typeCode, code: event.code, objectType: "GEOOBJECT", uid: event.id, version: null, text: event.code },
                         queryParamsHandling: "merge" // remove to replace all query params by provided
                     });
                 }).catch((err: HttpErrorResponse) => {
@@ -906,7 +906,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.router.navigate([], {
                 relativeTo: this.route,
-                queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null },
+                queryParams: { type: node.properties.type, code: node.properties.code, objectType: "GEOOBJECT", uid: node.properties.uid, version: null },
                 queryParamsHandling: "merge" // remove to replace all query params by provided
             });
 

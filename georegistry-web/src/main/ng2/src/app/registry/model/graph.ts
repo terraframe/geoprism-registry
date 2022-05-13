@@ -11,6 +11,7 @@ export interface Relationship {
 export interface Vertex {
     code: string,
     typeCode: string,
+    objectType: "BUSINESS" | "GEOOBJECT",
     id: string,
     label: string,
     relation: "PARENT" | "CHILD" | "SELECTED"
@@ -26,5 +27,5 @@ export interface Edge {
 export interface TreeData {
   edges: Edge[],
   verticies: Vertex[],
-  relatedTypes: string[]
+  relatedTypes: [{ code: string, label: string }]
 }

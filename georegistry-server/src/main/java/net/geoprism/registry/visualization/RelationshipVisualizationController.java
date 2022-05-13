@@ -34,9 +34,9 @@ import net.geoprism.registry.GeoRegistryUtil;
 public class RelationshipVisualizationController
 {
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "tree")
-  public ResponseIF tree(ClientRequestIF request, @RequestParamter(name = "relationshipType") String relationshipType, @RequestParamter(name = "graphTypeCode") String graphTypeCode, @RequestParamter(name = "geoObjectCode") String geoObjectCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "date") String sDate, @RequestParamter(name = "boundsWKT") String boundsWKT)
+  public ResponseIF tree(ClientRequestIF request, @RequestParamter(name = "relationshipType") String relationshipType, @RequestParamter(name = "graphTypeCode") String graphTypeCode, @RequestParamter(name = "sourceVertex") String sourceVertex, @RequestParamter(name = "date") String sDate, @RequestParamter(name = "boundsWKT") String boundsWKT)
   {
-    JsonElement json = new RelationshipVisualizationService().tree(request.getSessionId(), GeoRegistryUtil.parseDate(sDate), relationshipType, graphTypeCode, geoObjectCode, geoObjectTypeCode, boundsWKT);
+    JsonElement json = new RelationshipVisualizationService().tree(request.getSessionId(), GeoRegistryUtil.parseDate(sDate), relationshipType, graphTypeCode, sourceVertex, boundsWKT);
 
     return new RestBodyResponse(json);
   }
@@ -50,9 +50,9 @@ public class RelationshipVisualizationController
   }
   
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "relationships")
-  public ResponseIF relationships(ClientRequestIF request, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode)
+  public ResponseIF relationships(ClientRequestIF request, @RequestParamter(name = "objectType") String objectType, @RequestParamter(name = "typeCode") String typeCode)
   {
-    JsonElement json = new RelationshipVisualizationService().getRelationshipTypes(request.getSessionId(), geoObjectTypeCode);
+    JsonElement json = new RelationshipVisualizationService().getRelationshipTypes(request.getSessionId(), VertexView.ObjectType.valueOf(objectType), typeCode);
 
     return new RestBodyResponse(json);
   }

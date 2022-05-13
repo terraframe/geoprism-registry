@@ -12,10 +12,10 @@
     </select>
     
     <div class="legend">
-      <div class="legend-item" *ngFor="let item of colorSchema | keyvalue">
-        <div class="square" [ngStyle]="{ background: item.value }"></div>
+      <div class="legend-item" *ngFor="let item of typeLegend | keyvalue">
+        <div class="square" [ngStyle]="{ background: item.value.color }"></div>
         
-        <label>{{typeCache.getTypeByCode(item.key) == null ? item.key : typeCache.getTypeByCode(item.key).label.localizedValue}}</label>
+        <label>{{ item.value.label }}</label>
       </div>
     </div>
 
@@ -40,7 +40,7 @@
             <ng-template #nodeTemplate let-node>
               <svg:g (click)="onClickNode(node)" class="node" [style.cursor]="'g-' + params.uid === node.id ? 'default' : 'pointer'" >
                 <svg:polygon [attr.points]="getHexagonPoints(node)"
-                  [attr.fill]="params.code == null ? node.data.color : this.colorSchema[node.typeCode]"
+                  [attr.fill]="params.code == null ? node.data.color : this.typeLegend[node.typeCode].color"
                   >
                   </polygon>
 

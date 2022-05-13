@@ -20,7 +20,7 @@ import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { GeometryService } from "@registry/service";
 import { Router, ActivatedRoute } from "@angular/router";
 import { LngLatBounds } from "mapbox-gl";
-import { Relationship, TreeData } from "@registry/model/graph";
+import { Relationship, TreeData, Vertex } from "@registry/model/graph";
 import { LocationManagerParams } from "../location-manager/location-manager.component";
 import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
 
@@ -79,7 +79,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     public curve = shape.curveLinear;
 
-    public colorSchema: any = {};
+    public typeLegend: { [key: string]: { label: string, color: string } } = {};
 
     public typeCache: GeoObjectTypeCache;
 
@@ -141,7 +141,7 @@ export class RelationshipVisualizerComponent implements OnInit {
         }
 
         if (!this.loading) {
-            if (this.relationships == null || this.relationship == null || newParams.type !== oldParams.type) {
+            if (this.relationships == null || this.relationship == null || newParams.objectType !== oldParams.objectType || newParams.type !== oldParams.type) {
                 this.relationships = null;
                 this.relationship = null;
                 this.graphOid = null;
@@ -194,7 +194,7 @@ export class RelationshipVisualizerComponent implements OnInit {
             this.relationships = [];
             this.spinner.show(this.CONSTANTS.OVERLAY);
 
-            this.vizService.relationships(this.params.type).then(relationships => {
+            this.vizService.relationships(this.params.objectType, this.params.type).then(relationships => {
                 this.relationships = relationships;
 
                 if (this.relationships && this.relationships.length > 0) {
@@ -236,14 +236,16 @@ export class RelationshipVisualizerComponent implements OnInit {
 
             let mapBounds = new LngLatBounds(JSON.parse(this.params.bounds));
 
-            this.vizService.tree(this.relationship.type, this.relationship.code, this.params.code, this.params.type, this.params.date, this.convertBoundsToWKT(mapBounds)).then(data => {
+            let source = { code: this.params.code, typeCode: this.params.type, objectType: this.params.objectType } as Vertex;
+
+            this.vizService.tree(this.relationship.type, this.relationship.code, source, this.params.date, this.convertBoundsToWKT(mapBounds)).then(data => {
                 this.data = null;
 
                 window.setTimeout(() => {
                     this.data = data;
 
                     this.resizeDimensions();
-                    this.calculateColorSchema(this.data.relatedTypes);
+                    this.calculateTypeLegend(this.data.relatedTypes);
                     this.addLayers(this.data.relatedTypes);
                 }, 0);
 
@@ -254,7 +256,7 @@ export class RelationshipVisualizerComponent implements OnInit {
         }
     }
 
-    private addLayers(relatedTypes: string[]) {
+    private addLayers(relatedTypes: [{ code: string, label: string }]) {
         if (this.relationship.type === "BUSINESS") {
             let layers: Layer[] = this.geomService.getLayers().filter(layer => layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE);
             this.geomService.setLayers(layers);
@@ -267,7 +269,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
         // Remove any existing layer from map that is graph related that isn't part of this new data
         layers = layers.filter(layer => layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE ||
-            (relatedTypes.indexOf((layer as RelationshipVisualizionLayer).getRelatedTypeFilter()) !== -1));
+            (relatedTypes.map(relatedType => relatedType.code).indexOf((layer as RelationshipVisualizionLayer).getRelatedTypeFilter()) !== -1));
 
         // If the type is already rendered at a specific position in the layer stack, we want to preserve that positioning and overwrite any layer currently in that position
         let existingRelatedTypes: { [key: string] : { index: number, rendered: boolean } } = {};
@@ -280,11 +282,11 @@ export class RelationshipVisualizerComponent implements OnInit {
         }
 
         relatedTypes.forEach(relatedType => {
-            let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue + " " + relatedType, true, this.colorSchema[relatedType]) as RelationshipVisualizionLayer;
-            layer.setRelatedTypeFilter(relatedType);
+            let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue + " " + relatedType, true, this.typeLegend[relatedType.code].color) as RelationshipVisualizionLayer;
+            layer.setRelatedTypeFilter(relatedType.code);
 
             if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
-                let existingRelatedType = existingRelatedTypes[relatedType];
+                let existingRelatedType = existingRelatedTypes[relatedType.code];
 
                 if (existingRelatedType == null) {
                     layers.push(layer);
@@ -313,26 +315,26 @@ export class RelationshipVisualizerComponent implements OnInit {
       "))";
     }
 
-    calculateColorSchema(relatedTypes: string[]) {
-        this.colorSchema = {};
+    calculateTypeLegend(relatedTypes: [{ code: string, label: string }]) {
+        this.typeLegend = {};
 
         // If we already have layers which are using specific colors then we want to use those same colors
         const layers = this.geomService.getLayers();
 
         relatedTypes.forEach(relatedType => {
-            if (!this.colorSchema[relatedType]) {
-                let existingIndex = layers.findIndex(layer => layer instanceof RelationshipVisualizionLayer && (layer as RelationshipVisualizionLayer).getRelatedTypeFilter() === relatedType);
+            if (!this.typeLegend[relatedType.code]) {
+                let existingIndex = layers.findIndex(layer => layer instanceof RelationshipVisualizionLayer && (layer as RelationshipVisualizionLayer).getRelatedTypeFilter() === relatedType.code);
 
                 if (existingIndex !== -1) {
-                    this.colorSchema[relatedType] = layers[existingIndex].color;
+                    this.typeLegend[relatedType.code] = { color: layers[existingIndex].color, label: relatedType.label };
                 } else {
-                    this.colorSchema[relatedType] = ColorGen().hexString();
+                    this.typeLegend[relatedType.code] = { color: ColorGen().hexString(), label: relatedType.label };
                 }
             }
         });
 
-        if (!this.colorSchema[this.params.type]) {
-            this.colorSchema[this.params.type] = SELECTED_NODE_COLOR;
+        if (!this.typeLegend[this.params.type]) {
+            this.typeLegend[this.params.type] = { color: SELECTED_NODE_COLOR, label: this.params.type };
         }
     }
 
