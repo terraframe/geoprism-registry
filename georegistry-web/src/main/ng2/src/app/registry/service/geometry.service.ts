@@ -750,31 +750,7 @@ export class GeometryService implements OnDestroy {
             }
         };
 
-        if (layer.dataSource instanceof ListVectorLayerDataSource) {
-            labelConfig = {
-                id: layer.getId() + "-LABEL",
-                source: layer.dataSource.getId(),
-                type: "symbol",
-                paint: {
-                    "text-color": "black",
-                    "text-halo-color": "#fff",
-                    "text-halo-width": 2
-                },
-                layout: {
-                    "text-field": ["case",
-                        ["has", "displayLabel_" + navigator.language.toLowerCase()],
-                        ["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
-                        ["string", ["get", "displayLabel"]]
-                    ],
-                    "text-font": ["NotoSansRegular"],
-                    "text-offset": [0, 0.6],
-                    "text-anchor": "top",
-                    "text-size": 12
-                }
-            };
-        }
-
-        layer.configureMapboxLayer(labelConfig);
+        layer.configureMapboxLayer("LABEL", labelConfig);
 
         this.map.addLayer(labelConfig, otherLayer ? otherLayer.getId() + "-LABEL" : null);
     }
@@ -851,7 +827,7 @@ export class GeometryService implements OnDestroy {
             return;
         }
 
-        layer.configureMapboxLayer(layerConfig);
+        layer.configureMapboxLayer(geometryType, layerConfig);
 
         this.map.addLayer(layerConfig, otherLayer ? otherLayer.getId() + "-" + this.getLayerIdGeomTypePostfix(otherLayer.dataSource.getGeometryType()) : null);
     }

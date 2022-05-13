@@ -108,7 +108,7 @@ export class Layer {
         return this.dataSource.getKey();
     }
 
-    public configureMapboxLayer(layerConfig: any): void {
+    public configureMapboxLayer(layerType: string, layerConfig: any): void {
 
     }
 
@@ -284,8 +284,16 @@ export class ListVectorLayerDataSource extends LayerDataSource {
 
 export class ListVectorLayer extends Layer {
 
-    configureMapboxLayer(layerConfig: any): void {
+    configureMapboxLayer(layerType: string, layerConfig: any): void {
         layerConfig["source-layer"] = "context";
+
+        if (layerType === "LABEL") {
+            layerConfig["text-field"] = ["case",
+                ["has", "displayLabel_" + navigator.language.toLowerCase()],
+                ["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
+                ["string", ["get", "displayLabel"]]
+            ];
+        }
     }
 
 }
@@ -558,11 +566,13 @@ export class RelationshipVisualizionLayer extends Layer {
         return this.relatedTypeFilter;
     }
 
-    configureMapboxLayer(layerConfig: any): void {
+    configureMapboxLayer(layerType: string, layerConfig: any): void {
         let filter = ["match", ["get", "type"], this.relatedTypeFilter, true, false];
 
         if (layerConfig["filter"] != null) {
             layerConfig["filter"].push(filter);
+        } else {
+            layerConfig["filter"] = filter;
         }
     }
 
