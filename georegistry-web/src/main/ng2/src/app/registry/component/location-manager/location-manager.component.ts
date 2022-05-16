@@ -38,10 +38,17 @@ declare let registry: GeoRegistryConfiguration;
 
 class SelectedObject {
 
-    type: GeoObjectType;
+    objectType: string;
     code: string;
-    forDate: string;
-    geoObject: GeoObject;
+
+    // If geo object
+    forDate?: string;
+    type?: GeoObjectType;
+    geoObject?: GeoObject;
+
+    // If business object
+    businessObject?: BusinessObject;
+    businessType?: BusinessType;
 
 }
 
@@ -99,16 +106,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         currentDate: string,
         featureText?: string
     } = { text: "", currentText: "", date: "", currentDate: "" }
-
-    /*
-     * Currently selected business object
-     */
-    businessObject: BusinessObject;
-
-    /*
-     * Currently selected business type
-     */
-    businessType: BusinessType;
 
     /*
      * Currently selected record
@@ -317,7 +314,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                         this.router.navigate([], {
                             relativeTo: this.route,
-                            queryParams: { type: node.typeCode, code: node.code, objectType: "GEOOBJECT", uid: node.id, version: null, text: node.code },
+                            queryParams: { type: node.typeCode, code: node.code, objectType: node.objectType, uid: node.id, version: null, text: node.code },
                             queryParamsHandling: "merge" // remove to replace all query params by provided
                         });
                     }).catch((err: HttpErrorResponse) => {
@@ -395,8 +392,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
 
                 // Handle parameters for selecting a business object
-                if (this.params.objectType === "BUSINESS" && this.params.type && this.params.code) {
-                    if (this.businessObject == null || this.businessObject.code !== this.params.code || this.businessType == null || this.businessType.code !== this.params.type) {
+                if (this.params.objectType != null || (this.params.objectType === "BUSINESS" && this.params.type && this.params.code)) {
+                    if (this.current == null || this.current.businessObject == null || this.current.businessObject.code !== this.params.code || this.current.businessType.code !== this.params.type) {
                         this.selectBusinessObject(this.params.type, this.params.code);
                     }
                 }
@@ -437,9 +434,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     selectBusinessObject(type: string, code: string) {
         this.businessObjectService.getTypeAndObject(type, code).then(resp => {
-            this.current = null;
-            this.businessObject = resp.object;
-            this.businessType = resp.type;
+            this.current = {
+                objectType: "BUSINESS",
+                code: code,
+                businessObject: resp.object,
+                businessType: resp.type
+            };
+
             this.mode = this.MODE.VIEW;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
@@ -971,12 +972,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         */
 
         this.typeCache.waitOnTypes().then(() => {
-            this.businessObject = null;
-            this.businessType = null;
-
             const type: GeoObjectType = this.typeCache.getTypeByCode(typeCode);
 
             this.current = {
+                objectType: "GEOOBJECT",
                 type: type,
                 code: code,
                 forDate: this.state.currentDate === "" ? null : this.state.currentDate,
