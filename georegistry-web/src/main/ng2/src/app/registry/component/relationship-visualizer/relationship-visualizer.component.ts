@@ -60,7 +60,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     params: LocationManagerParams = {};
 
-    @Output() nodeSelect = new EventEmitter<{ objectType: "BUSINESS" | "GEOOBJECT", id: string, code: string, typeCode: string, selectAnimation:(resolve) => void }>();
+    @Output() nodeSelect = new EventEmitter<{ objectType: "BUSINESS" | "GEOOBJECT", id: string, code: string, typeCode: string, selectAnimation: (resolve) => void }>();
 
     @Output() changeRelationship = new EventEmitter<string>();
 
@@ -159,7 +159,7 @@ export class RelationshipVisualizerComponent implements OnInit {
         }
     }
 
-    resizeDimensions():void {
+    resizeDimensions(): void {
         let graphContainer = document.getElementById("graph-container");
 
         if (graphContainer) {
@@ -204,6 +204,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                         this.onSelectRelationship(true);
                     } else {
                         this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.params.graphOid)];
+                        this.graphOid = this.params.graphOid;
                         this.fetchData();
                     }
                 }
@@ -243,7 +244,6 @@ export class RelationshipVisualizerComponent implements OnInit {
 
                 window.setTimeout(() => {
                     this.data = data;
-
                     this.resizeDimensions();
                     this.calculateTypeLegend(this.data.relatedTypes);
                     this.addLayers(this.data.relatedTypes);
@@ -272,7 +272,7 @@ export class RelationshipVisualizerComponent implements OnInit {
             (relatedTypes.map(relatedType => relatedType.code).indexOf((layer as RelationshipVisualizionLayer).getRelatedTypeFilter()) !== -1));
 
         // If the type is already rendered at a specific position in the layer stack, we want to preserve that positioning and overwrite any layer currently in that position
-        let existingRelatedTypes: { [key: string] : { index: number, rendered: boolean } } = {};
+        let existingRelatedTypes: { [key: string]: { index: number, rendered: boolean } } = {};
         for (let i = 0; i < layers.length; ++i) {
             if (layers[i].dataSource.getDataSourceType() === RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE) {
                 let layer: RelationshipVisualizionLayer = layers[i] as RelationshipVisualizionLayer;
@@ -301,18 +301,18 @@ export class RelationshipVisualizerComponent implements OnInit {
     }
 
     private convertBoundsToWKT(bounds: LngLatBounds): string {
-      let se = bounds.getSouthEast();
-      let sw = bounds.getSouthWest();
-      let nw = bounds.getNorthWest();
-      let ne = bounds.getNorthEast();
+        let se = bounds.getSouthEast();
+        let sw = bounds.getSouthWest();
+        let nw = bounds.getNorthWest();
+        let ne = bounds.getNorthEast();
 
-      return "POLYGON ((" +
-        se.lng + " " + se.lat + "," +
-        sw.lng + " " + sw.lat + "," +
-        nw.lng + " " + nw.lat + "," +
-        ne.lng + " " + ne.lat + "," +
-        se.lng + " " + se.lat +
-      "))";
+        return "POLYGON ((" +
+            se.lng + " " + se.lat + "," +
+            sw.lng + " " + sw.lat + "," +
+            nw.lng + " " + nw.lat + "," +
+            ne.lng + " " + ne.lat + "," +
+            se.lng + " " + se.lat +
+            "))";
     }
 
     calculateTypeLegend(relatedTypes: [{ code: string, label: string }]) {
