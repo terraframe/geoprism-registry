@@ -44,14 +44,14 @@
                   ></polygon>
                 <svg:rect *ngIf="node.objectType === 'BUSINESS'" [attr.width]="DIMENSIONS.NODE.WIDTH" [attr.height]="DIMENSIONS.NODE.HEIGHT"
                           [attr.y]="DIMENSIONS.NODE.HEIGHT/2"
-                          [attr.x]="(this.relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? (this.DIMENSIONS.LABEL.WIDTH / 2 - this.DIMENSIONS.NODE.WIDTH / 2) : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 - this.DIMENSIONS.NODE.WIDTH / 2) : node.relation === 'PARENT' ? (this.DIMENSIONS.LABEL.WIDTH + this.DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.PADDING.NODE_EDGE) : 0"
+                          [attr.x]="(this.relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? (this.DIMENSIONS.LABEL.WIDTH / 2 - this.DIMENSIONS.NODE.WIDTH / 2) : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 - this.DIMENSIONS.NODE.WIDTH / 2) : node.relation === 'PARENT' ? (this.DIMENSIONS.LABEL.WIDTH + this.DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.PADDING.NODE_EDGE) : this.DIMENSIONS.PADDING.NODE_EDGE"
                           [attr.fill]="params.code == null ? node.data.color : this.typeLegend[node.typeCode].color"
                 ></svg:rect>
 
                 <foreignObject
-                  [attr.x]="(relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? 0 : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 + this.DIMENSIONS.NODE.WIDTH / 2 + DIMENSIONS.PADDING.NODE_LABEL) : (node.relation === 'PARENT' ? DIMENSIONS.PADDING.NODE_LABEL : (node.relation === 'SELECTED' ? (DIMENSIONS.NODE.WIDTH + DIMENSIONS.PADDING.NODE_LABEL) : (DIMENSIONS.NODE.WIDTH + DIMENSIONS.PADDING.NODE_LABEL)))"
+                  [attr.x]="(relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? 0 : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 + this.DIMENSIONS.NODE.WIDTH / 2 + this.DIMENSIONS.PADDING.NODE_LABEL) : (node.relation === 'PARENT' ? DIMENSIONS.PADDING.NODE_LABEL : (node.relation === 'SELECTED' ? (DIMENSIONS.NODE.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + DIMENSIONS.PADDING.NODE_EDGE) : (DIMENSIONS.NODE.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.PADDING.NODE_EDGE)))"
                   [attr.y]="(relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? DIMENSIONS.NODE.HEIGHT + DIMENSIONS.PADDING.NODE_LABEL: 0) : node.relation === 'SELECTED' ? 0 : 0"
-                  [attr.width]="(DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL*8)" [attr.height]="DIMENSIONS.LABEL.HEIGHT">
+                  [attr.width]="(relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? DIMENSIONS.LABEL.WIDTH : DIMENSIONS.LABEL.WIDTH) : (DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL*8)" [attr.height]="DIMENSIONS.LABEL.HEIGHT">
                   <span [style]="'width:' + DIMENSIONS.LABEL.WIDTH + 'px; height:' + DIMENSIONS.LABEL.HEIGHT + 'px; overflow:hidden; display: inline-block;'">
                     <p xmlns="http://www.w3.org/1999/xhtml" text-anchor="start"
                       [ngStyle]="{'text-align': (relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? 'center' : 'left') : node.relation === 'SELECTED' ? 'left' : (node.relation === 'PARENT' ? 'right' : 'left'), 'color': node.relation === 'SELECTED' ? SELECTED_NODE_COLOR : 'unset', 'font-weight': ('g-' + params.uid) === node.id ? 'bold' : 'unset'}"
