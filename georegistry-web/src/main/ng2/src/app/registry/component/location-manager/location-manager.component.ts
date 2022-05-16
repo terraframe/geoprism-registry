@@ -392,7 +392,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
 
                 // Handle parameters for selecting a business object
-                if (this.params.objectType != null || (this.params.objectType === "BUSINESS" && this.params.type && this.params.code)) {
+                if (this.params.objectType != null && this.params.objectType === "BUSINESS" && this.params.type && this.params.code) {
                     if (this.current == null || this.current.businessObject == null || this.current.businessObject.code !== this.params.code || this.current.businessType.code !== this.params.type) {
                         this.selectBusinessObject(this.params.type, this.params.code);
                     }
