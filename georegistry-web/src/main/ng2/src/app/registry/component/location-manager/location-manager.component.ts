@@ -396,6 +396,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     if (this.current == null || this.current.businessObject == null || this.current.businessObject.code !== this.params.code || this.current.businessType.code !== this.params.type) {
                         this.selectBusinessObject(this.params.type, this.params.code);
                     }
+
+                    showPanel = true;
+                    mode = this.MODE.VIEW;
                 }
 
                 // Handle parameters for select a record from a context layer
