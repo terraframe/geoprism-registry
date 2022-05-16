@@ -37,6 +37,11 @@ public class EdgeView
     return new EdgeView("g-" + source.getUid() + "-" + target.getCode(), "g-" + source.getUid(), "g-" + target.getCode(), "");
   }
   
+  public static EdgeView create(BusinessObject source, ServerGeoObjectIF target)
+  {
+    return new EdgeView("g-" + source.getCode() + "-" + target.getUid(), "g-" + source.getCode(), "g-" + target.getUid(), "");
+  }
+  
   public static EdgeView create(ServerGeoObjectIF source, ServerGeoObjectIF target, GraphType graphType, ServerGraphNode node)
   {
     String label = graphType.getLabel().getValue();

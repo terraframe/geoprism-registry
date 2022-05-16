@@ -171,7 +171,7 @@ export class RelationshipVisualizerComponent implements OnInit {
     // Thanks to https://stackoverflow.com/questions/52172067/create-svg-hexagon-points-with-only-only-a-length
     public getHexagonPoints(node: { dimension: { width: number, height: number }, relation: string }): string {
         let y = (this.DIMENSIONS.LABEL.HEIGHT / 2) - this.DIMENSIONS.NODE.HEIGHT / 2;
-        let x = this.relationship.isHierarchy
+        let x = (this.relationship.layout === "VERTICAL")
             ? (node.relation === "CHILD" ? (this.DIMENSIONS.LABEL.WIDTH / 2 - this.DIMENSIONS.NODE.WIDTH / 2) : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 - this.DIMENSIONS.NODE.WIDTH / 2)
             : node.relation === "PARENT" ? (this.DIMENSIONS.LABEL.WIDTH + this.DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.PADDING.NODE_EDGE) : 0;
 

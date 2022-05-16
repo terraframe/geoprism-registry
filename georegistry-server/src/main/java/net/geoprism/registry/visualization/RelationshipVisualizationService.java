@@ -60,6 +60,7 @@ public class RelationshipVisualizationService
   public static final int maxResults = 100;
   
   public static final String SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE = "BUSINESS";
+  public static final String SHOW_GEOOBJECTS_RELATIONSHIP_TYPE = "GEOOBJECT";
   
   @Request(RequestType.SESSION)
   public JsonElement treeAsGeoJson(String sessionId, Date date, String relationshipType, String graphTypeCode, String geoObjectCode, String geoObjectTypeCode, String boundsWKT)
@@ -141,26 +142,26 @@ public class RelationshipVisualizationService
   
       if (typePermissions.canRead(type.getOrganization().getCode(), type, type.getIsPrivate()))
       {
-        VertexServerGeoObject sourceGO = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(sourceView.getCode(), type);
+        VertexServerGeoObject selected = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(sourceView.getCode(), type);
         
-        verticies.put(sourceGO.getUid(), VertexView.fromGeoObject(sourceGO, "PARENT"));
+        verticies.put(selected.getUid(), VertexView.fromGeoObject(selected, "SELECTED"));
         addRelatedType(relatedTypes, type);
         
         if (SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
         {
-          List<BusinessObject> objects = sourceGO.getBusinessObjects();
+          List<BusinessObject> objects = selected.getBusinessObjects();
           
           int endIndex = (objects.size() > maxResults) ? maxResults : objects.size();
           
           for (int i = 0; i < endIndex; ++i)
           {
-            BusinessObject bo = objects.get(i);
+            BusinessObject child = objects.get(i);
             
-            if (!verticies.containsKey(bo.getCode()))
+            if (!verticies.containsKey(child.getCode()))
             {
-              verticies.put(bo.getCode(), VertexView.fromBusinessObject(bo, "CHILD"));
-              edges.put(sourceGO.getUid() + "-" + bo.getCode(), EdgeView.create(sourceGO, bo));
-              addRelatedType(relatedTypes, bo.getType());
+              verticies.put(child.getCode(), VertexView.fromBusinessObject(child, "CHILD"));
+              EdgeView edge = EdgeView.create(selected, child); edges.put(edge.getId(), edge);
+              addRelatedType(relatedTypes, child.getType());
             }
           }
         }
@@ -172,23 +173,23 @@ public class RelationshipVisualizationService
           {
             // get parent and get children return the same thing for an undirected
             // graph
-            fetchChildrenData(false, sourceGO, graphType, date, edges, verticies, relatedTypes, boundsWKT);
+            fetchChildrenData(false, selected, graphType, date, edges, verticies, relatedTypes, boundsWKT);
           }
           else if(graphType instanceof DirectedAcyclicGraphType)
           {
             // Out is children
-            fetchParentsData(false, sourceGO, graphType, date, edges, verticies, relatedTypes, boundsWKT);
+            fetchParentsData(false, selected, graphType, date, edges, verticies, relatedTypes, boundsWKT);
             
             // In is parents
-            fetchChildrenData(false, sourceGO, graphType, date, edges, verticies, relatedTypes, boundsWKT);
+            fetchChildrenData(false, selected, graphType, date, edges, verticies, relatedTypes, boundsWKT);
           }
           else
           {
             // Out is children
-            fetchParentsData(true, sourceGO, graphType, date, edges, verticies, relatedTypes, boundsWKT);
+            fetchParentsData(true, selected, graphType, date, edges, verticies, relatedTypes, boundsWKT);
     
             // In is parents
-            fetchChildrenData(false, sourceGO, graphType, date, edges, verticies, relatedTypes, boundsWKT);
+            fetchChildrenData(false, selected, graphType, date, edges, verticies, relatedTypes, boundsWKT);
           }
         }
       }
@@ -199,43 +200,65 @@ public class RelationshipVisualizationService
       
       if (true) // TODO check permissions
       {
-        final BusinessObject source = BusinessObject.getByCode(type, sourceView.getCode());
-        final BusinessEdgeType edgeType = BusinessEdgeType.getByCode(graphTypeCode);
+        final BusinessObject selected = BusinessObject.getByCode(type, sourceView.getCode());
         
-        verticies.put(source.getCode(), VertexView.fromBusinessObject(source, "PARENT"));
+        verticies.put(selected.getCode(), VertexView.fromBusinessObject(selected, "SELECTED"));
         addRelatedType(relatedTypes, type);
         
-        // Parents
-        List<BusinessObject> objects = source.getParents(edgeType);
-        int capacity = maxResults;
-        int endIndex = (objects.size() > capacity) ? capacity : objects.size();
-        
-        for (int i = 0; i < endIndex; ++i)
+        if (SHOW_GEOOBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
         {
-          BusinessObject bo = objects.get(i);
+          List<VertexServerGeoObject> objects = selected.getGeoObjects();
           
-          if (!verticies.containsKey(bo.getCode()))
+          int endIndex = (objects.size() > maxResults) ? maxResults : objects.size();
+          
+          for (int i = 0; i < endIndex; ++i)
           {
-            verticies.put(bo.getCode(), VertexView.fromBusinessObject(bo, "PARENT"));
-            edges.put(source.getCode() + "-" + bo.getCode(), EdgeView.create(source, bo));
-            addRelatedType(relatedTypes, bo.getType());
+            VertexServerGeoObject child = objects.get(i);
+            
+            if (!verticies.containsKey(child.getCode()))
+            {
+              verticies.put(child.getCode(), VertexView.fromGeoObject(child, "CHILD"));
+              EdgeView edge = EdgeView.create(selected, child); edges.put(edge.getId(), edge);
+              addRelatedType(relatedTypes, child.getType());
+            }
           }
         }
-        
-        // Children
-        objects = source.getChildren(edgeType);
-        capacity = maxResults - verticies.size();
-        endIndex = (objects.size() > capacity) ? capacity : objects.size();
-        
-        for (int i = 0; i < endIndex; ++i)
+        else
         {
-          BusinessObject bo = objects.get(i);
+          final BusinessEdgeType edgeType = BusinessEdgeType.getByCode(graphTypeCode);
           
-          if (!verticies.containsKey(bo.getCode()))
+          // Parents
+          List<BusinessObject> objects = selected.getParents(edgeType);
+          int capacity = maxResults;
+          int endIndex = (objects.size() > capacity) ? capacity : objects.size();
+          
+          for (int i = 0; i < endIndex; ++i)
           {
-            verticies.put(bo.getCode(), VertexView.fromBusinessObject(bo, "CHILD"));
-            edges.put(source.getCode() + "-" + bo.getCode(), EdgeView.create(source, bo));
-            addRelatedType(relatedTypes, bo.getType());
+            BusinessObject parent = objects.get(i);
+            
+            if (!verticies.containsKey(parent.getCode()))
+            {
+              verticies.put(parent.getCode(), VertexView.fromBusinessObject(parent, "PARENT"));
+              EdgeView edge = EdgeView.create(parent, selected); edges.put(edge.getId(), edge);
+              addRelatedType(relatedTypes, parent.getType());
+            }
+          }
+          
+          // Children
+          objects = selected.getChildren(edgeType);
+          capacity = maxResults - verticies.size();
+          endIndex = (objects.size() > capacity) ? capacity : objects.size();
+          
+          for (int i = 0; i < endIndex; ++i)
+          {
+            BusinessObject child = objects.get(i);
+            
+            if (!verticies.containsKey(child.getCode()))
+            {
+              verticies.put(child.getCode(), VertexView.fromBusinessObject(child, "CHILD"));
+              EdgeView edge = EdgeView.create(selected, child); edges.put(edge.getId(), edge);
+              addRelatedType(relatedTypes, child.getType());
+            }
           }
         }
       }
@@ -244,11 +267,11 @@ public class RelationshipVisualizationService
     JsonObject view = new JsonObject();
     
     JsonArray jaVerticies = new JsonArray();
-    verticies.values().stream().sorted((a,b) -> a.getLabel().compareTo(b.getLabel())).forEach(vertex -> jaVerticies.add(vertex.toJson()));
+    verticies.values().stream().sorted((a,b) -> a.getLabel().compareTo(b.getLabel())).forEachOrdered(vertex -> jaVerticies.add(vertex.toJson()));
     view.add("verticies", jaVerticies);
     
     JsonArray jaEdges = new JsonArray();
-    edges.values().stream().sorted((a,b) -> a.getLabel().compareTo(b.getLabel())).forEach(edge -> jaEdges.add(edge.toJson()));
+    edges.values().stream().sorted((a,b) -> a.getLabel().compareTo(b.getLabel())).forEachOrdered(edge -> jaEdges.add(edge.toJson()));
     view.add("edges", jaEdges);
     
     JsonArray jaRelatedTypes = new JsonArray();
@@ -373,7 +396,7 @@ public class RelationshipVisualizationService
         jo.addProperty("oid", graphType.getCode());
         jo.addProperty("code", graphType.getCode());
         jo.add("label", graphType.getLabel().toJSON());
-        jo.addProperty("isHierarchy", true);
+        jo.addProperty("layout", "VERTICAL");
   
         views.add(jo);
   
@@ -382,14 +405,14 @@ public class RelationshipVisualizationService
       // Non-hierarchy relationships
       UndirectedGraphType.getAll().forEach(graphType -> {
         JsonObject jo = graphType.toJSON();
-        jo.addProperty("isHierarchy", false);
+        jo.addProperty("layout", "HORIZONTAL");
   
         views.add(jo);
       });
   
       DirectedAcyclicGraphType.getAll().forEach(graphType -> {
         JsonObject jo = graphType.toJSON();
-        jo.addProperty("isHierarchy", false);
+        jo.addProperty("layout", "HORIZONTAL");
   
         views.add(jo);
       });
@@ -400,7 +423,7 @@ public class RelationshipVisualizationService
       jo.addProperty("code", SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE);
       jo.addProperty(UndirectedGraphType.TYPE, SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE);
       jo.add("label", new LocalizedValue(LocalizationFacade.localize("graph.visualizer.showBusinessObjects")).toJSON());
-      jo.addProperty("isHierarchy", false);
+      jo.addProperty("layout", "HORIZONTAL");
       views.add(jo);
     }
     else if (objectType.equals(VertexView.ObjectType.BUSINESS))
@@ -410,9 +433,18 @@ public class RelationshipVisualizationService
         jo.addProperty("oid", edgeType.getOid());
         jo.addProperty("code", edgeType.getCode());
         jo.add("label", edgeType.getLabel().toJSON());
-        jo.addProperty("isHierarchy", false);
+        jo.addProperty("layout", "HORIZONTAL");
         views.add(jo);
       });
+      
+      // Show all GeoObjects which are related to a Business Object
+      JsonObject jo = new JsonObject();
+      jo.addProperty("oid", SHOW_GEOOBJECTS_RELATIONSHIP_TYPE);
+      jo.addProperty("code", SHOW_GEOOBJECTS_RELATIONSHIP_TYPE);
+      jo.addProperty(UndirectedGraphType.TYPE, SHOW_GEOOBJECTS_RELATIONSHIP_TYPE);
+      jo.add("label", new LocalizedValue(LocalizationFacade.localize("graph.visualizer.showGeoObjects")).toJSON());
+      jo.addProperty("layout", "HORIZONTAL");
+      views.add(jo);
     }
 
     return views;

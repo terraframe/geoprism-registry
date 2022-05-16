@@ -3,15 +3,20 @@ import { LocalizedValue } from "@shared/model/core";
 export interface Relationship {
     oid: string,
     label: LocalizedValue,
-    isHierarchy: boolean,
+    layout: "VERTICAL" | "HORIZONTAL",
     code: string,
     type?: string
 }
 
-export interface Vertex {
-    code: string,
-    typeCode: string,
-    objectType: "BUSINESS" | "GEOOBJECT",
+export class ObjectReference {
+
+    code: string;
+    typeCode: string;
+    objectType: "BUSINESS" | "GEOOBJECT";
+
+}
+
+export interface Vertex extends ObjectReference {
     id: string,
     label: string,
     relation: "PARENT" | "CHILD" | "SELECTED"

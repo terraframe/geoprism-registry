@@ -28,7 +28,7 @@ import { GeoRegistryConfiguration } from "@core/model/registry";
 
 import { LocalizedValue } from "@shared/model/core";
 import { ActivatedRoute } from "@angular/router";
-import { TreeData, Vertex } from "@registry/model/graph";
+import { Relationship, TreeData, Vertex } from "@registry/model/graph";
 declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
@@ -95,7 +95,7 @@ export class RelationshipVisualizationService {
             .toPromise();
     }
 
-    relationships(objectType: "BUSINESS" | "GEOOBJECT", typeCode: string): Promise<{ oid:string, code: string, label: LocalizedValue, isHierarchy: boolean, type?: string }[]> {
+    relationships(objectType: "BUSINESS" | "GEOOBJECT", typeCode: string): Promise<Relationship[]> {
         let params: HttpParams = new HttpParams();
         params = params.set("objectType", objectType);
         params = params.set("typeCode", typeCode);

@@ -24,7 +24,7 @@
         <div id="graph-container">
           <ngx-graph *ngIf="data" class="chart-container" [view]="[svgWidth, svgHeight]" [links]="data.edges"
             [nodes]="data.verticies" [animate]="false" [autoZoom]="true" [autoCenter]="true" [layout]="layout"
-            [layoutSettings]="{orientation: relationship.isHierarchy ? CONSTANTS.ORIENTATION.TOP_TO_BOTTOM : CONSTANTS.ORIENTATION.LEFT_TO_RIGHT}"
+            [layoutSettings]="{orientation: (relationship.layout === 'VERTICAL') ? CONSTANTS.ORIENTATION.TOP_TO_BOTTOM : CONSTANTS.ORIENTATION.LEFT_TO_RIGHT}"
             [curve]="curve" [draggingEnabled]="false" [panToNode$]="panToNode$" [update$]="update$"
           >
             <!-- Draw an arrow on relationships for directed graph types -->
@@ -38,19 +38,19 @@
 
             <!-- Node Template -->
             <ng-template #nodeTemplate let-node>
-              <svg:g (click)="onClickNode(node)" class="node" [style.cursor]="'g-' + params.uid === node.id ? 'default' : 'pointer'" >
+              <svg:g (click)="onClickNode(node)" class="node" [style.cursor]="node.relation === 'SELECTED' ? 'default' : 'pointer'" >
                 <svg:polygon [attr.points]="getHexagonPoints(node)"
                   [attr.fill]="params.code == null ? node.data.color : this.typeLegend[node.typeCode].color"
                   >
                   </polygon>
 
                   <foreignObject
-                    [attr.x]="relationship.isHierarchy ? (node.relation === 'CHILD' ? 0 : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 + this.DIMENSIONS.NODE.WIDTH / 2 + DIMENSIONS.PADDING.NODE_LABEL) : (node.relation === 'PARENT' ? DIMENSIONS.PADDING.NODE_LABEL : (node.relation === 'SELECTED' ? 15 : (DIMENSIONS.NODE.WIDTH + DIMENSIONS.PADDING.NODE_LABEL)))"
-                    [attr.y]="relationship.isHierarchy ? (node.relation === 'CHILD' ? DIMENSIONS.NODE.HEIGHT + DIMENSIONS.PADDING.NODE_LABEL: 0) : node.relation === 'SELECTED' ? -10 : 0"
+                    [attr.x]="(relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? 0 : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 + this.DIMENSIONS.NODE.WIDTH / 2 + DIMENSIONS.PADDING.NODE_LABEL) : (node.relation === 'PARENT' ? DIMENSIONS.PADDING.NODE_LABEL : (node.relation === 'SELECTED' ? (DIMENSIONS.NODE.WIDTH + DIMENSIONS.PADDING.NODE_LABEL) : (DIMENSIONS.NODE.WIDTH + DIMENSIONS.PADDING.NODE_LABEL)))"
+                    [attr.y]="(relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? DIMENSIONS.NODE.HEIGHT + DIMENSIONS.PADDING.NODE_LABEL: 0) : node.relation === 'SELECTED' ? 0 : 0"
                     [attr.width]="(DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL*8)" [attr.height]="DIMENSIONS.LABEL.HEIGHT">
                     <span [style]="'width:' + DIMENSIONS.LABEL.WIDTH + 'px; height:' + DIMENSIONS.LABEL.HEIGHT + 'px; overflow:hidden; display: inline-block;'">
                       <p xmlns="http://www.w3.org/1999/xhtml" text-anchor="start"
-                        [ngStyle]="{'text-align': relationship.isHierarchy ? (node.relation === 'CHILD' ? 'center' : 'left') : node.relation === 'SELECTED' ? 'center' : (node.relation === 'PARENT' ? 'right' : 'left'), 'color': ('g-' + params.uid) === node.id ? SELECTED_NODE_COLOR : 'unset', 'font-weight': ('g-' + params.uid) === node.id ? 'bold' : 'unset'}"
+                        [ngStyle]="{'text-align': (relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? 'center' : 'left') : node.relation === 'SELECTED' ? 'left' : (node.relation === 'PARENT' ? 'right' : 'left'), 'color': node.relation === 'SELECTED' ? SELECTED_NODE_COLOR : 'unset', 'font-weight': ('g-' + params.uid) === node.id ? 'bold' : 'unset'}"
                         [style]="'font-size: ' + DIMENSIONS.LABEL.FONTSIZE + 'px; display: table-cell; vertical-align: middle; height:' + DIMENSIONS.LABEL.HEIGHT + 'px; width:' + DIMENSIONS.LABEL.WIDTH + 'px; line-height:' + DIMENSIONS.LABEL.FONTSIZE + 'px;'">
                         {{node.label}}</p>
                     </span>
