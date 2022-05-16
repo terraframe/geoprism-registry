@@ -111,8 +111,8 @@ public class BusinessEdgeJsonImporter
           }
           else
           {
-            Object childRid = getOrFetchRid(sourceCode, sourceType);
-            Object parentRid = getOrFetchRid(targetCode, targetType);
+            Object parentRid = getOrFetchRid(sourceCode, sourceType);
+            Object childRid = getOrFetchRid(targetCode, targetType);
 
             this.newEdge(childRid, parentRid, edgeType);
 

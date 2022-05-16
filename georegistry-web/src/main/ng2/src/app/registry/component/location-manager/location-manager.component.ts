@@ -525,23 +525,23 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         */
         });
 
-        // if (this.params.bounds != null && this.params.bounds.length > 0) {
-        //     const bounds = JSON.parse(this.params.bounds);
+        if (this.params.bounds != null && this.params.bounds.length > 0) {
+            const bounds = JSON.parse(this.params.bounds);
 
-        //     this.map.fitBounds(new LngLatBounds(bounds), { animate: false });
-        // }
+            this.map.fitBounds(new LngLatBounds(bounds), { animate: false });
+        }
 
         this.handleParameterChange(this.params);
 
-        if (this.current != null && this.current.geoObject != null) {
-            this.zoomToFeature(this.current.geoObject, null);
-        } else {
-            let layers = this.geomService.getLayers();
+        // if (this.current != null && this.current.geoObject != null) {
+        //     this.zoomToFeature(this.current.geoObject, null);
+        // } else {
+        //     let layers = this.geomService.getLayers();
 
-            if (layers && layers.length > 0) {
-                this.onZoomTo(layers[0]);
-            }
-        }
+        //     if (layers && layers.length > 0) {
+        //         this.onZoomTo(layers[0]);
+        //     }
+        // }
     }
 
     onZoomTo(layer: Layer): void {
@@ -945,7 +945,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 queryParamsHandling: "merge" // remove to replace all query params by provided
             });
 
-            this.zoomToFeature(node, null);
+            // this.zoomToFeature(node, null);
         }
     }
 
@@ -995,7 +995,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
                         this.current.geoObject = geoObject;
                         this.requestedDate = this.current.forDate === "" ? null : this.current.forDate;
-                        this.zoomToFeature(this.current.geoObject, null);
+                        // this.zoomToFeature(this.current.geoObject, null);
                     }).catch((err: HttpErrorResponse) => {
                         this.error(err);
                     }).finally(() => {
@@ -1004,7 +1004,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
             } else {
                 this.requestedDate = this.current.forDate === "" ? null : this.current.forDate;
-                this.zoomToFeature(this.current.geoObject, null);
+                // this.zoomToFeature(this.current.geoObject, null);
             }
         });
     }
