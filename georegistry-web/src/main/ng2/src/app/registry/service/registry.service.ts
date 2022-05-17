@@ -300,7 +300,10 @@ export class RegistryService implements AttributeTypeService {
 
         params = params.set("code", code);
         params = params.set("typeCode", typeCode);
-        params = params.set("date", date);
+
+        if (date != null) {
+            params = params.set("date", date);
+        }
 
         return this.http
             .get<number[]>(registry.contextPath + "/cgr/geoobject-time/get-bounds", { params: params })

@@ -82,7 +82,7 @@
 			            <ng-container *ngIf="mode === MODE.VIEW && current != null">
             				<div class="row">
                   				<div class="col-md-12" [ngClass]="{'full-height-sidebar' : current != null, 'max-height' : !searchEnabled }">
-                    				<feature-panel *ngIf="current.objectType === 'GEOOBJECT'" #FeaturePanel [type]="current.type" [code]="current.code" [forDate]="current.forDate"
+                    				<feature-panel *ngIf="current.objectType === 'GEOOBJECT' && typeCache.ready()" #FeaturePanel [type]="typeCache.getTypeByCode(params.type)" [code]="current.code" [forDate]="current.forDate"
                       				  (forDateChange)="featurePanelForDateChange($event)" [readOnly]="false"
                       				  (modeChange)="onModeChange($event)" (panelCancel)="clearRecord()"
                       				  (panelSubmit)="onPanelSubmit($event)">

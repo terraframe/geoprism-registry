@@ -2,6 +2,7 @@ import { AnySourceData, LngLatBounds, LngLatBoundsLike } from "mapbox-gl";
 import { ListTypeService } from "./list-type.service";
 import { RegistryService } from "./registry.service";
 
+import { HttpParams } from "@angular/common/http";
 import { v4 as uuid } from "uuid";
 import bbox from "@turf/bbox";
 import { GeoJSON } from "geojson";
@@ -180,7 +181,7 @@ export class GeoObjectLayerDataSource extends LayerDataSource {
     }
 
     getKey(): string {
-        return this.getDataSourceType() + this.getCode() + this.getTypeCode() + this.getDate();
+        return this.getDataSourceType() + this.getCode() + this.getTypeCode() + (this.getDate() == null ? "" : this.getDate());
     }
 
     getGeometryType(): string {
@@ -188,11 +189,15 @@ export class GeoObjectLayerDataSource extends LayerDataSource {
     }
 
     buildMapboxSource(): AnySourceData {
-        let encodedCode = encodeURIComponent(this.code);
-        let encodedTypeCode = encodeURIComponent(this.typeCode);
-        let encodedDate = encodeURIComponent(this.date);
+        let params: HttpParams = new HttpParams();
+        params = params.set("code", this.code);
+        params = params.set("typeCode", this.typeCode);
 
-        let url = registry.contextPath + "/cgr/geoobject/get-code" + "?" + "code=" + encodedCode + "&typeCode=" + encodedTypeCode + "&date=" + encodedDate;
+        if (this.date != null) {
+            params = params.set("date", this.date);
+        }
+
+        let url = registry.contextPath + "/cgr/geoobject/get-code" + "?" + params.toString();
 
         return {
             type: "geojson",
@@ -469,6 +474,10 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
 
     getSourceObject(): ObjectReference {
         return this.sourceObject;
+    }
+
+    hasSameSourceObject(sourceObj: ObjectReference): boolean {
+        return this.sourceObject.code === sourceObj.code && this.sourceObject.objectType === sourceObj.objectType && this.sourceObject.typeCode === sourceObj.typeCode;
     }
 
     getDate() {
