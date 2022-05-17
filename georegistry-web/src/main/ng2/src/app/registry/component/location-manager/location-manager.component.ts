@@ -850,17 +850,19 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             if (index !== -1) {
                 const layer = this.geomService.getLayers()[index];
 
-                // Highlight the feature on the map
-                this.feature = {
-                    source: layer.dataSource.getId(),
-                    sourceLayer: "context",
-                    id: uid,
-                    version: list
-                };
+                if (this.map.getSource(layer.dataSource.getId()) != null) {
+                    // Highlight the feature on the map
+                    this.feature = {
+                        source: layer.dataSource.getId(),
+                        sourceLayer: "context",
+                        id: uid,
+                        version: list
+                    };
 
-                this.map.setFeatureState(this.feature, {
-                    selected: true
-                });
+                    this.map.setFeatureState(this.feature, {
+                        selected: true
+                    });
+                }
             }
 
             if (record.recordType === "LIST") { // this happens when list type is NOT working
