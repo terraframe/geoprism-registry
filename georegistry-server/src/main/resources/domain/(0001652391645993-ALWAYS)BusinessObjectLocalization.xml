@@ -15,6 +15,13 @@
           <attribute name="defaultLocale" value="Associated Geo-Objects" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="graph.visualizer.restrictToMapBounds">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="graph.visualizer.restrictToMapBounds" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Restrict to map bounds" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create></create>
     <update></update>

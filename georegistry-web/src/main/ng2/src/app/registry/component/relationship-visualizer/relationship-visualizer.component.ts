@@ -60,7 +60,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     params: LocationManagerParams = {};
 
-    @Output() nodeSelect = new EventEmitter<{ objectType: "BUSINESS" | "GEOOBJECT", id: string, code: string, typeCode: string, selectAnimation:(resolve) => void }>();
+    @Output() nodeSelect = new EventEmitter<{ objectType: "BUSINESS" | "GEOOBJECT", id: string, code: string, typeCode: string, selectAnimation: (resolve) => void }>();
 
     @Output() changeRelationship = new EventEmitter<string>();
 
@@ -97,6 +97,8 @@ export class RelationshipVisualizerComponent implements OnInit {
     panelOpen: boolean = true;
 
     loading: boolean = true;
+
+    restrictToMapBounds: boolean = true;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService,
@@ -147,7 +149,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                 this.graphOid = null;
                 this.data = null;
                 this.fetchRelationships();
-            } else if (this.relationships != null && this.relationship && (newParams.bounds !== oldParams.bounds || newParams.code !== oldParams.code || newParams.date !== oldParams.date || newParams.uid !== oldParams.uid || newParams.graphOid !== oldParams.graphOid)) {
+            } else if (this.relationships != null && this.relationship && ((this.restrictToMapBounds && newParams.bounds !== oldParams.bounds) || newParams.code !== oldParams.code || newParams.date !== oldParams.date || newParams.uid !== oldParams.uid || newParams.graphOid !== oldParams.graphOid)) {
                 this.fetchData();
             }
         }
@@ -237,7 +239,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
             let wktBounds: string = null;
 
-            if (this.params.bounds != null) {
+            if (this.params.bounds != null && this.restrictToMapBounds) {
                 const mapBounds = new LngLatBounds(JSON.parse(this.params.bounds));
                 wktBounds = this.convertBoundsToWKT(mapBounds);
             }
@@ -288,21 +290,21 @@ export class RelationshipVisualizerComponent implements OnInit {
         }
 
         if (sourceObject.objectType === "GEOOBJECT") {
-          relatedTypes.forEach(relatedType => {
-              let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue + " " + relatedType.label, true, this.typeLegend[relatedType.code].color) as RelationshipVisualizionLayer;
-              layer.setRelatedTypeFilter(relatedType.code);
+            relatedTypes.forEach(relatedType => {
+                let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue + " " + relatedType.label, true, this.typeLegend[relatedType.code].color) as RelationshipVisualizionLayer;
+                layer.setRelatedTypeFilter(relatedType.code);
 
-              if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
-                  let existingRelatedType = existingRelatedTypes[relatedType.code];
+                if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
+                    let existingRelatedType = existingRelatedTypes[relatedType.code];
 
-                  if (existingRelatedType == null) {
-                      layers.push(layer);
-                  } else {
-                      layer.rendered = existingRelatedType.rendered;
-                      layers.splice(existingRelatedType.index, 1, layer);
-                  }
-              }
-          });
+                    if (existingRelatedType == null) {
+                        layers.push(layer);
+                    } else {
+                        layer.rendered = existingRelatedType.rendered;
+                        layers.splice(existingRelatedType.index, 1, layer);
+                    }
+                }
+            });
         } else {
             let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue, true, ColorGen().hexString()) as RelationshipVisualizionLayer;
 
