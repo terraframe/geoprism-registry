@@ -20,7 +20,7 @@ import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { GeometryService } from "@registry/service";
 import { Router, ActivatedRoute } from "@angular/router";
 import { LngLatBounds } from "mapbox-gl";
-import { Relationship, TreeData, Vertex } from "@registry/model/graph";
+import { ObjectReference, Relationship, TreeData, Vertex } from "@registry/model/graph";
 import { LocationManagerParams } from "../location-manager/location-manager.component";
 import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
 
@@ -172,7 +172,7 @@ export class RelationshipVisualizerComponent implements OnInit {
     public getHexagonPoints(node: { dimension: { width: number, height: number }, relation: string }): string {
         let y = (this.DIMENSIONS.LABEL.HEIGHT / 2) - this.DIMENSIONS.NODE.HEIGHT / 2;
         let x = (this.relationship.layout === "VERTICAL")
-            ? (node.relation === "CHILD" ? (this.DIMENSIONS.LABEL.WIDTH / 2 - this.DIMENSIONS.NODE.WIDTH / 2) : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 - this.DIMENSIONS.NODE.WIDTH / 2)
+            ? (node.relation === "CHILD" ? (this.DIMENSIONS.LABEL.WIDTH / 2) - this.DIMENSIONS.NODE.WIDTH / 2 : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 - this.DIMENSIONS.NODE.WIDTH / 2)
             : node.relation === "PARENT" ? (this.DIMENSIONS.LABEL.WIDTH + this.DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.PADDING.NODE_EDGE) : 0;
 
         let radius = this.DIMENSIONS.NODE.WIDTH / 2;
@@ -262,7 +262,7 @@ export class RelationshipVisualizerComponent implements OnInit {
     }
 
     private addLayers(relatedTypes: [{ code: string, label: string }]) {
-        if (this.relationship.type === "BUSINESS" || this.params.objectType === "BUSINESS") {
+        if (this.relationship.type === "BUSINESS" || (this.params.objectType === "BUSINESS" && this.relationship.type !== "GEOOBJECT")) {
             let layers: Layer[] = this.geomService.getLayers().filter(layer => layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE);
             this.geomService.setLayers(layers);
             return;
@@ -270,7 +270,8 @@ export class RelationshipVisualizerComponent implements OnInit {
 
         let layers: Layer[] = this.geomService.getLayers();
 
-        let dataSource = new RelationshipVisualizionDataSource(this.vizService, this.geomService, this.relationship.type, this.relationship.code, this.params.type, this.params.code, this.params.bounds, this.params.date);
+        let sourceObject = { code: this.params.code, typeCode: this.params.type, objectType: this.params.objectType } as ObjectReference;
+        let dataSource = new RelationshipVisualizionDataSource(this.vizService, this.geomService, this.relationship.type, this.relationship.code, sourceObject, this.params.bounds, this.params.date);
 
         // Remove any existing layer from map that is graph related that isn't part of this new data
         layers = layers.filter(layer => layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE ||
@@ -286,21 +287,29 @@ export class RelationshipVisualizerComponent implements OnInit {
             }
         }
 
-        relatedTypes.forEach(relatedType => {
-            let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue + " " + relatedType.label, true, this.typeLegend[relatedType.code].color) as RelationshipVisualizionLayer;
-            layer.setRelatedTypeFilter(relatedType.code);
+        if (sourceObject.objectType === "GEOOBJECT") {
+          relatedTypes.forEach(relatedType => {
+              let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue + " " + relatedType.label, true, this.typeLegend[relatedType.code].color) as RelationshipVisualizionLayer;
+              layer.setRelatedTypeFilter(relatedType.code);
+
+              if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
+                  let existingRelatedType = existingRelatedTypes[relatedType.code];
+
+                  if (existingRelatedType == null) {
+                      layers.push(layer);
+                  } else {
+                      layer.rendered = existingRelatedType.rendered;
+                      layers.splice(existingRelatedType.index, 1, layer);
+                  }
+              }
+          });
+        } else {
+            let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue, true, ColorGen().hexString()) as RelationshipVisualizionLayer;
 
             if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
-                let existingRelatedType = existingRelatedTypes[relatedType.code];
-
-                if (existingRelatedType == null) {
-                    layers.push(layer);
-                } else {
-                    layer.rendered = existingRelatedType.rendered;
-                    layers.splice(existingRelatedType.index, 1, layer);
-                }
+                layers.push(layer);
             }
-        });
+        }
 
         this.geomService.setLayers(layers);
     }

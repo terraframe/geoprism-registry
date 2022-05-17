@@ -63,45 +63,85 @@ public class RelationshipVisualizationService
   public static final String SHOW_GEOOBJECTS_RELATIONSHIP_TYPE = "GEOOBJECT";
   
   @Request(RequestType.SESSION)
-  public JsonElement treeAsGeoJson(String sessionId, Date date, String relationshipType, String graphTypeCode, String geoObjectCode, String geoObjectTypeCode, String boundsWKT)
+  public JsonElement treeAsGeoJson(String sessionId, Date date, String relationshipType, String graphTypeCode, String sourceVertex, String boundsWKT)
   {
-    final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
-    final ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
     final CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
-   
+    final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
+    
     if (!this.validateBounds(boundsWKT)) {
       boundsWKT = null;
     }
     
-    // 1. Build a list of all related objects
-    List<GeoObject> geoObjects = new LinkedList<GeoObject>();
+    final List<GeoObject> geoObjects = new LinkedList<GeoObject>();
     
-    if (typePermissions.canRead(type.getOrganization().getCode(), type, type.getIsPrivate()))
+    final VertexView sourceView = VertexView.fromJSON(sourceVertex);
+    
+    // 1. Build a list of all related objects
+    if (VertexView.ObjectType.GEOOBJECT.equals(sourceView.getObjectType()))
     {
-      VertexServerGeoObject rootGo = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(geoObjectCode, type);
-
-      final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
+      final ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(sourceView.getTypeCode()).get();
       
-      geoObjects.add(rootGo.toGeoObject(date));
-
-      if (graphType instanceof UndirectedGraphType)
+      if (typePermissions.canRead(type.getOrganization().getCode(), type, type.getIsPrivate()))
       {
-        // get parent and get children return the same thing for an undirected graph
-        geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults));
+        VertexServerGeoObject rootGo = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(sourceView.getCode(), type);
+  
+        if (SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
+        {
+          throw new UnsupportedOperationException("Cannot render business objects.");
+        }
+        else
+        {
+          final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
+          
+          geoObjects.add(rootGo.toGeoObject(date));
+    
+          if (graphType instanceof UndirectedGraphType)
+          {
+            // get parent and get children return the same thing for an undirected graph
+            geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults));
+          }
+          else if(graphType instanceof DirectedAcyclicGraphType)
+          {
+            List<GeoObject> parents = getParents(rootGo.getGraphParents(graphType, false, date, boundsWKT), date, false, maxResults);
+            geoObjects.addAll(parents);
+            
+            geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults - parents.size()));
+          }
+          else
+          {
+            List<GeoObject> parents = getParents(rootGo.getGraphParents(graphType, true, date, boundsWKT), date, true, maxResults);
+            geoObjects.addAll(parents);
+            
+            geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults - parents.size()));
+          }
+        }
       }
-      else if(graphType instanceof DirectedAcyclicGraphType)
+    }
+    else if (VertexView.ObjectType.BUSINESS.equals(sourceView.getObjectType()))
+    {
+      if (SHOW_GEOOBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
       {
-        List<GeoObject> parents = getParents(rootGo.getGraphParents(graphType, false, date, boundsWKT), date, false, maxResults);
-        geoObjects.addAll(parents);
+        final BusinessType type = BusinessType.getByCode(sourceView.getTypeCode());
         
-        geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults - parents.size()));
+        if (canReadBusinessData(type))
+        {
+          final BusinessObject selected = BusinessObject.getByCode(type, sourceView.getCode());
+        
+          List<VertexServerGeoObject> objects = selected.getGeoObjects();
+          
+          int endIndex = (objects.size() > maxResults) ? maxResults : objects.size();
+          
+          for (int i = 0; i < endIndex; ++i)
+          {
+            VertexServerGeoObject object = objects.get(i);
+            
+            geoObjects.add(object.toGeoObject(date));
+          }
+        }
       }
       else
       {
-        List<GeoObject> parents = getParents(rootGo.getGraphParents(graphType, true, date, boundsWKT), date, true, maxResults);
-        geoObjects.addAll(parents);
-        
-        geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults - parents.size()));
+        throw new UnsupportedOperationException("Cannot render business objects.");
       }
     }
     
@@ -134,7 +174,7 @@ public class RelationshipVisualizationService
     final Map<String, EdgeView> edges = new HashMap<String, EdgeView>();
     final Map<String, JsonObject> relatedTypes = new HashMap<String, JsonObject>();
     
-    VertexView sourceView = VertexView.fromJSON(sourceVertex);
+    final VertexView sourceView = VertexView.fromJSON(sourceVertex);
     
     if (VertexView.ObjectType.GEOOBJECT.equals(sourceView.getObjectType()))
     {
@@ -198,7 +238,7 @@ public class RelationshipVisualizationService
     {
       final BusinessType type = BusinessType.getByCode(sourceView.getTypeCode());
       
-      if (true) // TODO check permissions
+      if (canReadBusinessData(type))
       {
         final BusinessObject selected = BusinessObject.getByCode(type, sourceView.getCode());
         
@@ -279,6 +319,11 @@ public class RelationshipVisualizationService
     view.add("relatedTypes", jaRelatedTypes);
 
     return view;
+  }
+  
+  private boolean canReadBusinessData(BusinessType type)
+  {
+    return true; // TODO
   }
   
   private void addRelatedType(Map<String, JsonObject> relatedTypes, BusinessType type)

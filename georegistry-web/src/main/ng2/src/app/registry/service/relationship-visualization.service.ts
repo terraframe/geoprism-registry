@@ -28,7 +28,7 @@ import { GeoRegistryConfiguration } from "@core/model/registry";
 
 import { LocalizedValue } from "@shared/model/core";
 import { ActivatedRoute } from "@angular/router";
-import { Relationship, TreeData, Vertex } from "@registry/model/graph";
+import { ObjectReference, Relationship, TreeData } from "@registry/model/graph";
 declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
@@ -37,7 +37,7 @@ export class RelationshipVisualizationService {
     constructor(private http: HttpClient, private eventService: EventService, private route: ActivatedRoute) {
     }
 
-    tree(relationshipType: string, graphTypeCode: string, sourceVertex: Vertex, date: string, boundsWKT: string): Promise<TreeData> {
+    tree(relationshipType: string, graphTypeCode: string, sourceVertex: ObjectReference, date: string, boundsWKT: string): Promise<TreeData> {
         let params: HttpParams = new HttpParams();
         params = params.set("sourceVertex", JSON.stringify(sourceVertex));
 
@@ -67,11 +67,10 @@ export class RelationshipVisualizationService {
             .toPromise();
     }
 
-    treeAsGeoJson(relationshipType: string, graphTypeCode: string, geoObjectCode: string, geoObjectTypeCode: string, date: string, boundsWKT: string): Promise<any> {
+    treeAsGeoJson(relationshipType: string, graphTypeCode: string, sourceObject: ObjectReference, date: string, boundsWKT: string): Promise<any> {
         let params: HttpParams = new HttpParams();
+        params = params.set("sourceVertex", JSON.stringify(sourceObject));
         params = params.set("graphTypeCode", graphTypeCode);
-        params = params.set("geoObjectCode", geoObjectCode);
-        params = params.set("geoObjectTypeCode", geoObjectTypeCode);
 
         if (relationshipType != null) {
             params = params.set("relationshipType", relationshipType);

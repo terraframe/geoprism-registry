@@ -11,6 +11,7 @@ import { ValueOverTimeCREditor } from "@registry/component/geoobject-shared-attr
 import { MapService } from "./map.service";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
+import { ObjectReference } from "@registry/model/graph";
 declare let registry: GeoRegistryConfiguration;
 
 export abstract class LayerDataSource {
@@ -426,8 +427,7 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
 
     relationshipType: string;
     relationshipCode: string;
-    parentTypeCode: string;
-    parentCode: string;
+    sourceObject: ObjectReference;
     bounds: string;
     date: string;
 
@@ -437,14 +437,13 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
     vizService: RelationshipVisualizationService;
     geomService: GeometryService;
 
-    constructor(vizService: RelationshipVisualizationService, geomService: GeometryService, relationshipType?: string, relationshipCode?: string, parentTypeCode?: string, parentCode?: string, bounds?: string, date?: string) {
+    constructor(vizService: RelationshipVisualizationService, geomService: GeometryService, relationshipType?: string, relationshipCode?: string, sourceObject?: ObjectReference, bounds?: string, date?: string) {
         super(RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE);
         this.vizService = vizService;
         this.geomService = geomService;
         this.relationshipType = relationshipType;
         this.relationshipCode = relationshipCode;
-        this.parentTypeCode = parentTypeCode;
-        this.parentCode = parentCode;
+        this.sourceObject = sourceObject;
         this.bounds = bounds;
         this.date = date;
     }
@@ -453,15 +452,14 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
         return Object.assign(super.toJSON(), {
             relationshipType: this.relationshipType,
             relationshipCode: this.relationshipCode,
-            parentTypeCode: this.parentTypeCode,
-            parentCode: this.parentCode,
+            sourceObject: this.sourceObject,
             bounds: this.bounds,
             date: this.date
         });
     }
 
     getKey(): string {
-        return RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE + this.relationshipCode + this.parentCode + this.parentTypeCode + this.bounds + ((this.date == null) ? "" : this.date);
+        return RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE + this.relationshipCode + this.sourceObject.code + this.sourceObject.typeCode + this.bounds + ((this.date == null) ? "" : this.date);
     }
 
     createLayer(legendLabel: string, rendered: boolean, color: string): Layer {
@@ -476,12 +474,8 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
         return this.relationshipCode;
     }
 
-    getParentTypeCode(): string {
-        return this.parentTypeCode;
-    }
-
-    getParentCode(): string {
-        return this.parentCode;
+    getSourceObject(): ObjectReference {
+        return this.sourceObject;
     }
 
     getDate() {
@@ -500,7 +494,7 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
         } else {
             let mapBounds = new LngLatBounds(JSON.parse(this.bounds));
 
-            return this.vizService.treeAsGeoJson(this.relationshipType, this.relationshipCode, this.parentCode, this.parentTypeCode, this.date, this.convertBoundsToWKT(mapBounds)).then((data: any) => {
+            return this.vizService.treeAsGeoJson(this.relationshipType, this.relationshipCode, this.sourceObject, this.date, this.convertBoundsToWKT(mapBounds)).then((data: any) => {
                 this.data = data;
 
                 return this.data;
@@ -531,7 +525,9 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
         return this.getLayerData().then((geojson: any) => {
             if (geojson == null) { return null; }
 
-            geojson.features = geojson.features.filter(feature => feature.properties.type === (layer as RelationshipVisualizionLayer).getRelatedTypeFilter());
+            if ((layer as RelationshipVisualizionLayer).getRelatedTypeFilter() != null) {
+                geojson.features = geojson.features.filter(feature => feature.properties.type === (layer as RelationshipVisualizionLayer).getRelatedTypeFilter());
+            }
 
             return bbox(geojson) as LngLatBoundsLike;
         });
@@ -550,11 +546,11 @@ export class RelationshipVisualizionLayer extends Layer {
     }
 
     getId(): string {
-        return this.relatedTypeFilter + this.dataSource.getId();
+        return (this.relatedTypeFilter == null) ? "" : this.relatedTypeFilter + this.dataSource.getId();
     }
 
     public getKey(): string {
-        return this.relatedTypeFilter + this.dataSource.getKey();
+        return (this.relatedTypeFilter == null) ? "" : this.relatedTypeFilter + this.dataSource.getKey();
     }
 
     setRelatedTypeFilter(relatedTypeFilter: string) {
@@ -566,12 +562,14 @@ export class RelationshipVisualizionLayer extends Layer {
     }
 
     configureMapboxLayer(layerType: string, layerConfig: any): void {
-        let filter = ["match", ["get", "type"], this.relatedTypeFilter, true, false];
+        if (this.relatedTypeFilter != null) {
+            let filter = ["match", ["get", "type"], this.relatedTypeFilter, true, false];
 
-        if (layerConfig["filter"] != null) {
-            layerConfig["filter"].push(filter);
-        } else {
-            layerConfig["filter"] = filter;
+            if (layerConfig["filter"] != null) {
+                layerConfig["filter"].push(filter);
+            } else {
+                layerConfig["filter"] = filter;
+            }
         }
     }
 
