@@ -47,6 +47,8 @@ export class ListsForTypeComponent implements OnInit, OnDestroy, OnChanges {
             // Refresh
             this.service.listForType(this.listByType.typeCode).then(listByType => {
                 this.listByType = listByType;
+
+                this.createGroups(this.listByType);
             }).catch((err: HttpErrorResponse) => {
                 this.error.emit(err);
             });
@@ -59,22 +61,26 @@ export class ListsForTypeComponent implements OnInit, OnDestroy, OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.listByType != null) {
-            this.groups = {
-                single: [],
-                interval: [],
-                incremental: []
-            };
-
-            changes.listByType.currentValue.lists.forEach(list => {
-                if (list.listType === "single") {
-                    this.groups.single.push(list);
-                } else if (list.listType === "interval") {
-                    this.groups.interval.push(list);
-                } else if (list.listType === "incremental") {
-                    this.groups.incremental.push(list);
-                }
-            });
+            this.createGroups(changes.listByType.currentValue);
         }
+    }
+
+    createGroups(listByType: ListTypeByType): void {
+        this.groups = {
+            single: [],
+            interval: [],
+            incremental: []
+        };
+
+        listByType.lists.forEach(list => {
+            if (list.listType === "single") {
+                this.groups.single.push(list);
+            } else if (list.listType === "interval") {
+                this.groups.interval.push(list);
+            } else if (list.listType === "incremental") {
+                this.groups.incremental.push(list);
+            }
+        });
     }
 
     onCreate(): void {
