@@ -342,7 +342,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         this.state.text = this.params.text;
                         this.state.date = this.params.date;
 
-                        this.handleSearch(this.params.text, this.params.date);
+                        this.loadSearchFromState(this.params.text, this.params.date);
                     }
 
                     showPanel = true;
@@ -727,7 +727,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
-    handleSearch(text: string, date: string): void {
+    loadSearchFromState(text: string, date: string): void {
         this.geomService.stopEditing();
 
         this.state.currentText = text;
@@ -751,8 +751,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             // Add our search layer
-            layers.splice(0, 0, dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + text + ")", true, ColorGen().hexString()));
+            let layer = dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + text + ")", true, ColorGen().hexString());
+            layers.splice(0, 0, layer);
 
+            this.geomService.zoomOnReady(layer.getId());
             this.geomService.setLayers(layers);
 
             this.data = data.features;
@@ -980,6 +982,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         layers.splice(0, 0, layer);
                     }
 
+                    this.geomService.zoomOnReady(layer.getId());
                     this.geomService.setLayers(layers);
                 }
 

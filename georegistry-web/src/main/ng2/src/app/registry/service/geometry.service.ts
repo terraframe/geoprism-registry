@@ -42,6 +42,9 @@ export class GeometryService implements OnDestroy {
 
     editingLayer: GeoJsonLayer;
 
+    // Id of a datasource that we want to zoom to when it becomes ready
+    _zoomOnReady: string[] = [];
+
     @Output() geometryChange = new EventEmitter<any>();
 
     @Output() layersChange: EventEmitter<Layer[]> = new EventEmitter();
@@ -301,6 +304,35 @@ export class GeometryService implements OnDestroy {
         } else {
             this.internalUpdateLayers(newLayers);
         }
+    }
+
+    public zoomOnReady(layerId: string) {
+        if (this._zoomOnReady.indexOf(layerId) === -1) {
+            this._zoomOnReady.push(layerId);
+        }
+    }
+
+    public zoomToLayer(layer: Layer): Promise<void> {
+        return layer.dataSource.getBounds(layer).then((bounds: LngLatBounds) => {
+            if (bounds != null) {
+                this.map.fitBounds(bounds, this.calculateZoomConfig(null));
+            }
+        });
+    }
+
+    private calculateZoomConfig(geometryType: string): any {
+        let padding = 50;
+        let maxZoom = 20;
+
+        // Zoom level was requested to be reduced when displaying point types as per #420
+        if (geometryType === "Point" || geometryType === "MultiPoint") {
+            padding = 100;
+            maxZoom = 12;
+        }
+
+        let config: any = { padding: padding, animate: true, maxZoom: maxZoom };
+
+        return config;
     }
 
     public setGeometryType(geometryType: string) {
@@ -719,7 +751,17 @@ export class GeometryService implements OnDestroy {
                 if (this.map.getSource(layer.dataSource.getId()) != null) {
                     (this.map.getSource(layer.dataSource.getId()) as any).setData(geojson);
                 }
+
+                if (this._zoomOnReady != null && this._zoomOnReady.length > 0 && this._zoomOnReady.indexOf(layer.getId()) !== -1) {
+                    this.zoomToLayer(layer);
+                    this._zoomOnReady.splice(this._zoomOnReady.indexOf(layer.getId()), 1);
+                }
             });
+        } else {
+            if (this._zoomOnReady != null && this._zoomOnReady.length > 0 && this._zoomOnReady.indexOf(layer.getId()) !== -1) {
+                this.zoomToLayer(layer);
+                this._zoomOnReady.splice(this._zoomOnReady.indexOf(layer.getId()), 1);
+            }
         }
 
         if (otherLayer && !otherLayer.rendered) {
