@@ -268,15 +268,16 @@ export class RelationshipVisualizerComponent implements OnInit {
 
         // Remove any existing layer from map that is graph related that isn't part of this new data
         layers = layers.filter(layer => layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE ||
+            (layer as RelationshipVisualizionLayer).getRelatedTypeFilter() == null ||
             (relatedTypes.map(relatedType => relatedType.code).indexOf((layer as RelationshipVisualizionLayer).getRelatedTypeFilter()) !== -1));
 
         // If the type is already rendered at a specific position in the layer stack, we want to preserve that positioning and overwrite any layer currently in that position
-        let existingRelatedTypes: { [key: string]: { index: number, rendered: boolean } } = {};
+        let existingRelatedTypes: { [key: string]: { index: number, layer: Layer } } = {};
         for (let i = 0; i < layers.length; ++i) {
             if (layers[i].dataSource.getDataSourceType() === RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE) {
                 let layer: RelationshipVisualizionLayer = layers[i] as RelationshipVisualizionLayer;
 
-                existingRelatedTypes[layer.getRelatedTypeFilter()] = { index: i, rendered: layer.rendered };
+                existingRelatedTypes[layer.getRelatedTypeFilter() == null ? "~~null~~" : layer.getRelatedTypeFilter()] = { index: i, layer: layer };
             }
         }
 
@@ -291,7 +292,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                   if (existingRelatedType == null) {
                       layers.push(layer);
                   } else {
-                      layer.rendered = existingRelatedType.rendered;
+                      layer.rendered = existingRelatedType.layer.rendered;
                       layers.splice(existingRelatedType.index, 1, layer);
                   }
               }
@@ -300,7 +301,15 @@ export class RelationshipVisualizerComponent implements OnInit {
             let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue, true, ColorGen().hexString()) as RelationshipVisualizionLayer;
 
             if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
-                layers.push(layer);
+                let existingRelatedType = existingRelatedTypes["~~null~~"];
+
+                if (existingRelatedType == null) {
+                    layers.push(layer);
+                } else {
+                    layer.rendered = existingRelatedType.layer.rendered;
+                    layer.color = existingRelatedType.layer.color;
+                    layers.splice(existingRelatedType.index, 1, layer);
+                }
             }
         }
 

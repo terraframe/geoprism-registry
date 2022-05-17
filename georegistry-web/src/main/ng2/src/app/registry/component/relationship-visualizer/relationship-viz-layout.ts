@@ -1,3 +1,6 @@
+/* eslint-disable indent */
+/* eslint-disable no-unused-vars */
+/* eslint-disable quotes */
 
 import { Graph, Layout, Edge } from '@swimlane/ngx-graph';
 import { DIMENSIONS } from "./relationship-visualizer.component";
@@ -40,6 +43,7 @@ const GRAPH_NODE = '\x00';
 const EDGE_KEY_DELIM = '\x01';
 
 export class DagreNodesOnlyLayout implements Layout {
+
   defaultSettings: DagreNodesOnlySettings = {
     orientation: Orientation.LEFT_TO_RIGHT,
     marginX: 0,
@@ -51,14 +55,15 @@ export class DagreNodesOnlyLayout implements Layout {
     multigraph: false,
     compound: true
   };
+
   settings: DagreNodesOnlySettings = {};
 
   dagreGraph: any;
   dagreNodes: any;
   dagreEdges: any;
-  
+
   public constructor() {
-    
+
   }
 
   public run(graph: Graph): Graph {
@@ -191,4 +196,5 @@ export class DagreNodesOnlyLayout implements Layout {
 
     return this.dagreGraph;
   }
+
 }

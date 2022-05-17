@@ -471,6 +471,10 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
         return this.sourceObject;
     }
 
+    hasSameSourceObject(sourceObj: ObjectReference): boolean {
+        return this.sourceObject.code === sourceObj.code && this.sourceObject.objectType === sourceObj.objectType && this.sourceObject.typeCode === sourceObj.typeCode;
+    }
+
     getDate() {
         return this.date;
     }
