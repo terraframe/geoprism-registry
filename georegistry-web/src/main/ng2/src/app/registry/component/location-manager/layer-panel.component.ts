@@ -60,7 +60,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     // lists: ContextList[] = [];
     layers: Layer[] = [];
 
-    versionMap = {};
+    versionMap: { [key: string]: ListVersion } = {};
 
     graphList: ContextList = null;
 
@@ -238,8 +238,10 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
             let dataSource = new ListVectorLayerDataSource(this.listService, version.oid);
             version.layer = dataSource.createLayer(list.label, true, ColorGen().hexString());
             this.geomService.addOrUpdateLayer(version.layer);
+            this.versionMap[version.layer.getId()] = version;
         } else {
             this.geomService.removeLayer(version.layer.getId());
+            delete this.versionMap[version.layer.getId()];
             delete version.layer;
         }
     }
@@ -260,6 +262,16 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
 
     onCreate(layer: Layer): void {
         this.create.emit(layer);
+    }
+
+    removeLayer(layer: Layer): void {
+        let version = this.versionMap[layer.getId()];
+
+        if (version) {
+            delete version.layer;
+        }
+
+        this.geomService.removeLayer(layer.getId());
     }
 
     toggleBaseLayer(layer: BaseLayer): void {
