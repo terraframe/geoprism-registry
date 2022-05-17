@@ -330,6 +330,7 @@ export class RelationshipVisualizerComponent implements OnInit {
     }
 
     calculateTypeLegend(relatedTypes: [{ code: string, label: string }]) {
+        let oldTypeLegend = this.typeLegend;
         this.typeLegend = {};
 
         // If we already have layers which are using specific colors then we want to use those same colors
@@ -337,13 +338,19 @@ export class RelationshipVisualizerComponent implements OnInit {
 
         relatedTypes.forEach(relatedType => {
             if (!this.typeLegend[relatedType.code]) {
+                let color: string;
+
                 let existingIndex = layers.findIndex(layer => layer instanceof RelationshipVisualizionLayer && (layer as RelationshipVisualizionLayer).getRelatedTypeFilter() === relatedType.code);
 
                 if (existingIndex !== -1) {
-                    this.typeLegend[relatedType.code] = { color: layers[existingIndex].color, label: relatedType.label };
+                    color = layers[existingIndex].color;
+                } else if (oldTypeLegend != null && oldTypeLegend[relatedType.code] != null) {
+                    color = oldTypeLegend[relatedType.code].color;
                 } else {
-                    this.typeLegend[relatedType.code] = { color: ColorGen().hexString(), label: relatedType.label };
+                    color = ColorGen().hexString();
                 }
+
+                this.typeLegend[relatedType.code] = { color: color, label: relatedType.label };
             }
         });
 

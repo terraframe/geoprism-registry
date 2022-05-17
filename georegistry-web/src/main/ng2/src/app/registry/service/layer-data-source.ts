@@ -29,13 +29,6 @@ export abstract class LayerDataSource {
         return this.dataSourceType;
     }
 
-    // eslint-disable-next-line no-use-before-define
-    /*
-    createLayer(oid: string, legendLabel: string, rendered: boolean, color: string): Layer {
-        return new Layer(oid, legendLabel, this, rendered, color);
-    }
-    */
-
     createLayer(legendLabel: string, rendered: boolean, color: string): Layer {
         return new Layer(this, legendLabel, rendered, color);
     }

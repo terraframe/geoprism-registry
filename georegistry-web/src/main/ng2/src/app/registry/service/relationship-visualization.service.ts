@@ -26,7 +26,6 @@ import { EventService } from "@shared/service";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
 
-import { LocalizedValue } from "@shared/model/core";
 import { ActivatedRoute } from "@angular/router";
 import { ObjectReference, Relationship, TreeData } from "@registry/model/graph";
 declare let registry: GeoRegistryConfiguration;
