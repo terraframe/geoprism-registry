@@ -28,7 +28,6 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
-import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
@@ -230,6 +229,8 @@ public class BusinessObject
 
       return new VertexServerGeoObject(vertexType, geoVertex);
 
+    }).sorted((a, b) -> {
+      return a.getDisplayLabel().getValue().compareTo(b.getDisplayLabel().getValue());
     }).collect(Collectors.toList());
   }
 
@@ -277,6 +278,8 @@ public class BusinessObject
 
       return new BusinessObject(vertex, businessType);
 
+    }).sorted((a, b) -> {
+      return a.getLabel().compareTo(b.getLabel());
     }).collect(Collectors.toList());
   }
 
@@ -306,6 +309,8 @@ public class BusinessObject
 
       return new BusinessObject(vertex, businessType);
 
+    }).sorted((a, b) -> {
+      return a.getLabel().compareTo(b.getLabel());
     }).collect(Collectors.toList());
   }
 
