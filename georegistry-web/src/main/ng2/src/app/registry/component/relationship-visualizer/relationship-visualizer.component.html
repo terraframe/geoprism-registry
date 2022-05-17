@@ -10,6 +10,11 @@
       <option *ngIf="relationships.length === 0"></option>
       <option *ngFor="let loopRel of relationships" [value]="loopRel.oid">{{loopRel.label.localizedValue}}</option>
     </select>
+
+    <div style="padding-top: 20px;">
+      <boolean-field [(value)]="restrictToMapBounds" (change)="fetchData()" localizeLabelKey="graph.visualizer.restrictToMapBounds"></boolean-field>
+    </div>
+
     
     <div class="legend">
       <div class="legend-item" *ngFor="let item of typeLegend | keyvalue">
