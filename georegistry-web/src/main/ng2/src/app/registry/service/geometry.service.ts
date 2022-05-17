@@ -7,7 +7,7 @@ import { Map, LngLat, LngLatBounds, AnySourceData } from "mapbox-gl";
 import { Subscription } from "rxjs";
 
 import { RelationshipVisualizationService } from "./relationship-visualization.service";
-import { DataSourceFactory, GeoJsonLayer, GeoJsonLayerDataSource, Layer, LayerDataSource, ListVectorLayerDataSource } from "./layer-data-source";
+import { DataSourceFactory, GeoJsonLayer, GeoJsonLayerDataSource, Layer, LayerDataSource } from "./layer-data-source";
 import { RegistryService } from "./registry.service";
 import { MapService } from "./map.service";
 import { ListTypeService } from "./list-type.service";
@@ -133,7 +133,7 @@ export class GeometryService implements OnDestroy {
     private internalUpdateLayers(newLayers: Layer[]) {
         if (this.map) {
             // Calculate a diff
-            let diffs = [];
+            let diffs: {type: string, index: number, moveTo?: number}[] = [];
             let iterations = newLayers.length > this.layers.length ? newLayers.length : this.layers.length;
             for (let i = 0; i < iterations; ++i) {
                 if (i >= newLayers.length) {
@@ -194,32 +194,34 @@ export class GeometryService implements OnDestroy {
                             type: "RENDERED_CHANGE",
                             index: i
                         });
+                    } else if (newLayer.color !== layer.color) {
+                        diffs.push({
+                            type: "COLOR_CHANGE",
+                            index: i
+                        });
                     }
                 }
             }
 
             let fullRebuild = diffs.length > 0 || newLayers.length !== this.layers.length;
 
-            if (diffs.length === 1 && diffs[0].type === "RENDERED_CHANGE") {
-                // They just toggled whether a layer was rendered
+            if (diffs.length === 1 && (diffs[0].type === "RENDERED_CHANGE" || diffs[0].type === "COLOR_CHANGE")) {
+                // They just toggled whether a layer was rendered or changed a layer color
 
-                let prevLayer = null;
-                const layerCount = this.layers.length;
-                for (let i = 0; i < layerCount; ++i) {
-                    let paramLayer = newLayers[i];
-                    let layer = this.layers[i];
+                const diff = diffs[0];
+                let newLayer = newLayers[diff.index];
+                let oldLayer = this.layers[diff.index];
+                let prevLayer = (diff.index === 0) ? null : this.layers[diff.index - 1];
 
-                    if (paramLayer.rendered !== layer.rendered) {
-                        if (paramLayer.rendered) {
-                            this.mapLayer(newLayers[i], prevLayer);
-                        } else {
-                            this.unmapLayer(layer);
-                        }
+                if (diff.type === "RENDERED_CHANGE") {
+                    if (newLayer.rendered) {
+                        this.mapLayer(newLayer, prevLayer);
+                    } else {
+                        this.unmapLayer(oldLayer);
                     }
-
-                    if (paramLayer.rendered) {
-                        prevLayer = this.layers[i];
-                    }
+                } else if (diff.type === "COLOR_CHANGE") {
+                    this.unmapLayer(oldLayer);
+                    this.mapLayer(newLayer, prevLayer);
                 }
 
                 fullRebuild = false;
@@ -534,6 +536,7 @@ export class GeometryService implements OnDestroy {
 
             this.setLayers(newLayers);
         } else {
+            // eslint-disable-next-line no-console
             console.log("Could not remove layer with id " + oid + " because one does not exist.");
         }
     }
