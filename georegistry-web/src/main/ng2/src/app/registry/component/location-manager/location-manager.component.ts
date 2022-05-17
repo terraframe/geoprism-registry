@@ -432,6 +432,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.changeMode(mode);
             this.setPanel(showPanel);
+
+            if (this.params.bounds != null && this.params.bounds.length > 0) {
+                const bounds = JSON.parse(this.params.bounds);
+
+                this.mapBounds = this.convertMapBounds(new LngLatBounds(bounds));
+                const llb = this.convertMapBounds(this.map.getBounds());
+
+                if (llb.toString() !== this.mapBounds.toString()) {
+                    this.map.fitBounds(this.mapBounds, { animate: false });
+                }
+            }
         }
     }
 
@@ -505,14 +516,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
 
         this.map.on("moveend", (event: any) => {
-            this.mapBounds = this.map.getBounds();
-            const array = this.mapBounds.toArray();
+            const mapBounds = this.convertMapBounds(this.map.getBounds());
 
-            this.router.navigate([], {
-                relativeTo: this.route,
-                queryParams: { bounds: JSON.stringify(array) },
-                queryParamsHandling: "merge" // remove to replace all query params by provided
-            });
+            if (this.mapBounds == null || this.mapBounds.toString() !== mapBounds.toString()) {
+                const array = mapBounds.toArray();
+
+                this.router.navigate([], {
+                    relativeTo: this.route,
+                    queryParams: { bounds: JSON.stringify(array) },
+                    queryParamsHandling: "merge" // remove to replace all query params by provided
+                });
+            }
 
             /*
                         let url = this.router.createUrlTree([], {
@@ -524,12 +538,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         this.location.go(url);
                         */
         });
-
-        if (this.params.bounds != null && this.params.bounds.length > 0) {
-            const bounds = JSON.parse(this.params.bounds);
-
-            this.map.fitBounds(new LngLatBounds(bounds), { animate: false });
-        }
 
         this.handleParameterChange(this.params);
 
@@ -1055,6 +1063,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             queryParams: { graphPanelOpen: this.graphPanelOpen },
             queryParamsHandling: "merge" // remove to replace all query params by provided
         });
+    }
+
+    convertMapBounds(llb: LngLatBounds): LngLatBounds {
+        const ne = llb.getNorthEast();
+        const sw = llb.getSouthWest();
+
+        const bounds = LngLatBounds.convert([
+            [parseFloat(sw.lng.toFixed(10)), parseFloat(sw.lat.toFixed(10))],
+            [parseFloat(ne.lng.toFixed(10)), parseFloat(ne.lat.toFixed(10))]
+        ]);
+
+        return bounds;
     }
 
     error(err: HttpErrorResponse): void {

@@ -235,11 +235,16 @@ export class RelationshipVisualizerComponent implements OnInit {
         if (this.relationship != null) {
             this.spinner.show(this.CONSTANTS.OVERLAY);
 
-            let mapBounds = new LngLatBounds(JSON.parse(this.params.bounds));
+            let wktBounds: string = null;
+
+            if (this.params.bounds != null) {
+                const mapBounds = new LngLatBounds(JSON.parse(this.params.bounds));
+                wktBounds = this.convertBoundsToWKT(mapBounds);
+            }
 
             let source = { code: this.params.code, typeCode: this.params.type, objectType: this.params.objectType } as Vertex;
 
-            this.vizService.tree(this.relationship.type, this.relationship.code, source, this.params.date, this.convertBoundsToWKT(mapBounds)).then(data => {
+            this.vizService.tree(this.relationship.type, this.relationship.code, source, this.params.date, wktBounds).then(data => {
                 this.data = null;
 
                 window.setTimeout(() => {
