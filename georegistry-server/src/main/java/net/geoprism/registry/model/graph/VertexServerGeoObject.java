@@ -2613,6 +2613,15 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       }
     }
 
+    results.sort(new Comparator<BusinessObject>()
+    {
+      @Override
+      public int compare(BusinessObject o1, BusinessObject o2)
+      {
+        return o1.getLabel().compareTo(o2.getLabel());
+      }
+    });
+
     return results;
   }
 

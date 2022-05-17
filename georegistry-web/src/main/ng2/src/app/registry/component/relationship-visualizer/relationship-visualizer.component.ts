@@ -460,7 +460,7 @@ export class RelationshipVisualizerComponent implements OnInit {
     */
 
     public onClickNode(node: any): void {
-        if (node.code !== this.params.code &&
+        if (node.code !== this.params.code ||
             node.typeCode !== this.params.type) {
             let doIt = (resolve) => {
                 this.collapseAnimation(node.id).then(() => {
