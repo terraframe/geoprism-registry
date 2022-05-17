@@ -11,7 +11,7 @@ import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
 import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
 import { GeometryService } from "@registry/service/geometry.service";
-import { DataSourceFactory, Layer, ListVectorLayerDataSource, LIST_VECTOR_SOURCE_TYPE } from "@registry/service/layer-data-source";
+import { Layer, ListVectorLayerDataSource, LIST_VECTOR_SOURCE_TYPE } from "@registry/service/layer-data-source";
 import { RegistryService } from "@registry/service/registry.service";
 import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
 
@@ -203,7 +203,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
                     for (let i = 0; i < list.versions.length; ++i) {
                         let version = list.versions[i];
 
-                        let layerIndex = this.layers.findIndex(l => l.getId() === version.oid);
+                        let layerIndex = this.layers.findIndex(l => l.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE && (l.dataSource as ListVectorLayerDataSource).getVersionId() === version.oid);
                         if (layerIndex !== -1) {
                             let layer = this.layers[layerIndex];
                             version.layer = layer;
@@ -216,10 +216,10 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
             });
         });
 
-        for (const [oid, v] of Object.entries(this.versionMap)) {
-            let version: ListVersion = v as ListVersion;
+        for (const [layerId, ver] of Object.entries(this.versionMap)) {
+            let version: ListVersion = ver as ListVersion;
 
-            let layerIndex = this.layers.findIndex(l => l.getId() === oid);
+            let layerIndex = this.layers.findIndex(l => l.getId() === layerId);
             if (layerIndex !== -1) {
                 let layer = this.layers[layerIndex];
                 version.layer = layer;
