@@ -15,7 +15,7 @@ import { MapService, RegistryService, GeometryService } from "@registry/service"
 import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@shared/component";
 
-import { AuthService, LocalizationService } from "@shared/service";
+import { AuthService, DateService, LocalizationService } from "@shared/service";
 import { ContextLayer } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { timeout } from "d3-timer";
@@ -29,7 +29,7 @@ import { ModalTypes } from "@shared/model/modal";
 import { FeaturePanelComponent } from "./feature-panel.component";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { RecordPopupComponent } from "./record-popup.component";
-import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
+import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, GeoObjectLayerDataSource } from "@registry/service/layer-data-source";
 import { BusinessObject, BusinessType } from "@registry/model/business-type";
 import { BusinessObjectService } from "@registry/service/business-object.service";
 import { Vertex } from "@registry/model/graph";
@@ -40,11 +40,10 @@ class SelectedObject {
 
     objectType: string;
     code: string;
+    layer?: Layer;
 
     // If geo object
     forDate?: string;
-    type?: GeoObjectType;
-    geoObject?: GeoObject;
 
     // If business object
     businessObject?: BusinessObject;
@@ -212,6 +211,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         private geomService: GeometryService,
         private lService: LocalizationService,
         private authService: AuthService,
+        private dateService: DateService,
         private businessObjectService: BusinessObjectService,
         private location: Location,
         private componentFactoryResolver: ComponentFactoryResolver,
@@ -307,21 +307,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.closeEditSessionSafeguard().then(() => {
             (node as any).selectAnimation(() => {
                 if (node.objectType === "GEOOBJECT") {
-                    this.spinner.show(this.CONSTANTS.OVERLAY);
-
-                    this.service.getGeoObject(node.id, node.typeCode, false).then(geoObj => {
-                        this.changeGeoObject(node.typeCode, node.code, node.id, geoObj);
-
-                        this.router.navigate([], {
-                            relativeTo: this.route,
-                            queryParams: { type: node.typeCode, code: node.code, objectType: node.objectType, uid: node.id, version: null, text: node.code },
-                            queryParamsHandling: "merge" // remove to replace all query params by provided
-                        });
-                    }).catch((err: HttpErrorResponse) => {
-                        this.error(err);
-                    }).finally(() => {
-                        this.spinner.hide(this.CONSTANTS.OVERLAY);
-                    });
+                    this.selectGeoObject(node.id, node.code, node.typeCode);
                 } else if (node.objectType === "BUSINESS") {
                     this.router.navigate([], {
                         relativeTo: this.route,
@@ -333,28 +319,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
-    onChangeGeoObject(event: { id: string, code: string, typeCode: string, doIt: any }): void {
-        this.closeEditSessionSafeguard().then(() => {
-            event.doIt(() => {
-                this.spinner.show(this.CONSTANTS.OVERLAY);
-
-                this.service.getGeoObject(event.id, event.typeCode, false).then(geoObj => {
-                    this.changeGeoObject(event.typeCode, event.code, event.id, geoObj);
-
-                    this.router.navigate([], {
-                        relativeTo: this.route,
-                        queryParams: { type: event.typeCode, code: event.code, objectType: "GEOOBJECT", uid: event.id, version: null, text: event.code },
-                        queryParamsHandling: "merge" // remove to replace all query params by provided
-                    });
-                }).catch((err: HttpErrorResponse) => {
-                    this.error(err);
-                }).finally(() => {
-                    this.spinner.hide(this.CONSTANTS.OVERLAY);
-                });
-            });
-        });
-    }
-
     /**
     *
     * Method responsible for parsing the state from the URL parameters and determining if
@@ -362,6 +326,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     *
     * */
     handleParameterChange(params: LocationManagerParams): void {
+        let newParams = JSON.parse(JSON.stringify(params));
+        let oldParams = JSON.parse(JSON.stringify(this.params));
+
         this.params = params;
 
         if (this.ready) {
@@ -382,9 +349,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
 
                 // Handle parameters for selecting a geo object
-                if ((this.params.objectType == null || this.params.objectType === "GEOOBJECT") && this.params.type != null && this.params.code != null) {
-                    if (this.current == null || this.current.type == null || this.current.type.code !== this.params.type || this.current.code !== this.params.code) {
-                        this.handleSelect(this.params.type, this.params.code, this.params.uid);
+                if ((newParams.objectType == null || newParams.objectType === "GEOOBJECT") && newParams.type != null && newParams.code != null) {
+                    if (oldParams.type !== newParams.type || oldParams.code !== newParams.code) {
+                        this.loadGeoObjectFromState(newParams.uid, newParams.code, newParams.type);
                     }
 
                     showPanel = true;
@@ -495,6 +462,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             if (this.feature != null) {
                 this.map.removeFeatureState(this.feature);
+            }
+
+            if (this.current != null && this.current.layer != null) {
+                this.geomService.removeLayer(this.current.layer.getId());
             }
 
             this.current = null;
@@ -632,7 +603,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                         if (layer) {
                             if (layer.dataSource.getDataSourceType() === SEARCH_DATASOURCE_TYPE) {
-                                if ((this.current == null || this.current.geoObject == null || feature.properties == null || this.current.geoObject.properties.uid !== feature.properties.uid)) {
+                                if ((this.current == null || feature.properties == null || this.params.code !== feature.properties.code || this.params.type !== feature.properties.type)) {
                                     this.select(feature, null);
                                 }
                             } else {
@@ -651,9 +622,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                                         this.handleRecord(versionId, feature.properties.uid);
                                     }
                                 } else if (layer.dataSource.getDataSourceType() === GEO_OBJECT_DATA_SOURCE_TYPE) {
-                                    this.onChangeGeoObject({ typeCode: feature.properties.type, code: feature.properties.code, id: feature.properties.uid, doIt: (fun) => { fun(); } });
+                                    this.selectGeoObject(feature.properties.uid, feature.properties.code, feature.properties.type);
                                 } else if (layer.dataSource.getDataSourceType() === RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE) {
-                                    this.onChangeGeoObject({ typeCode: feature.properties.type, code: feature.properties.code, id: feature.properties.uid, doIt: (fun) => { fun(); } });
+                                    this.selectGeoObject(feature.properties.uid, feature.properties.code, feature.properties.type);
                                 }
                             }
                         }
@@ -957,63 +928,67 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    handleSelect(typeCode: string, code: string, uid: string, geoObject: GeoObject = null) {
-        this.mode = this.MODE.VIEW;
-
-        this.changeGeoObject(typeCode, code, uid, geoObject);
+    selectGeoObject(id: string, code: string, typeCode: string): void {
+        this.closeEditSessionSafeguard().then(() => {
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { type: typeCode, code: code, objectType: "GEOOBJECT", uid: id, version: null, text: null },
+                queryParamsHandling: "merge" // remove to replace all query params by provided
+            });
+        });
     }
 
-    changeGeoObject(typeCode: string, code: string, uid: string, geoObject: GeoObject = null) {
-        // Highlight the feature on the map
-        // if (this.feature != null) {
-        //    this.map.removeFeatureState(this.feature);
-        // }
-
-        // Highlight the feature on the map
-        /*
-        if (this.feature && code !== "__NEW__" && this.map.getSource(SEARCH_LAYER) != null) {
-            this.feature = {
-                source: SEARCH_LAYER,
-                id: uid
-            };
-            this.map.setFeatureState(this.feature, {
-                selected: true
-            });
-        }
-        */
-
+    loadGeoObjectFromState(id: string, code: string, typeCode: string): void {
         this.typeCache.waitOnTypes().then(() => {
             const type: GeoObjectType = this.typeCache.getTypeByCode(typeCode);
 
-            this.current = {
-                objectType: "GEOOBJECT",
-                type: type,
-                code: code,
-                forDate: this.state.currentDate === "" ? null : this.state.currentDate,
-                geoObject: geoObject
-            };
-
             this.geomService.stopEditing();
-            this.geomService.setGeometryType(this.current.type.geometryType);
+            this.geomService.setGeometryType(null);
 
-            if (geoObject == null) {
+            this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
+                this.geomService.setGeometryType(type.geometryType);
+
+                let oldSelected = this.current;
+                this.current = {
+                    objectType: "GEOOBJECT",
+                    code: code,
+                    forDate: this.state.currentDate === "" ? null : this.state.currentDate
+                };
+
                 if (code !== "__NEW__") {
-                    this.spinner.show(this.CONSTANTS.OVERLAY);
-
-                    this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
-                        this.current.geoObject = geoObject;
-                        this.requestedDate = this.current.forDate === "" ? null : this.current.forDate;
-                        // this.zoomToFeature(this.current.geoObject, null);
-                    }).catch((err: HttpErrorResponse) => {
-                        this.error(err);
-                    }).finally(() => {
-                        this.spinner.hide(this.CONSTANTS.OVERLAY);
-                    });
+                    this.requestedDate = this.current.forDate === "" ? null : this.current.forDate;
+                    // this.zoomToFeature(this.current.geoObject, null);
                 }
-            } else {
-                this.requestedDate = this.current.forDate === "" ? null : this.current.forDate;
-                // this.zoomToFeature(this.current.geoObject, null);
-            }
+
+                // Add layer
+                let layers: Layer[] = this.geomService.getLayers();
+
+                let dataSource = new GeoObjectLayerDataSource(this.service, code, typeCode, this.current.forDate);
+
+                let displayLabel = geoObject.properties.displayLabel.localizedValue;
+                let typeLabel = type.label.localizedValue;
+                let date = this.dateService.formatDateForDisplay(this.current.forDate);
+                let label = displayLabel + " " + date + " (" + typeLabel + ")";
+
+                let layer = dataSource.createLayer(label, true, ColorGen().hexString());
+
+                if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
+                    if (oldSelected != null && oldSelected.layer != null) {
+                        let oldSelectedIndex = layers.findIndex(l => l.getId() === oldSelected.layer.getId());
+                        layers.splice(oldSelectedIndex, 1, layer);
+                    } else {
+                        layers.splice(0, 0, layer);
+                    }
+
+                    this.geomService.setLayers(layers);
+                }
+
+                this.current.layer = layer;
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            }).finally(() => {
+                this.spinner.hide(this.CONSTANTS.OVERLAY);
+            });
         });
     }
 
