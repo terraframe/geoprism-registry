@@ -485,14 +485,23 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
                 resolve(this.data);
             });
         } else {
-            let mapBounds = new LngLatBounds(JSON.parse(this.bounds));
-
-            return this.vizService.treeAsGeoJson(this.relationshipType, this.relationshipCode, this.sourceObject, this.date, this.convertBoundsToWKT(mapBounds)).then((data: any) => {
+            return this.vizService.treeAsGeoJson(this.relationshipType, this.relationshipCode, this.sourceObject, this.date, this.getBoundsAsWKT()).then((data: any) => {
                 this.data = data;
 
                 return this.data;
             });
         }
+    }
+
+    private getBoundsAsWKT(): string {
+        let wktBounds: string = null;
+
+        if (this.bounds != null) {
+            const mapBounds = new LngLatBounds(JSON.parse(this.bounds));
+            wktBounds = this.convertBoundsToWKT(mapBounds);
+        }
+
+        return wktBounds;
     }
 
     private convertBoundsToWKT(bounds: LngLatBounds): string {

@@ -15,6 +15,13 @@
           <attribute name="defaultLocale" value="Associated Geo-Objects" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.layerPanel.removeLayer">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.layerPanel.removeLayer" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Remove Layer" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create></create>
     <update></update>
