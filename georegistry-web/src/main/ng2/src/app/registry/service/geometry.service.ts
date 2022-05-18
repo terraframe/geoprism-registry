@@ -239,7 +239,17 @@ export class GeometryService implements OnDestroy {
             } else if (diffs.length === 1 && diffs[0].type === "NEW_LAYER" && diffs[0].index === this.layers.length && this.layers.length > 0) {
                 // Added a layer at the end
 
-                this.mapLayer(newLayers[newLayers.length - 1], this.layers.length > 0 ? this.layers[this.layers.length - 1] : null);
+                const diff = diffs[0];
+                let prevLayer = null;
+                if (diff.index > 0) {
+                    for (let i = 0; i < diff.index; ++i) {
+                        if (this.layers[i].rendered) {
+                            prevLayer = this.layers[i];
+                        }
+                    }
+                }
+
+                this.mapLayer(newLayers[newLayers.length - 1], prevLayer);
                 fullRebuild = false;
             } else if (diffs.length > 0 && newLayers.length === this.layers.length && diffs.filter(diff => diff.type !== "LAYER_REORDER").length === 0) {
                 // Layers changed order but are otherwise the same.
