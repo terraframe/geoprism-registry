@@ -29,7 +29,7 @@ import { ModalTypes } from "@shared/model/modal";
 import { FeaturePanelComponent } from "./feature-panel.component";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { RecordPopupComponent } from "./record-popup.component";
-import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, GeoObjectLayerDataSource } from "@registry/service/layer-data-source";
+import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, GeoObjectLayerDataSource, ValueOverTimeDataSource } from "@registry/service/layer-data-source";
 import { BusinessObject, BusinessType } from "@registry/model/business-type";
 import { BusinessObjectService } from "@registry/service/business-object.service";
 import { Vertex } from "@registry/model/graph";
@@ -109,8 +109,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      * Currently selected record
      */
     current: SelectedObject;
-
-    currentGeoObjectLayer: Layer;
 
     requestedDate: string = null;
 
@@ -466,10 +464,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     this.map.removeFeatureState(this.feature);
                 }
 
-                if (this.currentGeoObjectLayer != null) {
-                    this.geomService.removeLayer(this.currentGeoObjectLayer.getId());
-                    this.currentGeoObjectLayer = null;
-                }
+                let layers = this.geomService.getLayers().filter(l => !(l.dataSource instanceof ValueOverTimeDataSource) && !(l.dataSource instanceof GeoObjectLayerDataSource));
+                this.geomService.setLayers(layers);
+
                 this.addSearchLayer();
 
                 this.current = null;
@@ -505,35 +502,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             if (this.mapBounds == null || this.mapBounds.toString() !== mapBounds.toString()) {
                 const array = mapBounds.toArray();
 
-                this.router.navigate([], {
-                    relativeTo: this.route,
-                    queryParams: { bounds: JSON.stringify(array) },
-                    queryParamsHandling: "merge" // remove to replace all query params by provided
-                });
+                window.setTimeout(() => { // Force the route to have a chance to update since the url params can be very out of date here
+                    this.router.navigate([], {
+                        relativeTo: this.route,
+                        queryParams: { bounds: JSON.stringify(array) },
+                        queryParamsHandling: "merge" // remove to replace all query params by provided
+                    });
+                }, 0);
             }
-
-            /*
-                        let url = this.router.createUrlTree([], {
-                            relativeTo: this.route,
-                            queryParams: { bounds: JSON.stringify(array) },
-                            queryParamsHandling: "merge" // remove to replace all query params by provided
-                        }).toString();
-
-                        this.location.go(url);
-                        */
         });
 
         this.handleParameterChange(this.params);
-
-        // if (this.current != null && this.current.geoObject != null) {
-        //     this.zoomToFeature(this.current.geoObject, null);
-        // } else {
-        //     let layers = this.geomService.getLayers();
-
-        //     if (layers && layers.length > 0) {
-        //         this.onZoomTo(layers[0]);
-        //     }
-        // }
     }
 
     onZoomTo(layer: Layer): void {
@@ -617,7 +596,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         if (layer) {
                             if (layer.dataSource.getDataSourceType() === SEARCH_DATASOURCE_TYPE) {
                                 if ((this.current == null || feature.properties == null || this.params.code !== feature.properties.code || this.params.type !== feature.properties.type)) {
-                                    this.select(feature, null);
+                                    // this.select(feature, null);
+
+                                    let geoObject = feature;
+                                    geoObject.properties.displayLabel = JSON.parse(geoObject.properties.displayLabel);
+                                    this.selectSearchResult(geoObject as unknown as GeoObject, null);
                                 }
                             } else {
                                 if (layer.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE) {
@@ -993,6 +976,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             layers.splice(0, 0, layer);
 
             this.geomService.zoomOnReady(layer.getId());
+
             this.geomService.setLayers(layers);
 
             this.data = data.features;
@@ -1011,16 +995,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             // Add layer
             let layers: Layer[] = this.geomService.getLayers();
 
-            if (this.currentGeoObjectLayer != null && layers.findIndex(l => l.getId() === this.currentGeoObjectLayer.getId()) !== -1) {
-                layers.splice(layers.findIndex(l => l.getId() === this.currentGeoObjectLayer.getId()), 1);
-            }
-
             let dataSource = new GeoObjectLayerDataSource(this.service, geoObject.properties.code, geoObject.properties.type, this.current == null ? null : this.current.forDate);
 
             let displayLabel = geoObject.properties.displayLabel.localizedValue;
             let typeLabel = type.label.localizedValue;
-            let date = this.current == null ? "" : this.dateService.formatDateForDisplay(this.current.forDate);
-            let label = displayLabel + " " + date + " (" + typeLabel + ")";
+            let date = this.current == null ? "" : " " + this.dateService.formatDateForDisplay(this.current.forDate);
+            let label = displayLabel + " " + date + "(" + typeLabel + ")";
 
             let layer = dataSource.createLayer(label, true, ColorGen().hexString());
 
@@ -1028,9 +1008,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 layers.splice(0, 0, layer);
 
                 this.geomService.zoomOnReady(layer.getId());
-                this.geomService.setLayers(layers);
 
-                this.currentGeoObjectLayer = layer;
+                this.geomService.setLayers(layers);
             }
 
             /*
