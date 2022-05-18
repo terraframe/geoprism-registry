@@ -40,7 +40,6 @@ class SelectedObject {
 
     objectType: string;
     code: string;
-    layer?: Layer;
 
     // If geo object
     forDate?: string;
@@ -104,12 +103,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         date: string,
         currentDate: string,
         featureText?: string
-    } = { text: "", currentText: "", date: "", currentDate: "" }
+    } = { text: null, currentText: null, date: "", currentDate: "" }
 
     /*
      * Currently selected record
      */
     current: SelectedObject;
+
+    currentGeoObjectLayer: Layer;
 
     requestedDate: string = null;
 
@@ -464,12 +465,22 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 this.map.removeFeatureState(this.feature);
             }
 
-            if (this.current != null && this.current.layer != null) {
-                this.geomService.removeLayer(this.current.layer.getId());
+            if (this.currentGeoObjectLayer != null) {
+                this.geomService.removeLayer(this.currentGeoObjectLayer.getId());
+                this.currentGeoObjectLayer = null;
             }
+            this.addSearchLayer();
 
             this.current = null;
             this.feature = null;
+        } else if (this.mode === this.MODE.VIEW) {
+            // Remove any existing search layer
+            let layers = this.geomService.getLayers();
+            let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
+            if (index !== -1) {
+                let existingSearchLayer = layers[index];
+                this.geomService.removeLayer(existingSearchLayer.getId());
+            }
         }
     }
 
@@ -733,35 +744,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.state.currentText = text;
         this.state.currentDate = date;
 
-        let dataSource = new SearchLayerDataSource(this.mapService, text, date);
-        dataSource.getLayerData().then((data: any) => {
-            let layers = this.geomService.getLayers();
-
-            // Remove any existing search layer
-            let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
-            if (index !== -1) {
-                let existingSearchLayer = layers[index];
-                let ds = existingSearchLayer.dataSource as SearchLayerDataSource;
-
-                if (ds.getText() === text && ds.getDate() === date) {
-                    return;
-                } else {
-                    layers.splice(index, 1);
-                }
-            }
-
-            // Add our search layer
-            let layer = dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + text + ")", true, ColorGen().hexString());
-            layers.splice(0, 0, layer);
-
-            this.geomService.zoomOnReady(layer.getId());
-            this.geomService.setLayers(layers);
-
-            this.data = data.features;
-        }).catch(() => {
-            this.state.currentText = "";
-            this.state.currentDate = "";
-        });
+        this.addSearchLayer();
     }
 
     zoomToFeature(geoObject: GeoObject, event: MouseEvent): void {
@@ -915,6 +898,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
+    selectSearchResult(geoObject: GeoObject, event: MouseEvent): void {
+        this.select(geoObject, event);
+        this.addLayerForGeoObject(geoObject);
+    }
+
     select(node: any, event: MouseEvent): void {
         if (!this.isEdit) {
             if (this.feature != null) {
@@ -949,51 +937,107 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.geomService.stopEditing();
             this.geomService.setGeometryType(null);
 
-            this.service.getGeoObjectByCode(code, type.code).then(geoObject => {
-                this.geomService.setGeometryType(type.geometryType);
+            this.geomService.setGeometryType(type.geometryType);
 
-                let oldSelected = this.current;
-                this.current = {
-                    objectType: "GEOOBJECT",
-                    code: code,
-                    forDate: this.state.currentDate === "" ? null : this.state.currentDate
-                };
+            this.current = {
+                objectType: "GEOOBJECT",
+                code: code,
+                forDate: this.state.currentDate === "" ? null : this.state.currentDate
+            };
 
-                if (code !== "__NEW__") {
-                    this.requestedDate = this.current.forDate === "" ? null : this.current.forDate;
-                    // this.zoomToFeature(this.current.geoObject, null);
+            if (code !== "__NEW__") {
+                this.requestedDate = this.current.forDate === "" ? null : this.current.forDate;
+                // this.zoomToFeature(this.current.geoObject, null);
+            }
+        });
+    }
+
+    addSearchLayer(): void {
+        if (this.state.currentText == null) { return; }
+
+        let layers = this.geomService.getLayers();
+
+        // Check for an existing search layer with the same data
+        let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
+        if (index !== -1) {
+            let existingSearchLayer = layers[index];
+            let ds = existingSearchLayer.dataSource as SearchLayerDataSource;
+
+            if (ds.getText() === this.state.currentText && ds.getDate() === this.state.currentDate) {
+                return;
+            }
+        }
+
+        let dataSource = new SearchLayerDataSource(this.mapService, this.state.currentText, this.state.currentDate);
+
+        dataSource.getLayerData().then((data: any) => {
+            layers = this.geomService.getLayers();
+
+            // Remove any existing search layer
+            let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
+            if (index !== -1) {
+                let existingSearchLayer = layers[index];
+                let ds = existingSearchLayer.dataSource as SearchLayerDataSource;
+
+                if (ds.getText() === this.state.currentText && ds.getDate() === this.state.currentDate) {
+                    return;
+                } else {
+                    layers.splice(index, 1);
                 }
+            }
 
-                // Add layer
-                let layers: Layer[] = this.geomService.getLayers();
+            // Add our search layer
+            let layer = dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + this.state.currentText + ")", true, ColorGen().hexString());
+            layers.splice(0, 0, layer);
 
-                let dataSource = new GeoObjectLayerDataSource(this.service, code, typeCode, this.current.forDate);
+            this.geomService.zoomOnReady(layer.getId());
+            this.geomService.setLayers(layers);
 
-                let displayLabel = geoObject.properties.displayLabel.localizedValue;
-                let typeLabel = type.label.localizedValue;
-                let date = this.dateService.formatDateForDisplay(this.current.forDate);
-                let label = displayLabel + " " + date + " (" + typeLabel + ")";
+            this.data = data.features;
+        }).catch(() => {
+            this.state.currentText = "";
+            this.state.currentDate = "";
+        });
+    }
 
-                let layer = dataSource.createLayer(label, true, ColorGen().hexString());
+    addLayerForGeoObject(geoObject: GeoObject): void {
+        this.typeCache.waitOnTypes().then(() => {
+            // this.service.getGeoObjectByCode(code, typeCode).then(geoObject => {
 
-                if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
-                    if (oldSelected != null && oldSelected.layer != null) {
-                        let oldSelectedIndex = layers.findIndex(l => l.getId() === oldSelected.layer.getId());
-                        layers.splice(oldSelectedIndex, 1, layer);
-                    } else {
-                        layers.splice(0, 0, layer);
-                    }
+            const type: GeoObjectType = this.typeCache.getTypeByCode(geoObject.properties.type);
 
-                    this.geomService.zoomOnReady(layer.getId());
-                    this.geomService.setLayers(layers);
-                }
+            // Add layer
+            let layers: Layer[] = this.geomService.getLayers();
 
-                this.current.layer = layer;
+            if (this.currentGeoObjectLayer != null && layers.findIndex(l => l.getId() === this.currentGeoObjectLayer.getId()) !== -1) {
+                layers.splice(layers.findIndex(l => l.getId() === this.currentGeoObjectLayer.getId()), 1);
+            }
+
+            let dataSource = new GeoObjectLayerDataSource(this.service, geoObject.properties.code, geoObject.properties.type, this.current == null ? null : this.current.forDate);
+
+            let displayLabel = geoObject.properties.displayLabel.localizedValue;
+            let typeLabel = type.label.localizedValue;
+            let date = this.current == null ? "" : this.dateService.formatDateForDisplay(this.current.forDate);
+            let label = displayLabel + " " + date + " (" + typeLabel + ")";
+
+            let layer = dataSource.createLayer(label, true, ColorGen().hexString());
+
+            if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
+                layers.splice(0, 0, layer);
+
+                this.geomService.zoomOnReady(layer.getId());
+                this.geomService.setLayers(layers);
+
+                this.currentGeoObjectLayer = layer;
+            }
+
+            /*
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             }).finally(() => {
                 this.spinner.hide(this.CONSTANTS.OVERLAY);
             });
+            */
         });
     }
 

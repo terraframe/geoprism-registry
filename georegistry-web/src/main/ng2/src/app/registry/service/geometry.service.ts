@@ -214,7 +214,15 @@ export class GeometryService implements OnDestroy {
                 const diff = diffs[0];
                 let newLayer = newLayers[diff.index];
                 let oldLayer = this.layers[diff.index];
-                let prevLayer = (diff.index === 0) ? null : this.layers[diff.index - 1];
+
+                let prevLayer = null;
+                if (diff.index > 0) {
+                    for (let i = 0; i < diff.index; ++i) {
+                        if (this.layers[i].rendered) {
+                            prevLayer = this.layers[i];
+                        }
+                    }
+                }
 
                 if (diff.type === "RENDERED_CHANGE") {
                     if (newLayer.rendered) {
@@ -295,6 +303,9 @@ export class GeometryService implements OnDestroy {
     public setLayers(newLayers: Layer[]) {
         if (this.syncWithUrlParams) {
             let serialized = this.dataSourceFactory.serializeLayers(newLayers);
+
+            // If we don't update immediately then we can cause race conditions in calling code
+            this.internalUpdateLayers(newLayers);
 
             this.router.navigate([], {
                 relativeTo: this.route,
