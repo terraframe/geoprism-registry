@@ -75,7 +75,7 @@ export class GeometryService implements OnDestroy {
         this.dataSourceFactory = new DataSourceFactory(this, this.registryService, this.relVizService, this.mapService, this.listService);
     }
 
-    initialize(map: Map, geometryType: String, syncWithUrlParams: boolean) {
+    public initialize(map: Map, geometryType: String, syncWithUrlParams: boolean) {
         this.syncWithUrlParams = syncWithUrlParams;
         this.map = map;
         this.geometryType = geometryType;
@@ -218,21 +218,19 @@ export class GeometryService implements OnDestroy {
                 let prevLayer = null;
                 if (diff.index > 0) {
                     for (let i = 0; i < diff.index; ++i) {
-                        if (this.layers[i].rendered) {
-                            prevLayer = this.layers[i];
-                        }
+                        prevLayer = this.layers[i];
                     }
                 }
 
                 if (diff.type === "RENDERED_CHANGE") {
                     if (newLayer.rendered) {
-                        this.mapLayer(newLayer, prevLayer);
+                        this.mapboxShowLayer(newLayer);
                     } else {
-                        this.unmapLayer(oldLayer);
+                        this.mapboxHideLayer(newLayer);
                     }
                 } else if (diff.type === "COLOR_CHANGE") {
-                    this.unmapLayer(oldLayer);
-                    this.mapLayer(newLayer, prevLayer);
+                    this.mapboxUnmapLayer(oldLayer);
+                    this.mapboxMapLayer(newLayer, prevLayer);
                 }
 
                 fullRebuild = false;
@@ -243,13 +241,11 @@ export class GeometryService implements OnDestroy {
                 let prevLayer = null;
                 if (diff.index > 0) {
                     for (let i = 0; i < diff.index; ++i) {
-                        if (this.layers[i].rendered) {
-                            prevLayer = this.layers[i];
-                        }
+                        prevLayer = this.layers[i];
                     }
                 }
 
-                this.mapLayer(newLayers[newLayers.length - 1], prevLayer);
+                this.mapboxMapLayer(newLayers[newLayers.length - 1], prevLayer);
                 fullRebuild = false;
             } else if (diffs.length > 0 && newLayers.length === this.layers.length && diffs.filter(diff => diff.type !== "LAYER_REORDER").length === 0) {
                 // Layers changed order but are otherwise the same.
@@ -275,13 +271,7 @@ export class GeometryService implements OnDestroy {
             }
 
             if (fullRebuild) {
-                // Remove all existing layers
-                let len = this.layers.length;
-                for (let i = 0; i < len; ++i) {
-                    if (this.layers[i].rendered) {
-                        this.unmapLayer(this.layers[i]);
-                    }
-                }
+                this.unmapAllLayers();
 
                 this.layers = newLayers;
                 this.mapAllLayers();
@@ -299,12 +289,12 @@ export class GeometryService implements OnDestroy {
     /*
      * Notify the map that the datasets of a particular type have changed and that the data sources must be rebuilt.
      */
-    refreshDatasets(type: string) {
+    public refreshDatasets(type: string) {
         let otherLayer = null;
         this.getLayers().forEach(layer => {
             if (layer.dataSource.getDataSourceType() === type) {
-                this.unmapLayer(layer);
-                this.mapLayer(layer, otherLayer);
+                this.mapboxUnmapLayer(layer);
+                this.mapboxMapLayer(layer, otherLayer);
             }
             otherLayer = layer;
         });
@@ -380,7 +370,7 @@ export class GeometryService implements OnDestroy {
         }
     }
 
-    destroy(destroyMap: boolean = true): void {
+    public destroy(destroyMap: boolean = true): void {
         if (this.editingControl != null) {
             this.map.removeControl(this.editingControl);
             this.editingControl = null;
@@ -398,7 +388,6 @@ export class GeometryService implements OnDestroy {
                 if (layer instanceof GeoJsonLayer) {
                     layer.editing = false;
                 }
-                layer.rendered = false;
             });
         }
 
@@ -411,23 +400,23 @@ export class GeometryService implements OnDestroy {
         return this.map;
     }
 
-    getDataSourceFactory() {
+    public getDataSourceFactory() {
         return this.dataSourceFactory;
     }
 
-    setDataSourceFactory(fac) {
+    public setDataSourceFactory(fac) {
         this.dataSourceFactory = fac;
     }
 
-    registerDataSource(dataSource: LayerDataSource) {
+    public registerDataSource(dataSource: LayerDataSource) {
         this.dataSourceFactory.registerDataSource(dataSource);
     }
 
-    unregisterDataSource(dataSourceType: string) {
+    public unregisterDataSource(dataSourceType: string) {
         this.dataSourceFactory.unregisterDataSource(dataSourceType);
     }
 
-    startEditing(layer: GeoJsonLayer) {
+    public startEditing(layer: GeoJsonLayer) {
         if (this.isEditing()) {
             this.stopEditing();
         }
@@ -442,7 +431,7 @@ export class GeometryService implements OnDestroy {
         this.addEditingLayers();
     }
 
-    stopEditing(rerender: boolean = true) {
+    public stopEditing(rerender: boolean = true) {
         if (this.isEditing()) {
             this.saveEdits(rerender);
 
@@ -519,7 +508,7 @@ export class GeometryService implements OnDestroy {
         return true;
     }
 
-    saveEdits(rerender: boolean = true): void {
+    public saveEdits(rerender: boolean = true): void {
         if (this.editingLayer != null) {
             let geoJson = this.getDrawGeometry();
 
@@ -602,12 +591,8 @@ export class GeometryService implements OnDestroy {
         this.setLayers(newLayers);
     }
 
-    getLayers(): Layer[] {
+    public getLayers(): Layer[] {
         return this.dataSourceFactory.deserializeLayers(this.dataSourceFactory.serializeLayers(this.layers));
-    }
-
-    getRenderedLayers(): Layer[] {
-        return this.layers.filter(layer => layer.rendered);
     }
 
     enableEditing(): void {
@@ -705,25 +690,19 @@ export class GeometryService implements OnDestroy {
         }
     }
 
-    unmapLayer(layer: Layer): void {
+    private mapboxUnmapLayer(layer: Layer): void {
         if (this.map) {
-            const layerName = layer.getId();
-
-            if (this.map.getLayer(layerName + "-POLYGON") != null) {
-                this.map.removeLayer(layerName + "-POLYGON");
-            }
-            if (this.map.getLayer(layerName + "-POINT") != null) {
-                this.map.removeLayer(layerName + "-POINT");
-            }
-            if (this.map.getLayer(layerName + "-LINE") != null) {
-                this.map.removeLayer(layerName + "-LINE");
-            }
-            if (this.map.getLayer(layerName + "-LABEL") != null) {
-                this.map.removeLayer(layerName + "-LABEL");
-            }
+            this.getMapboxLayerIdsForLayer(layer).forEach(id => {
+                if (this.map.getLayer(id) != null) {
+                    this.map.removeLayer(id);
+                } else {
+                    // eslint-disable-next-line no-console
+                    console.log("Attempted to remove a layer [" + id + "] which does not exist.");
+                }
+            });
 
             // If this source is used by other layers we don't want to remove the source
-            let sourceHasOtherMappedLayers = this.layers.filter(l => layer.getId() !== l.getId() && l.dataSource.getId() === layer.dataSource.getId() && l.rendered).length > 0;
+            let sourceHasOtherMappedLayers = this.layers.filter(l => layer.getId() !== l.getId() && l.dataSource.getId() === layer.dataSource.getId()).length > 0;
 
             if (!sourceHasOtherMappedLayers && this.map.getSource(layer.dataSource.getId()) != null) {
                 this.map.removeSource(layer.dataSource.getId());
@@ -731,33 +710,57 @@ export class GeometryService implements OnDestroy {
         }
     }
 
-    unmapAllLayers(): void {
+    public unmapAllLayers(): void {
         if (this.layers != null && this.layers.length > 0) {
             let len = this.layers.length;
 
             for (let i = 0; i < len; ++i) {
                 let layer = this.layers[i];
-                this.unmapLayer(layer);
+                this.mapboxUnmapLayer(layer);
             }
         }
     }
 
-    mapAllLayers(): void {
+    public mapAllLayers(): void {
         if (this.layers != null && this.layers.length > 0) {
             let prevLayer = null;
             let len = this.layers.length;
             for (let i = 0; i < len; ++i) {
                 let layer = this.layers[i];
 
-                if (layer.rendered) {
-                    this.mapLayer(layer, prevLayer);
-                    prevLayer = layer;
-                }
+                this.mapboxMapLayer(layer, prevLayer);
+                prevLayer = layer;
             }
         }
     }
 
-    mapLayer(layer: Layer, otherLayer?: Layer): void {
+    private mapboxHideLayer(layer: Layer): void {
+        if (!this.map) { return; }
+
+        this.getMapboxLayerIdsForLayer(layer).forEach(id => {
+            if (this.map.getLayer(id) != null) {
+                this.map.setLayoutProperty(id, "visibility", "none");
+            } else {
+                // eslint-disable-next-line no-console
+                console.log("Attempted to hide a layer [" + id + "] which does not exist.");
+            }
+        });
+    }
+
+    private mapboxShowLayer(layer: Layer): void {
+        if (!this.map) { return; }
+
+        this.getMapboxLayerIdsForLayer(layer).forEach(id => {
+            if (this.map.getLayer(id) != null) {
+                this.map.setLayoutProperty(id, "visibility", "visible");
+            } else {
+                // eslint-disable-next-line no-console
+                console.log("Attempted to show a layer [" + id + "] which does not exist.");
+            }
+        });
+    }
+
+    private mapboxMapLayer(layer: Layer, otherLayer?: Layer): void {
         if (!this.map) { return; }
 
         let mapboxSource: AnySourceData = layer.dataSource.buildMapboxSource();
@@ -785,16 +788,12 @@ export class GeometryService implements OnDestroy {
             }
         }
 
-        if (otherLayer && !otherLayer.rendered) {
-            otherLayer = null;
-        }
-
         if (layer.dataSource.getGeometryType() === "MIXED") {
-            this.mapLayerAsType("POLYGON", layer, otherLayer);
-            this.mapLayerAsType("POINT", layer, otherLayer);
-            this.mapLayerAsType("LINE", layer, otherLayer);
+            this.mapboxMapLayerAsType("POLYGON", layer, otherLayer);
+            this.mapboxMapLayerAsType("POINT", layer, otherLayer);
+            this.mapboxMapLayerAsType("LINE", layer, otherLayer);
         } else {
-            this.mapLayerAsType(layer.dataSource.getGeometryType(), layer, otherLayer);
+            this.mapboxMapLayerAsType(layer.dataSource.getGeometryType(), layer, otherLayer);
         }
 
         // Label layer
@@ -816,12 +815,16 @@ export class GeometryService implements OnDestroy {
             }
         };
 
+        if (!layer.rendered) {
+            labelConfig.layout.visibility = "none";
+        }
+
         layer.configureMapboxLayer("LABEL", labelConfig);
 
         this.map.addLayer(labelConfig, otherLayer ? otherLayer.getId() + "-LABEL" : null);
     }
 
-    mapLayerAsType(geometryType: string, layer: Layer, otherLayer?: Layer): void {
+    private mapboxMapLayerAsType(geometryType: string, layer: Layer, otherLayer?: Layer): void {
         let layerConfig: any;
 
         if (geometryType === "MULTIPOLYGON" || geometryType === "POLYGON") {
@@ -895,6 +898,11 @@ export class GeometryService implements OnDestroy {
 
         layer.configureMapboxLayer(geometryType, layerConfig);
 
+        if (!layer.rendered) {
+            layerConfig.layout = (layerConfig.layout == null) ? {} : layerConfig.layout;
+            layerConfig.layout.visibility = "none";
+        }
+
         this.map.addLayer(layerConfig, otherLayer ? otherLayer.getId() + "-" + this.getLayerIdGeomTypePostfix(otherLayer.dataSource.getGeometryType()) : null);
     }
 
@@ -910,7 +918,19 @@ export class GeometryService implements OnDestroy {
         }
     }
 
-    getDrawGeometry(): any {
+    private getMapboxLayerIdsForLayer(layer: Layer): string[] {
+        let ids = [];
+
+        if (layer.dataSource.getGeometryType() === "MIXED") {
+            ids = ["POLYGON", "POINT", "LINE", "LABEL"];
+        } else {
+            ids = [this.getLayerIdGeomTypePostfix(layer.dataSource.getGeometryType()), "LABEL"];
+        }
+
+        return ids.map(id => layer.getId() + "-" + id);
+    }
+
+    public getDrawGeometry(): any {
         if (this.editingControl != null) {
             let featureCollection: any = this.editingControl.getAll();
 
@@ -1006,7 +1026,7 @@ export class GeometryService implements OnDestroy {
         return value;
     }
 
-    zoomToLayersExtent(): void {
+    public zoomToLayersExtent(): void {
         let layers = this.getLayers();
         let geoJsonLayer: GeoJsonLayer = null;
 

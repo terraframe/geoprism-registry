@@ -10,7 +10,7 @@
       <div class="row">
 
         <!-- <div class="label-holder"></div> -->
-        <div [ngStyle]="{'width' : (isGeometryInlined && geomService.getRenderedLayers().length > 0) ? '45%' : '100%'}" style="display:inline-block;" class="col">
+        <div [ngStyle]="{'width' : (isGeometryInlined && geomService.getLayers().length > 0) ? '45%' : '100%'}" style="display:inline-block;" class="col">
           <div *ngIf="changeRequestEditor.geoObject" class="attribute-version-wrapper">
             <ul class="list-group">
               <li class="list-group-item" style="text-align:left;padding:0;">
@@ -339,9 +339,9 @@
             
           </div>
         </div>
-        <geoobject-editor-map style="width:55%;display:inline-block;vertical-align:top;margin-top:15px;" *ngIf="isGeometryInlined && geomService.getRenderedLayers().length > 0" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
+        <geoobject-editor-map style="width:55%;display:inline-block;vertical-align:top;margin-top:15px;" *ngIf="isGeometryInlined && geomService.getLayers().length > 0" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
           [mapHeight]="mapRowHeight" [readOnly]="!geoObjectType.isGeometryEditable && readonly"
-          [bboxCode]="this.changeRequestEditor.geoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="geomService.getRenderedLayers()[0].startDate">
+          [bboxCode]="this.changeRequestEditor.geoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="geomService.getLayers()[0].startDate">
         </geoobject-editor-map>
       </div>
 
