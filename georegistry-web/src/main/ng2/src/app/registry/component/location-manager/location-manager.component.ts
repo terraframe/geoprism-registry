@@ -806,19 +806,16 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             if (index !== -1) {
                 const layer = this.geomService.getLayers()[index];
 
-                if (this.map.getSource(layer.dataSource.getId()) != null) {
-                    // Highlight the feature on the map
-                    this.feature = {
-                        source: layer.dataSource.getId(),
-                        sourceLayer: "context",
-                        id: uid,
-                        version: list
-                    };
+                this.feature = {
+                    source: layer.dataSource.getId(),
+                    sourceLayer: "context",
+                    id: uid,
+                    version: list
+                };
 
-                    this.map.setFeatureState(this.feature, {
-                        selected: true
-                    });
-                }
+                // this.map.setFeatureState(this.feature, {
+                //     selected: true
+                // });
             }
 
             if (record.recordType === "LIST") { // this happens when list type is NOT working
@@ -876,9 +873,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         this.isEdit = false;
 
-        if (this.feature != null) {
-            this.map.removeFeatureState(this.feature);
-        }
+        // if (this.feature != null) {
+        //     this.map.removeFeatureState(this.feature);
+        // }
 
         this.featurePanel.setEditMode(false);
         this.feature = null;
