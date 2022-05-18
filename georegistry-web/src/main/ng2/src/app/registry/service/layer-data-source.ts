@@ -309,10 +309,6 @@ export class ValueOverTimeDataSource extends GeoJsonLayerDataSource {
         this.votEditor = votEditor;
     }
 
-    public toJSON(): any {
-        return null; // Not serializable
-    }
-
     setLayerData(data: any): void {
         if (this.getDataSourceType() === CHANGE_REQUEST_SOURCE_TYPE_NEW) {
             this.votEditor.value = data;
@@ -608,12 +604,12 @@ export class DataSourceFactory {
         this.listService = listService;
     }
 
-    public getRegisteredDataSource(dataSourceType: string) {
-        return this.dataSources[dataSourceType];
+    public getRegisteredDataSource(dataSourceId: string) {
+        return this.dataSources[dataSourceId];
     }
 
     public registerDataSource(dataSource: LayerDataSource) {
-        this.dataSources[dataSource.getDataSourceType()] = dataSource;
+        this.dataSources[dataSource.getId()] = dataSource;
     }
 
     public unregisterDataSource(dataSourceType: string) {
@@ -629,8 +625,6 @@ export class DataSourceFactory {
             return new ListVectorLayerDataSource(this.listService);
         } else if (dataSourceType === SEARCH_DATASOURCE_TYPE) {
             return new SearchLayerDataSource(this.mapService);
-        } else if (this.dataSources[dataSourceType] != null) {
-            return this.dataSources[dataSourceType];
         } else {
             // This can happen if they were editing and refreshed the map with editing layers
 
@@ -643,7 +637,9 @@ export class DataSourceFactory {
     public deserializeDataSource(obj: any): LayerDataSource {
         let dataSource = this.newDataSourceFromType(obj.dataSourceType);
 
-        if (dataSource == null) {
+        if (dataSource == null && this.dataSources[obj.id] != null) {
+            return this.dataSources[obj.id];
+        } else if (dataSource == null) {
             return null;
         }
 
@@ -654,10 +650,6 @@ export class DataSourceFactory {
 
     public serializeDataSource(dataSource: LayerDataSource): any {
         let sds = dataSource.toJSON();
-
-        if (sds == null) { // Not all data sources are serializable. In which case they just return null
-            sds = { dataSourceType: dataSource.getDataSourceType() };
-        }
 
         return sds;
     }

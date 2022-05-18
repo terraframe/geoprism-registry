@@ -452,34 +452,36 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     changeMode(mode: number): void {
-        this.mode = mode;
+        if (mode !== this.mode) {
+            this.mode = mode;
 
-        if (this.isEdit) {
-            this.geomService.stopEditing();
-        }
-
-        if (this.mode === this.MODE.SEARCH) {
-            this.isEdit = false;
-
-            if (this.feature != null) {
-                this.map.removeFeatureState(this.feature);
+            if (this.isEdit) {
+                this.geomService.stopEditing();
             }
 
-            if (this.currentGeoObjectLayer != null) {
-                this.geomService.removeLayer(this.currentGeoObjectLayer.getId());
-                this.currentGeoObjectLayer = null;
-            }
-            this.addSearchLayer();
+            if (this.mode === this.MODE.SEARCH) {
+                this.isEdit = false;
 
-            this.current = null;
-            this.feature = null;
-        } else if (this.mode === this.MODE.VIEW) {
-            // Remove any existing search layer
-            let layers = this.geomService.getLayers();
-            let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
-            if (index !== -1) {
-                let existingSearchLayer = layers[index];
-                this.geomService.removeLayer(existingSearchLayer.getId());
+                if (this.feature != null) {
+                    this.map.removeFeatureState(this.feature);
+                }
+
+                if (this.currentGeoObjectLayer != null) {
+                    this.geomService.removeLayer(this.currentGeoObjectLayer.getId());
+                    this.currentGeoObjectLayer = null;
+                }
+                this.addSearchLayer();
+
+                this.current = null;
+                this.feature = null;
+            } else if (this.mode === this.MODE.VIEW) {
+                // Remove any existing search layer
+                let layers = this.geomService.getLayers();
+                let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
+                if (index !== -1) {
+                    let existingSearchLayer = layers[index];
+                    this.geomService.removeLayer(existingSearchLayer.getId());
+                }
             }
         }
     }

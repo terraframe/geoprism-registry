@@ -1591,8 +1591,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     geoObj.setUid(vertex.getObjectValue(RegistryConstants.UUID));
     geoObj.setCode(vertex.getObjectValue(DefaultAttribute.CODE.getName()));
-    geoObj.setGeometry(this.getGeometry());
-    geoObj.setDisplayLabel(this.getDisplayLabel());
+    geoObj.setGeometry(this.getGeometry(date));
+    geoObj.setDisplayLabel(this.getDisplayLabel(date));
     geoObj.setExists(this.getExists(date));
     geoObj.setInvalid(this.getInvalid());
 
@@ -1897,22 +1897,27 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return LocalizedValueConverter.convert(graphObject);
   }
 
-  public Geometry getGeometry()
+  public Geometry getGeometry(Date date)
   {
     String attrName = this.getGeometryAttributeName();
 
     Geometry geom = null;
 
-    if (this.date == null)
+    if (date == null)
     {
       geom = (Geometry) this.getMostRecentValue(attrName);
     }
     else
     {
-      geom = vertex.getObjectValue(attrName, this.date);
+      geom = vertex.getObjectValue(attrName, date);
     }
 
     return geom;
+  }
+  
+  public Geometry getGeometry()
+  {
+    return this.getGeometry(this.date);
   }
 
   private boolean exists(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate)
