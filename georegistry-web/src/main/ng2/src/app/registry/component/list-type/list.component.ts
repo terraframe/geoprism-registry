@@ -331,6 +331,7 @@ export class ListComponent implements OnInit, OnDestroy {
     layerFromVersion(version: ListTypeVersion): any {
         let dataSource = new ListVectorLayerDataSource(this.service, version.oid);
         let layer = dataSource.createLayer(version.displayLabel, true, ColorGen().hexString());
+        this.geomService.zoomOnReady(layer.getId());
         return this.geomService.getDataSourceFactory().serializeLayers([layer]);
     }
 
