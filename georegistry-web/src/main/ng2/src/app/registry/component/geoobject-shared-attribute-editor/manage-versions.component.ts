@@ -36,14 +36,14 @@ import { LocalizationService } from "@shared/service";
 
 import { VersionDiffView } from "./manage-versions-model";
 import { ControlContainer, NgForm } from "@angular/forms";
-import { Observable, Observer } from "rxjs";
+import { Observable, Observer, Subscription } from "rxjs";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 import { HierarchyCREditor } from "./HierarchyCREditor";
 import { ChangeRequestEditor } from "./change-request-editor";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import * as ColorGen from "color-generator";
-import { CHANGE_REQUEST_SOURCE_TYPE_NEW, CHANGE_REQUEST_SOURCE_TYPE_OLD, GeoJsonLayer, GeoObjectLayerDataSource, ValueOverTimeDataSource } from "@registry/service/layer-data-source";
+import { CHANGE_REQUEST_SOURCE_TYPE_NEW, CHANGE_REQUEST_SOURCE_TYPE_OLD, GeoJsonLayer, GeoObjectLayerDataSource, Layer, ValueOverTimeDataSource } from "@registry/service/layer-data-source";
 
 @Component({
     selector: "manage-versions",
@@ -113,6 +113,8 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
 
     isInitialized: boolean = false;
 
+    layerChangeSub: Subscription;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(public geomService: GeometryService, public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService,
         public changeDetectorRef: ChangeDetectorRef, public dateService: DateService, private authService: AuthService,
@@ -124,6 +126,15 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
         this.calculateViewModels();
         this.isRootOfHierarchy = this.attributeType.type === "_PARENT_" && (this.hierarchy == null || this.hierarchy.types == null || this.hierarchy.types.length === 0);
         this.isInitialized = true;
+
+        this.layerChangeSub = this.geomService.layersChange.subscribe(layers => {
+            if (this.viewModels) {
+                this.viewModels.forEach(view => {
+                    let layers = this.geomService.getLayers();
+                    this.syncLayerReferences(layers, view);
+                });
+            }
+        });
     }
 
     ngAfterViewInit() {
@@ -149,6 +160,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.viewModels.forEach(vm => vm.destroy(this));
+        this.layerChangeSub.unsubscribe();
     }
 
     setFilterDate(filterDate: string, refresh: boolean = true): void {
@@ -234,14 +246,56 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
         this.viewModels.forEach(viewModel => viewModel.destroy(this));
 
         let editors = this.changeRequestAttributeEditor.getEditors(this.showAllInstances);
+
+        let layers: Layer[];
+        if (this.attributeType.code === "geometry") {
+            layers = this.geomService.getLayers();
+        }
+
         editors.forEach((editor: ValueOverTimeCREditor) => {
             if (this.filterDate == null || this.dateService.between(this.filterDate, editor.startDate, editor.endDate)) {
                 let view = new VersionDiffView(this, editor);
                 viewModels.push(view);
+
+                if (this.attributeType.code === "geometry") {
+                    this.syncLayerReferences(layers, view);
+                }
             }
         });
 
         this.viewModels = viewModels;
+    }
+
+    /*
+     * It is possible that somebody else may have already created a particular layer for this view. We want to find it, and make the view
+     *   aware that a layer already exists.
+     */
+    syncLayerReferences(layers: Layer[], view: VersionDiffView) {
+        // Object layer
+        let indexOL = layers.findIndex(layer => layer.dataSource instanceof GeoObjectLayerDataSource && this.dateService.between((layer.dataSource as GeoObjectLayerDataSource).getDate(), view.editor.startDate, view.editor.endDate));
+        if (indexOL !== -1) {
+            view.objectLayer = layers[indexOL];
+        } else {
+            delete view.objectLayer;
+        }
+
+        // Editing Layer
+        let keyEL = new ValueOverTimeDataSource("NEW", view.editor).getKey();
+        let indexEL = layers.findIndex(l => l.dataSource.getKey() === keyEL);
+        if (indexEL !== -1) {
+            view.editingLayer = layers[indexEL] as GeoJsonLayer;
+        } else {
+            delete view.editingLayer;
+        }
+
+        // Old Layer
+        let keyOLD = new ValueOverTimeDataSource("OLD", view.editor).getKey();
+        let indexOLD = layers.findIndex(l => l.dataSource.getKey() === keyOLD);
+        if (indexOLD !== -1) {
+            view.oldLayer = layers[indexOLD] as GeoJsonLayer;
+        } else {
+            delete view.oldLayer;
+        }
     }
 
     onApprove(): void {

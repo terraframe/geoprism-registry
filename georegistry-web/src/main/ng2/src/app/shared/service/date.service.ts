@@ -209,13 +209,13 @@ export class DateService {
     }
 
     public between(test: string | Date, startDate: string, endDate: string) {
-        if (test == null || startDate == null || endDate == null) {
+        if (startDate == null) {
             return false;
         }
 
-        let dTest: Date = test instanceof Date ? test : this.getDateFromDateString(test);
+        let dTest: Date = test == null ? this.getPresentDate() : (test instanceof Date ? test : this.getDateFromDateString(test));
         let dStart: Date = this.getDateFromDateString(startDate);
-        let dEnd: Date = this.getDateFromDateString(endDate);
+        let dEnd: Date = endDate == null ? this.getPresentDate() : this.getDateFromDateString(endDate);
 
         return dTest >= dStart && dTest <= dEnd;
     }

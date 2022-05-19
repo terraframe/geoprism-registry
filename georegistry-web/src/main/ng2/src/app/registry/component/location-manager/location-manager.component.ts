@@ -880,6 +880,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     featurePanelForDateChange(date: string) {
         if (date !== null) {
             this.geomService.stopEditing();
+
+            this.calculatedDate = date;
         }
     }
 
@@ -995,12 +997,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             // Add layer
             let layers: Layer[] = this.geomService.getLayers();
 
-            let dataSource = new GeoObjectLayerDataSource(this.service, geoObject.properties.code, geoObject.properties.type, this.current == null ? null : this.current.forDate);
+            let date = this.state == null ? null : this.state.date;
+            let dataSource = new GeoObjectLayerDataSource(this.service, geoObject.properties.code, geoObject.properties.type, date);
 
             let displayLabel = geoObject.properties.displayLabel.localizedValue;
             let typeLabel = type.label.localizedValue;
-            let date = this.current == null ? "" : " " + this.dateService.formatDateForDisplay(this.current.forDate);
-            let label = displayLabel + " " + date + "(" + typeLabel + ")";
+            let sDate = date == null ? "" : " " + this.dateService.formatDateForDisplay(date);
+            let label = displayLabel + " " + sDate + "(" + typeLabel + ")";
 
             let layer = dataSource.createLayer(label, true, ColorGen().hexString());
 
