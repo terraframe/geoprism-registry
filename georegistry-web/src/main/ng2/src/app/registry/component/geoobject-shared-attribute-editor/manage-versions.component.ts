@@ -272,7 +272,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
      */
     syncLayerReferences(layers: Layer[], view: VersionDiffView) {
         // Object layer
-        let indexOL = layers.findIndex(layer => layer.dataSource instanceof GeoObjectLayerDataSource && this.dateService.between((layer.dataSource as GeoObjectLayerDataSource).getDate(), view.editor.startDate, view.editor.endDate));
+        let indexOL = layers.findIndex(layer => layer.dataSource instanceof GeoObjectLayerDataSource && (layer.dataSource as GeoObjectLayerDataSource).getCode() === this.changeRequestEditor.geoObject.attributes["code"] && (layer.dataSource as GeoObjectLayerDataSource).getTypeCode() === this.changeRequestEditor.geoObjectType.code && this.dateService.between((layer.dataSource as GeoObjectLayerDataSource).getDate(), view.editor.startDate, view.editor.endDate));
         if (indexOL !== -1) {
             view.objectLayer = layers[indexOL];
         } else {
