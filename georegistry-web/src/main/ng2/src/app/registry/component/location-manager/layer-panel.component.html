@@ -66,42 +66,46 @@
         <localize key="explorer.layers"></localize>
       </h4>
       -->
-      <div class="list-group" cdkDropList (cdkDropListDropped)="drop($event)">
-        <div *ngFor="let layer of layers" class="list-group-item" style="padding:5px;" cdkDrag>
-
-            <div class="layer-toggle-wrapper" style="cursor:move;">
-            
-              <div class="custom-placeholder" *cdkDragPlaceholder></div>
-              
-              <!-- <i class="fa fa-arrows" style="font-size:15px;color: grey;margin-right: 3px;" aria-hidden="true"></i> -->
-              <boolean-field [value]="layer.rendered" label="" [disable]="false" (change)="toggleLayerRendered(layer)" style="line-height:0;" ></boolean-field>
-              
-              <div class="label-wrapper">
-                {{layer.legendLabel}}
-                <span *ngIf="layer.dataSource.forDate">- {{ layer.dataSource.forDate }}</span>
-                
-                <ng-container *ngIf="layer.dataSource.versionNumber != null">
-		                (
-									  <a *ngIf="layer.dataSource.versionNumber !== 0" [routerLink]="'/registry/master-list/' + layer.dataSource.getVersionId()" routerLinkActive="active">
-									    <localize key="list.type.version"></localize>
-									    {{layer.dataSource.versionNumber}}
-									  </a>
-									  
-									  <a *ngIf="layer.dataSource.versionNumber === 0" [routerLink]="'/registry/master-list/' + layer.dataSource.getVersionId()" routerLinkActive="active">
-									    <localize *ngIf="layer.dataSource.versionNumber === 0" key="list.type.working.version"></localize>
-									  </a>
-									  )
-							  </ng-container>
-                
-                <div class="layer-legend-square" [ngStyle]="{'background-color': layer.color}" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"> </div>
-<!--                 <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i> -->
-<!--                 <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i> -->
-                <i [title]="'explorer.layerPanel.zoomToFeature' | localize" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
-                <i *ngIf="layer.dataSource.versionNumber === 0" [title]="'explorer.layerPanel.addNewGeoObject' | localize" class="fa fa-plus" aria-hidden="true" (click)="onCreate(layer)"></i>
-                <i [title]="'explorer.layerPanel.removeLayer' | localize" class="fa fa-times" aria-hidden="true" (click)="removeLayer(layer)"></i>
-              </div>
-            </div>
-        </div>
+      <div *ngFor="let layerGroup of layerGroups">
+          <label style="font-weight: bold;">{{layerGroup.getLabel()}}</label>
+      
+		      <div class="list-group" cdkDropList (cdkDropListDropped)="drop($event, layerGroup)">
+			        <div *ngFor="let layer of layerGroup.getLayers()" class="list-group-item" style="padding:5px;" cdkDrag>
+			
+			            <div class="layer-toggle-wrapper" style="cursor:move;">
+			            
+			              <div class="custom-placeholder" *cdkDragPlaceholder></div>
+			              
+			              <!-- <i class="fa fa-arrows" style="font-size:15px;color: grey;margin-right: 3px;" aria-hidden="true"></i> -->
+			              <boolean-field [value]="layer.rendered" label="" [disable]="false" (change)="toggleLayerRendered(layer)" style="line-height:0;" ></boolean-field>
+			              
+			              <div class="label-wrapper">
+			                {{layer.legendLabel}}
+			                <span *ngIf="layer.dataSource.forDate">- {{ layer.dataSource.forDate }}</span>
+			                
+			                <ng-container *ngIf="layer.dataSource.versionNumber != null">
+					                (
+												  <a *ngIf="layer.dataSource.versionNumber !== 0" [routerLink]="'/registry/master-list/' + layer.dataSource.getVersionId()" routerLinkActive="active">
+												    <localize key="list.type.version"></localize>
+												    {{layer.dataSource.versionNumber}}
+												  </a>
+												  
+												  <a *ngIf="layer.dataSource.versionNumber === 0" [routerLink]="'/registry/master-list/' + layer.dataSource.getVersionId()" routerLinkActive="active">
+												    <localize *ngIf="layer.dataSource.versionNumber === 0" key="list.type.working.version"></localize>
+												  </a>
+												  )
+										  </ng-container>
+			                
+			                <div class="layer-legend-square" [ngStyle]="{'background-color': layer.color}" style="width:15px;height:15px;display:inline-block;vertical-align:middle;"> </div>
+			<!--                 <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i> -->
+			<!--                 <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i> -->
+			                <i [title]="'explorer.layerPanel.zoomToFeature' | localize" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
+			                <i *ngIf="layer.dataSource.versionNumber === 0" [title]="'explorer.layerPanel.addNewGeoObject' | localize" class="fa fa-plus" aria-hidden="true" (click)="onCreate(layer)"></i>
+			                <i [title]="'explorer.layerPanel.removeLayer' | localize" class="fa fa-times" aria-hidden="true" (click)="removeLayer(layer)"></i>
+			              </div>
+			            </div>
+			        </div>
+		      </div>
       </div>
       
     </div>

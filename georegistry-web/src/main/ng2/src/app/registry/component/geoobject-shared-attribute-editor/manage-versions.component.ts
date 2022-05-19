@@ -130,7 +130,6 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
         this.layerChangeSub = this.geomService.layersChange.subscribe(layers => {
             if (this.viewModels) {
                 this.viewModels.forEach(view => {
-                    let layers = this.geomService.getLayers();
                     this.syncLayerReferences(layers, view);
                 });
             }

@@ -11,6 +11,8 @@ import { DataSourceFactory, GeoJsonLayer, GeoJsonLayerDataSource, Layer, LayerDa
 import { RegistryService } from "./registry.service";
 import { MapService } from "./map.service";
 import { ListTypeService } from "./list-type.service";
+import { LayerGroupSorter, LayerSorter } from "@registry/component/location-manager/layer-group";
+import { LocalizationService } from "@shared/service/localization.service";
 
 export const OLD_LAYER_COLOR = "#A4A4A4";
 
@@ -63,6 +65,8 @@ export class GeometryService implements OnDestroy {
 
     dataSourceFactory: DataSourceFactory;
 
+    layerSorter: LayerSorter;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private route: ActivatedRoute,
@@ -70,9 +74,11 @@ export class GeometryService implements OnDestroy {
         private registryService: RegistryService,
         private relVizService: RelationshipVisualizationService,
         private mapService: MapService,
-        private listService: ListTypeService
+        private listService: ListTypeService,
+        private localService: LocalizationService
     ) {
         this.dataSourceFactory = new DataSourceFactory(this, this.registryService, this.relVizService, this.mapService, this.listService);
+        this.layerSorter = new LayerGroupSorter(this.localService);
     }
 
     public initialize(map: Map, geometryType: String, syncWithUrlParams: boolean) {
@@ -134,6 +140,10 @@ export class GeometryService implements OnDestroy {
     }
 
     private internalUpdateLayers(newLayers: Layer[]) {
+        if (this.layerSorter != null) {
+            newLayers = this.layerSorter.sortLayers(newLayers);
+        }
+
         if (this.map) {
             // Calculate a diff
             let diffs: {type: string, index: number, moveTo?: number}[] = [];
@@ -283,7 +293,7 @@ export class GeometryService implements OnDestroy {
             this.layers = newLayers;
         }
 
-        this.layersChange.emit(this.layers);
+        this.layersChange.emit(this.getLayers());
     }
 
     /*

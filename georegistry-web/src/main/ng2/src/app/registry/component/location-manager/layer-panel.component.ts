@@ -11,9 +11,11 @@ import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
 import { NgxSpinnerService } from "ngx-spinner";
 import { OverlayerIdentifier } from "@registry/model/constants";
 import { GeometryService } from "@registry/service/geometry.service";
-import { Layer, ListVectorLayerDataSource, LIST_VECTOR_SOURCE_TYPE } from "@registry/service/layer-data-source";
+import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, LIST_VECTOR_SOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, SEARCH_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
 import { RegistryService } from "@registry/service/registry.service";
 import { RelationshipVisualizationService } from "@registry/service/relationship-visualization.service";
+import { LayerGroup, LayerGroupSorter } from "./layer-group";
+import { LocalizationService } from "@shared/service/localization.service";
 
 export interface BaseLayer {
     name: string,
@@ -42,7 +44,11 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
 
     // Hack to allow the constant to be used in the html
     CONSTANTS = {
-        OVERLAY: OverlayerIdentifier.LAYER_PANEL
+        OVERLAY: OverlayerIdentifier.LAYER_PANEL,
+        SEARCH_DATASOURCE_TYPE: SEARCH_DATASOURCE_TYPE,
+        GEO_OBJECT_DATA_SOURCE_TYPE: GEO_OBJECT_DATA_SOURCE_TYPE,
+        RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE: RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE,
+        LIST_VECTOR_SOURCE_TYPE: LIST_VECTOR_SOURCE_TYPE
     }
 
     @Input() filter: string[] = [];
@@ -57,8 +63,9 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     @Output() panelSizeChange = new EventEmitter<number>();
 
     listOrgGroups: ListOrgGroup[] = [];
-    // lists: ContextList[] = [];
+
     layers: Layer[] = [];
+    layerGroups: LayerGroup[] = [];
 
     versionMap: { [key: string]: ListVersion } = {};
 
@@ -105,6 +112,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         private geomService: GeometryService,
         private registryService: RegistryService,
         private vizService: RelationshipVisualizationService,
+        private localService: LocalizationService,
         private listService: ListTypeService) { }
 
     ngOnInit(): void {
@@ -142,6 +150,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
 
     layersChange(layers: Layer[]): void {
         this.layers = this.geomService.getLayers();
+        this.layerGroups = new LayerGroupSorter(this.localService).getLayerGroups(layers);
 
         let layersWithoutVersions = this.layers.filter(layer => this.versionMap[layer.getId()] == null && layer.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE).map(layer => (layer.dataSource as ListVectorLayerDataSource).getVersionId());
         if (layersWithoutVersions.length > 0) {
@@ -284,16 +293,13 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         this.baseLayerChange.emit(layer);
     }
 
-    moveLayer(eventLayers: Layer[]): void {
-        this.geomService.setLayers(eventLayers);
-    }
+    drop(event: CdkDragDrop<string[]>, group: LayerGroup) {
+        moveItemInArray(group.getLayers(), event.previousIndex, event.currentIndex);
 
-    drop(event: CdkDragDrop<string[]>) {
-        let factory = this.geomService.getDataSourceFactory();
-        let eventLayers = factory.deserializeLayers(factory.serializeLayers(this.layers));
+        let layers = [];
+        this.layerGroups.forEach(group => group.getLayers().forEach(l => layers.push(l)));
 
-        moveItemInArray(eventLayers, event.previousIndex, event.currentIndex);
-        this.moveLayer(eventLayers);
+        this.geomService.setLayers(layers);
     }
 
 }
