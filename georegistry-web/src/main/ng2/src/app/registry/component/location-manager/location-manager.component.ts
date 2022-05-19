@@ -517,12 +517,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     onZoomTo(layer: Layer): void {
         if (layer && layer.dataSource) {
-            layer.dataSource.getBounds(layer).then((bounds: LngLatBounds) => {
+            layer.dataSource.getBounds(layer).then((bounds: LngLatBoundsLike) => {
                 if (bounds != null) {
                     this.map.fitBounds(bounds, this.calculateZoomConfig(null));
                 }
             }).catch((err: HttpErrorResponse) => {
-                this.error(err);
+                // eslint-disable-next-line no-console
+                console.log(err);
             });
         }
     }

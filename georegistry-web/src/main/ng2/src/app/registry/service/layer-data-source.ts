@@ -71,6 +71,17 @@ export abstract class GeoJsonLayerDataSource extends LayerDataSource {
         };
     }
 
+    getBounds(layer: Layer): Promise<LngLatBoundsLike> {
+        return this.getLayerData().then(data => {
+            try {
+                return bbox(data as any) as LngLatBoundsLike;
+            // eslint-disable-next-line no-console
+            } catch (e) { console.log(e); }
+
+            return null;
+        });
+    }
+
 }
 
 export class Layer {
@@ -405,12 +416,6 @@ export class SearchLayerDataSource extends GeoJsonLayerDataSource {
 
     getKey(): string {
         return SEARCH_DATASOURCE_TYPE + this.text + (this.date == null ? "" : this.date);
-    }
-
-    getBounds(layer: Layer): Promise<LngLatBoundsLike> {
-        return this.mapService.search(this.text, this.date, false).then(data => {
-            return bbox(data as any) as LngLatBoundsLike;
-        });
     }
 
 }
