@@ -41,6 +41,7 @@ import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.attributes.AttributeValueException;
 import com.runwaysdk.dataaccess.attributes.entity.AttributeBoolean;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.LeftJoinEq;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -110,14 +111,26 @@ public class UserInfo extends UserInfoBase
         // restrict by org code
         OrganizationQuery orgQuery = new OrganizationQuery(vQuery);
         OrganizationUserQuery relQuery = new OrganizationUserQuery(vQuery);
-
+        
+        vQuery.WHERE(new LeftJoinEq(uQuery.getOid(), relQuery.getChild()));
+        vQuery.WHERE(new LeftJoinEq(relQuery.getParent(), orgQuery.getOid()));
+        
+        Condition cond = null;
+        
         for (Organization org : organizations)
         {
-          orgQuery.OR(orgQuery.getCode().EQ(org.getCode()));
+          if (cond == null) {
+            cond = orgQuery.getCode().EQ(org.getCode());
+          }
+          else
+          {
+            cond = cond.OR(orgQuery.getCode().EQ(org.getCode()));
+          }
         }
-
-        vQuery.WHERE(relQuery.parentOid().EQ(orgQuery.getOid()));
-        vQuery.WHERE(uQuery.getOid().EQ(relQuery.childOid()));
+        
+        cond = cond.OR(orgQuery.getCode().EQ((String) null));
+        
+        vQuery.AND(cond);
       }
 
       if (isRMorRCorAC)
