@@ -293,7 +293,7 @@ export class GeometryService implements OnDestroy {
         if (this.params.graphPanelOpen === "true" && !(this.params.attrPanelOpen === "true")) {
             // If graph panel is open, but not attribute panel (takes up half of the left screen)
             config.padding.left += Math.round(window.innerWidth / 2);
-        } else if (this.params.attrPanelOpen === "true" && !(this.params.graphPanelOpen === "true")) {
+        } else if (this.params.attrPanelOpen === "true" && (this.params.text != null) && !(this.params.graphPanelOpen === "true")) {
             // If attribute panel is open, but not the graph panel (takes up half of the left screen)
             config.padding.left += Math.round(window.innerWidth / 3);
         }
