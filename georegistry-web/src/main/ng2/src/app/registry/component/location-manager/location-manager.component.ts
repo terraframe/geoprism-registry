@@ -51,6 +51,7 @@ class SelectedObject {
 }
 
 export interface LocationManagerParams {
+    layers?: string,
     graphPanelOpen?: string,
     graphOid?: string,
     date?: string,
@@ -430,7 +431,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     setPanel(showPanel: boolean): void {
-        if (this.showPanel !== showPanel) {
+        if ((this.params.attrPanelOpen === "true") !== showPanel) {
             this.showPanel = showPanel;
 
             this.router.navigate([], {
@@ -513,19 +514,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
 
         this.handleParameterChange(this.params);
-    }
-
-    onZoomTo(layer: Layer): void {
-        if (layer && layer.dataSource) {
-            layer.dataSource.getBounds(layer).then((bounds: LngLatBoundsLike) => {
-                if (bounds != null) {
-                    this.map.fitBounds(bounds, this.calculateZoomConfig(null));
-                }
-            }).catch((err: HttpErrorResponse) => {
-                // eslint-disable-next-line no-console
-                console.log(err);
-            });
-        }
     }
 
     onCreate(layer: ContextLayer): void {
@@ -731,51 +719,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.state.currentDate = date;
 
         this.addSearchLayer();
-    }
-
-    zoomToFeature(geoObject: GeoObject, event: MouseEvent): void {
-        if (event != null) {
-            event.stopPropagation();
-        }
-
-        this.preventSingleClick = false;
-        const delay = 200;
-
-        let geometry = geoObject.geometry;
-
-        this.timer = setTimeout(() => {
-            if (!this.preventSingleClick) {
-                if (geometry != null) {
-                    const bounds = bbox(geometry) as LngLatBoundsLike;
-
-                    this.map.fitBounds(bounds, this.calculateZoomConfig(geometry.type));
-                }
-            }
-        }, delay);
-    }
-
-    calculateZoomConfig(geometryType: string): any {
-        let padding = 50;
-        let maxZoom = 20;
-
-        // Zoom level was requested to be reduced when displaying point types as per #420
-        if (geometryType === "Point" || geometryType === "MultiPoint") {
-            padding = 100;
-            maxZoom = 12;
-        }
-
-        let config: any = { padding: padding, animate: true, maxZoom: maxZoom };
-
-        if (this.graphPanelOpen && !this.showPanel) {
-            config.padding = {
-                top: (this.layersPanelSize !== PANEL_SIZE_STATE.MINIMIZED ? ((37 * this.geomService.getLayers().length) + 45) : 0) + 10,
-                bottom: 10,
-                left: (Math.round(this.windowWidth / 2) + 10),
-                right: 10
-            };
-        }
-
-        return config;
     }
 
     handleRecord(list: string, uid: string): void {

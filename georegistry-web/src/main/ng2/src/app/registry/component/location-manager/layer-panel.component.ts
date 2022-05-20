@@ -56,7 +56,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     @Input() visualizeMode: number;
 
     @Output() baseLayerChange = new EventEmitter<BaseLayer>();
-    @Output() zoomTo = new EventEmitter<Layer>();
     @Output() create = new EventEmitter<Layer>();
 
     @Input() panelSize: number = PANEL_SIZE_STATE.MINIMIZED;
@@ -265,7 +264,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         let layers = this.geomService.getLayers().filter(l => l.getId() === layer.getId());
 
         if (layers.length > 0) {
-            this.zoomTo.emit(layers[0]);
+            this.geomService.zoomToLayer(layers[0]);
         }
     }
 

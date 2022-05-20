@@ -1,9 +1,9 @@
 
-import { Injectable, Output, EventEmitter, OnDestroy } from "@angular/core";
+import { Injectable, Output, EventEmitter, OnDestroy, HostListener } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 
 import * as MapboxDraw from "@mapbox/mapbox-gl-draw";
-import { Map, LngLat, LngLatBounds, AnySourceData } from "mapbox-gl";
+import { Map, LngLat, LngLatBounds, AnySourceData, LngLatBoundsLike } from "mapbox-gl";
 import { Subscription } from "rxjs";
 
 import { RelationshipVisualizationService } from "./relationship-visualization.service";
@@ -14,6 +14,8 @@ import { ListTypeService } from "./list-type.service";
 import { LayerGroupSorter, LayerSorter } from "@registry/component/location-manager/layer-group";
 import { LocalizationService } from "@shared/service/localization.service";
 import { LayerDiffingStrategy } from "./layer-diffing-strategy";
+import { LocationManagerParams } from "@registry/component/location-manager/location-manager.component";
+import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
 
 export const OLD_LAYER_COLOR = "#A4A4A4";
 
@@ -62,7 +64,7 @@ export class GeometryService implements OnDestroy {
      */
     syncWithUrlParams: boolean = false;
 
-    params: any = null;
+    params: LocationManagerParams = null;
 
     dataSourceFactory: DataSourceFactory;
 
@@ -125,7 +127,7 @@ export class GeometryService implements OnDestroy {
     }
 
     handleParameterChange(params: Params): void {
-        this.params = params;
+        this.params = params as LocationManagerParams;
 
         if (this.params != null) {
             if (this.params.layers != null) {
@@ -272,7 +274,7 @@ export class GeometryService implements OnDestroy {
     }
 
     public zoomToLayer(layer: Layer): Promise<void> {
-        return layer.dataSource.getBounds(layer).then((bounds: LngLatBounds) => {
+        return layer.dataSource.getBounds(layer).then((bounds: LngLatBoundsLike) => {
             if (bounds != null) {
                 this.map.fitBounds(bounds, this.calculateZoomConfig(null));
             }
@@ -280,16 +282,34 @@ export class GeometryService implements OnDestroy {
     }
 
     private calculateZoomConfig(geometryType: string): any {
-        let padding = 50;
-        let maxZoom = 20;
+        let config: any = { padding: { top: 10, bottom: 10, left: 10, right: 10 }, animate: true, maxZoom: 20 };
 
         // Zoom level was requested to be reduced when displaying point types as per #420
         if (geometryType === "Point" || geometryType === "MultiPoint") {
-            padding = 100;
-            maxZoom = 12;
+            config.padding = { top: 50, bottom: 50, left: 50, right: 50 };
+            config.maxZoom = 12;
         }
 
-        let config: any = { padding: padding, animate: true, maxZoom: maxZoom };
+        if (this.params.graphPanelOpen === "true" && !(this.params.attrPanelOpen === "true")) {
+            // If graph panel is open, but not attribute panel (takes up half of the left screen)
+            config.padding.left += Math.round(window.innerWidth / 2);
+        } else if (this.params.attrPanelOpen === "true" && !(this.params.graphPanelOpen === "true")) {
+            // If attribute panel is open, but not the graph panel (takes up half of the left screen)
+            config.padding.left += Math.round(window.innerWidth / 3);
+        }
+
+        if (this.params.layersPanelSize != null) {
+            let layerPanelSize = Number.parseInt(this.params.layersPanelSize);
+
+            if (layerPanelSize === PANEL_SIZE_STATE.WINDOWED || PANEL_SIZE_STATE.FULLSCREEN) {
+                config.padding.right += 50;
+
+                /*
+                config.padding.top += 37 * this.layers.length;
+                config.padding.top += layerPanelSize === PANEL_SIZE_STATE.FULLSCREEN ? 50 : 10;
+                */
+            }
+        }
 
         return config;
     }
