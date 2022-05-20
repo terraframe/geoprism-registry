@@ -36,6 +36,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -59,6 +60,7 @@ import net.geoprism.registry.task.Task.TaskStatus;
 import net.geoprism.registry.task.Task.TaskTypeIF;
 import net.geoprism.registry.test.TestUserInfo;
 
+@Ignore
 public class TaskTest
 {
   public static final TestUserInfo USER_SRA       = new TestUserInfo("task_sra", "task_sra", "task_sra@noreply.com", new String[] { RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE });
