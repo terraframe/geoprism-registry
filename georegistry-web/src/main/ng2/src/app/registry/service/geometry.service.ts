@@ -13,6 +13,7 @@ import { MapService } from "./map.service";
 import { ListTypeService } from "./list-type.service";
 import { LayerGroupSorter, LayerSorter } from "@registry/component/location-manager/layer-group";
 import { LocalizationService } from "@shared/service/localization.service";
+import { LayerDiffingStrategy } from "./layer-diffing-strategy";
 
 export const OLD_LAYER_COLOR = "#A4A4A4";
 
@@ -145,76 +146,9 @@ export class GeometryService implements OnDestroy {
         }
 
         if (this.map) {
-            // Calculate a diff
-            let diffs: {type: string, index: number, moveTo?: number}[] = [];
-            let iterations = newLayers.length > this.layers.length ? newLayers.length : this.layers.length;
-            for (let i = 0; i < iterations; ++i) {
-                if (i >= newLayers.length) {
-                    let existingLayer = this.layers[i];
+            let strategy = new LayerDiffingStrategy(newLayers, this.layers);
 
-                    let existingLayerExistsElsewhere = newLayers.findIndex(findLayer => findLayer.getId() === existingLayer.getId());
-
-                    if (existingLayerExistsElsewhere !== -1) {
-                        diffs.push({
-                            type: "LAYER_REORDER",
-                            index: i,
-                            moveTo: existingLayerExistsElsewhere
-                        });
-                    } else {
-                        diffs.push({
-                            type: "REMOVE_LAYER",
-                            index: i
-                        });
-                    }
-                } else if (i >= this.layers.length) {
-                    let newLayer = newLayers[i];
-
-                    let paramLayerExistsElsewhere = this.layers.findIndex(findLayer => findLayer.getId() === newLayer.getId());
-
-                    if (paramLayerExistsElsewhere !== -1) {
-                        diffs.push({
-                            type: "LAYER_REORDER",
-                            index: i,
-                            moveTo: paramLayerExistsElsewhere
-                        });
-                    } else {
-                        diffs.push({
-                            type: "NEW_LAYER",
-                            index: i
-                        });
-                    }
-                } else {
-                    let newLayer = newLayers[i];
-                    let layer = this.layers[i];
-
-                    if (newLayer.getId() !== layer.getId()) {
-                        let paramLayerExistsElsewhere = this.layers.findIndex(findLayer => findLayer.getId() === newLayer.getId());
-
-                        if (paramLayerExistsElsewhere !== -1) {
-                            diffs.push({
-                                type: "LAYER_REORDER",
-                                index: i,
-                                moveTo: paramLayerExistsElsewhere
-                            });
-                        } else {
-                            diffs.push({
-                                type: "NEW_LAYER",
-                                index: i
-                            });
-                        }
-                    } else if (newLayer.rendered !== layer.rendered) {
-                        diffs.push({
-                            type: "RENDERED_CHANGE",
-                            index: i
-                        });
-                    } else if (newLayer.color !== layer.color) {
-                        diffs.push({
-                            type: "COLOR_CHANGE",
-                            index: i
-                        });
-                    }
-                }
-            }
+            let diffs = strategy.getDiffs();
 
             let fullRebuild = diffs.length > 0 || newLayers.length !== this.layers.length;
 
@@ -222,40 +156,44 @@ export class GeometryService implements OnDestroy {
                 // They just toggled whether a layer was rendered or changed a layer color
 
                 const diff = diffs[0];
-                let newLayer = newLayers[diff.index];
-                let oldLayer = this.layers[diff.index];
 
                 let prevLayer = null;
-                if (diff.index > 0) {
-                    for (let i = 0; i < diff.index; ++i) {
+                if (diff.oldLayerIndex > 0) {
+                    for (let i = 0; i < diff.oldLayerIndex; ++i) {
                         prevLayer = this.layers[i];
                     }
                 }
 
                 if (diff.type === "RENDERED_CHANGE") {
-                    if (newLayer.rendered) {
-                        this.mapboxShowLayer(newLayer);
+                    if (diff.newLayer.rendered) {
+                        this.mapboxShowLayer(diff.newLayer);
                     } else {
-                        this.mapboxHideLayer(newLayer);
+                        this.mapboxHideLayer(diff.oldLayer);
                     }
                 } else if (diff.type === "COLOR_CHANGE") {
-                    this.mapboxUnmapLayer(oldLayer);
-                    this.mapboxMapLayer(newLayer, prevLayer);
+                    this.mapboxUnmapLayer(diff.oldLayer);
+                    this.mapboxMapLayer(diff.newLayer, prevLayer);
                 }
 
                 fullRebuild = false;
-            } else if (diffs.length === 1 && diffs[0].type === "NEW_LAYER" && diffs[0].index === this.layers.length && this.layers.length > 0) {
-                // Added a layer at the end
+            } else if (diffs.filter(diff => diff.type === "NEW_LAYER").length === 1 && diffs.filter(diff => diff.type !== "NEW_LAYER" && diff.type !== "LAYER_REORDER").length === 0 && newLayers.length === this.layers.length + 1) {
+                // Added a layer
+                const diff = diffs.filter(diff => diff.type === "NEW_LAYER")[0];
 
-                const diff = diffs[0];
                 let prevLayer = null;
-                if (diff.index > 0) {
-                    for (let i = 0; i < diff.index; ++i) {
+                if (diff.newLayerIndex > 0) {
+                    for (let i = 0; i < diff.newLayerIndex; ++i) {
                         prevLayer = this.layers[i];
                     }
                 }
 
-                this.mapboxMapLayer(newLayers[newLayers.length - 1], prevLayer);
+                this.mapboxMapLayer(newLayers[diff.newLayerIndex], prevLayer);
+                fullRebuild = false;
+            } else if (diffs.filter(diff => diff.type === "REMOVE_LAYER").length === 1 && diffs.filter(diff => diff.type !== "REMOVE_LAYER" && diff.type !== "LAYER_REORDER").length === 0 && newLayers.length === this.layers.length - 1) {
+                // Removed a layer
+                const diff = diffs.filter(diff => diff.type === "REMOVE_LAYER")[0];
+
+                this.mapboxUnmapLayer(diff.oldLayer);
                 fullRebuild = false;
             } else if (diffs.length > 0 && newLayers.length === this.layers.length && diffs.filter(diff => diff.type !== "LAYER_REORDER").length === 0) {
                 // Layers changed order but are otherwise the same.
