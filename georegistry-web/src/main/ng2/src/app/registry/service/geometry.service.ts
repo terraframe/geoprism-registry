@@ -1,5 +1,5 @@
 
-import { Injectable, Output, EventEmitter, OnDestroy, HostListener } from "@angular/core";
+import { Injectable, Output, EventEmitter, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 
 import * as MapboxDraw from "@mapbox/mapbox-gl-draw";
@@ -16,6 +16,7 @@ import { LocalizationService } from "@shared/service/localization.service";
 import { LayerDiffingStrategy } from "./layer-diffing-strategy";
 import { LocationManagerParams } from "@registry/component/location-manager/location-manager.component";
 import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
+import { debounce } from "ts-debounce";
 
 export const OLD_LAYER_COLOR = "#A4A4A4";
 
@@ -27,7 +28,7 @@ export const SELECTED_COLOR = "#800000";
  * This service provides a global abstraction for mapping and editing layers across many different components (simultaneously) and
  * serializing / deserializing these layers to / from the url parameters to facilitate saving + loading of layer state.
  *
- * Layers contain references to data source providers, which are invoked when deserializing from the url param to facilitate
+ * Layers contain references to data sources, which are invoked when deserializing from the url param to facilitate
  * population of layer data.
  */
 @Injectable()
@@ -36,6 +37,8 @@ export class GeometryService implements OnDestroy {
     map: Map;
 
     layers: Layer[] = [];
+
+    currentMapState: Layer[] = [];
 
     geometryType: String;
 
@@ -70,6 +73,8 @@ export class GeometryService implements OnDestroy {
 
     layerSorter: LayerSorter;
 
+    public syncMapState: () => void;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private route: ActivatedRoute,
@@ -82,6 +87,7 @@ export class GeometryService implements OnDestroy {
     ) {
         this.dataSourceFactory = new DataSourceFactory(this, this.registryService, this.relVizService, this.mapService, this.listService);
         this.layerSorter = new LayerGroupSorter(this.localService);
+        this.syncMapState = debounce(this._syncMapState, 50);
     }
 
     public initialize(map: Map, geometryType: String, syncWithUrlParams: boolean) {
@@ -133,26 +139,26 @@ export class GeometryService implements OnDestroy {
             if (this.params.layers != null) {
                 let deserializedLayers: any = JSON.parse(this.params.layers);
 
-                let layers = this.dataSourceFactory.deserializeLayers(deserializedLayers);
+                let oldLayers = this.layers;
 
-                if (this.map) {
-                    this.internalUpdateLayers(layers);
+                this.layers = this.dataSourceFactory.deserializeLayers(deserializedLayers);
+
+                if (new LayerDiffingStrategy(this.layers, oldLayers).getDiffs().length > 0) {
+                    this.layersChange.emit(this.getLayers());
                 }
+
+                this.syncMapState();
             }
         }
     }
 
-    private internalUpdateLayers(newLayers: Layer[]) {
-        if (this.layerSorter != null) {
-            newLayers = this.layerSorter.sortLayers(newLayers);
-        }
-
+    private _syncMapState() {
         if (this.map) {
-            let strategy = new LayerDiffingStrategy(newLayers, this.layers);
+            let strategy = new LayerDiffingStrategy(this.layers, this.currentMapState);
 
             let diffs = strategy.getDiffs();
 
-            let fullRebuild = diffs.length > 0 || newLayers.length !== this.layers.length;
+            let fullRebuild = diffs.length > 0 || this.layers.length !== this.currentMapState.length;
 
             if (diffs.length === 1 && (diffs[0].type === "RENDERED_CHANGE" || diffs[0].type === "COLOR_CHANGE")) {
                 // They just toggled whether a layer was rendered or changed a layer color
@@ -162,7 +168,7 @@ export class GeometryService implements OnDestroy {
                 let prevLayer = null;
                 if (diff.oldLayerIndex > 0) {
                     for (let i = 0; i < diff.oldLayerIndex; ++i) {
-                        prevLayer = this.layers[i];
+                        prevLayer = this.currentMapState[i];
                     }
                 }
 
@@ -178,31 +184,31 @@ export class GeometryService implements OnDestroy {
                 }
 
                 fullRebuild = false;
-            } else if (diffs.filter(diff => diff.type === "NEW_LAYER").length === 1 && diffs.filter(diff => diff.type !== "NEW_LAYER" && diff.type !== "LAYER_REORDER").length === 0 && newLayers.length === this.layers.length + 1) {
+            } else if (diffs.filter(diff => diff.type === "NEW_LAYER").length === 1 && diffs.filter(diff => diff.type !== "NEW_LAYER" && diff.type !== "LAYER_REORDER").length === 0 && this.layers.length === this.currentMapState.length + 1) {
                 // Added a layer
                 const diff = diffs.filter(diff => diff.type === "NEW_LAYER")[0];
 
                 let prevLayer = null;
                 if (diff.newLayerIndex > 0) {
                     for (let i = 0; i < diff.newLayerIndex; ++i) {
-                        prevLayer = this.layers[i];
+                        prevLayer = this.currentMapState[i];
                     }
                 }
 
-                this.mapboxMapLayer(newLayers[diff.newLayerIndex], prevLayer);
+                this.mapboxMapLayer(this.layers[diff.newLayerIndex], prevLayer);
                 fullRebuild = false;
-            } else if (diffs.filter(diff => diff.type === "REMOVE_LAYER").length === 1 && diffs.filter(diff => diff.type !== "REMOVE_LAYER" && diff.type !== "LAYER_REORDER").length === 0 && newLayers.length === this.layers.length - 1) {
+            } else if (diffs.filter(diff => diff.type === "REMOVE_LAYER").length === 1 && diffs.filter(diff => diff.type !== "REMOVE_LAYER" && diff.type !== "LAYER_REORDER").length === 0 && this.layers.length === this.currentMapState.length - 1) {
                 // Removed a layer
                 const diff = diffs.filter(diff => diff.type === "REMOVE_LAYER")[0];
 
                 this.mapboxUnmapLayer(diff.oldLayer);
                 fullRebuild = false;
-            } else if (diffs.length > 0 && newLayers.length === this.layers.length && diffs.filter(diff => diff.type !== "LAYER_REORDER").length === 0) {
+            } else if (diffs.length > 0 && this.layers.length === this.currentMapState.length && diffs.filter(diff => diff.type !== "LAYER_REORDER").length === 0) {
                 // Layers changed order but are otherwise the same.
 
-                this.layers = newLayers;
-                for (let i = this.layers.length - 1; i > -1; i--) {
-                    const layer = this.layers[i];
+                this.currentMapState = this.layers;
+                for (let i = this.currentMapState.length - 1; i > -1; i--) {
+                    const layer = this.currentMapState[i];
 
                     if (this.map.getLayer(layer.getId() + "-POLYGON")) {
                         this.map.moveLayer(layer.getId() + "-POLYGON");
@@ -223,17 +229,15 @@ export class GeometryService implements OnDestroy {
             if (fullRebuild) {
                 this.unmapAllLayers();
 
-                this.layers = newLayers;
+                this.currentMapState = this.layers;
                 this.mapAllLayers();
             } else {
                 // Make sure attribute changes are reflected
-                this.layers = newLayers;
+                this.currentMapState = this.layers;
             }
         } else {
-            this.layers = newLayers;
+            this.currentMapState = this.layers;
         }
-
-        this.layersChange.emit(this.getLayers());
     }
 
     /*
@@ -251,11 +255,14 @@ export class GeometryService implements OnDestroy {
     }
 
     public setLayers(newLayers: Layer[]) {
+        if (this.layerSorter != null) {
+            this.layers = this.layerSorter.sortLayers(newLayers);
+        } else {
+            this.layers = newLayers;
+        }
+
         if (this.syncWithUrlParams) {
             let serialized = this.dataSourceFactory.serializeLayers(newLayers);
-
-            // If we don't update immediately then we can cause race conditions in calling code
-            this.internalUpdateLayers(newLayers);
 
             this.router.navigate([], {
                 relativeTo: this.route,
@@ -263,8 +270,10 @@ export class GeometryService implements OnDestroy {
                 queryParamsHandling: "merge" // remove to replace all query params by provided
             });
         } else {
-            this.internalUpdateLayers(newLayers);
+            this.syncMapState();
         }
+
+        this.layersChange.emit(this.getLayers());
     }
 
     public zoomOnReady(layerId: string) {
@@ -363,6 +372,7 @@ export class GeometryService implements OnDestroy {
 
         this.editingLayer = null;
         this.layers = [];
+        this.currentMapState = [];
         this.dataSourceFactory = new DataSourceFactory(this, this.registryService, this.relVizService, this.mapService, this.listService);
     }
 
@@ -672,7 +682,7 @@ export class GeometryService implements OnDestroy {
             });
 
             // If this source is used by other layers we don't want to remove the source
-            let sourceHasOtherMappedLayers = this.layers.filter(l => layer.getId() !== l.getId() && l.dataSource.getId() === layer.dataSource.getId()).length > 0;
+            let sourceHasOtherMappedLayers = this.currentMapState.filter(l => layer.getId() !== l.getId() && l.dataSource.getId() === layer.dataSource.getId()).length > 0;
 
             if (!sourceHasOtherMappedLayers && this.map.getSource(layer.dataSource.getId()) != null) {
                 this.map.removeSource(layer.dataSource.getId());
@@ -681,22 +691,22 @@ export class GeometryService implements OnDestroy {
     }
 
     public unmapAllLayers(): void {
-        if (this.layers != null && this.layers.length > 0) {
-            let len = this.layers.length;
+        if (this.currentMapState != null && this.currentMapState.length > 0) {
+            let len = this.currentMapState.length;
 
             for (let i = 0; i < len; ++i) {
-                let layer = this.layers[i];
+                let layer = this.currentMapState[i];
                 this.mapboxUnmapLayer(layer);
             }
         }
     }
 
     public mapAllLayers(): void {
-        if (this.layers != null && this.layers.length > 0) {
+        if (this.currentMapState != null && this.currentMapState.length > 0) {
             let prevLayer = null;
-            let len = this.layers.length;
+            let len = this.currentMapState.length;
             for (let i = 0; i < len; ++i) {
-                let layer = this.layers[i];
+                let layer = this.currentMapState[i];
 
                 this.mapboxMapLayer(layer, prevLayer);
                 prevLayer = layer;

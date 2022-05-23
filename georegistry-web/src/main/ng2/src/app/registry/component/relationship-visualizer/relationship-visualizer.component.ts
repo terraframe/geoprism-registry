@@ -60,7 +60,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     params: LocationManagerParams = {};
 
-    @Output() nodeSelect = new EventEmitter<{ objectType: "BUSINESS" | "GEOOBJECT", id: string, code: string, typeCode: string, selectAnimation: (resolve) => void }>();
+    @Output() nodeSelect = new EventEmitter<Vertex>();
 
     @Output() changeRelationship = new EventEmitter<string>();
 
@@ -479,7 +479,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                 });
             };
 
-            this.nodeSelect.emit({ objectType: node.objectType, id: node.id.substring(2), code: node.code, typeCode: node.typeCode, selectAnimation: doIt });
+            this.nodeSelect.emit({ objectType: node.objectType, id: node.id.substring(2), code: node.code, typeCode: node.typeCode, label: node.label, selectAnimation: doIt } as any);
         }
     }
 
