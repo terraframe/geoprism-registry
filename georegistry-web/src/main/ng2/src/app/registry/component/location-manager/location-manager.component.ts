@@ -333,7 +333,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         if (this.ready) {
             let mode = this.MODE.SEARCH;
-            let showPanel = this.showPanel;
+            let showPanel = (this.params.attrPanelOpen === "true");
 
             if (this.params != null) {
                 // Handle parameters for searching for a geo object
@@ -432,11 +432,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     setPanel(showPanel: boolean): void {
         if ((this.params.attrPanelOpen === "true") !== showPanel) {
-            this.showPanel = showPanel;
-
             this.router.navigate([], {
                 relativeTo: this.route,
-                queryParams: { attrPanelOpen: this.showPanel },
+                queryParams: { attrPanelOpen: showPanel },
                 queryParamsHandling: "merge" // remove to replace all query params by provided
             });
 
@@ -447,7 +445,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     togglePanel(): void {
-        this.setPanel(!this.showPanel);
+        this.setPanel(!(this.params.attrPanelOpen === "true"));
     }
 
     changeMode(mode: number): void {
@@ -585,11 +583,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         if (layer) {
                             if (layer.dataSource.getDataSourceType() === SEARCH_DATASOURCE_TYPE) {
                                 if ((this.current == null || feature.properties == null || this.params.code !== feature.properties.code || this.params.type !== feature.properties.type)) {
-                                    // this.select(feature, null);
+                                    let geoObject: GeoObject = JSON.parse(JSON.stringify(feature));
+                                    geoObject.properties.displayLabel = feature.properties.displayLabel != null ? JSON.parse(feature.properties.displayLabel) : null;
 
-                                    let geoObject = feature;
-                                    geoObject.properties.displayLabel = JSON.parse(geoObject.properties.displayLabel);
-                                    this.selectSearchResult(geoObject as unknown as GeoObject, null);
+                                    this.selectSearchResult(geoObject, null);
                                 }
                             } else {
                                 if (layer.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE) {
@@ -609,7 +606,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                                 } else if (layer.dataSource.getDataSourceType() === GEO_OBJECT_DATA_SOURCE_TYPE) {
                                     this.selectGeoObject(feature.properties.uid, feature.properties.code, feature.properties.type);
                                 } else if (layer.dataSource.getDataSourceType() === RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE) {
-                                    this.selectGeoObject(feature.properties.uid, feature.properties.code, feature.properties.type);
+                                    let geoObject: GeoObject = JSON.parse(JSON.stringify(feature));
+                                    geoObject.properties.displayLabel = feature.properties.displayLabel != null ? JSON.parse(feature.properties.displayLabel) : null;
+
+                                    this.addLayerForGeoObject(geoObject);
+                                    window.setTimeout(() => {
+                                        this.selectGeoObject(geoObject.properties.uid, geoObject.properties.code, geoObject.properties.type);
+                                    }, 1);
                                 }
                             }
                         }
