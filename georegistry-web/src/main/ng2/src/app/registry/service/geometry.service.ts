@@ -327,6 +327,8 @@ export class GeometryService implements OnDestroy {
             id = id.substring(0, id.length - "-POLYGON".length);
         } else if (id.endsWith("-LINE")) {
             id = id.substring(0, id.length - "-LINE".length);
+        } else if (id.endsWith("-LABEL")) {
+            id = id.substring(0, id.length - "-LABEL".length);
         }
 
         let layers = this.getLayers().filter(l => l.getId() === id);
