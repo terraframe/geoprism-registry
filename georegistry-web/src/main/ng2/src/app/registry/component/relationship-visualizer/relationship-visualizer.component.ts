@@ -299,6 +299,8 @@ export class RelationshipVisualizerComponent implements OnInit {
                         layers.splice(existingRelatedType.index, 1, layer);
                     }
                 } else {
+                    // TODO : This is definitely a hack. But I can't get zooming to work up and down rivers with the 'flows through'
+                    //        relationship without doing it this way since this way doesn't interrupt zooming behaviour
                     window.setTimeout(() => {
                         let existingLayer = layers[layers.findIndex(l => l.legendLabel === layer.legendLabel)] as RelationshipVisualizionLayer;
 

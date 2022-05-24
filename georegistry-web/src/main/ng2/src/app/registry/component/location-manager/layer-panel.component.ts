@@ -159,8 +159,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
                     if (layerIndex !== -1) {
                         let layer = this.layers[layerIndex];
                         version.layer = layer;
-                        (layer.dataSource as ListVectorLayerDataSource).forDate = version.forDate;
-                        (layer.dataSource as ListVectorLayerDataSource).versionNumber = version.versionNumber;
                         this.versionMap[layer.getId()] = version;
                     }
                 });
@@ -215,8 +213,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
                         if (layerIndex !== -1) {
                             let layer = this.layers[layerIndex];
                             version.layer = layer;
-                            (layer.dataSource as ListVectorLayerDataSource).forDate = version.forDate;
-                            (layer.dataSource as ListVectorLayerDataSource).versionNumber = version.versionNumber;
                             this.versionMap[layer.getId()] = version;
                         }
                     }
@@ -231,8 +227,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
             if (layerIndex !== -1) {
                 let layer = this.layers[layerIndex];
                 version.layer = layer;
-                (layer.dataSource as ListVectorLayerDataSource).forDate = version.forDate;
-                (layer.dataSource as ListVectorLayerDataSource).versionNumber = version.versionNumber;
             }
         }
     }

@@ -236,10 +236,6 @@ export class ListVectorLayerDataSource extends LayerDataSource {
 
     private versionId: string;
 
-    // This state gets injected by the layer-panel when it fetches the version
-    public forDate?: string;
-    public versionNumber?: number;
-
     constructor(listService: ListTypeService, versionId?: string) {
         super(LIST_VECTOR_SOURCE_TYPE);
         this.versionId = versionId;
