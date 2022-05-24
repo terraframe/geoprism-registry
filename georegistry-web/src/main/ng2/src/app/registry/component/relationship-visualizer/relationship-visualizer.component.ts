@@ -20,7 +20,7 @@ import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { GeometryService } from "@registry/service";
 import { Router, ActivatedRoute } from "@angular/router";
 import { LngLatBounds } from "mapbox-gl";
-import { ObjectReference, Relationship, TreeData, Vertex } from "@registry/model/graph";
+import { ObjectReference, RelatedType, Relationship, TreeData, Vertex } from "@registry/model/graph";
 import { LocationManagerParams } from "../location-manager/location-manager.component";
 import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
 
@@ -256,7 +256,7 @@ export class RelationshipVisualizerComponent implements OnInit {
         }
     }
 
-    private addLayers(relatedTypes: [{ code: string, label: string }]) {
+    private addLayers(relatedTypes: RelatedType[]) {
         if (this.relationship.type === "BUSINESS" || (this.params.objectType === "BUSINESS" && this.relationship.type !== "GEOOBJECT")) {
             let layers: Layer[] = this.geomService.getLayers().filter(layer => layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE);
             this.geomService.setLayers(layers);
@@ -279,41 +279,44 @@ export class RelationshipVisualizerComponent implements OnInit {
             if (layers[i].dataSource.getDataSourceType() === RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE) {
                 let layer: RelationshipVisualizionLayer = layers[i] as RelationshipVisualizionLayer;
 
-                existingRelatedTypes[layer.getRelatedTypeFilter() == null ? "~~null~~" : layer.getRelatedTypeFilter()] = { index: i, layer: layer };
+                existingRelatedTypes[layer.getRelatedTypeFilter()] = { index: i, layer: layer };
             }
         }
 
-        if (sourceObject.objectType === "GEOOBJECT") {
-            relatedTypes.forEach(relatedType => {
+        relatedTypes.forEach(relatedType => {
+            if (relatedType.objectType === "GEOOBJECT") {
                 let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue + " " + relatedType.label, true, this.typeLegend[relatedType.code].color) as RelationshipVisualizionLayer;
                 layer.setRelatedTypeFilter(relatedType.code);
 
-                if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
+                // if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
+                if (layers.findIndex(l => l.legendLabel === layer.legendLabel) === -1) {
                     let existingRelatedType = existingRelatedTypes[relatedType.code];
 
-                  if (existingRelatedType == null) {
-                      layers.push(layer);
-                  } else {
-                      layer.rendered = existingRelatedType.layer.rendered;
-                      layers.splice(existingRelatedType.index, 1, layer);
-                  }
-              }
-          });
-        } else {
-            let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue, true, ColorGen().hexString()) as RelationshipVisualizionLayer;
-
-            if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
-                let existingRelatedType = existingRelatedTypes["~~null~~"];
-
-                if (existingRelatedType == null) {
-                    layers.push(layer);
+                    if (existingRelatedType == null) {
+                        layers.push(layer);
+                    } else {
+                        layer.rendered = existingRelatedType.layer.rendered;
+                        layers.splice(existingRelatedType.index, 1, layer);
+                    }
                 } else {
-                    layer.rendered = existingRelatedType.layer.rendered;
-                    layer.color = existingRelatedType.layer.color;
-                    layers.splice(existingRelatedType.index, 1, layer);
+                    window.setTimeout(() => {
+                        let existingLayer = layers[layers.findIndex(l => l.legendLabel === layer.legendLabel)] as RelationshipVisualizionLayer;
+
+                        dataSource.getLayerData().then((data) => {
+                            let map = this.geomService.getMap();
+
+                            if (map) {
+                                let source = map.getSource(existingLayer.dataSource.getId());
+
+                                if (source) {
+                                    (<any> source).setData(data);
+                                }
+                            }
+                        });
+                    }, 10);
                 }
             }
-        }
+        });
 
         this.geomService.setLayers(layers);
     }
@@ -344,7 +347,7 @@ export class RelationshipVisualizerComponent implements OnInit {
             "))";
     }
 
-    calculateTypeLegend(relatedTypes: [{ code: string, label: string }]) {
+    calculateTypeLegend(relatedTypes: RelatedType[]) {
         let oldTypeLegend = this.typeLegend;
         this.typeLegend = {};
 

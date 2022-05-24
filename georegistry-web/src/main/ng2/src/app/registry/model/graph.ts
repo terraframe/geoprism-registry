@@ -29,8 +29,14 @@ export interface Edge {
     target: string
 }
 
+export interface RelatedType {
+  code: string,
+  label: string,
+  objectType: "BUSINESS" | "GEOOBJECT"
+}
+
 export interface TreeData {
   edges: Edge[],
   verticies: Vertex[],
-  relatedTypes: [{ code: string, label: string }]
+  relatedTypes: RelatedType[]
 }

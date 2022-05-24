@@ -54,6 +54,7 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.visualization.VertexView.ObjectType;
 
 public class RelationshipVisualizationService
 {
@@ -331,6 +332,7 @@ public class RelationshipVisualizationService
     JsonObject view = new JsonObject();
     view.addProperty("code", type.getCode());
     view.addProperty("label", type.getLabel().getValue());
+    view.addProperty("objectType", ObjectType.BUSINESS.name());
     relatedTypes.put(type.getCode(), view);
   }
   
@@ -339,6 +341,7 @@ public class RelationshipVisualizationService
     JsonObject view = new JsonObject();
     view.addProperty("code", type.getCode());
     view.addProperty("label", type.getLabel().getValue());
+    view.addProperty("objectType", ObjectType.GEOOBJECT.name());
     relatedTypes.put(type.getCode(), view);
   }
   

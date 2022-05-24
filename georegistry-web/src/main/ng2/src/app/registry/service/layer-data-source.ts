@@ -431,6 +431,7 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
     date: string;
 
     data: any;
+    dataPromise: any;
 
     // eslint-disable-next-line no-use-before-define
     vizService: RelationshipVisualizationService;
@@ -494,12 +495,16 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
             return new Promise((resolve, reject) => {
                 resolve(this.data);
             });
+        } else if (this.dataPromise != null) {
+            return this.dataPromise;
         } else {
-            return this.vizService.treeAsGeoJson(this.relationshipType, this.relationshipCode, this.sourceObject, this.date, this.getBoundsAsWKT()).then((data: any) => {
+            this.dataPromise = this.vizService.treeAsGeoJson(this.relationshipType, this.relationshipCode, this.sourceObject, this.date, this.getBoundsAsWKT()).then((data: any) => {
                 this.data = data;
 
+                this.dataPromise = null;
                 return this.data;
             });
+            return this.dataPromise;
         }
     }
 

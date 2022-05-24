@@ -99,7 +99,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
     data: GeoObject[] = [];
 
-    state: LocationManagerParams = {};
+    state: LocationManagerParams = { attrPanelOpen: "true" };
 
     /*
      * Currently selected record
@@ -300,11 +300,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    _updateState(newState: any): void {
+    _updateState(newState: LocationManagerParams): void {
         this.router.navigate([], {
             relativeTo: this.route,
             queryParams: newState,
-            queryParamsHandling: "merge" // remove to replace all query params by provided
+            queryParamsHandling: "merge"
         });
     }
 
@@ -343,7 +343,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         if (this.ready) {
             let mode = this.MODE.SEARCH;
-            let showPanel = (newState.attrPanelOpen === "true");
+            let showPanel = (newState.attrPanelOpen === "true" || newState.attrPanelOpen === undefined);
 
             if (newState != null) {
                 // Handle parameters for searching for a geo object
@@ -398,11 +398,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     this.layersPanelSize = (this.pageMode === "EXPLORER") ? PANEL_SIZE_STATE.FULLSCREEN : this.layersPanelSize;
                 }
 
-                if (newState.attrPanelOpen) {
-                    showPanel = newState.attrPanelOpen === "true";
+                if (newState.attrPanelOpen != null) {
+                    showPanel = (newState.attrPanelOpen === "true");
                 }
 
-                if (newState.graphPanelOpen) {
+                if (newState.graphPanelOpen != null) {
                     this.graphPanelOpen = newState.graphPanelOpen === "true";
                 }
             }
@@ -442,7 +442,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     setPanel(showPanel: boolean): void {
         if ((this.state.attrPanelOpen === "true") !== showPanel) {
-            this.updateState({ attrPanelOpen: showPanel });
+            this.updateState({ attrPanelOpen: showPanel ? "true" : "false" });
 
             timeout(() => {
                 this.map.resize();
@@ -509,7 +509,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 const array = mapBounds.toArray();
 
                 window.setTimeout(() => { // Force the route to have a chance to update since the url params can be very out of date here
-                    this.updateState({ bounds: JSON.stringify(array) });
+                    this._updateState({ bounds: JSON.stringify(array) });
                 }, 0);
             }
         });

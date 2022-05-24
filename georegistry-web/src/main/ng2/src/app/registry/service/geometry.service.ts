@@ -224,9 +224,31 @@ export class GeometryService implements OnDestroy {
                     }
                 }
                 fullRebuild = false;
+            } else if (diffs.length === 2 && diffs.filter(diff => diff.type === "REMOVE_LAYER").length === 1 && diffs.filter(diff => diff.type === "NEW_LAYER").length === 1 && this.layers.length === this.currentMapState.length && diffs.filter(diff => diff.type !== "REMOVE_LAYER" && diff.type !== "NEW_LAYER").length === 0) {
+                // Added a layer and removed a layer
+                const newLayerDiff = diffs.filter(diff => diff.type === "NEW_LAYER")[0];
+                const removeLayerDiff = diffs.filter(diff => diff.type === "REMOVE_LAYER")[0];
+
+                if (removeLayerDiff.oldLayer != null && newLayerDiff.newLayer != null) {
+                    this.mapboxUnmapLayer(removeLayerDiff.oldLayer);
+
+                    let prevLayer = null;
+                    if (newLayerDiff.newLayerIndex > 0) {
+                        for (let i = 0; i < newLayerDiff.newLayerIndex; ++i) {
+                            prevLayer = this.currentMapState[i];
+                        }
+                    }
+
+                    this.mapboxMapLayer(newLayerDiff.newLayer, prevLayer);
+
+                    console.log("Layer add + remove", newLayerDiff.newLayer, removeLayerDiff.oldLayer);
+
+                    fullRebuild = false;
+                }
             }
 
             if (fullRebuild) {
+                console.log("Full layer rebuild");
                 this.unmapAllLayers();
 
                 this.currentMapState = this.layers;
