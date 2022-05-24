@@ -98,7 +98,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     loading: boolean = true;
 
-    restrictToMapBounds: boolean = true;
+    restrictToMapBounds: boolean = false;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService,
@@ -258,7 +258,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     private addLayers(relatedTypes: RelatedType[]) {
         if (this.relationship.type === "BUSINESS" || (this.params.objectType === "BUSINESS" && this.relationship.type !== "GEOOBJECT")) {
-            let layers: Layer[] = this.geomService.getLayers().filter(layer => layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE);
+            let layers: Layer[] = this.geomService.getLayers().filter(layer => layer.getPinned() || layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE);
             this.geomService.setLayers(layers);
             return;
         }
@@ -269,9 +269,10 @@ export class RelationshipVisualizerComponent implements OnInit {
         let dataSource = new RelationshipVisualizionDataSource(this.vizService, this.geomService, this.relationship.type, this.relationship.code, sourceObject, this.params.bounds, this.params.date);
 
         // Remove any existing layer from map that is graph related that isn't part of this new data
-        layers = layers.filter(layer => layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE ||
-            (layer as RelationshipVisualizionLayer).getRelatedTypeFilter() == null ||
-            (relatedTypes.map(relatedType => relatedType.code).indexOf((layer as RelationshipVisualizionLayer).getRelatedTypeFilter()) !== -1));
+        layers = layers.filter(layer => layer.getPinned() ||
+            layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE ||
+            ((layer.dataSource as RelationshipVisualizionDataSource).getRelationshipCode() === this.relationship.code && (layer.dataSource as RelationshipVisualizionDataSource).getRelationshipType() === this.relationship.type &&
+              (relatedTypes.map(relatedType => relatedType.code).indexOf((layer as RelationshipVisualizionLayer).getRelatedTypeFilter()) !== -1)));
 
         // If the type is already rendered at a specific position in the layer stack, we want to preserve that positioning and overwrite any layer currently in that position
         let existingRelatedTypes: { [key: string]: { index: number, layer: Layer } } = {};
@@ -292,7 +293,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                 if (layers.findIndex(l => l.legendLabel === layer.legendLabel) === -1) {
                     let existingRelatedType = existingRelatedTypes[relatedType.code];
 
-                    if (existingRelatedType == null) {
+                    if (existingRelatedType == null || existingRelatedType.layer.getPinned()) {
                         layers.push(layer);
                     } else {
                         layer.rendered = existingRelatedType.layer.rendered;

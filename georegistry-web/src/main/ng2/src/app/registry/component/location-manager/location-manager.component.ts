@@ -28,7 +28,7 @@ import { ModalTypes } from "@shared/model/modal";
 import { FeaturePanelComponent } from "./feature-panel.component";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { RecordPopupComponent } from "./record-popup.component";
-import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, GeoObjectLayerDataSource, ValueOverTimeDataSource } from "@registry/service/layer-data-source";
+import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, GeoObjectLayerDataSource, ValueOverTimeDataSource, RelationshipVisualizionDataSource } from "@registry/service/layer-data-source";
 import { BusinessObject, BusinessType } from "@registry/model/business-type";
 import { BusinessObjectService } from "@registry/service/business-object.service";
 import { Vertex } from "@registry/model/graph";
@@ -469,8 +469,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     this.map.removeFeatureState(this.feature);
                 }
 
-                // Remove All Geo-Object layers
-                let layers = this.geomService.getLayers().filter(l => !(l.dataSource instanceof ValueOverTimeDataSource) && !(l.dataSource instanceof GeoObjectLayerDataSource));
+                let layers = this.geomService.getLayers().filter(l =>
+                    l.getPinned() || // Always keep pinned layers
+                    (
+                        !(l.dataSource instanceof ValueOverTimeDataSource) && !(l.dataSource instanceof GeoObjectLayerDataSource) && // Remove All Geo-Object layers
+                        !(l.dataSource instanceof RelationshipVisualizionDataSource) // Remove all Relationship Visualization layers
+                    )
+                );
                 this.geomService.setLayers(layers);
 
                 this.addSearchLayer();
@@ -480,11 +485,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             } else if (this.mode === this.MODE.VIEW) {
                 // Remove any existing search layer
                 let layers = this.geomService.getLayers();
-                let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
-                if (index !== -1) {
-                    let existingSearchLayer = layers[index];
-                    this.geomService.removeLayer(existingSearchLayer.getId());
-                }
+                layers = layers.filter(layer => layer.getPinned() || (!(layer.dataSource instanceof SearchLayerDataSource) && !(layer.dataSource instanceof RelationshipVisualizionDataSource)));
+                this.geomService.setLayers(layers);
             }
         }
     }
@@ -901,28 +903,23 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             if (this.mode === this.MODE.SEARCH) {
                 layers = this.geomService.getLayers();
 
-                // Remove any existing search layer
-                let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
-                if (index !== -1) {
-                    let existingSearchLayer = layers[index];
-                    let ds = existingSearchLayer.dataSource as SearchLayerDataSource;
+                // Remove any existing search layer(s)
+                layers = layers.filter(layer => layer.getPinned() ||
+                    (!(layer.dataSource instanceof SearchLayerDataSource) && !(layer.dataSource instanceof RelationshipVisualizionDataSource)) ||
+                    ((layer.dataSource instanceof SearchLayerDataSource) && (layer.dataSource as SearchLayerDataSource).getText() === this.state.text && (layer.dataSource as SearchLayerDataSource).getDate() === this.state.date)
+                );
 
-                    if (ds.getText() === this.state.text && ds.getDate() === this.state.date) {
-                        return;
-                    } else {
-                        layers.splice(index, 1);
-                    }
+                if (layers.findIndex(layer => (layer.dataSource instanceof SearchLayerDataSource) && ((layer.dataSource as SearchLayerDataSource).getText() === this.state.text && (layer.dataSource as SearchLayerDataSource).getDate() === this.state.date)) === -1) {
+                    // Add our search layer
+                    let layer = dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + this.state.text + ")", true, ColorGen().hexString());
+                    layers.splice(0, 0, layer);
+
+                    this.geomService.zoomOnReady(layer.getId());
+
+                    this.data = data.features;
                 }
 
-                // Add our search layer
-                let layer = dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + this.state.text + ")", true, ColorGen().hexString());
-                layers.splice(0, 0, layer);
-
-                this.geomService.zoomOnReady(layer.getId());
-
                 this.geomService.setLayers(layers);
-
-                this.data = data.features;
             }
         }).catch(() => {
             this.spinner.hide(this.CONSTANTS.SEARCH_OVERLAY);
@@ -950,22 +947,23 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             let layer = dataSource.createLayer(label, true, ColorGen().hexString());
 
+            // Remove any existing Geo-Object layer(s)
+            layers = layers.filter(l =>
+                !(l.dataSource instanceof GeoObjectLayerDataSource) ||
+                l.getKey() === layer.getKey() ||
+                l.getPinned()
+            );
+
             if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
+                // Add our search layer
                 layers.splice(0, 0, layer);
-                layers = layers.filter(l => !(l.dataSource instanceof GeoObjectLayerDataSource) || l.getId() === layer.getId());
 
                 this.geomService.zoomOnReady(layer.getId());
 
                 this.geomService.setLayers(layers);
             }
 
-            /*
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            }).finally(() => {
-                this.spinner.hide(this.CONSTANTS.OVERLAY);
-            });
-            */
+            this.geomService.setLayers(layers);
         });
     }
 

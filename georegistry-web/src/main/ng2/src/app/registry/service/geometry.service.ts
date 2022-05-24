@@ -87,7 +87,7 @@ export class GeometryService implements OnDestroy {
     ) {
         this.dataSourceFactory = new DataSourceFactory(this, this.registryService, this.relVizService, this.mapService, this.listService);
         this.layerSorter = new LayerGroupSorter(this.localService);
-        this.syncMapState = debounce(this._syncMapState, 50);
+        this.syncMapState = debounce(this._syncMapState, 150);
     }
 
     public initialize(map: Map, geometryType: String, syncWithUrlParams: boolean) {

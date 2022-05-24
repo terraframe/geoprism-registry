@@ -86,11 +86,18 @@ export abstract class GeoJsonLayerDataSource extends LayerDataSource {
 
 export class Layer {
 
+    legendLabel: string;
+    dataSource: LayerDataSource;
+    rendered: boolean;
+    color: string;
+    pinned: boolean;
+
     constructor(dataSource?: LayerDataSource, legendLabel?: string, rendered?: boolean, color?: string) {
         this.dataSource = dataSource;
         this.legendLabel = legendLabel;
         this.rendered = rendered;
         this.color = color;
+        this.pinned = false;
     }
 
     public fromJSON(obj: any) {
@@ -101,7 +108,8 @@ export class Layer {
         return {
             legendLabel: this.legendLabel,
             rendered: this.rendered,
-            color: this.color
+            color: this.color,
+            pinned: this.pinned
         };
     }
 
@@ -113,14 +121,17 @@ export class Layer {
         return this.dataSource.getKey();
     }
 
+    public getPinned(): boolean {
+        return this.pinned;
+    }
+
+    public setPinned(pinned: boolean) {
+        this.pinned = pinned;
+    }
+
     public configureMapboxLayer(layerType: string, layerConfig: any): void {
 
     }
-
-    legendLabel: string;
-    dataSource: LayerDataSource;
-    rendered: boolean;
-    color: string;
 
 }
 

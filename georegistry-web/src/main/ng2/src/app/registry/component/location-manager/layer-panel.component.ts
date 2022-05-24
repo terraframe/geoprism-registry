@@ -262,6 +262,18 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         }
     }
 
+    togglePinned(layer: Layer): void {
+        let layers = this.geomService.getLayers();
+        let layerIndex = this.geomService.getLayers().findIndex(l => l.getId() === layer.getId());
+
+        if (layerIndex !== -1) {
+            let layer = layers[layerIndex];
+
+            layer.setPinned(!layer.getPinned());
+            this.geomService.setLayers(layers);
+        }
+    }
+
     onCreate(layer: Layer): void {
         this.create.emit(layer);
     }
