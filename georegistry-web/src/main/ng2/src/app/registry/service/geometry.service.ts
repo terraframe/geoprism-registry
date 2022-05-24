@@ -53,6 +53,8 @@ export class GeometryService implements OnDestroy {
     // Id of a datasource that we want to zoom to when it becomes ready
     _zoomOnReady: string[] = [];
 
+    isZooming: boolean = false;
+
     @Output() geometryChange = new EventEmitter<any>();
 
     @Output() layersChange: EventEmitter<Layer[]> = new EventEmitter();
@@ -87,7 +89,7 @@ export class GeometryService implements OnDestroy {
     ) {
         this.dataSourceFactory = new DataSourceFactory(this, this.registryService, this.relVizService, this.mapService, this.listService);
         this.layerSorter = new LayerGroupSorter(this.localService);
-        this.syncMapState = debounce(this._syncMapState, 150);
+        this.syncMapState = debounce(this._syncMapState, 50);
     }
 
     public initialize(map: Map, geometryType: String, syncWithUrlParams: boolean) {
@@ -121,6 +123,12 @@ export class GeometryService implements OnDestroy {
         });
         this.map.on("draw.update", () => {
             this.saveEdits();
+        });
+        this.map.on("zoomstart", () => {
+            this.isZooming = true;
+        });
+        this.map.on("zoomend", () => {
+            this.isZooming = false;
         });
 
         window.onbeforeunload = () => this.destroy();
@@ -241,14 +249,11 @@ export class GeometryService implements OnDestroy {
 
                     this.mapboxMapLayer(newLayerDiff.newLayer, prevLayer);
 
-                    console.log("Layer add + remove", newLayerDiff.newLayer, removeLayerDiff.oldLayer);
-
                     fullRebuild = false;
                 }
             }
 
             if (fullRebuild) {
-                console.log("Full layer rebuild");
                 this.unmapAllLayers();
 
                 this.currentMapState = this.layers;
@@ -257,9 +262,31 @@ export class GeometryService implements OnDestroy {
                 // Make sure attribute changes are reflected
                 this.currentMapState = this.layers;
             }
+
+            // Zoom to layers
+            if (this._zoomOnReady != null && this._zoomOnReady.length > 0 && !this.isZooming) {
+                for (let i = 0; i < this._zoomOnReady.length; ++i) {
+                    let layerId = this._zoomOnReady[i];
+
+                    let layerIndex = this.layers.findIndex(l => l.getId() === layerId);
+
+                    if (layerIndex !== -1) {
+                        let layer = this.layers[layerIndex];
+
+                        this.zoomToLayer(layer);
+                        this._zoomOnReady.splice(this._zoomOnReady.indexOf(layer.getId()), 1);
+
+                        break;
+                    }
+                }
+            }
         } else {
             this.currentMapState = this.layers;
         }
+    }
+
+    public isMapZooming(): boolean {
+        return this.isZooming;
     }
 
     /*
@@ -307,13 +334,16 @@ export class GeometryService implements OnDestroy {
     public zoomToLayer(layer: Layer): Promise<void> {
         return layer.dataSource.getBounds(layer).then((bounds: LngLatBoundsLike) => {
             if (bounds != null) {
-                this.map.fitBounds(bounds, this.calculateZoomConfig(null));
+                let zoomConfig = this.calculateZoomConfig(null);
+
+                this.isZooming = true;
+                this.map.fitBounds(bounds, zoomConfig);
             }
         });
     }
 
     private calculateZoomConfig(geometryType: string): any {
-        let config: any = { padding: { top: 10, bottom: 10, left: 10, right: 10 }, animate: true, maxZoom: 20 };
+        let config: any = { padding: { top: 10, bottom: 10, left: 10, right: 10 }, animate: true, maxDuration: 5000, maxZoom: 20 };
 
         // Zoom level was requested to be reduced when displaying point types as per #420
         if (geometryType === "Point" || geometryType === "MultiPoint") {
@@ -777,17 +807,7 @@ export class GeometryService implements OnDestroy {
                 if (this.map.getSource(layer.dataSource.getId()) != null) {
                     (this.map.getSource(layer.dataSource.getId()) as any).setData(geojson);
                 }
-
-                if (this._zoomOnReady != null && this._zoomOnReady.length > 0 && this._zoomOnReady.indexOf(layer.getId()) !== -1) {
-                    this.zoomToLayer(layer);
-                    this._zoomOnReady.splice(this._zoomOnReady.indexOf(layer.getId()), 1);
-                }
             });
-        } else {
-            if (this._zoomOnReady != null && this._zoomOnReady.length > 0 && this._zoomOnReady.indexOf(layer.getId()) !== -1) {
-                this.zoomToLayer(layer);
-                this._zoomOnReady.splice(this._zoomOnReady.indexOf(layer.getId()), 1);
-            }
         }
 
         if (layer.dataSource.getGeometryType() === "MIXED") {

@@ -410,7 +410,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.changeMode(mode);
             this.setPanel(showPanel);
 
-            if (newState.bounds != null && newState.bounds.length > 0) {
+            if (newState.bounds != null && newState.bounds.length > 0 && !this.geomService.isMapZooming()) {
                 const bounds = JSON.parse(newState.bounds);
 
                 this.mapBounds = this.convertMapBounds(new LngLatBounds(bounds));

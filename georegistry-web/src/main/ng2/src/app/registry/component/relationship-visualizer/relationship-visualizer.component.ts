@@ -266,7 +266,8 @@ export class RelationshipVisualizerComponent implements OnInit {
         let layers: Layer[] = this.geomService.getLayers();
 
         let sourceObject = { code: this.params.code, typeCode: this.params.type, objectType: this.params.objectType } as ObjectReference;
-        let dataSource = new RelationshipVisualizionDataSource(this.vizService, this.geomService, this.relationship.type, this.relationship.code, sourceObject, this.params.bounds, this.params.date);
+        let bounds = this.restrictToMapBounds ? this.params.bounds : null;
+        let dataSource = new RelationshipVisualizionDataSource(this.vizService, this.geomService, this.relationship.type, this.relationship.code, sourceObject, bounds, this.params.date);
 
         // Remove any existing layer from map that is graph related that isn't part of this new data
         layers = layers.filter(layer => layer.getPinned() ||
