@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 
 import com.runwaysdk.ComponentIF;
@@ -321,7 +322,18 @@ public class SearchService
       String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
       String escapedText = text.replaceAll(regex, "\\\\\\\\$1").trim();
       
-      statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", \"+" + label.getColumnName() + ":" + escapedText + "*\") = true");
+      String[] escapedTokens = StringUtils.split(escapedText, " ");
+      String term;
+      if (escapedTokens.length == 1)
+      {
+          term = escapedText + "*";
+      }
+      else 
+      {
+          term = "(\"" + escapedText + "\"^" + escapedTokens.length + " " + StringUtils.join(escapedTokens, "* ") + "*)";
+      }
+      
+      statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", '+" + label.getColumnName() + ":" + term + "') = true");
       statement.append(" OR :code = " + code.getColumnName() + ")");
     }
     else
