@@ -18,8 +18,8 @@
 
 	<!-- Floating search panel-->
 	<div style="position: absolute; top: 0; bottom: 0; left: 10px; right: 10px; height: 100%;">
+
 		<div class="row" style="margin-top: 50px;">
-		
 			<div class="col-md-4" style="z-index: 999;" [hidden]="!(state.attrPanelOpen === 'true')">
 				<div class="row" *ngIf="searchEnabled">
 					<!-- 
@@ -34,7 +34,8 @@
 							<div class="col-md-12" >
 								
 								<div class="input-group">
-								<date-field [(value)]="dateFieldValue" label="" [inputName]="'date'" [allowInfinity]="false"
+								  <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.SEARCH_OVERLAY" type="ball-clip-rotate-multiple" size="medium"></ngx-spinner>
+								  <date-field [(value)]="dateFieldValue" label="" [inputName]="'date'" [allowInfinity]="false"
 									[allowFutureDates]="false" [required]="false" style="display:table-cell;vertical-align:middle;width:175px;"> </date-field>
 									
 									<input type="text" class="form-control" [placeholder]="'explorer.search.placeholder' | localize"

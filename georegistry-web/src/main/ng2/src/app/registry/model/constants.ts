@@ -42,5 +42,6 @@ export enum ChangeType {
 export const OverlayerIdentifier = {
     LAYER_PANEL: "layer-panel",
     FEATURE_PANEL: "feature-panel",
+    SEARCH_PANEL: "search-panel",
     VISUALIZER_PANEL: "visualizer-panel",
 } 

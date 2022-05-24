@@ -89,7 +89,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     };
 
     CONSTANTS = {
-        OVERLAY: OverlayerIdentifier.FEATURE_PANEL
+        SEARCH_OVERLAY: OverlayerIdentifier.SEARCH_PANEL
     };
 
     bsModalRef: BsModalRef;
@@ -436,7 +436,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         }).finally(() => {
-            this.spinner.hide(this.CONSTANTS.OVERLAY);
+            this.spinner.hide(OverlayerIdentifier.FEATURE_PANEL);
         });
     }
 
@@ -893,32 +893,39 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         let dataSource = new SearchLayerDataSource(this.mapService, this.state.text, this.state.date);
 
+        this.spinner.show(this.CONSTANTS.SEARCH_OVERLAY);
+
         dataSource.getLayerData().then((data: any) => {
-            layers = this.geomService.getLayers();
+            this.spinner.hide(this.CONSTANTS.SEARCH_OVERLAY);
 
-            // Remove any existing search layer
-            let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
-            if (index !== -1) {
-                let existingSearchLayer = layers[index];
-                let ds = existingSearchLayer.dataSource as SearchLayerDataSource;
+            if (this.mode === this.MODE.SEARCH) {
+                layers = this.geomService.getLayers();
 
-                if (ds.getText() === this.state.text && ds.getDate() === this.state.date) {
-                    return;
-                } else {
-                    layers.splice(index, 1);
+                // Remove any existing search layer
+                let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
+                if (index !== -1) {
+                    let existingSearchLayer = layers[index];
+                    let ds = existingSearchLayer.dataSource as SearchLayerDataSource;
+
+                    if (ds.getText() === this.state.text && ds.getDate() === this.state.date) {
+                        return;
+                    } else {
+                        layers.splice(index, 1);
+                    }
                 }
+
+                // Add our search layer
+                let layer = dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + this.state.text + ")", true, ColorGen().hexString());
+                layers.splice(0, 0, layer);
+
+                this.geomService.zoomOnReady(layer.getId());
+
+                this.geomService.setLayers(layers);
+
+                this.data = data.features;
             }
-
-            // Add our search layer
-            let layer = dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + this.state.text + ")", true, ColorGen().hexString());
-            layers.splice(0, 0, layer);
-
-            this.geomService.zoomOnReady(layer.getId());
-
-            this.geomService.setLayers(layers);
-
-            this.data = data.features;
         }).catch(() => {
+            this.spinner.hide(this.CONSTANTS.SEARCH_OVERLAY);
             this.state.text = "";
             this.state.date = "";
         });
