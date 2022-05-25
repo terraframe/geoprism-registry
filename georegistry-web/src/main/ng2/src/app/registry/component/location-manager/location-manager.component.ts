@@ -230,6 +230,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.graphVisualizerEnabled = registry.graphVisualizerEnabled || false;
 
         this.typeCache = this.cacheService.getTypeCache();
+        
+        this.geomService.dumpLayers();
     }
 
     ngOnDestroy(): void {

@@ -132,6 +132,8 @@ export class GeometryService implements OnDestroy {
         });
 
         window.onbeforeunload = () => this.destroy();
+
+        this.syncMapState();
     }
 
     ngOnDestroy(): void {
@@ -281,6 +283,11 @@ export class GeometryService implements OnDestroy {
                 }
             }
         }
+    }
+
+    public dumpLayers(): void {
+        this.layers = [];
+        this.currentMapState = [];
     }
 
     public isMapZooming(): boolean {
@@ -740,7 +747,7 @@ export class GeometryService implements OnDestroy {
         }
     }
 
-    public unmapAllLayers(): void {
+    private unmapAllLayers(): void {
         if (this.currentMapState != null && this.currentMapState.length > 0) {
             let len = this.currentMapState.length;
 
@@ -751,7 +758,7 @@ export class GeometryService implements OnDestroy {
         }
     }
 
-    public mapAllLayers(): void {
+    private mapAllLayers(): void {
         if (this.currentMapState != null && this.currentMapState.length > 0) {
             let prevLayer = null;
             let len = this.currentMapState.length;

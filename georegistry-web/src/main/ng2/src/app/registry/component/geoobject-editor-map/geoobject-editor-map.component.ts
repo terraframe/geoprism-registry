@@ -91,7 +91,6 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
         });
 
         this.geomService.initialize(this.map, this.geometryType, false);
-        this.geomService.mapAllLayers();
 
         // Add zoom and rotation controls to the map.
         this.map.addControl(new NavigationControl());
