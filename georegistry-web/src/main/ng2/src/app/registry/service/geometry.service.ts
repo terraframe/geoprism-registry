@@ -280,8 +280,6 @@ export class GeometryService implements OnDestroy {
                     }
                 }
             }
-        } else {
-            this.currentMapState = this.layers;
         }
     }
 
