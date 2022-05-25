@@ -235,19 +235,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         this.toggleLayerRendered(layer);
     }
 
-    toggleVersionLayer(version: ListVersion, list: ContextList): void {
-        if (!version.layer) {
-            let dataSource = new ListVectorLayerDataSource(this.listService, version.oid);
-            version.layer = dataSource.createLayer(list.label, true, ColorGen().hexString());
-            this.geomService.addOrUpdateLayer(version.layer);
-            this.versionMap[version.layer.getId()] = version;
-        } else {
-            this.geomService.removeLayer(version.layer.getId());
-            delete this.versionMap[version.layer.getId()];
-            delete version.layer;
-        }
-    }
-
     toggleLayerRendered(layer: Layer): void {
         layer.rendered = !layer.rendered;
 
@@ -278,14 +265,27 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         this.create.emit(layer);
     }
 
-    removeLayer(layer: Layer): void {
-        let version = this.versionMap[layer.getId()];
-
-        if (version) {
+    toggleVersionLayer(version: ListVersion, list: ContextList): void {
+        if (!version.layer) {
+            let dataSource = new ListVectorLayerDataSource(this.listService, version.oid);
+            version.layer = dataSource.createLayer(list.label, true, ColorGen().hexString());
+            this.versionMap[version.layer.getId()] = version;
+            this.geomService.addOrUpdateLayer(version.layer);
+        } else {
+            this.geomService.removeLayer(version.layer.getId());
+            delete this.versionMap[version.layer.getId()];
             delete version.layer;
         }
+    }
 
+    removeLayer(layer: Layer): void {
         this.geomService.removeLayer(layer.getId());
+
+        let version = this.versionMap[layer.getId()];
+        if (version) {
+            delete this.versionMap[version.layer.getId()];
+            delete version.layer;
+        }
     }
 
     toggleBaseLayer(layer: BaseLayer): void {
