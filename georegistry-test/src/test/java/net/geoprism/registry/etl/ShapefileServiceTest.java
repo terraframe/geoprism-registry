@@ -67,6 +67,7 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
+import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 import com.vividsolutions.jts.geom.Geometry;
@@ -1013,7 +1014,8 @@ public class ShapefileServiceTest
 
     ImportHistory hist2 = importShapefile(testData.clientRequest.getSessionId(), hist.getConfigJson());
     Assert.assertEquals(hist.getOid(), hist2.getOid());
-
+    
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.RUNNING, 2000);
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());

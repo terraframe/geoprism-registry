@@ -48,8 +48,20 @@ public class SchedulerTestUtils
 {
   private static final Logger logger = LoggerFactory.getLogger(SchedulerTestUtils.class);
   
-  @Request
   public static void waitUntilStatus(String histId, AllJobStatus status) throws InterruptedException
+  {
+    waitUntilStatus(histId, status, 1);
+  }
+  
+  /**
+   * 
+   * @param histId
+   * @param status
+   * @param minWaitTime In the rare scenario where we are resuming an import from a previously completed history, we need to wait a little for the job to spool up, otherwise we could exit before the job even starts.
+   * @throws InterruptedException
+   */
+  @Request
+  public static void waitUntilStatus(String histId, AllJobStatus status, int minWaitTime) throws InterruptedException
   {
     int waitTime = 0;
     while (true)
@@ -59,9 +71,9 @@ public class SchedulerTestUtils
       {
         break;
       }
-      else if (hist.getStatus().get(0) == AllJobStatus.SUCCESS || hist.getStatus().get(0) == AllJobStatus.FAILURE
+      else if (waitTime > minWaitTime && (hist.getStatus().get(0) == AllJobStatus.SUCCESS || hist.getStatus().get(0) == AllJobStatus.FAILURE
           || hist.getStatus().get(0) == AllJobStatus.FEEDBACK || hist.getStatus().get(0) == AllJobStatus.CANCELED
-          || hist.getStatus().get(0) == AllJobStatus.STOPPED || hist.getStatus().get(0) == AllJobStatus.WARNING)
+          || hist.getStatus().get(0) == AllJobStatus.STOPPED || hist.getStatus().get(0) == AllJobStatus.WARNING))
       {
         String extra = "";
         if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
@@ -107,6 +119,8 @@ public class SchedulerTestUtils
     
     if (stoppedJobs.size() > 0)
     {
+      logger.error("Forcefully interrupted " + stoppedJobs.size() + " running threads because they were still running after the test had finished. This will cause lots of cascading Interrupt exceptions in the running jobs!");
+      
       try
       {
         Thread.sleep(2000); // Wait a few seconds for the job to stop
