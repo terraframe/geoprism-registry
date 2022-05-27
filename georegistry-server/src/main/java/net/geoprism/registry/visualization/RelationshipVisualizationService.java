@@ -58,7 +58,7 @@ import net.geoprism.registry.visualization.VertexView.ObjectType;
 
 public class RelationshipVisualizationService
 {
-  public static final int maxResults = 100;
+  public static final int maxResults = 5000;
   
   public static final String SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE = "BUSINESS";
   public static final String SHOW_GEOOBJECTS_RELATIONSHIP_TYPE = "GEOOBJECT";
