@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -32,9 +31,9 @@ import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
@@ -58,7 +57,8 @@ import net.geoprism.registry.visualization.VertexView.ObjectType;
 
 public class RelationshipVisualizationService
 {
-  public static final int maxResults = 5000;
+  // Usability really degrades past 400 or so. Past 1000 the browser falls over. @rrowlands
+  public static final int maxResults = 400;
   
   public static final String SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE = "BUSINESS";
   public static final String SHOW_GEOOBJECTS_RELATIONSHIP_TYPE = "GEOOBJECT";
@@ -508,8 +508,10 @@ public class RelationshipVisualizationService
   private void processParentNode(ServerParentGraphNode root, GraphType graphType, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes)
   {
     final ServerGeoObjectIF childGO = root.getGeoObject();
+    
+    List<ServerParentGraphNode> nodes = root.getParents();
 
-    root.getParents().forEach(node -> {
+    nodes.subList(0, Math.min(maxResults - edges.size(), nodes.size())).forEach(node -> {
 
       if (node.getOid() != null)
       {
@@ -543,7 +545,9 @@ public class RelationshipVisualizationService
   {
     final ServerGeoObjectIF sourceGO = root.getGeoObject();
 
-    root.getChildren().forEach(node -> {
+    List<ServerChildGraphNode> nodes = root.getChildren();
+    
+    nodes.subList(0, Math.min(maxResults - edges.size(), nodes.size())).forEach(node -> {
 
       if (node.getOid() != null)
       {
