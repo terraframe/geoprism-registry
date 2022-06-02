@@ -82,6 +82,11 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
 
     statement.append(") FROM :rid");
     
+    if (boundsWKT != null)
+    {
+      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "in", date, boundsWKT, parameters));
+    }
+    
     if (skip != null)
     {
       statement.append(" SKIP " + skip);
@@ -90,11 +95,6 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
     if (limit != null)
     {
       statement.append(" LIMIT " + limit);
-    }
-    
-    if (boundsWKT != null)
-    {
-      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "in", date, boundsWKT, parameters));
     }
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
@@ -165,6 +165,11 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
 
     statement.append(") FROM :rid");
     
+    if (boundsWKT != null)
+    {
+      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "out", date, boundsWKT, parameters));
+    }
+    
     if (skip != null)
     {
       statement.append(" SKIP " + skip);
@@ -173,11 +178,6 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
     if (limit != null)
     {
       statement.append(" LIMIT " + limit);
-    }
-    
-    if (boundsWKT != null)
-    {
-      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "out", date, boundsWKT, parameters));
     }
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);

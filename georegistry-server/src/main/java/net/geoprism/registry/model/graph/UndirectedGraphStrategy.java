@@ -370,6 +370,11 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
 
     statement.append(") FROM :rid");
     
+    if (boundsWKT != null)
+    {
+      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), inOrOut, date, boundsWKT, parameters));
+    }
+    
     if (skip != null)
     {
       statement.append(" SKIP " + skip);
@@ -378,11 +383,6 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
     if (limit != null)
     {
       statement.append(" LIMIT " + limit);
-    }
-    
-    if (boundsWKT != null)
-    {
-      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), inOrOut, date, boundsWKT, parameters));
     }
     
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);

@@ -72,6 +72,11 @@ public class ServerHierarchyStrategy extends AbstractGraphStrategy implements Gr
 
     statement.append(") FROM :rid");
     
+    if (boundsWKT != null)
+    {
+      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "in", date, boundsWKT, parameters));
+    }
+    
     if (skip != null)
     {
       if (recursive)
@@ -85,11 +90,6 @@ public class ServerHierarchyStrategy extends AbstractGraphStrategy implements Gr
     if (limit != null)
     {
       statement.append(" LIMIT " + limit);
-    }
-
-    if (boundsWKT != null)
-    {
-      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "in", date, boundsWKT, parameters));
     }
     
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
@@ -155,6 +155,11 @@ public class ServerHierarchyStrategy extends AbstractGraphStrategy implements Gr
 
     statement.append(") FROM :rid");
     
+    if (boundsWKT != null)
+    {
+      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "out", date, boundsWKT, parameters));
+    }
+    
     if (skip != null)
     {
       if (recursive)
@@ -168,11 +173,6 @@ public class ServerHierarchyStrategy extends AbstractGraphStrategy implements Gr
     if (limit != null)
     {
       statement.append(" LIMIT " + limit);
-    }
-    
-    if (boundsWKT != null)
-    {
-      statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "out", date, boundsWKT, parameters));
     }
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
