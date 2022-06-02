@@ -57,8 +57,8 @@ import net.geoprism.registry.visualization.VertexView.ObjectType;
 
 public class RelationshipVisualizationService
 {
-  // Usability really degrades past 400 or so. Past 1000 the browser falls over. @rrowlands
-  public static final int maxResults = 400;
+  // Usability really degrades past 350 or so. Past 1000 the browser falls over, even on good computers. @rrowlands
+  public static final int maxResults = 350;
   
   public static final String SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE = "BUSINESS";
   public static final String SHOW_GEOOBJECTS_RELATIONSHIP_TYPE = "GEOOBJECT";
