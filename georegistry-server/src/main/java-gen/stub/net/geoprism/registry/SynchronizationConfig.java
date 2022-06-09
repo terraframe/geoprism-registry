@@ -207,7 +207,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
         query.OR(query.getOrganization().EQ(organization));
       }
 
-      query.ORDER_BY_DESC(query.getLabel().localize());
+      query.ORDER_BY_ASC(query.getLabel().localize());
       query.restrictRows(pageSize, pageNumber);
 
       try (OIterator<? extends SynchronizationConfig> it = query.getIterator())
