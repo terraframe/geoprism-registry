@@ -177,7 +177,7 @@ public class SynchronizationConfigService
 
     if (oid != null && oid.length() > 0)
     {
-      SynchronizationConfig config = SynchronizationConfig.lock(oid);
+      SynchronizationConfig config = SynchronizationConfig.get(oid);
 
       response.add("config", config.toJSON());
     }

@@ -142,6 +142,7 @@ export class SynchronizationConfigModalComponent implements OnInit, OnDestroy {
   }
 
   cancel(): void {
+      /*
       if (this.config.oid != null) {
           this.service.unlock(this.config.oid).then(() => {
               this.bsModalRef.hide();
@@ -151,6 +152,9 @@ export class SynchronizationConfigModalComponent implements OnInit, OnDestroy {
       } else {
           this.bsModalRef.hide();
       }
+      */
+
+      this.bsModalRef.hide();
   }
 
   error(err: HttpErrorResponse): void {
