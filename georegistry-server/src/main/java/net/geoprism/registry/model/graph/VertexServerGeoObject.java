@@ -2555,26 +2555,26 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return type.getStrategy().addParent(this, (VertexServerGeoObject) parent, startDate, endDate, validate);
   }
 
-  public <T extends ServerGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date, String boundsWKT)
+  public <T extends ServerGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date, String boundsWKT, Long skip, Long limit)
   {
-    return type.getStrategy().getChildren(this, recursive, date, boundsWKT);
+    return type.getStrategy().getChildren(this, recursive, date, boundsWKT, skip, limit);
   }
 
-  public <T extends ServerGraphNode> T getGraphParents(GraphType type, Boolean recursive, Date date, String boundsWKT)
+  public <T extends ServerGraphNode> T getGraphParents(GraphType type, Boolean recursive, Date date, String boundsWKT, Long skip, Long limit)
   {
-    return type.getStrategy().getParents(this, recursive, date, boundsWKT);
+    return type.getStrategy().getParents(this, recursive, date, boundsWKT, skip, limit);
   }
 
   @Override
   public <T extends ServerGraphNode> T getGraphChildren(GraphType type, Boolean recursive, Date date)
   {
-    return this.getGraphChildren(type, recursive, date, null);
+    return this.getGraphChildren(type, recursive, date, null, null, null);
   }
 
   @Override
   public <T extends ServerGraphNode> T getGraphParents(GraphType type, Boolean recursive, Date date)
   {
-    return this.getGraphParents(type, recursive, date, null);
+    return this.getGraphParents(type, recursive, date, null, null, null);
   }
 
   @Override

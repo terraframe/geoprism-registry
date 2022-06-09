@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -32,9 +31,9 @@ import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
@@ -58,7 +57,8 @@ import net.geoprism.registry.visualization.VertexView.ObjectType;
 
 public class RelationshipVisualizationService
 {
-  public static final int maxResults = 100;
+  // Usability really degrades past 500 or so. Past 1000 the browser falls over, even on good computers. @rrowlands
+  public static final long maxResults = 500;
   
   public static final String SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE = "BUSINESS";
   public static final String SHOW_GEOOBJECTS_RELATIONSHIP_TYPE = "GEOOBJECT";
@@ -99,21 +99,21 @@ public class RelationshipVisualizationService
           if (graphType instanceof UndirectedGraphType)
           {
             // get parent and get children return the same thing for an undirected graph
-            geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults));
+            geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT, null, maxResults), date));
           }
           else if(graphType instanceof DirectedAcyclicGraphType)
           {
-            List<GeoObject> parents = getParents(rootGo.getGraphParents(graphType, false, date, boundsWKT), date, false, maxResults);
+            List<GeoObject> parents = getParents(rootGo.getGraphParents(graphType, false, date, boundsWKT, null, maxResults), date, false);
             geoObjects.addAll(parents);
             
-            geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults - parents.size()));
+            geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT, null, maxResults - parents.size()), date));
           }
           else
           {
-            List<GeoObject> parents = getParents(rootGo.getGraphParents(graphType, true, date, boundsWKT), date, true, maxResults);
+            List<GeoObject> parents = getParents(rootGo.getGraphParents(graphType, true, date, boundsWKT, null, maxResults), date, true);
             geoObjects.addAll(parents);
             
-            geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT), date, maxResults - parents.size()));
+            geoObjects.addAll(getChildren(rootGo.getGraphChildren(graphType, false, date, boundsWKT, null, maxResults - parents.size()), date));
           }
         }
       }
@@ -130,7 +130,7 @@ public class RelationshipVisualizationService
         
           List<VertexServerGeoObject> objects = selected.getGeoObjects();
           
-          int endIndex = (objects.size() > maxResults) ? maxResults : objects.size();
+          long endIndex = Math.min(maxResults, objects.size());
           
           for (int i = 0; i < endIndex; ++i)
           {
@@ -192,7 +192,7 @@ public class RelationshipVisualizationService
         {
           List<BusinessObject> objects = selected.getBusinessObjects();
           
-          int endIndex = (objects.size() > maxResults) ? maxResults : objects.size();
+          long endIndex = Math.min(maxResults, objects.size());
           
           for (int i = 0; i < endIndex; ++i)
           {
@@ -250,7 +250,7 @@ public class RelationshipVisualizationService
         {
           List<VertexServerGeoObject> objects = selected.getGeoObjects();
           
-          int endIndex = (objects.size() > maxResults) ? maxResults : objects.size();
+          long endIndex = Math.min(maxResults, objects.size());
           
           for (int i = 0; i < endIndex; ++i)
           {
@@ -270,8 +270,7 @@ public class RelationshipVisualizationService
           
           // Parents
           List<BusinessObject> objects = selected.getParents(edgeType);
-          int capacity = maxResults;
-          int endIndex = (objects.size() > capacity) ? capacity : objects.size();
+          long endIndex = Math.min(maxResults, objects.size());
           
           for (int i = 0; i < endIndex; ++i)
           {
@@ -287,8 +286,7 @@ public class RelationshipVisualizationService
           
           // Children
           objects = selected.getChildren(edgeType);
-          capacity = maxResults - verticies.size();
-          endIndex = (objects.size() > capacity) ? capacity : objects.size();
+          endIndex = Math.min(maxResults - verticies.size(), objects.size());
           
           for (int i = 0; i < endIndex; ++i)
           {
@@ -384,15 +382,13 @@ public class RelationshipVisualizationService
     }
   }
   
-  public List<GeoObject> getChildren(ServerChildGraphNode node, Date date, int maxResults)
+  public List<GeoObject> getChildren(ServerChildGraphNode node, Date date)
   {
     List<GeoObject> geoObjects = new LinkedList<GeoObject>();
     
     List<ServerChildGraphNode> children = node.getChildren();
     
-    int endIndex = (children.size() > maxResults) ? maxResults : children.size();
-    
-    for (int i = 0; i < endIndex; ++i)
+    for (int i = 0; i < children.size(); ++i)
     {
       ServerChildGraphNode child = children.get(i);
       
@@ -402,15 +398,13 @@ public class RelationshipVisualizationService
     return geoObjects;
   }
   
-  public List<GeoObject> getParents(ServerParentGraphNode node, Date date, boolean recursive, int maxResults)
+  public List<GeoObject> getParents(ServerParentGraphNode node, Date date, boolean recursive)
   {
     List<GeoObject> geoObjects = new LinkedList<GeoObject>();
     
     List<ServerParentGraphNode> parents = node.getParents();
     
-    int endIndex = (parents.size() > maxResults) ? maxResults : parents.size();
-    
-    for (int i = 0; i < endIndex; ++i)
+    for (int i = 0; i < parents.size(); ++i)
     {
       ServerParentGraphNode parent = parents.get(i);
       
@@ -418,7 +412,7 @@ public class RelationshipVisualizationService
       
       if (recursive)
       {
-        geoObjects.addAll(getParents(parent, date, true, maxResults / 2));
+        geoObjects.addAll(getParents(parent, date, true));
       }
     }
     
@@ -500,7 +494,7 @@ public class RelationshipVisualizationService
 
   private void fetchParentsData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes, String boundsWKT)
   {
-    ServerParentGraphNode node = vertexGo.getGraphParents(graphType, recursive, date, boundsWKT);
+    ServerParentGraphNode node = vertexGo.getGraphParents(graphType, recursive, date, boundsWKT, null, maxResults);
 
     processParentNode(node, graphType, edges, verticies, relatedTypes);
   }
@@ -508,7 +502,7 @@ public class RelationshipVisualizationService
   private void processParentNode(ServerParentGraphNode root, GraphType graphType, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes)
   {
     final ServerGeoObjectIF childGO = root.getGeoObject();
-
+    
     root.getParents().forEach(node -> {
 
       if (node.getOid() != null)
@@ -534,7 +528,7 @@ public class RelationshipVisualizationService
 
   private void fetchChildrenData(boolean recursive, VertexServerGeoObject vertexGo, GraphType graphType, Date date, Map<String, EdgeView> edges, Map<String, VertexView> verticies, Map<String, JsonObject> relatedTypes, String boundsWKT)
   {
-    ServerChildGraphNode node = vertexGo.getGraphChildren(graphType, recursive, date, boundsWKT);
+    ServerChildGraphNode node = vertexGo.getGraphChildren(graphType, recursive, date, boundsWKT, null, maxResults);
 
     this.processChildNode(node, graphType, edges, verticies, relatedTypes);
   }

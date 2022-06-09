@@ -145,7 +145,6 @@ export class RelationshipVisualizerComponent implements OnInit {
         if (!this.loading) {
             if (this.relationships == null || this.relationship == null || newParams.objectType !== oldParams.objectType || newParams.type !== oldParams.type) {
                 this.relationships = null;
-                this.relationship = null;
                 this.graphOid = null;
                 this.data = null;
                 this.fetchRelationships();
@@ -201,7 +200,18 @@ export class RelationshipVisualizerComponent implements OnInit {
 
                 if (this.relationships && this.relationships.length > 0) {
                     if (!this.params.graphOid || this.relationships.findIndex(rel => rel.oid === this.params.graphOid) === -1) {
-                        this.relationship = this.relationships[0];
+                        // If we got here by selecting a business object from a GeoObject
+                        if (this.relationship != null && this.relationship.code === "BUSINESS" && this.params.objectType === "BUSINESS" && this.relationships.findIndex(rel => rel.code === "GEOOBJECT") !== -1) {
+                            // Then we can default to the "Associated GeoObjects" relationship
+                            this.relationship = this.relationships[this.relationships.findIndex(rel => rel.code === "GEOOBJECT")];
+                        } else if (this.relationship != null && this.relationship.code === "GEOOBJECT" && this.params.objectType === "GEOOBJECT" && this.relationships.findIndex(rel => rel.code === "BUSINESS") !== -1) {
+                            // Then we can default to the "Associated Business Objects" relationship
+                            this.relationship = this.relationships[this.relationships.findIndex(rel => rel.code === "BUSINESS")];
+                        } else {
+                            // We have no idea which relationship makes the most sense. Just pick the first one
+                            this.relationship = this.relationships[0];
+                        }
+
                         this.graphOid = this.relationship.oid;
                         this.onSelectRelationship(true);
                     } else {
@@ -209,6 +219,8 @@ export class RelationshipVisualizerComponent implements OnInit {
                         this.graphOid = this.params.graphOid;
                         this.fetchData();
                     }
+                } else {
+                    this.relationship = null;
                 }
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
@@ -290,8 +302,8 @@ export class RelationshipVisualizerComponent implements OnInit {
                 let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue + " " + relatedType.label, true, this.typeLegend[relatedType.code].color) as RelationshipVisualizionLayer;
                 layer.setRelatedTypeFilter(relatedType.code);
 
-                // if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
-                if (layers.findIndex(l => l.legendLabel === layer.legendLabel) === -1) {
+                 if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
+                //if (layers.findIndex(l => l.legendLabel === layer.legendLabel) === -1) {
                     let existingRelatedType = existingRelatedTypes[relatedType.code];
 
                     if (existingRelatedType == null || existingRelatedType.layer.getPinned()) {
@@ -300,6 +312,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                         layer.rendered = existingRelatedType.layer.rendered;
                         layers.splice(existingRelatedType.index, 1, layer);
                     }
+                    /*
                 } else {
                     // TODO : This is definitely a hack. But I can't get zooming to work up and down rivers with the 'flows through'
                     //        relationship without doing it this way since this way doesn't interrupt zooming behaviour
@@ -318,6 +331,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                             }
                         });
                     }, 10);
+                    */
                 }
             }
         });

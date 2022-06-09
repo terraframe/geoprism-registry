@@ -52,9 +52,19 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
 
   @SuppressWarnings("unchecked")
   @Override
-  public ServerChildGraphNode getChildren(VertexServerGeoObject parent, Boolean recursive, Date date, String boundsWKT)
+  public ServerChildGraphNode getChildren(VertexServerGeoObject parent, Boolean recursive, Date date, String boundsWKT, Long skip, Long limit)
   {
     ServerChildGraphNode tnRoot = new ServerChildGraphNode(parent, this.type, date, null, null);
+    
+    if (limit != null && limit <= 0)
+    {
+      return tnRoot;
+    }
+    
+    if (skip != null && recursive)
+    {
+      throw new UnsupportedOperationException();
+    }
 
     Map<String, Object> parameters = new HashedMap<String, Object>();
     parameters.put("rid", parent.getVertex().getRID());
@@ -76,10 +86,22 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
     {
       statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "in", date, boundsWKT, parameters));
     }
+    
+    if (skip != null)
+    {
+      statement.append(" SKIP " + skip);
+    }
+    
+    if (limit != null)
+    {
+      statement.append(" LIMIT " + limit);
+    }
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
     List<EdgeObject> edges = query.getResults();
+    
+    long resultsCount = edges.size();
 
     for (EdgeObject edge : edges)
     {
@@ -93,10 +115,12 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
 
       ServerChildGraphNode tnParent;
 
-      if (recursive)
+      if (recursive && limit - resultsCount > 0)
       {
-        tnParent = this.getChildren(child, recursive, date, boundsWKT);
+        tnParent = this.getChildren(child, recursive, date, boundsWKT, null, limit - resultsCount);
         tnParent.setOid(edge.getOid());
+        
+        resultsCount += tnParent.getChildren().size();
       }
       else
       {
@@ -111,9 +135,19 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
 
   @SuppressWarnings("unchecked")
   @Override
-  public ServerParentGraphNode getParents(VertexServerGeoObject child, Boolean recursive, Date date, String boundsWKT)
+  public ServerParentGraphNode getParents(VertexServerGeoObject child, Boolean recursive, Date date, String boundsWKT, Long skip, Long limit)
   {
     ServerParentGraphNode tnRoot = new ServerParentGraphNode(child, this.type, date, null, null);
+    
+    if (limit != null && limit <= 0)
+    {
+      return tnRoot;
+    }
+    
+    if (skip != null && recursive)
+    {
+      throw new UnsupportedOperationException();
+    }
 
     Map<String, Object> parameters = new HashedMap<String, Object>();
     parameters.put("rid", child.getVertex().getRID());
@@ -135,10 +169,22 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
     {
       statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "out", date, boundsWKT, parameters));
     }
+    
+    if (skip != null)
+    {
+      statement.append(" SKIP " + skip);
+    }
+    
+    if (limit != null)
+    {
+      statement.append(" LIMIT " + limit);
+    }
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
     List<EdgeObject> edges = query.getResults();
+    
+    long resultsCount = edges.size();
 
     for (EdgeObject edge : edges)
     {
@@ -152,10 +198,12 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
 
       ServerParentGraphNode tnParent;
 
-      if (recursive)
+      if (recursive && limit - resultsCount > 0)
       {
-        tnParent = this.getParents(parent, recursive, date, boundsWKT);
+        tnParent = this.getParents(parent, recursive, date, boundsWKT, null, limit - resultsCount);
         tnParent.setOid(edge.getOid());
+        
+        resultsCount += tnParent.getParents().size();
       }
       else
       {

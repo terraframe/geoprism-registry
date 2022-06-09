@@ -64,7 +64,7 @@ public class EdgeJsonImporter
   protected Map<String, Object> goRidCache = new LinkedHashMap<String, Object>() {
     public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
     {
-      final int cacheSize = 10000;
+      final int cacheSize = 25000;
       return size() > cacheSize;
     }
   };

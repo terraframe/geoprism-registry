@@ -53,16 +53,28 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T extends ServerGraphNode> T getChildren(VertexServerGeoObject source, Boolean recursive, Date date, String boundsWKT)
+  public <T extends ServerGraphNode> T getChildren(VertexServerGeoObject source, Boolean recursive, Date date, String boundsWKT, Long skip, Long limit)
   {
-    return (T) getChildren(source, recursive, date, new TreeSet<String>(), boundsWKT);
+    return (T) getChildren(source, recursive, date, new TreeSet<String>(), boundsWKT, skip, limit);
   }
 
-  private ServerChildGraphNode getChildren(VertexServerGeoObject source, Boolean recursive, Date date, TreeSet<String> visited, String boundsWKT)
+  private ServerChildGraphNode getChildren(VertexServerGeoObject source, Boolean recursive, Date date, TreeSet<String> visited, String boundsWKT, Long skip, Long limit)
   {
     ServerChildGraphNode tnRoot = new ServerChildGraphNode(source, this.type, date, null, null);
+    
+    if (limit != null && limit <= 0)
+    {
+      return tnRoot;
+    }
+    
+    if (skip != null && recursive)
+    {
+      throw new UnsupportedOperationException();
+    }
 
-    List<EdgeObject> edges = this.getEdges(source, date, boundsWKT, "out");
+    List<EdgeObject> edges = this.getEdges(source, date, boundsWKT, "out", skip, limit);
+    
+    long resultsCount = edges.size();
 
     for (EdgeObject edge : edges)
     {
@@ -80,12 +92,14 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
       {
         ServerChildGraphNode tnParent;
 
-        if (recursive && !visited.contains(target.getUid()))
+        if (recursive && !visited.contains(target.getUid()) && limit - resultsCount > 0)
         {
           visited.add(target.getUid());
 
-          tnParent = this.getChildren(target, recursive, date, visited, boundsWKT);
+          tnParent = this.getChildren(target, recursive, date, visited, boundsWKT, null, limit - resultsCount);
           tnParent.setOid(edge.getOid());
+          
+          resultsCount += tnParent.getChildren().size();
         }
         else
         {
@@ -101,16 +115,28 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T extends ServerGraphNode> T getParents(VertexServerGeoObject child, Boolean recursive, Date date, String boundsWKT)
+  public <T extends ServerGraphNode> T getParents(VertexServerGeoObject child, Boolean recursive, Date date, String boundsWKT, Long skip, Long limit)
   {
-    return (T) getParents(child, recursive, date, new TreeSet<String>(), boundsWKT);
+    return (T) getParents(child, recursive, date, new TreeSet<String>(), boundsWKT, skip, limit);
   }
 
-  private ServerParentGraphNode getParents(VertexServerGeoObject source, Boolean recursive, Date date, TreeSet<String> visited, String boundsWKT)
+  private ServerParentGraphNode getParents(VertexServerGeoObject source, Boolean recursive, Date date, TreeSet<String> visited, String boundsWKT, Long skip, Long limit)
   {
     ServerParentGraphNode tnRoot = new ServerParentGraphNode(source, this.type, date, null, null);
+    
+    if (limit != null && limit <= 0)
+    {
+      return tnRoot;
+    }
+    
+    if (skip != null && recursive)
+    {
+      throw new UnsupportedOperationException();
+    }
 
-    List<EdgeObject> edges = this.getEdges(source, date, boundsWKT, "in");
+    List<EdgeObject> edges = this.getEdges(source, date, boundsWKT, "in", skip, limit);
+    
+    long resultsCount = edges.size();
 
     for (EdgeObject edge : edges)
     {
@@ -128,12 +154,14 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
       {
         ServerParentGraphNode tnParent;
 
-        if (recursive & !visited.contains(target.getUid()))
+        if (recursive & !visited.contains(target.getUid()) && limit - resultsCount > 0)
         {
           visited.add(target.getUid());
 
-          tnParent = this.getParents(target, recursive, date, visited, boundsWKT);
+          tnParent = this.getParents(target, recursive, date, visited, boundsWKT, null, limit - resultsCount);
           tnParent.setOid(edge.getOid());
+          
+          resultsCount += tnParent.getParents().size();
         }
         else
         {
@@ -324,7 +352,7 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
     return newEdges;
   }
 
-  private List<EdgeObject> getEdges(VertexServerGeoObject geoObject, Date date, String boundsWKT, String inOrOut)
+  private List<EdgeObject> getEdges(VertexServerGeoObject geoObject, Date date, String boundsWKT, String inOrOut, Long skip, Long limit)
   {
     Map<String, Object> parameters = new HashedMap<String, Object>();
     parameters.put("rid", geoObject.getVertex().getRID());
@@ -345,6 +373,16 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
     if (boundsWKT != null)
     {
       statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), inOrOut, date, boundsWKT, parameters));
+    }
+    
+    if (skip != null)
+    {
+      statement.append(" SKIP " + skip);
+    }
+    
+    if (limit != null)
+    {
+      statement.append(" LIMIT " + limit);
     }
     
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
