@@ -110,9 +110,9 @@ public class ServerHierarchyStrategy extends AbstractGraphStrategy implements Gr
 
       ServerChildGraphNode tnParent;
 
-      if (recursive && limit - resultsCount > 0)
+      if (recursive && (limit == null || limit - resultsCount > 0))
       {
-        tnParent = this.getChildren(child, recursive, date, boundsWKT, null, limit - resultsCount);
+        tnParent = this.getChildren(child, recursive, date, boundsWKT, null, (limit == null ? null : limit - resultsCount));
         tnParent.setOid(edge.getOid());
         
         resultsCount += tnParent.getChildren().size();
@@ -193,9 +193,9 @@ public class ServerHierarchyStrategy extends AbstractGraphStrategy implements Gr
 
       ServerParentGraphNode tnParent;
 
-      if (recursive && limit - resultsCount > 0)
+      if (recursive && (limit == null || limit - resultsCount > 0))
       {
-        tnParent = this.getParents(parent, recursive, date, boundsWKT, null, limit - resultsCount);
+        tnParent = this.getParents(parent, recursive, date, boundsWKT, null, (limit == null ? null : limit - resultsCount));
         tnParent.setOid(edge.getOid());
         
         resultsCount += tnParent.getParents().size();

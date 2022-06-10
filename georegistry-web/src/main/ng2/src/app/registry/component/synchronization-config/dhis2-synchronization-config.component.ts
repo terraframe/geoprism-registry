@@ -59,7 +59,7 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
           this.config.configuration = {
               levels: [],
               hierarchyCode: null
-          }
+          };
       }
 
       this.levelRows = [];
@@ -370,6 +370,18 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
                   infos.forEach((info) => {
                       if (info.cgrAttr.name === mapping.cgrAttrName) {
                           mapping.info = info;
+                      }
+                  });
+
+                  // mapping.dhis2Id is a derived field which only exists on the front-end. This is necessary because of the way DHIS2 separates built-in attributes from custom attributes.
+                  // Only custom attributes actually have ids. Standard attributes are referenced via their name.
+                  level.mappings.forEach((levelMapping) => {
+                      if (levelMapping.dhis2AttrName && levelMapping.dhis2AttrName === mapping.dhis2AttrName) {
+                          if (levelMapping.externalId) {
+                              mapping.dhis2Id = levelMapping.externalId;
+                          } else if (levelMapping.dhis2AttrName) {
+                              mapping.dhis2Id = levelMapping.dhis2AttrName;
+                          }
                       }
                   });
               }

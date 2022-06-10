@@ -122,18 +122,20 @@ public class DHIS2TermAttributeMapping extends DHIS2AttributeMapping
 
         if (orgUnitGroupId == null)
         {
-          MissingDHIS2TermOrgUnitGroupMapping ex = new MissingDHIS2TermOrgUnitGroupMapping();
-          ex.setTermCode(termId);
-          throw ex;
+//          MissingDHIS2TermOrgUnitGroupMapping ex = new MissingDHIS2TermOrgUnitGroupMapping();
+//          ex.setTermCode(termId);
+//          throw ex;
         }
-
-        Set<String> orgUnitGroupIdSet = syncLevel.getOrgUnitGroupIdSet(orgUnitGroupId);
-        if (orgUnitGroupIdSet == null)
+        else
         {
-          orgUnitGroupIdSet = syncLevel.newOrgUnitGroupIdSet(orgUnitGroupId);
+          Set<String> orgUnitGroupIdSet = syncLevel.getOrgUnitGroupIdSet(orgUnitGroupId);
+          if (orgUnitGroupIdSet == null)
+          {
+            orgUnitGroupIdSet = syncLevel.newOrgUnitGroupIdSet(orgUnitGroupId);
+          }
+  
+          orgUnitGroupIdSet.add(serverGo.getExternalId(dhis2Config.getSystem()));
         }
-
-        orgUnitGroupIdSet.add(serverGo.getExternalId(dhis2Config.getSystem()));
       }
       else
       {
@@ -158,12 +160,14 @@ public class DHIS2TermAttributeMapping extends DHIS2AttributeMapping
 
       if (termMapping == null)
       {
-        MissingDHIS2TermMapping ex = new MissingDHIS2TermMapping();
-        ex.setTermCode(termId);
-        throw ex;
+//        MissingDHIS2TermMapping ex = new MissingDHIS2TermMapping();
+//        ex.setTermCode(termId);
+//        throw ex;
       }
-
-      av.addProperty("value", termMapping);
+      else
+      {
+        av.addProperty("value", termMapping);
+      }
     }
     else
     {

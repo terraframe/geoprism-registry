@@ -20,6 +20,7 @@ package net.geoprism.registry.etl;
 
 import java.lang.reflect.Type;
 import java.util.Date;
+import java.util.SortedSet;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
@@ -32,13 +33,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
@@ -226,6 +231,26 @@ public class DHIS2AttributeMapping
       {
         logger.error("Unable to instantiate mapping strategy.", e);
         throw new ProgrammingErrorException(e);
+      }
+    }
+  }
+  
+  public static class DHIS2AttributeMappingSerializer implements JsonSerializer<DHIS2AttributeMapping>
+  {
+    @Override
+    public JsonElement serialize(DHIS2AttributeMapping mapping, Type typeOfSrc, JsonSerializationContext context)
+    {
+      final GsonBuilder builder = new GsonBuilder();
+      builder.serializeNulls();
+      final Gson gson = builder.create();
+      
+      if (mapping instanceof DHIS2TermAttributeMapping)
+      {
+        return gson.toJsonTree(mapping, DHIS2TermAttributeMapping.class);
+      }
+      else
+      {
+        return gson.toJsonTree(mapping, DHIS2AttributeMapping.class);
       }
     }
   }

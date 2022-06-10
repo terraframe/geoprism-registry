@@ -180,7 +180,7 @@ public class DHIS2FeatureService
         JsonArray jaDhis2Attrs = new JsonArray();
         for (Attribute dhis2Attr : dhis2Attrs)
         {
-          if (!dhis2Attr.getOrganisationUnitAttribute())
+          if (!dhis2Attr.getOrganisationUnitAttribute() || dhis2Attr.getValueType() == null)
           {
             continue;
           }

@@ -123,7 +123,8 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   {
     GsonBuilder builder = new GsonBuilder();
     builder.registerTypeAdapter(FhirSyncLevel.class, new FhirSyncLevel.Serializer());
-    builder.registerTypeAdapter(DHIS2AttributeMapping.class, new DHIS2AttributeMapping.DHIS2AttributeMappingDeserializer());
+    builder.registerTypeAdapter(DHIS2AttributeMapping.class, new DHIS2AttributeMapping.DHIS2AttributeMappingSerializer());
+    builder.serializeNulls();
 
     Gson gson = builder.create();
 
@@ -218,12 +219,17 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
 
     return new LinkedList<SynchronizationConfig>();
   }
-
+  
   public static SynchronizationConfig deserialize(JsonObject json)
+  {
+    return deserialize(json, false);
+  }
+
+  public static SynchronizationConfig deserialize(JsonObject json, boolean lock)
   {
     String oid = json.has(SynchronizationConfig.OID) ? json.get(SynchronizationConfig.OID).getAsString() : null;
 
-    SynchronizationConfig config = ( oid != null ? SynchronizationConfig.get(oid) : new SynchronizationConfig() );
+    SynchronizationConfig config = ( oid != null ? (lock ? SynchronizationConfig.lock(oid) : SynchronizationConfig.get(oid)) : new SynchronizationConfig() );
     config.populate(json);
 
     return config;

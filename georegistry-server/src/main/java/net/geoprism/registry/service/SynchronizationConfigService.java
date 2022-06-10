@@ -88,7 +88,7 @@ public class SynchronizationConfigService
   {
     JsonElement element = JsonParser.parseString(json);
 
-    SynchronizationConfig config = SynchronizationConfig.deserialize(element.getAsJsonObject());
+    SynchronizationConfig config = SynchronizationConfig.deserialize(element.getAsJsonObject(), true);
     config.apply();
 
     return config.toJSON();

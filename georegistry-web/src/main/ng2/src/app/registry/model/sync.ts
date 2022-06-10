@@ -11,7 +11,7 @@ export interface DHIS2AttributeMapping {
     info?: AttributeConfigInfo;
     cgrAttrName: string;
     dhis2AttrName: string;
-    dhis2Id?: string;
+    dhis2Id?: string; // This is a front-end only, derived attribute
     externalId: string;
     terms?: {};
     isOrgUnitGroup?: boolean;

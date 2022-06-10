@@ -92,11 +92,11 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
       {
         ServerChildGraphNode tnParent;
 
-        if (recursive && !visited.contains(target.getUid()) && limit - resultsCount > 0)
+        if (recursive && !visited.contains(target.getUid()) && (limit == null || limit - resultsCount > 0))
         {
           visited.add(target.getUid());
 
-          tnParent = this.getChildren(target, recursive, date, visited, boundsWKT, null, limit - resultsCount);
+          tnParent = this.getChildren(target, recursive, date, visited, boundsWKT, null, (limit == null ? null : limit - resultsCount));
           tnParent.setOid(edge.getOid());
           
           resultsCount += tnParent.getChildren().size();
@@ -154,11 +154,11 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
       {
         ServerParentGraphNode tnParent;
 
-        if (recursive & !visited.contains(target.getUid()) && limit - resultsCount > 0)
+        if (recursive & !visited.contains(target.getUid()) && (limit == null || limit - resultsCount > 0))
         {
           visited.add(target.getUid());
 
-          tnParent = this.getParents(target, recursive, date, visited, boundsWKT, null, limit - resultsCount);
+          tnParent = this.getParents(target, recursive, date, visited, boundsWKT, null, (limit == null ? null : limit - resultsCount));
           tnParent.setOid(edge.getOid());
           
           resultsCount += tnParent.getParents().size();
