@@ -73,7 +73,7 @@ public class DHIS2FeatureService
 {
   public static final String[] OAUTH_INCOMPATIBLE_VERSIONS   = new String[] { "2.35.0", "2.35.1" };
 
-  public static final int      LAST_TESTED_DHIS2_API_VERSION = 37;
+  public static final int      LAST_TESTED_DHIS2_API_VERSION = 38;
 
   private static final Logger  logger                        = LoggerFactory.getLogger(DHIS2FeatureService.class);
 
