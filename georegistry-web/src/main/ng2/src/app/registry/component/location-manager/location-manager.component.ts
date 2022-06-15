@@ -362,7 +362,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 // Handle parameters for selecting a geo object
                 if ((newState.objectType == null || newState.objectType === "GEOOBJECT") && newState.type != null && newState.code != null) {
-                    if (oldState.type !== newState.type || oldState.code !== newState.code) {
+                    if (oldState.type !== newState.type || oldState.code !== newState.code || newState.code === "__NEW__") {
                         this.loadGeoObjectFromState();
                     }
 
@@ -521,9 +521,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.handleStateChange(this.state);
     }
 
-    onCreate(layer: ContextLayer): void {
+    onCreate(layer: ContextLayer | Layer): void {
+		let layerId = layer instanceof ContextLayer ? layer.oid : layer.dataSource .versionId;
+	
         this.closeEditSessionSafeguard().then(() => {
-            this.listService.getVersion(layer.oid).then(version => {
+            this.listService.getVersion(layerId).then(version => {
                 if (!version.isAbstract) {
                     this.select({
                         properties: {
