@@ -38,6 +38,7 @@ export class ListComponent implements OnInit, OnDestroy {
     isRefreshing: boolean = false;
     isWritable: boolean = false;
     isRM: boolean = false;
+    isSRA: boolean = false;
     
     orgCode: string;
     userOrgCodes: string[];
