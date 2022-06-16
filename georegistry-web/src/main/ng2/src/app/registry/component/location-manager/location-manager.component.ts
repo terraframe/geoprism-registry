@@ -521,35 +521,37 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.handleStateChange(this.state);
     }
 
-    onCreate(layer: ContextLayer | Layer): void {
-		let layerId = layer instanceof ContextLayer ? layer.oid : layer.dataSource .versionId;
+    onCreate(layer: any): void {
+		if (layer.dataSource.dataSourceType === "LISTVECT") {
 	
-        this.closeEditSessionSafeguard().then(() => {
-            this.listService.getVersion(layerId).then(version => {
-                if (!version.isAbstract) {
-                    this.select({
-                        properties: {
-                            type: version.typeCode,
-                            code: "__NEW__"
-                        }
-                    }, null);
-                } else {
-                    this.bsModalRef = this.modalService.show(SelectTypeModalComponent, {
-                        animated: true,
-                        backdrop: true,
-                        ignoreBackdropClick: true
-                    });
-                    this.bsModalRef.content.init(version, typeCode => {
-                        this.select({
-                            properties: {
-                                type: typeCode,
-                                code: "__NEW__"
-                            }
-                        }, null);
-                    });
-                }
-            });
-        });
+	        this.closeEditSessionSafeguard().then(() => {
+	            this.listService.getVersion(layer.dataSource.versionId).then(version => {
+	                if (!version.isAbstract) {
+	                    this.select({
+	                        properties: {
+	                            type: version.typeCode,
+	                            code: "__NEW__"
+	                        }
+	                    }, null);
+	                } else {
+	                    this.bsModalRef = this.modalService.show(SelectTypeModalComponent, {
+	                        animated: true,
+	                        backdrop: true,
+	                        ignoreBackdropClick: true
+	                    });
+	                    this.bsModalRef.content.init(version, typeCode => {
+	                        this.select({
+	                            properties: {
+	                                type: typeCode,
+	                                code: "__NEW__"
+	                            }
+	                        }, null);
+	                    });
+	                }
+	            });
+	        });
+	        
+	    }
     }
 
     closeEditSessionSafeguard(): Promise<void> {
