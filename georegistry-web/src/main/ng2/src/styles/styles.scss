@@ -180,6 +180,7 @@ a.fa:hover,
 a.fa:focus,
 i.clickable.fa:hover,
 i.clickable.fa:focus,
+i.clickable.active,
 .clickable:hover,
 .clickable:focus {
     fill: #6BA542; /* IE fallback */
@@ -284,7 +285,8 @@ button.btn:active {
 input[type=button].btn.btn-primary,
 input[type=submit].btn.btn-primary,
 button.btn-primary,
-button.btn.btn-primary {
+button.btn.btn-primary,
+.open>.dropdown-toggle.btn-primary {
     color: #6BA542; /* IE fallback */
     color: var(--theme-submit-button-color);
 
@@ -301,7 +303,9 @@ input[type=submit].btn.btn-primary:active,
 button.btn-primary:hover,
 button.btn.btn-primary:hover,
 button.btn-primary:active,
-button.btn.btn-primary:active  {
+button.btn.btn-primary:active,
+.open>.dropdown-toggle.btn-primary:focus,
+.open>.dropdown-toggle.btn-primary:hover {
     color: #6BA542; /* IE fallback */
     color: var(--theme-submit-button-color);
 

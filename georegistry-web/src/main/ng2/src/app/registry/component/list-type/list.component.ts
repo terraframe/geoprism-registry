@@ -38,6 +38,10 @@ export class ListComponent implements OnInit, OnDestroy {
     isRefreshing: boolean = false;
     isWritable: boolean = false;
     isRM: boolean = false;
+    isSRA: boolean = false;
+    
+    orgCode: string;
+    userOrgCodes: string[];
 
     config: GenericTableConfig = null;
     cols: GenericTableColumn[] = null;
@@ -68,6 +72,8 @@ export class ListComponent implements OnInit, OnDestroy {
         private pService: ProgressService,
         private geomService: GeometryService,
         private authService: AuthService) {
+	
+		this.userOrgCodes = this.authService.getMyOrganizations();
     }
 
     ngOnInit(): void {
@@ -75,11 +81,12 @@ export class ListComponent implements OnInit, OnDestroy {
 
         this.service.getVersion(oid).then(version => {
             this.list = version;
-            const orgCode = this.list.orgCode;
+            this.orgCode = this.list.orgCode;
             const typeCode = this.list.superTypeCode != null ? this.list.superTypeCode : this.list.typeCode;
 
-            this.isWritable = this.authService.isGeoObjectTypeRC(orgCode, typeCode);
-            this.isRM = this.authService.isGeoObjectTypeRM(orgCode, typeCode);
+            this.isWritable = this.authService.isGeoObjectTypeRC(this.orgCode, typeCode);
+            this.isRM = this.authService.isGeoObjectTypeRM(this.orgCode, typeCode);
+            this.isSRA = this.authService.isSRA();
 
             this.refreshColumns();
 
@@ -379,6 +386,14 @@ export class ListComponent implements OnInit, OnDestroy {
             this.filters = event.filters;
         }
     }
+    
+    isListInOrg(): boolean {
+		if(this.userOrgCodes && this.userOrgCodes.length > 0 && this.userOrgCodes.indexOf(this.orgCode) !== -1) {
+			return true;
+		}
+		
+		return false;
+	}
 
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);

@@ -104,24 +104,24 @@
                         <localize key="masterlist.newGeoObject"></localize>
                     </button>
 
-                    <span class="dropdown" *ngIf="list.working && isWritable && list.isAbstract">
-                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1"
+                    <span dropdown #dropdown="bs-dropdown" class="dropdown" *ngIf="list.working && isWritable && list.isAbstract">
+                        <button dropdownToggle class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                             <localize key="masterlist.newGeoObject"></localize>
                             <span class="caret"></span>
                         </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li>
-                                <localize style="padding-left:10px;" key="masterlist.newGeoObject.selectASubtype">
-                                </localize>
-                            </li>
-                            <li role="separator" class="divider"></li>
+                        <ul *dropdownMenu class="dropdown-menu" aria-labelledby="dropdownMenu1">
+<!--                             <li> -->
+<!--                                 <localize style="padding-left:10px;" key="masterlist.newGeoObject.selectASubtype"> -->
+<!--                                 </localize> -->
+<!--                             </li> -->
+<!--                             <li role="separator" class="divider"></li> -->
                             <li *ngFor="let subtype of list.subtypes"><a
                                     (click)="onNewGeoObject(subtype.code)">{{subtype.label}}</a></li>
                         </ul>
                     </span>
 
-                    <button *ngIf="list.listMetadata.visibility === 'PUBLIC' || list.geospatialMetadata.visibility === 'PUBLIC'"
+                    <button *ngIf="list.listMetadata.visibility === 'PUBLIC' || list.geospatialMetadata.visibility === 'PUBLIC' || isListInOrg() || isSRA"
                      type="submit" (click)="onExport()" class="btn btn-primary" role="button">
                         <localize *ngIf="filters == null" key="io.export.allrows"></localize>
                         <localize *ngIf="filters != null" key="io.export.filteredrows"></localize>
