@@ -230,7 +230,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.graphVisualizerEnabled = registry.graphVisualizerEnabled || false;
 
         this.typeCache = this.cacheService.getTypeCache();
-        
+
         this.geomService.dumpLayers();
     }
 
@@ -341,9 +341,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         newState = JSON.parse(JSON.stringify(newState));
         let oldState = JSON.parse(JSON.stringify(this.state));
 
-        this.state = newState;
-
         if (this.ready) {
+            this.state = newState;
+
             let mode = this.MODE.SEARCH;
             let showPanel = (newState.attrPanelOpen === "true" || newState.attrPanelOpen === undefined);
 
