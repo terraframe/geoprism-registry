@@ -39,7 +39,7 @@ export class ListComponent implements OnInit, OnDestroy {
     isWritable: boolean = false;
     isRM: boolean = false;
     isSRA: boolean = false;
-    
+
     orgCode: string;
     userOrgCodes: string[];
 
@@ -72,8 +72,7 @@ export class ListComponent implements OnInit, OnDestroy {
         private pService: ProgressService,
         private geomService: GeometryService,
         private authService: AuthService) {
-	
-		this.userOrgCodes = this.authService.getMyOrganizations();
+        this.userOrgCodes = this.authService.getMyOrganizations();
     }
 
     ngOnInit(): void {
@@ -386,14 +385,14 @@ export class ListComponent implements OnInit, OnDestroy {
             this.filters = event.filters;
         }
     }
-    
+
     isListInOrg(): boolean {
-		if(this.userOrgCodes && this.userOrgCodes.length > 0 && this.userOrgCodes.indexOf(this.orgCode) !== -1) {
-			return true;
-		}
-		
-		return false;
-	}
+        if (this.userOrgCodes && this.userOrgCodes.length > 0 && this.userOrgCodes.indexOf(this.orgCode) !== -1) {
+            return true;
+        }
+
+        return false;
+    }
 
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);

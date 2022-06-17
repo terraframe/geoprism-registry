@@ -15,7 +15,6 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@shared/component";
 
 import { AuthService, DateService, LocalizationService } from "@shared/service";
-import { ContextLayer } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { timeout } from "d3-timer";
 import { Observable, Subscription } from "rxjs";
@@ -139,6 +138,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     backReference: string;
 
+    urlParams: LocationManagerParams;
+
     /*
      * List of base layers
      */
@@ -223,6 +224,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.windowHeight = window.innerHeight;
 
         this.subscription = this.route.queryParams.subscribe(params => {
+            this.urlParams = params;
             this.handleStateChange(params);
         });
 
@@ -362,7 +364,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 // Handle parameters for selecting a geo object
                 if ((newState.objectType == null || newState.objectType === "GEOOBJECT") && newState.type != null && newState.code != null) {
-                    if (oldState.type !== newState.type || oldState.code !== newState.code || newState.code === "__NEW__") {
+                    if (oldState.type !== newState.type || oldState.code !== newState.code) {
                         this.loadGeoObjectFromState();
                     }
 
@@ -518,40 +520,38 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
         });
 
-        this.handleStateChange(this.state);
+        this.handleStateChange(this.urlParams);
     }
 
     onCreate(layer: any): void {
-		if (layer.dataSource.dataSourceType === "LISTVECT") {
-	
-	        this.closeEditSessionSafeguard().then(() => {
-	            this.listService.getVersion(layer.dataSource.versionId).then(version => {
-	                if (!version.isAbstract) {
-	                    this.select({
-	                        properties: {
-	                            type: version.typeCode,
-	                            code: "__NEW__"
-	                        }
-	                    }, null);
-	                } else {
-	                    this.bsModalRef = this.modalService.show(SelectTypeModalComponent, {
-	                        animated: true,
-	                        backdrop: true,
-	                        ignoreBackdropClick: true
-	                    });
-	                    this.bsModalRef.content.init(version, typeCode => {
-	                        this.select({
-	                            properties: {
-	                                type: typeCode,
-	                                code: "__NEW__"
-	                            }
-	                        }, null);
-	                    });
-	                }
-	            });
-	        });
-	        
-	    }
+        if (layer.dataSource.dataSourceType === "LISTVECT") {
+            this.closeEditSessionSafeguard().then(() => {
+                this.listService.getVersion(layer.dataSource.versionId).then(version => {
+                    if (!version.isAbstract) {
+                        this.select({
+                            properties: {
+                                type: version.typeCode,
+                                code: "__NEW__"
+                            }
+                        }, null);
+                    } else {
+                        this.bsModalRef = this.modalService.show(SelectTypeModalComponent, {
+                            animated: true,
+                            backdrop: true,
+                            ignoreBackdropClick: true
+                        });
+                        this.bsModalRef.content.init(version, typeCode => {
+                            this.select({
+                                properties: {
+                                    type: typeCode,
+                                    code: "__NEW__"
+                                }
+                            }, null);
+                        });
+                    }
+                });
+            });
+        }
     }
 
     closeEditSessionSafeguard(): Promise<void> {

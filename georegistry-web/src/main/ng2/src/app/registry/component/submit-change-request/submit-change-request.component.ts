@@ -13,6 +13,7 @@ import { RegistryService, ChangeRequestService, GeometryService } from "@registr
 import { GeoObjectType, GeoObjectOverTime } from "@registry/model/registry";
 import { GeoObjectLayerDataSource } from "@registry/service/layer-data-source";
 import { Router } from "@angular/router";
+import { RegistryCacheService } from "@registry/service/registry-cache.service";
 
 @Component({
     selector: "submit-change-request",
@@ -55,7 +56,7 @@ export class SubmitChangeRequestComponent implements OnInit {
 
     constructor(private modalService: BsModalService, private registryService: RegistryService, private geomService: GeometryService,
         private changeRequestService: ChangeRequestService, private localizeService: LocalizationService, private authService: AuthService,
-        private router: Router, private dateService: DateService) {
+        private router: Router, private dateService: DateService, private cacheService: RegistryCacheService) {
         this.dataSource = Observable.create((observer: any) => {
             this.registryService.getGeoObjectSuggestionsTypeAhead(this.geoObjectId, this.geoObjectType.code).then(results => {
                 observer.next(results);
@@ -64,7 +65,8 @@ export class SubmitChangeRequestComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.registryService.getGeoObjectTypes([], null).then(types => {
+        this.cacheService.getTypeCache().waitOnTypes().then((types: GeoObjectType[]) => {
+        // this.registryService.getGeoObjectTypes([], null).then(types => {
             let myOrgTypes = [];
             for (let i = 0; i < types.length; ++i) {
                 const type = types[i];
@@ -163,6 +165,7 @@ export class SubmitChangeRequestComponent implements OnInit {
         params.objectType = "GEOOBJECT";
         params.type = this.geoObjectType.code;
         params.code = this.geoObject.attributes.code;
+        params.date = this.dateStr;
 
         this.router.navigate(["/registry/location-manager"], {
             queryParams: params
