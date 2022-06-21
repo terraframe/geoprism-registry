@@ -64,7 +64,7 @@ if [ "$release_georegistry" == "true" ]; then
   # Georegistry : License Headers
   cd $WORKSPACE/georegistry
   git checkout $release_branch
-  mvn license:format -B
+  mvn license:format -B -q
   git add -A
   git diff-index --quiet HEAD || git commit -m 'License headers'
   if [ "$dry_run" == "false" ]; then
@@ -77,10 +77,10 @@ if [ "$release_georegistry" == "true" ]; then
   # Georegistry : Release
   cd $WORKSPACE/georegistry
   git checkout $release_branch
-  mvn release:prepare -B -DdryRun=$dry_run -Dtag=$CGR_RELEASE_VERSION \
+  mvn release:prepare -B -q -DdryRun=$dry_run -Dtag=$CGR_RELEASE_VERSION \
                    -DreleaseVersion=$CGR_RELEASE_VERSION \
                    -DdevelopmentVersion=$CGR_NEXT_VERSION
-  mvn release:perform -B -DdryRun=$dry_run -Darguments="-Dmaven.javadoc.skip=true -Dmaven.site.skip=true"
+  mvn release:perform -B -q -DdryRun=$dry_run -Darguments="-Dmaven.javadoc.skip=true -Dmaven.site.skip=true"
 else
   mkdir -p $WORKSPACE/georegistry/georegistry-web/target && wget -nv -O $WORKSPACE/georegistry/georegistry-web/target/georegistry.war "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war"
 fi
