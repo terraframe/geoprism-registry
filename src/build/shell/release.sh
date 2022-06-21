@@ -32,31 +32,12 @@
   #fi
 #fi
 
+set +x # Don't print every command before we run it
 git config --global user.name "$GIT_TF_BUILDER_USERNAME"
 git config --global user.email builder@terraframe.com
 
 . $NVM_DIR/nvm.sh && nvm install lts/erbium
-
-if [ "$release_adapter" == "true" ]; then
-  #### CGR Adapter ####
-  cd $WORKSPACE/georegistry/georegistry-adapter/java
-  
-  # CGR Adapter : Gradle Android Release
-  sed -i -E "s/implementation 'com.cgr.adapter:cgradapter-common:.*'/implementation 'com.cgr.adapter:cgradapter-common:$CGR_RELEASE_VERSION'/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/cgradapter_android/build.gradle
-  sed -i -E "s/VERSION_NAME=.*/VERSION_NAME=$CGR_RELEASE_VERSION/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/gradle.properties
-  cd $WORKSPACE/georegistry/georegistry-adapter/java/android/cgradapter_android
-  
-  if [ "$dry_run" == "false" ]; then
-    gradle -PNEXUS_USERNAME=$NEXUS_ADMIN_USERNAME -PNEXUS_PASSWORD=$NEXUS_ADMIN_PASSWORD clean build uploadArchives
-  else
-    gradle --dry-run -PNEXUS_USERNAME=$NEXUS_ADMIN_USERNAME -PNEXUS_PASSWORD=$NEXUS_ADMIN_PASSWORD clean build uploadArchives
-  fi
-  
-  sed -i -E "s/implementation 'com.cgr.adapter:cgradapter-common:.*'/implementation 'com.cgr.adapter:cgradapter-common:$CGR_NEXT_VERSION'/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/cgradapter_android/build.gradle
-  sed -i -E "s/VERSION_NAME=.*/VERSION_NAME=$CGR_NEXT_VERSION/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/gradle.properties
-else
-  mkdir -p $WORKSPACE/common-geo-registry-adapter/java/android/cgradapter_android/target && wget -nv -O $WORKSPACE/common-geo-registry-adapter/java/android/cgradapter_android/target/cgradapter-android-$CGR_RELEASE_VERSION.aar "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/com/cgr/adapter/cgradapter-android/$CGR_RELEASE_VERSION/cgradapter-android-$CGR_RELEASE_VERSION.aar"
-fi
+set -x # Go back to printing each command
 
 if [ "$release_georegistry" == "true" ]; then
   #### Georegistry ####
@@ -102,6 +83,27 @@ if [ "$release_georegistry" == "true" ]; then
   mvn release:perform -B -DdryRun=$dry_run -Darguments="-Dmaven.javadoc.skip=true -Dmaven.site.skip=true"
 else
   mkdir -p $WORKSPACE/georegistry/georegistry-web/target && wget -nv -O $WORKSPACE/georegistry/georegistry-web/target/georegistry.war "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war"
+fi
+
+# Gradle release must happen after CGR release since it depends upon it
+if [ "$release_android" == "true" ]; then
+  cd $WORKSPACE/georegistry/georegistry-adapter/java
+  
+  # CGR Adapter : Gradle Android Release
+  sed -i -E "s/implementation 'com.cgr.adapter:cgradapter-common:.*'/implementation 'com.cgr.adapter:cgradapter-common:$CGR_RELEASE_VERSION'/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/cgradapter_android/build.gradle
+  sed -i -E "s/VERSION_NAME=.*/VERSION_NAME=$CGR_RELEASE_VERSION/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/gradle.properties
+  cd $WORKSPACE/georegistry/georegistry-adapter/java/android/cgradapter_android
+  
+  if [ "$dry_run" == "false" ]; then
+    gradle -PNEXUS_USERNAME=$NEXUS_ADMIN_USERNAME -PNEXUS_PASSWORD=$NEXUS_ADMIN_PASSWORD clean build uploadArchives
+  else
+    gradle --dry-run -PNEXUS_USERNAME=$NEXUS_ADMIN_USERNAME -PNEXUS_PASSWORD=$NEXUS_ADMIN_PASSWORD clean build uploadArchives
+  fi
+  
+  sed -i -E "s/implementation 'com.cgr.adapter:cgradapter-common:.*'/implementation 'com.cgr.adapter:cgradapter-common:$CGR_NEXT_VERSION'/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/cgradapter_android/build.gradle
+  sed -i -E "s/VERSION_NAME=.*/VERSION_NAME=$CGR_NEXT_VERSION/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/gradle.properties
+else
+  mkdir -p $WORKSPACE/common-geo-registry-adapter/java/android/cgradapter_android/target && wget -nv -O $WORKSPACE/common-geo-registry-adapter/java/android/cgradapter_android/target/cgradapter-android-$CGR_RELEASE_VERSION.aar "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/com/cgr/adapter/cgradapter-android/$CGR_RELEASE_VERSION/cgradapter-android-$CGR_RELEASE_VERSION.aar"
 fi
 
 if [ "$release_docker" == "true" ]; then
