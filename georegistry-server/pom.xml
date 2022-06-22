@@ -34,7 +34,7 @@
 
 	<properties>
     <hapifhir_version>5.7.2</hapifhir_version>
-		<cgr.adapter.version>0.19.3-SNAPSHOT</cgr.adapter.version>
+		<cgr.adapter.version>0.19.3</cgr.adapter.version>
 	</properties>
 
 	<dependencies>
