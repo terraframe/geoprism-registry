@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.example.cgradapter_android;
+package com.example.georegistry_adapter_android;
 
 import org.junit.Test;
 

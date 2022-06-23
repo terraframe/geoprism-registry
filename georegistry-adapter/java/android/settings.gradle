@@ -1,1 +1,1 @@
-include ':app', ':cgradapter_android'
+include ':app', ':georegistry_adapter_android'

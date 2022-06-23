@@ -26,11 +26,13 @@
 # release_georegistry, tag_platform, tag_cloud, release_github
 
 #if [ "$release_adapter" == "true" ]; then
-  #if curl -f -s --head "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/com/cgr/adapter/cgradapter-common/$CGR_RELEASE_VERSION/cgradapter-common-$CGR_RELEASE_VERSION.war" | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null; then
+  #if curl -f -s --head "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-adapter/$CGR_RELEASE_VERSION/georegistry-adapter-$CGR_RELEASE_VERSION.war" | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null; then
   #  echo "The release version $CGR_RELEASE_VERSION has already been deployed! Please ensure you are releasing the correct version."
   #  exit 1
   #fi
 #fi
+
+export "MAVEN_OPTS=$MAVEN_OPTS -Dorg.slf4j.simpleLogger.defaultLogLevel=warning"
 
 set +x # Don't print every command before we run it
 git config --global user.name "$GIT_TF_BUILDER_USERNAME"
@@ -86,25 +88,25 @@ else
 fi
 
 # Gradle release must happen after CGR release since it depends upon it
-if [ "$release_android" == "true" ]; then
-  cd $WORKSPACE/georegistry/georegistry-adapter/java
-  
-  # CGR Adapter : Gradle Android Release
-  sed -i -E "s/implementation 'com.cgr.adapter:cgradapter-common:.*'/implementation 'com.cgr.adapter:cgradapter-common:$CGR_RELEASE_VERSION'/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/cgradapter_android/build.gradle
-  sed -i -E "s/VERSION_NAME=.*/VERSION_NAME=$CGR_RELEASE_VERSION/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/gradle.properties
-  cd $WORKSPACE/georegistry/georegistry-adapter/java/android/cgradapter_android
-  
-  if [ "$dry_run" == "false" ]; then
-    gradle -PNEXUS_USERNAME=$NEXUS_ADMIN_USERNAME -PNEXUS_PASSWORD=$NEXUS_ADMIN_PASSWORD clean build uploadArchives
-  else
-    gradle --dry-run -PNEXUS_USERNAME=$NEXUS_ADMIN_USERNAME -PNEXUS_PASSWORD=$NEXUS_ADMIN_PASSWORD clean build uploadArchives
-  fi
-  
-  sed -i -E "s/implementation 'com.cgr.adapter:cgradapter-common:.*'/implementation 'com.cgr.adapter:cgradapter-common:$CGR_NEXT_VERSION'/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/cgradapter_android/build.gradle
-  sed -i -E "s/VERSION_NAME=.*/VERSION_NAME=$CGR_NEXT_VERSION/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/gradle.properties
-else
-  mkdir -p $WORKSPACE/common-geo-registry-adapter/java/android/cgradapter_android/target && wget -nv -O $WORKSPACE/common-geo-registry-adapter/java/android/cgradapter_android/target/cgradapter-android-$CGR_RELEASE_VERSION.aar "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/com/cgr/adapter/cgradapter-android/$CGR_RELEASE_VERSION/cgradapter-android-$CGR_RELEASE_VERSION.aar"
-fi
+#if [ "$release_android" == "true" ]; then
+#  cd $WORKSPACE/georegistry/georegistry-adapter/java
+#  
+#  # CGR Adapter : Gradle Android Release
+#  sed -i -E "s/implementation 'net.geoprism:georegistry-adapter:.*'/implementation 'net.geoprism:georegistry-adapter:$CGR_RELEASE_VERSION'/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/cgradapter_android/build.gradle
+#  sed -i -E "s/VERSION_NAME=.*/VERSION_NAME=$CGR_RELEASE_VERSION/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/gradle.properties
+#  cd $WORKSPACE/georegistry/georegistry-adapter/java/android/cgradapter_android
+#  
+#  if [ "$dry_run" == "false" ]; then
+#    gradle -PNEXUS_USERNAME=$NEXUS_ADMIN_USERNAME -PNEXUS_PASSWORD=$NEXUS_ADMIN_PASSWORD clean build uploadArchives
+#  else
+#    gradle --dry-run -PNEXUS_USERNAME=$NEXUS_ADMIN_USERNAME -PNEXUS_PASSWORD=$NEXUS_ADMIN_PASSWORD clean build uploadArchives
+#  fi
+#  
+#  sed -i -E "s/implementation 'net.geoprism:georegistry-adapter:.*'/implementation 'net.geoprism:georegistry-adapter:$CGR_NEXT_VERSION'/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/cgradapter_android/build.gradle
+#  sed -i -E "s/VERSION_NAME=.*/VERSION_NAME=$CGR_NEXT_VERSION/g" $WORKSPACE/georegistry/georegistry-adapter/java/android/gradle.properties
+#else
+#  mkdir -p $WORKSPACE/georegistry/georegistry-adapter/java/android/georegistry_adapter_android/target && wget -nv -O $WORKSPACE/georegistry/georegistry-adapter/java/android/georegistry_adapter_android/target/georegistry-adapter-android-$CGR_RELEASE_VERSION.aar "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-adapter-android/$CGR_RELEASE_VERSION/georegistry-adapter-android-$CGR_RELEASE_VERSION.aar"
+#fi
 
 if [ "$release_docker" == "true" ]; then
   cd $WORKSPACE/georegistry/src/build/docker/georegistry
@@ -156,10 +158,11 @@ if [ "$release_github" == "true" ]; then
     # TODO : We really should be using the artifacts we compiled earlier.
     sleep 180 # Cloudsmith takes a little bit to process the artifact before its downloadable.
     wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O georegistry-web-$CGR_RELEASE_VERSION.war
-    wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/com/cgr/adapter/cgradapter-common/$CGR_RELEASE_VERSION/cgradapter-common-$CGR_RELEASE_VERSION.jar -O cgradapter-common-$CGR_RELEASE_VERSION.jar
-    wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/com/cgr/adapter/cgradapter-android/$CGR_RELEASE_VERSION/cgradapter-android-$CGR_RELEASE_VERSION.aar -O cgradapter-android-$CGR_RELEASE_VERSION.aar
+    wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-adapter/$CGR_RELEASE_VERSION/georegistry-adapter-$CGR_RELEASE_VERSION.jar -O georegistry-adapter-$CGR_RELEASE_VERSION.jar
+    #wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-adapter-android/$CGR_RELEASE_VERSION/georegistry-adapter-android-$CGR_RELEASE_VERSION.aar -O georegistry-adapter-android-$CGR_RELEASE_VERSION.aar
   
-    gh release create $CGR_RELEASE_VERSION "georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp" "cgradapter-common-$CGR_RELEASE_VERSION.jar#CGR Java Adapter" "cgradapter-android-$CGR_RELEASE_VERSION.aar#CGR Android Adapter"
+    #gh release create $CGR_RELEASE_VERSION "georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp" "georegistry-adapter-$CGR_RELEASE_VERSION.jar#CGR Java Adapter" "georegistry-adapter-android-$CGR_RELEASE_VERSION.aar#CGR Android Adapter"
+    gh release create $CGR_RELEASE_VERSION "georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp" "georegistry-adapter-$CGR_RELEASE_VERSION.jar#CGR Java Adapter"
   fi
   
   
