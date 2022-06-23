@@ -111,11 +111,13 @@ export class ListsForTypeComponent implements OnInit, OnDestroy, OnChanges {
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
         this.bsModalRef.content.type = "danger";
 
-        this.bsModalRef.content.onConfirm.subscribe(data => {
-            this.service.remove(list).then(response => {
-                this.listByType.lists = this.listByType.lists.filter((value, index, arr) => {
+        this.bsModalRef.content.onConfirm.subscribe(() => {
+            this.service.remove(list).then(() => {
+                this.listByType.lists = this.listByType.lists.filter((value) => {
                     return value.oid !== list.oid;
                 });
+
+                this.createGroups(this.listByType);
             }).catch((err: HttpErrorResponse) => {
                 this.error.emit(err);
             });
