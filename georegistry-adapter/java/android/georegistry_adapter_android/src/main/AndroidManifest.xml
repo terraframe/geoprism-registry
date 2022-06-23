@@ -18,6 +18,5 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<resources>
-    <string name="app_name">cgradapter_android</string>
-</resources>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.georegistry_adapter_android" />
