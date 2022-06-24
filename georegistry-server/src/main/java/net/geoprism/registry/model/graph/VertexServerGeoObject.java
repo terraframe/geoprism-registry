@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.graph;
 
@@ -224,8 +224,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setCode(String code)
   {
-    code = code.trim();
-    code = code.replaceAll("\\s+", "");
+    if (code != null)
+    {
+      code = code.trim();
+      code = code.replaceAll("\\s+", "");
+    }
 
     // this.vertex.setValue(GeoVertex.GEOID, code);
     this.vertex.setValue(DefaultAttribute.CODE.getName(), code);
@@ -1914,7 +1917,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return geom;
   }
-  
+
   public Geometry getGeometry()
   {
     return this.getGeometry(this.date);
