@@ -318,10 +318,17 @@ export class ListComponent implements OnInit, OnDestroy {
             backdrop: true,
             ignoreBackdropClick: true
         });
-        this.bsModalRef.content.onFormat.subscribe(format => {
-            if (format === "SHAPEFILE") {
-                window.location.href = registry.contextPath + "/list-type/export-shapefile?oid=" + this.list.oid + "&criteria=" + encodeURIComponent(JSON.stringify(criteria));
-            } else if (format === "EXCEL") {
+        this.bsModalRef.content.onFormat.subscribe(data => {
+            if (data.format === "SHAPEFILE") {
+                let url = registry.contextPath + "/list-type/export-shapefile?oid=" + this.list.oid;
+                url += "&criteria=" + encodeURIComponent(JSON.stringify(criteria));
+
+                if (data.actualGeometryType != null && data.actualGeometryType.length > 0) {
+                    url += "&actualGeometryType=" + encodeURIComponent(data.actualGeometryType);
+                }
+
+                window.location.href = url;
+            } else if (data.format === "EXCEL") {
                 window.location.href = registry.contextPath + "/list-type/export-spreadsheet?oid=" + this.list.oid + "&criteria=" + encodeURIComponent(JSON.stringify(criteria));
             }
         });

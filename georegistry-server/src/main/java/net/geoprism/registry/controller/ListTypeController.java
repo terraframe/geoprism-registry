@@ -206,12 +206,13 @@ public class ListTypeController
   @Endpoint(url = "export-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF exportShapefile(ClientRequestIF request, 
       @RequestParamter(name = "oid", required = true) String oid, 
-      @RequestParamter(name = "criteria") String criteria) throws JSONException
+      @RequestParamter(name = "criteria") String criteria,
+      @RequestParamter(name = "actualGeometryType") String actualGeometryType) throws JSONException
   {
     JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
     String code = masterList.get(ListType.TYPE_CODE).getAsString() + "-" + masterList.get(ListTypeVersion.FORDATE).getAsString();
 
-    return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid, criteria), "application/zip", code + ".zip");
+    return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid, criteria, actualGeometryType), "application/zip", code + ".zip");
   }
 
   @Endpoint(url = "download-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)

@@ -233,7 +233,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   }
 
   @Transaction
-  public static InputStream exportListTypeShapefile(String oid, String json)
+  public static InputStream exportListTypeShapefile(String oid, String json, String actualGeometryType)
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
@@ -248,7 +248,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     try
     {
-      ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, criteria);
+      ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, criteria, actualGeometryType);
 
       return exporter.export();
     }

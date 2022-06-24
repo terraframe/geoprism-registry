@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.shapefile;
 
@@ -54,6 +54,8 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +84,7 @@ import com.runwaysdk.gis.dataaccess.MdAttributeMultiPointDAOIF;
 import com.runwaysdk.gis.dataaccess.MdAttributeMultiPolygonDAOIF;
 import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.gis.dataaccess.MdAttributePolygonDAOIF;
+import com.runwaysdk.gis.dataaccess.MdAttributeShapeDAOIF;
 import com.runwaysdk.query.OIterator;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
@@ -115,12 +118,15 @@ public class ListTypeShapefileExporter
 
   private JsonObject                               criteria;
 
-  public ListTypeShapefileExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, JsonObject criteria)
+  private String                                   actualGeometryType;
+
+  public ListTypeShapefileExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, JsonObject criteria, String actualGeometryType)
   {
     this.version = version;
     this.mdBusiness = mdBusiness;
     this.mdAttributes = mdAttributes;
     this.criteria = criteria;
+    this.actualGeometryType = actualGeometryType;
     this.columnNames = new HashMap<String, String>();
 
     this.list = version.getListType();
@@ -339,10 +345,13 @@ public class ListTypeShapefileExporter
         {
           String attributeName = mdAttribute.definesAttribute();
           Object value = row.getObjectValue(attributeName);
+          String columnName = this.getColumnName(attributeName);
+          AttributeDescriptor descriptor = featureType.getDescriptor(columnName);
+          AttributeType attributeType = descriptor.getType();
 
-          if (value != null)
+          if (value != null && attributeType.getBinding().isAssignableFrom(value.getClass()))
           {
-            builder.set(this.getColumnName(attributeName), value);
+            builder.set(columnName, value);
           }
         }
 
@@ -365,7 +374,7 @@ public class ListTypeShapefileExporter
     SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
     builder.setName(this.list.getDisplayLabel().getValue());
     builder.setCRS(DefaultGeographicCRS.WGS84);
-    builder.add(GEOM, this.getShapefileType(geometryAttribute), 4326);
+    builder.add(GEOM, this.getShapefileType(geometryAttribute, actualGeometryType), 4326);
 
     this.mdAttributes.forEach(attribute -> {
       builder.add(generateColumnName(attribute.definesAttribute()), this.getShapefileType(attribute));
@@ -467,7 +476,7 @@ public class ListTypeShapefileExporter
     throw new UnsupportedOperationException("Unsupported attribute type [" + mdAttribute.getClass().getSimpleName() + "]");
   }
 
-  private Class<?> getShapefileType(MdAttributeGeometryDAOIF mdAttribute)
+  private Class<?> getShapefileType(MdAttributeGeometryDAOIF mdAttribute, String actualGeometryType)
   {
     if (mdAttribute instanceof MdAttributePointDAOIF)
     {
@@ -492,6 +501,21 @@ public class ListTypeShapefileExporter
     else if (mdAttribute instanceof MdAttributeMultiPolygonDAOIF)
     {
       return MultiPolygon.class;
+    }
+    else if (mdAttribute instanceof MdAttributeShapeDAOIF && actualGeometryType != null)
+    {
+      if (actualGeometryType.equalsIgnoreCase(MultiPolygon.class.getSimpleName()))
+      {
+        return MultiPolygon.class;
+      }
+      else if (actualGeometryType.equalsIgnoreCase(MultiPoint.class.getSimpleName()))
+      {
+        return MultiPoint.class;
+      }
+      else if (actualGeometryType.equalsIgnoreCase(MultiLineString.class.getSimpleName()))
+      {
+        return MultiLineString.class;
+      }
     }
 
     throw new UnsupportedOperationException("Unsupported attribute type [" + mdAttribute.getClass().getSimpleName() + "]");

@@ -32,6 +32,8 @@ export class VersionMetadata {
     reportSpecification?: string;
     distributionFormat?: string;
 
+    geometryType?: string;
+
 }
 
 export class ListVersionMetadata {

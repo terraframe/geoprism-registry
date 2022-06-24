@@ -152,10 +152,8 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.ListTypeVersionPageQuery;
-import net.geoprism.registry.query.ServerGeoObjectRestriction;
 import net.geoprism.registry.query.graph.BasicVertexQuery;
 import net.geoprism.registry.query.graph.BasicVertexRestriction;
-import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.view.JsonSerializable;
@@ -805,7 +803,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     try
     {
-      ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(this, mdBusiness, mdAttributes, null);
+      ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(this, mdBusiness, mdAttributes, null, null);
 
       try (final InputStream istream = exporter.export())
       {
@@ -1311,6 +1309,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     object.addProperty(ListTypeVersion.CREATEDATE, format.format(this.getCreateDate()));
     object.addProperty(ListTypeVersion.VERSIONNUMBER, this.getVersionNumber());
     object.addProperty(ListTypeVersion.WORKING, this.getWorking());
+    object.addProperty("geometryType", type.getGeometryType().name());
     object.addProperty("isGeometryEditable", type.isGeometryEditable());
     object.addProperty("isAbstract", type.getIsAbstract());
     object.addProperty("shapefile", file.exists());

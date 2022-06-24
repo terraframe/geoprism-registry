@@ -4,23 +4,22 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -29,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.commongeoregistry.adapter.metadata.DefaultSerializer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -62,8 +60,6 @@ import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.etl.ListTypeJobQuery;
 import net.geoprism.registry.etl.PublishListTypeVersionJob;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
-import net.geoprism.registry.geoobject.ServerGeoObjectService;
-import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
@@ -328,17 +324,17 @@ public class ListTypeService
   {
     return ListTypeVersion.get(oid).toJSON(true);
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonArray fetchVersionsAsListVersion(String sessionId, String oids)
   {
     JsonArray ja = new JsonArray();
-    
+
     for (String oid : StringUtils.split(oids, ","))
     {
       ja.add(serializeVersionAsListVersion(ListTypeVersion.get(oid)));
     }
-    
+
     return ja;
   }
 
@@ -362,30 +358,33 @@ public class ListTypeService
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
 
-//    if (version.getWorking())
-//    {
-//      ListType type = version.getListType();
-//
-//      if (type.doesActorHaveExploratoryPermission())
-//      {
-//        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-//        format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-//
-//        ServerGeoObjectType geoObjectType = type.getGeoObjectType();
-//        ServerGeoObjectIF geoObject = new ServerGeoObjectService().getGeoObject(uid, geoObjectType.getCode());
-//
-//        JsonObject object = new JsonObject();
-//        object.addProperty("recordType", "GEO_OBJECT");
-//        object.add("type", geoObject.getType().toJSON(new DefaultSerializer()));
-//        object.addProperty("code", geoObject.getCode());
-//        object.addProperty(ListTypeVersion.FORDATE, format.format(version.getForDate()));
-//        
-//        // Add geometry so we can zoom to it
-//        object.add("geoObject", geoObject.toGeoObject(version.getForDate()).toJSON());
-//
-//        return object;
-//      }
-//    }
+    // if (version.getWorking())
+    // {
+    // ListType type = version.getListType();
+    //
+    // if (type.doesActorHaveExploratoryPermission())
+    // {
+    // SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    // format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    //
+    // ServerGeoObjectType geoObjectType = type.getGeoObjectType();
+    // ServerGeoObjectIF geoObject = new
+    // ServerGeoObjectService().getGeoObject(uid, geoObjectType.getCode());
+    //
+    // JsonObject object = new JsonObject();
+    // object.addProperty("recordType", "GEO_OBJECT");
+    // object.add("type", geoObject.getType().toJSON(new DefaultSerializer()));
+    // object.addProperty("code", geoObject.getCode());
+    // object.addProperty(ListTypeVersion.FORDATE,
+    // format.format(version.getForDate()));
+    //
+    // // Add geometry so we can zoom to it
+    // object.add("geoObject",
+    // geoObject.toGeoObject(version.getForDate()).toJSON());
+    //
+    // return object;
+    // }
+    // }
 
     return version.record(uid);
   }
@@ -400,9 +399,9 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
-  public InputStream exportShapefile(String sessionId, String oid, String criteria)
+  public InputStream exportShapefile(String sessionId, String oid, String criteria, String actualGeometryType)
   {
-    return GeoRegistryUtil.exportListTypeShapefile(oid, criteria);
+    return GeoRegistryUtil.exportListTypeShapefile(oid, criteria, actualGeometryType);
   }
 
   @Request(RequestType.SESSION)
@@ -601,7 +600,7 @@ public class ListTypeService
 
     return jaOrgs;
   }
-  
+
   private JsonObject serializeVersionAsListVersion(ListTypeVersion version)
   {
     JsonObject object = new JsonObject();
