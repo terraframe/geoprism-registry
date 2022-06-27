@@ -106,6 +106,7 @@ import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DuplicateGeoObjectCodeException;
 import net.geoprism.registry.DuplicateGeoObjectException;
 import net.geoprism.registry.DuplicateGeoObjectMultipleException;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.RegistryConstants;
@@ -2345,7 +2346,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     final Date startDate = new GraphQuery<Date>("SELECT MIN(exists_cot.startDate) FROM " + dbClassName).getSingleResult();
     final Date endDate = new GraphQuery<Date>("SELECT MAX(exists_cot.startDate) FROM " + dbClassName).getSingleResult();
-    Date current = new Date();
+
+    Date current = GeoRegistryUtil.getCurrentDate();
 
     if (startDate != null && endDate != null)
     {

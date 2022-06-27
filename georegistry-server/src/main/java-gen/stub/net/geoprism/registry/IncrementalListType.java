@@ -121,6 +121,8 @@ public class IncrementalListType extends IncrementalListTypeBase
         if (end.getTime().after(today))
         {
           end.add(Calendar.YEAR, -1);
+          
+          this.moveToEndOfMonth(end);
         }
 
         Calendar calendar = getEndOfYear(startDate);
@@ -139,6 +141,8 @@ public class IncrementalListType extends IncrementalListTypeBase
         while (end.getTime().after(today))
         {
           end.add(Calendar.MONTH, -6);
+          
+          this.moveToEndOfMonth(end);
         }
 
         Calendar calendar = getEndOfHalfYear(startDate);
@@ -158,6 +162,8 @@ public class IncrementalListType extends IncrementalListTypeBase
         while (end.getTime().after(today))
         {
           end.add(Calendar.MONTH, -3);
+          
+          this.moveToEndOfMonth(end);
         }
 
         Calendar calendar = getEndOfQuarter(startDate);
@@ -177,6 +183,8 @@ public class IncrementalListType extends IncrementalListTypeBase
         while (end.getTime().after(today))
         {
           end.add(Calendar.MONTH, -1);
+          
+          this.moveToEndOfMonth(end);          
         }
 
         Calendar calendar = getEndOfMonth(startDate);
@@ -315,10 +323,10 @@ public class IncrementalListType extends IncrementalListTypeBase
 
       if (endDate.after(new Date()))
       {
-        endDate = new Date();
+        endDate = GeoRegistryUtil.getCurrentDate();
       }
 
-      List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
+      List<Date> dates = this.getFrequencyDates(range.getFirst(), endDate);
 
       for (Date date : dates)
       {
