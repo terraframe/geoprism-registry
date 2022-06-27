@@ -53,7 +53,17 @@
                 <h4>
                     <localize key="masterlist.forDate"></localize>
                     : <span class="date-string-display">
-                        <date-text [date]="list.forDate"></date-text>
+                        <ng-container *ngIf="list.period.type === 'text'">
+                            {{list.period.value}}
+                        </ng-container>
+                        <ng-container *ngIf="list.period.type === 'date'">
+                            <date-text [date]="list.period.value"></date-text>
+                        </ng-container>
+                        <ng-container *ngIf="list.period.type === 'range'">
+                            <date-text [date]="list.period.value.startDate"></date-text>
+                            -
+                            <date-text [date]="list.period.value.endDate"></date-text>
+                        </ng-container>
                     </span>
                 </h4>
             </div>
