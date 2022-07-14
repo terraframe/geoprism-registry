@@ -132,8 +132,6 @@ public class HierarchicalRelationshipType extends HierarchicalRelationshipTypeBa
     MdTermRelationship mdTermRelationship = this.getMdTermRelationship();
     MdEdge mdEdge = this.getMdEdge();
 
-    super.delete();
-
     /*
      * Delete all inherited hierarchies
      */
@@ -143,6 +141,8 @@ public class HierarchicalRelationshipType extends HierarchicalRelationshipTypeBa
     {
       annotation.delete();
     }
+    
+    super.delete();
 
     Universal.getStrategy().shutdown(mdTermRelationship.definesType());
 

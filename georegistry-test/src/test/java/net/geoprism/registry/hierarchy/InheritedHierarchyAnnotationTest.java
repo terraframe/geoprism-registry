@@ -23,6 +23,7 @@ import java.util.List;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -32,6 +33,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.HierarchyRootException;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
+import net.geoprism.registry.TypeInUseException;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.test.FastTestDataset;
@@ -42,7 +44,13 @@ public class InheritedHierarchyAnnotationTest
 {
   public static final TestGeoObjectTypeInfo TEST_CHILD = new TestGeoObjectTypeInfo("HMST_PROVINCE", FastTestDataset.ORG_CGOV);
 
-  public static final TestHierarchyTypeInfo TEST_HT    = new TestHierarchyTypeInfo("HMST_ReportDiv", FastTestDataset.ORG_CGOV);
+  public static final TestHierarchyTypeInfo TEST_HT    = new TestHierarchyTypeInfo("INHAT", FastTestDataset.ORG_CGOV);
+  
+  public static final TestGeoObjectTypeInfo TEST_DELETE_CHILD = new TestGeoObjectTypeInfo("INHAT_CHILD_GOT", FastTestDataset.ORG_CGOV);
+  
+  public static final TestHierarchyTypeInfo TEST_CHILD_HT = new TestHierarchyTypeInfo("IHAT_Child_HT", FastTestDataset.ORG_CGOV);
+  
+  public static final TestHierarchyTypeInfo TEST_PARENT_HT = new TestHierarchyTypeInfo("IHAT_Parent_HT", FastTestDataset.ORG_CGOV);
 
   protected static FastTestDataset          testData;
 
@@ -71,6 +79,14 @@ public class InheritedHierarchyAnnotationTest
     TEST_CHILD.delete();
 
     testData.tearDownMetadata();
+  }
+  
+  @After
+  public void cleanUp()
+  {
+    TEST_CHILD_HT.delete();
+    TEST_PARENT_HT.delete();
+    TEST_DELETE_CHILD.delete();
   }
 
   @Test
@@ -213,7 +229,132 @@ public class InheritedHierarchyAnnotationTest
       }
     }
   }
+  
+  
+  /**
+   * Tests to make sure that if we have a hierarchy A which is inherited by hierarchy B, if we delete A then the inherit relationship
+   * needs to also be deleted.
+   */
+  @Test
+  @Request
+  public void testDeleteParentType()
+  {
+    TEST_DELETE_CHILD.apply();
+    TEST_CHILD_HT.apply();
+    TEST_PARENT_HT.apply();
+    TEST_CHILD_HT.setRoot(TEST_DELETE_CHILD);
+    
+    ServerGeoObjectType sGOT = TEST_DELETE_CHILD.getServerObject();
+    ServerHierarchyType forHierarchy = TEST_CHILD_HT.getServerObject();
+    ServerHierarchyType inheritedHierarchy = TEST_PARENT_HT.getServerObject();
 
+    sGOT.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
+
+    InheritedHierarchyAnnotation test = InheritedHierarchyAnnotation.get(sGOT.getUniversal(), forHierarchy.getHierarchicalRelationshipType());
+
+    try
+    {
+      Assert.assertNotNull(test);
+      
+      TEST_PARENT_HT.delete();
+      
+      Assert.assertNull(InheritedHierarchyAnnotation.get(sGOT.getUniversal(), forHierarchy.getHierarchicalRelationshipType()));
+      
+      test = null;
+    }
+    finally
+    {
+      if (test != null)
+      {
+        test.delete();
+      }
+    }
+  }
+  
+  /**
+   * Tests to make sure that if we have a hierarchy A which is inherited by hierarchy B, if we delete B then the inherit relationship
+   * needs to also be deleted.
+   */
+  @Test
+  @Request
+  public void testDeleteChildType()
+  {
+    TEST_DELETE_CHILD.apply();
+    TEST_CHILD_HT.apply();
+    TEST_PARENT_HT.apply();
+    TEST_CHILD_HT.setRoot(TEST_DELETE_CHILD);
+    
+    ServerGeoObjectType sGOT = TEST_DELETE_CHILD.getServerObject();
+    ServerHierarchyType forHierarchy = TEST_CHILD_HT.getServerObject();
+    ServerHierarchyType inheritedHierarchy = TEST_PARENT_HT.getServerObject();
+
+    sGOT.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
+
+    List<? extends InheritedHierarchyAnnotation> test = InheritedHierarchyAnnotation.getByInheritedHierarchy(sGOT.getUniversal(), inheritedHierarchy.getHierarchicalRelationshipType());
+
+    try
+    {
+      Assert.assertTrue(test != null && test.size() == 1);
+      
+      TEST_CHILD_HT.delete();
+      
+      test = InheritedHierarchyAnnotation.getByInheritedHierarchy(sGOT.getUniversal(), inheritedHierarchy.getHierarchicalRelationshipType());
+      
+      Assert.assertTrue(test != null && test.size() == 0);
+      
+      test = null;
+    }
+    finally
+    {
+      if (test != null)
+      {
+        test.stream().forEach(annot -> annot.delete());
+      }
+    }
+  }
+  
+  /**
+   * Tests to make sure that if we have a hierarchy A which is inherited by hierarchy B, if we delete the GeoObjectType, then the
+   * annotation is also deleted.
+   */
+  @Test(expected=TypeInUseException.class)
+  @Request
+  public void testDeleteGeoObjectType()
+  {
+    TEST_DELETE_CHILD.apply();
+    TEST_CHILD_HT.apply();
+    TEST_PARENT_HT.apply();
+    TEST_CHILD_HT.setRoot(TEST_DELETE_CHILD);
+    
+    ServerGeoObjectType sGOT = TEST_DELETE_CHILD.getServerObject();
+    ServerHierarchyType forHierarchy = TEST_CHILD_HT.getServerObject();
+    ServerHierarchyType inheritedHierarchy = TEST_PARENT_HT.getServerObject();
+
+    sGOT.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
+
+    List<? extends InheritedHierarchyAnnotation> test = InheritedHierarchyAnnotation.getAnnotationByHierarchies(forHierarchy.getHierarchicalRelationshipType(), inheritedHierarchy.getHierarchicalRelationshipType());
+
+    try
+    {
+      Assert.assertTrue(test != null && test.size() == 1);
+      
+      TEST_DELETE_CHILD.delete();
+      
+//      test = InheritedHierarchyAnnotation.getAnnotationByHierarchies(forHierarchy.getHierarchicalRelationshipType(), inheritedHierarchy.getHierarchicalRelationshipType());
+//      
+//      Assert.assertTrue(test != null && test.size() == 0);
+//      
+//      test = null;
+    }
+    finally
+    {
+      if (test != null)
+      {
+        test.stream().forEach(annot -> annot.delete());
+      }
+    }
+  }
+  
   @Request
   @Test(expected = HierarchyRootException.class)
   public void testCreateOnNonRoot()

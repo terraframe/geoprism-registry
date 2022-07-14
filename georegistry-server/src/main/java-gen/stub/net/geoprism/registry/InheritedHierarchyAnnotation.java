@@ -104,4 +104,18 @@ public class InheritedHierarchyAnnotation extends InheritedHierarchyAnnotationBa
 
     return null;
   }
+  
+  public static List<? extends InheritedHierarchyAnnotation> getAnnotationByHierarchies(HierarchicalRelationshipType forHierarchicalRelationship, HierarchicalRelationshipType inheritedHierarchicalRelationship)
+  {
+    InheritedHierarchyAnnotationQuery query = new InheritedHierarchyAnnotationQuery(new QueryFactory());
+    query.WHERE(query.getInheritedHierarchicalRelationshipType().EQ(inheritedHierarchicalRelationship));
+    query.WHERE(query.getForHierarchicalRelationshipType().EQ(forHierarchicalRelationship));
+
+    try (OIterator<? extends InheritedHierarchyAnnotation> iterator = query.getIterator())
+    {
+      List<? extends InheritedHierarchyAnnotation> list = iterator.getAll();
+
+      return list;
+    }
+  }
 }

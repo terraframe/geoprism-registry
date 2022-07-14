@@ -155,6 +155,9 @@ public class TestHierarchyTypeInfo
     HierarchyType dto = this.toDTO();
 
     this.serverObj = new ServerHierarchyTypeBuilder().createHierarchyType(dto);
+    
+    // The transaction did not error out, so it is safe to put into the cache.
+    ServiceFactory.getMetadataCache().addHierarchyType(this.serverObj);
   }
 
   @Request
