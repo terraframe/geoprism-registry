@@ -1,5 +1,5 @@
 ## About
-Geoprism Registry is the first implementation of <a href="https://github.com/terraframe/common-geo-registry-specification" target="_blank">the Common Geo-Registry (CGR) specification </a>. The 
+Geoprism Registry is the first implementation of <a href="https://github.com/terraframe/common-geo-registry-specification" target="_blank">the Common Geo-Registry (CGR) specification </a>.
 
 ## Organizations Involved
 There are numerous organizations involved with designing, building, and testing the Geoprism Registry. The primary contributors are:
