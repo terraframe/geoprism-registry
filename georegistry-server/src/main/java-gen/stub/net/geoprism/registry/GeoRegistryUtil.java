@@ -43,6 +43,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.resource.ApplicationResource;
+import com.runwaysdk.resource.StreamResource;
 
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.excel.ListTypeExcelExporter;
@@ -294,6 +295,14 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   }
 
   @Authenticate
+  public static void importTypes(String orgCode, InputStream istream)
+  {
+    Organization organization = Organization.getByCode(orgCode);
+
+    XMLImporter xmlImporter = new XMLImporter();
+    xmlImporter.importXMLDefinitions(organization, new StreamResource(istream, "domain.xml"));
+  }
+
   public static void importTypes(String orgCode, ApplicationResource resource)
   {
     Organization organization = Organization.getByCode(orgCode);
