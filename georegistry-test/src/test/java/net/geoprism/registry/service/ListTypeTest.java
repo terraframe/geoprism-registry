@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -306,7 +306,7 @@ public class ListTypeTest
     JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
 
     String oid = result.get(ComponentInfo.OID).getAsString();
-    
+
     this.waitUntilPublished(oid);
 
     service.remove(testData.clientRequest.getSessionId(), oid);
@@ -321,7 +321,7 @@ public class ListTypeTest
 
     ListTypeService service = new ListTypeService();
     JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
-    
+
     String oid = result.get(ComponentInfo.OID).getAsString();
     this.waitUntilPublished(oid);
 
@@ -349,7 +349,7 @@ public class ListTypeTest
 
     ListTypeService service = new ListTypeService();
     JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
-    
+
     String oid = result.get(ComponentInfo.OID).getAsString();
     this.waitUntilPublished(oid);
 
@@ -627,20 +627,20 @@ public class ListTypeTest
     for (TestUserInfo user : users)
     {
       USATestData.runAsUser(user, (request, adapter) -> {
-        
+
         ListTypeService service = new ListTypeService();
-        
+
         try
         {
           service.apply(request.getSessionId(), listJson);
-          
+
           Assert.fail("Expected an exception to be thrown.");
         }
         catch (SmartExceptionDTO e)
         {
           // This is expected
         }
-        
+
       });
     }
   }
@@ -653,7 +653,7 @@ public class ListTypeTest
     ListTypeService service = new ListTypeService();
     JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
     String oid = result.get(ComponentInfo.OID).getAsString();
-    
+
     this.waitUntilPublished(oid);
 
     try
@@ -663,18 +663,18 @@ public class ListTypeTest
       for (TestUserInfo user : users)
       {
         USATestData.runAsUser(user, (request, adapter) -> {
-          
+
           try
           {
             service.remove(request.getSessionId(), oid);
-            
+
             Assert.fail("Expected an exception to be thrown.");
           }
           catch (SmartExceptionDTO e)
           {
             // This is expected
           }
-          
+
         });
       }
     }
@@ -683,30 +683,30 @@ public class ListTypeTest
       service.remove(testData.clientRequest.getSessionId(), oid);
     }
   }
-  
+
   @Request
   private void waitUntilPublished(String oid)
   {
     List<? extends JobHistory> histories = null;
     int waitTime = 0;
-    
+
     while (histories == null)
     {
       if (waitTime > 10000)
       {
         Assert.fail("Job was never scheduled. Unable to find any associated history.");
       }
-      
+
       QueryFactory qf = new QueryFactory();
-      
+
       PublishListTypeVersionJobQuery jobQuery = new PublishListTypeVersionJobQuery(qf);
       jobQuery.WHERE(jobQuery.getListType().EQ(oid));
-      
+
       JobHistoryQuery jhq = new JobHistoryQuery(qf);
       jhq.WHERE(jhq.job(jobQuery));
-      
+
       List<? extends JobHistory> potentialHistories = jhq.getIterator().getAll();
-    
+
       if (potentialHistories.size() > 0)
       {
         histories = potentialHistories;
@@ -722,11 +722,11 @@ public class ListTypeTest
           e.printStackTrace();
           Assert.fail("Interrupted while waiting");
         }
-        
+
         waitTime += 1000;
       }
     }
-    
+
     for (JobHistory history : histories)
     {
       try
@@ -860,7 +860,7 @@ public class ListTypeTest
     for (int i = 0; i < dates.size(); i++)
     {
       calendar.clear();
-      calendar.set( ( 2012 + i ), Calendar.DECEMBER, 31);
+      calendar.set( ( 2012 + i ), Calendar.MARCH, 3);
 
       Assert.assertEquals(calendar.getTime(), dates.get(i));
     }
@@ -886,6 +886,16 @@ public class ListTypeTest
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
 
     Assert.assertEquals(5, dates.size());
+
+    for (int i = 0; i < dates.size(); i++)
+    {
+      calendar.clear();
+      calendar.set(2012, Calendar.MARCH, 3);
+      calendar.add(Calendar.MONTH, ( 3 * i ));
+
+      Assert.assertEquals(calendar.getTime(), dates.get(i));
+    }
+
   }
 
   @Test
@@ -908,6 +918,15 @@ public class ListTypeTest
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
 
     Assert.assertEquals(3, dates.size());
+    
+    for (int i = 0; i < dates.size(); i++)
+    {
+      calendar.clear();
+      calendar.set(2012, Calendar.MARCH, 3);
+      calendar.add(Calendar.MONTH, ( 6 * i ));
+
+      Assert.assertEquals(calendar.getTime(), dates.get(i));
+    }
   }
 
   @Test
@@ -930,6 +949,15 @@ public class ListTypeTest
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
 
     Assert.assertEquals(11, dates.size());
+    
+    for (int i = 0; i < dates.size(); i++)
+    {
+      calendar.clear();
+      calendar.set(2012, Calendar.MARCH, 3);
+      calendar.add(Calendar.MONTH, i);
+
+      Assert.assertEquals(calendar.getTime(), dates.get(i));
+    }
   }
 
   @Test

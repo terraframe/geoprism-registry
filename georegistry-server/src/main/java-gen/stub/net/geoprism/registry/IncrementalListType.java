@@ -111,21 +111,20 @@ public class IncrementalListType extends IncrementalListTypeBase
 
     if (startDate != null && endDate != null)
     {
+      Calendar end = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+      end.setTime(endDate);
+
+      if (end.getTime().after(today))
+      {
+        end.setTime(today);
+      }
 
       List<ChangeFrequency> frequencies = this.getFrequency();
 
       if (frequencies.contains(ChangeFrequency.ANNUAL))
       {
-        Calendar end = getEndOfYear(endDate);
-
-        if (end.getTime().after(today))
-        {
-          end.add(Calendar.YEAR, -1);
-          
-          this.moveToEndOfMonth(end);
-        }
-
-        Calendar calendar = getEndOfYear(startDate);
+        Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+        calendar.setTime(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
         {
@@ -136,65 +135,38 @@ public class IncrementalListType extends IncrementalListTypeBase
       }
       else if (frequencies.contains(ChangeFrequency.BIANNUAL))
       {
-        Calendar end = getEndOfHalfYear(endDate);
-
-        while (end.getTime().after(today))
-        {
-          end.add(Calendar.MONTH, -6);
-          
-          this.moveToEndOfMonth(end);
-        }
-
-        Calendar calendar = getEndOfHalfYear(startDate);
+        Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+        calendar.setTime(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
         {
           dates.add(calendar.getTime());
 
-          calendar.add(Calendar.DAY_OF_YEAR, 1);
-          this.moveToEndOfHalfYear(calendar);
+          calendar.add(Calendar.MONTH, 6);
         }
       }
       else if (frequencies.contains(ChangeFrequency.QUARTER))
       {
-        Calendar end = getEndOfQuarter(endDate);
-
-        while (end.getTime().after(today))
-        {
-          end.add(Calendar.MONTH, -3);
-          
-          this.moveToEndOfMonth(end);
-        }
-
-        Calendar calendar = getEndOfQuarter(startDate);
+        Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+        calendar.setTime(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
         {
           dates.add(calendar.getTime());
 
-          calendar.add(Calendar.DAY_OF_YEAR, 1);
-          this.moveToEndOfQuarter(calendar);
+          calendar.add(Calendar.MONTH, 3);
         }
       }
       else if (frequencies.contains(ChangeFrequency.MONTHLY))
       {
-        Calendar end = getEndOfMonth(endDate);
-
-        while (end.getTime().after(today))
-        {
-          end.add(Calendar.MONTH, -1);
-          
-          this.moveToEndOfMonth(end);          
-        }
-
-        Calendar calendar = getEndOfMonth(startDate);
+        Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+        calendar.setTime(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
         {
           dates.add(calendar.getTime());
 
-          calendar.add(Calendar.DAY_OF_YEAR, 1);
-          this.moveToEndOfMonth(calendar);
+          calendar.add(Calendar.MONTH, 1);
         }
       }
       else
