@@ -31,12 +31,15 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.referencing.CRS;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
@@ -49,6 +52,8 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InvalidProjectionException;
+import net.geoprism.registry.UnableToReadProjectionException;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.ShapefileFormatException;
@@ -150,6 +155,31 @@ public class ShapefileService
           FeatureSource<SimpleFeatureType, SimpleFeature> source = store.getFeatureSource(typeName);
 
           SimpleFeatureType schema = source.getSchema();
+          
+          CoordinateReferenceSystem sourceCRS = schema.getCoordinateReferenceSystem();
+
+          if (sourceCRS != null)
+          {
+            try
+            {
+
+              String code = CRS.lookupIdentifier(sourceCRS, true);
+
+              if (!code.equalsIgnoreCase("EPSG:4326"))
+              {
+                throw new InvalidProjectionException();
+              }
+            }
+            catch (FactoryException e)
+            {
+              throw new UnableToReadProjectionException();
+            }
+          }
+          else
+          {
+            throw new UnableToReadProjectionException();
+          }
+          
 
           List<AttributeDescriptor> descriptors = schema.getAttributeDescriptors();
 

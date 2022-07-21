@@ -1,0 +1,21 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.InvalidProjectionException" 
+                   label="Invalid Projection Exception" 
+                   description="Thrown when a trying to import a shapefile which is not in 4326" 
+                   message="Shapefile must have the EPSG:4236 projection">
+      </mdException>
+      <mdException name="net.geoprism.registry.UnableToReadProjectionException" 
+                   label="Unable To Read Projection Exception" 
+                   description="Thrown when a trying to import a shapefile which does not include projection information" 
+                   message="Unable to read projection information from the shapefile. Please ensure the shapefile zip includes a prj file">
+      </mdException>
+    
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
