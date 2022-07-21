@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { ListTypeVersion } from "@registry/model/list-type";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
 
@@ -13,7 +14,7 @@ export class ExportFormatModalComponent implements OnInit, OnDestroy {
 
     actualGeometryType: string;
 
-    geometryType: string = "MIXED";
+    list: ListTypeVersion = null;
 
     /*
      * Called on confirm
@@ -31,8 +32,8 @@ export class ExportFormatModalComponent implements OnInit, OnDestroy {
         this.onFormat.unsubscribe();
     }
 
-    init(geometryType: string): void {
-        this.geometryType = geometryType;
+    init(list: ListTypeVersion): void {
+        this.list = list;
     }
 
     confirm(): void {

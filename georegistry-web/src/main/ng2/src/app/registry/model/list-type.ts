@@ -56,6 +56,7 @@ export class ListTypeVersion extends ListVersionMetadata {
     publishDate: string;
     attributes: any[];
     isGeometryEditable: boolean;
+    geometryType?: string;
     locales?: string[];
     shapefile?: boolean;
     isAbstract?: boolean;

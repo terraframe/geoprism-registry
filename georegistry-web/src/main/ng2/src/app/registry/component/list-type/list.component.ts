@@ -318,6 +318,7 @@ export class ListComponent implements OnInit, OnDestroy {
             backdrop: true,
             ignoreBackdropClick: true
         });
+        this.bsModalRef.content.init(this.list);
         this.bsModalRef.content.onFormat.subscribe(data => {
             if (data.format === "SHAPEFILE") {
                 let url = registry.contextPath + "/list-type/export-shapefile?oid=" + this.list.oid;

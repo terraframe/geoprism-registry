@@ -5,7 +5,7 @@
         </h1>
     </div>
 
-    <form #ngForm="ngForm" class="modal-form" name="export-form">
+    <form *ngIf="list != null" #ngForm="ngForm" class="modal-form" name="export-form">
         <fieldset>
             <div class="row">
                 <div class="col-md-12">
@@ -18,14 +18,14 @@
                         <option value="EXCEL">
                             <localize key="export.option.spreadsheet"></localize>
                         </option>
-                        <option value="SHAPEFILE">
+                        <option *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'" value="SHAPEFILE">
                             <localize key="export.option.shapefile"></localize>
                         </option>
                     </select>
                 </div>
             </div>
 
-            <div class="row" *ngIf="format === 'SHAPEFILE' && geometryType === 'MIXED'">
+            <div class="row" *ngIf="format === 'SHAPEFILE' && list.geometryType === 'MIXED'">
                 <div class="col-md-12">
                     <label>
                         <localize key="data.property.label.geometryType"></localize>
