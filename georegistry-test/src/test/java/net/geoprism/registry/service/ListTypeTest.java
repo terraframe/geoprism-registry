@@ -885,7 +885,7 @@ public class ListTypeTest
 
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
 
-    Assert.assertEquals(5, dates.size());
+    Assert.assertEquals(4, dates.size());
 
     for (int i = 0; i < dates.size(); i++)
     {
@@ -917,7 +917,7 @@ public class ListTypeTest
 
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
 
-    Assert.assertEquals(3, dates.size());
+    Assert.assertEquals(2, dates.size());
     
     for (int i = 0; i < dates.size(); i++)
     {
@@ -948,7 +948,7 @@ public class ListTypeTest
 
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
 
-    Assert.assertEquals(11, dates.size());
+    Assert.assertEquals(10, dates.size());
     
     for (int i = 0; i < dates.size(); i++)
     {
