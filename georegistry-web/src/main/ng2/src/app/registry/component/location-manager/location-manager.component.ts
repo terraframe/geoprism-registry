@@ -33,6 +33,7 @@ import { BusinessObjectService } from "@registry/service/business-object.service
 import { Vertex } from "@registry/model/graph";
 import { LocalizedValue } from "@shared/model/core";
 import { debounce } from "ts-debounce";
+import { distinctUntilChanged, map } from "rxjs/operators";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -74,6 +75,8 @@ export interface LocationManagerParams {
     styleUrls: ["./location-manager.css"]
 })
 export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestroy {
+
+    popup: any = null;
 
     pageMode: string = "";
 
@@ -225,6 +228,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         this.subscription = this.route.queryParams.subscribe(params => {
             this.urlParams = params;
+
             this.handleStateChange(params);
         });
 
@@ -385,7 +389,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 // Handle parameters for select a record from a context layer
                 if (newState.version != null && newState.uid != null) {
                     if (this.current == null || this.feature == null || this.feature.version !== newState.version || this.feature.id !== newState.uid) {
-                        this.handleRecord(newState.version, newState.uid);
+                        if (newState.bounds === oldState.bounds) {
+                            this.handleRecord(newState.version, newState.uid);
+                        }
                     }
 
                     showPanel = true;
@@ -802,7 +808,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     // 4. Append DOM element to the body
                     let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 
-                    new Popup({ closeOnClick: true, closeButton: false })
+                    if (this.popup) {
+                        this.popup.remove();
+                    }
+
+                    this.popup = new Popup({ closeOnClick: true, closeButton: false })
                         .setLngLat(llb.getCenter())
                         .setDOMContent(domElem)
                         .addTo(this.map);

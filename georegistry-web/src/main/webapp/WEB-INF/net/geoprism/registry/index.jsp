@@ -156,7 +156,7 @@
     <span class="d">.</span><span class="d d-2">.</span><span class="d d-3">.</span>
     
     </cgr-app>
-
+    
 
   <!-- IE required polyfills, in this exact order -->    
 <%--   <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-polyfills.js"></script> --%>
