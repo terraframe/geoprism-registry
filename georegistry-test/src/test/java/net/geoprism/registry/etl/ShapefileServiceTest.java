@@ -247,7 +247,7 @@ public class ShapefileServiceTest
     JSONObject sheet = result.getJSONObject("sheet");
 
     Assert.assertNotNull(sheet);
-    Assert.assertEquals("cb_2017_us_state_500k", sheet.getString("name"));
+    Assert.assertEquals("cb_2017_us_state_500k_4326", sheet.getString("name"));
 
     JSONObject attributes = sheet.getJSONObject("attributes");
 
