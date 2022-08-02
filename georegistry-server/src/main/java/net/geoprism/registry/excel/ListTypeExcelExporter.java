@@ -192,23 +192,23 @@ public class ListTypeExcelExporter
     this.createRow(sheet, locale, metadata, rowNumber++, ListType.CODE, this.list.getCode());
     this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.publishDate"), stripTime(this.version.getPublishDate()));
     this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.forDate"), stripTime(this.version.getForDate()));
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.DESCRIPTION, this.list.getDescription().getValue());
+    this.createRowForMetadata(sheet, locale, rowNumber++, ListType.DESCRIPTION, this.list.getDescription().getValue());
 
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTORIGINATOR, this.list.getOrganization());
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTLABEL, this.list.getListLabel().getValue());
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTDESCRIPTION, this.list.getListDescription().getValue());
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTPROCESS, this.list.getListProcess().getValue());
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTPROGRESS, this.list.getListProgress());
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTACCESSCONSTRAINTS, this.list.getListAccessConstraints().getValue());
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTUSECONSTRAINTS, this.list.getListAcknowledgements().getValue());
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTDISCLAIMER, this.list.getListDisclaimer().getValue());
+    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTORIGINATOR, this.version.getListOriginator());
+    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTLABEL, this.version.getListLabel().getValue());
+    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTDESCRIPTION, this.version.getListDescription().getValue());
+    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTPROCESS, this.version.getListProcess().getValue());
+    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTPROGRESS, this.version.getListProgress());
+    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTACCESSCONSTRAINTS, this.version.getListAccessConstraints().getValue());
+    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTUSECONSTRAINTS, this.version.getListUseConstraints().getValue());
+    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTDISCLAIMER, this.version.getListDisclaimer().getValue());
 
     rowNumber++;
 
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTCONTACTNAME, this.list.getListContactName());
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTORGANIZATION, this.list.getListOrganization());
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTTELEPHONENUMBER, this.list.getListTelephoneNumber());
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTEMAIL, this.list.getListEmail());
+    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTCONTACTNAME, this.version.getListContactName());
+    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTORGANIZATION, this.list.getOrganization().getDisplayLabel().getValue());
+    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTTELEPHONENUMBER, this.version.getListTelephoneNumber());
+    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTEMAIL, this.version.getListEmail());
   }
 
   private Date stripTime(Date date)
@@ -231,6 +231,13 @@ public class ListTypeExcelExporter
   private void createRow(Sheet sheet, Locale locale, int rowNum, MdAttributeConcreteDAOIF mdAttribute, Object value)
   {
     String label = mdAttribute.getDisplayLabel(locale);
+
+    this.createRow(sheet, rowNum, label, value);
+  }
+  
+  private void createRowForMetadata(Sheet sheet, Locale locale, int rowNum, String attributeName, Object value)
+  {
+    String label = ListTypeVersion.getMetadataLabel(attributeName, locale);
 
     this.createRow(sheet, rowNum, label, value);
   }

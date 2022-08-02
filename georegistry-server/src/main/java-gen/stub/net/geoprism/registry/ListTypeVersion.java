@@ -2006,4 +2006,48 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     }
   }
 
+  public static String getMetadataLabel(String attributeName, Locale locale)
+  {
+    if (attributeName.equals(ListTypeVersion.LISTLABEL))
+    {
+      return LocalizationFacade.localize("masterlist.label", locale);
+    }
+    else if (attributeName.equals(ListTypeVersion.LISTORIGINATOR))
+    {
+      return LocalizationFacade.localize("list.type.originator", locale);
+    }
+    else if (attributeName.equals(ListTypeVersion.LISTDESCRIPTION))
+    {
+      return LocalizationFacade.localize("masterlist.listAbstract", locale);
+    }
+    else if (attributeName.equals(ListType.DESCRIPTION))
+    {
+      return LocalizationFacade.localize("masterlist.listAbstract", locale);
+    }
+    else if (attributeName.equals(ListTypeVersion.LISTPROCESS))
+    {
+      return LocalizationFacade.localize("masterlist.process", locale);
+    }
+    else if (attributeName.equals(ListTypeVersion.LISTACCESSCONSTRAINTS))
+    {
+      return LocalizationFacade.localize("masterlist.accessConstraints", locale);
+    }
+    else if (attributeName.equals(ListTypeVersion.LISTUSECONSTRAINTS))
+    {
+      return LocalizationFacade.localize("masterlist.useConstraints", locale);
+    }
+    else if (attributeName.equals(ListTypeVersion.LISTDISCLAIMER))
+    {
+      return LocalizationFacade.localize("masterlist.disclaimer", locale);
+    }
+    else if (attributeName.equals(ListTypeVersion.LISTACKNOWLEDGEMENTS))
+    {
+      return LocalizationFacade.localize("masterlist.acknowledgements", locale);
+    }
+    else
+    {
+      return MdBusinessDAO.getMdBusinessDAO(ListTypeVersion.CLASS).definesAttribute(attributeName).getDisplayLabel(locale);
+    }
+  }
+
 }
