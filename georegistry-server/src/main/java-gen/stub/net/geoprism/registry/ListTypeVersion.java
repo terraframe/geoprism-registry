@@ -137,6 +137,7 @@ import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.curation.CurationService;
 import net.geoprism.registry.curation.ListCurationHistory;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.localization.DefaultLocaleView;
 import net.geoprism.registry.masterlist.ListTypeAttributeComparator;
@@ -154,6 +155,7 @@ import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.ListTypeVersionPageQuery;
 import net.geoprism.registry.query.graph.BasicVertexQuery;
 import net.geoprism.registry.query.graph.BasicVertexRestriction;
+import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.view.JsonSerializable;
@@ -1858,10 +1860,13 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     JsonObject record = new JsonObject();
     record.addProperty("recordType", "LIST");
     record.addProperty("version", this.getOid());
-    record.addProperty("typeCode", listType.getGeoObjectType().getCode());
     record.addProperty("edit", this.getWorking() && listType.doesActorHaveExploratoryPermission());
     record.add("typeLabel", LocalizedValueConverter.convertNoAutoCoalesce(listType.getDisplayLabel()).toJSON());
     record.add("attributes", this.getAttributesAsJson());
+    
+    // We can't return the type of the list here because the front-end needs to know the concrete type. There is a corner case here where the Geo-Object could potentially not exist.
+    String typeCode = new ServerGeoObjectService().getGeoObject(uid, listType.getGeoObjectType().getCode()).getType().getCode();
+    record.addProperty("typeCode", typeCode);
 
     try (OIterator<Business> iterator = query.getIterator())
     {
