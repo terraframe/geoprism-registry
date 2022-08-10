@@ -47,6 +47,7 @@ import com.runwaysdk.resource.StreamResource;
 
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.excel.ListTypeExcelExporter;
+import net.geoprism.registry.excel.ListTypeExcelExporter.ListMetadataSource;
 import net.geoprism.registry.excel.MasterListExcelExporter;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ClassificationType;
@@ -284,7 +285,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     try
     {
-      ListTypeExcelExporter exporter = new ListTypeExcelExporter(version, mdBusiness, mdAttributes, null, criteria);
+      ListTypeExcelExporter exporter = new ListTypeExcelExporter(version, mdBusiness, mdAttributes, null, criteria, ListMetadataSource.LIST);
 
       return exporter.export();
     }

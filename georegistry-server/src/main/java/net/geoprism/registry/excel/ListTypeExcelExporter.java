@@ -80,17 +80,24 @@ public class ListTypeExcelExporter
   private CellStyle                                dateStyle;
 
   private ListTypeExcelExporterSheet[]             includedSheets;
+  
+  private ListMetadataSource metadataSource;
 
   public static enum ListTypeExcelExporterSheet {
     DATA, METADATA, DICTIONARY
   }
+  
+  public static enum ListMetadataSource {
+    LIST, GEOSPATIAL
+  }
 
-  public ListTypeExcelExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria)
+  public ListTypeExcelExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria, ListMetadataSource metadataSource)
   {
     this.version = version;
     this.mdBusiness = mdBusiness;
     this.mdAttributes = mdAttributes;
     this.criteria = criteria;
+    this.metadataSource = metadataSource;
 
     if (includedSheets != null)
     {
@@ -192,23 +199,43 @@ public class ListTypeExcelExporter
     this.createRow(sheet, locale, metadata, rowNumber++, ListType.CODE, this.list.getCode());
     this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.publishDate"), stripTime(this.version.getPublishDate()));
     this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.forDate"), stripTime(this.version.getForDate()));
-    this.createRowForMetadata(sheet, locale, rowNumber++, ListType.DESCRIPTION, this.list.getDescription().getValue());
 
-    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTORIGINATOR, this.version.getListOriginator());
-    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTLABEL, this.version.getListLabel().getValue());
-    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTDESCRIPTION, this.version.getListDescription().getValue());
-    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTPROCESS, this.version.getListProcess().getValue());
-    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTPROGRESS, this.version.getListProgress());
-    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTACCESSCONSTRAINTS, this.version.getListAccessConstraints().getValue());
-    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTUSECONSTRAINTS, this.version.getListUseConstraints().getValue());
-    this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTDISCLAIMER, this.version.getListDisclaimer().getValue());
+    if (this.metadataSource == null || this.metadataSource.equals(ListMetadataSource.LIST))
+    {
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListType.DESCRIPTION, this.list.getDescription().getValue());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTORIGINATOR, this.version.getListOriginator());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTLABEL, this.version.getListLabel().getValue());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTDESCRIPTION, this.version.getListDescription().getValue());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTPROCESS, this.version.getListProcess().getValue());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTPROGRESS, this.version.getListProgress());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTACCESSCONSTRAINTS, this.version.getListAccessConstraints().getValue());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTUSECONSTRAINTS, this.version.getListUseConstraints().getValue());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTDISCLAIMER, this.version.getListDisclaimer().getValue());
+      
+      this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTCONTACTNAME, this.version.getListContactName());
+      this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTORGANIZATION, this.list.getOrganization().getDisplayLabel().getValue());
+      this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTTELEPHONENUMBER, this.version.getListTelephoneNumber());
+      this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTEMAIL, this.version.getListEmail());
+    }
+    else
+    {
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListType.GEOSPATIALDESCRIPTION, this.list.getGeospatialDescription().getValue());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALORIGINATOR, this.version.getGeospatialOriginator());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALLABEL, this.version.getGeospatialLabel().getValue());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALDESCRIPTION, this.version.getGeospatialDescription().getValue());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALPROCESS, this.version.getGeospatialProcess().getValue());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALPROGRESS, this.version.getGeospatialProgress());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALACCESSCONSTRAINTS, this.version.getGeospatialAccessConstraints().getValue());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALUSECONSTRAINTS, this.version.getGeospatialUseConstraints().getValue());
+      this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALDISCLAIMER, this.version.getGeospatialDisclaimer().getValue());
+      
+      this.createRow(sheet, locale, metadata, rowNumber++, ListType.GEOSPATIALCONTACTNAME, this.version.getGeospatialContactName());
+      this.createRow(sheet, locale, metadata, rowNumber++, ListType.GEOSPATIALORGANIZATION, this.list.getGeospatialOrganization());
+      this.createRow(sheet, locale, metadata, rowNumber++, ListType.GEOSPATIALTELEPHONENUMBER, this.version.getGeospatialTelephoneNumber());
+      this.createRow(sheet, locale, metadata, rowNumber++, ListType.GEOSPATIALEMAIL, this.version.getGeospatialEmail());
+    }
 
     rowNumber++;
-
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTCONTACTNAME, this.version.getListContactName());
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTORGANIZATION, this.list.getOrganization().getDisplayLabel().getValue());
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTTELEPHONENUMBER, this.version.getListTelephoneNumber());
-    this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTEMAIL, this.version.getListEmail());
   }
 
   private Date stripTime(Date date)

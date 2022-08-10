@@ -2013,39 +2013,39 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
   public static String getMetadataLabel(String attributeName, Locale locale)
   {
-    if (attributeName.equals(ListTypeVersion.LISTLABEL))
+    if (attributeName.equals(ListTypeVersion.LISTLABEL) || attributeName.equals(ListTypeVersion.GEOSPATIALLABEL))
     {
       return LocalizationFacade.localize("masterlist.label", locale);
     }
-    else if (attributeName.equals(ListTypeVersion.LISTORIGINATOR))
+    else if (attributeName.equals(ListTypeVersion.LISTORIGINATOR) || attributeName.equals(ListTypeVersion.GEOSPATIALORIGINATOR))
     {
       return LocalizationFacade.localize("list.type.originator", locale);
     }
-    else if (attributeName.equals(ListTypeVersion.LISTDESCRIPTION))
+    else if (attributeName.equals(ListTypeVersion.LISTDESCRIPTION) || attributeName.equals(ListTypeVersion.GEOSPATIALDESCRIPTION))
     {
       return LocalizationFacade.localize("masterlist.listAbstract", locale);
     }
-    else if (attributeName.equals(ListType.DESCRIPTION))
+    else if (attributeName.equals(ListType.DESCRIPTION) || attributeName.equals(ListType.GEOSPATIALDESCRIPTION))
     {
       return LocalizationFacade.localize("masterlist.listAbstract", locale);
     }
-    else if (attributeName.equals(ListTypeVersion.LISTPROCESS))
+    else if (attributeName.equals(ListTypeVersion.LISTPROCESS) || attributeName.equals(ListTypeVersion.GEOSPATIALPROCESS))
     {
       return LocalizationFacade.localize("masterlist.process", locale);
     }
-    else if (attributeName.equals(ListTypeVersion.LISTACCESSCONSTRAINTS))
+    else if (attributeName.equals(ListTypeVersion.LISTACCESSCONSTRAINTS) || attributeName.equals(ListTypeVersion.GEOSPATIALACCESSCONSTRAINTS))
     {
       return LocalizationFacade.localize("masterlist.accessConstraints", locale);
     }
-    else if (attributeName.equals(ListTypeVersion.LISTUSECONSTRAINTS))
+    else if (attributeName.equals(ListTypeVersion.LISTUSECONSTRAINTS) || attributeName.equals(ListTypeVersion.GEOSPATIALUSECONSTRAINTS))
     {
       return LocalizationFacade.localize("masterlist.useConstraints", locale);
     }
-    else if (attributeName.equals(ListTypeVersion.LISTDISCLAIMER))
+    else if (attributeName.equals(ListTypeVersion.LISTDISCLAIMER) || attributeName.equals(ListTypeVersion.GEOSPATIALDISCLAIMER))
     {
       return LocalizationFacade.localize("masterlist.disclaimer", locale);
     }
-    else if (attributeName.equals(ListTypeVersion.LISTACKNOWLEDGEMENTS))
+    else if (attributeName.equals(ListTypeVersion.LISTACKNOWLEDGEMENTS) || attributeName.equals(ListTypeVersion.GEOSPATIALACKNOWLEDGEMENTS))
     {
       return LocalizationFacade.localize("masterlist.acknowledgements", locale);
     }

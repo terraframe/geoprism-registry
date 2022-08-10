@@ -98,6 +98,7 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.excel.ListTypeExcelExporter;
+import net.geoprism.registry.excel.ListTypeExcelExporter.ListMetadataSource;
 import net.geoprism.registry.excel.ListTypeExcelExporter.ListTypeExcelExporterSheet;
 
 public class ListTypeShapefileExporter
@@ -238,7 +239,7 @@ public class ListTypeShapefileExporter
       File file = new File(directory, "metadata.xlsx");
       FileOutputStream fos = new FileOutputStream(file);
 
-      ListTypeExcelExporter exporter = new ListTypeExcelExporter(this.version, mdBusiness, mdAttributes, new ListTypeExcelExporterSheet[] { ListTypeExcelExporterSheet.DICTIONARY, ListTypeExcelExporterSheet.METADATA }, criteria);
+      ListTypeExcelExporter exporter = new ListTypeExcelExporter(this.version, mdBusiness, mdAttributes, new ListTypeExcelExporterSheet[] { ListTypeExcelExporterSheet.DICTIONARY, ListTypeExcelExporterSheet.METADATA }, criteria, ListMetadataSource.GEOSPATIAL);
 
       Workbook wb = exporter.createWorkbook();
 
