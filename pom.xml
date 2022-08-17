@@ -142,6 +142,17 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>com.github.eugenenosenko</groupId>
+        <artifactId>changelog-maven-plugin</artifactId>
+        <version>0.0.3</version>
+        <configuration>
+          <amendLastCommit>false</amendLastCommit>
+          <filename>CHANGELOG.md</filename>
+          <release>0</release>
+          <backupFilename>CHANGELOG.md.backup</backupFilename>
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-release-plugin</artifactId>
         <version>2.4.2</version>
         <dependencies>

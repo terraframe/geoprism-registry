@@ -55,7 +55,7 @@ if [ "$release_georegistry" == "true" ]; then
   node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
   cd $WORKSPACE/georegistry
   git add -A
-  git diff-index --quiet HEAD || git commit -m 'Preparing project for release.'
+  git diff-index --quiet HEAD || git commit -m "chore(release): Preparing project for release $CGR_RELEASE_VERSION."
   if [ "$dry_run" == "false" ]; then
     git push
   else
@@ -68,7 +68,7 @@ if [ "$release_georegistry" == "true" ]; then
   git checkout $release_branch
   mvn license:format -B -q
   git add -A
-  git diff-index --quiet HEAD || git commit -m 'License headers'
+  git diff-index --quiet HEAD || git commit -m "chore(release): License headers for $CGR_RELEASE_VERSION."
   if [ "$dry_run" == "false" ]; then
     git push
   else
@@ -83,6 +83,21 @@ if [ "$release_georegistry" == "true" ]; then
                    -DreleaseVersion=$CGR_RELEASE_VERSION \
                    -DdevelopmentVersion=$CGR_NEXT_VERSION
   mvn release:perform -B -q -DdryRun=$dry_run -Darguments="-Dmaven.javadoc.skip=true -Dmaven.site.skip=true"
+  
+  # Generate Changelog
+  cd $WORKSPACE/georegistry
+  [ -f ./CHANGELOG.md ] && mv CHANGELOG.md CHANGELOG2.md
+  mvn changelog:conventional
+  [ -f ./CHANGELOG2.md ] && cat CHANGELOG2.md > CHANGELOG.md && rm -f CHANGELOG2.md
+  git add CHANGELOG.md
+  git commit -m "chore(release): Update changelog for $CGR_RELEASE_VERSION."
+  if [ "$dry_run" == "false" ]; then
+    git push
+  else
+    echo "Changelog would have committed as " && cat CHANGELOG.md
+    git reset --hard
+    git clean -fdx
+  fi
 else
   mkdir -p $WORKSPACE/georegistry/georegistry-web/target && wget -nv -O $WORKSPACE/georegistry/georegistry-web/target/georegistry.war "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war"
 fi
