@@ -89,14 +89,13 @@ if [ "$release_georegistry" == "true" ]; then
   [ -f ./CHANGELOG.md ] && mv CHANGELOG.md CHANGELOG2.md
   mvn changelog:conventional
   [ -f ./CHANGELOG2.md ] && cat CHANGELOG2.md > CHANGELOG.md && rm -f CHANGELOG2.md
+  echo "Changelog generated as " && cat CHANGELOG.md
   git add CHANGELOG.md
   git commit -m "chore(release): Update changelog for $CGR_RELEASE_VERSION."
   if [ "$dry_run" == "false" ]; then
     git push
   else
-    echo "Changelog would have committed as " && cat CHANGELOG.md
     git reset --hard
-    git clean -fdx
   fi
 else
   mkdir -p $WORKSPACE/georegistry/georegistry-web/target && wget -nv -O $WORKSPACE/georegistry/georegistry-web/target/georegistry.war "https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war"
