@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -56,6 +56,8 @@ public abstract class ImportConfiguration
 
   public static final String               COPY_BLANK                   = "copyBlank";
 
+  public static final String               IGNORE_PROJECTION            = "ignoreProjection";
+
   protected String                         formatType;
 
   protected String                         objectType;
@@ -71,6 +73,8 @@ public abstract class ImportConfiguration
   protected Boolean                        isExternal                   = false;
 
   protected Boolean                        copyBlank                    = true;
+
+  protected Boolean                        ignoreProjection             = false;
 
   protected String                         externalSystemId             = null;
 
@@ -95,7 +99,7 @@ public abstract class ImportConfiguration
   public abstract void enforceCreatePermissions();
 
   public abstract void enforceExecutePermissions();
-  
+
   public abstract void populate(ImportHistory history);
 
   public abstract List<Location> getLocations();
@@ -207,6 +211,16 @@ public abstract class ImportConfiguration
   {
     this.copyBlank = copyBlank;
   }
+  
+  public Boolean getIgnoreProjection()
+  {
+    return ignoreProjection;
+  }
+  
+  public void setIgnoreProjection(Boolean ignoreProjection)
+  {
+    this.ignoreProjection = ignoreProjection;
+  }
 
   public Boolean isExternalImport()
   {
@@ -277,6 +291,11 @@ public abstract class ImportConfiguration
       this.copyBlank = jo.getBoolean(COPY_BLANK);
     }
 
+    if (jo.has(IGNORE_PROJECTION))
+    {
+      this.ignoreProjection = jo.getBoolean(IGNORE_PROJECTION);
+    }
+    
     if (jo.has(EXTERNAL_ID_ATTRIBUTE_TARGET))
     {
       this.externalIdFunction = new BasicColumnFunction(jo.getString(EXTERNAL_ID_ATTRIBUTE_TARGET));
@@ -295,6 +314,7 @@ public abstract class ImportConfiguration
     jo.put(EXTERNAL_SYSTEM_ID, this.externalSystemId);
     jo.put(IS_EXTERNAL, this.isExternal);
     jo.put(COPY_BLANK, this.copyBlank);
+    jo.put(IGNORE_PROJECTION, this.ignoreProjection);
 
     if (this.externalIdFunction != null)
     {

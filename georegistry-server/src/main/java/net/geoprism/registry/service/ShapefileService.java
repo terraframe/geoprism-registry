@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -70,10 +70,10 @@ public class ShapefileService
   @Request(RequestType.SESSION)
   public JSONObject getShapefileConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
   {
-    return this.getShapefileConfigurationInReq(type, startDate, endDate, fileName, fileStream, strategy, copyBlank);
+    return this.getShapefileConfigurationInReq(type, startDate, endDate, fileName, fileStream, strategy, copyBlank, false);
   }
-  
-  public JSONObject getShapefileConfigurationInReq(String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
+
+  public JSONObject getShapefileConfigurationInReq(String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank, boolean ignoreProjection)
   {
     // Save the file to the file system
     try
@@ -87,10 +87,9 @@ public class ShapefileService
         SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
         format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-
         JSONObject object = new JSONObject();
         object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
-        object.put(GeoObjectImportConfiguration.SHEET, this.getSheetInformation(dbf));
+        object.put(GeoObjectImportConfiguration.SHEET, this.getSheetInformation(dbf, ignoreProjection));
         object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
         object.put(ImportConfiguration.FILE_NAME, fileName);
         object.put(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
@@ -98,6 +97,7 @@ public class ShapefileService
         object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.SHAPEFILE.name());
         object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
         object.put(ImportConfiguration.COPY_BLANK, copyBlank);
+        object.put(ImportConfiguration.IGNORE_PROJECTION, ignoreProjection);
 
         if (startDate != null)
         {
@@ -138,7 +138,7 @@ public class ShapefileService
     return type;
   }
 
-  private JSONObject getSheetInformation(File dbf)
+  private JSONObject getSheetInformation(File dbf, boolean ignoreProjection)
   {
     try
     {
@@ -155,31 +155,33 @@ public class ShapefileService
           FeatureSource<SimpleFeatureType, SimpleFeature> source = store.getFeatureSource(typeName);
 
           SimpleFeatureType schema = source.getSchema();
-          
-          CoordinateReferenceSystem sourceCRS = schema.getCoordinateReferenceSystem();
 
-          if (sourceCRS != null)
+          if (!ignoreProjection)
           {
-            try
+            CoordinateReferenceSystem sourceCRS = schema.getCoordinateReferenceSystem();
+
+            if (sourceCRS != null)
             {
-
-              String code = CRS.lookupIdentifier(sourceCRS, true);
-
-              if (!code.equalsIgnoreCase("EPSG:4326"))
+              try
               {
-                throw new InvalidProjectionException();
+
+                String code = CRS.lookupIdentifier(sourceCRS, true);
+
+                if (!code.equalsIgnoreCase("EPSG:4326"))
+                {
+                  throw new InvalidProjectionException();
+                }
+              }
+              catch (FactoryException e)
+              {
+                throw new UnableToReadProjectionException();
               }
             }
-            catch (FactoryException e)
+            else
             {
               throw new UnableToReadProjectionException();
             }
           }
-          else
-          {
-            throw new UnableToReadProjectionException();
-          }
-          
 
           List<AttributeDescriptor> descriptors = schema.getAttributeDescriptors();
 
