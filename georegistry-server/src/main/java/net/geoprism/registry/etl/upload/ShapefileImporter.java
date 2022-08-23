@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -24,7 +24,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.channels.UnsupportedAddressTypeException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -233,30 +232,34 @@ public class ShapefileImporter implements FormatSpecificImporterIF
     SimpleFeatureSource source = myData.getFeatureSource();
     SimpleFeatureType schema = source.getSchema();
 
-    CoordinateReferenceSystem sourceCRS = schema.getCoordinateReferenceSystem();
-
-    if (sourceCRS != null)
+    if (!config.getIgnoreProjection())
     {
-      try
+
+      CoordinateReferenceSystem sourceCRS = schema.getCoordinateReferenceSystem();
+
+      if (sourceCRS != null)
       {
-
-        String code = CRS.lookupIdentifier(sourceCRS, true);
-
-        if (!code.equalsIgnoreCase("EPSG:4326"))
+        try
         {
-          throw new InvalidProjectionException();
+
+          String code = CRS.lookupIdentifier(sourceCRS, true);
+
+          if (!code.equalsIgnoreCase("EPSG:4326"))
+          {
+            throw new InvalidProjectionException();
+          }
+        }
+        catch (FactoryException e)
+        {
+          throw new UnableToReadProjectionException();
         }
       }
-      catch (FactoryException e)
+      else
       {
         throw new UnableToReadProjectionException();
       }
     }
-    else
-    {
-      throw new UnableToReadProjectionException();
-    }
-
+    
     SimpleFeatureCollection featCol = source.getFeatures();
     this.progressListener.setWorkTotal((long) featCol.size());
 
