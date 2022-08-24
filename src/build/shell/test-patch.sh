@@ -12,6 +12,16 @@ set -e
 # Print the line as we execute it
 set -x
 
+# Build the CGR
+cd $WORKSPACE/georegistry
+mvn install -B
+
+# Build a Docker image
+cd $WORKSPACE/georegistry/src/build/docker/georegistry
+sudo ./build.sh
+
+# Set up for testing
+cd $WORKSPACE/georegistry/src/build/shell
 [ -d target ] && cd target && sudo docker-compose down && cd .. && sudo rm -rf target
 [ -d /data/postgres ] && sudo rm -rf /data/postgres
 [ -d /data/orientdb ] && sudo rm -rf /data/orientdb
