@@ -21,7 +21,7 @@ export AWS_ACCESS_KEY_ID=$TF_BUILDER_KEY
 export AWS_SECRET_ACCESS_KEY=$TF_BUILDER_SECRET
 
 # Install docker-compose if its not installed already
-command -v docker-compose || (curl -SL https://github.com/docker/compose/releases/download/v2.7.0/docker-compose-linux-x86_64 -o target/docker-compose && sudo chmod +x target/docker-compose)
+command -v docker-compose || (curl -SL https://github.com/docker/compose/releases/download/v2.7.0/docker-compose-linux-x86_64 -o target/docker-compose && sudo chmod +x target/docker-compose && sudo mv target/docker-compose /usr/bin)
 
 # Download test database data
 aws s3 cp s3://terraframe-builder/georegistry/test-patching-backups/$PATCH_FROM_VERSION/orientdb.backup.json.gz target/orientdb.backup.json.gz
