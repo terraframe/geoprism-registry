@@ -39,7 +39,7 @@ target/yq -i ".services.postgres.volumes += [\"$(pwd)/target/postgres.backup:/tm
 # TODO : Orientdb version hardcoded to 3.0
 sudo docker run --name orientdb-initializer --network=host --rm -d -e ORIENTDB_ROOT_PASSWORD=root -v /data/orientdb/config:/orientdb/config -v /data/orientdb/databases:/orientdb/databases -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.0
 sleep 15
-sudo docker run --rm -it -e ORIENTDB_ROOT_PASSWORD=root --network=host -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.0 /orientdb/bin/console.sh CREATE DATABASE remote:localhost/georegistry root root plocal -restore=/tmp/data/orientdb.backup.json
+sudo docker run --rm -e ORIENTDB_ROOT_PASSWORD=root --network=host -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.0 /orientdb/bin/console.sh CREATE DATABASE remote:localhost/georegistry root root plocal -restore=/tmp/data/orientdb.backup.json
 sudo docker rm -f orientdb-initializer
 
 cd target && sudo docker-compose up -d && cd ..
