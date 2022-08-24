@@ -47,7 +47,7 @@ sudo docker rm -f orientdb-initializer
 
 # Boot the server
 cd target && sudo docker-compose up -d && cd ..
-sleep 60
+sleep 180
 
 # Check for errors
 
