@@ -13,8 +13,11 @@ set -e
 set -x
 
 # Build the CGR
-cd $WORKSPACE/georegistry
-mvn install -B
+sudo docker run \
+  --rm \
+  -v $WORKSPACE/georegistry:/workspace \
+  -w /workspace \
+  maven:3-openjdk-8-slim mvn clean install -B
 
 # Build a Docker image
 cd $WORKSPACE/georegistry/src/build/docker/georegistry
