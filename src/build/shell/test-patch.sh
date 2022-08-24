@@ -20,6 +20,9 @@ mkdir target
 export AWS_ACCESS_KEY_ID=$TF_BUILDER_KEY
 export AWS_SECRET_ACCESS_KEY=$TF_BUILDER_SECRET
 
+# Install docker-compose if its not installed already
+command -v docker-compose || (curl -SL https://github.com/docker/compose/releases/download/v2.7.0/docker-compose-linux-x86_64 -o target/docker-compose && sudo chmod +x target/docker-compose)
+
 # Download test database data
 aws s3 cp s3://terraframe-builder/georegistry/test-patching-backups/$PATCH_FROM_VERSION/orientdb.backup.json.gz target/orientdb.backup.json.gz
 gunzip target/orientdb.backup.json.gz
@@ -42,9 +45,11 @@ sleep 15
 sudo docker run --rm -e ORIENTDB_ROOT_PASSWORD=root --network=host -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.0 /orientdb/bin/console.sh CREATE DATABASE remote:localhost/georegistry root root plocal -restore=/tmp/data/orientdb.backup.json
 sudo docker rm -f orientdb-initializer
 
+# Boot the server
 cd target && sudo docker-compose up -d && cd ..
-
 sleep 60
+
+# Check for errors
 
 set +x
 set +e
