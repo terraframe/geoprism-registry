@@ -12,6 +12,10 @@ set -e
 # Print the line as we execute it
 set -x
 
+# Shut down any lingering postgres or orientdb servers that may be currently running
+sudo docker rm -f $(docker ps -a -q --filter="name=postgres") || true
+sudo docker rm -f $(docker ps -a -q --filter="name=orientdb") || true
+
 # Build the CGR
 sudo docker run \
   --rm \
