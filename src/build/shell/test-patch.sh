@@ -15,10 +15,12 @@ set -x
 # Shut down any lingering postgres or orientdb servers that may be currently running
 sudo docker rm -f $(docker ps -a -q --filter="name=postgres") || true
 sudo docker rm -f $(docker ps -a -q --filter="name=orientdb") || true
+sudo docker rm -f $(docker ps -a -q --filter="name=orientdb-initializer") || true
 
 # Build the CGR
 sudo docker run \
   --rm \
+  --user 1000:1000 \
   -v $WORKSPACE/georegistry:/workspace \
   -w /workspace \
   maven:3-openjdk-8-slim mvn clean install -B
@@ -63,8 +65,12 @@ sudo docker run --rm -e ORIENTDB_ROOT_PASSWORD=root --network=host -v "$(pwd)/ta
 sudo docker rm -f orientdb-initializer
 
 # Boot the server
-cd target && sudo docker-compose up -d && cd ..
+cd target && sudo docker-compose up -d
 sleep 180
+
+# Clean up
+sudo docker-compose down
+cd ..
 
 # Check for errors
 
