@@ -68,6 +68,11 @@ sudo docker rm -f orientdb-initializer
 cd target && sudo docker-compose up -d
 sleep 180
 
+# Grab the logs
+set +x
+REGISTRY_LOGS="$(sudo docker logs georegistry 2>&1)"
+set -x
+
 # Clean up
 sudo docker-compose down
 cd ..
@@ -76,8 +81,6 @@ cd ..
 
 set +x
 set +e
-
-REGISTRY_LOGS="$(sudo docker logs georegistry 2>&1)"
 
 # Must not contain any startup listeners which failed to start
 echo "$REGISTRY_LOGS" | grep "One or more listeners failed to start." > /dev/null
