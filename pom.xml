@@ -151,7 +151,7 @@
 # Changelog
 {{#tags}}
 {{#ifReleaseTag .}}
-{{#ifMatches name "1\.\d+\.\d+"}}
+{{#ifMatches name "[1-9]\.\d+\.\d+"}}
 ## [{{name}}](https://github.com/terraframe/geoprism-registry/releases/tag/{{name}}) ({{tagDate .}})
 
   {{#ifContainsType commits type='feat'}}
