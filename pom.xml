@@ -142,14 +142,42 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>com.github.eugenenosenko</groupId>
-        <artifactId>changelog-maven-plugin</artifactId>
-        <version>0.0.3</version>
+        <groupId>se.bjurr.gitchangelog</groupId>
+        <artifactId>git-changelog-maven-plugin</artifactId>
+        <version>1.92</version>
+        <inherited>false</inherited>
         <configuration>
-          <amendLastCommit>false</amendLastCommit>
-          <filename>CHANGELOG.md</filename>
-          <release>0</release>
-          <backupFilename>CHANGELOG.md.backup</backupFilename>
+         <templateContent>
+# Changelog
+{{#tags}}
+{{#ifReleaseTag .}}
+{{#ifMatches name "1\.\d+\.\d+"}}
+## [{{name}}](https://github.com/terraframe/geoprism-registry/releases/tag/{{name}}) ({{tagDate .}})
+
+  {{#ifContainsType commits type='feat'}}
+### Features
+
+    {{#commits}}
+      {{#ifCommitType . type='feat'}}
+ - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} ([{{hash}}](https://github.com/terraframe/geoprism-registry/commit/{{hashFull}}))
+      {{/ifCommitType}}
+    {{/commits}}
+  {{/ifContainsType}}
+
+  {{#ifContainsType commits type='fix'}}
+### Bug Fixes
+
+    {{#commits}}
+      {{#ifCommitType . type='fix'}}
+ - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} ([{{hash}}](https://github.com/terraframe/geoprism-registry/commit/{{hashFull}}))
+      {{/ifCommitType}}
+    {{/commits}}
+  {{/ifContainsType}}
+
+{{/ifMatches}}
+{{/ifReleaseTag}}
+{{/tags}}
+         </templateContent>
         </configuration>
       </plugin>
       <plugin>
