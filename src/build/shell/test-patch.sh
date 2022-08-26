@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Do not run this as sudo
+
+
 # Careful with running this as it will delete all data at /data/postgres and /data/orientdb before running.
 
 # What version are we patching from?
@@ -13,14 +16,16 @@ set -e
 set -x
 
 # Shut down any lingering postgres or orientdb servers that may be currently running
-sudo docker rm -f $(docker ps -a -q --filter="name=postgres") || true
-sudo docker rm -f $(docker ps -a -q --filter="name=orientdb") || true
-sudo docker rm -f $(docker ps -a -q --filter="name=orientdb-initializer") || true
+sudo docker rm -f $(sudo docker ps -a -q --filter="name=postgres") || true
+sudo docker rm -f $(sudo docker ps -a -q --filter="name=orientdb") || true
+sudo docker rm -f $(sudo docker ps -a -q --filter="name=orientdb-initializer") || true
 
 # Build the CGR
 sudo docker run \
   --rm \
   --user 1000:1000 \
+  -v ~/.m2:/var/maven/.m2 \
+  -e MAVEN_CONFIG=/var/maven/.m2 \
   -v $WORKSPACE/georegistry:/workspace \
   -w /workspace \
   maven:3-openjdk-8-slim mvn clean install -B
@@ -58,24 +63,18 @@ target/yq -i ".services.postgres.volumes += [\"$(pwd)/target/postgres-init.sh:/d
 target/yq -i ".services.postgres.volumes += [\"$(pwd)/target/postgres.backup:/tmp/data/postgres.backup\"]" target/docker-compose.yml
 
 # Load testdb into orientdb
-# TODO : Orientdb version hardcoded to 3.0
-sudo docker run --name orientdb-initializer --network=host --rm -d -e ORIENTDB_ROOT_PASSWORD=root -v /data/orientdb/config:/orientdb/config -v /data/orientdb/databases:/orientdb/databases -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.0
-sleep 15
-sudo docker run --rm -e ORIENTDB_ROOT_PASSWORD=root --network=host -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.0 /orientdb/bin/console.sh CREATE DATABASE remote:localhost/georegistry root root plocal -restore=/tmp/data/orientdb.backup.json
-sudo docker rm -f orientdb-initializer
+cd target && sudo docker-compose up -d orientdb && sleep 15 && cd ..
+sudo docker run --rm -e ORIENTDB_ROOT_PASSWORD=root --network=host -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.0 /orientdb/bin/console.sh CREATE DATABASE remote:localhost/georegistry root root plocal
+sudo docker run --rm -e ORIENTDB_ROOT_PASSWORD=root --network=host -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.0 /orientdb/bin/console.sh "connect remote:localhost/georegistry root root; import database /tmp/data/orientdb.backup.json; UPDATE OUser SET password = \"admin\" WHERE name = \"admin\""
 
 # Boot the server
-cd target && sudo docker-compose up -d
+cd target && sudo docker-compose up -d && cd ..
 sleep 180
 
 # Grab the logs
 set +x
 REGISTRY_LOGS="$(sudo docker logs georegistry 2>&1)"
 set -x
-
-# Clean up
-sudo docker-compose down
-cd ..
 
 # Check for errors
 
@@ -99,3 +98,15 @@ echo "$REGISTRY_LOGS" | grep "org.apache.catalina.startup.HostConfig.deployDirec
 [ $? -ne 0 ] && echo "Patch test failed on version $PATCH_FROM_VERSION due to server boot failure (catalina root deployment not found)." && echo $REGISTRY_LOGS && exit 1
 
 echo "Server successfully booted and patched from version $PATCH_FROM_VERSION. Test passed."
+
+# Clean up
+cd target && sudo docker-compose down && cd ..
+
+
+# Export the patched database and upload to S3
+#sudo docker run --rm -e ORIENTDB_ROOT_PASSWORD=root --network=host -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.0 /orientdb/bin/console.sh "connect remote:localhost/georegistry root root; export database /tmp/data/orientdb.backup.json"
+#sudo docker exec georegistry-postgres bash -c 'PGPASSWORD="root" /usr/bin/pg_dump --host localhost --port 5432 --username "postgres" --format custom --blobs --password --verbose --file "/tmp/data/postgres.backup" "georegistry"'
+
+#export PATCH_TO_VERSION=0.19.7
+#aws s3 cp target/orientdb.backup.json.gz s3://terraframe-builder/georegistry/test-patching-backups/$PATCH_TO_VERSION/orientdb.backup.json.gz
+#aws s3 cp target/postgres.backup.gz s3://terraframe-builder/georegistry/test-patching-backups/$PATCH_TO_VERSION/postgres.backup.gz
