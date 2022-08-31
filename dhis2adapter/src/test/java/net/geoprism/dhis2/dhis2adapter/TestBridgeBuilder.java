@@ -22,25 +22,34 @@ import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 public class TestBridgeBuilder
 {
-  public static String getVersionResponse(Integer version)
+  public static String getVersionResponse()
   {
-    try
-    {
-      return IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/default/system-info.json"), "UTF-8");
-    }
-    catch (IOException t)
-    {
-      throw new RuntimeException(t);
-    }
+    return getVersionResponse(null);
   }
   
-  public static String getVersionResponseSnapshot(Integer version)
+  public static String getVersionResponse(String version)
   {
     try
     {
-      return IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/default/system-info-snapshot.json"), "UTF-8");
+      String info = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/default/system-info.json"), "UTF-8");
+      
+      if (version != null)
+      {
+        JsonObject json = JsonParser.parseString(info).getAsJsonObject();
+        
+        json.addProperty("version", version);
+        
+        return json.toString();
+      }
+      else
+      {
+        return info;
+      }
     }
     catch (IOException t)
     {
@@ -50,16 +59,16 @@ public class TestBridgeBuilder
   
   public static DHIS2Bridge buildDefault(String response, Integer version, int statusCode)
   {
-    return new DHIS2Bridge(new TestSingleResponseConnector(response, getVersionResponse(version), statusCode), version);
+    return new DHIS2Bridge(new TestSingleResponseConnector(response, getVersionResponse(), statusCode), version);
   }
   
   public static DHIS2Bridge buildDefault(String response, int statusCode)
   {
-    return new DHIS2Bridge(new TestSingleResponseConnector(response, getVersionResponse(Constants.DHIS2_API_VERSION), statusCode), Constants.DHIS2_API_VERSION);
+    return new DHIS2Bridge(new TestSingleResponseConnector(response, getVersionResponse(), statusCode), Constants.DHIS2_API_VERSION);
   }
   
   public static DHIS2Bridge buildFakeId()
   {
-    return new DHIS2Bridge(new FakeIdConnector(getVersionResponse(Constants.DHIS2_API_VERSION)), Constants.DHIS2_API_VERSION);
+    return new DHIS2Bridge(new FakeIdConnector(getVersionResponse()), Constants.DHIS2_API_VERSION);
   }
 }
