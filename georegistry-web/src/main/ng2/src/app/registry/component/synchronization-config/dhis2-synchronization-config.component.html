@@ -102,11 +102,11 @@
                                     <label><localize key="sync.attr.type"></localize></label>
                                   </th>
                                   <th style="width:23%">
-                                    <label *ngIf="mapping.info && mapping.info.cgrAttr.type === 'term'"><localize key="sync.attr.targetTypeHeader"></localize></label>
+                                    <label *ngIf="mapping.info && mapping.info.cgrAttr.type === 'term' && mapping.info.attributeMappingStrategies.length > 1"><localize key="sync.attr.targetTypeHeader"></localize></label>
                                   </th>
                                   <th style="width:23%">
                                     <label *ngIf="mapping.info">
-                                      <localize *ngIf="!mapping.isOrgUnitGroup" key="sync.attr.targetAttribute"></localize>
+                                      <localize *ngIf="!strategyHasTerms(mapping)" key="sync.attr.targetAttribute"></localize>
                                     </label>
                                   </th>
                                 </tr>
@@ -125,31 +125,37 @@
                                     </select>
                                   </td>
                                   <td style="width:23%">
-                                    <label *ngIf="mapping.info" style="color:#999;">{{mapping.info.cgrAttr.typeLabel}}</label>
-                                  </td>
-                                  <td *ngIf="mapping.info && mapping.info.cgrAttr.type === 'term'" style="margin-right:20px; width:23%">
-                                    <select style="width:95%" *ngIf="mapping.info.cgrAttr.type === 'term'" [(ngModel)]="mapping.isOrgUnitGroup" (change)="onChangeTargetType(mapping)" [name]="'isOrgUnitGroup' + i + mapping.info.cgrAttr.name">
-                                      <option [ngValue]="false"><localize key="sync.attr.targetTypeOptionSet"></localize></option>
-                                      <option [ngValue]="true"><localize key="sync.attr.targetTypeOrgUnitGroup"></localize></option>
+                                    <label *ngIf="mapping.info && (mapping.info.cgrAttr.type === 'term' || mapping.info.attributeMappingStrategies.length <= 1)" style="color:#999;">{{mapping.info.cgrAttr.typeLabel}}</label>
+                                    <select *ngIf="mapping.info && mapping.info.cgrAttr.type !== 'term' && mapping.info.attributeMappingStrategies.length > 1" style="width:95%" [(ngModel)]="mapping.attributeMappingStrategy" (change)="onChangeMappingStrategy(mapping)" [name]="'mappingStrategy' + i + mapping.info.cgrAttr.name">
+                                      <option [ngValue]="strategy.type" *ngFor="let strategy of mapping.info.attributeMappingStrategies">
+                                        {{strategy.label}}
+                                      </option>
                                     </select>
                                   </td>
-                                  <td *ngIf="mapping.info && mapping.info.cgrAttr.type !== 'term' && mapping.info.cgrAttr.name" style="float:right; margin-right:20px; width:23%">
+                                  <td *ngIf="mapping.info && mapping.info.cgrAttr.type === 'term' && mapping.info.attributeMappingStrategies.length > 1" style="margin-right:20px; width:23%">
+                                    <select style="width:95%" [(ngModel)]="mapping.attributeMappingStrategy" (change)="onChangeMappingStrategy(mapping)" [name]="'mappingStrategy' + i + mapping.info.cgrAttr.name">
+                                      <option [ngValue]="strategy.type" *ngFor="let strategy of mapping.info.attributeMappingStrategies">
+                                        {{strategy.label}}
+                                      </option>
+                                    </select>
+                                  </td>
+                                  <td *ngIf="mapping.info && (mapping.info.attributeMappingStrategies.length <= 1 || mapping.info.cgrAttr.type !== 'term') && mapping.info.cgrAttr.name" style="float:right; margin-right:20px; width:23%">
                                     <label style="color:#999;"><localize key="sync.attr.to"></localize></label>
                                   </td>
-                                  <td style="width:23%" *ngIf="mapping.info">
-                                    <select *ngIf="mapping.info.dhis2Attrs.length > 0 && !mapping.isOrgUnitGroup" [(ngModel)]="mapping.dhis2Id" [ngModelOptions]="{standalone: true}" (change)="onChangeDHIS2Attr(mapping)">
+                                  <td style="width:23%" *ngIf="getMappingStrategy(mapping)">
+                                    <select *ngIf="getMappingStrategy(mapping).dhis2Attrs.length > 0 && !strategyHasTerms(mapping)" [(ngModel)]="mapping.dhis2Id" [ngModelOptions]="{standalone: true}" (change)="onChangeDHIS2Attr(mapping)">
                                       <option [ngValue]="null"><localize key="sync.notMapped"></localize></option>
-                                      <option [ngValue]="dhis2Attr.dhis2Id" *ngFor="let dhis2Attr of mapping.info.dhis2Attrs">
+                                      <option [ngValue]="dhis2Attr.dhis2Id" *ngFor="let dhis2Attr of getMappingStrategy(mapping).dhis2Attrs">
                                         {{dhis2Attr.name}}
                                       </option>
                                     </select>
-                                    <label *ngIf="mapping.info.dhis2Attrs.length == 0 && !mapping.isOrgUnitGroup" style="color:#999;"><localize key="sync.noValid"></localize></label>
+                                    <label *ngIf="getMappingStrategy(mapping).dhis2Attrs.length == 0 && !strategyHasTerms(mapping)" style="color:#999;"><localize key="sync.noValid"></localize></label>
                                   </td>
                                 </tr>
                               </tbody>
                             </table>
-                            <div *ngIf="mapping.info && ((mapping.externalId != null && mapping.externalId.length > 0) || mapping.isOrgUnitGroup)">
-                              <table *ngFor="let term of mapping.info.terms" class="row" style="width:80%; margin-left:80px;">
+                            <div *ngIf="strategyHasTerms(mapping)">
+                              <table *ngFor="let term of getMappingStrategy(mapping).terms" class="row" style="width:80%; margin-left:80px;">
                                 <thead>
                                   <tr>
                                     <th style="width:25%">
@@ -162,8 +168,8 @@
                                     </th>
                                     <th style="width:25%">
                                       <label>
-                                        <localize *ngIf="!mapping.isOrgUnitGroup" key="sync.attr.term.dhis2Option"></localize>
-                                        <localize *ngIf="mapping.isOrgUnitGroup" key="sync.attr.term.targetOrgUnitGroup"></localize>
+                                        <localize *ngIf="getMappingStrategy(mapping).type !== 'net.geoprism.registry.etl.DHIS2OrgUnitAttributeMapping'" key="sync.attr.term.dhis2Option"></localize>
+                                        <localize *ngIf="getMappingStrategy(mapping).type === 'net.geoprism.registry.etl.DHIS2OrgUnitAttributeMapping'" key="sync.attr.term.targetOrgUnitGroup"></localize>
                                       </label>
                                     </th>
                                   </tr>
@@ -174,13 +180,13 @@
                                     <td><label style="color:#999;">{{term.label}}</label></td>
                                     <td style="float:right; margin-right:20px;"><label style="color:#999;"><localize key="sync.attr.to"></localize></label></td>
                                     <td>
-                                      <select *ngIf="!mapping.isOrgUnitGroup" [(ngModel)]="mapping.terms[term.code]" [ngModelOptions]="{standalone: true}">
+                                      <select *ngIf="getMappingStrategy(mapping).type !== 'net.geoprism.registry.etl.DHIS2OrgUnitAttributeMapping'" [(ngModel)]="mapping.terms[term.code]" [ngModelOptions]="{standalone: true}">
                                         <option [ngValue]="null"><localize key="sync.notMapped"></localize></option>
                                         <option *ngFor="let option of getTermOptions(mapping.info, mapping.externalId)" [value]="option.code">
                                           {{option.name}}
                                         </option>
                                       </select>
-                                      <select *ngIf="mapping.isOrgUnitGroup" type="text" [(ngModel)]="mapping.terms[term.code]" [ngModelOptions]="{standalone: true}">
+                                      <select *ngIf="getMappingStrategy(mapping).type === 'net.geoprism.registry.etl.DHIS2OrgUnitAttributeMapping'" type="text" [(ngModel)]="mapping.terms[term.code]" [ngModelOptions]="{standalone: true}">
                                         <option [ngValue]="null"><localize key="sync.notMapped"></localize></option>
                                         <option *ngFor="let group of orgUnitGroups" [value]="group.id">{{group.name}}</option>
                                       </select>

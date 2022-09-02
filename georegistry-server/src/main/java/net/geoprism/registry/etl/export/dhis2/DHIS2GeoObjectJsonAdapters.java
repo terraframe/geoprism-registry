@@ -225,7 +225,7 @@ public class DHIS2GeoObjectJsonAdapters
       {
         for (DHIS2AttributeMapping mapping : this.syncLevel.getMappings())
         {
-          mapping.writeStandardAttributes(serverGo, jo, this.dhis2Config, this.syncLevel);
+          mapping.writeStandardAttributes(serverGo, this.date, jo, this.dhis2Config, this.syncLevel);
         }
       }
       
@@ -291,7 +291,7 @@ public class DHIS2GeoObjectJsonAdapters
       {
         for (DHIS2AttributeMapping mapping : this.syncLevel.getMappings())
         {
-          mapping.writeCustomAttributes(attributeValues, serverGo, this.dhis2Config, this.syncLevel, lastUpdateDate, createDate);
+          mapping.writeCustomAttributes(attributeValues, serverGo, this.date, this.dhis2Config, this.syncLevel, lastUpdateDate, createDate);
         }
       }
 

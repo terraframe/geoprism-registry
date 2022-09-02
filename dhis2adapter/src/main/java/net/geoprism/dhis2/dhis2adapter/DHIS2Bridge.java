@@ -275,7 +275,7 @@ public class DHIS2Bridge
       
       this.versionRemoteServer = jo.get("version").getAsString();
       
-      Pattern p = Pattern.compile("[a-z]*\\d+\\.(\\d+)(\\.\\d+)?(\\.\\d+)?(-.+)?[a-z]*");
+      Pattern p = Pattern.compile("[a-z]*\\d+\\.(\\d+)(\\.\\d+)*(-.+)?[a-z]*");
       m = p.matcher(this.versionRemoteServer);
     }
     catch (Throwable t)

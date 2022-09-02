@@ -21,17 +21,9 @@ package net.geoprism.registry.dhis2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
-import org.commongeoregistry.adapter.metadata.AttributeDateType;
-import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.slf4j.Logger;
@@ -52,16 +44,17 @@ import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
-import net.geoprism.dhis2.dhis2adapter.response.model.Option;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
-import net.geoprism.registry.etl.DHIS2TermAttributeMapping;
+import net.geoprism.registry.etl.DHIS2EndDateAttributeMapping;
+import net.geoprism.registry.etl.DHIS2OrgUnitGroupAttributeMapping;
+import net.geoprism.registry.etl.DHIS2StartDateAttributeMapping;
+import net.geoprism.registry.etl.DHIS2OptionSetAttributeMapping;
 import net.geoprism.registry.etl.export.ExportRemoteException;
 import net.geoprism.registry.etl.export.HttpError;
 import net.geoprism.registry.etl.export.LoginException;
 import net.geoprism.registry.etl.export.UnexpectedRemoteResponse;
 import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache;
-import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache.IntegratedOptionSet;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -107,13 +100,20 @@ public class DHIS2FeatureService
     }
   }
 
-  private List<DHIS2AttributeMapping> getMappingStrategies(AttributeType type)
+  public static List<DHIS2AttributeMapping> getMappingStrategies(AttributeType type)
   {
     List<DHIS2AttributeMapping> strategies = new ArrayList<DHIS2AttributeMapping>();
 
     if (type.getType().equals(AttributeTermType.TYPE))
     {
-      strategies.add(new DHIS2TermAttributeMapping());
+      strategies.add(new DHIS2OptionSetAttributeMapping());
+      strategies.add(new DHIS2OrgUnitGroupAttributeMapping());
+    }
+    else if (type.getName().equals(DefaultAttribute.EXISTS.getName()))
+    {
+//      strategies.add(new DHIS2AttributeMapping(DefaultAttribute.EXISTS.getName()));
+      strategies.add(new DHIS2StartDateAttributeMapping());
+      strategies.add(new DHIS2EndDateAttributeMapping());
     }
     else
     {
@@ -128,7 +128,7 @@ public class DHIS2FeatureService
   {
     DHIS2ExternalSystem system = DHIS2ExternalSystem.get(dhis2SystemOid);
 
-    JsonArray response = new JsonArray();
+    JsonArray jaAttrConfigs = new JsonArray();
 
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
 
@@ -173,97 +173,17 @@ public class DHIS2FeatureService
         List<DHIS2AttributeMapping> strategies = this.getMappingStrategies(cgrAttr);
         for (DHIS2AttributeMapping strategy : strategies)
         {
-          jaStrategies.add(strategy.getClass().getName());
+          JsonObject configInfo = strategy.getConfigurationInfo(optionCache, dhis2Attrs, cgrAttr);
+          
+          jaStrategies.add(configInfo);
         }
         joAttr.add("attributeMappingStrategies", jaStrategies);
 
-        JsonArray jaDhis2Attrs = new JsonArray();
-        for (Attribute dhis2Attr : dhis2Attrs)
-        {
-          if (!dhis2Attr.getOrganisationUnitAttribute() || dhis2Attr.getValueType() == null)
-          {
-            continue;
-          }
-
-          boolean valid = false;
-
-          JsonObject jo = new JsonObject();
-
-          if (cgrAttr instanceof AttributeBooleanType && dhis2Attr.getOptionSetId() == null && ( dhis2Attr.getValueType().equals(ValueType.BOOLEAN) || dhis2Attr.getValueType().equals(ValueType.TRUE_ONLY) ))
-          {
-            valid = true;
-          }
-          else if (cgrAttr instanceof AttributeIntegerType && dhis2Attr.getOptionSetId() == null && ( dhis2Attr.getValueType().equals(ValueType.INTEGER) || dhis2Attr.getValueType().equals(ValueType.INTEGER_POSITIVE) || dhis2Attr.getValueType().equals(ValueType.INTEGER_NEGATIVE) || dhis2Attr.getValueType().equals(ValueType.INTEGER_ZERO_OR_POSITIVE) ))
-          {
-            valid = true;
-          }
-          else if (cgrAttr instanceof AttributeFloatType && dhis2Attr.getOptionSetId() == null && ( dhis2Attr.getValueType().equals(ValueType.NUMBER) || dhis2Attr.getValueType().equals(ValueType.UNIT_INTERVAL) || dhis2Attr.getValueType().equals(ValueType.PERCENTAGE) ))
-          {
-            valid = true;
-          }
-          else if (cgrAttr instanceof AttributeDateType && dhis2Attr.getOptionSetId() == null && ( dhis2Attr.getValueType().equals(ValueType.DATE) || dhis2Attr.getValueType().equals(ValueType.DATETIME) || dhis2Attr.getValueType().equals(ValueType.TIME) || dhis2Attr.getValueType().equals(ValueType.AGE) ))
-          {
-            valid = true;
-          }
-          else if (cgrAttr instanceof AttributeTermType && dhis2Attr.getOptionSetId() != null)
-          {
-            valid = true;
-
-            JsonArray jaDhis2Options = new JsonArray();
-
-            IntegratedOptionSet set = optionCache.getOptionSet(dhis2Attr.getOptionSetId());
-
-            SortedSet<Option> options = set.getOptions();
-
-            for (Option option : options)
-            {
-              JsonObject joDhis2Option = new JsonObject();
-              joDhis2Option.addProperty("code", option.getCode());
-              joDhis2Option.addProperty("name", option.getName());
-              joDhis2Option.addProperty("id", option.getName());
-              jaDhis2Options.add(joDhis2Option);
-            }
-
-            jo.add("options", jaDhis2Options);
-          }
-          else if ( ( cgrAttr instanceof AttributeCharacterType || cgrAttr instanceof AttributeLocalType ) && dhis2Attr.getOptionSetId() == null && ( dhis2Attr.getValueType().equals(ValueType.TEXT) || dhis2Attr.getValueType().equals(ValueType.LONG_TEXT) || dhis2Attr.getValueType().equals(ValueType.LETTER) || dhis2Attr.getValueType().equals(ValueType.PHONE_NUMBER) || dhis2Attr.getValueType().equals(ValueType.EMAIL) || dhis2Attr.getValueType().equals(ValueType.USERNAME) || dhis2Attr.getValueType().equals(ValueType.URL) ))
-          {
-            valid = true;
-          }
-
-          if (valid)
-          {
-            jo.addProperty("dhis2Id", dhis2Attr.getId());
-            jo.addProperty("code", dhis2Attr.getCode());
-            jo.addProperty("name", dhis2Attr.getName());
-            jaDhis2Attrs.add(jo);
-          }
-        }
-
-        joAttr.add("dhis2Attrs", jaDhis2Attrs);
-
-        if (cgrAttr instanceof AttributeTermType)
-        {
-          JsonArray terms = new JsonArray();
-
-          List<Term> children = ( (AttributeTermType) cgrAttr ).getTerms();
-
-          for (Term child : children)
-          {
-            JsonObject joTerm = new JsonObject();
-            joTerm.addProperty("label", child.getLabel().getValue());
-            joTerm.addProperty("code", child.getCode());
-            terms.add(joTerm);
-          }
-
-          joAttr.add("terms", terms);
-        }
-
-        response.add(joAttr);
+        jaAttrConfigs.add(joAttr);
       }
     }
 
-    return response;
+    return jaAttrConfigs;
   }
 
   private List<Attribute> getDHIS2Attributes(DHIS2TransportServiceIF dhis2)

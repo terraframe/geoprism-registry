@@ -20,6 +20,7 @@ package net.geoprism.registry.etl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,12 +32,7 @@ import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
-import org.commongeoregistry.adapter.metadata.AttributeDateType;
-import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.After;
@@ -53,6 +49,8 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
@@ -65,6 +63,7 @@ import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.etl.DHIS2TestService.Dhis2Payload;
+import net.geoprism.registry.etl.dhis2.DHIS2PayloadValidator;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
@@ -72,6 +71,7 @@ import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.AttributeTypeMetadata;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.AllAttributesDataset;
@@ -280,21 +280,11 @@ public class DHIS2ServiceTest
     return mappings;
   }
 
-  private DHIS2AttributeMapping findMapping(String cgrAttrName, Collection<DHIS2AttributeMapping> mappings)
+  private void exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, DHIS2AttributeMapping mapping) throws InterruptedException
   {
-    for (DHIS2AttributeMapping mapping : mappings)
-    {
-      if (mapping.getCgrAttrName().equals(cgrAttrName))
-      {
-        return mapping;
-      }
-    }
-
-    return null;
-  }
-
-  private void exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr) throws InterruptedException
-  {
+    /*
+     * Create a config
+     */
     DHIS2SyncLevel level2 = new DHIS2SyncLevel();
     level2.setGeoObjectType(got.getServerObject().getCode());
     level2.setSyncType(DHIS2SyncLevel.Type.ALL);
@@ -302,19 +292,7 @@ public class DHIS2ServiceTest
 
     Collection<DHIS2AttributeMapping> mappings = getDefaultMappings();
 
-    DHIS2AttributeMapping mapping;
-    if (attr.getType().equals(AttributeTermType.TYPE))
-    {
-      mapping = new DHIS2TermAttributeMapping();
-      mapping.setAttributeMappingStrategy(DHIS2TermAttributeMapping.class.getName());
-
-      Map<String, String> terms = new HashMap<String, String>();
-      terms.put(AllAttributesDataset.AT_GO_TERM.fetchRootAsClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
-      terms.put(AllAttributesDataset.TERM_TERM_VAL1.fetchClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
-      terms.put(AllAttributesDataset.TERM_TERM_VAL2.fetchClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
-      ( (DHIS2TermAttributeMapping) mapping ).setTerms(terms);
-    }
-    else
+    if (mapping == null)
     {
       mapping = new DHIS2AttributeMapping();
       mapping.setAttributeMappingStrategy(DHIS2AttributeMapping.class.getName());
@@ -328,13 +306,19 @@ public class DHIS2ServiceTest
 
     SynchronizationConfig config = createSyncConfig(this.system, level2);
 
+    /*
+     * Run the sync service
+     */
     JsonObject jo = syncService.run(testData.clientSession.getSessionId(), config.getOid());
     ExportHistory hist = ExportHistory.get(jo.get("historyId").getAsString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
+    /*
+     * Validate the payloads
+     */
     LinkedList<Dhis2Payload> payloads = this.dhis2.getPayloads();
-    Assert.assertEquals(2, payloads.size());
+    Assert.assertEquals((mapping instanceof DHIS2OrgUnitGroupAttributeMapping) ? 3 : 2, payloads.size());
 
     for (int level = 0; level < payloads.size(); ++level)
     {
@@ -342,80 +326,13 @@ public class DHIS2ServiceTest
 
       JsonObject joPayload = JsonParser.parseString(payload.getData()).getAsJsonObject();
 
-      JsonArray orgUnits = joPayload.get("organisationUnits").getAsJsonArray();
-
-      Assert.assertEquals(1, orgUnits.size());
-
-      JsonObject orgUnit = orgUnits.get(0).getAsJsonObject();
-
-      Assert.assertEquals(level, orgUnit.get("level").getAsInt());
-
-      Assert.assertEquals("MULTI_POLYGON", orgUnit.get("featureType").getAsString());
-
-      if (level == 0)
+      if (level == 0 || level == 1)
       {
-        Assert.assertEquals(AllAttributesDataset.GO_ALL.getCode(), orgUnit.get("code").getAsString());
+        DHIS2PayloadValidator.orgUnit(go, attr, mapping, level, joPayload);
       }
       else
       {
-        Assert.assertEquals(go.getCode(), orgUnit.get("code").getAsString());
-
-        Assert.assertTrue(orgUnit.has("attributeValues"));
-
-        JsonArray attributeValues = orgUnit.get("attributeValues").getAsJsonArray();
-
-        Assert.assertEquals(1, attributeValues.size());
-
-        JsonObject attributeValue = attributeValues.get(0).getAsJsonObject();
-
-        Assert.assertNotNull(attributeValue.get("lastUpdated").getAsString());
-
-        Assert.assertNotNull(attributeValue.get("created").getAsString());
-
-        AttributeType attrDto = attr.fetchDTO();
-
-        if (attrDto instanceof AttributeIntegerType)
-        {
-          Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsLong());
-        }
-        else if (attrDto instanceof AttributeFloatType)
-        {
-          Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsDouble());
-        }
-        else if (attrDto instanceof AttributeDateType)
-        {
-          // TODO : If we fetch the object from the database in this manner the
-          // miliseconds aren't included on the date. But if we fetch the object
-          // via a query (as in DataExportJob) then the miliseconds ARE
-          // included...
-          // String expected =
-          // DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate((Date)
-          // go.getServerObject().getValue(attr.getAttributeName()));
-
-          String expected = DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate(AllAttributesDataset.GO_DATE_VALUE);
-          String actual = attributeValue.get("value").getAsString();
-
-          Assert.assertEquals(expected, actual);
-        }
-        else if (attrDto instanceof AttributeBooleanType)
-        {
-          Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsBoolean());
-        }
-        else if (attrDto instanceof AttributeTermType)
-        {
-          String dhis2Id = attributeValue.get("value").getAsString();
-
-          // Term term = (Term)
-          // go.getServerObject().getValue(attr.getAttributeName());
-
-          Assert.assertEquals("TEST_EXTERNAL_ID", dhis2Id);
-        }
-        else
-        {
-          Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsString());
-        }
-
-        Assert.assertEquals("TEST_EXTERNAL_ID", attributeValue.get("attribute").getAsJsonObject().get("id").getAsString());
+        DHIS2PayloadValidator.orgUnitGroup(go, attr, (DHIS2OrgUnitGroupAttributeMapping) mapping, level, joPayload);
       }
     }
   }
@@ -451,44 +368,226 @@ public class DHIS2ServiceTest
   @Request
   public void testExportCharacterAttr() throws Exception
   {
-    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR);
+    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR, null);
   }
 
   @Test
   @Request
   public void testExportIntegerAttr() throws Exception
   {
-    exportCustomAttribute(AllAttributesDataset.GOT_INT, AllAttributesDataset.GO_INT, testData.AT_GO_INT);
+    exportCustomAttribute(AllAttributesDataset.GOT_INT, AllAttributesDataset.GO_INT, testData.AT_GO_INT, null);
   }
 
   @Test
   @Request
   public void testExportFloatAttr() throws Exception
   {
-    exportCustomAttribute(AllAttributesDataset.GOT_FLOAT, AllAttributesDataset.GO_FLOAT, testData.AT_GO_FLOAT);
+    exportCustomAttribute(AllAttributesDataset.GOT_FLOAT, AllAttributesDataset.GO_FLOAT, testData.AT_GO_FLOAT, null);
   }
 
   @Test
   @Request
   public void testExportDateAttr() throws Exception
   {
-    exportCustomAttribute(AllAttributesDataset.GOT_DATE, AllAttributesDataset.GO_DATE, testData.AT_GO_DATE);
+    exportCustomAttribute(AllAttributesDataset.GOT_DATE, AllAttributesDataset.GO_DATE, testData.AT_GO_DATE, null);
   }
 
   @Test
   @Request
   public void testExportBoolAttr() throws Exception
   {
-    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL);
+    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL, null);
   }
 
   @Test
   @Request
-  public void testExportTermAttr() throws Exception
+  public void testExportTermAsOptionSet() throws Exception
   {
-    exportCustomAttribute(AllAttributesDataset.GOT_TERM, AllAttributesDataset.GO_TERM, testData.AT_GO_TERM);
+    DHIS2OptionSetAttributeMapping mapping = new DHIS2OptionSetAttributeMapping();
+    mapping.setAttributeMappingStrategy(DHIS2OptionSetAttributeMapping.class.getName());
+
+    Map<String, String> terms = new HashMap<String, String>();
+    terms.put(AllAttributesDataset.AT_GO_TERM.fetchRootAsClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
+    terms.put(AllAttributesDataset.TERM_TERM_VAL1.fetchClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
+    terms.put(AllAttributesDataset.TERM_TERM_VAL2.fetchClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
+    mapping.setTerms(terms);
+    
+    exportCustomAttribute(AllAttributesDataset.GOT_TERM, AllAttributesDataset.GO_TERM, testData.AT_GO_TERM, mapping);
   }
 
+  @Test
+  @Request
+  public void testExportTermAsOrgUnitGroup() throws Exception
+  {
+    DHIS2OrgUnitGroupAttributeMapping mapping = new DHIS2OrgUnitGroupAttributeMapping();
+    mapping.setAttributeMappingStrategy(DHIS2OrgUnitGroupAttributeMapping.class.getName());
+
+    Map<String, String> terms = new HashMap<String, String>();
+//    terms.put(AllAttributesDataset.AT_GO_TERM.fetchRootAsClassifier().getClassifierId(), "CXw2yu5fodb"); // Level 1 doesn't have a term mapping
+    terms.put(AllAttributesDataset.TERM_TERM_VAL1.fetchClassifier().getClassifierId(), "gzcv65VyaGq");
+//    terms.put(AllAttributesDataset.TERM_TERM_VAL2.fetchClassifier().getClassifierId(), "uYxK4wmcPqA"); // This term isn't used by any exported Geo-Objects 
+    mapping.setTerms(terms);
+    
+    exportCustomAttribute(AllAttributesDataset.GOT_TERM, AllAttributesDataset.GO_TERM, testData.AT_GO_TERM, mapping);
+  }
+  
+//  @Test
+//  @Request
+//  public void testExportExistsAsBoolean() throws Exception
+//  {
+//    Collection<DHIS2AttributeMapping> mappings = new ArrayList<DHIS2AttributeMapping>();
+//    
+//    DHIS2AttributeMapping mapping = new DHIS2AttributeMapping();
+//    mapping.setCgrAttrName(DefaultAttribute.EXISTS.getName());
+//    mapping.setDhis2AttrName(DefaultAttribute.EXISTS.getName());
+//    mapping.setAttributeMappingStrategy(DHIS2AttributeMapping.class.getName());
+//    mappings.add(mapping);
+//    
+//    testExists(mappings);
+//  }
+  
+  @Test
+  @Request
+  public void testExportExistsAsStartDate() throws Exception
+  {
+    Collection<DHIS2AttributeMapping> mappings = new ArrayList<DHIS2AttributeMapping>();
+    
+    DHIS2StartDateAttributeMapping mapping = new DHIS2StartDateAttributeMapping();
+    mapping.setCgrAttrName(DefaultAttribute.EXISTS.getName());
+    mapping.setDhis2AttrName(DefaultAttribute.EXISTS.getName());
+    mapping.setAttributeMappingStrategy(DHIS2StartDateAttributeMapping.class.getName());
+    mappings.add(mapping);
+    
+    DHIS2StartDateAttributeMapping mapping2 = new DHIS2StartDateAttributeMapping();
+    mapping2.setCgrAttrName(DefaultAttribute.EXISTS.getName());
+    mapping2.setDhis2AttrName(DefaultAttribute.EXISTS.getName());
+    mapping2.setAttributeMappingStrategy(DHIS2StartDateAttributeMapping.class.getName());
+    mapping2.setExternalId("TEST_EXTERNAL_ID");
+    mappings.add(mapping2);
+    
+    testExists(mappings);
+  }
+  
+  @Test
+  @Request
+  public void testExportExistsAsEndDate() throws Exception
+  {
+    Collection<DHIS2AttributeMapping> mappings = new ArrayList<DHIS2AttributeMapping>();
+    
+    DHIS2EndDateAttributeMapping mapping = new DHIS2EndDateAttributeMapping();
+    mapping.setCgrAttrName(DefaultAttribute.EXISTS.getName());
+    mapping.setDhis2AttrName(DefaultAttribute.EXISTS.getName());
+    mapping.setAttributeMappingStrategy(DHIS2EndDateAttributeMapping.class.getName());
+    mappings.add(mapping);
+    
+    DHIS2EndDateAttributeMapping mapping2 = new DHIS2EndDateAttributeMapping();
+    mapping2.setCgrAttrName(DefaultAttribute.EXISTS.getName());
+    mapping2.setDhis2AttrName(DefaultAttribute.EXISTS.getName());
+    mapping2.setExternalId("TEST_EXTERNAL_ID");
+    mapping2.setAttributeMappingStrategy(DHIS2EndDateAttributeMapping.class.getName());
+    mappings.add(mapping2);
+    
+    testExists(mappings);
+  }
+  
+  private void testExists(Collection<DHIS2AttributeMapping> paramMappings) throws Exception
+  {
+    DHIS2AttributeMapping mapping = paramMappings.iterator().next();
+    
+    TestGeoObjectTypeInfo got = AllAttributesDataset.GOT_BOOL;
+    TestGeoObjectInfo go = AllAttributesDataset.GO_BOOL;
+    
+    /*
+     * Create a config
+     */
+    DHIS2SyncLevel level2 = new DHIS2SyncLevel();
+    level2.setGeoObjectType(got.getServerObject().getCode());
+    level2.setSyncType(DHIS2SyncLevel.Type.ALL);
+    level2.setLevel(1);
+    
+    Collection<DHIS2AttributeMapping> mappings = getDefaultMappings();
+    mappings.addAll(paramMappings);
+
+    level2.setMappings(mappings);
+
+    SynchronizationConfig config = createSyncConfig(this.system, level2);
+
+    /*
+     * Run the sync service
+     */
+    JsonObject jo = syncService.run(testData.clientSession.getSessionId(), config.getOid());
+    ExportHistory hist = ExportHistory.get(jo.get("historyId").getAsString());
+
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+
+    /*
+     * Validate the payloads
+     */
+    LinkedList<Dhis2Payload> payloads = this.dhis2.getPayloads();
+    Assert.assertEquals((mapping instanceof DHIS2OrgUnitGroupAttributeMapping) ? 3 : 2, payloads.size());
+
+    for (int level = 0; level < payloads.size(); ++level)
+    {
+      Dhis2Payload payload = payloads.get(level);
+
+      JsonObject joPayload = JsonParser.parseString(payload.getData()).getAsJsonObject();
+      
+      if (level == 0)
+      {
+        DHIS2PayloadValidator.orgUnit(go, null, mapping, level, joPayload);
+      }
+      else if (level == 1)
+      {
+        JsonArray orgUnits = joPayload.get("organisationUnits").getAsJsonArray();
+
+        Assert.assertEquals(1, orgUnits.size());
+
+        JsonObject orgUnit = orgUnits.get(0).getAsJsonObject();
+
+        Assert.assertEquals(level, orgUnit.get("level").getAsInt());
+
+        Assert.assertEquals("MULTI_POLYGON", orgUnit.get("featureType").getAsString());
+        
+        Assert.assertEquals(go.getCode(), orgUnit.get("code").getAsString());
+
+        Assert.assertTrue(orgUnit.has("attributeValues"));
+        
+        Assert.assertEquals(1, orgUnit.get("attributeValues").getAsJsonArray().size());
+        
+        JsonObject attributeValue = orgUnit.get("attributeValues").getAsJsonArray().get(0).getAsJsonObject();
+        
+        ServerGeoObjectIF serverGo = go.getServerObject();
+        ValueOverTimeCollection votc = serverGo.getValuesOverTime(DefaultAttribute.EXISTS.getName());
+
+        ValueOverTime vot = votc.get(votc.size() - 1);
+        
+        if (mapping instanceof DHIS2VOTDateAttributeMapping)
+        {
+          Date expectedDate = null;
+          
+          if (mapping instanceof DHIS2StartDateAttributeMapping)
+          {
+            expectedDate = vot.getStartDate();
+          }
+          else if (mapping instanceof DHIS2EndDateAttributeMapping)
+          {
+            expectedDate = vot.getEndDate();
+          }
+          
+          String attributeValueValue = attributeValue.get("value").getAsString();
+          Assert.assertEquals(DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate((Date) expectedDate), attributeValueValue);
+          
+          Assert.assertEquals(DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate((Date) expectedDate), orgUnit.get(DefaultAttribute.EXISTS.getName()).getAsString());
+        }
+        else
+        {
+          Assert.assertTrue(orgUnit.get(DefaultAttribute.EXISTS.getName()).getAsBoolean());
+          Assert.assertTrue(attributeValue.get("value").getAsBoolean());
+        }
+      }
+    }
+  }
+  
   @Test
   @Request
   public void testGetCustomAttributeConfiguration() throws Exception
@@ -509,217 +608,206 @@ public class DHIS2ServiceTest
       JsonObject cgrAttr = attr.get("cgrAttr").getAsJsonObject();
       String cgrAttrName = cgrAttr.get("name").getAsString();
 
-      TestAttributeTypeInfo attrType = null;
-
-      JsonArray dhis2Attrs = attr.get("dhis2Attrs").getAsJsonArray();
-
-      if (cgrAttrName.equals(testData.AT_ALL_INT.getAttributeName()))
+      AttributeType attrType = got_all.getAttribute(cgrAttrName).get();
+      TestAttributeTypeInfo testAttrType = null;
+      
+      JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
+      List<DHIS2AttributeMapping> expectedStrategies = DHIS2FeatureService.getMappingStrategies(attrType);
+      Assert.assertEquals(expectedStrategies.size(), strategies.size());
+      
+      for (int iStrat = 0; iStrat < strategies.size(); ++iStrat)
       {
-        attrType = testData.AT_ALL_INT;
+        JsonObject strategy = strategies.get(iStrat).getAsJsonObject();
+        
+        DHIS2AttributeMapping expectedStrategy = expectedStrategies.stream().filter(strat -> strat.getClass().getName().equals(strategy.get("type").getAsString())).findFirst().get();
+        
+        JsonArray dhis2Attrs = strategy.get("dhis2Attrs").getAsJsonArray();
 
-        JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
-        Assert.assertEquals(1, strategies.size());
-        Assert.assertEquals(DHIS2AttributeMapping.class.getName(), strategies.get(0).getAsString());
-
-        Assert.assertEquals(1, dhis2Attrs.size());
-
-        JsonObject dhis2Attr = dhis2Attrs.get(0).getAsJsonObject();
-
-        Assert.assertEquals("V9JL0MAFQop", dhis2Attr.get("dhis2Id").getAsString());
-
-        Assert.assertEquals("CGRIntegrationAttributeTest-Integer", dhis2Attr.get("code").getAsString());
-
-        Assert.assertEquals("CGRIntegrationAttributeTest-Integer", dhis2Attr.get("name").getAsString());
-      }
-      else if (cgrAttrName.equals(testData.AT_ALL_BOOL.getAttributeName()))
-      {
-        attrType = testData.AT_ALL_BOOL;
-
-        JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
-        Assert.assertEquals(1, strategies.size());
-        Assert.assertEquals(DHIS2AttributeMapping.class.getName(), strategies.get(0).getAsString());
-
-        Assert.assertEquals(1, dhis2Attrs.size());
-
-        JsonObject dhis2Attr = dhis2Attrs.get(0).getAsJsonObject();
-
-        Assert.assertEquals("HoRXtod7Z8W", dhis2Attr.get("dhis2Id").getAsString());
-
-        Assert.assertEquals("CGRIntegrationAttributeTest-Bool", dhis2Attr.get("code").getAsString());
-
-        Assert.assertEquals("CGRIntegrationAttributeTest-Bool", dhis2Attr.get("name").getAsString());
-      }
-      else if (cgrAttrName.equals(testData.AT_ALL_CHAR.getAttributeName()))
-      {
-        attrType = testData.AT_ALL_CHAR;
-
-        JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
-        Assert.assertEquals(1, strategies.size());
-        Assert.assertEquals(DHIS2AttributeMapping.class.getName(), strategies.get(0).getAsString());
-
-        Assert.assertEquals(13, dhis2Attrs.size());
-
-        List<String> defaultIds = defaultAttributes.stream().map(attribute -> attribute.getValueType().equals(ValueType.TEXT) ? attribute.getId() : null).collect(Collectors.toList());
-        List<String> defaultNames = defaultAttributes.stream().map(attribute -> attribute.getValueType().equals(ValueType.TEXT) ? attribute.getName() : null).collect(Collectors.toList());
-
-        for (int j = 0; j < dhis2Attrs.size(); j++)
+        if (cgrAttrName.equals(testData.AT_ALL_INT.getAttributeName()))
         {
-          JsonObject dhis2Attr = dhis2Attrs.get(j).getAsJsonObject();
+          testAttrType = testData.AT_ALL_INT;
+
+          Assert.assertEquals(1, dhis2Attrs.size());
+
+          JsonObject dhis2Attr = dhis2Attrs.get(0).getAsJsonObject();
+
+          Assert.assertEquals("V9JL0MAFQop", dhis2Attr.get("dhis2Id").getAsString());
+
+          Assert.assertEquals("CGRIntegrationAttributeTest-Integer", dhis2Attr.get("code").getAsString());
+
+          Assert.assertEquals("CGRIntegrationAttributeTest-Integer", dhis2Attr.get("name").getAsString());
+        }
+        else if (cgrAttrName.equals(testData.AT_ALL_BOOL.getAttributeName()))
+        {
+          testAttrType = testData.AT_ALL_BOOL;
+
+          Assert.assertEquals(1, dhis2Attrs.size());
+
+          JsonObject dhis2Attr = dhis2Attrs.get(0).getAsJsonObject();
+
+          Assert.assertEquals("HoRXtod7Z8W", dhis2Attr.get("dhis2Id").getAsString());
+
+          Assert.assertEquals("CGRIntegrationAttributeTest-Bool", dhis2Attr.get("code").getAsString());
+
+          Assert.assertEquals("CGRIntegrationAttributeTest-Bool", dhis2Attr.get("name").getAsString());
+        }
+        else if (cgrAttrName.equals(testData.AT_ALL_CHAR.getAttributeName()))
+        {
+          testAttrType = testData.AT_ALL_CHAR;
+
+          Assert.assertEquals(13, dhis2Attrs.size());
+
+          List<String> defaultIds = defaultAttributes.stream().map(attribute -> attribute.getValueType().equals(ValueType.TEXT) ? attribute.getId() : null).collect(Collectors.toList());
+          List<String> defaultNames = defaultAttributes.stream().map(attribute -> attribute.getValueType().equals(ValueType.TEXT) ? attribute.getName() : null).collect(Collectors.toList());
+
+          for (int j = 0; j < dhis2Attrs.size(); j++)
+          {
+            JsonObject dhis2Attr = dhis2Attrs.get(j).getAsJsonObject();
+
+            String id = dhis2Attr.get("dhis2Id").getAsString();
+
+            Assert.assertTrue(id.equals("UKNKz1H10EE") || id.equals("n2xYlNbsfko") || id.equals("tw1zAoX9tP6") || defaultIds.contains(id));
+
+            String code = dhis2Attr.get("code").getAsString();
+            Assert.assertTrue(code.equals("IRID") || code.equals("NGOID") || code.equals("CGRIntegrationAttributeTest-Char") || defaultNames.contains(code));
+          }
+        }
+        else if (cgrAttrName.equals(testData.AT_ALL_DATE.getAttributeName()))
+        {
+          testAttrType = testData.AT_ALL_DATE;
+
+          Assert.assertEquals(3, dhis2Attrs.size());
+
+          JsonObject dhis2Attr = dhis2Attrs.get(0).getAsJsonObject();
 
           String id = dhis2Attr.get("dhis2Id").getAsString();
 
-          Assert.assertTrue(id.equals("UKNKz1H10EE") || id.equals("n2xYlNbsfko") || id.equals("tw1zAoX9tP6") || defaultIds.contains(id));
+          List<String> defaultIds = defaultAttributes.stream().map(attribute -> attribute.getValueType().equals(ValueType.DATE) ? attribute.getId() : null).collect(Collectors.toList());
+          List<String> defaultNames = defaultAttributes.stream().map(attribute -> attribute.getValueType().equals(ValueType.DATE) ? attribute.getName() : null).collect(Collectors.toList());
+
+          Assert.assertTrue(id.equals("Z5TiJm1H4TC") || defaultIds.contains(id));
 
           String code = dhis2Attr.get("code").getAsString();
-          Assert.assertTrue(code.equals("IRID") || code.equals("NGOID") || code.equals("CGRIntegrationAttributeTest-Char") || defaultNames.contains(code));
+          Assert.assertTrue(code.equals("CGRIntegrationAttributeTest-Date") || defaultNames.contains(code));
+
+          String name = dhis2Attr.get("name").getAsString();
+          Assert.assertTrue(name.equals("CGRIntegrationAttributeTest-Date") || defaultNames.contains(name));
         }
-      }
-      else if (cgrAttrName.equals(testData.AT_ALL_DATE.getAttributeName()))
-      {
-        attrType = testData.AT_ALL_DATE;
-
-        JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
-        Assert.assertEquals(1, strategies.size());
-        Assert.assertEquals(DHIS2AttributeMapping.class.getName(), strategies.get(0).getAsString());
-
-        Assert.assertEquals(3, dhis2Attrs.size());
-
-        JsonObject dhis2Attr = dhis2Attrs.get(0).getAsJsonObject();
-
-        String id = dhis2Attr.get("dhis2Id").getAsString();
-
-        List<String> defaultIds = defaultAttributes.stream().map(attribute -> attribute.getValueType().equals(ValueType.DATE) ? attribute.getId() : null).collect(Collectors.toList());
-        List<String> defaultNames = defaultAttributes.stream().map(attribute -> attribute.getValueType().equals(ValueType.DATE) ? attribute.getName() : null).collect(Collectors.toList());
-
-        Assert.assertTrue(id.equals("Z5TiJm1H4TC") || defaultIds.contains(id));
-
-        String code = dhis2Attr.get("code").getAsString();
-        Assert.assertTrue(code.equals("CGRIntegrationAttributeTest-Date") || defaultNames.contains(code));
-
-        String name = dhis2Attr.get("name").getAsString();
-        Assert.assertTrue(name.equals("CGRIntegrationAttributeTest-Date") || defaultNames.contains(name));
-      }
-      else if (cgrAttrName.equals(testData.AT_ALL_FLOAT.getAttributeName()))
-      {
-        attrType = testData.AT_ALL_FLOAT;
-
-        JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
-        Assert.assertEquals(1, strategies.size());
-        Assert.assertEquals(DHIS2AttributeMapping.class.getName(), strategies.get(0).getAsString());
-
-        Assert.assertEquals(1, dhis2Attrs.size());
-
-        JsonObject dhis2Attr = dhis2Attrs.get(0).getAsJsonObject();
-
-        Assert.assertEquals("Po0hdj4UHUv", dhis2Attr.get("dhis2Id").getAsString());
-
-        Assert.assertEquals("CGRIntegrationAttributeTest-Float", dhis2Attr.get("code").getAsString());
-
-        Assert.assertEquals("CGRIntegrationAttributeTest-Float", dhis2Attr.get("name").getAsString());
-      }
-      else if (cgrAttrName.equals(testData.AT_ALL_TERM.getAttributeName()))
-      {
-        attrType = testData.AT_ALL_TERM;
-
-        JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
-        Assert.assertEquals(1, strategies.size());
-        Assert.assertEquals(DHIS2TermAttributeMapping.class.getName(), strategies.get(0).getAsString());
-
-        Assert.assertEquals(2, dhis2Attrs.size());
-
-        for (int j = 0; j < dhis2Attrs.size(); j++)
+        else if (cgrAttrName.equals(testData.AT_ALL_FLOAT.getAttributeName()))
         {
-          JsonObject dhis2Attr = dhis2Attrs.get(j).getAsJsonObject();
+          testAttrType = testData.AT_ALL_FLOAT;
 
-          String id = dhis2Attr.get("dhis2Id").getAsString();
+          Assert.assertEquals(1, dhis2Attrs.size());
 
-          JsonArray options = dhis2Attr.get("options").getAsJsonArray();
+          JsonObject dhis2Attr = dhis2Attrs.get(0).getAsJsonObject();
 
-          if (id.equals("Wt2PuMK4kTt"))
-          {
-            Assert.assertEquals(4, options.size());
+          Assert.assertEquals("Po0hdj4UHUv", dhis2Attr.get("dhis2Id").getAsString());
 
-            JsonObject option = options.get(0).getAsJsonObject();
+          Assert.assertEquals("CGRIntegrationAttributeTest-Float", dhis2Attr.get("code").getAsString());
 
-            Assert.assertNotNull(option.get("code").getAsString());
-
-            Assert.assertNotNull(option.get("name").getAsString());
-
-            Assert.assertNotNull(option.get("id").getAsString());
-          }
-          else if (id.equals("Bp9g0VvC1fK"))
-          {
-            Assert.assertEquals(2, options.size());
-
-            JsonObject option = options.get(0).getAsJsonObject();
-
-            String code = option.get("code").getAsString();
-
-            Assert.assertTrue(code.equals("0-14 years") || code.equals("val2"));
-
-            String optionName = option.get("name").getAsString();
-
-            Assert.assertTrue(optionName.equals("val1") || optionName.equals("val2"));
-
-            String optionId = option.get("id").getAsString();
-
-            Assert.assertTrue(optionId.equals("val1") || optionId.equals("val2"));
-          }
-          else
-          {
-            Assert.fail("Unexpected id [" + id + "].");
-          }
+          Assert.assertEquals("CGRIntegrationAttributeTest-Float", dhis2Attr.get("name").getAsString());
         }
-
-        JsonArray cgrTerms = attr.get("terms").getAsJsonArray();
-
-        Assert.assertEquals(2, cgrTerms.size());
-
-        for (int k = 0; k < cgrTerms.size(); ++k)
+//        else if (cgrAttrName.equals(testData.AT_ALL_TERM.getAttributeName()))
+//        {
+//          attrType = testData.AT_ALL_TERM;
+  //
+//          JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
+//          Assert.assertEquals(1, strategies.size());
+//          Assert.assertEquals(DHISAttributeMapping.class.getName(), strategies.get(0).getAsString());
+  //
+//          Assert.assertEquals(2, dhis2Attrs.size());
+  //
+//          for (int j = 0; j < dhis2Attrs.size(); j++)
+//          {
+//            JsonObject dhis2Attr = dhis2Attrs.get(j).getAsJsonObject();
+  //
+//            String id = dhis2Attr.get("dhis2Id").getAsString();
+  //
+//            JsonArray options = dhis2Attr.get("options").getAsJsonArray();
+  //
+//            if (id.equals("Wt2PuMK4kTt"))
+//            {
+//              Assert.assertEquals(4, options.size());
+  //
+//              JsonObject option = options.get(0).getAsJsonObject();
+  //
+//              Assert.assertNotNull(option.get("code").getAsString());
+  //
+//              Assert.assertNotNull(option.get("name").getAsString());
+  //
+//              Assert.assertNotNull(option.get("id").getAsString());
+//            }
+//            else if (id.equals("Bp9g0VvC1fK"))
+//            {
+//              Assert.assertEquals(2, options.size());
+  //
+//              JsonObject option = options.get(0).getAsJsonObject();
+  //
+//              String code = option.get("code").getAsString();
+  //
+//              Assert.assertTrue(code.equals("0-14 years") || code.equals("val2"));
+  //
+//              String optionName = option.get("name").getAsString();
+  //
+//              Assert.assertTrue(optionName.equals("val1") || optionName.equals("val2"));
+  //
+//              String optionId = option.get("id").getAsString();
+  //
+//              Assert.assertTrue(optionId.equals("val1") || optionId.equals("val2"));
+//            }
+//            else
+//            {
+//              Assert.fail("Unexpected id [" + id + "].");
+//            }
+//          }
+  //
+//          JsonArray cgrTerms = attr.get("terms").getAsJsonArray();
+  //
+//          Assert.assertEquals(2, cgrTerms.size());
+  //
+//          for (int k = 0; k < cgrTerms.size(); ++k)
+//          {
+//            JsonObject term = cgrTerms.get(k).getAsJsonObject();
+  //
+//            String label = term.get("label").getAsString();
+//            Assert.assertTrue(AllAttributesDataset.TERM_ALL_VAL1.getLabel().equals(label) || AllAttributesDataset.TERM_ALL_VAL2.getLabel().equals(label));
+  //
+//            String code = term.get("code").getAsString();
+//            Assert.assertTrue(AllAttributesDataset.TERM_ALL_VAL1.getCode().equals(code) || AllAttributesDataset.TERM_ALL_VAL2.getCode().equals(code));
+//          }
+//        }
+        else if (got_all.getAttribute(cgrAttrName).isPresent())
         {
-          JsonObject term = cgrTerms.get(k).getAsJsonObject();
+          AttributeType at = got_all.getAttribute(cgrAttrName).get();
 
-          String label = term.get("label").getAsString();
-          Assert.assertTrue(AllAttributesDataset.TERM_ALL_VAL1.getLabel().equals(label) || AllAttributesDataset.TERM_ALL_VAL2.getLabel().equals(label));
+//          if (at.getType().equals(AttributeTermType.TYPE))
+//          {
+//            Assert.assertEquals(DHIS2TermAttributeMapping.class.getName(), strategies.get(0).getAsString());
+//          }
+//          else
+//          {
+//            Assert.assertEquals(DHIS2AttributeMapping.class.getName(), strategies.get(0).getAsString());
+//          }
 
-          String code = term.get("code").getAsString();
-          Assert.assertTrue(AllAttributesDataset.TERM_ALL_VAL1.getCode().equals(code) || AllAttributesDataset.TERM_ALL_VAL2.getCode().equals(code));
-        }
-      }
-      else if (got_all.getAttribute(cgrAttrName).isPresent())
-      {
-        AttributeType at = got_all.getAttribute(cgrAttrName).get();
+          if (at.getType().equals(AttributeCharacterType.TYPE))
+          {
+            Assert.assertEquals(13, dhis2Attrs.size());
+          }
 
-        JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
-        Assert.assertEquals(1, strategies.size());
-
-        if (at.getType().equals(AttributeTermType.TYPE))
-        {
-          Assert.assertEquals(DHIS2TermAttributeMapping.class.getName(), strategies.get(0).getAsString());
+          testAttrType = AllAttributesDataset.GOT_ALL.getAttribute(cgrAttrName);
         }
         else
         {
-          Assert.assertEquals(DHIS2AttributeMapping.class.getName(), strategies.get(0).getAsString());
+          Assert.fail("Unexpected attribute name [" + cgrAttrName + "].");
         }
 
-        if (at.getType().equals(AttributeCharacterType.TYPE))
-        {
-          Assert.assertEquals(13, dhis2Attrs.size());
-        }
+        Assert.assertEquals(attrType.getLabel().getValue(), cgrAttr.get("label").getAsString());
 
-        attrType = AllAttributesDataset.GOT_ALL.getAttribute(cgrAttrName);
+        Assert.assertEquals(attrType.getType(), cgrAttr.get("type").getAsString());
+
+        Assert.assertNotNull(cgrAttr.get("typeLabel").getAsString());
+        Assert.assertEquals(AttributeTypeMetadata.get().getTypeEnumDisplayLabel(attrType.getType()), cgrAttr.get("typeLabel").getAsString());
       }
-      else
-      {
-        Assert.fail("Unexpected attribute name [" + cgrAttrName + "].");
-      }
-
-      Assert.assertEquals(attrType.fetchDTO().getLabel().getValue(), cgrAttr.get("label").getAsString());
-
-      Assert.assertEquals(attrType.fetchDTO().getType(), cgrAttr.get("type").getAsString());
-
-      Assert.assertNotNull(cgrAttr.get("typeLabel").getAsString());
-      Assert.assertEquals(AttributeTypeMetadata.get().getTypeEnumDisplayLabel(attrType.fetchDTO().getType()), cgrAttr.get("typeLabel").getAsString());
     }
   }
 

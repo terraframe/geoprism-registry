@@ -65,10 +65,10 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
       this.levelRows = [];
 
       if (this.config.configuration.levels != null) {
-          for (var i = 0; i < this.config.configuration.levels.length; ++i) {
-              var level = this.config.configuration.levels[i];
+          for (let i = 0; i < this.config.configuration.levels.length; ++i) {
+              let level = this.config.configuration.levels[i];
 
-              var levelRow: LevelRow = { level: level, levelNum: i, isAttributeEditor: false };
+              let levelRow: LevelRow = { level: level, levelNum: i, isAttributeEditor: false };
 
               this.levelRows.push(levelRow);
           }
@@ -98,11 +98,14 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
       this.clearMappingData();
   }
 
+  stringify(obj: any): string {
+      return obj == null ? "null" : JSON.stringify(obj);
+  }
+
   buildDefaultMappings(): DHIS2AttributeMapping[] {
       return [
           {
               attributeMappingStrategy: DEFAULT_MAPPING_STRATEGY,
-              isOrgUnitGroup: false,
               cgrAttrName: "displayLabel",
               externalId: null,
               dhis2Id: "name",
@@ -110,7 +113,6 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
           },
           {
               attributeMappingStrategy: DEFAULT_MAPPING_STRATEGY,
-              isOrgUnitGroup: false,
               cgrAttrName: "displayLabel",
               externalId: null,
               dhis2Id: "shortName",
@@ -118,7 +120,6 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
           },
           {
               attributeMappingStrategy: DEFAULT_MAPPING_STRATEGY,
-              isOrgUnitGroup: false,
               cgrAttrName: "code",
               dhis2Id: "code",
               externalId: null,
@@ -126,7 +127,6 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
           },
           {
               attributeMappingStrategy: DEFAULT_MAPPING_STRATEGY,
-              isOrgUnitGroup: false,
               cgrAttrName: "createDate",
               externalId: null,
               dhis2Id: "openingDate",
@@ -216,34 +216,35 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
           cgrAttrName: null,
           dhis2AttrName: null,
           externalId: null,
+          dhis2Id: null,
           terms: []
       });
   }
 
   addLevel(): void {
-      var lvl = {
+      let lvl = {
           type: null,
           geoObjectType: null,
           level: this.config.configuration.levels.length,
           mappings: [],
           orgUnitGroupId: null
       };
-      var len = this.config.configuration["levels"].push(lvl);
+      let len = this.config.configuration["levels"].push(lvl);
       this.levelRows.push({ level: lvl, levelNum: len - 1, isAttributeEditor: false });
   }
 
   removeLevel(levelNum: number, levelRowIndex: number): void {
       if (levelNum < this.config.configuration["levels"].length) {
-          var editorIndex = this.getEditorIndex();
+          let editorIndex = this.getEditorIndex();
           if (editorIndex === levelRowIndex + 1) {
               this.levelRows.splice(editorIndex, 1);
           }
 
           this.levelRows.splice(levelRowIndex, 1);
 
-          var newLevelNum = 0;
-          for (var i = 0; i < this.levelRows.length; ++i) {
-              var levelRow: LevelRow = this.levelRows[i];
+          let newLevelNum = 0;
+          for (let i = 0; i < this.levelRows.length; ++i) {
+              let levelRow: LevelRow = this.levelRows[i];
 
               levelRow.levelNum = newLevelNum;
 
@@ -257,8 +258,8 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
   }
 
   getEditorIndex(): number {
-      for (var i = 0; i < this.levelRows.length; ++i) {
-          var levelRow = this.levelRows[i];
+      for (let i = 0; i < this.levelRows.length; ++i) {
+          let levelRow = this.levelRows[i];
 
           if (levelRow.isAttributeEditor) {
               return i;
@@ -269,7 +270,7 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
   }
 
   configureAttributes(levelRow: any): void {
-      var editorIndex = this.getEditorIndex();
+      let editorIndex = this.getEditorIndex();
 
       if (editorIndex !== -1) {
           this.levelRows.splice(editorIndex, 1);
@@ -283,8 +284,10 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
   }
 
   getTermOptions(info: AttributeConfigInfo, dhis2Id: string) {
-      for (var i = 0; i < info.dhis2Attrs.length; ++i) {
-          var dhis2Attr = info.dhis2Attrs[i];
+      let strategy = info.attributeMappingStrategies[0];
+
+      for (let i = 0; i < strategy.dhis2Attrs.length; ++i) {
+          let dhis2Attr = strategy.dhis2Attrs[i];
 
           if (dhis2Attr.dhis2Id === dhis2Id) {
               return dhis2Attr.options;
@@ -305,27 +308,29 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
 
       mapping.terms = {};
 
-      let len = mapping.info.dhis2Attrs.length;
+      let strategy = this.getMappingStrategy(mapping);
+
+      let len = strategy.dhis2Attrs.length;
       for (let i = 0; i < len; ++i) {
-          if (mapping.info.dhis2Attrs[i].dhis2Id === mapping.dhis2Id) {
-              if (mapping.info.dhis2Attrs[i].dhis2Id !== mapping.info.dhis2Attrs[i].name) {
-                  mapping.externalId = mapping.info.dhis2Attrs[i].dhis2Id;
+          if (strategy.dhis2Attrs[i].dhis2Id === mapping.dhis2Id) {
+              if (strategy.dhis2Attrs[i].dhis2Id !== strategy.dhis2Attrs[i].name) {
+                  mapping.externalId = strategy.dhis2Attrs[i].dhis2Id;
               } else {
                   mapping.externalId = null;
               }
-              mapping.dhis2AttrName = mapping.info.dhis2Attrs[i].name;
+              mapping.dhis2AttrName = strategy.dhis2Attrs[i].name;
           }
       }
   }
 
   onSelectGeoObjectType(geoObjectTypeCode: string, levelRowIndex: number, isDifferentGot: boolean = true) {
       if (geoObjectTypeCode === "" || geoObjectTypeCode == null) {
-          var levelRow: LevelRow = this.levelRows[levelRowIndex];
+          let levelRow: LevelRow = this.levelRows[levelRowIndex];
 
           levelRow.attrCfg = null;
           levelRow.level.mappings = [];
 
-          var editorIndex = this.getEditorIndex();
+          let editorIndex = this.getEditorIndex();
 
           if (editorIndex !== -1 && editorIndex === levelRowIndex + 1) {
               this.levelRows.splice(editorIndex, 1);
@@ -334,11 +339,11 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
           return;
       }
 
-      var attrCfg = this.levelRows[levelRowIndex].attrCfg;
+      let attrCfg = this.levelRows[levelRowIndex].attrCfg;
       if (attrCfg != null && attrCfg.geoObjectTypeCode === geoObjectTypeCode) {
           // Resume an editing session on attributes that we fetched previously
 
-          var editorIndex = this.getEditorIndex();
+          let editorIndex = this.getEditorIndex();
 
           if (editorIndex !== -1 && editorIndex !== levelRowIndex + 1) {
               this.levelRows.splice(editorIndex, 1);
@@ -351,9 +356,9 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
           this.levelRows.splice(levelRowIndex + 1, 0, { isAttributeEditor: true, attrCfg: attrCfg });
       } else {
           this.service.getCustomAttrCfg(geoObjectTypeCode, this.config.system).then((infos: AttributeConfigInfo[]) => {
-              var editorIndex = this.getEditorIndex();
-              var levelRow: LevelRow = this.levelRows[levelRowIndex];
-              var level = levelRow.level;
+              let editorIndex = this.getEditorIndex();
+              let levelRow: LevelRow = this.levelRows[levelRowIndex];
+              let level = levelRow.level;
 
               if (level.mappings == null) {
                   level.mappings = [];
@@ -405,6 +410,31 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
       }
   }
 
+  strategyHasTerms(mapping: DHIS2AttributeMapping) {
+      let strategy = this.getMappingStrategy(mapping);
+
+      if (strategy != null) {
+          return strategy.terms != null;
+      }
+  }
+
+  getMappingStrategy(mapping: DHIS2AttributeMapping) {
+      if (mapping.info == null) { return null; }
+      if (mapping.info.attributeMappingStrategies.length === 1) {
+          return mapping.info.attributeMappingStrategies[0];
+      }
+
+      for (let i = 0; i < mapping.info.attributeMappingStrategies.length; ++i) {
+          let strategy = mapping.info.attributeMappingStrategies[i];
+
+          if (strategy.type === mapping.attributeMappingStrategy) {
+              return strategy;
+          }
+      }
+
+      return null;
+  }
+
   mapCgrAttr(info: AttributeConfigInfo, mapping: DHIS2AttributeMapping) {
       if (info == null) {
           mapping.cgrAttrName = null;
@@ -412,7 +442,7 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
           mapping.dhis2AttrName = null;
           mapping.externalId = null;
           mapping.terms = null;
-          mapping.isOrgUnitGroup = null;
+          mapping.attributeMappingStrategy = null;
           return;
       }
 
@@ -421,15 +451,17 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
       mapping.dhis2AttrName = null;
       mapping.externalId = null;
       mapping.terms = {};
-      mapping.isOrgUnitGroup = false;
-      mapping.attributeMappingStrategy = info.attributeMappingStrategies[0];
+
+      if (mapping.info.attributeMappingStrategies.length > 0) {
+          mapping.attributeMappingStrategy = mapping.info.attributeMappingStrategies[0].type;
+      }
   }
 
-  onChangeTargetType(mapping: DHIS2AttributeMapping): void {
+  onChangeMappingStrategy(mapping: DHIS2AttributeMapping): void {
       mapping.externalId = null;
 
       for (const key in mapping.terms) {
-          if (mapping.terms.hasOwnProperty(key)) {
+          if (Object.prototype.hasOwnProperty.call(mapping.terms, key)) {
               mapping.terms[key] = null;
           }
       }

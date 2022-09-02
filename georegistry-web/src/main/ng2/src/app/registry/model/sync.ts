@@ -1,9 +1,15 @@
 
+export interface AttributeConfigInfoStrategy {
+    type: string;
+    label: string;
+    dhis2Attrs: Dhis2Attr[];
+    terms?: Term[]; // Terms here refer to the CGR terms which can be potentially mapped to DHIS2 options or orgUnitGroups
+}
+
+// The objects returned from the 'synchronization-config/get-custom-attr' endpoint
 export interface AttributeConfigInfo {
     cgrAttr: CGRAttrInfo
-    attributeMappingStrategies: string;
-    dhis2Attrs: Dhis2Attr[];
-    terms?: Term[];
+    attributeMappingStrategies: AttributeConfigInfoStrategy[];
 }
 
 export interface DHIS2AttributeMapping {
@@ -14,7 +20,6 @@ export interface DHIS2AttributeMapping {
     dhis2Id?: string; // This is a front-end only, derived attribute
     externalId: string;
     terms?: {};
-    isOrgUnitGroup?: boolean;
 }
 
 export interface CGRAttrInfo {

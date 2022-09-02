@@ -60,9 +60,9 @@ import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
+import net.geoprism.registry.etl.DHIS2OptionSetAttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.DHIS2SyncLevel;
-import net.geoprism.registry.etl.DHIS2TermAttributeMapping;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
 import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache;
@@ -86,7 +86,7 @@ public class RemoteDHIS2APITest
   
   private static final Integer API_VERSION = 38;
   
-  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".0";
+  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".1.1";
   
   private static final String URL = "https://play.dhis2.org/" + VERSION + "/";
   
@@ -371,7 +371,7 @@ public class RemoteDHIS2APITest
     levels.add(level3);
     
     Collection<DHIS2AttributeMapping> mappings = getDefaultMappings();
-    DHIS2TermAttributeMapping mapping = new DHIS2TermAttributeMapping();
+    DHIS2OptionSetAttributeMapping mapping = new DHIS2OptionSetAttributeMapping();
     mapping.setCgrAttrName(attr.getAttributeName());
     mapping.setExternalId(externalAttrId);
     mappings.add(mapping);
@@ -461,7 +461,8 @@ public class RemoteDHIS2APITest
 
       Assert.assertTrue(cgrAttr.get("name").getAsString().length() > 0);
 
-      attr.get("dhis2Attrs").getAsJsonArray();
+      JsonArray strategies = attr.get("attributeMappingStrategies").getAsJsonArray();
+      Assert.assertTrue(strategies.size() > 0);
 
       Assert.assertTrue(cgrAttr.get("label").getAsString().length() > 0);
 

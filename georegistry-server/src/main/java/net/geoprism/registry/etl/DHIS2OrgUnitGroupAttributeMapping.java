@@ -18,10 +18,10 @@
  */
 package net.geoprism.registry.etl;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.slf4j.Logger;
@@ -30,22 +30,23 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.localization.LocalizationFacade;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.etl.export.dhis2.MissingDHIS2TermMapping;
-import net.geoprism.registry.etl.export.dhis2.MissingDHIS2TermOrgUnitGroupMapping;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.ServiceFactory;
 
-public class DHIS2TermAttributeMapping extends DHIS2AttributeMapping
+public class DHIS2OrgUnitGroupAttributeMapping extends DHIS2AttributeMapping
 {
   
-  private static final Logger logger = LoggerFactory.getLogger(DHIS2TermAttributeMapping.class);
+  private static final Logger logger = LoggerFactory.getLogger(DHIS2OrgUnitGroupAttributeMapping.class);
   
   private Map<String, String> terms;
   
-  private boolean isOrgUnitGroup = false;
+  protected String getLabel()
+  {
+    return LocalizationFacade.localize("sync.attr.targetTypeOrgUnitGroup");
+  }
   
   public String getTermMapping(String classifierId)
   {
@@ -60,14 +61,7 @@ public class DHIS2TermAttributeMapping extends DHIS2AttributeMapping
   @Override
   public String getAttributeMappingStrategy()
   {
-    if (attributeMappingStrategy == null || attributeMappingStrategy.length() == 0)
-    {
-      return DHIS2TermAttributeMapping.class.getName();
-    }
-    else
-    {
-      return attributeMappingStrategy;
-    }
+    return DHIS2OrgUnitGroupAttributeMapping.class.getName();
   }
   
   public Map<String, String> getTerms()
@@ -79,16 +73,6 @@ public class DHIS2TermAttributeMapping extends DHIS2AttributeMapping
   {
     this.terms = terms;
   }
-
-  public boolean isOrgUnitGroup()
-  {
-    return isOrgUnitGroup;
-  }
-
-  public void setIsOrgUnitGroup(boolean isOrgUnitGroup)
-  {
-    this.isOrgUnitGroup = isOrgUnitGroup;
-  }
   
   public boolean isStandardAttribute()
   {
@@ -97,81 +81,47 @@ public class DHIS2TermAttributeMapping extends DHIS2AttributeMapping
   
   public boolean isCustomAttribute()
   {
-    return this.isOrgUnitGroup() || super.isCustomAttribute();
+    return true;
   }
 
   @Override
-  public void writeCustomAttributes(JsonArray attributeValues, VertexServerGeoObject serverGo, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel syncLevel, String lastUpdateDate, String createDate)
+  public void writeCustomAttributes(JsonArray attributeValues, VertexServerGeoObject serverGo, Date date, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel syncLevel, String lastUpdateDate, String createDate)
   {
     ServerGeoObjectType got = syncLevel.getGeoObjectType();
     AttributeType attr = got.getAttribute(this.getCgrAttrName()).get();
     
-    Object value = serverGo.getValue(attr.getName());
+    Object value = this.getAttributeValue(serverGo, date, attr, got);
     
     if (value == null || (value instanceof String && ((String)value).length() == 0))
     {
       return;
     }
     
-    if (this.isOrgUnitGroup())
-    {
-      if (attr instanceof AttributeTermType)
-      {
-        String termId = this.getTermId(value);
-        String orgUnitGroupId = this.getTermMapping(termId);
-
-        if (orgUnitGroupId == null)
-        {
-//          MissingDHIS2TermOrgUnitGroupMapping ex = new MissingDHIS2TermOrgUnitGroupMapping();
-//          ex.setTermCode(termId);
-//          throw ex;
-        }
-        else
-        {
-          Set<String> orgUnitGroupIdSet = syncLevel.getOrgUnitGroupIdSet(orgUnitGroupId);
-          if (orgUnitGroupIdSet == null)
-          {
-            orgUnitGroupIdSet = syncLevel.newOrgUnitGroupIdSet(orgUnitGroupId);
-          }
-  
-          orgUnitGroupIdSet.add(serverGo.getExternalId(dhis2Config.getSystem()));
-        }
-      }
-      else
-      {
-        logger.error("Unsupported attribute type [" + attr.getClass().getName() + "] with name [" + attr.getName() + "] when matched to OrgUnitGroup.");
-        return;
-      }
-    }
-    else
-    {
-      super.writeCustomAttributes(attributeValues, serverGo, dhis2Config, syncLevel, lastUpdateDate, createDate);
-    }
-  }
-  
-  @Override
-  protected void writeAttributeValue(AttributeType attr, String propertyName, Object value, JsonObject av)
-  {
     if (attr instanceof AttributeTermType)
     {
       String termId = this.getTermId(value);
+      String orgUnitGroupId = this.getTermMapping(termId);
 
-      String termMapping = this.getTermMapping(termId);
-
-      if (termMapping == null)
+      if (orgUnitGroupId == null)
       {
-//        MissingDHIS2TermMapping ex = new MissingDHIS2TermMapping();
-//        ex.setTermCode(termId);
-//        throw ex;
+//          MissingDHIS2TermOrgUnitGroupMapping ex = new MissingDHIS2TermOrgUnitGroupMapping();
+//          ex.setTermCode(termId);
+//          throw ex;
       }
       else
       {
-        av.addProperty("value", termMapping);
+        Set<String> orgUnitGroupIdSet = syncLevel.getOrgUnitGroupIdSet(orgUnitGroupId);
+        if (orgUnitGroupIdSet == null)
+        {
+          orgUnitGroupIdSet = syncLevel.newOrgUnitGroupIdSet(orgUnitGroupId);
+        }
+
+        orgUnitGroupIdSet.add(serverGo.getExternalId(dhis2Config.getSystem()));
       }
     }
     else
     {
-      logger.error("Unsupported attribute type [" + attr.getClass().getName() + "] with name [" + attr.getName() + "] for mapping type [" + DHIS2TermAttributeMapping.class.getName() + "].");
+      logger.error("Unsupported attribute type [" + attr.getClass().getName() + "] with name [" + attr.getName() + "] when matched to OrgUnitGroup.");
       return;
     }
   }

@@ -39,6 +39,14 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.conversion.TermConverter;
 
+/**
+ * This dataset defines a parent Type and Geo-Object called ALL, and then creates children Types and Geo-Objects for each of the different attribute types.
+ * The ALL parent contians all custom attributes of all different data types. Each child contains one of the custom attributes.
+ * 
+ * All of the data is deleted and created again on class setup/teardown.
+ * 
+ * @author rrowlands
+ */
 public class AllAttributesDataset extends TestDataSet
 {
   public static final String                TEST_DATA_KEY                = "AllAttr";

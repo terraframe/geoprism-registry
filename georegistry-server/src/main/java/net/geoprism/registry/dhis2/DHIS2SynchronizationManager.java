@@ -192,6 +192,8 @@ public class DHIS2SynchronizationManager
     history.setWorkTotal(total);
     history.apply();
     
+    Date todaysDate = this.todaysDate();
+    
     // Now do the work
     for (DHIS2SyncLevel level : levels)
     {
@@ -208,20 +210,23 @@ public class DHIS2SynchronizationManager
           for (VertexServerGeoObject go : objects) {
             try
             {
-              this.exportGeoObject(dhis2Config, level, levels, rowIndex, go, includeTranslations);
-              
-              exportCount++;
-              
-              history.appLock();
-              history.setWorkProgress(rowIndex);
-              history.setExportedRecords(exportCount);
-              history.apply();
-              
-              if (level.getOrgUnitGroupId() != null && level.getOrgUnitGroupId().length() > 0)
+              if (go.getExists(todaysDate))
               {
-                final String externalId = go.getExternalId(es);
+                this.exportGeoObject(dhis2Config, level, levels, rowIndex, go, includeTranslations);
                 
-                level.getOrCreateOrgUnitGroupIdSet(level.getOrgUnitGroupId()).add(externalId);
+                exportCount++;
+                
+                history.appLock();
+                history.setWorkProgress(rowIndex);
+                history.setExportedRecords(exportCount);
+                history.apply();
+                
+                if (level.getOrgUnitGroupId() != null && level.getOrgUnitGroupId().length() > 0)
+                {
+                  final String externalId = go.getExternalId(es);
+                  
+                  level.getOrCreateOrgUnitGroupIdSet(level.getOrgUnitGroupId()).add(externalId);
+                }
               }
             }
             catch (DHIS2SyncError ee)

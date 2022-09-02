@@ -212,13 +212,16 @@ public class OrganisationUnitGroup
   {
     Set<String> set = new HashSet<String>();
     
-    JsonArray ja = this.organisationUnits;
-    
-    for (int i = 0; i < ja.size(); ++i)
+    if (this.organisationUnits != null)
     {
-      JsonObject joId = ja.get(i).getAsJsonObject();
+      JsonArray ja = this.organisationUnits;
       
-      set.add(joId.get("id").getAsString());
+      for (int i = 0; i < ja.size(); ++i)
+      {
+        JsonObject joId = ja.get(i).getAsJsonObject();
+        
+        set.add(joId.get("id").getAsString());
+      }
     }
     
     return set;

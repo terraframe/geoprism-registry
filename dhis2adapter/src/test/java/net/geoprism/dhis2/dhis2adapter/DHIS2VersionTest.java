@@ -42,7 +42,7 @@ public class DHIS2VersionTest
   }
   
   /**
-   * Test a server of a snapshot version.
+   * Test a version of a snapshot version.
    */
   @Test
   public void testGetVersionSnapshot() throws Exception
@@ -63,7 +63,7 @@ public class DHIS2VersionTest
   }
   
   /**
-   * Test a server with an extra digit at the end (??? why are they doing this ???)
+   * Test a version with an extra digit at the end (??? why are they doing this ???)
    */
   @Test
   public void testGetVersionFourDigits() throws Exception
@@ -84,7 +84,7 @@ public class DHIS2VersionTest
   }
   
   /**
-   * Test a server with an extra digit at the end with a snapshot
+   * Test a version with an extra digit at the end with a snapshot
    */
   @Test
   public void testGetVersionFourDigitsSanpshot() throws Exception
@@ -105,7 +105,7 @@ public class DHIS2VersionTest
   }
   
   /**
-   * Test a server with 'nightly' slapped at the end
+   * Test a version with 'nightly' slapped at the end
    */
   @Test
   public void testGetVersionNightly() throws Exception
