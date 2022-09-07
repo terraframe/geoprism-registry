@@ -417,7 +417,7 @@ public class RemoteDHIS2APITest
     history.addStage(ExportStage.CONNECTING);
     history.apply();
     
-    new DHIS2SynchronizationManager(dhis2, dhis2Config, history).synchronize();
+    new DHIS2SynchronizationManager(dhis2, dhis2Config, history, TestDataSet.DEFAULT_OVER_TIME_DATE).synchronize();
     
     history = ExportHistory.get(history.getOid());
     

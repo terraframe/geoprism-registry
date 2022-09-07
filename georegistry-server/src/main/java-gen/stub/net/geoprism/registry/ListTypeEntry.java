@@ -31,6 +31,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.SerializedListTypeCache;
 
 public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
 {
@@ -41,6 +42,14 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
   public ListTypeEntry()
   {
     super();
+  }
+  
+  @Override
+  public void apply()
+  {
+    super.apply();
+    
+    SerializedListTypeCache.getInstance().remove(this.getListTypeOid());
   }
 
   @Override

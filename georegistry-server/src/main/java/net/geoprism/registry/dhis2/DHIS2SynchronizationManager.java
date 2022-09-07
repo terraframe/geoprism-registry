@@ -98,11 +98,10 @@ public class DHIS2SynchronizationManager
   
   private Date date;
   
-  public DHIS2SynchronizationManager(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, ExportHistory history)
+  public DHIS2SynchronizationManager(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, ExportHistory history, Date date)
   {
     this.dhis2 = dhis2;
-    //this.date = todaysDate();
-    this.date = null;
+    this.date = date;
     this.history = history;
     this.dhis2Config = dhis2Config;
   }
@@ -192,8 +191,6 @@ public class DHIS2SynchronizationManager
     history.setWorkTotal(total);
     history.apply();
     
-    Date todaysDate = this.todaysDate();
-    
     // Now do the work
     for (DHIS2SyncLevel level : levels)
     {
@@ -210,7 +207,7 @@ public class DHIS2SynchronizationManager
           for (VertexServerGeoObject go : objects) {
             try
             {
-              if (go.getExists(todaysDate))
+              if (go.getExists((this.date == null) ? this.todaysDate() : this.date))
               {
                 this.exportGeoObject(dhis2Config, level, levels, rowIndex, go, includeTranslations);
                 

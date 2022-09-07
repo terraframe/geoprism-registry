@@ -100,6 +100,7 @@ import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.SearchService;
+import net.geoprism.registry.service.SerializedListTypeCache;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
@@ -245,6 +246,7 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
       // refresh because the GeoObjectType is
       // embedded in the HierarchyType
       ServiceFactory.getRegistryService().refreshMetadataCache();
+      SerializedListTypeCache.getInstance().clear();
 
       NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
     }
@@ -374,6 +376,7 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
 
     // If this did not error out then add to the cache
     ServiceFactory.getMetadataCache().refreshGeoObjectType(geoObjectTypeModifiedApplied);
+    SerializedListTypeCache.getInstance().clear();
 
     // Modifications to supertypes can affect subtypes (i.e. changing
     // isPrivate). We should refresh them as well.

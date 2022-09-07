@@ -64,6 +64,7 @@ import com.runwaysdk.system.metadata.MdLocalizable;
 import com.runwaysdk.system.metadata.Metadata;
 import com.runwaysdk.system.metadata.SupportedLocale;
 
+import net.geoprism.registry.service.SerializedListTypeCache;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.WMSService;
 
@@ -145,6 +146,7 @@ public class LocalizationService
   
       // Refresh the entire metadata cache
       ServiceFactory.getRegistryService().refreshMetadataCache();
+      SerializedListTypeCache.getInstance().clear();
       
       return LocaleView.fromSupportedLocale(supportedLocale);
     }
@@ -182,6 +184,8 @@ public class LocalizationService
     // Refresh the entire metadata cache
     ServiceFactory.getRegistryService().refreshMetadataCache();
     
+    SerializedListTypeCache.getInstance().clear();
+    
     return LocaleView.fromSupportedLocale(supportedLocale);
   }
   
@@ -207,6 +211,8 @@ public class LocalizationService
 
     // Refresh the entire metadata cache
     ServiceFactory.getRegistryService().refreshMetadataCache();
+    
+    SerializedListTypeCache.getInstance().clear();
   }
 
   @Request(RequestType.SESSION)

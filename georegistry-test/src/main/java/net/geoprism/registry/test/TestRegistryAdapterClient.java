@@ -37,6 +37,7 @@ import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.permission.PermissionContext;
+import net.geoprism.registry.service.SerializedListTypeCache;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class TestRegistryAdapterClient extends RegistryAdapter
@@ -89,6 +90,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   private void refreshRequestMetadataCache()
   {
     ServiceFactory.getRegistryService().refreshMetadataCache();
+    SerializedListTypeCache.getInstance().clear();
   }
 
   public Set<String> getGeoObjectUids(int amount)

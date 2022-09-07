@@ -18,9 +18,11 @@
  */
 package net.geoprism.registry;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.commongeoregistry.adapter.JsonDateUtil;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.Gson;
@@ -39,6 +41,7 @@ import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.etl.FhirSyncLevel;
 import net.geoprism.registry.etl.export.DataExportJob;
+import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
@@ -48,12 +51,12 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   private static final long   serialVersionUID = -1221759231;
 
   private static final String SYSTEM_LABEL     = "systemLabel";
-
+  
   public SynchronizationConfig()
   {
     super();
   }
-
+  
   @Override
   @Transaction
   public void apply()
@@ -103,7 +106,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     this.setOrganization(Organization.getByCode(orgCode));
     this.setSystem(json.get(SynchronizationConfig.SYSTEM).getAsString());
     this.setConfiguration(json.get(SynchronizationConfig.CONFIGURATION).getAsJsonObject().toString());
-
+    
     if (json.has(SynchronizationConfig.ISIMPORT))
     {
       this.setIsImport(json.get(SynchronizationConfig.ISIMPORT).getAsBoolean());
@@ -122,6 +125,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   public JsonObject toJSON()
   {
     GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(Date.class, new SeverGeoObjectJsonAdapters.DateSerializer());
     builder.registerTypeAdapter(FhirSyncLevel.class, new FhirSyncLevel.Serializer());
     builder.registerTypeAdapter(DHIS2AttributeMapping.class, new DHIS2AttributeMapping.DHIS2AttributeMappingSerializer());
     builder.serializeNulls();
@@ -170,6 +174,13 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     ExternalSystemSyncConfig config = system.configuration(this.getIsImport());
     config.setSystem(system);
     config.populate(this);
+    
+    JsonObject json = this.getConfigurationJson();
+    
+    if (json.has("date"))
+    {
+      config.setDate(JsonDateUtil.parse(json.get("date").getAsString()));
+    }
 
     return config;
   }

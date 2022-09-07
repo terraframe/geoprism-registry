@@ -104,6 +104,7 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.SerializedListTypeCache;
 
 abstract public class TestDataSet
 {
@@ -355,6 +356,8 @@ abstract public class TestDataSet
     setUpRelationships();
 
     RegistryService.getInstance().refreshMetadataCache();
+    
+    SerializedListTypeCache.getInstance().clear();
 
     setUpAfterApply();
   }

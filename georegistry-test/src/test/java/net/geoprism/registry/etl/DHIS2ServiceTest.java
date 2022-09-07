@@ -58,6 +58,7 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
@@ -65,6 +66,7 @@ import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.etl.DHIS2TestService.Dhis2Payload;
 import net.geoprism.registry.etl.dhis2.DHIS2PayloadValidator;
 import net.geoprism.registry.etl.export.ExportHistory;
+import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
@@ -213,6 +215,7 @@ public class DHIS2ServiceTest
     dhis2Config.setHierarchyCode(ht.getCode());
     dhis2Config.setLabel(new LocalizedValue("DHIS2 Export Test Data"));
     dhis2Config.setOrganization(org);
+    dhis2Config.setDate(TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     // Populate Levels
     SortedSet<DHIS2SyncLevel> levels = new TreeSet<DHIS2SyncLevel>();
@@ -234,6 +237,7 @@ public class DHIS2ServiceTest
 
     // Serialize the DHIS2 Config
     GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(Date.class, new SeverGeoObjectJsonAdapters.DateSerializer());
     String dhis2JsonConfig = builder.create().toJson(dhis2Config);
 
     // Create a SynchronizationConfig

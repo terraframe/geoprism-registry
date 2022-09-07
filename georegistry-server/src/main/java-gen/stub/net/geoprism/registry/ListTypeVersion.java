@@ -155,7 +155,7 @@ import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.ListTypeVersionPageQuery;
 import net.geoprism.registry.query.graph.BasicVertexQuery;
 import net.geoprism.registry.query.graph.BasicVertexRestriction;
-import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.SerializedListTypeCache;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.view.JsonSerializable;
@@ -224,6 +224,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       new GeoserverCreateWMSCommand(this).doIt();
     }
+    
+    SerializedListTypeCache.getInstance().remove(this.getListTypeOid());
   }
 
   private String getTableName()
@@ -760,6 +762,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       new GeoserverRemoveWMSCommand(this).doIt();
     }
+    
+    SerializedListTypeCache.getInstance().remove(this.getListTypeOid());
   }
 
   // public List<ExecutableJob> getJobs()
@@ -1619,6 +1623,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         removeAttribute(mdBusiness, attributeType.getName() + locale.toString());
       }
     }
+    
+    SerializedListTypeCache.getInstance().remove(this.getListTypeOid());
   }
 
   private void removeAttribute(MdBusinessDAOIF mdBusiness, String name)

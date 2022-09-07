@@ -118,7 +118,7 @@ public class DataExportJob extends DataExportJobBase
       DHIS2FeatureService dhis2FeatureService = new DHIS2FeatureService();
       dhis2FeatureService.setExternalSystemDhis2Version(dhis2, dhis2Config.getSystem());
 
-      new DHIS2SynchronizationManager(dhis2, dhis2Config, history).synchronize();
+      new DHIS2SynchronizationManager(dhis2, dhis2Config, history, dhis2Config.getDate()).synchronize();
     }
     else if (config instanceof FhirSyncExportConfig)
     {

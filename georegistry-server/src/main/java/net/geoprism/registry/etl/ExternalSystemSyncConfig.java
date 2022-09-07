@@ -18,13 +18,14 @@
  */
 package net.geoprism.registry.etl;
 
+import java.util.Date;
+
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.ExternalSystem;
-import net.geoprism.registry.model.ServerHierarchyType;
 
 public abstract class ExternalSystemSyncConfig
 {
@@ -33,6 +34,18 @@ public abstract class ExternalSystemSyncConfig
   private transient Organization   organization;
 
   private transient LocalizedValue label;
+  
+  private Date                          date;
+  
+  public Date getDate()
+  {
+    return date;
+  }
+
+  public void setDate(Date date)
+  {
+    this.date = date;
+  }
 
   public ExternalSystem getSystem()
   {

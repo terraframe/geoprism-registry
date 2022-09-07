@@ -67,6 +67,7 @@ import net.geoprism.registry.model.graph.GraphStrategy;
 import net.geoprism.registry.model.graph.ServerHierarchyStrategy;
 import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
+import net.geoprism.registry.service.SerializedListTypeCache;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerHierarchyType implements ServerElement, GraphType
@@ -298,6 +299,7 @@ public class ServerHierarchyType implements ServerElement, GraphType
     this.hierarchicalRelationship = HierarchicalRelationshipType.getByCode(this.hierarchicalRelationship.getCode());
 
     ServiceFactory.getMetadataCache().addHierarchyType(this);
+    SerializedListTypeCache.getInstance().clear();
   }
 
   public void update(HierarchyType hierarchyType)
@@ -550,6 +552,7 @@ public class ServerHierarchyType implements ServerElement, GraphType
 
     // MasterList.markAllAsInvalid(this, childType);
     ListType.markAllAsInvalid(this, childType);
+    SerializedListTypeCache.getInstance().clear();
 
     InheritedHierarchyAnnotation annotation = InheritedHierarchyAnnotation.get(childType.getUniversal(), this.hierarchicalRelationship);
 

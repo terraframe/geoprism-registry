@@ -595,6 +595,8 @@ public class RegistryService
 
     // If this did not error out then add to the cache
     ServiceFactory.getMetadataCache().addOrganization(org);
+    
+    SerializedListTypeCache.getInstance().clear();
 
     return ServiceFactory.getAdapter().getMetadataCache().getOrganization(org.getCode()).get();
   }
@@ -614,6 +616,8 @@ public class RegistryService
     ServiceFactory.getOrganizationPermissionService().enforceActorCanDelete();
 
     organization.delete();
+    
+    SerializedListTypeCache.getInstance().clear();
 
     // If this did not error out then remove from the cache
     ServiceFactory.getMetadataCache().removeOrganization(code);
@@ -686,6 +690,7 @@ public class RegistryService
     GeoRegistryUtil.importTypes(orgCode, istream);
 
     this.refreshMetadataCache();
+    SerializedListTypeCache.getInstance().clear();
 
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
   }

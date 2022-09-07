@@ -82,6 +82,7 @@ import net.geoprism.registry.query.graph.CompositeRestriction;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
 import net.geoprism.registry.service.LocaleSerializer;
+import net.geoprism.registry.service.SerializedListTypeCache;
 import net.geoprism.registry.service.ServiceFactory;
 
 public abstract class ListType extends ListTypeBase
@@ -143,6 +144,8 @@ public abstract class ListType extends ListTypeBase
     {
       throw new InvalidMasterListCodeException("The list code has an invalid character");
     }
+    
+    SerializedListTypeCache.getInstance().remove(this.getOid());
 
     super.apply();
   }
@@ -1020,6 +1023,8 @@ public abstract class ListType extends ListTypeBase
         }
       }
     }
+    
+    SerializedListTypeCache.getInstance().clear();
   }
 
   public static void createMdAttribute(ServerGeoObjectType type, AttributeType attributeType)

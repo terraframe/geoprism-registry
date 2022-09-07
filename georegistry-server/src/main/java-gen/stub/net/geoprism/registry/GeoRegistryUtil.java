@@ -62,6 +62,8 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   private static final long    serialVersionUID = 2034796376;
 
   public static final TimeZone SYSTEM_TIMEZONE  = TimeZone.getTimeZone("UTC");
+  
+  public static final String LOCAL_DATE_FORMAT = "yyyy-MM-dd";
 
   public GeoRegistryUtil()
   {
@@ -77,7 +79,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     if (!includeTime)
     {
-      SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+      SimpleDateFormat formatter = new SimpleDateFormat(LOCAL_DATE_FORMAT);
       formatter.setTimeZone(SYSTEM_TIMEZONE);
       return formatter.format(date);
     }

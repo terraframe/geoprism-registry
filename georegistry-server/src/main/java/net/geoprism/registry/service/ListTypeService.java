@@ -300,9 +300,7 @@ public class ListTypeService
   @Request(RequestType.SESSION)
   public JsonObject getEntries(String sessionId, String oid)
   {
-    ListType listType = ListType.get(oid);
-
-    return listType.toJSON(true);
+    return SerializedListTypeCache.getInstance().getOrFetchByOid(oid);
   }
 
   @Request(RequestType.SESSION)
