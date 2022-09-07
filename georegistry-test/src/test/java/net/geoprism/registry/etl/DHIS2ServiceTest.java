@@ -201,9 +201,14 @@ public class DHIS2ServiceTest
   {
     return createSyncConfig(system, additionalLevel, true);
   }
+  
+  public static SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel, boolean apply)
+  {
+    return createSyncConfig(system, additionalLevel, apply, TestDataSet.DEFAULT_OVER_TIME_DATE, false);
+  }
 
   @Request
-  public static SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel, boolean apply)
+  public static SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel, boolean apply, Date date, boolean syncNonExist)
   {
     // Define reusable objects
     final ServerHierarchyType ht = AllAttributesDataset.HIER.getServerObject();
@@ -215,7 +220,8 @@ public class DHIS2ServiceTest
     dhis2Config.setHierarchyCode(ht.getCode());
     dhis2Config.setLabel(new LocalizedValue("DHIS2 Export Test Data"));
     dhis2Config.setOrganization(org);
-    dhis2Config.setDate(TestDataSet.DEFAULT_OVER_TIME_DATE);
+    dhis2Config.setDate(date);
+    dhis2Config.setSyncNonExistent(syncNonExist);
 
     // Populate Levels
     SortedSet<DHIS2SyncLevel> levels = new TreeSet<DHIS2SyncLevel>();
@@ -283,8 +289,13 @@ public class DHIS2ServiceTest
 
     return mappings;
   }
-
+  
   private void exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, DHIS2AttributeMapping mapping) throws InterruptedException
+  {
+    exportCustomAttribute(got, go, attr, mapping, TestDataSet.DEFAULT_OVER_TIME_DATE, false);
+  }
+
+  private void exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, DHIS2AttributeMapping mapping, Date date, boolean syncNonExist) throws InterruptedException
   {
     /*
      * Create a config
@@ -308,7 +319,7 @@ public class DHIS2ServiceTest
 
     level2.setMappings(mappings);
 
-    SynchronizationConfig config = createSyncConfig(this.system, level2);
+    SynchronizationConfig config = createSyncConfig(this.system, level2, true, date, syncNonExist);
 
     /*
      * Run the sync service
@@ -322,22 +333,30 @@ public class DHIS2ServiceTest
      * Validate the payloads
      */
     LinkedList<Dhis2Payload> payloads = this.dhis2.getPayloads();
-    Assert.assertEquals((mapping instanceof DHIS2OrgUnitGroupAttributeMapping) ? 3 : 2, payloads.size());
-
-    for (int level = 0; level < payloads.size(); ++level)
+    
+    if (TestDataSet.DEFAULT_OVER_TIME_DATE.equals(date))
     {
-      Dhis2Payload payload = payloads.get(level);
-
-      JsonObject joPayload = JsonParser.parseString(payload.getData()).getAsJsonObject();
-
-      if (level == 0 || level == 1)
+      Assert.assertEquals((mapping instanceof DHIS2OrgUnitGroupAttributeMapping) ? 3 : 2, payloads.size());
+  
+      for (int level = 0; level < payloads.size(); ++level)
       {
-        DHIS2PayloadValidator.orgUnit(go, attr, mapping, level, joPayload);
+        Dhis2Payload payload = payloads.get(level);
+  
+        JsonObject joPayload = JsonParser.parseString(payload.getData()).getAsJsonObject();
+  
+        if (level == 0 || level == 1)
+        {
+          DHIS2PayloadValidator.orgUnit(go, attr, mapping, level, joPayload);
+        }
+        else
+        {
+          DHIS2PayloadValidator.orgUnitGroup(go, attr, (DHIS2OrgUnitGroupAttributeMapping) mapping, level, joPayload);
+        }
       }
-      else
-      {
-        DHIS2PayloadValidator.orgUnitGroup(go, attr, (DHIS2OrgUnitGroupAttributeMapping) mapping, level, joPayload);
-      }
+    }
+    else if (!TestDataSet.DEFAULT_OVER_TIME_DATE.equals(date) && !syncNonExist)
+    {
+      Assert.assertEquals(0, payloads.size());
     }
   }
 
@@ -368,6 +387,13 @@ public class DHIS2ServiceTest
   // Assert.assertEquals(1, attributes.size());
   // }
 
+  @Test
+  @Request
+  public void testSyncNonExist() throws Exception
+  {
+    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR, null, new Date(), false);
+  }
+  
   @Test
   @Request
   public void testExportCharacterAttr() throws Exception

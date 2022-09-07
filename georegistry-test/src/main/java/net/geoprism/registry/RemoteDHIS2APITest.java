@@ -65,6 +65,7 @@ import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.DHIS2SyncLevel;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
+import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
@@ -346,6 +347,7 @@ public class RemoteDHIS2APITest
     dhis2Config.setHierarchy(ht);
     dhis2Config.setLabel(new LocalizedValue("DHIS2 Export Test Data"));
     dhis2Config.setOrganization(org);
+    dhis2Config.setDate(TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     // Populate Levels
     SortedSet<DHIS2SyncLevel> levels = new TreeSet<DHIS2SyncLevel>();
@@ -387,6 +389,7 @@ public class RemoteDHIS2APITest
 
     // Serialize the DHIS2 Config
     GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(Date.class, new SeverGeoObjectJsonAdapters.DateSerializer());
     String dhis2JsonConfig = builder.create().toJson(dhis2Config);
 
     // Create a SynchronizationConfig
@@ -417,7 +420,7 @@ public class RemoteDHIS2APITest
     history.addStage(ExportStage.CONNECTING);
     history.apply();
     
-    new DHIS2SynchronizationManager(dhis2, dhis2Config, history, TestDataSet.DEFAULT_OVER_TIME_DATE).synchronize();
+    new DHIS2SynchronizationManager(dhis2, dhis2Config, history).synchronize();
     
     history = ExportHistory.get(history.getOid());
     

@@ -35,7 +35,19 @@ public abstract class ExternalSystemSyncConfig
 
   private transient LocalizedValue label;
   
+  private Boolean                       syncNonExistent = true;
+  
   private Date                          date;
+  
+  public Boolean getSyncNonExistent()
+  {
+    return syncNonExistent;
+  }
+
+  public void setSyncNonExistent(Boolean syncNonExistent)
+  {
+    this.syncNonExistent = syncNonExistent;
+  }
   
   public Date getDate()
   {

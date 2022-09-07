@@ -111,7 +111,7 @@ public class DHIS2FeatureService
     }
     else if (type.getName().equals(DefaultAttribute.EXISTS.getName()))
     {
-//      strategies.add(new DHIS2AttributeMapping(DefaultAttribute.EXISTS.getName()));
+      strategies.add(new DHIS2AttributeMapping(DefaultAttribute.EXISTS.getName()));
       strategies.add(new DHIS2StartDateAttributeMapping());
       strategies.add(new DHIS2EndDateAttributeMapping());
     }

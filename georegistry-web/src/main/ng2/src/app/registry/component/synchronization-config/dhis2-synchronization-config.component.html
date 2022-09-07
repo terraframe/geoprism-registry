@@ -13,6 +13,15 @@
           </div>
         </div>
         
+        <div class="row-holder">
+          <div class="label-holder">
+	          <label><localize key="sync.nonExistent"></localize></label>
+          </div>
+          <div class="holder" style="margin-top:9px;">
+            <boolean-field [(value)]="config.configuration.syncNonExistent"></boolean-field>
+          </div>
+        </div>
+        
         <div *ngIf="config.configuration.hierarchyCode != null" class="row-holder" >
       
           <div class="label-holder">

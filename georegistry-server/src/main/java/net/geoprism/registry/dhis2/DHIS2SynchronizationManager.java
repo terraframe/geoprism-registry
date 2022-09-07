@@ -96,12 +96,9 @@ public class DHIS2SynchronizationManager
   
   private ExportHistory history;
   
-  private Date date;
-  
-  public DHIS2SynchronizationManager(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, ExportHistory history, Date date)
+  public DHIS2SynchronizationManager(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, ExportHistory history)
   {
     this.dhis2 = dhis2;
-    this.date = date;
     this.history = history;
     this.dhis2Config = dhis2Config;
   }
@@ -207,7 +204,7 @@ public class DHIS2SynchronizationManager
           for (VertexServerGeoObject go : objects) {
             try
             {
-              if (go.getExists((this.date == null) ? this.todaysDate() : this.date))
+              if (this.dhis2Config.getSyncNonExistent() || go.getExists((dhis2Config.getDate() == null) ? this.todaysDate() : dhis2Config.getDate()))
               {
                 this.exportGeoObject(dhis2Config, level, levels, rowIndex, go, includeTranslations);
                 
@@ -391,7 +388,7 @@ public class DHIS2SynchronizationManager
       }
 
       GsonBuilder builder = new GsonBuilder();
-      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(dhis2, dhis2Config, level, this.date));
+      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(dhis2, dhis2Config, level, dhis2Config.getDate()));
       
       orgUnitJsonTree = builder.create().toJsonTree(serverGo, serverGo.getClass()).getAsJsonObject();
       orgUnitJson = orgUnitJsonTree.toString();
@@ -517,7 +514,7 @@ public class DHIS2SynchronizationManager
     for (VertexObject vObject : vObjects)
     {
       VertexServerGeoObject vSGO = new VertexServerGeoObject(got, vObject);
-      vSGO.setDate(this.date);
+      vSGO.setDate(dhis2Config.getDate());
 
       response.add(vSGO);
     }

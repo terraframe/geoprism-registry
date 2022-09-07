@@ -22,6 +22,13 @@
           <attribute name="defaultLocale" value="Boolean" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.nonExistent">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.nonExistent" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Sync Non-Existent Geo-Objects" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create></create>
     <update></update>

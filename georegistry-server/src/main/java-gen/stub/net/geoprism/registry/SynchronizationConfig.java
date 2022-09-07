@@ -48,9 +48,13 @@ import net.geoprism.registry.view.JsonSerializable;
 
 public class SynchronizationConfig extends SynchronizationConfigBase implements JsonSerializable
 {
-  private static final long   serialVersionUID = -1221759231;
+  private static final long   serialVersionUID          = -1221759231;
 
-  private static final String SYSTEM_LABEL     = "systemLabel";
+  private static final String SYSTEM_LABEL              = "systemLabel";
+  
+  public static final String FIELD_DATE                 = "date";
+  
+  public static final String FIELD_SYNC_NONEXIST        = "syncNonExistent";
   
   public SynchronizationConfig()
   {
@@ -177,9 +181,18 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     
     JsonObject json = this.getConfigurationJson();
     
-    if (json.has("date"))
+    if (json.has(FIELD_DATE) && !json.get(FIELD_DATE).isJsonNull())
     {
-      config.setDate(JsonDateUtil.parse(json.get("date").getAsString()));
+      config.setDate(JsonDateUtil.parse(json.get(FIELD_DATE).getAsString()));
+    }
+    
+    if (json.has(FIELD_SYNC_NONEXIST) && !json.get(FIELD_SYNC_NONEXIST).isJsonNull())
+    {
+      config.setSyncNonExistent(json.get(FIELD_SYNC_NONEXIST).getAsBoolean());
+    }
+    else
+    {
+      config.setSyncNonExistent(true);
     }
 
     return config;
