@@ -649,12 +649,17 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     throw new UnsupportedOperationException();
   }
-
+  
   public List<VertexServerGeoObject> getAncestors(ServerHierarchyType hierarchy)
+  {
+    return getAncestors(hierarchy, false);
+  }
+
+  public List<VertexServerGeoObject> getAncestors(ServerHierarchyType hierarchy, boolean includeNonExist)
   {
     List<VertexServerGeoObject> list = new LinkedList<VertexServerGeoObject>();
 
-    GraphQuery<VertexObject> query = buildAncestorQuery(hierarchy);
+    GraphQuery<VertexObject> query = buildAncestorQuery(hierarchy, includeNonExist);
 
     List<VertexObject> results = query.getResults();
 
@@ -829,7 +834,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   // return map;
   // }
 
-  private GraphQuery<VertexObject> buildAncestorQuery(ServerHierarchyType hierarchy)
+  private GraphQuery<VertexObject> buildAncestorQuery(ServerHierarchyType hierarchy, boolean includeNonExist)
   {
     String dbClassName = this.getMdClass().getDBClassName();
 
@@ -839,7 +844,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       statement.append("MATCH ");
       statement.append("{class:" + dbClassName + ", where: (@rid=:rid)}");
       statement.append(".in('" + hierarchy.getMdEdge().getDBClassName() + "')");
-      statement.append("{as: ancestor, where: (exists=true AND invalid=false), while: (true)}");
+      
+      String existCriteria = includeNonExist ? "" : "exists=true AND";
+      statement.append("{as: ancestor, where: (" + existCriteria + " invalid=false), while: (true)}");
+      
       statement.append("RETURN $elements");
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
@@ -853,7 +861,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       statement.append("MATCH ");
       statement.append("{class:" + dbClassName + ", where: (@rid=:rid)}");
       statement.append(".(inE('" + hierarchy.getMdEdge().getDBClassName() + "'){where: (:date BETWEEN startDate AND endDate)}.outV())");
-      statement.append("{as: ancestor, where: (invalid=false AND exists_cot CONTAINS (value=true AND :date BETWEEN startDate AND endDate )), while: (true)}");
+      
+      String existCriteria = includeNonExist ? "" : "AND exists_cot CONTAINS (value=true AND :date BETWEEN startDate AND endDate )";
+      statement.append("{as: ancestor, where: (invalid=false " + existCriteria + "), while: (true)}");
+      
       statement.append("RETURN $elements");
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());

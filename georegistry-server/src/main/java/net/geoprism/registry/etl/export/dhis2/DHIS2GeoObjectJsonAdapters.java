@@ -85,9 +85,7 @@ public class DHIS2GeoObjectJsonAdapters
 
     private DHIS2SyncConfig     dhis2Config;
     
-    private Date                date;
-
-    public DHIS2Serializer(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel syncLevel, Date date)
+    public DHIS2Serializer(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel syncLevel)
     {
       this.got = syncLevel.getGeoObjectType();
       this.hierarchyType = dhis2Config.getHierarchy();
@@ -96,7 +94,6 @@ public class DHIS2GeoObjectJsonAdapters
       this.syncLevel = syncLevel;
       this.levels = dhis2Config.getLevels();
       this.dhis2Config = dhis2Config;
-      this.date = date;
 
       this.calculateDepth();
     }
@@ -225,7 +222,7 @@ public class DHIS2GeoObjectJsonAdapters
       {
         for (DHIS2AttributeMapping mapping : this.syncLevel.getMappings())
         {
-          mapping.writeStandardAttributes(serverGo, this.date, jo, this.dhis2Config, this.syncLevel);
+          mapping.writeStandardAttributes(serverGo, this.dhis2Config.getDate(), jo, this.dhis2Config, this.syncLevel);
         }
       }
       
@@ -291,7 +288,7 @@ public class DHIS2GeoObjectJsonAdapters
       {
         for (DHIS2AttributeMapping mapping : this.syncLevel.getMappings())
         {
-          mapping.writeCustomAttributes(attributeValues, serverGo, this.date, this.dhis2Config, this.syncLevel, lastUpdateDate, createDate);
+          mapping.writeCustomAttributes(attributeValues, serverGo, this.dhis2Config.getDate(), this.dhis2Config, this.syncLevel, lastUpdateDate, createDate);
         }
       }
 
@@ -389,7 +386,7 @@ public class DHIS2GeoObjectJsonAdapters
       
       List<String> ancestorExternalIds = new ArrayList<String>();
 
-      List<VertexServerGeoObject> ancestors = serverGo.getAncestors(this.hierarchyType);
+      List<VertexServerGeoObject> ancestors = serverGo.getAncestors(this.hierarchyType, this.dhis2Config.getSyncNonExistent());
 
       Collections.reverse(ancestors);
       
@@ -422,7 +419,7 @@ public class DHIS2GeoObjectJsonAdapters
         ex.setSyncLevel(String.valueOf(parentSyncLevel.getLevel()+1));
         ex.setTypeCode(parentSyncLevel.getGeoObjectType().getCode());
         ex.setHierarchyCode(this.hierarchyType.getCode());
-        ex.setDateLabel(GeoRegistryUtil.formatIso8601(this.date, false));
+        ex.setDateLabel(GeoRegistryUtil.formatIso8601(this.dhis2Config.getDate(), false));
         throw ex;
       }
       
@@ -434,7 +431,7 @@ public class DHIS2GeoObjectJsonAdapters
         ex.setSyncLevel(String.valueOf(parentSyncLevel.getLevel()+1));
         ex.setTypeCode(parentSyncLevel.getGeoObjectType().getCode());
         ex.setHierarchyCode(this.hierarchyType.getCode());
-        ex.setDateLabel(GeoRegistryUtil.formatIso8601(this.date, false));
+        ex.setDateLabel(GeoRegistryUtil.formatIso8601(this.dhis2Config.getDate(), false));
         throw ex;
       }
 

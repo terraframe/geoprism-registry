@@ -24,7 +24,7 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-export ORIENTDB_CONTAINER_NAME=orientdb
+export ORIENTDB_CONTAINER_NAME=cgr-orientdb
 export ORIENTDB_ROOT_PASS=root
 
 # Exit immediately if anything errors out

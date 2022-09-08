@@ -204,7 +204,10 @@ public class DHIS2SynchronizationManager
           for (VertexServerGeoObject go : objects) {
             try
             {
-              if (this.dhis2Config.getSyncNonExistent() || go.getExists((dhis2Config.getDate() == null) ? this.todaysDate() : dhis2Config.getDate()))
+              if ( !go.getInvalid() && (
+                     this.dhis2Config.getSyncNonExistent() || go.getExists((dhis2Config.getDate() == null) ? this.todaysDate() : dhis2Config.getDate())
+                   )
+                 )
               {
                 this.exportGeoObject(dhis2Config, level, levels, rowIndex, go, includeTranslations);
                 
@@ -388,7 +391,7 @@ public class DHIS2SynchronizationManager
       }
 
       GsonBuilder builder = new GsonBuilder();
-      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(dhis2, dhis2Config, level, dhis2Config.getDate()));
+      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(dhis2, dhis2Config, level));
       
       orgUnitJsonTree = builder.create().toJsonTree(serverGo, serverGo.getClass()).getAsJsonObject();
       orgUnitJson = orgUnitJsonTree.toString();

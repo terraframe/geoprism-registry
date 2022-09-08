@@ -334,7 +334,7 @@ public class DHIS2ServiceTest
      */
     LinkedList<Dhis2Payload> payloads = this.dhis2.getPayloads();
     
-    if (TestDataSet.DEFAULT_OVER_TIME_DATE.equals(date))
+    if (syncNonExist || TestDataSet.DEFAULT_OVER_TIME_DATE.equals(date))
     {
       Assert.assertEquals((mapping instanceof DHIS2OrgUnitGroupAttributeMapping) ? 3 : 2, payloads.size());
   
@@ -354,7 +354,7 @@ public class DHIS2ServiceTest
         }
       }
     }
-    else if (!TestDataSet.DEFAULT_OVER_TIME_DATE.equals(date) && !syncNonExist)
+    else if (!syncNonExist && !TestDataSet.DEFAULT_OVER_TIME_DATE.equals(date))
     {
       Assert.assertEquals(0, payloads.size());
     }
@@ -389,9 +389,21 @@ public class DHIS2ServiceTest
 
   @Test
   @Request
-  public void testSyncNonExist() throws Exception
+  public void testDontSyncNonExist() throws Exception
   {
     exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR, null, new Date(), false);
+  }
+  
+  @Test
+  @Request
+  public void testDoSyncNonExist() throws Exception
+  {
+    // We have to use the TestDataSet date otherwise the parent reference won't exist. So we'll just say the child doesn't exist at this date.
+    ServerGeoObjectIF sgo = AllAttributesDataset.GO_CHAR.getServerObject();
+    sgo.setExists(false, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_OVER_TIME_DATE);
+    sgo.apply(false);
+    
+    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR, null, TestDataSet.DEFAULT_OVER_TIME_DATE, true);
   }
   
   @Test
