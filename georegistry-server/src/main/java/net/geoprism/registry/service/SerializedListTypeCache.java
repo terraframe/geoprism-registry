@@ -78,18 +78,21 @@ public class SerializedListTypeCache
     }
   }
   
-  public synchronized JsonObject getOrFetchByOid(String oid)
+  public JsonObject getOrFetchByOid(String oid)
   {
-    JsonObject json = this.cache.get(this.hash(oid));
-    
-    if (json == null)
+    synchronized(this.cache)
     {
-      json = ListType.get(oid).toJSON(true);
+      JsonObject json = this.cache.get(this.hash(oid));
       
-      this.cache.put(this.hash(oid), json);
+      if (json == null)
+      {
+        json = ListType.get(oid).toJSON(true);
+        
+        this.cache.put(this.hash(oid), json);
+      }
+      
+      return json;
     }
-    
-    return json;
   }
   
   public void clear()
