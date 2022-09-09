@@ -1,5 +1,6 @@
 package net.geoprism.registry.service;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,8 +14,6 @@ import net.geoprism.registry.ListType;
 
 public class SerializedListTypeCache
 {
-  public static final String SEPARATOR = "$@~";
-  
   public static SerializedListTypeCache INSTANCE = null;
   
   protected Map<String, JsonObject> cache;
@@ -42,13 +41,13 @@ public class SerializedListTypeCache
   @SuppressWarnings("serial")
   private void init(int cacheSize)
   {
-    this.cache = new LinkedHashMap<String, JsonObject>(cacheSize + 1, .75F, true)
+    this.cache = Collections.synchronizedMap(new LinkedHashMap<String, JsonObject>(cacheSize + 1, .75F, true)
     {
       public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
       {
         return size() > cacheSize;
       }
-    };
+    });
   }
   
   public long getSize()
@@ -79,7 +78,7 @@ public class SerializedListTypeCache
     }
   }
   
-  public JsonObject getOrFetchByOid(String oid)
+  public synchronized JsonObject getOrFetchByOid(String oid)
   {
     JsonObject json = this.cache.get(this.hash(oid));
     

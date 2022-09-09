@@ -49,9 +49,8 @@ git pull
 mvn install
 
 # Run Docker containers
-sudo docker start postgres
-sudo docker start orientdb
-sudo docker start postgres
+sudo docker start cgr-postgres
+sudo docker start cgr-orientdb
 
 # Kill any running tomcat
 pkill -f -SIGINT catalina || true
