@@ -1,4 +1,4 @@
-<div id="relationship-visualizer-root-node" *ngIf="params.code" style="height:100%; overflow:hidden;">
+<div id="relationship-visualizer-root-node" *ngIf="state.code" style="height:100%; overflow:hidden;">
 
   <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.OVERLAY" type="ball-clip-rotate-multiple" size="medium">
   </ngx-spinner>
@@ -45,12 +45,12 @@
             <ng-template #nodeTemplate let-node>
               <svg:g (click)="onClickNode(node)" class="node" [style.cursor]="node.relation === 'SELECTED' ? 'default' : 'pointer'" >
                 <svg:polygon *ngIf="node.objectType === 'GEOOBJECT'" [attr.points]="getHexagonPoints(node)"
-                  [attr.fill]="params.code == null ? node.data.color : this.typeLegend[node.typeCode].color"
+                  [attr.fill]="state.code == null ? node.data.color : this.typeLegend[node.typeCode].color"
                   ></polygon>
                 <svg:rect *ngIf="node.objectType === 'BUSINESS'" [attr.width]="DIMENSIONS.NODE.WIDTH" [attr.height]="DIMENSIONS.NODE.HEIGHT"
                           [attr.y]="DIMENSIONS.NODE.HEIGHT/2"
                           [attr.x]="(this.relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? (this.DIMENSIONS.LABEL.WIDTH / 2 - this.DIMENSIONS.NODE.WIDTH / 2) : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 - this.DIMENSIONS.NODE.WIDTH / 2) : node.relation === 'PARENT' ? (this.DIMENSIONS.LABEL.WIDTH + this.DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.PADDING.NODE_EDGE) : this.DIMENSIONS.PADDING.NODE_EDGE"
-                          [attr.fill]="params.code == null ? node.data.color : this.typeLegend[node.typeCode].color"
+                          [attr.fill]="state.code == null ? node.data.color : this.typeLegend[node.typeCode].color"
                 ></svg:rect>
 
                 <foreignObject
@@ -59,7 +59,7 @@
                   [attr.width]="(relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? DIMENSIONS.LABEL.WIDTH : DIMENSIONS.LABEL.WIDTH) : (DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL*8)" [attr.height]="DIMENSIONS.LABEL.HEIGHT">
                   <span [style]="'width:' + DIMENSIONS.LABEL.WIDTH + 'px; height:' + DIMENSIONS.LABEL.HEIGHT + 'px; overflow:hidden; display: inline-block;'">
                     <p xmlns="http://www.w3.org/1999/xhtml" text-anchor="start"
-                      [ngStyle]="{'text-align': (relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? 'center' : 'left') : node.relation === 'SELECTED' ? 'left' : (node.relation === 'PARENT' ? 'right' : 'left'), 'color': node.relation === 'SELECTED' ? SELECTED_NODE_COLOR : 'unset', 'font-weight': ('g-' + params.uid) === node.id ? 'bold' : 'unset'}"
+                      [ngStyle]="{'text-align': (relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? 'center' : 'left') : node.relation === 'SELECTED' ? 'left' : (node.relation === 'PARENT' ? 'right' : 'left'), 'color': node.relation === 'SELECTED' ? SELECTED_NODE_COLOR : 'unset', 'font-weight': ('g-' + state.uid) === node.id ? 'bold' : 'unset'}"
                       [style]="'font-size: ' + DIMENSIONS.LABEL.FONTSIZE + 'px; display: table-cell; vertical-align: middle; height:' + DIMENSIONS.LABEL.HEIGHT + 'px; width:' + DIMENSIONS.LABEL.WIDTH + 'px; line-height:' + DIMENSIONS.LABEL.FONTSIZE + 'px;'">
                       {{node.label}}</p>
                   </span>

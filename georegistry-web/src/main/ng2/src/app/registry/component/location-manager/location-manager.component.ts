@@ -51,7 +51,7 @@ class SelectedObject {
 
 }
 
-export interface LocationManagerParams {
+export interface LocationManagerState {
     layers?: string,
     graphPanelOpen?: string,
     graphOid?: string,
@@ -101,7 +101,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
     data: GeoObject[] = [];
 
-    state: LocationManagerParams = { attrPanelOpen: "true" };
+    state: LocationManagerState = { attrPanelOpen: "true" };
 
     /*
      * Currently selected record
@@ -140,8 +140,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     showPanel: boolean = true;
 
     backReference: string;
-
-    urlParams: LocationManagerParams;
 
     /*
      * List of base layers
@@ -225,12 +223,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     ngOnInit(): void {
         this.windowWidth = window.innerWidth;
         this.windowHeight = window.innerHeight;
+        
+        this.subscription = this.route.queryParams.subscribe(state => {
+            // this.state = state;
 
-        this.subscription = this.route.queryParams.subscribe(params => {
-            this.urlParams = params;
-
-            this.handleStateChange(params);
+            this.handleStateChange(state);
         });
+
+        // this.subscription = this.locationManagerService.stateEmitter.subscribe(state => this.handleStateChange(state));
 
         this.searchEnabled = registry.searchEnabled && (this.authService.isRC(false) || this.authService.isRM() || this.authService.isRA());
         this.graphVisualizerEnabled = registry.graphVisualizerEnabled || false;
@@ -308,11 +308,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    _updateState(newState: LocationManagerParams): void {
+    _updateState(newState: LocationManagerState): void {
         this.router.navigate([], {
             relativeTo: this.route,
             queryParams: newState,
-            queryParamsHandling: "merge"
+            queryParamsHandling: "merge",
+            replaceUrl: true
         });
     }
 
@@ -343,7 +344,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     * the model of the widget needs to be updated or not.
     *
     * */
-    handleStateChange(newState: LocationManagerParams): void {
+    handleStateChange(newState: LocationManagerState): void {
         newState = JSON.parse(JSON.stringify(newState));
         let oldState = JSON.parse(JSON.stringify(this.state));
 
@@ -526,7 +527,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
         });
 
-        this.handleStateChange(this.urlParams);
+        this.handleStateChange(this.state);
     }
 
     onCreate(layer: any): void {
@@ -866,8 +867,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     selectGeoObject(geoObject: GeoObject): void {
         this.closeEditSessionSafeguard().then(() => {
             this.addLayerForGeoObject(geoObject);
-
+            
+            window.setTimeout(() => {
             this.updateState({ type: geoObject.properties.type, code: geoObject.properties.code, objectType: "GEOOBJECT", uid: geoObject.properties.uid, version: null, text: null });
+            },60);
         });
     }
 

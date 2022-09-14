@@ -14,7 +14,7 @@ import { ListTypeService } from "./list-type.service";
 import { LayerGroupSorter, LayerSorter } from "@registry/component/location-manager/layer-group";
 import { LocalizationService } from "@shared/service/localization.service";
 import { LayerDiffingStrategy } from "./layer-diffing-strategy";
-import { LocationManagerParams } from "@registry/component/location-manager/location-manager.component";
+import { LocationManagerState } from "@registry/component/location-manager/location-manager.component";
 import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
 import { debounce } from "ts-debounce";
 
@@ -69,7 +69,7 @@ export class GeometryService implements OnDestroy {
      */
     syncWithUrlParams: boolean = false;
 
-    params: LocationManagerParams = null;
+    params: LocationManagerState = null;
 
     dataSourceFactory: DataSourceFactory;
 
@@ -143,7 +143,7 @@ export class GeometryService implements OnDestroy {
     }
 
     handleParameterChange(params: Params): void {
-        this.params = params as LocationManagerParams;
+        this.params = params as LocationManagerState;
 
         if (this.params != null) {
             if (this.params.layers != null) {
@@ -321,7 +321,8 @@ export class GeometryService implements OnDestroy {
             this.router.navigate([], {
                 relativeTo: this.route,
                 queryParams: { layers: JSON.stringify(serialized) },
-                queryParamsHandling: "merge" // remove to replace all query params by provided
+                queryParamsHandling: "merge", // remove to replace all query params by provided
+                replaceUrl: true
             });
         } else {
             this.syncMapState();

@@ -139,7 +139,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         this.router.navigate([], {
             relativeTo: this.route,
             queryParams: { layersPanelSize: this.panelSize },
-            queryParamsHandling: "merge"
+            queryParamsHandling: "merge",
+            replaceUrl: true
         });
     }
 

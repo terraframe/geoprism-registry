@@ -21,7 +21,7 @@ import { GeometryService } from "@registry/service";
 import { Router, ActivatedRoute } from "@angular/router";
 import { LngLatBounds } from "mapbox-gl";
 import { ObjectReference, RelatedType, Relationship, TreeData, Vertex } from "@registry/model/graph";
-import { LocationManagerParams } from "../location-manager/location-manager.component";
+import { LocationManagerState } from "../location-manager/location-manager.component";
 import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
@@ -58,7 +58,7 @@ export class RelationshipVisualizerComponent implements OnInit {
         ORIENTATION: Orientation
     }
 
-    params: LocationManagerParams = {};
+    state: LocationManagerState = {};
 
     @Output() nodeSelect = new EventEmitter<Vertex>();
 
@@ -92,7 +92,7 @@ export class RelationshipVisualizerComponent implements OnInit {
 
     onFetchErrorSub: Subscription;
 
-    queryParamSub: Subscription;
+    stateSub: Subscription;
 
     panelOpen: boolean = true;
 
@@ -112,43 +112,43 @@ export class RelationshipVisualizerComponent implements OnInit {
     ngOnInit(): void {
         this.typeCache = this.cacheService.getTypeCache();
 
-        this.queryParamSub = this.route.queryParams.subscribe((params) => { this.queryParamChanges(params); });
+        this.stateSub = this.route.queryParams.subscribe((state) => { this.stateChange(state); });
 
-        // Angular keeps invoking our queryParamChanges in the early stages of component loading. We don't want to make expensive
-        // data requests unless we're certain that all the params are loaded.
+        // Angular keeps invoking our listener in the early stages of component loading. We don't want to make expensive
+        // data requests unless we're certain that all the state are loaded.
         window.setTimeout(() => {
             this.loading = false;
 
-            this.queryParamChanges(this.params);
+            this.stateChange(this.state);
         }, 10);
     }
 
     ngOnDestroy(): void {
-        this.queryParamSub.unsubscribe();
+        this.stateSub.unsubscribe();
     }
 
-    queryParamChanges(params) {
-        if (params.type == null || params.code == null) {
+    stateChange(state) {
+        if (state.type == null || state.code == null) {
             return;
         }
 
-        let newParams = JSON.parse(JSON.stringify(params));
-        let oldParams = JSON.parse(JSON.stringify(this.params));
-        this.params = newParams;
+        let newState = JSON.parse(JSON.stringify(state));
+        let oldState = JSON.parse(JSON.stringify(this.state));
+        this.state = newState;
 
-        this.panelOpen = newParams.graphPanelOpen === "true";
+        this.panelOpen = newState.graphPanelOpen === "true";
 
-        if (newParams.graphOid && newParams.graphOid !== oldParams.graphOid && this.relationships != null) {
+        if (newState.graphOid && newState.graphOid !== oldState.graphOid && this.relationships != null) {
             this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
         }
 
         if (!this.loading) {
-            if (this.relationships == null || this.relationship == null || newParams.objectType !== oldParams.objectType || newParams.type !== oldParams.type) {
+            if (this.relationships == null || this.relationship == null || newState.objectType !== oldState.objectType || newState.type !== oldState.type) {
                 this.relationships = null;
                 this.graphOid = null;
                 this.data = null;
                 this.fetchRelationships();
-            } else if (this.relationships != null && this.relationship && ((this.restrictToMapBounds && newParams.bounds !== oldParams.bounds) || newParams.code !== oldParams.code || newParams.date !== oldParams.date || newParams.uid !== oldParams.uid || newParams.graphOid !== oldParams.graphOid)) {
+            } else if (this.relationships != null && this.relationship && ((this.restrictToMapBounds && newState.bounds !== oldState.bounds) || newState.code !== oldState.code || newState.date !== oldState.date || newState.uid !== oldState.uid || newState.graphOid !== oldState.graphOid)) {
                 this.fetchData();
             }
         }
@@ -191,20 +191,20 @@ export class RelationshipVisualizerComponent implements OnInit {
     }
 
     private fetchRelationships(): void {
-        if (this.params.type != null) {
+        if (this.state.type != null) {
             this.relationships = [];
             this.spinner.show(this.CONSTANTS.OVERLAY);
 
-            this.vizService.relationships(this.params.objectType, this.params.type).then(relationships => {
+            this.vizService.relationships(this.state.objectType, this.state.type).then(relationships => {
                 this.relationships = relationships;
 
                 if (this.relationships && this.relationships.length > 0) {
-                    if (!this.params.graphOid || this.relationships.findIndex(rel => rel.oid === this.params.graphOid) === -1) {
+                    if (!this.state.graphOid || this.relationships.findIndex(rel => rel.oid === this.state.graphOid) === -1) {
                         // If we got here by selecting a business object from a GeoObject
-                        if (this.relationship != null && this.relationship.code === "BUSINESS" && this.params.objectType === "BUSINESS" && this.relationships.findIndex(rel => rel.code === "GEOOBJECT") !== -1) {
+                        if (this.relationship != null && this.relationship.code === "BUSINESS" && this.state.objectType === "BUSINESS" && this.relationships.findIndex(rel => rel.code === "GEOOBJECT") !== -1) {
                             // Then we can default to the "Associated GeoObjects" relationship
                             this.relationship = this.relationships[this.relationships.findIndex(rel => rel.code === "GEOOBJECT")];
-                        } else if (this.relationship != null && this.relationship.code === "GEOOBJECT" && this.params.objectType === "GEOOBJECT" && this.relationships.findIndex(rel => rel.code === "BUSINESS") !== -1) {
+                        } else if (this.relationship != null && this.relationship.code === "GEOOBJECT" && this.state.objectType === "GEOOBJECT" && this.relationships.findIndex(rel => rel.code === "BUSINESS") !== -1) {
                             // Then we can default to the "Associated Business Objects" relationship
                             this.relationship = this.relationships[this.relationships.findIndex(rel => rel.code === "BUSINESS")];
                         } else {
@@ -215,8 +215,8 @@ export class RelationshipVisualizerComponent implements OnInit {
                         this.graphOid = this.relationship.oid;
                         this.onSelectRelationship(true);
                     } else {
-                        this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.params.graphOid)];
-                        this.graphOid = this.params.graphOid;
+                        this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.state.graphOid)];
+                        this.graphOid = this.state.graphOid;
                         this.fetchData();
                     }
                 } else {
@@ -237,10 +237,13 @@ export class RelationshipVisualizerComponent implements OnInit {
         this.changeRelationship.emit(this.graphOid);
 
         if (updateUrl) {
+            let newState = { graphOid: this.graphOid };
+
             this.router.navigate([], {
                 relativeTo: this.route,
-                queryParams: { graphOid: this.graphOid },
-                queryParamsHandling: "merge" // remove to replace all query params by provided
+                queryParams: newState,
+                queryParamsHandling: "merge", // remove to replace all query state by provided
+                replaceUrl: true
             });
         }
     }
@@ -249,9 +252,9 @@ export class RelationshipVisualizerComponent implements OnInit {
         if (this.relationship != null) {
             this.spinner.show(this.CONSTANTS.OVERLAY);
 
-            let source = { code: this.params.code, typeCode: this.params.type, objectType: this.params.objectType } as Vertex;
+            let source = { code: this.state.code, typeCode: this.state.type, objectType: this.state.objectType } as Vertex;
 
-            this.vizService.tree(this.relationship.type, this.relationship.code, source, this.params.date, this.getBoundsAsWKT()).then(data => {
+            this.vizService.tree(this.relationship.type, this.relationship.code, source, this.state.date, this.getBoundsAsWKT()).then(data => {
                 this.data = null;
 
                 window.setTimeout(() => {
@@ -269,7 +272,7 @@ export class RelationshipVisualizerComponent implements OnInit {
     }
 
     private addLayers(relatedTypes: RelatedType[]) {
-        if (this.relationship.type === "BUSINESS" || (this.params.objectType === "BUSINESS" && this.relationship.type !== "GEOOBJECT")) {
+        if (this.relationship.type === "BUSINESS" || (this.state.objectType === "BUSINESS" && this.relationship.type !== "GEOOBJECT")) {
             let layers: Layer[] = this.geomService.getLayers().filter(layer => layer.getPinned() || layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE);
             this.geomService.setLayers(layers);
             return;
@@ -277,9 +280,9 @@ export class RelationshipVisualizerComponent implements OnInit {
 
         let layers: Layer[] = this.geomService.getLayers();
 
-        let sourceObject = { code: this.params.code, typeCode: this.params.type, objectType: this.params.objectType } as ObjectReference;
-        let bounds = this.restrictToMapBounds ? this.params.bounds : null;
-        let dataSource = new RelationshipVisualizionDataSource(this.vizService, this.geomService, this.relationship.type, this.relationship.code, sourceObject, bounds, this.params.date);
+        let sourceObject = { code: this.state.code, typeCode: this.state.type, objectType: this.state.objectType } as ObjectReference;
+        let bounds = this.restrictToMapBounds ? this.state.bounds : null;
+        let dataSource = new RelationshipVisualizionDataSource(this.vizService, this.geomService, this.relationship.type, this.relationship.code, sourceObject, bounds, this.state.date);
 
         // Remove any existing layer from map that is graph related that isn't part of this new data
         layers = layers.filter(layer => layer.getPinned() ||
@@ -342,8 +345,8 @@ export class RelationshipVisualizerComponent implements OnInit {
     private getBoundsAsWKT(): string {
         let wktBounds: string = null;
 
-        if (this.params.bounds != null && this.restrictToMapBounds) {
-            const mapBounds = new LngLatBounds(JSON.parse(this.params.bounds));
+        if (this.state.bounds != null && this.restrictToMapBounds) {
+            const mapBounds = new LngLatBounds(JSON.parse(this.state.bounds));
             wktBounds = this.convertBoundsToWKT(mapBounds);
         }
 
@@ -390,13 +393,13 @@ export class RelationshipVisualizerComponent implements OnInit {
             }
         });
 
-        if (!this.typeLegend[this.params.type]) {
-            this.typeLegend[this.params.type] = { color: SELECTED_NODE_COLOR, label: this.params.type };
+        if (!this.typeLegend[this.state.type]) {
+            this.typeLegend[this.state.type] = { color: SELECTED_NODE_COLOR, label: this.state.type };
         }
     }
 
     collapseAnimation(id: string): Promise<void> {
-        if (!this.params.type) { return new Promise<void>((resolve, reject) => { resolve(); }); }
+        if (!this.state.type) { return new Promise<void>((resolve, reject) => { resolve(); }); }
 
         let activeEl = document.getElementById(id) as unknown as SVGGraphicsElement;
         if (!activeEl) { return new Promise<void>((resolve, reject) => { resolve(); }); }
@@ -492,8 +495,8 @@ export class RelationshipVisualizerComponent implements OnInit {
     */
 
     public onClickNode(node: any): void {
-        if (node.code !== this.params.code ||
-            node.typeCode !== this.params.type) {
+        if (node.code !== this.state.code ||
+            node.typeCode !== this.state.type) {
             let doIt = (resolve) => {
                 this.collapseAnimation(node.id).then(() => {
                     resolve();
