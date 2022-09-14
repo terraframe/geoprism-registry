@@ -79,6 +79,8 @@
 			              <!-- <i class="fa fa-arrows" style="font-size:15px;color: grey;margin-right: 3px;" aria-hidden="true"></i> -->
 			              <boolean-field [value]="layer.rendered" label="" [disable]="false" (change)="toggleLayerRendered(layer)" style="line-height:0;" ></boolean-field>
 			              
+			              <i *ngIf="!(layer.dataSource.getDataSourceType() === CONSTANTS.LIST_VECTOR_SOURCE_TYPE) && layer.getPinned()" [title]="'explorer.layerPanel.unpin' | localize" class="fa fa-thumb-tack" aria-hidden="true" style="cursor: pointer;" (click)="togglePinned(layer)"></i>
+			              
 			              <div class="label-wrapper">
 			                {{layer.legendLabel}}
 			                <span *ngIf="versionMap[layer.getId()]">- {{ versionMap[layer.getId()].forDate }}</span>
@@ -100,7 +102,7 @@
 			<!--                 <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i> -->
 			<!--                 <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i> -->
 			                <i [title]="'explorer.layerPanel.zoomToFeature' | localize" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
-			                <i [title]="'explorer.layerPanel.pin' | localize" *ngIf="!(layer.dataSource.getDataSourceType() === CONSTANTS.LIST_VECTOR_SOURCE_TYPE)" [ngClass]="layer.getPinned() ? 'active' : 'not-active' " class="fa fa-thumb-tack clickable" aria-hidden="true" (click)="togglePinned(layer)"></i>
+			                <i [title]="'explorer.layerPanel.pin' | localize" *ngIf="!(layer.dataSource.getDataSourceType() === CONSTANTS.LIST_VECTOR_SOURCE_TYPE) && !layer.getPinned()" class="fa fa-thumb-tack" aria-hidden="true" (click)="togglePinned(layer)"></i>
 			                <i [title]="'explorer.layerPanel.addNewGeoObject' | localize" *ngIf="versionMap[layer.getId()] && versionMap[layer.getId()].versionNumber === 0" class="fa fa-plus" aria-hidden="true" (click)="onCreate(layer)"></i>
 			                <i [title]="'explorer.layerPanel.removeLayer' | localize" class="fa fa-times" aria-hidden="true" (click)="removeLayer(layer)"></i>
 			              </div>
