@@ -57,13 +57,15 @@ abstract public class DHIS2VOTDateAttributeMapping extends DHIS2AttributeMapping
   
   protected Object getAttributeValue(VertexServerGeoObject serverGo, Date date, AttributeType attr, ServerGeoObjectType got)
   {
+    Date result = null;
+    
     if (date == null)
     {
       ValueOverTimeCollection votc = serverGo.getValuesOverTime(attr.getName());
 
       if (votc.size() > 0)
       {
-        return this.getVOTDate(votc.get(votc.size() - 1));
+        result = this.getVOTDate(votc.get(votc.size() - 1));
       }
     }
     else
@@ -74,12 +76,18 @@ abstract public class DHIS2VOTDateAttributeMapping extends DHIS2AttributeMapping
       {
         if (vot.between(date))
         {
-          return this.getVOTDate(vot);
+          result = this.getVOTDate(vot);
+          break;
         }
       }
     }
     
-    return null;
+    if (ValueOverTime.INFINITY_END_DATE.equals(result))
+    {
+      result = null;
+    }
+    
+    return result;
   }
   
   abstract protected Date getVOTDate(ValueOverTime vot);

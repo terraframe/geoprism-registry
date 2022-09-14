@@ -49,6 +49,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.localization.LocalizationFacade;
 
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
@@ -236,6 +237,11 @@ public class DHIS2AttributeMapping
     }
     else if (attr instanceof AttributeDateType)
     {
+      if (ValueOverTime.INFINITY_END_DATE.equals(value))
+      {
+        value = null;
+      }
+      
       json.addProperty(propertyName, DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate((Date) value));
     }
     else if (attr instanceof AttributeLocalType)
