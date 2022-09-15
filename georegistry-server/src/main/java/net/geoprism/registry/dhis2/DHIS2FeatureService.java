@@ -42,14 +42,15 @@ import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2EndDateAttributeMapping;
+import net.geoprism.registry.etl.DHIS2OptionSetAttributeMapping;
 import net.geoprism.registry.etl.DHIS2OrgUnitGroupAttributeMapping;
 import net.geoprism.registry.etl.DHIS2StartDateAttributeMapping;
-import net.geoprism.registry.etl.DHIS2OptionSetAttributeMapping;
 import net.geoprism.registry.etl.export.ExportRemoteException;
 import net.geoprism.registry.etl.export.HttpError;
 import net.geoprism.registry.etl.export.LoginException;
@@ -335,6 +336,19 @@ public class DHIS2FeatureService
       {
         capabilities.addProperty("oauth", true);
       }
+      
+      boolean hasLocales = false;
+      try
+      {
+        LocaleGetResponse resp = dhis2.localesGet();
+        hasLocales = resp.getLocales().size() > 0;
+      }
+      catch (Throwable t)
+      {
+        // Ignore
+      }
+      
+      capabilities.addProperty("locales", hasLocales);
     }
     else if (system instanceof FhirExternalSystem)
     {

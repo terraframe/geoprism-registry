@@ -36,14 +36,11 @@ import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
-import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
-import net.geoprism.dhis2.dhis2adapter.response.model.Option;
-import net.geoprism.dhis2.dhis2adapter.response.model.OptionSet;
-import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 
 public class DHIS2Bridge
 {
@@ -88,10 +85,33 @@ public class DHIS2Bridge
     return this.apiGet("system/info", null);
   }
   
+  public LocaleGetResponse localesGet() throws InvalidLoginException, HTTPException, BadServerUriException
+  {
+    return new LocaleGetResponse(this.apiGet("locales/dbLocales", null));
+  }
+  
   /**
-   * Used to create or update a DHIS2 entity. Required attributes are enforced.
+   * Used to get a DHIS2 entity via the type-specific entity api.
    * 
-   * https://docs.dhis2.org/2.34/en/dhis2_developer_manual/web-api.html#metadata-create-read-update-delete-validate
+   * https://docs.dhis2.org/en/develop/using-the-api/dhis-core-version-238/metadata.html#webapi_metadata_crud
+   * 
+   * @param entityName
+   * @param params
+   * @param payload
+   * @return
+   * @throws InvalidLoginException
+   * @throws HTTPException
+   * @throws BadServerUriException 
+   */
+//  public ObjectReportResponse entityGet(String entityName, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
+//  {
+//    return new ObjectReportResponse(this.apiPost(entityName, params, payload));
+//  }
+  
+  /**
+   * Used to create or update a DHIS2 entity via the type-specific entity api. Required attributes are enforced.
+   * 
+   * https://docs.dhis2.org/en/develop/using-the-api/dhis-core-version-238/metadata.html#webapi_metadata_crud
    * 
    * @param entityName
    * @param params

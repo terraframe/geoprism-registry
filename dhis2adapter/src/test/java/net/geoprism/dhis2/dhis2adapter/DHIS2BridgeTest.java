@@ -31,17 +31,61 @@ import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
+import net.geoprism.dhis2.dhis2adapter.response.model.DHIS2Locale;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 
 public class DHIS2BridgeTest
 {
+  
+  @Test
+  public void testGetLocales() throws Exception
+  {
+    String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/default/dbLocales.json"), "UTF-8");
+    
+    DHIS2Bridge facade = TestBridgeBuilder.buildDefault(file, 200);
+    
+    facade.initialize();
+    
+    LocaleGetResponse resp = facade.localesGet();
+    
+    Assert.assertEquals(200, resp.getStatusCode());
+    
+    JsonArray ja = resp.getJsonArray();
+    
+    final int count = 37;
+    
+    Assert.assertEquals(count, ja.size());
+    
+    List<DHIS2Locale> locales = resp.getLocales();
+    
+    Assert.assertEquals(count, locales.size());
+    
+    boolean foundLaos = false;
+    
+    for (DHIS2Locale locale : locales)
+    {
+      if (locale.getLocale().equals("lo_LA"))
+      {
+        Assert.assertEquals("Lao (Laos)", locale.getName());
+        
+        Assert.assertEquals("sQLe8nKxTeT", locale.getId());
+        
+        Assert.assertNotNull(locale.getLastUpdatedBy());
+        
+        foundLaos = true;
+      }
+    }
+    
+    Assert.assertTrue(foundLaos);
+  }
   
   @Test
   public void testSystemInfo() throws Exception

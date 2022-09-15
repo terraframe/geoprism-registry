@@ -32,6 +32,7 @@ import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
@@ -163,5 +164,11 @@ public class DHIS2TransportService implements DHIS2TransportServiceIF
   public void setVersionApiCompat(Integer versionApiCompat) throws IncompatibleServerVersionException
   {
     this.dhis2.setVersionApiCompat(versionApiCompat);
+  }
+  
+  @Override
+  public LocaleGetResponse localesGet() throws InvalidLoginException, HTTPException, BadServerUriException
+  {
+    return this.dhis2.localesGet();
   }
 }

@@ -34,12 +34,14 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.util.IDGenerator;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
+import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
@@ -287,6 +289,12 @@ public class DHIS2TestService implements DHIS2TransportServiceIF
   public String getRemoteServerUrl()
   {
     return null;
+  }
+
+  @Override
+  public LocaleGetResponse localesGet() throws InvalidLoginException, HTTPException, BadServerUriException
+  {
+    throw new UnsupportedOperationException();
   }
 
 }

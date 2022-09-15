@@ -55,8 +55,10 @@ import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
+import net.geoprism.dhis2.dhis2adapter.response.model.DHIS2Locale;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.ImportStrategy;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
@@ -95,6 +97,8 @@ public class DHIS2SynchronizationManager
   private DHIS2SyncConfig dhis2Config;
   
   private ExportHistory history;
+  
+  private List<DHIS2Locale> dhis2Locales = new ArrayList<DHIS2Locale>();
   
   public DHIS2SynchronizationManager(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, ExportHistory history)
   {
@@ -136,6 +140,16 @@ public class DHIS2SynchronizationManager
       List<OrganisationUnit> orgUnits = resp.getObjects();
       
       this.ouLevel1 = orgUnits;
+      
+      try
+      {
+        LocaleGetResponse localeResp = this.dhis2.localesGet();
+        
+        this.dhis2Locales = localeResp.getLocales();
+      }
+      catch (Throwable t) {
+        
+      }
     }
     catch (InvalidLoginException e)
     {
@@ -391,7 +405,7 @@ public class DHIS2SynchronizationManager
       }
 
       GsonBuilder builder = new GsonBuilder();
-      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(dhis2, dhis2Config, level));
+      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(dhis2, dhis2Config, level, this.dhis2Locales));
       
       orgUnitJsonTree = builder.create().toJsonTree(serverGo, serverGo.getClass()).getAsJsonObject();
       orgUnitJson = orgUnitJsonTree.toString();
