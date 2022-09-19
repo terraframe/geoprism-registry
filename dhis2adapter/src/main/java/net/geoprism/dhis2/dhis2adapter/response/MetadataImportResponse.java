@@ -24,6 +24,8 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
@@ -61,20 +63,29 @@ public class MetadataImportResponse extends DHIS2ImportResponse
     builder.setDateFormat(DHIS2Constants.DATE_FORMAT);
     Gson gson = builder.create();
     
-    if (this.getJsonObject() != null && this.getJsonObject().has("typeReports"))
+    if (this.getJsonObject() != null)
     {
-      Type list = new TypeToken<List<TypeReport>>() {}.getType();
-      this.typeReports =  gson.fromJson(this.getJsonObject().get("typeReports"), list);
-    }
-    
-    if (this.getJsonObject() != null && this.getJsonObject().has("stats"))
-    {
-      this.stats = gson.fromJson(this.getJsonObject().get("stats"), Stats.class);
-    }
-    
-    if (this.getJsonObject() != null && this.getJsonObject().has("importParams"))
-    {
-      this.importParams = gson.fromJson(this.getJsonObject().get("importParams"), ImportParams.class);
+      JsonObject response = this.getJsonObject();
+      
+      // The latest versions of DHIS2 are putting the typeReports inside a "response" object.
+      if (this.getJsonObject().has("response"))
+      {
+        response = this.getJsonObject().get("response").getAsJsonObject();
+      }
+      
+      if (response.has("typeReports"))
+      {
+        Type list = new TypeToken<List<TypeReport>>() {}.getType();
+        this.typeReports =  gson.fromJson(response.get("typeReports"), list);
+      }
+      if (response.has("stats"))
+      {
+        this.stats = gson.fromJson(response.get("stats"), Stats.class);
+      }
+      if (response.has("importParams"))
+      {
+        this.importParams = gson.fromJson(response.get("importParams"), ImportParams.class);
+      }
     }
   }
 

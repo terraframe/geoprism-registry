@@ -298,13 +298,13 @@ public class HTTPConnector implements ConnectorIF
         initialize();
       }
       
-      HttpPut post = new HttpPut(this.buildUri(url, params));
+      HttpPut put = new HttpPut(this.buildUri(url, params));
       
-      post.addHeader("Content-Type", "application/json");
+      put.addHeader("Content-Type", "application/json");
       
-      post.setEntity(body);
+      put.setEntity(body);
       
-      try (CloseableHttpResponse response = client.execute(post, this.getContext()))
+      try (CloseableHttpResponse response = client.execute(put, this.getContext()))
       {
         return this.convertResponse(response);
       }

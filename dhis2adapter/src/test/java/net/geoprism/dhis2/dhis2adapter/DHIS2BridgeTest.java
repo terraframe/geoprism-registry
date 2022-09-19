@@ -36,10 +36,12 @@ import com.google.gson.JsonObject;
 
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.EntityGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.DHIS2Locale;
+import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 
 public class DHIS2BridgeTest
@@ -131,9 +133,13 @@ public class DHIS2BridgeTest
 //    params.add(new BasicNameValuePair("organisationUnits", "true"));
 //    params.add(new BasicNameValuePair("code", "OU_525"));
     
-    DHIS2Response resp = facade.entityIdGet("organisationUnits", "ImspTQPwCqd", params);
+    EntityGetResponse<OrganisationUnit> resp = facade.entityIdGet("organisationUnits", "ImspTQPwCqd", OrganisationUnit.class, params);
     
-//    System.out.println(resp.getResponse());
+    Assert.assertNotNull(resp.getEntity());
+    
+    Assert.assertEquals("ImspTQPwCqd", resp.getEntity().getId());
+    
+    Assert.assertEquals(2, resp.getEntity().getTranslations().size());
   }
   
   @Test

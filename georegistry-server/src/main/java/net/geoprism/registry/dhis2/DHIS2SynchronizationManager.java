@@ -37,7 +37,6 @@ import org.apache.http.message.BasicNameValuePair;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
@@ -54,10 +53,11 @@ import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
-import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.EntityGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
+import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.DHIS2Locale;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.ImportStrategy;
@@ -175,8 +175,6 @@ public class DHIS2SynchronizationManager
     
     SortedSet<DHIS2SyncLevel> levels = dhis2Config.getLevels();
     
-    Boolean includeTranslations = LocalizationFacade.getInstalledLocales().size() > 0;
-
     // First calculate the total number of records
     HashMap<Integer, Long> countAtLevel = new HashMap<Integer, Long>();
     int expectedLevel = 0;
@@ -223,7 +221,7 @@ public class DHIS2SynchronizationManager
                    )
                  )
               {
-                this.exportGeoObject(dhis2Config, level, levels, rowIndex, go, includeTranslations);
+                this.exportGeoObject(dhis2Config, level, levels, rowIndex, go);
                 
                 exportCount++;
                 
@@ -378,7 +376,7 @@ public class DHIS2SynchronizationManager
    * @throws ExportError
    */
   @Transaction
-  private void exportGeoObject(DHIS2SyncConfig dhis2Config, DHIS2SyncLevel level, SortedSet<DHIS2SyncLevel> levels, Long rowIndex, VertexServerGeoObject serverGo, Boolean includeTranslations) throws DHIS2SyncError
+  private void exportGeoObject(DHIS2SyncConfig dhis2Config, DHIS2SyncLevel level, SortedSet<DHIS2SyncLevel> levels, Long rowIndex, VertexServerGeoObject serverGo) throws DHIS2SyncError
   {
     DHIS2ImportResponse resp = null;
     
@@ -386,6 +384,10 @@ public class DHIS2SynchronizationManager
     String orgUnitJson = null;
     
     String externalId = null;
+    
+    JsonArray translations = null;
+    
+    OrganisationUnit existingOrgUnit = null;
     
     try
     {
@@ -410,7 +412,14 @@ public class DHIS2SynchronizationManager
       orgUnitJsonTree = builder.create().toJsonTree(serverGo, serverGo.getClass()).getAsJsonObject();
       orgUnitJson = orgUnitJsonTree.toString();
       
+      // DHIS2 requires that translations are sent directly through the translations api
+      translations = orgUnitJsonTree.get("translations").getAsJsonArray();
+      orgUnitJsonTree.remove("translations");
+      
       externalId = serverGo.getExternalId(dhis2Config.getSystem());
+      
+      List<NameValuePair> orgUnitGetParams = new ArrayList<NameValuePair>();
+      orgUnitGetParams.add(new BasicNameValuePair("translate", "false"));
 
       List<NameValuePair> params = new ArrayList<NameValuePair>();
       params.add(new BasicNameValuePair("mergeMode", "MERGE"));
@@ -443,15 +452,12 @@ public class DHIS2SynchronizationManager
           
           // We don't want to actually update any of these attributes, so if we can fetch the object from DHIS2
           // then use the values they have in their server instead.
-          DHIS2Response orgUnitGetResp = dhis2.entityIdGet(DHIS2Objects.ORGANISATION_UNITS, externalId, params);
-          if (orgUnitGetResp.isSuccess())
-          {
-            JsonObject jo = JsonParser.parseString(orgUnitGetResp.getResponse()).getAsJsonObject();
-            
-            orgUnitRelationships.addProperty("name", jo.get("name").getAsString());
-            orgUnitRelationships.addProperty("shortName", jo.get("shortName").getAsString());
-            orgUnitRelationships.addProperty("openingDate", jo.get("openingDate").getAsString());
-          }
+          EntityGetResponse<OrganisationUnit> orgUnitGetResp = dhis2.entityIdGet(DHIS2Objects.ORGANISATION_UNITS, externalId, OrganisationUnit.class, orgUnitGetParams);
+          this.service.validateDhis2Response(orgUnitGetResp);
+          existingOrgUnit = orgUnitGetResp.getEntity();
+          orgUnitRelationships.addProperty("name", existingOrgUnit.getName());
+          orgUnitRelationships.addProperty("shortName", existingOrgUnit.getShortName());
+          orgUnitRelationships.addProperty("openingDate", DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate(existingOrgUnit.getOpeningDate()));
           
           // These attributes are the ones we need to include to change the relationship
           orgUnitRelationships.add("parent", orgUnitJsonTree.get("parent").getAsJsonObject());
@@ -493,6 +499,49 @@ public class DHIS2SynchronizationManager
       if (isNew && level.getLevel() == 1 && this.ouLevel1.size() > 0)
       {
         this.ouLevel1.add(new OrganisationUnit());
+      }
+      
+      // DHIS2 requires that translations are submitted via a different APi.
+      if (translations != null && translations.size() > 0 && (level.getSyncType() == DHIS2SyncLevel.Type.ALL || level.getSyncType() == DHIS2SyncLevel.Type.ORG_UNITS))
+      {
+        if (existingOrgUnit == null)
+        {
+          EntityGetResponse<OrganisationUnit> orgUnitGetResp = dhis2.entityIdGet(DHIS2Objects.ORGANISATION_UNITS, externalId, OrganisationUnit.class, orgUnitGetParams);
+          this.service.validateDhis2Response(orgUnitGetResp);
+          existingOrgUnit = orgUnitGetResp.getEntity();
+        }
+        
+        JsonArray submissionTranslations = new JsonArray();
+        
+        Map<String, JsonObject> mapSubmissionTranslations = new HashMap<String, JsonObject>();
+        for (int i = 0; i < translations.size(); ++i)
+        {
+          JsonObject translation = translations.get(i).getAsJsonObject();
+          
+          mapSubmissionTranslations.put(translation.get("locale").getAsString() + "-" + translation.get("property").getAsString(), translation);
+        }
+        
+        // The DHIS2 translations API directly replaces their translations with what we submit. So we need to know what's already in their database, and
+        // then we have to manually modify the data and resubmit it.
+        JsonArray jaExistingTranslations = existingOrgUnit.getTranslations();
+        for (int i = 0; i < jaExistingTranslations.size(); ++i)
+        {
+          JsonObject existingTranslation = jaExistingTranslations.get(i).getAsJsonObject();
+          JsonObject submissionTranslation = mapSubmissionTranslations.get(existingTranslation.get("locale").getAsString() + "-" + existingTranslation.get("property").getAsString());
+          
+          if (submissionTranslation != null)
+          {
+            existingTranslation.addProperty("value", submissionTranslation.get("value").getAsString());
+          }
+          
+          submissionTranslations.add(existingTranslation);
+        }
+        
+        JsonObject translationMockOrgUnit = new JsonObject();
+        translationMockOrgUnit.add("translations", submissionTranslations);
+        
+        TypeReportResponse translateResp = this.dhis2.entityTranslations(DHIS2Objects.ORGANISATION_UNITS, externalId, null, new StringEntity(translationMockOrgUnit.toString(), Charset.forName("UTF-8")));
+        this.service.validateDhis2Response(translateResp);
       }
     }
     catch (Throwable t)

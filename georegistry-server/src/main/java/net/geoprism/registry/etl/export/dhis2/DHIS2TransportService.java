@@ -32,6 +32,7 @@ import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.EntityGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
@@ -77,9 +78,9 @@ public class DHIS2TransportService implements DHIS2TransportServiceIF
   }
 
   @Override
-  public DHIS2Response entityIdGet(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
+  public <T> EntityGetResponse<T> entityIdGet(String entityName, String entityId, Class<?> entityType, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
   {
-    return this.dhis2.entityIdGet(entityName, entityId, params);
+    return this.dhis2.entityIdGet(entityName, entityId, entityType, params);
   }
   
   @Override

@@ -38,6 +38,8 @@ public interface ConnectorIF
   public DHIS2Response httpDelete(String string, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException;
 
   public DHIS2Response httpPost(String string, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException;
+  
+  public DHIS2Response httpPut(String string, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException;
 
   public DHIS2Response httpPatch(String string, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException;
   

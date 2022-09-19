@@ -36,6 +36,7 @@ import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.EntityGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
@@ -126,9 +127,9 @@ public class DHIS2Bridge
     return new ObjectReportResponse(this.apiPost(entityName, params, payload));
   }
   
-  public DHIS2Response entityIdGet(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
+  public <T> EntityGetResponse<T> entityIdGet(String entityName, String entityId, Class<?> entityType, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
   {
-    return this.apiGet(entityName + "/" + entityId, params);
+    return new EntityGetResponse<T>(this.apiGet(entityName + "/" + entityId, params), entityType);
   }
   
   public DHIS2Response entityIdDelete(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
@@ -363,7 +364,7 @@ public class DHIS2Bridge
       url = url + ".json";
     }
     
-    return new DHIS2ImportResponse(connector.httpPost(this.buildApiEndpoint() + url, params, body));
+    return new DHIS2ImportResponse(connector.httpPut(this.buildApiEndpoint() + url, params, body));
   }
   
   public DHIS2ImportResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException

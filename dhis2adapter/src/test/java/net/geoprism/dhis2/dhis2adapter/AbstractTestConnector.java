@@ -60,6 +60,12 @@ abstract public class AbstractTestConnector implements ConnectorIF
   {
     throw new UnsupportedOperationException();
   }
+  
+  @Override
+  public DHIS2Response httpPut(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  {
+    throw new UnsupportedOperationException();
+  }
 
   @Override
   public DHIS2Response httpPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
