@@ -383,11 +383,20 @@ public class DHIS2GeoObjectJsonAdapters
           org.wololo.geojson.Geometry gJSON = gw.write(geom);
 
           JsonObject joGeom = JsonParser.parseString(gJSON.toString()).getAsJsonObject();
-
-          jo.addProperty("featureType", convertGeometryType(joGeom.get("type").getAsString()));
-
-          // jo.add("coordinates", joGeom.get("coordinates").getAsJsonArray());
-          jo.addProperty("coordinates", joGeom.get("coordinates").toString());
+          
+          if (this.dhis2.getVersionRemoteServerApi() < 32)
+          {
+            jo.addProperty("featureType", convertGeometryType(joGeom.get("type").getAsString()));
+  
+            jo.addProperty("coordinates", joGeom.get("coordinates").toString());
+          }
+          else
+          {
+            // Use geometry column for org unit and org unit group [DHIS2-5597] (#2870)
+            // https://github.com/dhis2/dhis2-core/commit/0b40d73efbe5252dcc7ac3e20393e6b922d7a215
+            
+            jo.add("geometry", joGeom);
+          }
         }
         catch (Throwable t)
         {
