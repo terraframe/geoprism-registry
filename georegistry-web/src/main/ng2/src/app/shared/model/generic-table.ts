@@ -12,7 +12,8 @@ export class GenericTableConfig {
     edit?: boolean;
     create?: boolean;
     label: string;
-    sort?: { field: string, order: number };
+    sort?: { field: string, order: number }[];
+    baseZIndex?: number;
 
 }
 
@@ -29,6 +30,9 @@ export class GenericTableColumn {
     columnType?: Function;
     onComplete?: Function;
     results?: any[];
+    value?: any;
+    startDate?: string;
+    endDate?: string;
 
 }
 

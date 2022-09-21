@@ -137,7 +137,7 @@
 				<article id="navigator-layer-panel" class="base-layer-panel"
 					[ngClass]="{'second-map-button' : searchEnabled && !(state.attrPanelOpen === 'true')}"
 					[ngStyle]="{'max-width': layersPanelSize === 2 ? '50%' : 'unset', 'padding-left': layersPanelSize === 2 ? '10px' : 'unset'}">
-					<layer-panel (create)="onCreate($event)" [panelSize]="layersPanelSize"> </layer-panel>
+					<layer-panel (create)="onCreate($event)" [panelSize]="layersPanelSize" (viewList)="onViewList($event)"> </layer-panel>
 				</article>
 
 				<div id="map" class="map-view-port"></div>

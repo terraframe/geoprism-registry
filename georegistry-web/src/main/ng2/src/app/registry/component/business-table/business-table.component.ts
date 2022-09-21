@@ -61,7 +61,7 @@ export class BusinessTableComponent implements OnInit {
                 view: false,
                 create: false,
                 label: this.businessType.displayLabel.localizedValue,
-                sort: { field: "code", order: 1 }
+                sort: [{ field: "code", order: 1 }]
             };
         });
     }

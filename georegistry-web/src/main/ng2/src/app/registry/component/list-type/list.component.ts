@@ -95,7 +95,7 @@ export class ListComponent implements OnInit, OnDestroy {
                 view: true,
                 create: false,
                 label: this.list.displayLabel,
-                sort: { field: "code", order: 1 }
+                sort: [{ field: "code", order: 1 }]
             };
 
             if (version.refreshProgress != null) {
@@ -386,7 +386,7 @@ export class ListComponent implements OnInit, OnDestroy {
         });
     }
 
-    onFilter(event: LazyLoadEvent): void {
+    onLoadEvent(event: LazyLoadEvent): void {
         this.filters = null;
 
         if (event.filters != null) {

@@ -33,7 +33,8 @@ import { BusinessObjectService } from "@registry/service/business-object.service
 import { Vertex } from "@registry/model/graph";
 import { LocalizedValue } from "@shared/model/core";
 import { debounce } from "ts-debounce";
-import { distinctUntilChanged, map } from "rxjs/operators";
+import { ListModalComponent } from "./list-modal.component";
+import { LazyLoadEvent } from "primeng/api";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -48,6 +49,13 @@ class SelectedObject {
     // If business object
     businessObject?: BusinessObject;
     businessType?: BusinessType;
+
+}
+
+class ListData {
+
+    event: LazyLoadEvent;
+    oid: string;
 
 }
 
@@ -196,6 +204,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     updateState: (newState: any) => void;
 
+    listData: ListData = null;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private route: ActivatedRoute,
@@ -223,7 +233,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     ngOnInit(): void {
         this.windowWidth = window.innerWidth;
         this.windowHeight = window.innerHeight;
-        
+
         this.subscription = this.route.queryParams.subscribe(state => {
             // this.state = state;
 
@@ -867,10 +877,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     selectGeoObject(geoObject: GeoObject): void {
         this.closeEditSessionSafeguard().then(() => {
             this.addLayerForGeoObject(geoObject);
-            
+
             window.setTimeout(() => {
-            this.updateState({ type: geoObject.properties.type, code: geoObject.properties.code, objectType: "GEOOBJECT", uid: geoObject.properties.uid, version: null, text: null });
-            },60);
+                this.updateState({ type: geoObject.properties.type, code: geoObject.properties.code, objectType: "GEOOBJECT", uid: geoObject.properties.uid, version: null, text: null });
+            }, 60);
         });
     }
 
@@ -1036,6 +1046,31 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         ]);
 
         return bounds;
+    }
+
+    onViewList(oid: string): void {
+        this.bsModalRef = this.modalService.show(ListModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true
+        });
+
+        this.bsModalRef.content.init(oid, this.listData != null ? this.listData.event : null);
+        this.bsModalRef.content.onTableChange.subscribe(newEvent => {
+            this.listData = {
+                oid: oid,
+                event: newEvent
+            };
+        });
+        this.bsModalRef.content.onRowSelect.subscribe(event => {
+            if (this.state.version == null || this.state.uid == null ||
+                this.state.version !== event.version ||
+                this.state.uid !== event.uid) {
+                this.updateState({ version: event.version, uid: event.uid });
+            } else {
+                this.handleRecord(event.version, event.uid);
+            }
+        });
     }
 
     error(err: HttpErrorResponse): void {

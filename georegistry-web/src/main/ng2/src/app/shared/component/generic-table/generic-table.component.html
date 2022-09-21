@@ -1,8 +1,8 @@
 <div>
 	<p-table #dt [columns]="cols" [value]="page.resultSet" [autoLayout]="true" [scrollable]="false"
 		[resizableColumns]="true" sortMode="multiple" styleClass="p-datatable-gridlines" [lazy]="true"
-		(onLazyLoad)="onPageChange($event)" [paginator]="true" [totalRecords]="page.count" [rows]="page.pageSize"
-		[loading]="loading" [multiSortMeta]="config.sort != null ? [config.sort] : []"
+		(onLazyLoad)="onPageChange($event)" [paginator]="true" [totalRecords]="page.count" [first]="first" [rows]="page.pageSize"
+		[loading]="loading" [multiSortMeta]="config.sort != null ? config.sort : []"
 		(onFilter)="handleFilter($event)">
 
 		<ng-template pTemplate="colgroup" let-columns>
@@ -25,11 +25,11 @@
 			<tr>
 				<th *ngFor="let col of columns" [ngSwitch]="col.type">
 					<ng-container *ngIf="col.filter !== false">
-						<input *ngSwitchCase="'URL'" pInputText type="text"
+						<input *ngSwitchCase="'URL'" pInputText type="text" 
 							(input)="dt.filter($event.target.value, col.field, 'contains')">
-						<input *ngSwitchCase="'TEXT'" pInputText type="text"
+						<input *ngSwitchCase="'TEXT'" pInputText type="text" [(ngModel)]="col.text"
 							(input)="dt.filter($event.target.value, col.field, 'contains')">
-						<input *ngSwitchCase="'NUMBER'" pInputNumber type="number" step="any"
+						<input *ngSwitchCase="'NUMBER'" pInputNumber type="number" step="any" [(ngModel)]="col.value"
 							(input)="dt.filter($event.target.value, col.field, 'equals')">
 						<ng-container *ngSwitchCase="'DATE'">
 							<date-field [(value)]="col.startDate" [classNames]="'search-input'"
@@ -47,11 +47,12 @@
 						<p-autoComplete *ngSwitchCase="'AUTOCOMPLETE'" appendTo="body" [(ngModel)]="col.text"
 							[suggestions]="col.results" (completeMethod)="onComplete(col, $event)"
 							(onSelect)="dt.filter(col.text, col.field, 'equals')"
-							(onClear)="dt.filter(col.text, col.field, 'equals')">
+							(onClear)="dt.filter(col.text, col.field, 'equals')"
+							[baseZIndex]="config.baseZIndex">
 						</p-autoComplete>
-						<p-dropdown *ngSwitchCase="'BOOLEAN'" appendTo="body" [options]="booleanOptions"
+						<p-dropdown *ngSwitchCase="'BOOLEAN'" appendTo="body" [options]="booleanOptions" [(ngModel)]="col.value"
 							(onChange)="dt.filter($event.value.value, col.field, 'equals')" optionLabel="label"
-							optionValue="value" [virtualScroll]="true"></p-dropdown>
+							optionValue="value" [virtualScroll]="true" [baseZIndex]="config.baseZIndex"></p-dropdown>
 					</ng-container>
 				</th>
 			</tr>
@@ -102,6 +103,7 @@
 		<!-- 			</p-button> -->
 		<!-- 		</ng-template> -->
 	</p-table>
+
 
 	<div style="width:100%;text-align:right;">
 		<button *ngIf="config.create" (click)="onClick('create', null, null)" style="margin: 10px 0 0;"

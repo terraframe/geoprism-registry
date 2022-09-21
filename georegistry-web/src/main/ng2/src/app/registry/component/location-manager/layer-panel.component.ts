@@ -55,6 +55,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     @Input() includeSearchLayer: boolean = false;
     @Input() visualizeMode: number;
 
+    @Output() viewList = new EventEmitter<string>();
     @Output() baseLayerChange = new EventEmitter<BaseLayer>();
     @Output() create = new EventEmitter<Layer>();
 
@@ -169,20 +170,20 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         this.refreshListLayerReferences();
     }
 
-/*
-    private convertLayerToContextLayer(layer: Layer): ContextLayer {
-        let cLayer: ContextLayer = new ContextLayer(layer.getId(), layer.dataSource.getDataSourceType(), layer.legendLabel, layer.rendered, layer.color);
-        return cLayer;
-    }
-
-    private convertContextLayerToLayer(cLayer: ContextLayer): Layer {
-        let serializedLayer: any = cLayer;
-        delete serializedLayer.dataSourceType;
-        serializedLayer.dataSource = { dataSourceType: cLayer.dataSourceType };
-
-        return new DataSourceFactory(this.geomService, this.registryService, this.vizService).deserializeLayer();
-    }
-    */
+    /*
+        private convertLayerToContextLayer(layer: Layer): ContextLayer {
+            let cLayer: ContextLayer = new ContextLayer(layer.getId(), layer.dataSource.getDataSourceType(), layer.legendLabel, layer.rendered, layer.color);
+            return cLayer;
+        }
+    
+        private convertContextLayerToLayer(cLayer: ContextLayer): Layer {
+            let serializedLayer: any = cLayer;
+            delete serializedLayer.dataSourceType;
+            serializedLayer.dataSource = { dataSourceType: cLayer.dataSourceType };
+    
+            return new DataSourceFactory(this.geomService, this.registryService, this.vizService).deserializeLayer();
+        }
+        */
 
     handleSearch(): Promise<ListOrgGroup[]> {
         this.spinner.show(this.CONSTANTS.OVERLAY);
@@ -306,6 +307,10 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         this.layerGroups.forEach(group => group.getLayers().forEach(l => layers.push(l)));
 
         this.geomService.setLayers(layers);
+    }
+
+    onViewList(oid: string): void {
+        this.viewList.emit(oid);
     }
 
 }

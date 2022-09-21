@@ -11,7 +11,7 @@ import { PublishVersionComponent } from "./publish-version.component";
 import { Router } from "@angular/router";
 import { LngLatBounds } from "mapbox-gl";
 import * as ColorGen from "color-generator";
-import { Layer, ListVectorLayerDataSource } from "@registry/service/layer-data-source";
+import { ListVectorLayerDataSource } from "@registry/service/layer-data-source";
 import { GeometryService } from "@registry/service/geometry.service";
 
 @Component({

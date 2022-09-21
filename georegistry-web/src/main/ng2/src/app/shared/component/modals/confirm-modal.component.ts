@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
 import { LocalizationService } from "@shared/service";
@@ -9,7 +9,7 @@ import { ModalTypes } from "@shared/model/modal";
     templateUrl: "./confirm-modal.component.html",
     styleUrls: ["./modal.css"]
 })
-export class ConfirmModalComponent {
+export class ConfirmModalComponent implements OnInit, OnDestroy {
 
     /*
      * Message
@@ -40,6 +40,11 @@ export class ConfirmModalComponent {
     ngOnInit(): void {
         this.onConfirm = new Subject();
         this.onCancel = new Subject();
+    }
+
+    ngOnDestroy(): void {
+        this.onConfirm.unsubscribe();
+        this.onCancel.unsubscribe();
     }
 
     confirm(): void {
