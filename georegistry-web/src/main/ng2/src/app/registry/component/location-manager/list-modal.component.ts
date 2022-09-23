@@ -4,10 +4,12 @@ import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/mode
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { LazyLoadEvent } from "primeng/api";
 import { ListTypeService } from "@registry/service/list-type.service";
-import { AuthService } from "@shared/service";
+import { AuthService, ProgressService } from "@shared/service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from "@shared/component";
-import { Subject } from "rxjs";
+import { Subject, Subscription } from "rxjs";
+import { webSocket, WebSocketSubject } from "rxjs/webSocket";
+import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 
 @Component({
     selector: "list-modal",
@@ -35,14 +37,26 @@ export class ListModalComponent implements OnInit, OnDestroy {
     message: string = null;
 
     public onTableChange: Subject<LazyLoadEvent>;
+
     public onRowSelect: Subject<{
         version: string,
         uid: string
     }>;
 
+    progressNotifier: WebSocketSubject<{ type: string, content: any }>;
+    progressSubscription: Subscription = null;
+
+    jobNotifier: WebSocketSubject<{ type: string, message: string }>;
+    jobSubscription: Subscription = null;
+
+    historyOid: string = null;
+
+    isRefreshing: boolean = false;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(public bsModalRef: BsModalRef,
         private service: ListTypeService,
+        private pService: ProgressService,
         private authService: AuthService) {
         this.userOrgCodes = this.authService.getMyOrganizations();
     }
@@ -55,6 +69,22 @@ export class ListModalComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.onTableChange.unsubscribe();
         this.onRowSelect.unsubscribe();
+
+        if (this.progressSubscription != null) {
+            this.progressSubscription.unsubscribe();
+        }
+
+        if (this.progressNotifier != null) {
+            this.progressNotifier.complete();
+        }
+
+        if (this.jobSubscription != null) {
+            this.jobSubscription.unsubscribe();
+        }
+
+        if (this.jobSubscription != null) {
+            this.jobNotifier.complete();
+        }
     }
 
     init(oid: string, tableState: LazyLoadEvent): void {
@@ -78,8 +108,25 @@ export class ListModalComponent implements OnInit, OnDestroy {
                 create: false,
                 label: this.list.displayLabel,
                 sort: [{ field: "code", order: 1 }],
-                baseZIndex: 1051
+                baseZIndex: 1051,
+                pageSize: 10
             };
+        });
+
+        let baseUrl = WebSockets.buildBaseUrl();
+
+        this.progressNotifier = webSocket(baseUrl + "/websocket/progress/" + oid);
+        this.progressSubscription = this.progressNotifier.subscribe(message => {
+            if (message.content != null) {
+                this.handleProgressChange(message.content);
+            } else {
+                this.handleProgressChange(message);
+            }
+        });
+
+        this.jobNotifier = webSocket(baseUrl + "/websocket/notify");
+        this.jobSubscription = this.jobNotifier.subscribe(message => {
+            this.handleJobChange();
         });
     }
 
@@ -137,34 +184,13 @@ export class ListModalComponent implements OnInit, OnDestroy {
 
                 if (attribute.type === "date") {
                     column.type = "DATE";
-
-                    if (this.tableState != null && this.tableState.filters != null && this.tableState.filters[attribute.name] != null) {
-                        const dates = this.tableState.filters[attribute.name].value;
-
-                        column.startDate = dates.startDate;
-                        column.endDate = dates.endDate;
-                    }
                 } else if (attribute.name === "invalid" || attribute.type === "boolean") {
                     column.type = "BOOLEAN";
-
-                    if (this.tableState != null && this.tableState.filters != null && this.tableState.filters[attribute.name] != null) {
-                        column.value = this.tableState.filters[attribute.name].value;
-                    }
                 } else if (attribute.type === "number") {
                     column.type = "NUMBER";
-
-                    if (this.tableState != null && this.tableState.filters != null && this.tableState.filters[attribute.name] != null) {
-                        column.value = this.tableState.filters[attribute.name].value;
-                    }
                 } else if (attribute.type === "list") {
-                    let text = "";
-
-                    if (this.tableState != null && this.tableState.filters != null && this.tableState.filters[attribute.name] != null) {
-                        text = this.tableState.filters[attribute.name].value;
-                    }
-
                     column.type = "AUTOCOMPLETE";
-                    column.text = text;
+                    column.text = "";
                     column.onComplete = () => {
                         this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
                             column.results = options;
@@ -200,6 +226,30 @@ export class ListModalComponent implements OnInit, OnDestroy {
         return false;
     }
 
+    handleProgressChange(progress: any): void {
+        this.isRefreshing = (progress.current < progress.total);
+
+        this.pService.progress(progress);
+    }
+
+    handleJobChange(): void {
+        if (this.historyOid != null) {
+            this.service.getJob(this.historyOid).then(job => {
+                if (job != null) {
+                    if (job.status === "SUCCESS" || job.status === "FAILURE") {
+                        this.handleProgressChange({ current: 1, total: 1 });
+
+                        this.historyOid = null;
+                    }
+
+                    if (job.status === "FAILURE" && job.exception != null) {
+                        this.message = job.exception.message;
+                    }
+                }
+            });
+        }
+    }
+
     onClick(event: TableEvent): void {
         if (event.type === "view") {
             const result: any = event.row;
@@ -211,6 +261,10 @@ export class ListModalComponent implements OnInit, OnDestroy {
 
             this.bsModalRef.hide();
         }
+    }
+
+    onClose(): void {
+        this.bsModalRef.hide();
     }
 
     error(err: HttpErrorResponse): void {

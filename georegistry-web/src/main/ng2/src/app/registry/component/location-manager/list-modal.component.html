@@ -3,6 +3,14 @@
 
     <div class="row">
         <div *ngIf="list" class="col-md-12">
+            <h2>
+                {{list.displayLabel}}
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div *ngIf="list" class="col-md-12">
 
             <ng-container *ngIf="cols != null && config != null">
                 <generic-table [cols]="cols" [config]="config" [refresh]="refresh"
@@ -11,6 +19,17 @@
                     [initialState]="tableState"></generic-table>
             </ng-container>
 
+        </div>
+    </div>
+
+    <div class="row">
+        <div *ngIf="list" class="col-md-12">
+            <div class="text-right" style="margin-top: 20px;">
+
+                <button type="button" class="btn btn-default" (click)="onClose()">
+                  <localize key="modal.button.close"></localize>
+                </button>
+              </div>            
         </div>
     </div>
 </div>

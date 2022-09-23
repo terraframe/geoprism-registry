@@ -242,8 +242,10 @@ export class LayerRecord {
     typeCode?: string;
     code?: string;
     forDate?: string;
+    uid?: string;
 
     // Attributes required for the list row properties panel
+    displayLabel?: LocalizedValue;
     typeLabel?: LocalizedValue;
     version?: string;
     attributes?: any[];

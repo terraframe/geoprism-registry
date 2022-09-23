@@ -772,7 +772,16 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
             }, 5);
 
-            if (record.recordType === "LIST") { // this happens when list type is NOT working
+            if (record.recordType === "GEO_OBJECT") {
+                this.selectGeoObject({
+                    properties: {
+                        type: record.typeCode,
+                        code: record.code,
+                        uid: record.uid,
+                        displayLabel: record.displayLabel
+                    }
+                } as GeoObject);
+            } else if (record.recordType === "LIST") {
                 const bounds = record.bbox;
 
                 this.requestedDate = record.forDate === "" || record.forDate === undefined ? null : record.forDate;
@@ -1055,7 +1064,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             ignoreBackdropClick: true
         });
 
-        this.bsModalRef.content.init(oid, this.listData != null ? this.listData.event : null);
+        this.bsModalRef.content.init(oid, this.listData != null && this.listData.oid === oid ? this.listData.event : null);
         this.bsModalRef.content.onTableChange.subscribe(newEvent => {
             this.listData = {
                 oid: oid,
@@ -1063,13 +1072,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             };
         });
         this.bsModalRef.content.onRowSelect.subscribe(event => {
-            if (this.state.version == null || this.state.uid == null ||
-                this.state.version !== event.version ||
-                this.state.uid !== event.uid) {
-                this.updateState({ version: event.version, uid: event.uid });
-            } else {
-                this.handleRecord(event.version, event.uid);
-            }
+            this.handleRecord(event.version, event.uid);
+
+            // if (this.state.version == null || this.state.uid == null ||
+            //     this.state.version !== event.version ||
+            //     this.state.uid !== event.uid) {
+            //     this.updateState({ version: event.version, uid: event.uid });
+            // } else {
+            //     this.handleRecord(event.version, event.uid);
+            // }
         });
     }
 

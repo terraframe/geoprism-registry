@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -150,6 +150,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.ListTypeVersionPageQuery;
@@ -224,7 +225,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       new GeoserverCreateWMSCommand(this).doIt();
     }
-    
+
     SerializedListTypeCache.getInstance().remove(this.getListTypeOid());
   }
 
@@ -762,7 +763,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       new GeoserverRemoveWMSCommand(this).doIt();
     }
-    
+
     SerializedListTypeCache.getInstance().remove(this.getListTypeOid());
   }
 
@@ -1300,7 +1301,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     final File directory = masterlist.getShapefileDirectory();
     final File file = new File(directory, filename);
 
-    ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
+    ServerGeoObjectType type = masterlist.getGeoObjectType();
     boolean isMember = Organization.isMember(masterlist.getOrganization());
 
     JsonObject object = new JsonObject();
@@ -1328,6 +1329,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     object.add(ListType.GEOSPATIAL_METADATA, this.toMetadataJSON("geospatial"));
 
     Progress progress = ProgressService.get(this.getOid());
+
     if (progress != null)
     {
       object.add("refreshProgress", progress.toJson());
@@ -1623,7 +1625,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         removeAttribute(mdBusiness, attributeType.getName() + locale.toString());
       }
     }
-    
+
     SerializedListTypeCache.getInstance().remove(this.getListTypeOid());
   }
 
@@ -1863,14 +1865,34 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     ListType listType = this.getListType();
 
+    if (this.getWorking() && listType.doesActorHaveExploratoryPermission())
+    {
+      ServerGeoObjectIF geoObject = new ServerGeoObjectService().getGeoObject(uid, listType.getGeoObjectType().getCode());
+      geoObject.setDate(this.getForDate());
+
+      if (geoObject != null)
+      {
+        JsonObject record = new JsonObject();
+        record.addProperty("recordType", "GEO_OBJECT");
+        record.addProperty("code", geoObject.getCode());
+        record.addProperty("typeCode", geoObject.getType().getCode());
+        record.addProperty("uid", uid);
+        record.add("displayLabel", geoObject.getDisplayLabel().toJSON());
+
+        return record;
+      }
+    }
+
     JsonObject record = new JsonObject();
     record.addProperty("recordType", "LIST");
     record.addProperty("version", this.getOid());
     record.addProperty("edit", this.getWorking() && listType.doesActorHaveExploratoryPermission());
     record.add("typeLabel", LocalizedValueConverter.convertNoAutoCoalesce(listType.getDisplayLabel()).toJSON());
     record.add("attributes", this.getAttributesAsJson());
-    
-    // We can't return the type of the list here because the front-end needs to know the concrete type. There is a corner case here where the Geo-Object could potentially not exist.
+
+    // We can't return the type of the list here because the front-end needs
+    // to know the concrete type. There is a corner case here where the
+    // Geo-Object could potentially not exist.
     String typeCode = new ServerGeoObjectService().getGeoObject(uid, listType.getGeoObjectType().getCode()).getType().getCode();
     record.addProperty("typeCode", typeCode);
 

@@ -14,6 +14,7 @@ export class GenericTableConfig {
     label: string;
     sort?: { field: string, order: number }[];
     baseZIndex?: number;
+    pageSize?: number;
 
 }
 

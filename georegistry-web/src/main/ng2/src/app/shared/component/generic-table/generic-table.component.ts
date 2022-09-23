@@ -59,6 +59,29 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
             if (this.initialState.multiSortMeta != null) {
                 this.config.sort = this.initialState.multiSortMeta;
             }
+
+            this.cols.forEach(column => {
+                if (column.type === "DATE") {
+                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
+                        const dates = this.initialState.filters[column.field].value;
+
+                        column.startDate = dates.startDate;
+                        column.endDate = dates.endDate;
+                    }
+                } else if (column.type === "BOOLEAN") {
+                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
+                        column.value = this.initialState.filters[column.field].value;
+                    }
+                } else if (column.type === "NUMBER") {
+                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
+                        column.value = this.initialState.filters[column.field].value;
+                    }
+                } else if (column.type === "AUTOCOMPLETE") {
+                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
+                        column.text = this.initialState.filters[column.field].value;
+                    }
+                }
+            });
         }
 
         if (this.refresh != null) {
@@ -71,6 +94,10 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
 
         if (this.config.baseZIndex == null) {
             this.config.baseZIndex = 0;
+        }
+
+        if (this.config.pageSize != null) {
+            this.page.pageSize = this.config.pageSize;
         }
     }
 
