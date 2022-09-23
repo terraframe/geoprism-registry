@@ -27,13 +27,17 @@ import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.localization.SupportedLocaleIF;
 
+import net.geoprism.registry.localization.DefaultLocaleView;
 import net.geoprism.registry.service.LocaleSerializer;
 
 public class ImportAttributeSerializer extends LocaleSerializer implements CustomSerializer
@@ -42,26 +46,33 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
 
   private boolean      includeCoordinates;
 
-  private Collection<Locale> locales;
-
-  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, List<Locale> locales)
+  private GeoObjectType type;
+  
+  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, GeoObjectType type)
   {
-    this(locale, includeCoordinates, false, locales);
+    this(locale, includeCoordinates, false, type);
   }
 
-  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, boolean includeUid, Collection<Locale> locales)
+  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, boolean includeUid, GeoObjectType type)
   {
     super(locale);
 
+    this.type = type;
     this.includeCoordinates = includeCoordinates;
-    this.locales = locales;
 
     this.filter = new TreeSet<String>();
     this.filter.add(DefaultAttribute.LAST_UPDATE_DATE.getName());
     this.filter.add(DefaultAttribute.CREATE_DATE.getName());
     this.filter.add(DefaultAttribute.SEQUENCE.getName());
     this.filter.add(DefaultAttribute.TYPE.getName());
-    this.filter.add(DefaultAttribute.DISPLAY_LABEL.getName());
+    
+    for (AttributeType attr : type.getAttributeMap().values())
+    {
+      if (attr instanceof AttributeLocalType)
+      {
+        this.filter.add(attr.getName());
+      }
+    }
 
     this.filter.add(DefaultAttribute.INVALID.getName());
     this.filter.add(DefaultAttribute.EXISTS.getName());
@@ -80,37 +91,41 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
   @Override
   public JsonArray serialize(GeoObjectType type, Collection<AttributeType> attributes)
   {
-    JsonArray attrs = super.serialize(type, attributes);
+    JsonArray jaAttrs = super.serialize(type, attributes);
 
-    /*
-     * Add a display label attribute for each locale
-     */
-    AttributeType displayLabel = type.getAttribute(DefaultAttribute.DISPLAY_LABEL.getName()).get();
-
-    attrs.add(this.serializeLocaleAttribute(displayLabel, LocalizedValue.DEFAULT_LOCALE));
-
-    for (Locale locale : this.locales)
+    for (AttributeType attr : this.type.getAttributeMap().values())
     {
-      String key = locale.toString();
-
-      attrs.add(this.serializeLocaleAttribute(displayLabel, key));
+      if (attr instanceof AttributeLocalType)
+      {
+        serializeLocalAttribute(attr, jaAttrs);
+      }
     }
 
-    return attrs;
+    return jaAttrs;
   }
 
-  public JsonObject serializeLocaleAttribute(AttributeType displayLabel, String key)
+  private void serializeLocalAttribute(AttributeType attr, JsonArray jaAttrs)
+  {
+    jaAttrs.add(this.serializeLocale(attr, LocalizedValue.DEFAULT_LOCALE, LocalizationFacade.localize(DefaultLocaleView.LABEL)));
+    
+    for (SupportedLocaleIF locale : LocalizationFacade.getSupportedLocales())
+    {
+      jaAttrs.add(this.serializeLocale(attr, locale.getLocale().toString(), locale.getDisplayLabel().getValue()));
+    }
+  }
+
+  public JsonObject serializeLocale(AttributeType displayLabel, String key, String label)
   {
     JsonObject attribute = displayLabel.toJSON(this);
     attribute.addProperty("locale", key);
     attribute.addProperty(AttributeType.JSON_CODE, displayLabel.getName());
 //    attribute.addProperty(AttributeType.JSON_REQUIRED, key.equals(LocalizedValue.DEFAULT_LOCALE));
 
-    JsonObject label = attribute.get(AttributeType.JSON_LOCALIZED_LABEL).getAsJsonObject();
-    String value = label.get(LocalizedValue.LOCALIZED_VALUE).getAsString();
-    value += " (" + key + ")";
-
-    label.addProperty(LocalizedValue.LOCALIZED_VALUE, value);
+    JsonObject jaLabel = attribute.get(AttributeType.JSON_LOCALIZED_LABEL).getAsJsonObject();
+    String value = jaLabel.get(LocalizedValue.LOCALIZED_VALUE).getAsString();
+    value += " (" + label + ")";
+    jaLabel.addProperty(LocalizedValue.LOCALIZED_VALUE, value);
+    
     return attribute;
   }
 

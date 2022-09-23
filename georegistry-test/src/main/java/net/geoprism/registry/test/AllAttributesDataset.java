@@ -19,25 +19,17 @@
 package net.geoprism.registry.test;
 
 import java.util.Date;
-import java.util.List;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.system.metadata.MdBusiness;
-
-import junit.framework.Assert;
-import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.ClassifierIsARelationship;
-import net.geoprism.registry.conversion.TermConverter;
 
 /**
  * This dataset defines a parent Type and Geo-Object called ALL, and then creates children Types and Geo-Objects for each of the different attribute types.
@@ -61,6 +53,8 @@ public class AllAttributesDataset extends TestDataSet
 
   public static final TestGeoObjectTypeInfo GOT_CHAR                     = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "CHAR", GeometryType.MULTIPOLYGON, ORG);
 
+  public static final TestGeoObjectTypeInfo GOT_LOCAL                    = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "LOCAL", GeometryType.MULTIPOLYGON, ORG);
+  
   public static final TestGeoObjectTypeInfo GOT_INT                      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "INT", GeometryType.MULTIPOLYGON, ORG);
 
   public static final TestGeoObjectTypeInfo GOT_FLOAT                    = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "FLOAT", GeometryType.MULTIPOLYGON, ORG);
@@ -74,6 +68,8 @@ public class AllAttributesDataset extends TestDataSet
   public static final TestGeoObjectInfo     GO_ALL                       = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_ALL", GOT_ALL);
 
   public static final TestGeoObjectInfo     GO_CHAR                      = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_CHAR", GOT_CHAR);
+  
+  public static final TestGeoObjectInfo     GO_LOCAL                     = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_LOCAL", GOT_LOCAL);
 
   public static final TestGeoObjectInfo     GO_INT                       = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_INT", GOT_INT);
 
@@ -85,27 +81,31 @@ public class AllAttributesDataset extends TestDataSet
 
   public static final TestGeoObjectInfo     GO_TERM                      = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_TERM", GOT_TERM);
 
-  public static final TestAttributeTypeInfo              AT_ALL_CHAR = new TestAttributeTypeInfo("testcharacter", "testcharacter", GOT_ALL, AttributeCharacterType.TYPE);
+  public static final TestAttributeTypeInfo              AT_ALL_CHAR = new TestAttributeTypeInfo("testcharacterall", "testcharacterall", GOT_ALL, AttributeCharacterType.TYPE);
 
   public static final TestAttributeTypeInfo              AT_GO_CHAR = new TestAttributeTypeInfo("testcharacter", "testcharacter", GOT_CHAR, AttributeCharacterType.TYPE);
+  
+  public static final TestAttributeTypeInfo              AT_ALL_LOCAL = new TestAttributeTypeInfo("testlocalall", "testlocalall", GOT_ALL, AttributeLocalType.TYPE);
 
-  public static final TestAttributeTypeInfo              AT_ALL_INT = new TestAttributeTypeInfo("testinteger", "testinteger", GOT_ALL, AttributeIntegerType.TYPE);
+  public static final TestAttributeTypeInfo              AT_GO_LOCAL = new TestAttributeTypeInfo("testlocal", "testlocal", GOT_LOCAL, AttributeLocalType.TYPE);
+
+  public static final TestAttributeTypeInfo              AT_ALL_INT = new TestAttributeTypeInfo("testintegerall", "testintegerall", GOT_ALL, AttributeIntegerType.TYPE);
 
   public static final TestAttributeTypeInfo              AT_GO_INT = new TestAttributeTypeInfo("testinteger", "testinteger", GOT_INT, AttributeIntegerType.TYPE);
 
-  public static final TestAttributeTypeInfo              AT_ALL_FLOAT = new TestAttributeTypeInfo("testfloat", "testfloat", GOT_ALL, AttributeFloatType.TYPE);
+  public static final TestAttributeTypeInfo              AT_ALL_FLOAT = new TestAttributeTypeInfo("testfloatall", "testfloatall", GOT_ALL, AttributeFloatType.TYPE);
 
   public static final TestAttributeTypeInfo              AT_GO_FLOAT = new TestAttributeTypeInfo("testfloat", "testfloat", GOT_FLOAT, AttributeFloatType.TYPE);
 
-  public static final TestAttributeTypeInfo              AT_ALL_BOOL = new TestAttributeTypeInfo("testboolean", "testboolean", GOT_ALL, AttributeBooleanType.TYPE);
+  public static final TestAttributeTypeInfo              AT_ALL_BOOL = new TestAttributeTypeInfo("testbooleanall", "testbooleanall", GOT_ALL, AttributeBooleanType.TYPE);
 
   public static final TestAttributeTypeInfo              AT_GO_BOOL = new TestAttributeTypeInfo("testboolean", "testboolean", GOT_BOOL, AttributeBooleanType.TYPE);
 
-  public static final TestAttributeTypeInfo              AT_ALL_DATE = new TestAttributeTypeInfo("testdate", "testdate", GOT_ALL, AttributeDateType.TYPE);
+  public static final TestAttributeTypeInfo              AT_ALL_DATE = new TestAttributeTypeInfo("testdateall", "testdateall", GOT_ALL, AttributeDateType.TYPE);
 
   public static final TestAttributeTypeInfo              AT_GO_DATE = new TestAttributeTypeInfo("testdate", "testdate", GOT_DATE, AttributeDateType.TYPE);
 
-  public static final TestAttributeTermTypeInfo          AT_ALL_TERM = new TestAttributeTermTypeInfo("testterm", "testterm", GOT_ALL);
+  public static final TestAttributeTermTypeInfo          AT_ALL_TERM = new TestAttributeTermTypeInfo("testtermall", "testtermall", GOT_ALL);
 
   public static final TestAttributeTermTypeInfo          AT_GO_TERM = new TestAttributeTermTypeInfo("testterm", "testterm", GOT_TERM);
 
@@ -130,6 +130,7 @@ public class AllAttributesDataset extends TestDataSet
 
     managedGeoObjectTypeInfos.add(GOT_ALL);
     managedGeoObjectTypeInfos.add(GOT_CHAR);
+    managedGeoObjectTypeInfos.add(GOT_LOCAL);
     managedGeoObjectTypeInfos.add(GOT_INT);
     managedGeoObjectTypeInfos.add(GOT_FLOAT);
     managedGeoObjectTypeInfos.add(GOT_BOOL);
@@ -138,6 +139,7 @@ public class AllAttributesDataset extends TestDataSet
 
     managedGeoObjectInfos.add(GO_ALL);
     managedGeoObjectInfos.add(GO_CHAR);
+    managedGeoObjectInfos.add(GO_LOCAL);
     managedGeoObjectInfos.add(GO_INT);
     managedGeoObjectInfos.add(GO_FLOAT);
     managedGeoObjectInfos.add(GO_BOOL);
@@ -167,6 +169,11 @@ public class AllAttributesDataset extends TestDataSet
     GO_ALL.setDefaultValue(AT_ALL_CHAR.getAttributeName(), "Test Attribute Text Value 123");
     AT_GO_CHAR.apply();
     GO_CHAR.setDefaultValue(AT_GO_CHAR.getAttributeName(), "Test Attribute Text Value 123");
+    
+    AT_ALL_LOCAL.apply();
+    GO_ALL.setDefaultValue(AT_ALL_LOCAL.getAttributeName(), "Test All Attribute Local Value 123");
+    AT_GO_LOCAL.apply();
+    GO_LOCAL.setDefaultValue(AT_GO_LOCAL.getAttributeName(), "Test Attribute Local Value 123");
 
     AT_ALL_INT.apply();
     GO_ALL.setDefaultValue(AT_ALL_INT.getAttributeName(), 123L);
@@ -220,6 +227,7 @@ public class AllAttributesDataset extends TestDataSet
     HIER.setRoot(GOT_ALL);
 
     GOT_ALL.addChild(GOT_CHAR, HIER);
+    GOT_ALL.addChild(GOT_LOCAL, HIER);
     GOT_ALL.addChild(GOT_INT, HIER);
     GOT_ALL.addChild(GOT_FLOAT, HIER);
     GOT_ALL.addChild(GOT_BOOL, HIER);
@@ -234,6 +242,7 @@ public class AllAttributesDataset extends TestDataSet
 //    GO_ALL.getGeoEntity().addLink(GeoEntity.getRoot(), HIER.getServerObject().getEntityType());
 
     GO_ALL.addChild(GO_CHAR, HIER);
+    GO_ALL.addChild(GO_LOCAL, HIER);
     GO_ALL.addChild(GO_INT, HIER);
     GO_ALL.addChild(GO_FLOAT, HIER);
     GO_ALL.addChild(GO_BOOL, HIER);

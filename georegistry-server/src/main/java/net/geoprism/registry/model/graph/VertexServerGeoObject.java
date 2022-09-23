@@ -51,6 +51,7 @@ import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
@@ -77,6 +78,8 @@ import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
+import com.runwaysdk.dataaccess.metadata.MdAttributeLocalDAO;
+import com.runwaysdk.dataaccess.metadata.MdAttributeLocalEmbeddedDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
@@ -412,9 +415,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setValue(String attributeName, Object value)
   {
-    if (attributeName.contentEquals(DefaultAttribute.DISPLAY_LABEL.getName()))
+    AttributeType at = this.type.getAttribute(attributeName).orElse(null); // This may return null if it's a Geometry attribute.
+    
+    if (at instanceof AttributeLocalType)
     {
-      this.setDisplayLabel((LocalizedValue) value);
+      LocalizedValueConverter.populate(this.vertex, attributeName, (LocalizedValue) value, this.date, null);
     }
     else
     {
@@ -425,13 +430,25 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setValue(String attributeName, Object value, Date startDate, Date endDate)
   {
-    if (attributeName.contentEquals(DefaultAttribute.DISPLAY_LABEL.getName()))
+    AttributeType at = this.type.getAttribute(attributeName).orElse(null); // This may return null if it's a Geometry attribute.
+    
+    if (at instanceof AttributeLocalType)
     {
-      this.setDisplayLabel((LocalizedValue) value, startDate, endDate);
+      LocalizedValueConverter.populate(this.vertex, attributeName, (LocalizedValue) value, startDate, endDate);
     }
     else
     {
-      this.vertex.setValue(attributeName, value, startDate, endDate);
+//        this.vertex.setValue(attributeName, value, startDate, endDate);
+      
+      // TODO I don't know why this if check is here
+      if (value != null)
+      {
+        this.vertex.setValue(attributeName, value, startDate, endDate);
+      }
+      else
+      {
+        this.vertex.setValue(attributeName, (String) null, startDate, endDate);
+      }
     }
   }
 
@@ -487,14 +504,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         {
           Object value = geoObject.getValue(attributeName);
 
-          if (value != null)
-          {
-            this.vertex.setValue(attributeName, value, startDate, endDate);
-          }
-          else
-          {
-            this.vertex.setValue(attributeName, (String) null, startDate, endDate);
-          }
+//          if (value != null)
+//          {
+//            this.vertex.setValue(attributeName, value, startDate, endDate);
+//          }
+//          else
+//          {
+//            this.vertex.setValue(attributeName, (String) null, startDate, endDate);
+//          }
+          
+          this.setValue(attributeName, value, startDate, endDate);
         }
       }
     });
@@ -526,16 +545,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       // this.setGeometry(geom, votDTO.getStartDate(), votDTO.getEndDate());
       // }
       // }
-      else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
-      {
-        this.getValuesOverTime(attributeName).clear();
-        for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
-        {
-          LocalizedValue label = (LocalizedValue) votDTO.getValue();
-
-          this.setDisplayLabel(label, votDTO.getStartDate(), votDTO.getEndDate());
-        }
-      }
+//      else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
+//      {
+//        this.getValuesOverTime(attributeName).clear();
+//        for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
+//        {
+//          LocalizedValue label = (LocalizedValue) votDTO.getValue();
+//
+//          this.setDisplayLabel(label, votDTO.getStartDate(), votDTO.getEndDate());
+//        }
+//      }
       else if (this.vertex.hasAttribute(attributeName) && !this.vertex.getMdAttributeDAO(attributeName).isSystem())
       {
         this.getValuesOverTime(attributeName).clear();
@@ -583,14 +602,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           {
             Object value = votDTO.getValue();
 
-            if (value != null)
-            {
-              this.vertex.setValue(attributeName, value, votDTO.getStartDate(), votDTO.getEndDate());
-            }
-            else
-            {
-              this.vertex.setValue(attributeName, (String) null, votDTO.getStartDate(), votDTO.getEndDate());
-            }
+//            if (value != null)
+//            {
+//              this.vertex.setValue(attributeName, value, votDTO.getStartDate(), votDTO.getEndDate());
+//            }
+//            else
+//            {
+//              this.vertex.setValue(attributeName, (String) null, votDTO.getStartDate(), votDTO.getEndDate());
+//            }
+            
+            this.setValue(attributeName, value, votDTO.getStartDate(), votDTO.getEndDate());
           }
         }
       }
@@ -950,6 +971,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public Object getValue(String attributeName)
   {
+    AttributeType at = this.type.getAttribute(attributeName).orElse(null); // This may return null if it's a Geometry attribute.
+    
     if (attributeName.equals(DefaultAttribute.CODE.getName()))
     {
       return this.getCode();
@@ -957,10 +980,6 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     else if (attributeName.equals(DefaultAttribute.UID.getName()))
     {
       return this.getUid();
-    }
-    else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
-    {
-      return this.getDisplayLabel();
     }
     else if (attributeName.equals(DefaultAttribute.CREATE_DATE.getName()))
     {
@@ -970,18 +989,19 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       return this.getExists();
     }
+    else if (at instanceof AttributeLocalType)
+    {
+      return this.getValueLocalized(attributeName);
+    }
 
-    DefaultAttribute defaultAttr = DefaultAttribute.getByAttributeName(attributeName);
-    if (defaultAttr != null && !defaultAttr.isChangeOverTime())
+    if (at != null && !at.isChangeOverTime())
     {
       return this.vertex.getObjectValue(attributeName);
     }
 
-    MdAttributeConcreteDAOIF mdAttribute = this.vertex.getMdAttributeDAO(attributeName);
-
     Object value = this.getMostRecentValue(attributeName);
 
-    if (value != null && mdAttribute instanceof MdAttributeTermDAOIF)
+    if (value != null && at instanceof AttributeTermType)
     {
       return Classifier.get((String) value);
     }
@@ -992,6 +1012,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public Object getValue(String attributeName, Date date)
   {
+    AttributeType at = this.type.getAttribute(attributeName).orElse(null); // This may return null if it's a Geometry attribute.
+    
     if (attributeName.equals(DefaultAttribute.CODE.getName()))
     {
       return this.getCode();
@@ -999,10 +1021,6 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     else if (attributeName.equals(DefaultAttribute.UID.getName()))
     {
       return this.getUid();
-    }
-    else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
-    {
-      return this.getDisplayLabel(date);
     }
     else if (attributeName.equals(DefaultAttribute.CREATE_DATE.getName()))
     {
@@ -1012,18 +1030,19 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       return this.getExists(date);
     }
-
-    DefaultAttribute defaultAttr = DefaultAttribute.getByAttributeName(attributeName);
-    if (defaultAttr != null && !defaultAttr.isChangeOverTime())
+    else if (at instanceof AttributeLocalType)
+    {
+      return this.getValueLocalized(attributeName, date);
+    }
+    
+    if (at != null && !at.isChangeOverTime())
     {
       return this.vertex.getObjectValue(attributeName);
     }
 
-    MdAttributeConcreteDAOIF mdAttribute = this.vertex.getMdAttributeDAO(attributeName);
-
     Object value = this.vertex.getObjectValue(attributeName, date);
 
-    if (value != null && mdAttribute instanceof MdAttributeTermDAOIF)
+    if (value != null && at instanceof AttributeTermType)
     {
       return Classifier.get((String) value);
     }
@@ -1638,14 +1657,14 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     Map<String, AttributeType> attributes = type.getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
-      if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
+      if (attribute instanceof AttributeLocalType)
       {
         ValueOverTimeCollection votc = this.getValuesOverTime(attributeName);
         ValueOverTimeCollectionDTO votcDTO = new ValueOverTimeCollectionDTO(attribute);
 
         for (ValueOverTime vot : votc)
         {
-          Object value = this.getDisplayLabel(vot.getStartDate());
+          LocalizedValue value = this.getValueLocalized(attributeName, vot.getStartDate());
 
           ValueOverTimeDTO votDTO = new ValueOverTimeDTO(vot.getOid(), vot.getStartDate(), vot.getEndDate(), votcDTO);
           votDTO.setValue(value);
@@ -1876,15 +1895,20 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
   public LocalizedValue getDisplayLabel()
   {
+    return this.getValueLocalized(DefaultAttribute.DISPLAY_LABEL.getName());
+  }
+  
+  private LocalizedValue getValueLocalized(String attributeName)
+  {
     VertexObjectDAO vertexObjectDAO = null;
 
     if (this.date == null)
     {
-      vertexObjectDAO = (VertexObjectDAO) this.getMostRecentValue(DefaultAttribute.DISPLAY_LABEL.getName());
+      vertexObjectDAO = (VertexObjectDAO) this.getMostRecentValue(attributeName);
     }
     else
     {
-      GraphObject graphObject = vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName(), this.date);
+      GraphObject graphObject = vertex.getEmbeddedComponent(attributeName, this.date);
 
       if (graphObject != null)
       {
@@ -1902,7 +1926,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
   public LocalizedValue getDisplayLabel(Date date)
   {
-    GraphObject graphObject = vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName(), date);
+    return this.getValueLocalized(DefaultAttribute.DISPLAY_LABEL.getName(), date);
+  }
+  
+  private LocalizedValue getValueLocalized(String attributeName, Date date)
+  {
+    GraphObject graphObject = vertex.getEmbeddedComponent(attributeName, date);
 
     if (graphObject == null)
     {

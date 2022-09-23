@@ -19,6 +19,9 @@
                             <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'character'}" (click)="setAttribute('character')">
                                 <localize key="data.type.label.text"></localize>
                             </label>
+                            <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'local'}" (click)="setAttribute('local')">
+                                <localize key="data.type.label.localtext"></localize>
+                            </label>
                             <label class="btn full-width-radio-button" [ngClass]="{active: newAttribute.type === 'integer'}" (click)="setAttribute('integer')">
                                 <localize key="data.type.label.integer"></localize>
                             </label>

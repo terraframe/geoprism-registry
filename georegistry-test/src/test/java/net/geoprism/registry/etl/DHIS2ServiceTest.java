@@ -412,6 +412,13 @@ public class DHIS2ServiceTest
   {
     exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR, null);
   }
+  
+  @Test
+  @Request
+  public void testExportLocalAttr() throws Exception
+  {
+    exportCustomAttribute(AllAttributesDataset.GOT_LOCAL, AllAttributesDataset.GO_LOCAL, testData.AT_GO_LOCAL, null);
+  }
 
   @Test
   @Request

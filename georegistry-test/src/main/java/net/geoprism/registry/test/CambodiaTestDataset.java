@@ -24,6 +24,7 @@ import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -96,6 +97,8 @@ public class CambodiaTestDataset extends TestDataSet
   public static final TestUserInfo          USER_MOHA_AC          = new TestUserInfo("mohac", "mohac", "mohaac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_MOH.getCode(), GOT_Hospital.getCode()) });
   
   public static final TestAttributeTypeInfo AT_National_Anthem    = new TestAttributeTypeInfo("NationalAnthem", "National Anthem", GOT_Country, AttributeCharacterType.TYPE);
+  
+  public static final TestAttributeTypeInfo AT_SHORT_NAME         = new TestAttributeTypeInfo("shortName", "Short Name", GOT_Country, AttributeLocalType.TYPE);
 
   public static final TestAttributeTypeInfo AT_PHONE_COUNTRY_CODE = new TestAttributeTypeInfo("PhoneCountryCode", "Phone Country Code", GOT_Country, AttributeIntegerType.TYPE);
 
@@ -227,6 +230,9 @@ public class CambodiaTestDataset extends TestDataSet
     
     AT_National_Anthem.apply();
     GO_Cambodia.setDefaultValue(AT_National_Anthem.getAttributeName(), "Nokor Reach");
+    
+    AT_SHORT_NAME.apply();
+    GO_Cambodia.setDefaultValue(AT_SHORT_NAME.getAttributeName(), "Cam");
 
     AT_PHONE_COUNTRY_CODE.apply();
     GO_Cambodia.setDefaultValue(AT_PHONE_COUNTRY_CODE.getAttributeName(), 855L);

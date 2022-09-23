@@ -1048,7 +1048,7 @@ abstract public class TestDataSet
 
   public static TestAttributeTypeInfo createAttribute(String name, String label, TestGeoObjectTypeInfo got, String type)
   {
-    AttributeType at = AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, false);
+    AttributeType at = AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, true);
 
     String attributeTypeJSON = at.toJSON().toString();
 
