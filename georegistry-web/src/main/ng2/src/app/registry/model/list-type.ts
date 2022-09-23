@@ -1,5 +1,6 @@
 import { Layer } from "@registry/service/layer-data-source";
 import { LocalizedValue, PageResult } from "@shared/model/core";
+import { LazyLoadEvent } from "primeng/api";
 import { GeoObject, GeoObjectType } from "./registry";
 
 export class VersionMetadata {
@@ -284,5 +285,12 @@ export class CurationJob {
     };
 
     page?: PageResult<CurationProblem>
+
+}
+
+export class ListData {
+
+    event: LazyLoadEvent;
+    oid: string;
 
 }

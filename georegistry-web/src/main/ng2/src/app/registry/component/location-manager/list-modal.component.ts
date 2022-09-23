@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ListTypeVersion } from "@registry/model/list-type";
+import { ListData, ListTypeVersion } from "@registry/model/list-type";
 import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { LazyLoadEvent } from "primeng/api";
@@ -36,8 +36,6 @@ export class ListModalComponent implements OnInit, OnDestroy {
 
     message: string = null;
 
-    public onTableChange: Subject<LazyLoadEvent>;
-
     public onRowSelect: Subject<{
         version: string,
         uid: string
@@ -62,12 +60,10 @@ export class ListModalComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.onTableChange = new Subject();
         this.onRowSelect = new Subject();
     }
 
     ngOnDestroy(): void {
-        this.onTableChange.unsubscribe();
         this.onRowSelect.unsubscribe();
 
         if (this.progressSubscription != null) {
@@ -87,8 +83,14 @@ export class ListModalComponent implements OnInit, OnDestroy {
         }
     }
 
-    init(oid: string, tableState: LazyLoadEvent): void {
-        this.tableState = tableState;
+    init(oid: string): void {
+        this.tableState = null;
+
+        if (localStorage.getItem("tableState") != null) {
+            const data: ListData = JSON.parse(localStorage.getItem("tableState"));
+
+            this.tableState = data.event;
+        }
 
         this.service.getVersion(oid).then(version => {
             this.list = version;
@@ -215,7 +217,12 @@ export class ListModalComponent implements OnInit, OnDestroy {
     onLoadEvent(event: LazyLoadEvent): void {
         this.tableState = event;
 
-        this.onTableChange.next(event);
+        const data: ListData = {
+            event: event,
+            oid: this.list.oid
+        };
+
+        localStorage.setItem("tableState", JSON.stringify(data));
     }
 
     isListInOrg(): boolean {

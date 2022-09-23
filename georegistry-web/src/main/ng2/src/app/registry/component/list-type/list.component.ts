@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
-import { LazyLoadEvent, FilterMetadata } from "primeng/api";
+import { LazyLoadEvent } from "primeng/api";
 
 import { Subject, Subscription } from "rxjs";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
@@ -12,7 +12,7 @@ import * as ColorGen from "color-generator";
 
 import { ErrorHandler } from "@shared/component";
 import { AuthService, ProgressService } from "@shared/service";
-import { ListTypeVersion } from "@registry/model/list-type";
+import { ListData, ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
@@ -47,7 +47,7 @@ export class ListComponent implements OnInit, OnDestroy {
     cols: GenericTableColumn[] = null;
     refresh: Subject<void>;
 
-    filters: { [s: string]: FilterMetadata; } = null;
+    tableState: LazyLoadEvent = null;
 
     showInvalid = false;
 
@@ -77,6 +77,12 @@ export class ListComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         const oid = this.route.snapshot.paramMap.get("oid");
+
+        if (localStorage.getItem("tableState") != null) {
+            const data: ListData = JSON.parse(localStorage.getItem("tableState"));
+
+            this.tableState = data.event;
+        }
 
         this.service.getVersion(oid).then(version => {
             this.list = version;
@@ -217,7 +223,7 @@ export class ListComponent implements OnInit, OnDestroy {
                     column.type = "AUTOCOMPLETE";
                     column.text = "";
                     column.onComplete = () => {
-                        this.service.values(this.list.oid, column.text, attribute.name, this.filters).then(options => {
+                        this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
                             column.results = options;
                         }).catch((err: HttpErrorResponse) => {
                             this.error(err);
@@ -306,7 +312,7 @@ export class ListComponent implements OnInit, OnDestroy {
 
     onExport(): void {
         const criteria = {
-            filters: this.filters != null ? { ...this.filters } : {}
+            filters: this.tableState.filters != null ? { ...this.tableState.filters } : {}
         };
 
         if (!this.showInvalid) {
@@ -387,11 +393,14 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     onLoadEvent(event: LazyLoadEvent): void {
-        this.filters = null;
+        this.tableState = event;
 
-        if (event.filters != null) {
-            this.filters = event.filters;
-        }
+        const data: ListData = {
+            event: event,
+            oid: this.list.oid
+        };
+
+        localStorage.setItem("tableState", JSON.stringify(data));
     }
 
     isListInOrg(): boolean {

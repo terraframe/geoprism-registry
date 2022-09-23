@@ -34,7 +34,6 @@ import { Vertex } from "@registry/model/graph";
 import { LocalizedValue } from "@shared/model/core";
 import { debounce } from "ts-debounce";
 import { ListModalComponent } from "./list-modal.component";
-import { LazyLoadEvent } from "primeng/api";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -49,13 +48,6 @@ class SelectedObject {
     // If business object
     businessObject?: BusinessObject;
     businessType?: BusinessType;
-
-}
-
-class ListData {
-
-    event: LazyLoadEvent;
-    oid: string;
 
 }
 
@@ -203,8 +195,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     dateFieldValue: string;
 
     updateState: (newState: any) => void;
-
-    listData: ListData = null;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
@@ -1064,13 +1054,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             ignoreBackdropClick: true
         });
 
-        this.bsModalRef.content.init(oid, this.listData != null && this.listData.oid === oid ? this.listData.event : null);
-        this.bsModalRef.content.onTableChange.subscribe(newEvent => {
-            this.listData = {
-                oid: oid,
-                event: newEvent
-            };
-        });
+        this.bsModalRef.content.init(oid);
         this.bsModalRef.content.onRowSelect.subscribe(event => {
             this.handleRecord(event.version, event.uid);
 
