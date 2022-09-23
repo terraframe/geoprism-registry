@@ -156,99 +156,18 @@ public class DHIS2GeoObjectJsonAdapters
       return jo;
     }
     
-    /**
-     * This algorithm attempts to match the locales in the CGR to their best fit within DHIS2.
-     * 
-     * Best fit in this context means, in order of priority:
-     * 1. Both the language and country match exactly (either as specified or as omitted). eg. en_US -> en_US or en -> en
-     * 2. The CGR language matches a language in DHIS2, where the CGR locale has a country but the DHIS2 locale does not: eg. en_US -> en
-     * 3. The CGR language matches a language in DHIS2, but the countries do not match. If there are more than one locale which fits this criteria one will be chosen at random. eg. en_US -> en_UK
-     * 4. The CGR language matches a language in DHIS2, but the CGR locale does not have a country and the only matching language has a country. eg. en -> en_UK
-     * 5. The locale could not be matched and will not be exported.
-     */
-    private Map<String, DHIS2Locale> mapLocales(LocalizedValue lv)
-    {
-      Map<String, DHIS2Locale> map = new HashMap<String, DHIS2Locale>();
-      
-      try
-      {
-        Set<Locale> locales = LocalizationFacade.getInstalledLocales();
-        
-        for (Locale locale : locales)
-        {
-          if (lv.contains(locale) && lv.getValue(locale) != null)
-          {
-            for (DHIS2Locale dhis2Locale : this.dhis2Locales)
-            {
-              Locale localeDhis2 = LocaleUtils.toLocale(dhis2Locale.getLocale());
-              
-              if (localeDhis2.getLanguage().equals(locale.getLanguage()))
-              {
-                if (map.containsKey(locale.toString()))
-                {
-                  String loopDhis2Country = localeDhis2.getCountry();
-                  String existingDhis2Country = LocaleUtils.toLocale(map.get(locale.toString()).getLocale()).getCountry();
-                  String cgrCountry = locale.getCountry();
-                  
-                  boolean existingMatchesCountry = ((existingDhis2Country != null && cgrCountry != null) && existingDhis2Country.equals(cgrCountry)) || (existingDhis2Country == null && cgrCountry == null);
-                  boolean loopMatchesCountry = ((loopDhis2Country != null && cgrCountry != null) && loopDhis2Country.equals(cgrCountry)) || (loopDhis2Country == null && cgrCountry == null);
-                  boolean coalesceIntoGeneric = (loopDhis2Country == null || loopDhis2Country.length() == 0) && cgrCountry != null && cgrCountry.length() > 0;
-                  
-                  if (!existingMatchesCountry && (loopMatchesCountry || coalesceIntoGeneric))
-                  {
-                    map.put(locale.toString(), dhis2Locale);
-                  }
-                }
-                else
-                {
-                  map.put(locale.toString(), dhis2Locale);
-                }
-              }
-            }
-          }
-        }
-      }
-      catch (Throwable t)
-      {
-        logger.error("Error occurred while mapping cgr locales to dhis2 locales", t);
-      }
-      
-      return map;
-    }
-
-    private JsonArray writeTranslations(VertexServerGeoObject go)
+    private JsonArray writeTranslations(VertexServerGeoObject serverGo)
     {
       JsonArray translations = new JsonArray();
-      LocalizedValue lv = go.getDisplayLabel();
       
-      Map<String, DHIS2Locale> mappings = this.mapLocales(lv);
-
-      Set<Locale> locales = LocalizationFacade.getInstalledLocales();
-      for (Locale locale : locales)
+      if (this.syncLevel.getMappings() != null)
       {
-        if (lv.contains(locale) && lv.getValue(locale) != null)
+        for (DHIS2AttributeMapping mapping : this.syncLevel.getMappings())
         {
-          String localestring = locale.toString();
-          if (mappings != null && mappings.containsKey(locale.toString()))
-          {
-            DHIS2Locale dhis2Locale = mappings.get(locale.toString());
-            localestring = dhis2Locale.getLocale();
-          }
-          
-          JsonObject joLocaleName = new JsonObject();
-          joLocaleName.addProperty("property", "NAME");
-          joLocaleName.addProperty("locale", localestring);
-          joLocaleName.addProperty("value", lv.getValue(locale));
-          translations.add(joLocaleName);
-
-          JsonObject joLocaleShort = new JsonObject();
-          joLocaleShort.addProperty("property", "SHORT_NAME");
-          joLocaleShort.addProperty("locale", localestring);
-          joLocaleShort.addProperty("value", lv.getValue(locale));
-          translations.add(joLocaleShort);
+          mapping.writeTranslations(serverGo, this.dhis2Config.getDate(), translations, this.dhis2Config, this.syncLevel, this.dhis2Locales);
         }
       }
-
+      
       return translations;
     }
 

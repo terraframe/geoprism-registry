@@ -435,9 +435,14 @@ public class DHIS2SynchronizationManager
             if (submissionTranslation != null)
             {
               existingTranslation.addProperty("value", submissionTranslation.get("value").getAsString());
+              mapSubmissionTranslations.remove(submissionTranslation.get("locale").getAsString() + "-" + submissionTranslation.get("property").getAsString());
             }
             
             submissionTranslations.add(existingTranslation);
+          }
+          for (JsonObject newTranslation : mapSubmissionTranslations.values())
+          {
+            submissionTranslations.add(newTranslation);
           }
           
           JsonObject translationMockOrgUnit = new JsonObject();
