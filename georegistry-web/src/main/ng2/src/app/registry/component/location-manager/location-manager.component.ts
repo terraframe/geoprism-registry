@@ -238,6 +238,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.typeCache = this.cacheService.getTypeCache();
 
         this.geomService.dumpLayers();
+
+        const version = this.route.snapshot.queryParamMap.get("version");
+
+        if (version != null) {
+            this.onViewList(version);
+        }
     }
 
     ngOnDestroy(): void {

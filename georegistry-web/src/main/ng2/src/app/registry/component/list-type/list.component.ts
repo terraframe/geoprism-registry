@@ -78,8 +78,8 @@ export class ListComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         const oid = this.route.snapshot.paramMap.get("oid");
 
-        if (localStorage.getItem("tableState") != null) {
-            const data: ListData = JSON.parse(localStorage.getItem("tableState"));
+        if (localStorage.getItem(oid) != null) {
+            const data: ListData = JSON.parse(localStorage.getItem(oid));
 
             this.tableState = data.event;
         }
@@ -357,9 +357,9 @@ export class ListComponent implements OnInit, OnDestroy {
 
     onGotoMap(result: any): void {
         const params: any = { layers: JSON.stringify(this.layerFromVersion(this.list)) };
+        params.version = this.list.oid;
 
         if (result != null) {
-            params.version = this.list.oid;
             params.uid = result.uid;
             params.pageContext = "DATA";
 
@@ -400,7 +400,7 @@ export class ListComponent implements OnInit, OnDestroy {
             oid: this.list.oid
         };
 
-        localStorage.setItem("tableState", JSON.stringify(data));
+        localStorage.setItem(data.oid, JSON.stringify(data));
     }
 
     isListInOrg(): boolean {

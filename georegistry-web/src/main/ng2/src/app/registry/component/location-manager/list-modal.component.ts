@@ -86,8 +86,8 @@ export class ListModalComponent implements OnInit, OnDestroy {
     init(oid: string): void {
         this.tableState = null;
 
-        if (localStorage.getItem("tableState") != null) {
-            const data: ListData = JSON.parse(localStorage.getItem("tableState"));
+        if (localStorage.getItem(oid) != null) {
+            const data: ListData = JSON.parse(localStorage.getItem(oid));
 
             this.tableState = data.event;
         }
@@ -222,7 +222,7 @@ export class ListModalComponent implements OnInit, OnDestroy {
             oid: this.list.oid
         };
 
-        localStorage.setItem("tableState", JSON.stringify(data));
+        localStorage.setItem(data.oid, JSON.stringify(data));
     }
 
     isListInOrg(): boolean {

@@ -55,6 +55,8 @@ export class AuthService {
     }
 
     afterLogIn(logInResponse: any): void {
+        localStorage.clear();
+
         this.buildFromCookieJson(JSON.parse(this.service.get("user")));
 
         this.setLocales(logInResponse.installedLocales);
@@ -64,6 +66,7 @@ export class AuthService {
     afterLogOut(): void {
         this.user = null;
         sessionStorage.removeItem("locales");
+        localStorage.clear();
     }
 
     loadLocales() {
