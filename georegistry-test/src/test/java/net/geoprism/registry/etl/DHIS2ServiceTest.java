@@ -57,6 +57,7 @@ import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
+import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
@@ -273,10 +274,10 @@ public class DHIS2ServiceTest
     // These DHIS2 default attribute names are also hardcoded in the
     // synchronization-config-modal.component.ts front-end as well as the
     // DHIS2FeatureService.buildDefaultDhis2OrgUnitAttributes
-    lazyMap.put("name", DefaultAttribute.DISPLAY_LABEL.getName());
-    lazyMap.put("shortName", DefaultAttribute.DISPLAY_LABEL.getName());
-    lazyMap.put("code", DefaultAttribute.CODE.getName());
-    lazyMap.put("openingDate", DefaultAttribute.CREATE_DATE.getName());
+    lazyMap.put(OrganisationUnit.NAME, DefaultAttribute.DISPLAY_LABEL.getName());
+    lazyMap.put(OrganisationUnit.SHORT_NAME, DefaultAttribute.DISPLAY_LABEL.getName());
+    lazyMap.put(OrganisationUnit.CODE, DefaultAttribute.CODE.getName());
+    lazyMap.put(OrganisationUnit.OPENING_DATE, DefaultAttribute.CREATE_DATE.getName());
 
     for (Entry<String, String> entry : lazyMap.entrySet())
     {
@@ -411,6 +412,13 @@ public class DHIS2ServiceTest
   public void testExportCharacterAttr() throws Exception
   {
     exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR, null);
+  }
+  
+  @Test
+  @Request
+  public void testExportLocalAttr() throws Exception
+  {
+    exportCustomAttribute(AllAttributesDataset.GOT_LOCAL, AllAttributesDataset.GO_LOCAL, testData.AT_GO_LOCAL, null);
   }
 
   @Test

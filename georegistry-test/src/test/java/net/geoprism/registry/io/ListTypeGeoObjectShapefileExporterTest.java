@@ -218,7 +218,7 @@ public class ListTypeGeoObjectShapefileExporterTest
     Object geometry = feature.getDefaultGeometry();
     Assert.assertNotNull(geometry);
 
-    ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, LocalizationFacade.getInstalledLocales());
+    ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, type.getType());
     Collection<AttributeType> attributes = serializer.attributes(type.getType());
 
     for (AttributeType attribute : attributes)

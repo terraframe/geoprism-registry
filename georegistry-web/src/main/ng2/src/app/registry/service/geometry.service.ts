@@ -1,6 +1,6 @@
 
 import { Injectable, Output, EventEmitter, OnDestroy } from "@angular/core";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 
 import * as MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { Map, LngLat, LngLatBounds, AnySourceData, LngLatBoundsLike } from "mapbox-gl";
@@ -17,6 +17,7 @@ import { LayerDiffingStrategy } from "./layer-diffing-strategy";
 import { LocationManagerState } from "@registry/component/location-manager/location-manager.component";
 import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
 import { debounce } from "ts-debounce";
+import { LocationManagerService } from "./location-manager.service";
 
 export const OLD_LAYER_COLOR = "#A4A4A4";
 
@@ -60,16 +61,16 @@ export class GeometryService implements OnDestroy {
     @Output() layersChange: EventEmitter<Layer[]> = new EventEmitter();
 
     /*
-    * Subscription for changes to the URL parameters
+    * Subscription for changes to the location manager state
     */
-    queryParamSubscription: Subscription;
+    stateSub: Subscription;
 
     /*
      * URL pamaters
      */
     syncWithUrlParams: boolean = false;
 
-    params: LocationManagerState = null;
+    state: LocationManagerState = null;
 
     dataSourceFactory: DataSourceFactory;
 
@@ -85,7 +86,8 @@ export class GeometryService implements OnDestroy {
         private relVizService: RelationshipVisualizationService,
         private mapService: MapService,
         private listService: ListTypeService,
-        private localService: LocalizationService
+        private localService: LocalizationService,
+        private locationManagerService: LocationManagerService
     ) {
         this.dataSourceFactory = new DataSourceFactory(this, this.registryService, this.relVizService, this.mapService, this.listService);
         this.layerSorter = new LayerGroupSorter(this.localService);
@@ -99,14 +101,15 @@ export class GeometryService implements OnDestroy {
         // this.editingControl = null;
 
         if (syncWithUrlParams) {
-            this.queryParamSubscription = this.route.queryParams.subscribe(params => {
+            this.stateSub = this.locationManagerService.stateChange$.subscribe(state => {
                 try {
-                    this.handleParameterChange(params);
+                    this.stateChange(state);
                 } catch (err) {
                     // eslint-disable-next-line no-console
                     console.log(err); // We will be unsubscribed if we throw an unhandled error and we don't want that to happen
                 }
             });
+            this.stateChange(this.locationManagerService.getState());
         }
 
         // this.mapAllLayers();
@@ -137,17 +140,17 @@ export class GeometryService implements OnDestroy {
     }
 
     ngOnDestroy(): void {
-        if (this.queryParamSubscription) {
-            this.queryParamSubscription.unsubscribe();
+        if (this.stateSub) {
+            this.stateSub.unsubscribe();
         }
     }
 
-    handleParameterChange(params: Params): void {
-        this.params = params as LocationManagerState;
+    stateChange(state: LocationManagerState): void {
+        this.state = state;
 
-        if (this.params != null) {
-            if (this.params.layers != null) {
-                let deserializedLayers: any = JSON.parse(this.params.layers);
+        if (this.state != null) {
+            if (this.state.layers != null) {
+                let deserializedLayers: any = JSON.parse(this.state.layers);
 
                 let oldLayers = this.layers;
 
@@ -318,12 +321,7 @@ export class GeometryService implements OnDestroy {
         if (this.syncWithUrlParams) {
             let serialized = this.dataSourceFactory.serializeLayers(newLayers);
 
-            this.router.navigate([], {
-                relativeTo: this.route,
-                queryParams: { layers: JSON.stringify(serialized) },
-                queryParamsHandling: "merge", // remove to replace all query params by provided
-                replaceUrl: true
-            });
+            this.locationManagerService.setState({ layers: JSON.stringify(serialized) });
         } else {
             this.syncMapState();
         }
@@ -357,16 +355,16 @@ export class GeometryService implements OnDestroy {
             config.maxZoom = 12;
         }
 
-        if (this.params.graphPanelOpen === "true" && !(this.params.attrPanelOpen === "true")) {
+        if (this.state.graphPanelOpen && !this.state.attrPanelOpen) {
             // If graph panel is open, but not attribute panel (takes up half of the left screen)
             config.padding.left += Math.round(window.innerWidth / 2);
-        } else if (this.params.attrPanelOpen === "true" && (this.params.text != null) && !(this.params.graphPanelOpen === "true")) {
+        } else if (this.state.attrPanelOpen && (this.state.text != null) && !this.state.graphPanelOpen) {
             // If attribute panel is open, but not the graph panel (takes up half of the left screen)
             config.padding.left += Math.round(window.innerWidth / 3);
         }
 
-        if (this.params.layersPanelSize != null) {
-            let layerPanelSize = Number.parseInt(this.params.layersPanelSize);
+        if (this.state.layersPanelSize != null) {
+            let layerPanelSize = Number.parseInt(this.state.layersPanelSize);
 
             if (layerPanelSize === PANEL_SIZE_STATE.WINDOWED || PANEL_SIZE_STATE.FULLSCREEN) {
                 config.padding.right += 50;

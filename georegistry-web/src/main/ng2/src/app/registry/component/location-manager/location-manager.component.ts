@@ -34,6 +34,8 @@ import { Vertex } from "@registry/model/graph";
 import { LocalizedValue } from "@shared/model/core";
 import { debounce } from "ts-debounce";
 import { ListModalComponent } from "./list-modal.component";
+import { distinctUntilChanged, map } from "rxjs/operators";
+import { LocationManagerService } from "@registry/service/location-manager.service";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -53,7 +55,7 @@ class SelectedObject {
 
 export interface LocationManagerState {
     layers?: string,
-    graphPanelOpen?: string,
+    graphPanelOpen?: boolean,
     graphOid?: string,
     date?: string,
     type?: string,
@@ -64,7 +66,7 @@ export interface LocationManagerState {
     layersPanelSize?: string,
     pageContext?: string,
     version?: string,
-    attrPanelOpen?: string,
+    attrPanelOpen?: boolean,
     uid?: string
 }
 
@@ -101,16 +103,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
     data: GeoObject[] = [];
 
-    state: LocationManagerState = { attrPanelOpen: "true" };
+    state: LocationManagerState = { attrPanelOpen: true };
 
     /*
      * Currently selected record
      */
     current: SelectedObject;
-
-    requestedDate: string = null;
-
-    calculatedDate: string = null;
 
     /*
      * Currently highlighted feature
@@ -131,8 +129,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      *  Mode used to determine what is being show on the left hand panel
      */
     mode: number = this.MODE.SEARCH;
-
-    graphPanelOpen: boolean = false;
 
     /*
     *  Flag to indicate if the left handle panel should be displayed or not
@@ -210,6 +206,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         private lService: LocalizationService,
         private authService: AuthService,
         private dateService: DateService,
+        private locationManagerService: LocationManagerService,
         private businessObjectService: BusinessObjectService,
         private location: Location,
         private componentFactoryResolver: ComponentFactoryResolver,
@@ -224,13 +221,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.windowWidth = window.innerWidth;
         this.windowHeight = window.innerHeight;
 
-        this.subscription = this.route.queryParams.subscribe(state => {
-            // this.state = state;
-
-            this.handleStateChange(state);
-        });
-
-        // this.subscription = this.locationManagerService.stateEmitter.subscribe(state => this.handleStateChange(state));
+        // this.subscription = this.route.queryParams.subscribe(state => { this.handleStateChange(state); });
+        this.subscription = this.locationManagerService.stateChange$.subscribe(state => this.handleStateChange(state));
 
         this.searchEnabled = registry.searchEnabled && (this.authService.isRC(false) || this.authService.isRM() || this.authService.isRA());
         this.graphVisualizerEnabled = registry.graphVisualizerEnabled || false;
@@ -315,12 +307,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     _updateState(newState: LocationManagerState): void {
-        this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: newState,
-            queryParamsHandling: "merge",
-            replaceUrl: true
-        });
+        this.locationManagerService.setState(newState);
     }
 
     onGraphNodeSelect(node: Vertex): void {
@@ -358,14 +345,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.state = newState;
 
             let mode = this.MODE.SEARCH;
-            let showPanel = (newState.attrPanelOpen === "true" || newState.attrPanelOpen === undefined);
+            let showPanel: boolean = (newState.attrPanelOpen || newState.attrPanelOpen === undefined);
 
             if (newState != null) {
+                if (newState.date !== oldState.date) {
+                    this.dateFieldValue = newState.date;
+                }
+
                 // Handle parameters for searching for a geo object
                 if (newState.text != null) {
                     if (newState.text !== oldState.text || newState.date !== oldState.date) {
                         this.searchFieldText = newState.text;
-                        this.dateFieldValue = newState.date;
 
                         this.loadSearchFromState();
                     }
@@ -375,7 +365,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 // Handle parameters for selecting a geo object
                 if ((newState.objectType == null || newState.objectType === "GEOOBJECT") && newState.type != null && newState.code != null) {
-                    if (oldState.type !== newState.type || oldState.code !== newState.code) {
+                    if (oldState.type !== newState.type || oldState.code !== newState.code || oldState.date !== newState.date) {
                         this.loadGeoObjectFromState();
                     }
 
@@ -416,16 +406,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
 
                 if (newState.attrPanelOpen != null) {
-                    showPanel = (newState.attrPanelOpen === "true");
-                }
-
-                if (newState.graphPanelOpen != null) {
-                    this.graphPanelOpen = newState.graphPanelOpen === "true";
+                    showPanel = newState.attrPanelOpen;
                 }
             }
 
             this.changeMode(mode);
-            this.setPanel(showPanel);
+            if (oldState.attrPanelOpen !== showPanel) {
+                this.setPanel(showPanel);
+            }
 
             if (newState.bounds != null && newState.bounds.length > 0 && !this.geomService.isMapZooming()) {
                 const bounds = JSON.parse(newState.bounds);
@@ -458,8 +446,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     setPanel(showPanel: boolean): void {
-        if ((this.state.attrPanelOpen === "true") !== showPanel) {
-            this.updateState({ attrPanelOpen: showPanel ? "true" : "false" });
+        if (this.state.attrPanelOpen !== showPanel) {
+            this.updateState({ attrPanelOpen: showPanel });
 
             timeout(() => {
                 this.map.resize();
@@ -468,7 +456,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     togglePanel(): void {
-        this.setPanel(!(this.state.attrPanelOpen === "true"));
+        this.setPanel(!(this.state.attrPanelOpen));
     }
 
     changeMode(mode: number): void {
@@ -533,7 +521,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
         });
 
-        this.handleStateChange(this.state);
+        this.handleStateChange(this.locationManagerService.getState());
     }
 
     onCreate(layer: any): void {
@@ -780,8 +768,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             } else if (record.recordType === "LIST") {
                 const bounds = record.bbox;
 
-                this.requestedDate = record.forDate === "" || record.forDate === undefined ? null : record.forDate;
-
                 if (bounds && Array.isArray(bounds)) {
                     // 1. Create a component reference from the component
                     const componentRef = this.componentFactoryResolver
@@ -810,7 +796,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                                 uid: uid,
                                 displayLabel: new LocalizedValue(record.data.displayLabelDefaultLocale, [])
                             }
-                        } as GeoObject);
+                        } as GeoObject, record.forDate);
                         // this.zoomToFeature(node, null);
                     });
 
@@ -859,11 +845,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     featurePanelForDateChange(date: string) {
-        if (date !== null) {
-            this.geomService.stopEditing();
+        // if (date !== null) {
+        this.geomService.stopEditing();
 
-            this.calculatedDate = date;
-        }
+        this.updateState({ date: date });
+        // }
     }
 
     select(node: any, event: MouseEvent): void {
@@ -879,12 +865,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    selectGeoObject(geoObject: GeoObject): void {
+    selectGeoObject(geoObject: GeoObject, date: string = null): void {
         this.closeEditSessionSafeguard().then(() => {
-            this.addLayerForGeoObject(geoObject);
+            this.addLayerForGeoObject(geoObject, date);
 
             window.setTimeout(() => {
-                this.updateState({ type: geoObject.properties.type, code: geoObject.properties.code, objectType: "GEOOBJECT", uid: geoObject.properties.uid, version: null, text: null });
+                let newState: LocationManagerState = { type: geoObject.properties.type, code: geoObject.properties.code, objectType: "GEOOBJECT", uid: geoObject.properties.uid, version: null, text: null };
+
+                if (date != null) {
+                    newState.date = date;
+                }
+
+                this.updateState(newState);
             }, 60);
         });
     }
@@ -905,7 +897,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             };
 
             if (this.state.code !== "__NEW__") {
-                this.requestedDate = this.current.forDate === "" ? null : this.current.forDate;
                 // this.zoomToFeature(this.current.geoObject, null);
             }
         });
@@ -962,7 +953,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
-    addLayerForGeoObject(geoObject: GeoObject): void {
+    addLayerForGeoObject(geoObject: GeoObject, paramDate: string = null): void {
         this.typeCache.waitOnTypes().then(() => {
             // this.service.getGeoObjectByCode(code, typeCode).then(geoObject => {
 
@@ -971,7 +962,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             // Add layer
             let layers: Layer[] = this.geomService.getLayers();
 
-            let date = this.state == null ? null : this.state.date;
+            let date = (paramDate != null) ? paramDate : (this.state == null ? null : this.state.date);
             let dataSource = new GeoObjectLayerDataSource(this.service, geoObject.properties.code, geoObject.properties.type, date);
 
             let displayLabel = geoObject.properties.displayLabel.localizedValue;
@@ -1026,19 +1017,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     toggleGraphPanel(): void {
-        this.graphPanelOpen = !this.graphPanelOpen;
-
-        // window.setTimeout(() => {
-        //     let graphContainer = document.getElementById("graph-container");
-
-        //     if (graphContainer) {
-        //         this.svgHeight = graphContainer.clientHeight;
-        //         this.svgWidth = graphContainer.clientWidth;
-        //         // this.panToNode(this.geoObject.properties.uid);
-        //     }
-        // }, 10);
-
-        this.updateState({ graphPanelOpen: this.graphPanelOpen });
+        this.updateState({ graphPanelOpen: !this.state.graphPanelOpen });
     }
 
     convertMapBounds(llb: LngLatBounds): LngLatBounds {

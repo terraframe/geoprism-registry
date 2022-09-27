@@ -37,6 +37,7 @@ import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
@@ -78,6 +79,7 @@ import com.runwaysdk.system.metadata.MdAttributeConcrete;
 import com.runwaysdk.system.metadata.MdAttributeDateTime;
 import com.runwaysdk.system.metadata.MdAttributeDouble;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
+import com.runwaysdk.system.metadata.MdAttributeLocalText;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
@@ -1146,6 +1148,14 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
     else if (attributeType.getType().equals(AttributeBooleanType.TYPE))
     {
       mdAttribute = new MdAttributeBoolean();
+    }
+    else if (attributeType.getType().equals(AttributeLocalType.TYPE))
+    {
+      mdAttribute = new MdAttributeLocalText();
+    }
+    else
+    {
+      throw new UnsupportedOperationException();
     }
 
     mdAttribute.setAttributeName(attributeType.getName());

@@ -20,9 +20,14 @@ package net.geoprism.registry.etl;
 
 import java.lang.reflect.Type;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 
+import org.apache.commons.lang3.LocaleUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -53,7 +58,9 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.localization.LocalizationFacade;
 
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
+import net.geoprism.dhis2.dhis2adapter.response.model.DHIS2Locale;
 import net.geoprism.dhis2.dhis2adapter.response.model.Option;
+import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache;
@@ -207,6 +214,120 @@ public class DHIS2AttributeMapping
 
       attributeValues.add(av);
     }
+  }
+  
+  public void writeTranslations(VertexServerGeoObject serverGo, Date date, JsonArray translations, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel level, List<DHIS2Locale> dhis2Locales)
+  {
+    final ServerGeoObjectType got = level.getGeoObjectType();
+    final AttributeType attr = serverGo.getType().getAttribute(cgrAttrName).orElse(null);
+    
+    if (attr != null && attr instanceof AttributeLocalType)
+    {
+      String property = null;
+      
+      if (OrganisationUnit.NAME.equals(this.dhis2AttrName))
+      {
+        property = "NAME";
+      }
+      else if (OrganisationUnit.SHORT_NAME.equals(this.dhis2AttrName))
+      {
+        property = "SHORT_NAME";
+      }
+      else if (OrganisationUnit.DESCRIPTION.equals(this.dhis2AttrName))
+      {
+        property = "DESCRIPTION";
+      }
+
+      if (property != null)
+      {
+        final LocalizedValue lv = (LocalizedValue) this.getAttributeValue(serverGo, date, attr, got);
+        
+        if (lv != null)
+        {
+          final Map<String, DHIS2Locale> mappings = this.mapLocales(lv, dhis2Locales);
+      
+          final Set<Locale> locales = LocalizationFacade.getInstalledLocales();
+          for (Locale locale : locales)
+          {
+            if (lv.contains(locale) && lv.getValue(locale) != null)
+            {
+              String localestring = locale.toString();
+              if (mappings != null && mappings.containsKey(locale.toString()))
+              {
+                DHIS2Locale dhis2Locale = mappings.get(locale.toString());
+                localestring = dhis2Locale.getLocale();
+              }
+              
+              final JsonObject joLocaleName = new JsonObject();
+              joLocaleName.addProperty("property", property);
+              joLocaleName.addProperty("locale", localestring);
+              joLocaleName.addProperty("value", lv.getValue(locale));
+              translations.add(joLocaleName);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  /**
+   * This algorithm attempts to match the locales in the CGR to their best fit within DHIS2.
+   * 
+   * Best fit in this context means, in order of priority:
+   * 1. Both the language and country match exactly (either as specified or as omitted). eg. en_US -> en_US or en -> en
+   * 2. The CGR language matches a language in DHIS2, where the CGR locale has a country but the DHIS2 locale does not: eg. en_US -> en
+   * 3. The CGR language matches a language in DHIS2, but the countries do not match. If there are more than one locale which fits this criteria one will be chosen at random. eg. en_US -> en_UK
+   * 4. The CGR language matches a language in DHIS2, but the CGR locale does not have a country and the only matching language has a country. eg. en -> en_UK
+   * 5. The locale could not be matched and will not be exported.
+   */
+  private Map<String, DHIS2Locale> mapLocales(LocalizedValue lv, List<DHIS2Locale> dhis2Locales)
+  {
+    Map<String, DHIS2Locale> map = new HashMap<String, DHIS2Locale>();
+    
+    try
+    {
+      Set<Locale> locales = LocalizationFacade.getInstalledLocales();
+      
+      for (Locale locale : locales)
+      {
+        if (lv.contains(locale) && lv.getValue(locale) != null)
+        {
+          for (DHIS2Locale dhis2Locale : dhis2Locales)
+          {
+            Locale localeDhis2 = LocaleUtils.toLocale(dhis2Locale.getLocale());
+            
+            if (localeDhis2.getLanguage().equals(locale.getLanguage()))
+            {
+              if (map.containsKey(locale.toString()))
+              {
+                String loopDhis2Country = localeDhis2.getCountry();
+                String existingDhis2Country = LocaleUtils.toLocale(map.get(locale.toString()).getLocale()).getCountry();
+                String cgrCountry = locale.getCountry();
+                
+                boolean existingMatchesCountry = ((existingDhis2Country != null && cgrCountry != null) && existingDhis2Country.equals(cgrCountry)) || (existingDhis2Country == null && cgrCountry == null);
+                boolean loopMatchesCountry = ((loopDhis2Country != null && cgrCountry != null) && loopDhis2Country.equals(cgrCountry)) || (loopDhis2Country == null && cgrCountry == null);
+                boolean coalesceIntoGeneric = (loopDhis2Country == null || loopDhis2Country.length() == 0) && cgrCountry != null && cgrCountry.length() > 0;
+                
+                if (!existingMatchesCountry && (loopMatchesCountry || coalesceIntoGeneric))
+                {
+                  map.put(locale.toString(), dhis2Locale);
+                }
+              }
+              else
+              {
+                map.put(locale.toString(), dhis2Locale);
+              }
+            }
+          }
+        }
+      }
+    }
+    catch (Throwable t)
+    {
+      logger.error("Error occurred while mapping cgr locales to dhis2 locales", t);
+    }
+    
+    return map;
   }
   
   protected Object getAttributeValue(VertexServerGeoObject serverGo, Date date, AttributeType attr, ServerGeoObjectType got)

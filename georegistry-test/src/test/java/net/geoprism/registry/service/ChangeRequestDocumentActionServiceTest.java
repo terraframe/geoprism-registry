@@ -359,7 +359,7 @@ public class ChangeRequestDocumentActionServiceTest
     try (ApplicationResource res = service.downloadDocumentCR(request.getSessionId(), this.cr.getOid(), vfOid))
     {
       Assert.assertEquals("parent-test.xlsx", res.getName());
-      Assert.assertNotNull(res.getUnderlyingFile());
+      Assert.assertTrue(res.exists());
     }
   }
 }

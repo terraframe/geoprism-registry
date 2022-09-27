@@ -190,7 +190,7 @@ public class ExcelService
     final boolean includeCoordinates = geoObjectType.getGeometryType().equals(GeometryType.POINT) 
         || geoObjectType.getGeometryType().equals(GeometryType.MULTIPOINT)
         || geoObjectType.getGeometryType().equals(GeometryType.MIXED);
-    final ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, false, LocalizationFacade.getInstalledLocales());
+    final ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, false, geoObjectType.getType());
 
     JSONObject type = new JSONObject(geoObjectType.toJSON(serializer).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
