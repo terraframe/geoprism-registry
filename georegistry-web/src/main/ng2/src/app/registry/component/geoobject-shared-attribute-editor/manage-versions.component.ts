@@ -44,6 +44,8 @@ import { ChangeRequestEditor } from "./change-request-editor";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import * as ColorGen from "color-generator";
 import { CHANGE_REQUEST_SOURCE_TYPE_NEW, CHANGE_REQUEST_SOURCE_TYPE_OLD, GeoJsonLayer, GeoObjectLayerDataSource, Layer, ValueOverTimeDataSource } from "@registry/service/layer-data-source";
+import { LocationManagerState } from "../location-manager/location-manager.component";
+import { LocationManagerService } from "@registry/service/location-manager.service";
 
 @Component({
     selector: "manage-versions",
@@ -103,7 +105,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
 
     @Input() hierarchy: HierarchyOverTime = null;
 
-    @Input() filterDate: string = null;
+    filterDate: string = null;
 
     @Input() showAllInstances: boolean = true;
 
@@ -115,10 +117,13 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
 
     layerChangeSub: Subscription;
 
+    stateSub: Subscription;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(public geomService: GeometryService, public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService,
         public changeDetectorRef: ChangeDetectorRef, public dateService: DateService, private authService: AuthService,
-        private requestService: ChangeRequestService, private modalService: BsModalService, private elementRef: ElementRef) { }
+        private requestService: ChangeRequestService, private modalService: BsModalService, private elementRef: ElementRef,
+        private locationManagerService: LocationManagerService) { }
 
     ngOnInit(): void {
         this.changeRequestAttributeEditor = this.changeRequestEditor.getEditorForAttribute(this.attributeType, this.hierarchy) as ChangeRequestChangeOverTimeAttributeEditor;
@@ -134,6 +139,8 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
                 });
             }
         });
+        this.stateSub = this.locationManagerService.stateChange$.subscribe(state => this.stateChange(state));
+        this.stateChange(this.locationManagerService.getState());
     }
 
     ngAfterViewInit() {
@@ -160,11 +167,12 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.viewModels.forEach(vm => vm.destroy(this));
         this.layerChangeSub.unsubscribe();
+        this.stateSub.unsubscribe();
     }
 
-    setFilterDate(filterDate: string, refresh: boolean = true): void {
-        this.filterDate = filterDate;
-        if (refresh) {
+    stateChange(state: LocationManagerState): void {
+        if (this.filterDate !== state.date) {
+            this.filterDate = state.date;
             this.calculateViewModels();
         }
     }

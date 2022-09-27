@@ -20,7 +20,7 @@
 	<div style="position: absolute; top: 0; bottom: 0; left: 10px; right: 10px; height: 100%;">
 
 		<div class="row" style="margin-top: 50px;">
-			<div class="col-md-4" style="z-index: 999;" [hidden]="!(state.attrPanelOpen === 'true')">
+			<div class="col-md-4" style="z-index: 999;" [hidden]="!state.attrPanelOpen">
 				<div class="row" *ngIf="searchEnabled">
 					<!-- 
                     		Search features from the working versions of lists
@@ -100,25 +100,25 @@
 				
 			</div> <!--  END sidebar panel -->
 	
-			<div [ngClass]="{'col-md-6':!(state.attrPanelOpen === 'true'), 'col-md-8':(state.attrPanelOpen === 'true')}" style="z-index:4;padding-top:10px;">
+			<div [ngClass]="{'col-md-6':!state.attrPanelOpen, 'col-md-8':state.attrPanelOpen}" style="z-index:4;padding-top:10px;">
 			
 				<div style="z-index:999;padding-top:10px;overflow-y:auto;position:absolute;top:0;overflow:visible;">
 					<div *ngIf="searchEnabled || current != null" class="map-button clickable" style="padding-bottom: 5px;" (click)="!isEdit && togglePanel()">
 						<div class="map-button-icon">
 							<span class="fa clickable" style="font-size: 35px;"
-								[title]="((state.attrPanelOpen === 'true') ? 'explorer.resize.closeAttributePanel' : 'explorer.resize.openAttributePanel') | localize"
-								[ngClass]="{'fa-angle-double-left': (state.attrPanelOpen === 'true'), 'fa-angle-double-right': !(state.attrPanelOpen === 'true')}" aria-hidden="true">
+								[title]="(state.attrPanelOpen ? 'explorer.resize.closeAttributePanel' : 'explorer.resize.openAttributePanel') | localize"
+								[ngClass]="{'fa-angle-double-left': state.attrPanelOpen, 'fa-angle-double-right': !state.attrPanelOpen}" aria-hidden="true">
 							</span>
 						</div>
 					</div>
 					<span *ngIf="current != null && graphVisualizerEnabled" class="map-button visualize-mode-toggle"> 
 						<i style="margin-right: initial" class="visualize-mode-hierarchy clickable fa fa-share-alt" aria-hidden="true"
-						[title]="(graphPanelOpen ? 'explorer.resize.closeGraphViz' : 'explorer.resize.openGraphViz') | localize"
+						[title]="(state.graphPanelOpen ? 'explorer.resize.closeGraphViz' : 'explorer.resize.openGraphViz') | localize"
 						(click)="toggleGraphPanel()"></i>
 					</span>
 				</div>
 				
-				<div *ngIf="graphPanelOpen && graphVisualizerEnabled && state.type && state.code" id="graph-container" style="height: calc(100vh - 74px);padding-left: 58px;">
+				<div *ngIf="state.graphPanelOpen && graphVisualizerEnabled && state.type && state.code" id="graph-container" style="height: calc(100vh - 74px);padding-left: 58px;">
 					<div style="background-color: white; opacity: 100%; width: 100%; height: 100%;">
               <relationship-visualizer
                 (nodeSelect)="onGraphNodeSelect($event)">
@@ -135,7 +135,7 @@
 			<div class="row">
 				
 				<article id="navigator-layer-panel" class="base-layer-panel"
-					[ngClass]="{'second-map-button' : searchEnabled && !(state.attrPanelOpen === 'true')}"
+					[ngClass]="{'second-map-button' : searchEnabled && !state.attrPanelOpen}"
 					[ngStyle]="{'max-width': layersPanelSize === 2 ? '50%' : 'unset', 'padding-left': layersPanelSize === 2 ? '10px' : 'unset'}">
 					<layer-panel (create)="onCreate($event)" [panelSize]="layersPanelSize"> </layer-panel>
 				</article>

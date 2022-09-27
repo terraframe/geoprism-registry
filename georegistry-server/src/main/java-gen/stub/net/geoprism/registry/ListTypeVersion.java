@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
+import org.commongeoregistry.adapter.JsonDateUtil;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
@@ -1864,6 +1865,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     ListType listType = this.getListType();
 
     JsonObject record = new JsonObject();
+    record.addProperty("forDate", JsonDateUtil.format(this.getForDate()));
     record.addProperty("recordType", "LIST");
     record.addProperty("version", this.getOid());
     record.addProperty("edit", this.getWorking() && listType.doesActorHaveExploratoryPermission());

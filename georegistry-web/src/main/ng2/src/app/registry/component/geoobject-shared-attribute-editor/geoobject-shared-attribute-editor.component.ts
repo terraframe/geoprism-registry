@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Input, ViewChildren, QueryList, Output, EventEmitter } from "@angular/core";
+import { Component, OnInit, ViewChild, Input, ViewChildren, QueryList, Output, EventEmitter, OnDestroy } from "@angular/core";
 import { DatePipe } from "@angular/common";
 import {
     trigger,
@@ -19,6 +19,9 @@ import { ActionTypes } from "@registry/model/constants";
 import { ChangeRequestEditor } from "./change-request-editor";
 import { ManageVersionsComponent } from "./manage-versions.component";
 import { v4 as uuid } from "uuid";
+import { Subscription } from "rxjs";
+import { LocationManagerService } from "@registry/service/location-manager.service";
+import { LocationManagerState } from "../location-manager/location-manager.component";
 
 @Component({
     selector: "geoobject-shared-attribute-editor",
@@ -58,7 +61,7 @@ import { v4 as uuid } from "uuid";
  * - master list geoobject editing widget (feature-panel.component.ts)
  * Be wary of changing this component for one usecase and breaking other usecases!
  */
-export class GeoObjectSharedAttributeEditorComponent implements OnInit {
+export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnDestroy {
 
     // The changed state of the GeoObject in the GeoRegistry
     @Input() postGeoObject: GeoObjectOverTime = null;
@@ -91,12 +94,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     @Input() requestedDate: string = null;
 
-    calculatedDate: string = null;
+    forDate: string = null;
 
-    @Output() calculatedDateChange = new EventEmitter<string>();
-
-    // used in context of a list where reference back to the list forDate is needed
-    @Input() forDate: string = null;
     @Input() datasetId: string = null;
 
     // TODO : This was copy / pasted into manage-versions.component::onDateChange and ChangeRequestEditor::generateAttributeEditors
@@ -112,12 +111,16 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     showStabilityPeriods = false;
 
+    private subscription: Subscription;
+
     // eslint-disable-next-line no-useless-constructor
-    constructor(private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService, private registryService: RegistryService) {
+    constructor(private lService: LocalizationService, private locationManagerService: LocationManagerService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService, private registryService: RegistryService) {
 
     }
 
     ngOnInit(): void {
+        this.subscription = this.locationManagerService.stateChange$.subscribe(state => this.handleStateChange(state));
+
         if (this.attributeExcludes != null) {
             this.geoObjectAttributeExcludes.push.apply(this.geoObjectAttributeExcludes, this.attributeExcludes);
 
@@ -152,7 +155,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
 
         if (this.isNew) {
-            this.calculatedDate = null;
+            this.forDate = null;
         }
 
         let got = this.changeRequest.current ? this.changeRequest.current.geoObjectType : this.postGeoObject.geoObjectType;
@@ -166,14 +169,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         this.showAllInstances = (this.changeRequestEditor.changeRequest.isNew || this.changeRequestEditor.changeRequest.type === "CreateGeoObject");
     }
 
-    setFilterDate(date: string, refresh: boolean = true) {
-        this.calculatedDate = date;
+    ngOnDestroy(): void {
+        this.subscription.unsubscribe();
+    }
 
-        if (this.manageVersions != null) {
-            this.manageVersions.forEach(manageVersion => manageVersion.setFilterDate(this.calculatedDate, refresh));
-        }
-
-        this.calculatedDateChange.emit(this.calculatedDate);
+    handleStateChange(state: LocationManagerState) {
+        this.forDate = state.date;
     }
 
     getChangeRequestEditor(): ChangeRequestEditor {

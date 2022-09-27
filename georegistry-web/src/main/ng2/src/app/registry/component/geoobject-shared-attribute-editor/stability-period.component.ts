@@ -1,10 +1,9 @@
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, OnDestroy } from "@angular/core";
 import {
     trigger,
     style,
     animate,
-    transition,
-    state
+    transition
 } from "@angular/animations";
 
 import { TimeRangeEntry } from "@registry/model/registry";
@@ -12,10 +11,12 @@ import { LocalizationService } from "@shared/service";
 import { DateService } from "@shared/service/date.service";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { ChangeRequestEditor } from "./change-request-editor";
-import { GeoObjectSharedAttributeEditorComponent } from "./geoobject-shared-attribute-editor.component";
 import { StandardAttributeCRModel } from "./StandardAttributeCRModel";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 import { ChangeType } from "@registry/model/constants";
+import { Subscription } from "rxjs";
+import { LocationManagerService } from "@registry/service/location-manager.service";
+import { LocationManagerState } from "../location-manager/location-manager.component";
 
 export interface DateBoundary { date: string; isStart: boolean; isEnd: boolean }
 
@@ -52,15 +53,9 @@ export interface DataTimeSpan {startDay: number, startDate: string, displayStart
             ])
         ]]
 })
-export class StabilityPeriodComponent implements OnInit {
+export class StabilityPeriodComponent implements OnInit, OnDestroy {
 
     @Input() changeRequestEditor: ChangeRequestEditor;
-
-    @Input() sharedAttributeEditor: GeoObjectSharedAttributeEditorComponent;
-
-    @Input() filterDate: string;
-
-    @Input() forDate: string;
 
     @Input() context: string;
 
@@ -78,6 +73,10 @@ export class StabilityPeriodComponent implements OnInit {
 
     dataTimeSpan: DataTimeSpan = null;
 
+    private subscription: Subscription;
+
+    private forDate: string;
+
     _showHint: boolean = false;
     // eslint-disable-next-line accessor-pairs
     @Input() set showHint(val: boolean) {
@@ -89,7 +88,7 @@ export class StabilityPeriodComponent implements OnInit {
     }
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private lService: LocalizationService, public dateService: DateService) {}
+    constructor(private lService: LocalizationService, public dateService: DateService, private locationManagerService: LocationManagerService) {}
 
     ngOnInit(): void {
         this.generate();
@@ -100,23 +99,42 @@ export class StabilityPeriodComponent implements OnInit {
             }
         });
 
-        let timeline = this.timelines[0];
-        if (timeline && timeline.length > 1) {
-            if (this.filterDate != null) {
-                let index = timeline.findIndex(entry => this.dateService.between(this.filterDate, entry.period.startDate, entry.period.endDate));
+        this.subscription = this.locationManagerService.stateChange$.subscribe(state => this.handleStateChange(state));
 
-                if (index !== -1) {
-                    this.activeEntry = timeline[index];
+        this.calculateActiveTimelineEntry();
+    }
+
+    ngOnDestroy(): void {
+        this.subscription.unsubscribe();
+    }
+
+    handleStateChange(newState: LocationManagerState) {
+        if (this.forDate !== newState.date) {
+            this.forDate = newState.date;
+            this.calculateActiveTimelineEntry();
+        }
+    }
+
+    calculateActiveTimelineEntry() {
+        if (this.timelines != null) {
+            let timeline = this.timelines[0];
+            if (timeline && timeline.length > 1) {
+                if (this.forDate != null) {
+                    let index = timeline.findIndex(entry => this.dateService.between(this.forDate, entry.period.startDate, entry.period.endDate));
+
+                    if (index !== -1) {
+                        this.activeEntry = timeline[index];
+                    }
+                } else if (this.latestPeriodIsActive) {
+                    this.setActiveTimelineEntry(timeline[timeline.length - 1]);
                 }
-            } else if (this.latestPeriodIsActive) {
-                this.setActiveTimelineEntry(timeline[timeline.length - 1]);
-            }
 
-            if (this.forDate != null) {
-                let forDateIndex = timeline.findIndex(entry => this.dateService.between(this.forDate, entry.period.startDate, entry.period.endDate));
+                if (this.forDate != null) {
+                    let forDateIndex = timeline.findIndex(entry => this.dateService.between(this.forDate, entry.period.startDate, entry.period.endDate));
 
-                if (forDateIndex !== -1) {
-                    this.forDateEntry = timeline[forDateIndex];
+                    if (forDateIndex !== -1) {
+                        this.forDateEntry = timeline[forDateIndex];
+                    }
                 }
             }
         }
@@ -146,7 +164,7 @@ export class StabilityPeriodComponent implements OnInit {
         }
     }
 
-    setActiveTimelineEntry(entry: TimelineEntry, refresh: boolean = true) {
+    setActiveTimelineEntry(entry: TimelineEntry) {
         if (this.periods.length <= 1) {
             entry = null;
         }
@@ -156,7 +174,7 @@ export class StabilityPeriodComponent implements OnInit {
         }
 
         this.activeEntry = entry;
-        this.sharedAttributeEditor.setFilterDate(entry == null ? null : entry.period.startDate, refresh);
+        this.locationManagerService.setState({ date: entry == null ? null : entry.period.startDate });
     }
 
     generate() {
@@ -198,7 +216,7 @@ export class StabilityPeriodComponent implements OnInit {
         if (this.periods.length === 0) {
             return;
         } else if (this.periods.length === 1) {
-            this.setActiveTimelineEntry(null, false);
+            this.setActiveTimelineEntry(null);
         }
 
         this.calculateDataTimeSpan();

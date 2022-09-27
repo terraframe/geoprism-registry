@@ -91,6 +91,7 @@ import { HierarchyService } from "./service/hierarchy.service";
 import { RelationshipVisualizationService } from "./service/relationship-visualization.service";
 import { SynchronizationConfigService } from "./service/synchronization-config.service";
 import { LocalizationManagerService } from "./service/localization-manager.service";
+import { LocationManagerService } from "./service/location-manager.service";
 import { ChangeRequestService } from "./service/change-request.service";
 import { IOService } from "./service/io.service";
 import { MapService } from "./service/map.service";
@@ -276,6 +277,7 @@ import { BusinessObjectService } from "./service/business-object.service";
         HierarchyService,
         RelationshipVisualizationService,
         LocalizationManagerService,
+        LocationManagerService,
         ChangeRequestService,
         IOService,
         RegistryService,

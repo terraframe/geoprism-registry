@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { Component, OnInit, Output, EventEmitter } from "@angular/core";
+import { Component, OnInit, Output, EventEmitter, OnDestroy } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService } from "ngx-bootstrap/modal";
 
@@ -23,6 +23,7 @@ import { LngLatBounds } from "mapbox-gl";
 import { ObjectReference, RelatedType, Relationship, TreeData, Vertex } from "@registry/model/graph";
 import { LocationManagerState } from "../location-manager/location-manager.component";
 import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
+import { LocationManagerService } from "@registry/service/location-manager.service";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -50,7 +51,7 @@ export const DIMENSIONS = {
     templateUrl: "./relationship-visualizer.component.html",
     styleUrls: ["./relationship-visualizer.css"]
 })
-export class RelationshipVisualizerComponent implements OnInit {
+export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
     // Hack to allow the constant to be used in the html
     CONSTANTS = {
@@ -61,8 +62,6 @@ export class RelationshipVisualizerComponent implements OnInit {
     state: LocationManagerState = {};
 
     @Output() nodeSelect = new EventEmitter<Vertex>();
-
-    @Output() changeRelationship = new EventEmitter<string>();
 
     public DIMENSIONS = DIMENSIONS;
 
@@ -104,6 +103,7 @@ export class RelationshipVisualizerComponent implements OnInit {
     constructor(private modalService: BsModalService,
         private spinner: NgxSpinnerService,
         private vizService: RelationshipVisualizationService,
+        private locationManagerService: LocationManagerService,
         private cacheService: RegistryCacheService,
         private geomService: GeometryService,
         private router: Router,
@@ -112,14 +112,14 @@ export class RelationshipVisualizerComponent implements OnInit {
     ngOnInit(): void {
         this.typeCache = this.cacheService.getTypeCache();
 
-        this.stateSub = this.route.queryParams.subscribe((state) => { this.stateChange(state); });
+        this.stateSub = this.locationManagerService.stateChange$.subscribe(state => this.stateChange(state));
 
         // Angular keeps invoking our listener in the early stages of component loading. We don't want to make expensive
         // data requests unless we're certain that all the state are loaded.
         window.setTimeout(() => {
             this.loading = false;
 
-            this.stateChange(this.state);
+            this.stateChange(this.locationManagerService.getState());
         }, 10);
     }
 
@@ -213,7 +213,7 @@ export class RelationshipVisualizerComponent implements OnInit {
                         }
 
                         this.graphOid = this.relationship.oid;
-                        this.onSelectRelationship(true);
+                        this.onSelectRelationship();
                     } else {
                         this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.state.graphOid)];
                         this.graphOid = this.state.graphOid;
@@ -230,22 +230,14 @@ export class RelationshipVisualizerComponent implements OnInit {
         }
     }
 
-    private onSelectRelationship(updateUrl: boolean) {
+    private onSelectRelationship() {
         this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
 
         //   this.fetchData();
-        this.changeRelationship.emit(this.graphOid);
 
-        if (updateUrl) {
-            let newState = { graphOid: this.graphOid };
+        let newState = { graphOid: this.graphOid };
 
-            this.router.navigate([], {
-                relativeTo: this.route,
-                queryParams: newState,
-                queryParamsHandling: "merge", // remove to replace all query state by provided
-                replaceUrl: true
-            });
-        }
+        this.locationManagerService.setState(newState);
     }
 
     private fetchData(): void {
