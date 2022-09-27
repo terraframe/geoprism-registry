@@ -44,4 +44,5 @@ export const OverlayerIdentifier = {
     FEATURE_PANEL: "feature-panel",
     SEARCH_PANEL: "search-panel",
     VISUALIZER_PANEL: "visualizer-panel",
+    LIST_MODAL: "list-modal"
 } 

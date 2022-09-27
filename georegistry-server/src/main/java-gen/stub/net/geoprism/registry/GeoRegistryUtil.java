@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -59,11 +59,11 @@ import net.geoprism.registry.xml.XMLImporter;
 
 public class GeoRegistryUtil extends GeoRegistryUtilBase
 {
-  private static final long    serialVersionUID = 2034796376;
+  private static final long    serialVersionUID  = 2034796376;
 
-  public static final TimeZone SYSTEM_TIMEZONE  = TimeZone.getTimeZone("UTC");
-  
-  public static final String LOCAL_DATE_FORMAT = "yyyy-MM-dd";
+  public static final TimeZone SYSTEM_TIMEZONE   = TimeZone.getTimeZone("UTC");
+
+  public static final String   LOCAL_DATE_FORMAT = "yyyy-MM-dd";
 
   public GeoRegistryUtil()
   {
@@ -258,6 +258,15 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
     }
+    
+    // If the list isn't public and the user isn't a member of the organization the remove all non code and display label attributes
+    if(version.getListVisibility().equals(ListType.PRIVATE) && !Organization.isMember(version.getListType().getOrganization())) {
+      mdAttributes = mdAttributes.stream().filter(mdAttribute -> {
+        String attributeName = mdAttribute.definesAttribute();
+        
+        return attributeName.equals("code") || attributeName.contains("displayLabel"); 
+      }).collect(Collectors.toList());      
+    }
 
     try
     {
@@ -284,6 +293,16 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
     }
+    
+    // If the list isn't public and the user isn't a member of the organization the remove all non code and display label attributes
+    if(version.getListVisibility().equals(ListType.PRIVATE) && !Organization.isMember(version.getListType().getOrganization())) {
+      mdAttributes = mdAttributes.stream().filter(mdAttribute -> {
+        String attributeName = mdAttribute.definesAttribute();
+        
+        return attributeName.equals("code") || attributeName.contains("displayLabel"); 
+      }).collect(Collectors.toList());      
+    }
+
 
     try
     {

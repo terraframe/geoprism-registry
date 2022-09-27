@@ -1,15 +1,21 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ListData, ListTypeVersion } from "@registry/model/list-type";
 import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
-import { BsModalRef } from "ngx-bootstrap/modal";
+import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { LazyLoadEvent } from "primeng/api";
 import { ListTypeService } from "@registry/service/list-type.service";
-import { AuthService, ProgressService } from "@shared/service";
+import { AuthService } from "@shared/service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from "@shared/component";
 import { Subject, Subscription } from "rxjs";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
+import { ExportFormatModalComponent } from "../list-type/export-format-modal.component";
+import { GeoRegistryConfiguration } from "@core/model/registry";
+import { OverlayerIdentifier } from "@registry/model/constants";
+import { NgxSpinnerService } from "ngx-spinner";
+
+declare let registry: GeoRegistryConfiguration;
 
 @Component({
     selector: "list-modal",
@@ -17,6 +23,10 @@ import { WebSockets } from "@shared/component/web-sockets/web-sockets";
     styleUrls: []
 })
 export class ListModalComponent implements OnInit, OnDestroy {
+
+    CONSTANTS = {
+        LIST_MODAL: OverlayerIdentifier.LIST_MODAL
+    };
 
     list: ListTypeVersion = null;
     current: string = "";
@@ -50,21 +60,26 @@ export class ListModalComponent implements OnInit, OnDestroy {
     historyOid: string = null;
 
     isRefreshing: boolean = false;
+    progress: { current: number, total: number } = null;
+    refresh: Subject<void>;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(public bsModalRef: BsModalRef,
+        private modalService: BsModalService,
         private service: ListTypeService,
-        private pService: ProgressService,
+        private spinner: NgxSpinnerService,
         private authService: AuthService) {
         this.userOrgCodes = this.authService.getMyOrganizations();
     }
 
     ngOnInit(): void {
         this.onRowSelect = new Subject();
+        this.refresh = new Subject<void>();
     }
 
     ngOnDestroy(): void {
         this.onRowSelect.unsubscribe();
+        this.refresh.unsubscribe();
 
         if (this.progressSubscription != null) {
             this.progressSubscription.unsubscribe();
@@ -122,7 +137,7 @@ export class ListModalComponent implements OnInit, OnDestroy {
             if (message.content != null) {
                 this.handleProgressChange(message.content);
             } else {
-                this.handleProgressChange(message);
+                this.handleProgressChange(null);
             }
         });
 
@@ -154,17 +169,19 @@ export class ListModalComponent implements OnInit, OnDestroy {
 
         orderedArray.push(code[0], ...label);
 
-        let customAttrs = [];
-        let otherAttrs = [];
-        this.list.attributes.forEach(attr => {
-            if (attr.type === "input" && attr.name !== "latitude" && attr.name !== "longitude") {
-                customAttrs.push(attr);
-            } else if (attr.name !== "code" && !attr.name.includes("displayLabel") && attr.name !== "latitude" && attr.name !== "longitude") {
-                otherAttrs.push(attr);
-            }
-        });
+        if (this.list.isMember || this.list.listMetadata.visibility === "PUBLIC") {
+            let customAttrs = [];
+            let otherAttrs = [];
+            this.list.attributes.forEach(attr => {
+                if (attr.type === "input" && attr.name !== "latitude" && attr.name !== "longitude") {
+                    customAttrs.push(attr);
+                } else if (attr.name !== "code" && !attr.name.includes("displayLabel") && attr.name !== "latitude" && attr.name !== "longitude") {
+                    otherAttrs.push(attr);
+                }
+            });
 
-        orderedArray.push(...customAttrs, ...otherAttrs);
+            orderedArray.push(...customAttrs, ...otherAttrs);
+        }
 
         let coords = this.list.attributes.filter(obj => {
             return obj.name === "latitude" || obj.name === "longitude";
@@ -207,11 +224,9 @@ export class ListModalComponent implements OnInit, OnDestroy {
         });
     }
 
-    onWheel(event: WheelEvent): void {
-        let tableEl = (<Element>event.target).parentElement.closest("table").parentElement;
-
-        tableEl.scrollLeft += event.deltaY;
-        event.preventDefault();
+    handleShowInvalidChange(): void {
+        this.refreshColumns();
+        this.refresh.next();
     }
 
     onLoadEvent(event: LazyLoadEvent): void {
@@ -233,10 +248,24 @@ export class ListModalComponent implements OnInit, OnDestroy {
         return false;
     }
 
-    handleProgressChange(progress: any): void {
-        this.isRefreshing = (progress.current < progress.total);
+    handleProgressChange(progress: { current: number, total: number }): void {
+        if (progress != null) {
+            this.isRefreshing = (progress.current < progress.total);
+            this.progress = progress;
 
-        this.pService.progress(progress);
+            if (this.isRefreshing) {
+                this.spinner.show(this.CONSTANTS.LIST_MODAL);
+            } else {
+                this.spinner.hide(this.CONSTANTS.LIST_MODAL);
+            }
+        } else {
+            this.isRefreshing = false;
+            this.progress = null;
+        }
+
+        if (!this.isRefreshing && this.refresh != null) {
+            this.refresh.next();
+        }
     }
 
     handleJobChange(): void {
@@ -268,6 +297,60 @@ export class ListModalComponent implements OnInit, OnDestroy {
 
             this.bsModalRef.hide();
         }
+    }
+
+    onPublish(): void {
+        this.message = null;
+
+        this.service.publishList(this.list.oid).toPromise().then((result: { jobOid: string }) => {
+            this.isRefreshing = true;
+            this.list.curation = {};
+            this.historyOid = result.jobOid;
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
+    onNewGeoObject(type: string = null): void {
+    }
+
+    onExport(): void {
+        const criteria = {
+            filters: this.tableState.filters != null ? { ...this.tableState.filters } : {}
+        };
+
+        if (!this.showInvalid) {
+            criteria.filters["invalid"] = { value: false, matchMode: "equals" };
+        }
+
+        const modal = this.modalService.show(ExportFormatModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true
+        });
+        modal.content.init(this.list);
+        modal.content.onFormat.subscribe(data => {
+            if (data.format === "SHAPEFILE") {
+                let url = registry.contextPath + "/list-type/export-shapefile?oid=" + this.list.oid;
+                url += "&criteria=" + encodeURIComponent(JSON.stringify(criteria));
+
+                if (data.actualGeometryType != null && data.actualGeometryType.length > 0) {
+                    url += "&actualGeometryType=" + encodeURIComponent(data.actualGeometryType);
+                }
+
+                window.open(url, "_blank");
+            } else if (data.format === "EXCEL") {
+                window.open(registry.contextPath + "/list-type/export-spreadsheet?oid=" + this.list.oid + "&criteria=" + encodeURIComponent(JSON.stringify(criteria)), "_blank");
+            }
+        });
+    }
+
+    percent(): number {
+        if (this.progress != null) {
+            return Math.floor(this.progress.current / this.progress.total * 100);
+        }
+
+        return 0;
     }
 
     onClose(): void {
