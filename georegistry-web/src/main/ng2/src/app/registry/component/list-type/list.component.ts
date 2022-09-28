@@ -357,9 +357,9 @@ export class ListComponent implements OnInit, OnDestroy {
 
     onGotoMap(result: any): void {
         const params: any = { layers: JSON.stringify(this.layerFromVersion(this.list)) };
-        params.version = this.list.oid;
 
         if (result != null) {
+            params.version = this.list.oid;
             params.uid = result.uid;
             params.pageContext = "DATA";
 

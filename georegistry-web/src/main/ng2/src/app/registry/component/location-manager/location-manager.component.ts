@@ -34,7 +34,6 @@ import { Vertex } from "@registry/model/graph";
 import { LocalizedValue } from "@shared/model/core";
 import { debounce } from "ts-debounce";
 import { ListModalComponent } from "./list-modal.component";
-import { distinctUntilChanged, map } from "rxjs/operators";
 import { LocationManagerService } from "@registry/service/location-manager.service";
 
 declare let registry: GeoRegistryConfiguration;
@@ -231,11 +230,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         this.geomService.dumpLayers();
 
-        const version = this.route.snapshot.queryParamMap.get("version");
+        // const version = this.route.snapshot.queryParamMap.get("version");
 
-        if (version != null) {
-            this.onViewList(version);
-        }
+        // if (version != null) {
+        //     this.onViewList(version);
+        // }
     }
 
     ngOnDestroy(): void {
@@ -1042,14 +1041,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.bsModalRef.content.init(oid);
         this.bsModalRef.content.onRowSelect.subscribe(event => {
             this.handleRecord(event.version, event.uid);
-
-            // if (this.state.version == null || this.state.uid == null ||
-            //     this.state.version !== event.version ||
-            //     this.state.uid !== event.uid) {
-            //     this.updateState({ version: event.version, uid: event.uid });
-            // } else {
-            //     this.handleRecord(event.version, event.uid);
-            // }
         });
     }
 

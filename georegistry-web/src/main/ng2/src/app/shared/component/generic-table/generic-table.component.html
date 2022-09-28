@@ -52,7 +52,7 @@
 						</p-autoComplete>
 						<p-dropdown *ngSwitchCase="'BOOLEAN'" appendTo="body" [options]="booleanOptions" [(ngModel)]="col.value"
 							(onChange)="dt.filter($event.value.value, col.field, 'equals')" optionLabel="label"
-							optionValue="value" [virtualScroll]="true" [baseZIndex]="config.baseZIndex"></p-dropdown>
+							optionValue="value" [virtualScroll]="true" [baseZIndex]="config.baseZIndex" [name]="col.field + '-input'"></p-dropdown>
 					</ng-container>
 				</th>
 			</tr>
