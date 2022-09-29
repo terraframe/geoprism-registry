@@ -14,6 +14,9 @@ There are numerous organizations involved with designing, building, and testing 
 
 NOTE: This is synchronized with GitHub so it is as current as GitHub. This sytem simply adds some more higher level roadmap features on top of GitHub.
 
+## Roadmap
+* <a href="https://docs.google.com/document/d/1gManPUfI2ZdrEAJw9fEh4ZlCLpJNmR06bZgdZvXZH1c/edit#heading=h.5ky8q5gj6oye" target="_blank"> Roadmap (in progress) </a>
+
 ## Documentation
 
 ### Implementor (user) Documentation
