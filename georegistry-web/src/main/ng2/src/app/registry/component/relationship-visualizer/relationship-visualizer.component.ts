@@ -239,7 +239,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
         let newState = { graphOid: this.graphOid };
 
-        this.locationManagerService.setState(newState);
+        this.locationManagerService.setState(newState, false);
     }
 
     private fetchData(): void {

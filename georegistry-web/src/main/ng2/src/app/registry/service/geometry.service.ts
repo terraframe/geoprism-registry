@@ -321,7 +321,7 @@ export class GeometryService implements OnDestroy {
         if (this.syncWithUrlParams) {
             let serialized = this.dataSourceFactory.serializeLayers(newLayers);
 
-            this.locationManagerService.setState({ layers: JSON.stringify(serialized) });
+            this.locationManagerService.setState({ layers: JSON.stringify(serialized) }, false);
         } else {
             this.syncMapState();
         }
