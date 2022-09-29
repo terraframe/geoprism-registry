@@ -96,9 +96,15 @@ public class DHIS2TransportService implements DHIS2TransportServiceIF
   }
 
   @Override
-  public TypeReportResponse entityTranslations(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
+  public TypeReportResponse entityIdTranslationsPut(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
   {
-    return this.dhis2.entityTranslations(entityName, entityId, params, payload);
+    return this.dhis2.entityIdTranslationsPut(entityName, entityId, params, payload);
+  }
+  
+  @Override
+  public <T> EntityGetResponse<T> entityIdTranslationsGet(String entityName, String entityId, Class<?> entityType) throws InvalidLoginException, HTTPException, BadServerUriException
+  {
+    return this.dhis2.entityIdTranslationsGet(entityName, entityId, entityType);
   }
 
   @Override

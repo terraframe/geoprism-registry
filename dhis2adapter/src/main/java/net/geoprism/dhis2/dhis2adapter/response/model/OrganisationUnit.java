@@ -19,6 +19,7 @@
 package net.geoprism.dhis2.dhis2adapter.response.model;
 
 import java.util.Date;
+import java.util.List;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -79,7 +80,7 @@ public class OrganisationUnit
   
   private JsonArray attributeValues;
   
-  private JsonArray translations;
+  private List<Translation> translations;
 
   public String getAddress()
   {
@@ -201,12 +202,12 @@ public class OrganisationUnit
     this.attributeValues = attributeValues;
   }
 
-  public JsonArray getTranslations()
+  public List<Translation> getTranslations()
   {
     return translations;
   }
 
-  public void setTranslations(JsonArray translations)
+  public void setTranslations(List<Translation> translations)
   {
     this.translations = translations;
   }

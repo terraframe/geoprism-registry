@@ -54,7 +54,9 @@ public interface DHIS2TransportServiceIF
 
   public ObjectReportResponse entityIdPatch(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException;
 
-  public TypeReportResponse entityTranslations(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException;
+  public TypeReportResponse entityIdTranslationsPut(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException;
+  
+  public <T> EntityGetResponse<T> entityIdTranslationsGet(String entityName, String entityId, Class<?> entityType) throws InvalidLoginException, HTTPException, BadServerUriException;
 
   public MetadataImportResponse metadataPost(List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException;
   

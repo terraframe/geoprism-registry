@@ -179,9 +179,14 @@ public class DHIS2Bridge
    * @throws HTTPException
    * @throws BadServerUriException 
    */
-  public TypeReportResponse entityTranslations(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
+  public TypeReportResponse entityIdTranslationsPut(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return new TypeReportResponse(this.apiPut(entityName + "/" + entityId + "/translations", params, payload));
+  }
+  
+  public <T> EntityGetResponse<T> entityIdTranslationsGet(String entityName, String entityId, Class<?> entityType) throws InvalidLoginException, HTTPException, BadServerUriException
+  {
+    return new EntityGetResponse<T>(this.apiGet(entityName + "/" + entityId + "/translations", null), entityType);
   }
   
   /**

@@ -61,6 +61,7 @@ import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.DHIS2Locale;
 import net.geoprism.dhis2.dhis2adapter.response.model.Option;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
+import net.geoprism.dhis2.dhis2adapter.response.model.Translation;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache;
@@ -223,19 +224,19 @@ public class DHIS2AttributeMapping
     
     if (attr != null && attr instanceof AttributeLocalType)
     {
-      String property = null;
+      Translation.Property property = null;
       
       if (OrganisationUnit.NAME.equals(this.dhis2AttrName))
       {
-        property = "NAME";
+        property = Translation.Property.NAME;
       }
       else if (OrganisationUnit.SHORT_NAME.equals(this.dhis2AttrName))
       {
-        property = "SHORT_NAME";
+        property = Translation.Property.SHORT_NAME;
       }
       else if (OrganisationUnit.DESCRIPTION.equals(this.dhis2AttrName))
       {
-        property = "DESCRIPTION";
+        property = Translation.Property.DESCRIPTION;
       }
 
       if (property != null)
@@ -259,7 +260,7 @@ public class DHIS2AttributeMapping
               }
               
               final JsonObject joLocaleName = new JsonObject();
-              joLocaleName.addProperty("property", property);
+              joLocaleName.addProperty("property", property.name());
               joLocaleName.addProperty("locale", localestring);
               joLocaleName.addProperty("value", lv.getValue(locale));
               translations.add(joLocaleName);
