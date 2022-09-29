@@ -98,16 +98,12 @@ public class BusinessEdgeJsonImporter
           String sourceCode = joEdge.get("source").getAsString();
           String targetCode = joEdge.get("target").getAsString();
 
-          long cacheSize;
-
           if (validate)
           {
             BusinessObject source = goCache.getOrFetchByCode(sourceCode, sourceType.getCode());
             BusinessObject target = goCache.getOrFetchByCode(targetCode, targetType.getCode());
 
             source.addChild(edgeType, target);
-
-            cacheSize = goCache.getSize();
           }
           else
           {
@@ -115,13 +111,11 @@ public class BusinessEdgeJsonImporter
             Object childRid = getOrFetchRid(targetCode, targetType);
 
             this.newEdge(childRid, parentRid, edgeType);
-
-            cacheSize = goRidCache.size();
           }
 
           if (j % 50 == 0)
           {
-            logger.info("Imported record " + j + ". Cache size is " + cacheSize);
+            logger.info("Imported record " + j + ".");
           }
         }
       }

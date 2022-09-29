@@ -25,6 +25,8 @@ import { LocationManagerState } from "../location-manager/location-manager.compo
 import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
 import { LocationManagerService } from "@registry/service/location-manager.service";
 
+import { calculateTextWidth } from "@registry/component/hierarchy/d3/svg-util";
+
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
 export const SELECTED_NODE_COLOR: string = "#4287f5";
@@ -37,7 +39,7 @@ export const COLLAPSE_ANIMATION_TIME: number = 500; // in ms
 
 export const DIMENSIONS = {
     NODE: { WIDTH: 30, HEIGHT: 30 },
-    LABEL: { WIDTH: 100, HEIGHT: 60, FONTSIZE: 14 },
+    LABEL: { WIDTH: 170, HEIGHT: 60, FONTSIZE: 14 },
     PADDING: {
         BETWEEN_NODES: 0,
         NODE_LABEL: 5,
@@ -496,6 +498,14 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
             };
 
             this.nodeSelect.emit({ objectType: node.objectType, id: node.id.substring(2), code: node.code, typeCode: node.typeCode, label: node.label, selectAnimation: doIt } as any);
+        }
+    }
+
+    public getLabelWidth(node: any) {
+        if (this.relationship.layout === "HORIZONTAL" && node.relation === "SELECTED") {
+            return Math.min(DIMENSIONS.LABEL.WIDTH, calculateTextWidth(node.label, DIMENSIONS.LABEL.FONTSIZE, "svg.ngx-charts")) + DIMENSIONS.PADDING.NODE_LABEL;
+        } else {
+            return DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL;
         }
     }
 

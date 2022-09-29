@@ -189,7 +189,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     dateFieldValue: string;
 
-    updateState: (newState: any) => void;
+    updateState: (newState: any, pushBackHistory: boolean) => void;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
@@ -305,8 +305,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    _updateState(newState: LocationManagerState): void {
-        this.locationManagerService.setState(newState);
+    _updateState(newState: LocationManagerState, pushBackHistory: boolean = false): void {
+        this.locationManagerService.setState(newState, pushBackHistory);
     }
 
     onGraphNodeSelect(node: Vertex): void {
@@ -324,7 +324,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                     this.selectGeoObject(mockGeo);
                 } else if (node.objectType === "BUSINESS") {
-                    this.updateState({ type: node.typeCode, code: node.code, objectType: node.objectType, uid: null, version: null, text: null });
+                    this.updateState({ type: node.typeCode, code: node.code, objectType: node.objectType, uid: null, version: null, text: null }, true);
                 }
             });
         });
@@ -446,7 +446,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     setPanel(showPanel: boolean): void {
         if (this.state.attrPanelOpen !== showPanel) {
-            this.updateState({ attrPanelOpen: showPanel });
+            this.updateState({ attrPanelOpen: showPanel }, false);
 
             timeout(() => {
                 this.map.resize();
@@ -606,7 +606,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                                     if (this.state.version == null || this.state.uid == null ||
                                         this.state.version !== versionId ||
                                         this.state.uid !== feature.properties.uid) {
-                                        this.updateState({ version: versionId, uid: feature.properties.uid });
+                                        this.updateState({ version: versionId, uid: feature.properties.uid }, false);
                                     } else {
                                         this.handleRecord(versionId, feature.properties.uid);
                                     }
@@ -715,7 +715,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     search(): void {
-        this.updateState({ text: this.searchFieldText, date: this.dateFieldValue, type: null, code: null, version: null, uid: null });
+        this.updateState({ text: this.searchFieldText, date: this.dateFieldValue, type: null, code: null, version: null, uid: null }, false);
     }
 
     loadSearchFromState(): void {
@@ -840,14 +840,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     clearRecord() {
-        this.updateState({ type: null, code: null, version: null, uid: null });
+        this.updateState({ type: null, code: null, version: null, uid: null }, false);
     }
 
     featurePanelForDateChange(date: string) {
         // if (date !== null) {
         this.geomService.stopEditing();
 
-        this.updateState({ date: date });
+        this.updateState({ date: date }, false);
         // }
     }
 
@@ -858,7 +858,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 this.feature = null;
             }
 
-            this.updateState({ type: node.properties.type, code: node.properties.code, objectType: "GEOOBJECT", uid: node.properties.uid, version: null });
+            this.updateState({ type: node.properties.type, code: node.properties.code, objectType: "GEOOBJECT", uid: node.properties.uid, version: null }, false);
 
             // this.zoomToFeature(node, null);
         }
@@ -875,7 +875,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     newState.date = date;
                 }
 
-                this.updateState(newState);
+                this.updateState(newState, true);
             }, 60);
         });
     }
@@ -1010,13 +1010,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }
 
             if (feature.properties.uid != null) {
-                this.updateState({ type: null, code: null, version: feature.version, uid: feature.properties.uid });
+                this.updateState({ type: null, code: null, version: feature.version, uid: feature.properties.uid }, false);
             }
         }
     }
 
     toggleGraphPanel(): void {
-        this.updateState({ graphPanelOpen: !this.state.graphPanelOpen });
+        this.updateState({ graphPanelOpen: !this.state.graphPanelOpen }, false);
     }
 
     convertMapBounds(llb: LngLatBounds): LngLatBounds {

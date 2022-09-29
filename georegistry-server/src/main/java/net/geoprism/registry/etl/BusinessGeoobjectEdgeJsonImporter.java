@@ -96,11 +96,9 @@ public class BusinessGeoobjectEdgeJsonImporter
 
         this.newEdge(childRid, parentRid, targetType);
 
-        long cacheSize = ridCache.size();
-
         if (j % 500 == 0)
         {
-          logger.info("Imported record " + j + ". Cache size is " + cacheSize);
+          logger.info("Imported record " + j + ".");
         }
       }
     }

@@ -56,7 +56,7 @@
                 <foreignObject
                   [attr.x]="(relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? 0 : (this.DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.NODE.WIDTH) / 2 + this.DIMENSIONS.NODE.WIDTH / 2 + this.DIMENSIONS.PADDING.NODE_LABEL) : (node.relation === 'PARENT' ? DIMENSIONS.PADDING.NODE_LABEL : (node.relation === 'SELECTED' ? (DIMENSIONS.NODE.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + DIMENSIONS.PADDING.NODE_EDGE) : (DIMENSIONS.NODE.WIDTH + DIMENSIONS.PADDING.NODE_LABEL + this.DIMENSIONS.PADDING.NODE_EDGE)))"
                   [attr.y]="(relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? DIMENSIONS.NODE.HEIGHT + DIMENSIONS.PADDING.NODE_LABEL: 0) : node.relation === 'SELECTED' ? 0 : 0"
-                  [attr.width]="(relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? DIMENSIONS.LABEL.WIDTH : DIMENSIONS.LABEL.WIDTH) : (DIMENSIONS.LABEL.WIDTH + DIMENSIONS.PADDING.NODE_LABEL*8)" [attr.height]="DIMENSIONS.LABEL.HEIGHT">
+                  [attr.width]="getLabelWidth(node)" [attr.height]="DIMENSIONS.LABEL.HEIGHT">
                   <span [style]="'width:' + DIMENSIONS.LABEL.WIDTH + 'px; height:' + DIMENSIONS.LABEL.HEIGHT + 'px; overflow:hidden; display: inline-block;'">
                     <p xmlns="http://www.w3.org/1999/xhtml" text-anchor="start"
                       [ngStyle]="{'text-align': (relationship.layout === 'VERTICAL') ? (node.relation === 'CHILD' ? 'center' : 'left') : node.relation === 'SELECTED' ? 'left' : (node.relation === 'PARENT' ? 'right' : 'left'), 'color': node.relation === 'SELECTED' ? SELECTED_NODE_COLOR : 'unset', 'font-weight': ('g-' + state.uid) === node.id ? 'bold' : 'unset'}"

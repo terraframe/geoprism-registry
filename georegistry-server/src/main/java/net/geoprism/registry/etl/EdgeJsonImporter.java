@@ -115,16 +115,12 @@ public class EdgeJsonImporter
           String targetCode = joEdge.get("target").getAsString();
           String targetTypeCode = joEdge.get("targetType").getAsString();
 
-          long cacheSize;
-          
           if (validate)
           {
             ServerGeoObjectIF source = goCache.getOrFetchByCode(sourceCode, sourceTypeCode);
             ServerGeoObjectIF target = goCache.getOrFetchByCode(targetCode, targetTypeCode);
   
             source.addGraphChild(target, graphType, this.startDate, this.endDate, this.validate);
-            
-            cacheSize = goCache.getSize();
           }
           else
           {
@@ -132,13 +128,11 @@ public class EdgeJsonImporter
             Object parentRid = getOrFetchRid(targetCode, targetTypeCode);
             
             this.newEdge(childRid, parentRid, graphType, startDate, endDate);
-            
-            cacheSize = goRidCache.size();
           }
           
           if (j % 500 == 0)
           {
-            logger.info("Imported record " + j + ". Cache size is " + cacheSize);
+            logger.info("Imported record " + j + ".");
           }
         }
       }

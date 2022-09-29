@@ -39,7 +39,7 @@ export class LocationManagerService {
         return this._state;
     }
 
-    public setState(state: LocationManagerState): void {
+    public setState(state: LocationManagerState, pushBackHistory: boolean): void {
         Object.assign(this._state, state);
 
         this._updatingUrl = true;
@@ -48,7 +48,7 @@ export class LocationManagerService {
             relativeTo: this.route,
             queryParams: this._state,
             queryParamsHandling: "merge",
-            replaceUrl: true
+            replaceUrl: !pushBackHistory
         });
 
         this.stateChange$.emit(this._state);
