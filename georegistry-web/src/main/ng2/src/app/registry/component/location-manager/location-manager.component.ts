@@ -32,7 +32,6 @@ import { BusinessObject, BusinessType } from "@registry/model/business-type";
 import { BusinessObjectService } from "@registry/service/business-object.service";
 import { Vertex } from "@registry/model/graph";
 import { LocalizedValue } from "@shared/model/core";
-import { debounce } from "ts-debounce";
 import { ListModalComponent } from "./list-modal.component";
 import { LocationManagerService } from "@registry/service/location-manager.service";
 
@@ -189,8 +188,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     dateFieldValue: string;
 
-    updateState: (newState: any, pushBackHistory: boolean) => void;
-
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private route: ActivatedRoute,
@@ -213,7 +210,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         private injector: Injector
     ) {
         this.location = location;
-        this.updateState = debounce(this._updateState, 50);
     }
 
     ngOnInit(): void {
@@ -305,7 +301,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    _updateState(newState: LocationManagerState, pushBackHistory: boolean = false): void {
+    updateState(newState: LocationManagerState, pushBackHistory: boolean = false): void {
         this.locationManagerService.setState(newState, pushBackHistory);
     }
 
@@ -500,9 +496,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             if (this.mapBounds == null || this.mapBounds.toString() !== mapBounds.toString()) {
                 const array = mapBounds.toArray();
 
-                window.setTimeout(() => { // Force the route to have a chance to update since the url params can be very out of date here
-                    this._updateState({ bounds: JSON.stringify(array) });
-                }, 0);
+                this.updateState({ bounds: JSON.stringify(array) });
             }
         });
 

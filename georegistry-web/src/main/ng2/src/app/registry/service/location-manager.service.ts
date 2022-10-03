@@ -1,6 +1,7 @@
 
 import { EventEmitter, Injectable } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { debounce } from "ts-debounce";
 import { LocationManagerState } from "@registry/component/location-manager/location-manager.component";
 import { Subscription } from "rxjs";
 
@@ -11,9 +12,12 @@ export class LocationManagerService {
     private _state: LocationManagerState = { attrPanelOpen: true };
     private subscription: Subscription;
 
+    setState: (state: any, pushBackHistory: boolean) => void;
+
     constructor(private route: ActivatedRoute, private router: Router) {
         this.stateChange$ = new EventEmitter();
         this.subscription = this.route.queryParams.subscribe(urlParams => { this.handleUrlChange(urlParams); });
+        this.setState = debounce(this._setState, 50);
     }
 
     ngOnDestroy() {
@@ -34,7 +38,7 @@ export class LocationManagerService {
         return this._state;
     }
 
-    public setState(state: LocationManagerState, pushBackHistory: boolean): void {
+    public _setState(state: LocationManagerState, pushBackHistory: boolean): void {
         Object.assign(this._state, state);
 
         this.router.navigate([], {
