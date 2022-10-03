@@ -10,7 +10,6 @@ export class LocationManagerService {
     public stateChange$: EventEmitter<LocationManagerState>;
     private _state: LocationManagerState = { attrPanelOpen: true };
     private subscription: Subscription;
-    private _updatingUrl: boolean = false;
 
     constructor(private route: ActivatedRoute, private router: Router) {
         this.stateChange$ = new EventEmitter();
@@ -22,17 +21,13 @@ export class LocationManagerService {
     }
 
     private handleUrlChange(urlParams) {
-        if (!this._updatingUrl) {
-            let newState = JSON.parse(JSON.stringify(urlParams));
+        let newState = JSON.parse(JSON.stringify(urlParams));
 
-            newState.graphPanelOpen = (newState.graphPanelOpen === "true");
-            newState.attrPanelOpen = (newState.attrPanelOpen === "true" || newState.attrPanelOpen === undefined);
+        newState.graphPanelOpen = (newState.graphPanelOpen === "true");
+        newState.attrPanelOpen = (newState.attrPanelOpen === "true" || newState.attrPanelOpen === undefined);
 
-            this._state = newState;
-            this.stateChange$.emit(this._state);
-        } else {
-            this._updatingUrl = false;
-        }
+        this._state = newState;
+        this.stateChange$.emit(JSON.parse(JSON.stringify(this._state)));
     }
 
     public getState(): LocationManagerState {
@@ -42,16 +37,12 @@ export class LocationManagerService {
     public setState(state: LocationManagerState, pushBackHistory: boolean): void {
         Object.assign(this._state, state);
 
-        this._updatingUrl = true;
-
         this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: this._state,
+            queryParams: JSON.parse(JSON.stringify(this._state)),
             queryParamsHandling: "merge",
             replaceUrl: !pushBackHistory
         });
-
-        this.stateChange$.emit(this._state);
     }
 
 }

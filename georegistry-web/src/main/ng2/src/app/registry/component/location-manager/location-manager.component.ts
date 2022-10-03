@@ -473,24 +473,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     this.map.removeFeatureState(this.feature);
                 }
 
-                let layers = this.geomService.getLayers().filter(l =>
-                    l.getPinned() || // Always keep pinned layers
-                    (
-                        !(l.dataSource instanceof ValueOverTimeDataSource) && !(l.dataSource instanceof GeoObjectLayerDataSource) && // Remove All Geo-Object layers
-                        !(l.dataSource instanceof RelationshipVisualizionDataSource) // Remove all Relationship Visualization layers
-                    )
-                );
-                this.geomService.setLayers(layers);
-
-                this.addSearchLayer();
-
                 this.current = null;
                 this.feature = null;
             } else if (this.mode === this.MODE.VIEW) {
-                // Remove any existing search layer
-                let layers = this.geomService.getLayers();
-                layers = layers.filter(layer => layer.getPinned() || (!(layer.dataSource instanceof SearchLayerDataSource) && !(layer.dataSource instanceof RelationshipVisualizionDataSource)));
-                this.geomService.setLayers(layers);
+                // empty
             }
         }
     }
@@ -715,13 +701,68 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     search(): void {
-        this.updateState({ text: this.searchFieldText, date: this.dateFieldValue, type: null, code: null, version: null, uid: null }, false);
+        let layers = this.geomService.getLayers();
+
+        // Check for an existing search layer with the same data
+        let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
+        if (index !== -1) {
+            let existingSearchLayer = layers[index];
+            let ds = existingSearchLayer.dataSource as SearchLayerDataSource;
+
+            if (ds.getText() === this.searchFieldText && ds.getDate() === this.dateFieldValue) {
+                return;
+            }
+        }
+
+        // Remove any existing search layer(s)
+        layers = layers.filter(layer => layer.getPinned() ||
+            (!(layer.dataSource instanceof SearchLayerDataSource) && !(layer.dataSource instanceof RelationshipVisualizionDataSource)) ||
+            ((layer.dataSource instanceof SearchLayerDataSource) && (layer.dataSource as SearchLayerDataSource).getText() === this.searchFieldText && (layer.dataSource as SearchLayerDataSource).getDate() === this.dateFieldValue)
+        );
+
+        // Add our search layer
+        let dataSource = new SearchLayerDataSource(this.mapService, this.searchFieldText, this.dateFieldValue);
+        let layer = dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + this.searchFieldText + ")", true, ColorGen().hexString());
+        layers.splice(0, 0, layer);
+        this.geomService.zoomOnReady(layer.getId());
+
+        layers = layers.filter(l =>
+            l.getPinned() || // Always keep pinned layers
+            (
+                !(l.dataSource instanceof ValueOverTimeDataSource) && !(l.dataSource instanceof GeoObjectLayerDataSource) && // Remove All Geo-Object layers
+                !(l.dataSource instanceof RelationshipVisualizionDataSource) // Remove all Relationship Visualization layers
+            )
+        );
+
+        let newState: LocationManagerState = {
+            text: this.searchFieldText,
+            date: this.dateFieldValue,
+            type: null,
+            code: null,
+            version: null,
+            uid: null,
+            layers: this.geomService.serializeLayers(layers)
+        };
+
+        this.updateState(newState, true);
     }
 
     loadSearchFromState(): void {
         this.geomService.stopEditing();
 
-        this.addSearchLayer();
+        this.spinner.show(this.CONSTANTS.SEARCH_OVERLAY);
+
+        let dataSource = new SearchLayerDataSource(this.mapService, this.state.text, this.state.date);
+
+        dataSource.getLayerData().then((data: any) => {
+            this.spinner.hide(this.CONSTANTS.SEARCH_OVERLAY);
+
+            this.data = data.features;
+        }).catch(() => {
+            this.spinner.hide(this.CONSTANTS.SEARCH_OVERLAY);
+            this.state.text = "";
+            this.state.date = "";
+        });
     }
 
     handleRecord(list: string, uid: string): void {
@@ -865,18 +906,26 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     selectGeoObject(geoObject: GeoObject, date: string = null): void {
-        this.closeEditSessionSafeguard().then(() => {
-            this.addLayerForGeoObject(geoObject, date);
+        this.typeCache.waitOnTypes().then(() => {
+            this.closeEditSessionSafeguard().then(() => {
+                let newLayerState = this.addLayerForGeoObject(geoObject, date);
 
-            window.setTimeout(() => {
-                let newState: LocationManagerState = { type: geoObject.properties.type, code: geoObject.properties.code, objectType: "GEOOBJECT", uid: geoObject.properties.uid, version: null, text: null };
+                let newState: LocationManagerState = {
+                    type: geoObject.properties.type,
+                    code: geoObject.properties.code,
+                    objectType: "GEOOBJECT",
+                    uid: geoObject.properties.uid,
+                    version: null,
+                    text: null,
+                    layers: this.geomService.serializeLayers(newLayerState)
+                };
 
                 if (date != null) {
                     newState.date = date;
                 }
 
                 this.updateState(newState, true);
-            }, 60);
+            });
         });
     }
 
@@ -901,94 +950,42 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
-    addSearchLayer(): void {
-        if (this.state.text == null) { return; }
+    addLayerForGeoObject(geoObject: GeoObject, paramDate: string = null): Layer[] {
+        // this.service.getGeoObjectByCode(code, typeCode).then(geoObject => {
 
-        let layers = this.geomService.getLayers();
+        const type: GeoObjectType = this.typeCache.getTypeByCode(geoObject.properties.type);
 
-        // Check for an existing search layer with the same data
-        let index = layers.findIndex(layer => layer.dataSource instanceof SearchLayerDataSource);
-        if (index !== -1) {
-            let existingSearchLayer = layers[index];
-            let ds = existingSearchLayer.dataSource as SearchLayerDataSource;
+        // Add layer
+        let layers: Layer[] = this.geomService.getLayers();
 
-            if (ds.getText() === this.state.text && ds.getDate() === this.state.date) {
-                return;
-            }
+        let date = (paramDate != null) ? paramDate : (this.state == null ? null : this.state.date);
+        let dataSource = new GeoObjectLayerDataSource(this.service, geoObject.properties.code, geoObject.properties.type, date);
+
+        let displayLabel = geoObject.properties.displayLabel.localizedValue;
+        let typeLabel = type.label.localizedValue;
+        let sDate = date == null ? "" : " " + this.dateService.formatDateForDisplay(date);
+        let label = displayLabel + " " + sDate + "(" + typeLabel + ")";
+
+        let layer = dataSource.createLayer(label, true, ColorGen().hexString());
+
+        // Remove any existing Geo-Object layer(s)
+        layers = layers.filter(l =>
+            !(l.dataSource instanceof GeoObjectLayerDataSource) ||
+            l.getKey() === layer.getKey() ||
+            l.getPinned()
+        );
+
+        // Remove search layer
+        layers = layers.filter(layer => layer.getPinned() || (!(layer.dataSource instanceof SearchLayerDataSource) && !(layer.dataSource instanceof RelationshipVisualizionDataSource)));
+
+        if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
+            // Add our search layer
+            layers.splice(0, 0, layer);
+
+            this.geomService.zoomOnReady(layer.getId());
         }
 
-        let dataSource = new SearchLayerDataSource(this.mapService, this.state.text, this.state.date);
-
-        this.spinner.show(this.CONSTANTS.SEARCH_OVERLAY);
-
-        dataSource.getLayerData().then((data: any) => {
-            this.spinner.hide(this.CONSTANTS.SEARCH_OVERLAY);
-
-            if (this.mode === this.MODE.SEARCH) {
-                layers = this.geomService.getLayers();
-
-                // Remove any existing search layer(s)
-                layers = layers.filter(layer => layer.getPinned() ||
-                    (!(layer.dataSource instanceof SearchLayerDataSource) && !(layer.dataSource instanceof RelationshipVisualizionDataSource)) ||
-                    ((layer.dataSource instanceof SearchLayerDataSource) && (layer.dataSource as SearchLayerDataSource).getText() === this.state.text && (layer.dataSource as SearchLayerDataSource).getDate() === this.state.date)
-                );
-
-                if (layers.findIndex(layer => (layer.dataSource instanceof SearchLayerDataSource) && ((layer.dataSource as SearchLayerDataSource).getText() === this.state.text && (layer.dataSource as SearchLayerDataSource).getDate() === this.state.date)) === -1) {
-                    // Add our search layer
-                    let layer = dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + this.state.text + ")", true, ColorGen().hexString());
-                    layers.splice(0, 0, layer);
-
-                    this.geomService.zoomOnReady(layer.getId());
-
-                    this.data = data.features;
-                }
-
-                this.geomService.setLayers(layers);
-            }
-        }).catch(() => {
-            this.spinner.hide(this.CONSTANTS.SEARCH_OVERLAY);
-            this.state.text = "";
-            this.state.date = "";
-        });
-    }
-
-    addLayerForGeoObject(geoObject: GeoObject, paramDate: string = null): void {
-        this.typeCache.waitOnTypes().then(() => {
-            // this.service.getGeoObjectByCode(code, typeCode).then(geoObject => {
-
-            const type: GeoObjectType = this.typeCache.getTypeByCode(geoObject.properties.type);
-
-            // Add layer
-            let layers: Layer[] = this.geomService.getLayers();
-
-            let date = (paramDate != null) ? paramDate : (this.state == null ? null : this.state.date);
-            let dataSource = new GeoObjectLayerDataSource(this.service, geoObject.properties.code, geoObject.properties.type, date);
-
-            let displayLabel = geoObject.properties.displayLabel.localizedValue;
-            let typeLabel = type.label.localizedValue;
-            let sDate = date == null ? "" : " " + this.dateService.formatDateForDisplay(date);
-            let label = displayLabel + " " + sDate + "(" + typeLabel + ")";
-
-            let layer = dataSource.createLayer(label, true, ColorGen().hexString());
-
-            // Remove any existing Geo-Object layer(s)
-            layers = layers.filter(l =>
-                !(l.dataSource instanceof GeoObjectLayerDataSource) ||
-                l.getKey() === layer.getKey() ||
-                l.getPinned()
-            );
-
-            if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
-                // Add our search layer
-                layers.splice(0, 0, layer);
-
-                this.geomService.zoomOnReady(layer.getId());
-
-                this.geomService.setLayers(layers);
-            }
-
-            this.geomService.setLayers(layers);
-        });
+        return layers;
     }
 
     onFeatureSelect(event: any): void {

@@ -144,6 +144,20 @@ export class GeometryService implements OnDestroy {
             this.stateSub.unsubscribe();
         }
     }
+    
+    public serializeLayers(newLayers: Layer[]) {
+        let sorted;
+      
+        if (this.layerSorter != null) {
+            sorted = this.layerSorter.sortLayers(newLayers);
+        } else {
+            sorted = newLayers;
+        }
+        
+        let serialized = this.dataSourceFactory.serializeLayers(newLayers);
+        
+        return JSON.stringify(serialized);
+    }
 
     stateChange(state: LocationManagerState): void {
         this.state = state;
@@ -154,7 +168,13 @@ export class GeometryService implements OnDestroy {
 
                 let oldLayers = this.layers;
 
-                this.layers = this.dataSourceFactory.deserializeLayers(deserializedLayers);
+                let deserialized = this.dataSourceFactory.deserializeLayers(deserializedLayers);
+                
+                if (this.layerSorter != null) {
+                    this.layers = this.layerSorter.sortLayers(deserialized);
+                } else {
+                    this.layers = deserialized;
+                }
 
                 if (new LayerDiffingStrategy(this.layers, oldLayers).getDiffs().length > 0) {
                     this.layersChange.emit(this.getLayers());
