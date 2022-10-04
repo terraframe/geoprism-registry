@@ -11,7 +11,7 @@
             </div>
 
             <div class="row">
-                <div *ngIf="list" class="col-md-12">
+                <div *ngIf="list != null && tableState != null" class="col-md-12">
 
                     <ng-container *ngIf="cols != null && config != null">
                         <generic-table [cols]="cols" [config]="config" [refresh]="refresh"

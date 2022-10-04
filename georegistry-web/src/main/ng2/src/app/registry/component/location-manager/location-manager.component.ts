@@ -809,14 +809,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 } as GeoObject);
             } else if (record.recordType === "LIST") {
                 if (this.recordContext === "MAP") {
-                    this.list = null;
+                    // this.list = null;
 
-                    timeout(() => {
-                        this.list = {
-                            versionId: list,
-                            uid: uid
-                        };
-                    }, 10);
+                    // timeout(() => {
+                    this.list = {
+                        versionId: list,
+                        uid: uid
+                    };
+                    // }, 10);
                 } else {
                     const bounds = record.bbox;
 
