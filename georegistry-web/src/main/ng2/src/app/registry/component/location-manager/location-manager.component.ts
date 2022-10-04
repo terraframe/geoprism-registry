@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, HostListener, Injector, ApplicationRef, ComponentFactoryResolver, EmbeddedViewRef } from "@angular/core";
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, HostListener, Injector, ApplicationRef, ComponentFactoryResolver } from "@angular/core";
 import { Location } from "@angular/common";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Map, NavigationControl, AttributionControl, IControl, LngLatBounds, Popup } from "mapbox-gl";
+import { Map, NavigationControl, AttributionControl, IControl, LngLatBounds } from "mapbox-gl";
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
@@ -26,14 +26,12 @@ import { NgxSpinnerService } from "ngx-spinner";
 import { ModalTypes } from "@shared/model/modal";
 import { FeaturePanelComponent } from "./feature-panel.component";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
-import { RecordPopupComponent } from "./record-popup.component";
 import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, GeoObjectLayerDataSource, ValueOverTimeDataSource, RelationshipVisualizionDataSource } from "@registry/service/layer-data-source";
 import { BusinessObject, BusinessType } from "@registry/model/business-type";
 import { BusinessObjectService } from "@registry/service/business-object.service";
 import { Vertex } from "@registry/model/graph";
 import { LocalizedValue } from "@shared/model/core";
 import { debounce } from "ts-debounce";
-import { ListModalComponent } from "./list-modal.component";
 import { LocationManagerService } from "@registry/service/location-manager.service";
 
 declare let registry: GeoRegistryConfiguration;
@@ -49,6 +47,13 @@ class SelectedObject {
     // If business object
     businessObject?: BusinessObject;
     businessType?: BusinessType;
+
+}
+
+class SelectedList {
+
+    versionId: string;
+    uid?: string;
 
 }
 
@@ -76,8 +81,6 @@ export interface LocationManagerState {
     styleUrls: ["./location-manager.css"]
 })
 export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestroy {
-
-    popup: any = null;
 
     pageMode: string = "";
 
@@ -190,6 +193,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     dateFieldValue: string;
 
     updateState: (newState: any) => void;
+
+    list: SelectedList = null;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
@@ -724,7 +729,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.addSearchLayer();
     }
 
-    handleRecord(list: string, uid: string): void {
+    handleRecord(list: string, uid: string, zoomToFeature: boolean = false): void {
         // Get the feature data from the server and populate the left-hand panel
         this.listService.record(list, uid, false).then(record => {
             if (this.feature != null) {
@@ -765,58 +770,24 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     }
                 } as GeoObject);
             } else if (record.recordType === "LIST") {
-                const bounds = record.bbox;
+                if (!zoomToFeature) {
+                    this.list = null;
 
-                if (bounds && Array.isArray(bounds)) {
-                    // 1. Create a component reference from the component
-                    const componentRef = this.componentFactoryResolver
-                        .resolveComponentFactory(RecordPopupComponent)
-                        .create(this.injector);
+                    timeout(() => {
+                        this.list = {
+                            versionId: list,
+                            uid: uid
+                        };
+                    }, 10);
+                } else {
+                    const bounds = record.bbox;
 
-                    componentRef.instance.record = record;
-                    componentRef.instance.edit.subscribe(() => {
-                        const code: string = record.data["code"];
-                        // const uid: string = record.data["originalOid"];
+                    if (bounds && Array.isArray(bounds)) {
+                        let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+                        let config: any = { padding: { top: 10, bottom: 10, left: 10, right: 10 }, animate: true, maxDuration: 5000, maxZoom: 20 };
 
-                        // this.handleSelect(record.typeCode, code, uid);
-
-                        /*
-                        this.router.navigate([], {
-                            relativeTo: this.route,
-                            queryParams: { objectType: "GEOOBJECT", type: record.typeCode, code: code, uid: uid, version: record.version },
-                            queryParamsHandling: "merge" // remove to replace all query params by provided
-                        });
-                        */
-
-                        this.selectGeoObject({
-                            properties: {
-                                type: record.typeCode,
-                                code: code,
-                                uid: uid,
-                                displayLabel: new LocalizedValue(record.data.displayLabelDefaultLocale, [])
-                            }
-                        } as GeoObject, record.forDate);
-                        // this.zoomToFeature(node, null);
-                    });
-
-                    // 2. Attach component to the appRef so that it's inside the ng component tree
-                    this.appRef.attachView(componentRef.hostView);
-
-                    // 3. Get DOM element from component
-                    const domElem = (componentRef.hostView as EmbeddedViewRef<any>)
-                        .rootNodes[0] as HTMLElement;
-
-                    // 4. Append DOM element to the body
-                    let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
-
-                    if (this.popup) {
-                        this.popup.remove();
+                        this.map.fitBounds(llb, config);
                     }
-
-                    this.popup = new Popup({ closeOnClick: true, closeButton: false })
-                        .setLngLat(llb.getCenter())
-                        .setDOMContent(domElem)
-                        .addTo(this.map);
                 }
             }
         }).catch((err: HttpErrorResponse) => {
@@ -1032,16 +1003,31 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     onViewList(oid: string): void {
-        this.bsModalRef = this.modalService.show(ListModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
-        });
+        this.list = null;
 
-        this.bsModalRef.content.init(oid);
-        this.bsModalRef.content.onRowSelect.subscribe(event => {
-            this.handleRecord(event.version, event.uid);
-        });
+        timeout(() => {
+            this.list = {
+                versionId: oid
+            };
+        }, 10);
+    }
+
+    onRowSelect(event: { version: string, uid: string }): void {
+        if (this.state.version == null || this.state.uid == null ||
+            this.state.version !== event.version ||
+            this.state.uid !== event.uid) {
+            this.updateState({ version: event.version, uid: event.uid });
+        } else {
+            this.handleRecord(event.version, event.uid, true);
+        }
+    }
+
+    onListPanelClose(): void {
+        this.list = null;
+    }
+
+    isAttributePanelOpen(): boolean {
+        return (this.state.attrPanelOpen && ((this.mode === this.MODE.VIEW && this.current != null) || (this.mode === this.MODE.SEARCH && this.searchEnabled)));
     }
 
     error(err: HttpErrorResponse): void {

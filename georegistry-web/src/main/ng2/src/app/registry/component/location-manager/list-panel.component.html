@@ -1,0 +1,67 @@
+<div style="background-color: white;">
+    <div class="row">
+        <div class="col-md-12">
+            <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.LIST_MODAL" type="ball-clip-rotate-multiple"
+                size="medium">
+                <p *ngIf="progress != null" style="font-size: 20px; color: white">{{percent()}}%</p>
+            </ngx-spinner>
+
+            <div class="row" *ngIf="list">
+                <div class="col-md-6">
+                    <h2>
+                        {{list.displayLabel}}
+                    </h2>
+                </div>
+                <div class="col-md-6" *ngIf="list">
+                    <div class="button-holder pull-right">
+
+                        <span *ngIf="isWritable && list.working" class="clickable"
+                            style="vertical-align:middle;display:inline-block;line-height:0;">
+                            <boolean-field [(value)]="showInvalid" (change)="handleShowInvalidChange()"
+                                [localizeLabelKey]="'masterlist.showInvalid'"></boolean-field>
+                        </span>
+
+                        <span *ngIf="isWritable && list.working" class="clickable" (click)="onPublish()"
+                            style="padding: 10px;">
+                            <i [ngClass]="{'fa fa-refresh clickable':true}"
+                                style="font-size: 24px;vertical-align: middle;padding-right: 5px;"
+                                aria-hidden="true"></i>
+                            <localize key="masterlist.publish"></localize>
+                        </span>
+
+                        <button
+                            *ngIf="list.listMetadata.visibility === 'PUBLIC' || list.geospatialMetadata.visibility === 'PUBLIC' || isListInOrg() || isSRA"
+                            type="submit" (click)="onExport()" class="btn btn-primary" role="button">
+                            <localize *ngIf="filters == null" key="io.export.allrows"></localize>
+                            <localize *ngIf="filters != null" key="io.export.filteredrows"></localize>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div *ngIf="list" class="col-md-12">
+
+                    <ng-container *ngIf="cols != null && config != null">
+                        <generic-table [cols]="cols" [config]="config" [refresh]="refresh"
+                            [pageConfig]="{oid: list.oid, showInvalid: showInvalid}" (click)="onClick($event)"
+                            (onLoadEvent)="onLoadEvent($event)" [initialState]="tableState"></generic-table>
+                    </ng-container>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div *ngIf="list" class="col-md-12">
+            <div class="text-right" style="margin-top: 20px;">
+
+                <button type="button" class="btn btn-default" (click)="onClose()">
+                    <localize key="modal.button.close"></localize>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

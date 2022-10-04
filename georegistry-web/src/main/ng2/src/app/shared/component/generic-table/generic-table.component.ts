@@ -34,6 +34,8 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
     @Output() click = new EventEmitter<TableEvent>();
     @Output() onLoadEvent = new EventEmitter<LazyLoadEvent>();
 
+    @Input() paginator: boolean = true;
+
     @ViewChild("dt") dt: Table;
 
     first: number = 0;
@@ -41,6 +43,8 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
     loading: boolean = true;
 
     booleanOptions: any = [];
+
+    hasFilter: boolean = false;
 
     event: LazyLoadEvent = null;
 
@@ -61,6 +65,10 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
             }
 
             this.cols.forEach(column => {
+                if (column.filter) {
+                    this.hasFilter = true;
+                }
+
                 if (column.type === "DATE") {
                     if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
                         const dates = this.initialState.filters[column.field].value;

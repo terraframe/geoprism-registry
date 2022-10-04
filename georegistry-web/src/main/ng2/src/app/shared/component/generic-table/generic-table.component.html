@@ -1,7 +1,7 @@
 <div>
 	<p-table #dt [columns]="cols" [value]="page.resultSet" [autoLayout]="true" [scrollable]="false"
 		[resizableColumns]="true" sortMode="multiple" styleClass="p-datatable-gridlines" [lazy]="true"
-		(onLazyLoad)="onPageChange($event)" [paginator]="true" [totalRecords]="page.count" [first]="first" [rows]="page.pageSize"
+		(onLazyLoad)="onPageChange($event)" [paginator]="paginator" [totalRecords]="page.count" [first]="first" [rows]="page.pageSize"
 		[loading]="loading" [multiSortMeta]="config.sort != null ? config.sort : []"
 		(onFilter)="handleFilter($event)">
 
@@ -22,7 +22,7 @@
 					</p-sortIcon>
 				</th>
 			</tr>
-			<tr>
+			<tr *ngIf="hasFilter">
 				<th *ngFor="let col of columns" [ngSwitch]="col.type">
 					<ng-container *ngIf="col.filter !== false">
 						<input *ngSwitchCase="'URL'" pInputText type="text" 
