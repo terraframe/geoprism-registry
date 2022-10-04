@@ -134,6 +134,7 @@
 	padding: 15px 0;
 	background-color: white;
 	z-index:9;
+	width: 100%;
 	
 	border-color: #6BA542;
     border-color: var(--theme-input-text-border-active);
