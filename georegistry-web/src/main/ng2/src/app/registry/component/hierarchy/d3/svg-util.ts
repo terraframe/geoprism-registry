@@ -1,7 +1,7 @@
-import * as d3 from "d3";
+import { select } from "d3";
 
-export function calculateTextWidth(text: string, fontSize: number): number {
-    let svg = d3.select("#svg");
+export function calculateTextWidth(text: string, fontSize: number, svgSelector: string = "#svg"): number {
+    let svg = select(svgSelector);
 
     let textCalcGroup = svg.append("g").classed("g-text-calc", true);
 
@@ -13,13 +13,13 @@ export function calculateTextWidth(text: string, fontSize: number): number {
 
     let bbox = textEl.node().getBBox();
 
-    d3.select(".g-text-calc").remove();
+    select(".g-text-calc").remove();
 
     return bbox.width + 2; // +2 is for padding. I caught this truncating just ever so slightly
 }
 
 export function svgPoint(x: number, y: number) {
-    let svg: any = d3.select("#svg").node();
+    let svg: any = select("#svg").node();
     let pt = svg.createSVGPoint();
 
     pt.x = x;

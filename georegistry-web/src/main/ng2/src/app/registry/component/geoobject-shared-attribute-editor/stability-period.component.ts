@@ -174,7 +174,7 @@ export class StabilityPeriodComponent implements OnInit, OnDestroy {
         }
 
         this.activeEntry = entry;
-        this.locationManagerService.setState({ date: entry == null ? null : entry.period.startDate });
+        this.locationManagerService.setState({ date: entry == null ? null : entry.period.startDate }, false);
     }
 
     generate() {
