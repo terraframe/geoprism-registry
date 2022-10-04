@@ -156,7 +156,7 @@
 						(viewList)="onViewList($event)"> </layer-panel>
 				</article>
 
-				<article *ngIf="list != null" id="navigator-list-panel" class="list-panel"
+				<article *ngIf="list != null && !state.graphPanelOpen" id="navigator-list-panel" class="list-panel"
 					style="position: absolute; right: 0px; bottom: 0px; z-index: 500; overflow: scroll; width: 100%;" [ngStyle]="{'height' : list.uid != null ? '200px' : '400px' }">
 					<div class="row">
 						<div [ngClass]="{'col-md-4':isAttributePanelOpen()}">
