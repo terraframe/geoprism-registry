@@ -192,6 +192,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     dateFieldValue: string;
 
     list: SelectedList = null;
+    recordContext: string = "MAP";
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
@@ -586,6 +587,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                                 }
                             } else {
                                 if (layer.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE) {
+                                    this.recordContext = "MAP";
+
                                     const versionId = (layer.dataSource as ListVectorLayerDataSource).getVersionId();
 
                                     if (this.state.version == null || this.state.uid == null ||
@@ -764,7 +767,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
-    handleRecord(list: string, uid: string, zoomToFeature: boolean = false): void {
+    handleRecord(list: string, uid: string): void {
         // Get the feature data from the server and populate the left-hand panel
         this.listService.record(list, uid, false).then(record => {
             if (this.feature != null) {
@@ -805,7 +808,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     }
                 } as GeoObject);
             } else if (record.recordType === "LIST") {
-                if (!zoomToFeature) {
+                if (this.recordContext === "MAP") {
                     this.list = null;
 
                     timeout(() => {
@@ -1004,12 +1007,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     onRowSelect(event: { version: string, uid: string }): void {
+        this.recordContext = "ROW";
+
         if (this.state.version == null || this.state.uid == null ||
             this.state.version !== event.version ||
             this.state.uid !== event.uid) {
             this.updateState({ version: event.version, uid: event.uid });
         } else {
-            this.handleRecord(event.version, event.uid, true);
+            this.handleRecord(event.version, event.uid);
         }
     }
 
@@ -1018,7 +1023,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     isAttributePanelOpen(): boolean {
-        return (this.state.attrPanelOpen && ((this.mode === this.MODE.VIEW && this.current != null) || (this.mode === this.MODE.SEARCH && this.searchEnabled)));
+        return (this.state.attrPanelOpen && ((this.mode === this.MODE.VIEW && this.current != null) || (this.mode === this.MODE.SEARCH && this.searchEnabled && this.data.length > 0)));
     }
 
     error(err: HttpErrorResponse): void {
