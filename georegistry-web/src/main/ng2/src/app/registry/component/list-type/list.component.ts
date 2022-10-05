@@ -2,17 +2,16 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { ActivatedRoute, Router } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
-import { LazyLoadEvent } from "primeng/api";
+import { LazyLoadEvent, FilterMetadata } from "primeng/api";
 
 import { Subject, Subscription } from "rxjs";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
 import { GeoObjectEditorComponent } from "../geoobject-editor/geoobject-editor.component";
-import * as ColorGen from "color-generator";
 
 import { ErrorHandler } from "@shared/component";
 import { AuthService, ProgressService } from "@shared/service";
-import { ListData, ListTypeVersion } from "@registry/model/list-type";
+import { ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
@@ -20,7 +19,6 @@ import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/mode
 import { LngLatBounds } from "mapbox-gl";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
-import { ListVectorLayerDataSource } from "@registry/service/layer-data-source";
 import { GeometryService } from "@registry/service/geometry.service";
 import { LocationManagerStateService } from "@registry/service/location-manager.service";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
@@ -50,7 +48,7 @@ export class ListComponent implements OnInit, OnDestroy {
     cols: GenericTableColumn[] = null;
     refresh: Subject<void>;
 
-    tableState: LazyLoadEvent = null;
+    filters: { [s: string]: FilterMetadata; } = null;
 
     showInvalid = false;
 
@@ -83,12 +81,6 @@ export class ListComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         const oid = this.route.snapshot.paramMap.get("oid");
 
-        if (localStorage.getItem(oid) != null) {
-            const data: ListData = JSON.parse(localStorage.getItem(oid));
-
-            this.tableState = data.event;
-        }
-
         this.service.getVersion(oid).then(version => {
             this.list = version;
             this.orgCode = this.list.orgCode;
@@ -106,7 +98,7 @@ export class ListComponent implements OnInit, OnDestroy {
                 view: true,
                 create: false,
                 label: this.list.displayLabel,
-                sort: [{ field: "code", order: 1 }]
+                sort: { field: "code", order: 1 }
             };
 
             if (version.refreshProgress != null) {
@@ -228,7 +220,7 @@ export class ListComponent implements OnInit, OnDestroy {
                     column.type = "AUTOCOMPLETE";
                     column.text = "";
                     column.onComplete = () => {
-                        this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
+                        this.service.values(this.list.oid, column.text, attribute.name, this.filters).then(options => {
                             column.results = options;
                         }).catch((err: HttpErrorResponse) => {
                             this.error(err);
@@ -318,7 +310,7 @@ export class ListComponent implements OnInit, OnDestroy {
 
     onExport(): void {
         const criteria = {
-            filters: this.tableState.filters != null ? { ...this.tableState.filters } : {}
+            filters: this.filters != null ? { ...this.filters } : {}
         };
 
         if (!this.showInvalid) {
@@ -414,15 +406,12 @@ export class ListComponent implements OnInit, OnDestroy {
         });
     }
 
-    onLoadEvent(event: LazyLoadEvent): void {
-        this.tableState = event;
+    onFilter(event: LazyLoadEvent): void {
+        this.filters = null;
 
-        const data: ListData = {
-            event: event,
-            oid: this.list.oid
-        };
-
-        localStorage.setItem(data.oid, JSON.stringify(data));
+        if (event.filters != null) {
+            this.filters = event.filters;
+        }
     }
 
     isListInOrg(): boolean {

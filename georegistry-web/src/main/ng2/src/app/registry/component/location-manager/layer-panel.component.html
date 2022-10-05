@@ -1,11 +1,11 @@
 <ng-template #versionDetail let-versionOrLayer='versionOrLayer'>
   (
-  <a *ngIf="versionOrLayer.versionNumber !== 0" (click)="onViewList(versionOrLayer.oid)" routerLinkActive="active">
+  <a *ngIf="versionOrLayer.versionNumber !== 0" [routerLink]="'/registry/master-list/' + versionOrLayer.oid" routerLinkActive="active">
     <localize key="list.type.version"></localize>
     {{versionOrLayer.versionNumber}}
   </a>
   
-  <a *ngIf="versionOrLayer.versionNumber === 0" (click)="onViewList(versionOrLayer.oid)" routerLinkActive="active">
+  <a *ngIf="versionOrLayer.versionNumber === 0" [routerLink]="'/registry/master-list/' + versionOrLayer.oid" routerLinkActive="active">
     <localize *ngIf="versionOrLayer.versionNumber === 0" key="list.type.working.version"></localize>
   </a>
   )
@@ -24,12 +24,12 @@
 			      <div class="label-wrapper">
               		<date-text [date]="version.forDate"></date-text>
 				        (
-							  <a *ngIf="version.versionNumber !== 0" (click)="onViewList(version.oid)" routerLinkActive="active">
+							  <a *ngIf="version.versionNumber !== 0" [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">
 							    <localize key="list.type.version"></localize>
 							    {{version.versionNumber}}
 							  </a>
 							  
-							  <a *ngIf="version.versionNumber === 0" (click)="onViewList(version.oid)" routerLinkActive="active">
+							  <a *ngIf="version.versionNumber === 0" [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">
 							    <localize *ngIf="version.versionNumber === 0" key="list.type.working.version"></localize>
 							  </a>
 							  )
@@ -87,12 +87,12 @@
 			                
 			                <ng-container *ngIf="versionMap[layer.getId()] != null">
 					                (
-												  <a *ngIf="versionMap[layer.getId()].versionNumber !== 0" (click)="onViewList(layer.dataSource.getVersionId())" routerLinkActive="active">
+												  <a *ngIf="versionMap[layer.getId()].versionNumber !== 0" [routerLink]="'/registry/master-list/' + layer.dataSource.getVersionId()" routerLinkActive="active">
 												    <localize key="list.type.version"></localize>
 												    {{versionMap[layer.getId()].versionNumber}}
 												  </a>
 												  
-												  <a *ngIf="versionMap[layer.getId()].versionNumber === 0" (click)="onViewList(layer.dataSource.getVersionId())" routerLinkActive="active">
+												  <a *ngIf="versionMap[layer.getId()].versionNumber === 0" [routerLink]="'/registry/master-list/' + layer.dataSource.getVersionId()" routerLinkActive="active">
 												    <localize *ngIf="versionMap[layer.getId()].versionNumber === 0" key="list.type.working.version"></localize>
 												  </a>
 												  )

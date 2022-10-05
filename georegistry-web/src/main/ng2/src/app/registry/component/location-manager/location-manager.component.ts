@@ -32,7 +32,6 @@ import { BusinessObject, BusinessType } from "@registry/model/business-type";
 import { BusinessObjectService } from "@registry/service/business-object.service";
 import { Vertex } from "@registry/model/graph";
 import { LocalizedValue } from "@shared/model/core";
-import { ListModalComponent } from "./list-modal.component";
 import { LocationManagerStateService } from "@registry/service/location-manager.service";
 
 declare let registry: GeoRegistryConfiguration;
@@ -1018,19 +1017,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         ]);
 
         return bounds;
-    }
-
-    onViewList(oid: string): void {
-        this.bsModalRef = this.modalService.show(ListModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
-        });
-
-        this.bsModalRef.content.init(oid);
-        this.bsModalRef.content.onRowSelect.subscribe(event => {
-            this.selectListRecord(event.version, event.uid);
-        });
     }
 
     error(err: HttpErrorResponse): void {
