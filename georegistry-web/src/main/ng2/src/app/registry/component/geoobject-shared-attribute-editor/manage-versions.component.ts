@@ -45,7 +45,6 @@ import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-cha
 import * as ColorGen from "color-generator";
 import { CHANGE_REQUEST_SOURCE_TYPE_NEW, CHANGE_REQUEST_SOURCE_TYPE_OLD, GeoJsonLayer, GeoObjectLayerDataSource, Layer, ValueOverTimeDataSource } from "@registry/service/layer-data-source";
 import { LocationManagerState } from "../location-manager/location-manager.component";
-import { LocationManagerService } from "@registry/service/location-manager.service";
 
 @Component({
     selector: "manage-versions",
@@ -122,8 +121,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
     // eslint-disable-next-line no-useless-constructor
     constructor(public geomService: GeometryService, public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService,
         public changeDetectorRef: ChangeDetectorRef, public dateService: DateService, private authService: AuthService,
-        private requestService: ChangeRequestService, private modalService: BsModalService, private elementRef: ElementRef,
-        private locationManagerService: LocationManagerService) { }
+        private requestService: ChangeRequestService, private modalService: BsModalService, private elementRef: ElementRef) { }
 
     ngOnInit(): void {
         this.changeRequestAttributeEditor = this.changeRequestEditor.getEditorForAttribute(this.attributeType, this.hierarchy) as ChangeRequestChangeOverTimeAttributeEditor;
@@ -139,8 +137,8 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
                 });
             }
         });
-        this.stateSub = this.locationManagerService.stateChange$.subscribe(state => this.stateChange(state));
-        this.stateChange(this.locationManagerService.getState());
+        this.stateSub = this.geomService.stateChange$.subscribe(state => this.stateChange(state));
+        this.stateChange(this.geomService.getState());
     }
 
     ngAfterViewInit() {

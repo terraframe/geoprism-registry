@@ -15,8 +15,8 @@ import { StandardAttributeCRModel } from "./StandardAttributeCRModel";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 import { ChangeType } from "@registry/model/constants";
 import { Subscription } from "rxjs";
-import { LocationManagerService } from "@registry/service/location-manager.service";
 import { LocationManagerState } from "../location-manager/location-manager.component";
+import { GeometryService } from "@registry/service";
 
 export interface DateBoundary { date: string; isStart: boolean; isEnd: boolean }
 
@@ -88,7 +88,7 @@ export class StabilityPeriodComponent implements OnInit, OnDestroy {
     }
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private lService: LocalizationService, public dateService: DateService, private locationManagerService: LocationManagerService) {}
+    constructor(private lService: LocalizationService, public dateService: DateService, private geomService: GeometryService) {}
 
     ngOnInit(): void {
         this.generate();
@@ -99,7 +99,7 @@ export class StabilityPeriodComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.subscription = this.locationManagerService.stateChange$.subscribe(state => this.handleStateChange(state));
+        this.subscription = this.geomService.stateChange$.subscribe(state => this.handleStateChange(state));
 
         this.calculateActiveTimelineEntry();
     }
@@ -174,7 +174,7 @@ export class StabilityPeriodComponent implements OnInit, OnDestroy {
         }
 
         this.activeEntry = entry;
-        this.locationManagerService.setState({ date: entry == null ? null : entry.period.startDate }, false);
+        this.geomService.setState({ date: entry == null ? null : entry.period.startDate }, false);
     }
 
     generate() {
@@ -223,7 +223,7 @@ export class StabilityPeriodComponent implements OnInit, OnDestroy {
 
         let currentTimeline: any = [];
         this.timelines.push(currentTimeline);
-        let daysLeft = this.dataTimeSpan.span;
+        // let daysLeft = this.dataTimeSpan.span;
 
         let len = this.periods.length;
         for (let i = 0; i < len; ++i) {
@@ -239,6 +239,7 @@ export class StabilityPeriodComponent implements OnInit, OnDestroy {
             }
 
             let daysInPeriod: number = (endDay - startDay);
+            /*
             if (daysLeft - daysInPeriod < 0) {
                 let daysInFirstEntry = daysLeft;
                 let timelineEntry1: TimelineEntry = { width: (daysInFirstEntry / this.dataTimeSpan.span) * 100, x: ((startDay - this.dataTimeSpan.startDay) / this.dataTimeSpan.span) * 100, period: period };
@@ -251,16 +252,18 @@ export class StabilityPeriodComponent implements OnInit, OnDestroy {
                 let timelineEntry2: TimelineEntry = { width: ((daysInPeriod - daysInFirstEntry) / this.dataTimeSpan.span) * 100, x: ((startDay - this.dataTimeSpan.startDay) / this.dataTimeSpan.span) * 100, period: period };
                 currentTimeline.push(timelineEntry2);
             } else {
+              */
                 let timelineEntry: TimelineEntry = { width: (daysInPeriod / this.dataTimeSpan.span) * 100, x: ((startDay - this.dataTimeSpan.startDay) / this.dataTimeSpan.span) * 100, period: period };
                 currentTimeline.push(timelineEntry);
-                daysLeft = daysLeft - daysInPeriod;
-
+               /*
+                 daysLeft = daysLeft - daysInPeriod;
                 if (daysLeft === 0) {
                     currentTimeline = [];
                     this.timelines.push(currentTimeline);
                     daysLeft = this.dataTimeSpan.span;
                 }
             }
+            */
         }
 
         // console.log(this.timelines);

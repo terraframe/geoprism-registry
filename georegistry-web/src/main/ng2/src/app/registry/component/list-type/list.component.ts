@@ -22,6 +22,9 @@ import { LngLatBounds } from "mapbox-gl";
 import { GeoRegistryConfiguration } from "@core/model/registry";
 import { ListVectorLayerDataSource } from "@registry/service/layer-data-source";
 import { GeometryService } from "@registry/service/geometry.service";
+import { LocationManagerStateService } from "@registry/service/location-manager.service";
+import { RegistryCacheService } from "@registry/service/registry-cache.service";
+import { LocationManagerState } from "../location-manager/location-manager.component";
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -71,6 +74,8 @@ export class ListComponent implements OnInit, OnDestroy {
         private service: ListTypeService,
         private pService: ProgressService,
         private geomService: GeometryService,
+        private locationManagerService: LocationManagerStateService,
+        private cacheService: RegistryCacheService,
         private authService: AuthService) {
         this.userOrgCodes = this.authService.getMyOrganizations();
     }
@@ -300,10 +305,11 @@ export class ListComponent implements OnInit, OnDestroy {
         }
 
         const params: any = {
-            layers: JSON.stringify(this.layerFromVersion(this.list)),
             type: type,
             code: "__NEW__"
         };
+
+        this.locationManagerService.addLayerForList(this.list, params);
 
         this.router.navigate(["/registry/location-manager"], {
             queryParams: params
@@ -348,35 +354,51 @@ export class ListComponent implements OnInit, OnDestroy {
         event.preventDefault();
     }
 
-    layerFromVersion(version: ListTypeVersion): any {
-        let dataSource = new ListVectorLayerDataSource(this.service, version.oid);
-        let layer = dataSource.createLayer(version.displayLabel, true, ColorGen().hexString());
-        this.geomService.zoomOnReady(layer.getId());
-        return this.geomService.getDataSourceFactory().serializeLayers([layer]);
-    }
-
     onGotoMap(result: any): void {
-        const params: any = { layers: JSON.stringify(this.layerFromVersion(this.list)) };
+        let state: LocationManagerState = { pageContext: "DATA" };
 
-        if (result != null) {
-            params.version = this.list.oid;
-            params.uid = result.uid;
-            params.pageContext = "DATA";
+        this.locationManagerService.addLayerForList(this.list, state);
 
-            this.router.navigate(["/registry/location-manager"], {
-                queryParams: params
-            });
-        } else {
+        if (result == null) {
             this.service.getBounds(this.list.oid).then(bounds => {
                 if (bounds && Array.isArray(bounds)) {
                     let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
                     const array = llb.toArray();
 
-                    params.bounds = JSON.stringify(array);
+                    state.bounds = JSON.stringify(array);
                 }
 
                 this.router.navigate(["/registry/location-manager"], {
-                    queryParams: params
+                    queryParams: state
+                });
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
+        } else {
+            this.service.record(this.list.oid, result.uid, false).then(record => {
+                this.cacheService.getTypeCache().waitOnTypes().then(() => {
+                    this.locationManagerService.selectListRecord(this.list.oid, result.uid, record, state);
+
+                    if (record.recordType === "GEO_OBJECT") {
+                        this.router.navigate(["/registry/location-manager"], {
+                            queryParams: state
+                        });
+                    } else {
+                        this.service.getBounds(this.list.oid).then(bounds => {
+                            if (bounds && Array.isArray(bounds)) {
+                                let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+                                const array = llb.toArray();
+
+                                state.bounds = JSON.stringify(array);
+                            }
+
+                            this.router.navigate(["/registry/location-manager"], {
+                                queryParams: state
+                            });
+                        }).catch((err: HttpErrorResponse) => {
+                            this.error(err);
+                        });
+                    }
                 });
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
