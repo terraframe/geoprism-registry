@@ -1,4 +1,5 @@
-<div style="background-color: white;">
+<div style="background-color: white; overflow: auto; " [style.height]="'calc(' + size + 'vh - 50px)'">
+
     <div class="row">
         <div class="col-md-12">
             <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.LIST_MODAL" type="ball-clip-rotate-multiple"
@@ -8,12 +9,19 @@
 
             <div class="row" *ngIf="list">
                 <div class="col-md-6">
+                    <div class="button-holder pull-right" style="margin-top: 10px; margin-right: 5px;">
+                        <span class="clickable" (click)="onToggleSize()" style="padding: 10px;">
+                            <i class="fa" [ngClass]="{'fa-arrow-up':(size === 50), 'fa-arrow-down':(size === 100)}"
+                                style="font-size: 24px;vertical-align: middle;padding-right: 5px;"
+                                aria-hidden="true"></i>
+                        </span>
+                    </div>
                     <h2>
-                        {{list.displayLabel}}
+                        {{list.displayLabel}} (<date-text [date]="list.forDate"></date-text>)
                     </h2>
                 </div>
                 <div class="col-md-6" *ngIf="list">
-                    <div class="button-holder pull-right">
+                    <div class="button-holder pull-right" style="margin-top: 10px; margin-right: 5px;">
 
                         <span *ngIf="isWritable && list.working" class="clickable"
                             style="vertical-align:middle;display:inline-block;line-height:0;">
@@ -35,6 +43,10 @@
                             <localize *ngIf="filters == null" key="io.export.allrows"></localize>
                             <localize *ngIf="filters != null" key="io.export.filteredrows"></localize>
                         </button>
+
+                        <button type="button" class="btn btn-default" (click)="onClose()">
+                            <localize key="modal.button.close"></localize>
+                        </button>
                     </div>
                 </div>
 
@@ -46,21 +58,11 @@
                     <ng-container *ngIf="cols != null && config != null">
                         <generic-table [cols]="cols" [config]="config" [refresh]="refresh"
                             [pageConfig]="{oid: list.oid, showInvalid: showInvalid}" (click)="onClick($event)"
-                            (onLoadEvent)="onLoadEvent($event)" [initialState]="tableState"></generic-table>
+                            (onLoadEvent)="onLoadEvent($event)" [initialState]="tableState">
+                        </generic-table>
                     </ng-container>
 
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div *ngIf="list" class="col-md-12">
-            <div class="text-right" style="margin-top: 20px;">
-
-                <button type="button" class="btn btn-default" (click)="onClose()">
-                    <localize key="modal.button.close"></localize>
-                </button>
             </div>
         </div>
     </div>

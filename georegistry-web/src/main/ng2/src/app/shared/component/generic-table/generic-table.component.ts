@@ -36,6 +36,8 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
 
     @Input() paginator: boolean = true;
 
+    @Input() scrollable: boolean = false;
+
     @ViewChild("dt") dt: Table;
 
     first: number = 0;

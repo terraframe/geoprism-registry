@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { ListData, ListTypeVersion } from "@registry/model/list-type";
 import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
 import { BsModalService } from "ngx-bootstrap/modal";
@@ -61,11 +61,15 @@ export class ListPanelComponent implements OnInit, OnDestroy {
     progress: { current: number, total: number } = null;
     refresh: Subject<void>;
 
+    // Verticle size of the panel
+    size: number = 100;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService,
         private service: ListTypeService,
         private spinner: NgxSpinnerService,
-        private authService: AuthService) {
+        private authService: AuthService,
+        private cdr: ChangeDetectorRef) {
         this.userOrgCodes = this.authService.getMyOrganizations();
     }
 
@@ -99,7 +103,7 @@ export class ListPanelComponent implements OnInit, OnDestroy {
                 label: this.list.displayLabel,
                 sort: [{ field: "code", order: 1 }],
                 baseZIndex: 1051,
-                pageSize: 10
+                pageSize: 30
             };
         });
 
@@ -298,6 +302,16 @@ export class ListPanelComponent implements OnInit, OnDestroy {
                 window.open(registry.contextPath + "/list-type/export-spreadsheet?oid=" + this.list.oid + "&criteria=" + encodeURIComponent(JSON.stringify(criteria)), "_blank");
             }
         });
+    }
+
+    onToggleSize(): void {
+        if (this.size === 50) {
+            this.size = 100;
+        } else {
+            this.size = 50;
+        }
+
+        this.cdr.detectChanges();
     }
 
     percent(): number {

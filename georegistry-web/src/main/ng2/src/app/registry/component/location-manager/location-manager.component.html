@@ -157,18 +157,20 @@
 				</article>
 
 				<article *ngIf="list != null && !state.graphPanelOpen" id="navigator-list-panel" class="list-panel"
-					style="position: absolute; right: 0px; bottom: 0px; z-index: 500; overflow: scroll; width: 100%;" [ngStyle]="{'height' : list.uid != null ? '200px' : '400px' }">
-					<div class="row">
+					style="position: absolute; right: 5px; bottom: 0px; z-index: 500; width: 100%; pointer-events: none;"
+					>
+					<div class="row" style="padding-left: 5px; ">
 						<div [ngClass]="{'col-md-4':isAttributePanelOpen()}">
 						</div>
 
-						<div [ngClass]="{'col-md-12':!isAttributePanelOpen(), 'col-md-8':isAttributePanelOpen()}">
+						<div [ngClass]="{'col-md-12':!isAttributePanelOpen(), 'col-md-8':isAttributePanelOpen()}"
+							style="pointer-events: all;">
 
 							<list-panel *ngIf="list.uid == null" [oid]="list.versionId" (close)="onListPanelClose()"
 								(error)="error($event)" (onRowSelect)="onRowSelect($event)"> </list-panel>
 
-							<list-row *ngIf="list.uid != null" [oid]="list.versionId" [uid]="list.uid" (close)="onListPanelClose()"
-								(error)="error($event)"> </list-row>
+							<list-row *ngIf="list.uid != null" [oid]="list.versionId" [uid]="list.uid"
+								(close)="onListPanelClose()" (error)="error($event)"> </list-row>
 
 						</div>
 					</div>
