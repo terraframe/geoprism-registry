@@ -396,7 +396,7 @@ export class GeometryService implements OnDestroy {
                 // If they switch pages before the zoom finishes isZooming can remain set. So set a max timeout
                 window.setTimeout(() => {
                     this.isZooming = false;
-                }, 15);
+                }, 6000);
             }
         });
     }
