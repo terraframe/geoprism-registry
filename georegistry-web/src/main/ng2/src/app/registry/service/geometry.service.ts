@@ -17,7 +17,6 @@ import { LayerDiffingStrategy } from "./layer-diffing-strategy";
 import { LocationManagerState } from "@registry/component/location-manager/location-manager.component";
 import { PANEL_SIZE_STATE } from "@registry/model/location-manager";
 import { debounce } from "ts-debounce";
-import { LocationManagerService } from "./location-manager.service";
 
 export const OLD_LAYER_COLOR = "#A4A4A4";
 
@@ -61,22 +60,26 @@ export class GeometryService implements OnDestroy {
     @Output() layersChange: EventEmitter<Layer[]> = new EventEmitter();
 
     /*
-    * Subscription for changes to the location manager state
+    * Subscription for changes to the url parameters
     */
-    stateSub: Subscription;
+    private urlSub: Subscription;
 
     /*
      * URL pamaters
      */
     syncWithUrlParams: boolean = false;
 
-    state: LocationManagerState = null;
+    state: LocationManagerState = { attrPanelOpen: true };
 
     dataSourceFactory: DataSourceFactory;
 
     layerSorter: LayerSorter;
 
     public syncMapState: () => void;
+
+    public stateChange$: EventEmitter<LocationManagerState>;
+
+    setState: (state: any, pushBackHistory: boolean) => void;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
@@ -86,12 +89,14 @@ export class GeometryService implements OnDestroy {
         private relVizService: RelationshipVisualizationService,
         private mapService: MapService,
         private listService: ListTypeService,
-        private localService: LocalizationService,
-        private locationManagerService: LocationManagerService
+        private localService: LocalizationService
     ) {
         this.dataSourceFactory = new DataSourceFactory(this, this.registryService, this.relVizService, this.mapService, this.listService);
         this.layerSorter = new LayerGroupSorter(this.localService);
         this.syncMapState = debounce(this._syncMapState, 50);
+
+        this.stateChange$ = new EventEmitter();
+        this.setState = debounce(this._setState, 50);
     }
 
     public initialize(map: Map, geometryType: String, syncWithUrlParams: boolean) {
@@ -101,15 +106,19 @@ export class GeometryService implements OnDestroy {
         // this.editingControl = null;
 
         if (syncWithUrlParams) {
-            this.stateSub = this.locationManagerService.stateChange$.subscribe(state => {
+            this.urlSub = this.route.queryParams.subscribe(urlParams => {
                 try {
-                    this.stateChange(state);
+                    let newState = JSON.parse(JSON.stringify(urlParams));
+
+                    newState.graphPanelOpen = (newState.graphPanelOpen === "true");
+                    newState.attrPanelOpen = (newState.attrPanelOpen === "true" || newState.attrPanelOpen === undefined);
+
+                    this.stateChange(newState);
                 } catch (err) {
                     // eslint-disable-next-line no-console
                     console.log(err); // We will be unsubscribed if we throw an unhandled error and we don't want that to happen
                 }
             });
-            this.stateChange(this.locationManagerService.getState());
         }
 
         // this.mapAllLayers();
@@ -140,23 +149,42 @@ export class GeometryService implements OnDestroy {
     }
 
     ngOnDestroy(): void {
-        if (this.stateSub) {
-            this.stateSub.unsubscribe();
+        if (this.urlSub) {
+            this.urlSub.unsubscribe();
         }
     }
-    
+
     public serializeLayers(newLayers: Layer[]) {
         let sorted;
-      
+
         if (this.layerSorter != null) {
             sorted = this.layerSorter.sortLayers(newLayers);
         } else {
             sorted = newLayers;
         }
-        
-        let serialized = this.dataSourceFactory.serializeLayers(newLayers);
-        
+
+        let serialized = this.dataSourceFactory.serializeLayers(sorted);
+
         return JSON.stringify(serialized);
+    }
+
+    public deserializeLayers(layerState: string): Layer[] {
+        return this.dataSourceFactory.deserializeLayers(JSON.parse(layerState));
+    }
+
+    public getState(): LocationManagerState {
+        return this.state;
+    }
+
+    public _setState(state: LocationManagerState, pushBackHistory: boolean): void {
+        Object.assign(this.state, state);
+
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: JSON.parse(JSON.stringify(this.state)),
+            queryParamsHandling: "merge",
+            replaceUrl: !pushBackHistory
+        });
     }
 
     stateChange(state: LocationManagerState): void {
@@ -169,7 +197,7 @@ export class GeometryService implements OnDestroy {
                 let oldLayers = this.layers;
 
                 let deserialized = this.dataSourceFactory.deserializeLayers(deserializedLayers);
-                
+
                 if (this.layerSorter != null) {
                     this.layers = this.layerSorter.sortLayers(deserialized);
                 } else {
@@ -182,6 +210,8 @@ export class GeometryService implements OnDestroy {
 
                 this.syncMapState();
             }
+
+            this.stateChange$.emit(JSON.parse(JSON.stringify(this.state)));
         }
     }
 
@@ -341,7 +371,7 @@ export class GeometryService implements OnDestroy {
         if (this.syncWithUrlParams) {
             let serialized = this.dataSourceFactory.serializeLayers(newLayers);
 
-            this.locationManagerService.setState({ layers: JSON.stringify(serialized) }, false);
+            this.setState({ layers: JSON.stringify(serialized) }, false);
         } else {
             this.syncMapState();
         }
@@ -362,6 +392,11 @@ export class GeometryService implements OnDestroy {
 
                 this.isZooming = true;
                 this.map.fitBounds(bounds, zoomConfig);
+
+                // If they switch pages before the zoom finishes isZooming can remain set. So set a max timeout
+                window.setTimeout(() => {
+                    this.isZooming = false;
+                }, 15);
             }
         });
     }

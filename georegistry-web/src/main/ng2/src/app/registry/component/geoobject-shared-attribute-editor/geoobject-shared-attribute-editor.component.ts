@@ -20,7 +20,6 @@ import { ChangeRequestEditor } from "./change-request-editor";
 import { ManageVersionsComponent } from "./manage-versions.component";
 import { v4 as uuid } from "uuid";
 import { Subscription } from "rxjs";
-import { LocationManagerService } from "@registry/service/location-manager.service";
 import { LocationManagerState } from "../location-manager/location-manager.component";
 
 @Component({
@@ -114,12 +113,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnDestro
     private subscription: Subscription;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private lService: LocalizationService, private locationManagerService: LocationManagerService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService, private registryService: RegistryService) {
+    constructor(private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService, private registryService: RegistryService) {
 
     }
 
     ngOnInit(): void {
-        this.subscription = this.locationManagerService.stateChange$.subscribe(state => this.handleStateChange(state));
+        this.subscription = this.geomService.stateChange$.subscribe(state => this.handleStateChange(state));
 
         if (this.attributeExcludes != null) {
             this.geoObjectAttributeExcludes.push.apply(this.geoObjectAttributeExcludes, this.attributeExcludes);

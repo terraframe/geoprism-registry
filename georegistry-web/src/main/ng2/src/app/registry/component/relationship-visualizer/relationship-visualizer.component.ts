@@ -23,7 +23,6 @@ import { LngLatBounds } from "mapbox-gl";
 import { ObjectReference, RelatedType, Relationship, TreeData, Vertex } from "@registry/model/graph";
 import { LocationManagerState } from "../location-manager/location-manager.component";
 import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
-import { LocationManagerService } from "@registry/service/location-manager.service";
 
 import { calculateTextWidth } from "@registry/component/hierarchy/d3/svg-util";
 
@@ -105,7 +104,6 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
     constructor(private modalService: BsModalService,
         private spinner: NgxSpinnerService,
         private vizService: RelationshipVisualizationService,
-        private locationManagerService: LocationManagerService,
         private cacheService: RegistryCacheService,
         private geomService: GeometryService,
         private router: Router,
@@ -114,14 +112,14 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.typeCache = this.cacheService.getTypeCache();
 
-        this.stateSub = this.locationManagerService.stateChange$.subscribe(state => this.stateChange(state));
+        this.stateSub = this.geomService.stateChange$.subscribe(state => this.stateChange(state));
 
         // Angular keeps invoking our listener in the early stages of component loading. We don't want to make expensive
         // data requests unless we're certain that all the state are loaded.
         window.setTimeout(() => {
             this.loading = false;
 
-            this.stateChange(this.locationManagerService.getState());
+            this.stateChange(this.geomService.getState());
         }, 10);
     }
 
@@ -239,7 +237,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
         let newState = { graphOid: this.graphOid };
 
-        this.locationManagerService.setState(newState, false);
+        this.geomService.setState(newState, false);
     }
 
     private fetchData(): void {
