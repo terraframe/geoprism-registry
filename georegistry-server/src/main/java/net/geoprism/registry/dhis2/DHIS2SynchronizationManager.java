@@ -36,7 +36,6 @@ import org.apache.http.message.BasicNameValuePair;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
@@ -82,6 +81,7 @@ import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.query.graph.helper.WhereCriteriaBuilder;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -599,27 +599,51 @@ public class DHIS2SynchronizationManager
     }
   }
   
+  private void addWhereCriteria(StringBuilder builder, Map<String, Object> params)
+  {
+    final Date date = (dhis2Config.getDate() == null) ? this.todaysDate() : dhis2Config.getDate();
+    
+    final WhereCriteriaBuilder where = new WhereCriteriaBuilder();
+    
+    if (!this.dhis2Config.getSyncNonExistent())
+    {
+      where.AND("exists_cot CONTAINS (value=true AND :date BETWEEN startDate AND endDate )");
+      params.put("date", date);
+    }
+    
+    where.AND("invalid=false");
+    
+    builder.append(where.getSQL());
+  }
+  
   private long getCount(ServerGeoObjectType got)
   {
+    final Map<String, Object> params = new HashMap<String, Object>();
+    
     MdVertexDAOIF mdVertex = got.getMdVertex();
     
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT COUNT(*) FROM " + mdVertex.getDBClassName());
 
-    return new GraphQuery<Long>(statement.toString()).getSingleResult();
+    this.addWhereCriteria(statement, params);
+    
+    return new GraphQuery<Long>(statement.toString(), params).getSingleResult();
   }
   
   private List<VertexServerGeoObject> query(ServerGeoObjectType got, long skip, long pageSize)
   {
+    final Map<String, Object> params = new HashMap<String, Object>();
+    
     MdVertexDAOIF mdVertex = got.getMdVertex();
     MdAttributeDAOIF mdAttribute = MdAttributeDAO.getByKey(GeoVertex.CLASS + "." + GeoVertex.LASTUPDATEDATE);
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT FROM " + mdVertex.getDBClassName());
+    this.addWhereCriteria(statement, params);
     statement.append(" ORDER BY " + mdAttribute.getColumnName() + ", oid ASC");
     statement.append(" SKIP " + skip + " LIMIT " + pageSize);
 
-    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString(), params);
 
     List<VertexObject> vObjects = query.getResults();
 
