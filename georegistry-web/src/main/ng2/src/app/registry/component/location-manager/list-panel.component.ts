@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from "@angular/core";
 import { ListData, ListTypeVersion } from "@registry/model/list-type";
 import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
 import { BsModalService } from "ngx-bootstrap/modal";
@@ -21,7 +21,7 @@ declare let registry: GeoRegistryConfiguration;
     templateUrl: "./list-panel.component.html",
     styleUrls: []
 })
-export class ListPanelComponent implements OnInit, OnDestroy {
+export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
 
     CONSTANTS = {
         LIST_MODAL: OverlayerIdentifier.LIST_MODAL
@@ -62,7 +62,7 @@ export class ListPanelComponent implements OnInit, OnDestroy {
     refresh: Subject<void>;
 
     // Verticle size of the panel
-    size: number = 100;
+    size: number = 50;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService,
@@ -128,6 +128,16 @@ export class ListPanelComponent implements OnInit, OnDestroy {
 
         if (this.progressNotifier != null) {
             this.progressNotifier.complete();
+        }
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes["oid"] != null) {
+            this.list = null;
+
+            this.ngOnDestroy();
+
+            this.ngOnInit();
         }
     }
 

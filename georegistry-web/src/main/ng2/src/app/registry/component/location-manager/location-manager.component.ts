@@ -823,14 +823,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 */
             } else if (record.recordType === "LIST") {
                 if (this.recordContext === "MAP") {
-                    // this.list = null;
-
-                    // timeout(() => {
                     this.list = {
                         versionId: this.state.version,
                         uid: this.state.uid
                     };
-                    // }, 10);
                 } else {
                     const bounds = record.bbox;
 
@@ -991,13 +987,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     onViewList(oid: string): void {
-        this.list = null;
-
-        timeout(() => {
-            this.list = {
-                versionId: oid
-            };
-        }, 10);
+        this.list = {
+            versionId: oid
+        };
     }
 
     onRowSelect(event: { version: string, uid: string }): void {
