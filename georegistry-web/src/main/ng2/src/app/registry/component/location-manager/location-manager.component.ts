@@ -987,6 +987,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     onViewList(oid: string): void {
+        let newState = this.locationManagerService.clearListRecord(this.geomService.getState());
+
+        this.updateState(newState, true);
+
         this.list = {
             versionId: oid
         };
@@ -999,6 +1003,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     onListPanelClose(): void {
+        let newState = this.locationManagerService.clearListRecord(this.geomService.getState());
+
+        this.updateState(newState, true);
+
         this.list = null;
     }
 
