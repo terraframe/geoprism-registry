@@ -943,7 +943,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     objectType: "GEOOBJECT",
                     uid: geoObject.properties.uid,
                     version: null,
-                    text: null
+                    text: null,
+                    layers: this.geomService.serializeLayers(this.geomService.getLayers())
                 };
 
                 let layer: Layer = this.locationManagerService.addLayerForGeoObject(geoObject, date, newState);
