@@ -26,12 +26,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
-import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
+import net.geoprism.dhis2.dhis2adapter.response.ImportReportResponse;
 
 /**
  * This test documents DHIS2 behavior with regards to moving org unit(s) across a hierarchy (changing parents).
@@ -71,7 +68,7 @@ public class OrgUnitRelationshipTest
     List<NameValuePair> params = new ArrayList<NameValuePair>();
     params.add(new BasicNameValuePair("importMode", "VALIDATE"));
     
-    MetadataImportResponse resp = facade.metadataPost(params, new StringEntity(payload, Charset.forName("UTF-8")));
+    ImportReportResponse resp = facade.metadataPost(params, new StringEntity(payload, Charset.forName("UTF-8")));
     
 //    System.out.println(resp.getResponse());
   }

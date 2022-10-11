@@ -1,0 +1,68 @@
+{
+  "httpStatus": "Conflict",
+  "httpStatusCode": 409,
+  "status": "WARNING",
+  "message": "One more more errors occurred, please see full details in import report.",
+  "response": {
+    "responseType": "ImportReport",
+    "typeReports": [
+      {
+        "klass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+        "stats": {
+          "created": 0,
+          "updated": 0,
+          "deleted": 0,
+          "ignored": 1,
+          "total": 1
+        },
+        "objectReports": [
+          {
+            "klass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+            "index": 0,
+            "errorReports": [
+              {
+                "message": "There are duplicate translation record for property `SHORT_NAME` and locale `lo_LA`",
+                "mainKlass": "org.hisp.dhis.translation.Translation",
+                "errorCode": "E1106",
+                "errorKlass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+                "errorProperties": [
+                  "SHORT_NAME",
+                  "lo_LA"
+                ]
+              },
+              {
+                "message": "There are duplicate translation record for property `NAME` and locale `lo_LA`",
+                "mainKlass": "org.hisp.dhis.translation.Translation",
+                "errorCode": "E1106",
+                "errorKlass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+                "errorProperties": [
+                  "NAME",
+                  "lo_LA"
+                ]
+              },
+              {
+                "message": "There are duplicate translation record for property `NAME` and locale `lo`",
+                "mainKlass": "org.hisp.dhis.translation.Translation",
+                "errorCode": "E1106",
+                "errorKlass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+                "errorProperties": [
+                  "NAME",
+                  "lo"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stats": {
+      "created": 0,
+      "updated": 0,
+      "deleted": 0,
+      "ignored": 1,
+      "total": 1
+    },
+    "status": "ERROR"
+  }
+}
+

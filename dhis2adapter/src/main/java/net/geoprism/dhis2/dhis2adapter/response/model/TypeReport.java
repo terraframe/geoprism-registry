@@ -62,26 +62,21 @@ public class TypeReport
 
   public Boolean hasErrorReports()
   {
-    for (ObjectReport or : this.objectReports)
-    {
-      if (or.hasErrorReports())
-      {
-        return true;
-      }
-    }
-    
-    return false;
+    return this.getErrorReports().size() > 0;
   }
 
   public List<ErrorReport> getErrorReports()
   {
     List<ErrorReport> reports = new ArrayList<ErrorReport>();
     
-    for (ObjectReport or : this.objectReports)
+    if (this.objectReports != null)
     {
-      if (or.hasErrorReports())
+      for (ObjectReport or : this.objectReports)
       {
-        reports.addAll(or.getErrorReports());
+        if (or.hasErrorReports())
+        {
+          reports.addAll(or.getErrorReports());
+        }
       }
     }
     

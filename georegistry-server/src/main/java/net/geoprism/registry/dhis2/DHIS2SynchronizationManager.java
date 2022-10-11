@@ -53,10 +53,9 @@ import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.EntityGetResponse;
+import net.geoprism.dhis2.dhis2adapter.response.ImportReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
-import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
-import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.DHIS2Locale;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.ImportStrategy;
@@ -314,7 +313,7 @@ public class DHIS2SynchronizationManager
                   
                   List<NameValuePair> params = new ArrayList<NameValuePair>();
                   
-                  MetadataImportResponse resp2 = dhis2.metadataPost(params, new StringEntity(payload.toString(), Charset.forName("UTF-8")));
+                  ImportReportResponse resp2 = dhis2.metadataPost(params, new StringEntity(payload.toString(), Charset.forName("UTF-8")));
                   
                   this.service.validateDhis2Response(resp2);
                 }
@@ -398,7 +397,7 @@ public class DHIS2SynchronizationManager
   private void exportTranslations(DHIS2SyncLevel level, Long rowIndex, VertexServerGeoObject serverGo)
   {
     String submittedJson = null;
-    TypeReportResponse resp = null;
+    ImportReportResponse resp = null;
     
     List<NameValuePair> orgUnitGetParams = new ArrayList<NameValuePair>();
     orgUnitGetParams.add(new BasicNameValuePair("translate", "false"));
@@ -417,12 +416,6 @@ public class DHIS2SynchronizationManager
           JsonArray submissionTranslations = new JsonArray();
           
           Map<String, JsonObject> mapSubmissionTranslations = new HashMap<String, JsonObject>();
-          for (int i = 0; i < translations.size(); ++i)
-          {
-            JsonObject translation = translations.get(i).getAsJsonObject();
-            
-            mapSubmissionTranslations.put(translation.get("locale").getAsString() + "-" + translation.get("property").getAsString(), translation);
-          }
           
           // The DHIS2 translations API directly replaces their translations with what we submit. So we need to know what's already in their database, and
           // then we have to manually modify the data and resubmit it.
@@ -430,19 +423,19 @@ public class DHIS2SynchronizationManager
           for (int i = 0; i < jaExistingTranslations.size(); ++i)
           {
             JsonObject existingTranslation = jaExistingTranslations.get(i).getAsJsonObject();
-            JsonObject submissionTranslation = mapSubmissionTranslations.get(existingTranslation.get("locale").getAsString() + "-" + existingTranslation.get("property").getAsString());
-            
-            if (submissionTranslation != null)
-            {
-              existingTranslation.addProperty("value", submissionTranslation.get("value").getAsString());
-              mapSubmissionTranslations.remove(submissionTranslation.get("locale").getAsString() + "-" + submissionTranslation.get("property").getAsString());
-            }
-            
-            submissionTranslations.add(existingTranslation);
+            mapSubmissionTranslations.put(existingTranslation.get("locale").getAsString() + "-" + existingTranslation.get("property").getAsString(), existingTranslation);
           }
-          for (JsonObject newTranslation : mapSubmissionTranslations.values())
+          
+          for (int i = 0; i < translations.size(); ++i)
           {
-            submissionTranslations.add(newTranslation);
+            JsonObject translation = translations.get(i).getAsJsonObject();
+            
+            mapSubmissionTranslations.put(translation.get("locale").getAsString() + "-" + translation.get("property").getAsString(), translation);
+          }
+          
+          for (JsonObject submissionTranslation : mapSubmissionTranslations.values())
+          {
+            submissionTranslations.add(submissionTranslation);
           }
           
           JsonObject translationMockOrgUnit = new JsonObject();

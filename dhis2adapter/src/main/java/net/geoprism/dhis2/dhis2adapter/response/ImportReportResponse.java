@@ -24,25 +24,27 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
+import net.geoprism.dhis2.dhis2adapter.response.model.ImportReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.TypeReport;
 
-public class TypeReportResponse extends DHIS2ImportResponse
+public class ImportReportResponse extends DHIS2ImportResponse
 {
 
-  private TypeReport typeReport;
+  private ImportReport importReport;
   
-  public TypeReportResponse(String response, int statusCode)
+  public ImportReportResponse(String response, int statusCode)
   {
     super(response, statusCode);
     
     init();
   }
   
-  public TypeReportResponse(DHIS2ImportResponse http)
+  public ImportReportResponse(DHIS2ImportResponse http)
   {
     super(http.getResponse(), http.getStatusCode());
     
@@ -57,34 +59,70 @@ public class TypeReportResponse extends DHIS2ImportResponse
       builder.setDateFormat(DHIS2Constants.DATE_FORMAT);
       Gson gson = builder.create();
       
-      Type tt = new TypeToken<TypeReport>() {}.getType();
+      Type tt = new TypeToken<ImportReport>() {}.getType();
       
-      this.typeReport =  gson.fromJson(this.getJsonObject().get("response"), tt);
+      this.importReport =  gson.fromJson(this.getJsonObject().get("response"), tt);
     }
   }
   
-  public Boolean hasErrorReports()
+  public Boolean hasTypeReports()
   {
-    if (this.typeReport != null)
+    if (this.importReport != null)
     {
-      return this.typeReport.hasErrorReports();
+      return this.importReport.hasTypeReports();
     }
     
     return false;
   }
   
-  public List<ErrorReport> getErrorReports()
+  public List<TypeReport> getTypeReports()
   {
-    if (this.typeReport != null)
+    if (this.importReport != null)
     {
-      return this.typeReport.getErrorReports();
+      return this.importReport.getTypeReports();
     }
     
-    return new ArrayList<ErrorReport>();
+    return new ArrayList<TypeReport>();
   }
 
-  public TypeReport getTypeReport()
+  public ImportReport getImportReport()
   {
-    return this.typeReport;
+    return this.importReport;
+  }
+  
+  @Override
+  public Boolean hasErrorReports()
+  {
+    return this.getErrorReports().size() > 0;
+  }
+  
+  @Override
+  public List<ErrorReport> getErrorReports()
+  {
+    List<ErrorReport> reports = new ArrayList<ErrorReport>();
+    
+    for (TypeReport tr : this.getTypeReports()) {
+      reports.addAll(tr.getErrorReports());
+    }
+    
+    return reports;
+  }
+  
+  @Override
+  public String getMessage()
+  {
+    List<ErrorReport> er = this.getErrorReports();
+    
+    if (er.size() > 0) {
+      return er.get(0).getMessage();
+    }
+    
+    return super.getMessage();
+  }
+  
+  @Override
+  public boolean hasMessage()
+  {
+    return this.getMessage() != null;
   }
 }
