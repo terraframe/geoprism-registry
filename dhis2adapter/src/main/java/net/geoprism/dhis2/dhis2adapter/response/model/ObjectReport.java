@@ -18,6 +18,7 @@
  */
 package net.geoprism.dhis2.dhis2adapter.response.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ObjectReport
@@ -55,7 +56,11 @@ public class ObjectReport
 
   public List<ErrorReport> getErrorReports()
   {
-    return errorReports;
+    if (this.errorReports != null) {
+      return errorReports;
+    } else {
+      return new ArrayList<ErrorReport>();  
+    }
   }
 
   public void setErrorReports(List<ErrorReport> errorReports)

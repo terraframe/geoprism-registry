@@ -1,5 +1,6 @@
 package net.geoprism.dhis2.dhis2adapter.response.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ImportReport
@@ -24,7 +25,11 @@ public class ImportReport
 
   public List<TypeReport> getTypeReports()
   {
-    return typeReports;
+    if (this.typeReports != null) {
+      return typeReports;
+    } else {
+      return new ArrayList<TypeReport>();
+    }
   }
 
   public void setTypeReports(List<TypeReport> typeReports)
