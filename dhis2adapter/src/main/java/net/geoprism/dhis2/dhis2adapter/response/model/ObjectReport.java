@@ -27,6 +27,8 @@ public class ObjectReport
   
   private Integer index;
   
+  private String uid;
+  
   private List<ErrorReport> errorReports;
 
   public Boolean hasErrorReports()
@@ -66,6 +68,16 @@ public class ObjectReport
   public void setErrorReports(List<ErrorReport> errorReports)
   {
     this.errorReports = errorReports;
+  }
+
+  public String getUid()
+  {
+    return uid;
+  }
+
+  public void setUid(String uid)
+  {
+    this.uid = uid;
   }
   
 }

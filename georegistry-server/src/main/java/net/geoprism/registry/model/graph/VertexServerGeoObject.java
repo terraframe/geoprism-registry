@@ -69,7 +69,6 @@ import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
@@ -78,8 +77,6 @@ import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
-import com.runwaysdk.dataaccess.metadata.MdAttributeLocalDAO;
-import com.runwaysdk.dataaccess.metadata.MdAttributeLocalEmbeddedDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
@@ -106,6 +103,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.DuplicateGeoObjectCodeException;
 import net.geoprism.registry.DuplicateGeoObjectException;
 import net.geoprism.registry.DuplicateGeoObjectMultipleException;
@@ -119,6 +117,7 @@ import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.upload.ClassifierCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.geoobject.ValueOutOfRangeException;
+import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexSynonym;
@@ -2039,6 +2038,30 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     this.vertex.addChild(synonym, GeoVertex.HAS_SYNONYM).apply();
 
     return synonym.getOid();
+  }
+  
+  public static VertexServerGeoObject getByExternalId(String externalId, DHIS2ExternalSystem system)
+  {
+    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
+    
+    String statement = "SELECT expand(in) FROM (";
+    statement = "SELECT expand(outE('" + mdEdge.getDBClassName() + "')[id = '" + externalId + "']) FROM :system)";
+
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement);
+    query.setParameter("system", system.getRID());
+
+    VertexObject vo = query.getSingleResult();
+    
+    if (vo != null)
+    {
+      ServerGeoObjectType type = ServerGeoObjectType.get((MdVertexDAOIF) vo.getMdClass());
+      
+      return new VertexServerGeoObject(type, vo);
+    }
+    else
+    {
+      return null;
+    }
   }
 
   private EdgeObject getExternalIdEdge(ExternalSystem system)

@@ -24,13 +24,13 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.ImportParams;
+import net.geoprism.dhis2.dhis2adapter.response.model.ObjectReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.Stats;
 import net.geoprism.dhis2.dhis2adapter.response.model.TypeReport;
 
@@ -125,9 +125,12 @@ public class MetadataImportResponse extends DHIS2ImportResponse
     {
       for (TypeReport tr : this.typeReports)
       {
-        if (tr.hasErrorReports())
+        for (ObjectReport or : tr.getObjectReports())
         {
-          return true;
+          if (or.hasErrorReports())
+          {
+            return true;
+          }
         }
       }
     }
@@ -139,11 +142,17 @@ public class MetadataImportResponse extends DHIS2ImportResponse
   {
     List<ErrorReport> reports = new ArrayList<ErrorReport>();
     
-    for (TypeReport tr : this.typeReports)
+    if (this.typeReports != null)
     {
-      if (tr.hasErrorReports())
+      for (TypeReport tr : this.typeReports)
       {
-        reports.addAll(tr.getErrorReports());
+        for (ObjectReport or : tr.getObjectReports())
+        {
+          if (or.hasErrorReports())
+          {
+            reports.addAll(or.getErrorReports());
+          }
+        }
       }
     }
     

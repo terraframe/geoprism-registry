@@ -18,6 +18,9 @@
  */
 package net.geoprism.dhis2.dhis2adapter.response.model;
 
+import net.geoprism.dhis2.dhis2adapter.configuration.ImportStrategy;
+import net.geoprism.dhis2.dhis2adapter.configuration.MergeMode;
+
 public class ImportParams
 {
   private String userOverrideMode;

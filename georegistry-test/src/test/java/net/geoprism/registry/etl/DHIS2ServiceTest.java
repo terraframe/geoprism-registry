@@ -59,7 +59,6 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
-import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
@@ -76,6 +75,7 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.AttributeTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.AllAttributesDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
@@ -291,12 +291,12 @@ public class DHIS2ServiceTest
     return mappings;
   }
   
-  private void exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, DHIS2AttributeMapping mapping) throws InterruptedException
+  private LinkedList<Dhis2Payload> exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, DHIS2AttributeMapping mapping) throws InterruptedException
   {
-    exportCustomAttribute(got, go, attr, mapping, TestDataSet.DEFAULT_OVER_TIME_DATE, false);
+    return exportCustomAttribute(got, go, attr, mapping, TestDataSet.DEFAULT_OVER_TIME_DATE, false);
   }
 
-  private void exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, DHIS2AttributeMapping mapping, Date date, boolean syncNonExist) throws InterruptedException
+  private LinkedList<Dhis2Payload> exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, DHIS2AttributeMapping mapping, Date date, boolean syncNonExist) throws InterruptedException
   {
     /*
      * Create a config
@@ -337,7 +337,7 @@ public class DHIS2ServiceTest
     
     if (syncNonExist || TestDataSet.DEFAULT_OVER_TIME_DATE.equals(date))
     {
-      Assert.assertEquals((mapping instanceof DHIS2OrgUnitGroupAttributeMapping) ? 3 : 2, payloads.size());
+      Assert.assertEquals(2, payloads.size());
   
       for (int level = 0; level < payloads.size(); ++level)
       {
@@ -348,10 +348,11 @@ public class DHIS2ServiceTest
         if (level == 0 || level == 1)
         {
           DHIS2PayloadValidator.orgUnit(go, attr, mapping, level, joPayload);
-        }
-        else
-        {
-          DHIS2PayloadValidator.orgUnitGroup(go, attr, (DHIS2OrgUnitGroupAttributeMapping) mapping, level, joPayload);
+          
+          if (mapping instanceof DHIS2OrgUnitGroupAttributeMapping && level == 1)
+          {
+            DHIS2PayloadValidator.orgUnitGroup(go, attr, (DHIS2OrgUnitGroupAttributeMapping) mapping, level, joPayload);
+          }
         }
       }
     }
@@ -359,6 +360,8 @@ public class DHIS2ServiceTest
     {
       Assert.assertEquals(0, payloads.size());
     }
+    
+    return payloads;
   }
 
   // @Test
@@ -538,6 +541,18 @@ public class DHIS2ServiceTest
     mappings.add(mapping2);
     
     testExists(mappings);
+  }
+  
+  /*
+   * The rest of the tests are creates. Let's intentionally test an update.
+   */
+  @Test
+  @Request
+  public void testSyncUpdate() throws Exception
+  {
+    ((VertexServerGeoObject) AllAttributesDataset.GO_BOOL.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
+    
+    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL, null);
   }
   
   private void testExists(Collection<DHIS2AttributeMapping> paramMappings) throws Exception

@@ -62,26 +62,6 @@ public class TypeReportResponse extends DHIS2ImportResponse
       this.typeReport =  gson.fromJson(this.getJsonObject().get("response"), tt);
     }
   }
-  
-  public Boolean hasErrorReports()
-  {
-    if (this.typeReport != null)
-    {
-      return this.typeReport.hasErrorReports();
-    }
-    
-    return false;
-  }
-  
-  public List<ErrorReport> getErrorReports()
-  {
-    if (this.typeReport != null)
-    {
-      return this.typeReport.getErrorReports();
-    }
-    
-    return new ArrayList<ErrorReport>();
-  }
 
   public TypeReport getTypeReport()
   {

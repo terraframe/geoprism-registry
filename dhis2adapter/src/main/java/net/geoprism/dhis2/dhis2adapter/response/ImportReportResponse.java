@@ -30,6 +30,7 @@ import com.google.gson.reflect.TypeToken;
 import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.ImportReport;
+import net.geoprism.dhis2.dhis2adapter.response.model.ObjectReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.TypeReport;
 
 public class ImportReportResponse extends DHIS2ImportResponse
@@ -53,16 +54,28 @@ public class ImportReportResponse extends DHIS2ImportResponse
   
   private void init()
   {
+    JsonObject json;
+    
     if (this.getJsonObject() != null && this.getJsonObject().has("response"))
     {
-      GsonBuilder builder = new GsonBuilder();
-      builder.setDateFormat(DHIS2Constants.DATE_FORMAT);
-      Gson gson = builder.create();
-      
-      Type tt = new TypeToken<ImportReport>() {}.getType();
-      
-      this.importReport =  gson.fromJson(this.getJsonObject().get("response"), tt);
+      json = this.getJsonObject().get("response").getAsJsonObject();
     }
+    else if (this.getJsonObject() != null && this.getJsonObject().has("typeReports"))
+    {
+      json = this.getJsonObject().getAsJsonObject();
+    }
+    else
+    {
+      return;
+    }
+    
+    GsonBuilder builder = new GsonBuilder();
+    builder.setDateFormat(DHIS2Constants.DATE_FORMAT);
+    Gson gson = builder.create();
+    
+    Type tt = new TypeToken<ImportReport>() {}.getType();
+    
+    this.importReport = gson.fromJson(json, tt);
   }
   
   public Boolean hasTypeReports()
@@ -101,8 +114,12 @@ public class ImportReportResponse extends DHIS2ImportResponse
   {
     List<ErrorReport> reports = new ArrayList<ErrorReport>();
     
-    for (TypeReport tr : this.getTypeReports()) {
-      reports.addAll(tr.getErrorReports());
+    for (TypeReport tr : this.getTypeReports())
+    {
+      for (ObjectReport or : tr.getObjectReports())
+      {
+        reports.addAll(or.getErrorReports());
+      }
     }
     
     return reports;
@@ -123,6 +140,6 @@ public class ImportReportResponse extends DHIS2ImportResponse
   @Override
   public boolean hasMessage()
   {
-    return this.getMessage() != null;
+    return this.getErrorReports().size() > 0 || super.hasMessage();
   }
 }

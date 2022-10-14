@@ -42,7 +42,14 @@ public class TypeReport
 
   public List<ObjectReport> getObjectReports()
   {
-    return objectReports;
+    if (this.objectReports != null)
+    {
+      return objectReports;
+    }
+    else
+    {
+      return new ArrayList<ObjectReport>();
+    }
   }
 
   public void setObjectReports(List<ObjectReport> objectReports)
@@ -58,29 +65,6 @@ public class TypeReport
   public void setStats(Stats stats)
   {
     this.stats = stats;
-  }
-
-  public Boolean hasErrorReports()
-  {
-    return this.getErrorReports().size() > 0;
-  }
-
-  public List<ErrorReport> getErrorReports()
-  {
-    List<ErrorReport> reports = new ArrayList<ErrorReport>();
-    
-    if (this.objectReports != null)
-    {
-      for (ObjectReport or : this.objectReports)
-      {
-        if (or.hasErrorReports())
-        {
-          reports.addAll(or.getErrorReports());
-        }
-      }
-    }
-    
-    return reports;
   }
   
 }

@@ -18,9 +18,8 @@
  */
 package net.geoprism.dhis2.dhis2adapter.response;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.google.gson.JsonObject;
 
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 
@@ -53,6 +52,6 @@ public class DHIS2ImportResponse extends DHIS2Response
   
   public List<ErrorReport> getErrorReports()
   {
-    return null;
+    return new ArrayList<ErrorReport>();
   }
 }
