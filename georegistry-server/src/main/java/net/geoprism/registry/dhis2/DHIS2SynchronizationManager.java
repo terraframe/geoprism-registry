@@ -41,7 +41,6 @@ import org.apache.http.message.BasicNameValuePair;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
@@ -80,9 +79,11 @@ import net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError;
 import net.geoprism.registry.etl.export.ExportError;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
+import net.geoprism.registry.etl.export.ExportRemoteException;
 import net.geoprism.registry.etl.export.ExportStage;
 import net.geoprism.registry.etl.export.HttpError;
 import net.geoprism.registry.etl.export.LoginException;
+import net.geoprism.registry.etl.export.UnexpectedRemoteResponse;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 import net.geoprism.registry.etl.export.dhis2.MultipleLevelOneOrgUnitException;
@@ -227,7 +228,21 @@ public class DHIS2SynchronizationManager
             // Add OrganisationUnits
             for (VertexServerGeoObject go : objects)
             {
-              this.exportGeoObject(metadataPayload, dhis2Config, level, levels, rowIndex, go);
+              try
+              {
+                this.exportGeoObject(metadataPayload, dhis2Config, level, levels, rowIndex, go);
+              }
+              catch (Throwable t)
+              {
+                if (t instanceof DHIS2SyncError)
+                {
+                  this.recordExportError((DHIS2SyncError) t);
+                }
+                else
+                {
+                  this.recordExportError(new DHIS2SyncError(rowIndex, null, null, t, null));
+                }
+              }
               
               history.appLock();
               history.setWorkProgress(rowIndex);
@@ -235,9 +250,23 @@ public class DHIS2SynchronizationManager
               
               if (level.getOrgUnitGroupId() != null && level.getOrgUnitGroupId().length() > 0)
               {
-                final String externalId = go.getExternalId(es);
+                String externalId;
                 
-                level.getOrCreateOrgUnitGroupIdSet(level.getOrgUnitGroupId()).add(externalId);
+                String goRef = go.getType().getCode() + GeoObjectCache.SEPARATOR + go.getUid();
+                
+                if (this.newExternalIds.containsKey(goRef))
+                {
+                  externalId = this.newExternalIds.get(goRef);
+                }
+                else
+                {
+                  externalId = go.getExternalId(es);
+                }
+                
+                if (externalId != null && externalId.length() > 0)
+                {
+                  level.getOrCreateOrgUnitGroupIdSet(level.getOrgUnitGroupId()).add(externalId);
+                }
               }
             
               rowIndex++;
@@ -564,14 +593,15 @@ public class DHIS2SynchronizationManager
       try
       {
         orgUnitGetResp = dhis2.entityIdGet(DHIS2Objects.ORGANISATION_UNITS, externalId, OrganisationUnit.class, orgUnitGetParams);
+        
+        this.service.validateDhis2Response(orgUnitGetResp);
       }
-      catch (InvalidLoginException | HTTPException | BadServerUriException e)
+      catch (InvalidLoginException | HTTPException | BadServerUriException | ExportRemoteException | UnexpectedRemoteResponse e)
       {
         DHIS2SyncError er = new DHIS2SyncError(rowIndex, orgUnitGetResp, null, e, serverGo.getCode());
         throw er;
       }
       
-      this.service.validateDhis2Response(orgUnitGetResp);
       existingOrgUnit = orgUnitGetResp.getEntity();
     }
     
