@@ -1,0 +1,34 @@
+<div style="background-color: white; height: 160px;">
+    <div class="row">
+        <div class="col-md-12">
+
+            <div class="row" *ngIf="list">
+                <div class="col-md-4">
+                    <h2>
+                        {{list.displayLabel}}
+                    </h2>
+                </div>
+                <div class="col-md-8">
+                    <div class="text-right" style="margin-top: 10px; margin-right: 5px;">
+                        <button type="button" class="btn btn-default" (click)="onClose()">
+                            <localize key="modal.button.close"></localize>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row" style="padding-bottom: 10px;">
+                <div *ngIf="list != null && tableState != null" class="col-md-12">
+
+                    <ng-container *ngIf="cols != null && config != null">
+                        <generic-table [cols]="cols" [config]="config" [refresh]="refresh"
+                            [pageConfig]="{oid: list.oid, showInvalid: false}" [initialState]="tableState"
+                            [paginator]="false"></generic-table>
+                    </ng-container>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

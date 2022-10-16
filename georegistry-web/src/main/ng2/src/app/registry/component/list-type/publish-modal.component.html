@@ -448,7 +448,7 @@
 
                                         <!-- To enable add: (click)="parent.selected = !parent.selected" -->
                                         <div (click)="getIsDisabled($event) ? null : parent.selected = !parent.selected"
-                                            [ngClass]="{'chk-checked' : parent.selected, 'disabled' : readonly}"
+                                            [ngClass]="{'chk-checked' : parent.selected, 'disabled' : readonly || !isNew}"
                                             style="margin: 0;" class="jcf-unselectable chk-area" name="unique">
                                             <span></span>
                                         </div>

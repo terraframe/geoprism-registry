@@ -41,6 +41,14 @@ export class LocationManagerStateService {
         return state;
     }
 
+    public clearListRecord(state: LocationManagerState = {}): LocationManagerState {
+        state.version = null;
+        state.uid = null;
+        state.text = null;
+
+        return state;
+    }
+
     geoObjectFromRecord(record: LayerRecord): GeoObject {
         return {
             properties: {
