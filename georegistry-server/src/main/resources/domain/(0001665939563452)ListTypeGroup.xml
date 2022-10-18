@@ -1,0 +1,90 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+<!-- 
+    <delete>
+      <object key="net.geoprism.registry.ListTypeAttributeGroup" type="com.runwaysdk.system.metadata.MdBusiness"></object>
+    </delete>
+ -->  
+  
+    <create>
+      <mdBusiness name="net.geoprism.registry.ListTypeGroup" label="List Type Hierarchy Group" generateController="false" cacheAlgorithm="nothing">
+        <attributes>
+          <reference name="version" type="net.geoprism.registry.ListTypeVersion" required="true" label="Version" />
+          <localText name="label" required="true" label="label" />          
+          <reference name="parent" type="net.geoprism.registry.ListTypeGroup" required="false" label="Parent Group" />          
+        </attributes>
+      </mdBusiness>        
+      <mdBusiness name="net.geoprism.registry.ListTypeHierarchyGroup" extends="net.geoprism.registry.ListTypeGroup" label="List Type Hierarchy Group" generateController="false" cacheAlgorithm="nothing">
+        <attributes>
+          <reference name="hierarchy" type="net.geoprism.registry.HierarchicalRelationshipType" required="true" label="Hierarchy" />
+        </attributes>
+      </mdBusiness>        
+      <mdBusiness name="net.geoprism.registry.ListTypeGeoObjectTypeGroup" extends="net.geoprism.registry.ListTypeGroup" label="List Type Geo Object Type Group" generateController="false" cacheAlgorithm="nothing">
+        <attributes>
+          <reference name="universal" type="com.runwaysdk.system.gis.geo.Universal" required="true" label="Universal" />
+          <integer name="level" required="false" label="Level" />
+        </attributes>
+      </mdBusiness>        
+      <mdBusiness name="net.geoprism.registry.ListTypeAttribute" label="List Type Hierarchy Group" generateController="false" cacheAlgorithm="nothing">
+        <attributes>
+          <reference name="listGroup" type="net.geoprism.registry.ListTypeGroup" required="true" label="Group" />                  
+          <reference name="listAttribute" type="com.runwaysdk.system.metadata.MdAttribute" required="true" label="Target" />
+          <text name="locale" required="false" label="Locale" />
+          <localText name="label" required="true" label="label" />                    
+        </attributes>
+      </mdBusiness>        
+    </create>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeGroup">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeAttribute">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeGroup">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeAttribute">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeGroup">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeAttribute">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeGroup">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.ListTypeAttribute">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.ListTypeGroup" type="com.runwaysdk.system.metadata.MdBusiness"></object>
+      <object key="net.geoprism.registry.ListTypeAttribute" type="com.runwaysdk.system.metadata.MdBusiness"></object>
+    </delete>
+  </undoIt>
+</version>

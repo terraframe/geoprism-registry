@@ -114,7 +114,6 @@ import com.runwaysdk.system.gis.metadata.MdAttributeMultiPolygon;
 import com.runwaysdk.system.gis.metadata.MdAttributePoint;
 import com.runwaysdk.system.gis.metadata.MdAttributePolygon;
 import com.runwaysdk.system.gis.metadata.MdAttributeShape;
-import com.runwaysdk.system.metadata.MdAttribute;
 import com.runwaysdk.system.metadata.MdAttributeBoolean;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
 import com.runwaysdk.system.metadata.MdAttributeConcrete;
@@ -129,8 +128,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.command.GeoserverCreateWMSCommand;
-import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.PublishMasterListVersionJob;
 import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
@@ -333,14 +330,6 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
     createMdAttributeFromAttributeType(metadata, attributeType, type, locales);
 
-    Map<MdAttribute, MdAttribute> pairs = metadata.getPairs();
-
-    Set<Entry<MdAttribute, MdAttribute>> entries = pairs.entrySet();
-
-    for (Entry<MdAttribute, MdAttribute> entry : entries)
-    {
-      MasterListAttributeGroup.create(version, entry.getValue(), entry.getKey());
-    }
 
     return metadata;
   }
@@ -403,8 +392,6 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       cloneAttribute.setDefiningMdClass(mdBusiness);
       cloneAttribute.apply();
 
-      metadata.addPair(cloneAttribute, cloneAttribute);
-
       MdAttributeCharacter mdAttributeDefaultLocale = new MdAttributeCharacter();
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + DEFAULT_LOCALE);
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
@@ -412,8 +399,6 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), attributeType.getLabel(), " (defaultLocale)");
       LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (defaultLocale)");
       mdAttributeDefaultLocale.apply();
-
-      metadata.addPair(mdAttributeDefaultLocale, cloneAttribute);
 
       for (Locale locale : locales)
       {
@@ -424,8 +409,6 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
         LocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), attributeType.getLabel(), " (" + locale.toString() + ")");
         LocalizedValueConverter.populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
         mdAttributeLocale.apply();
-
-        metadata.addPair(mdAttributeLocale, cloneAttribute);
       }
 
       // MdAttributeUUID mdAttributeOid = new MdAttributeUUID();
@@ -1782,14 +1765,6 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
     if (metadata != null)
     {
-      Map<MdAttribute, MdAttribute> pairs = metadata.getPairs();
-
-      Set<Entry<MdAttribute, MdAttribute>> entries = pairs.entrySet();
-
-      for (Entry<MdAttribute, MdAttribute> entry : entries)
-      {
-        MasterListAttributeGroup.create(version, entry.getValue(), entry.getKey());
-      }
     }
 
     // if (version.isNew())

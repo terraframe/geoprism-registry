@@ -1,30 +1,13 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -386929171)
-public abstract class ListTypeAttributeGroupDTOBase extends com.runwaysdk.business.BusinessDTO
+@com.runwaysdk.business.ClassSignature(hash = 1499857527)
+public abstract class ListTypeGroupDTOBase extends com.runwaysdk.business.BusinessDTO
 {
-  public final static String CLASS = "net.geoprism.registry.ListTypeAttributeGroup";
-  private static final long serialVersionUID = -386929171;
+  public final static String CLASS = "net.geoprism.registry.ListTypeGroup";
+  @SuppressWarnings("unused")
+  private static final long serialVersionUID = 1499857527;
   
-  protected ListTypeAttributeGroupDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
+  protected ListTypeGroupDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
     super(clientRequest);
   }
@@ -35,7 +18,7 @@ public abstract class ListTypeAttributeGroupDTOBase extends com.runwaysdk.busine
   * @param businessDTO The BusinessDTO to duplicate
   * @param clientRequest The clientRequest this DTO should use to communicate with the server.
   */
-  protected ListTypeAttributeGroupDTOBase(com.runwaysdk.business.BusinessDTO businessDTO, com.runwaysdk.constants.ClientRequestIF clientRequest)
+  protected ListTypeGroupDTOBase(com.runwaysdk.business.BusinessDTO businessDTO, com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
     super(businessDTO, clientRequest);
   }
@@ -49,15 +32,15 @@ public abstract class ListTypeAttributeGroupDTOBase extends com.runwaysdk.busine
   public static java.lang.String CREATEDBY = "createdBy";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String KEYNAME = "keyName";
+  public static java.lang.String LABEL = "label";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
   public static java.lang.String LOCKEDBY = "lockedBy";
   public static java.lang.String OID = "oid";
   public static java.lang.String OWNER = "owner";
+  public static java.lang.String PARENT = "parent";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
-  public static java.lang.String SOURCEATTRIBUTE = "sourceAttribute";
-  public static java.lang.String TARGETATTRIBUTE = "targetAttribute";
   public static java.lang.String TYPE = "type";
   public static java.lang.String VERSION = "version";
   public java.util.Date getCreateDate()
@@ -208,6 +191,31 @@ public abstract class ListTypeAttributeGroupDTOBase extends com.runwaysdk.busine
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(KEYNAME).getAttributeMdDTO();
   }
   
+  public net.geoprism.registry.ListTypeGroupLabelDTO getLabel()
+  {
+    return (net.geoprism.registry.ListTypeGroupLabelDTO) this.getAttributeStructDTO(LABEL).getStructDTO();
+  }
+  
+  public boolean isLabelWritable()
+  {
+    return isWritable(LABEL);
+  }
+  
+  public boolean isLabelReadable()
+  {
+    return isReadable(LABEL);
+  }
+  
+  public boolean isLabelModified()
+  {
+    return isModified(LABEL);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO getLabelMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO) getAttributeDTO(LABEL).getAttributeMdDTO();
+  }
+  
   public java.util.Date getLastUpdateDate()
   {
     return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(LASTUPDATEDATE));
@@ -356,6 +364,55 @@ public abstract class ListTypeAttributeGroupDTOBase extends com.runwaysdk.busine
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(OWNER).getAttributeMdDTO();
   }
   
+  public net.geoprism.registry.ListTypeGroupDTO getParent()
+  {
+    if(getValue(PARENT) == null || getValue(PARENT).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.registry.ListTypeGroupDTO.get(getRequest(), getValue(PARENT));
+    }
+  }
+  
+  public String getParentOid()
+  {
+    return getValue(PARENT);
+  }
+  
+  public void setParent(net.geoprism.registry.ListTypeGroupDTO value)
+  {
+    if(value == null)
+    {
+      setValue(PARENT, "");
+    }
+    else
+    {
+      setValue(PARENT, value.getOid());
+    }
+  }
+  
+  public boolean isParentWritable()
+  {
+    return isWritable(PARENT);
+  }
+  
+  public boolean isParentReadable()
+  {
+    return isReadable(PARENT);
+  }
+  
+  public boolean isParentModified()
+  {
+    return isModified(PARENT);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getParentMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(PARENT).getAttributeMdDTO();
+  }
+  
   public Long getSeq()
   {
     return com.runwaysdk.constants.MdAttributeLongUtil.getTypeSafeValue(getValue(SEQ));
@@ -404,104 +461,6 @@ public abstract class ListTypeAttributeGroupDTOBase extends com.runwaysdk.busine
   public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getSiteMasterMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(SITEMASTER).getAttributeMdDTO();
-  }
-  
-  public com.runwaysdk.system.metadata.MdAttributeDTO getSourceAttribute()
-  {
-    if(getValue(SOURCEATTRIBUTE) == null || getValue(SOURCEATTRIBUTE).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return com.runwaysdk.system.metadata.MdAttributeDTO.get(getRequest(), getValue(SOURCEATTRIBUTE));
-    }
-  }
-  
-  public String getSourceAttributeOid()
-  {
-    return getValue(SOURCEATTRIBUTE);
-  }
-  
-  public void setSourceAttribute(com.runwaysdk.system.metadata.MdAttributeDTO value)
-  {
-    if(value == null)
-    {
-      setValue(SOURCEATTRIBUTE, "");
-    }
-    else
-    {
-      setValue(SOURCEATTRIBUTE, value.getOid());
-    }
-  }
-  
-  public boolean isSourceAttributeWritable()
-  {
-    return isWritable(SOURCEATTRIBUTE);
-  }
-  
-  public boolean isSourceAttributeReadable()
-  {
-    return isReadable(SOURCEATTRIBUTE);
-  }
-  
-  public boolean isSourceAttributeModified()
-  {
-    return isModified(SOURCEATTRIBUTE);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getSourceAttributeMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(SOURCEATTRIBUTE).getAttributeMdDTO();
-  }
-  
-  public com.runwaysdk.system.metadata.MdAttributeDTO getTargetAttribute()
-  {
-    if(getValue(TARGETATTRIBUTE) == null || getValue(TARGETATTRIBUTE).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return com.runwaysdk.system.metadata.MdAttributeDTO.get(getRequest(), getValue(TARGETATTRIBUTE));
-    }
-  }
-  
-  public String getTargetAttributeOid()
-  {
-    return getValue(TARGETATTRIBUTE);
-  }
-  
-  public void setTargetAttribute(com.runwaysdk.system.metadata.MdAttributeDTO value)
-  {
-    if(value == null)
-    {
-      setValue(TARGETATTRIBUTE, "");
-    }
-    else
-    {
-      setValue(TARGETATTRIBUTE, value.getOid());
-    }
-  }
-  
-  public boolean isTargetAttributeWritable()
-  {
-    return isWritable(TARGETATTRIBUTE);
-  }
-  
-  public boolean isTargetAttributeReadable()
-  {
-    return isReadable(TARGETATTRIBUTE);
-  }
-  
-  public boolean isTargetAttributeModified()
-  {
-    return isModified(TARGETATTRIBUTE);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getTargetAttributeMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(TARGETATTRIBUTE).getAttributeMdDTO();
   }
   
   public net.geoprism.registry.ListTypeVersionDTO getVersion()
@@ -553,11 +512,11 @@ public abstract class ListTypeAttributeGroupDTOBase extends com.runwaysdk.busine
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(VERSION).getAttributeMdDTO();
   }
   
-  public static net.geoprism.registry.ListTypeAttributeGroupDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)
+  public static net.geoprism.registry.ListTypeGroupDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)
   {
     com.runwaysdk.business.EntityDTO dto = (com.runwaysdk.business.EntityDTO)clientRequest.get(oid);
     
-    return (net.geoprism.registry.ListTypeAttributeGroupDTO) dto;
+    return (net.geoprism.registry.ListTypeGroupDTO) dto;
   }
   
   public void apply()
@@ -576,9 +535,9 @@ public abstract class ListTypeAttributeGroupDTOBase extends com.runwaysdk.busine
     getRequest().delete(this.getOid());
   }
   
-  public static net.geoprism.registry.ListTypeAttributeGroupQueryDTO getAllInstances(com.runwaysdk.constants.ClientRequestIF clientRequest, String sortAttribute, Boolean ascending, Integer pageSize, Integer pageNumber)
+  public static net.geoprism.registry.ListTypeGroupQueryDTO getAllInstances(com.runwaysdk.constants.ClientRequestIF clientRequest, String sortAttribute, Boolean ascending, Integer pageSize, Integer pageNumber)
   {
-    return (net.geoprism.registry.ListTypeAttributeGroupQueryDTO) clientRequest.getAllInstances(net.geoprism.registry.ListTypeAttributeGroupDTO.CLASS, sortAttribute, ascending, pageSize, pageNumber);
+    return (net.geoprism.registry.ListTypeGroupQueryDTO) clientRequest.getAllInstances(net.geoprism.registry.ListTypeGroupDTO.CLASS, sortAttribute, ascending, pageSize, pageNumber);
   }
   
   public void lock()
@@ -586,12 +545,12 @@ public abstract class ListTypeAttributeGroupDTOBase extends com.runwaysdk.busine
     getRequest().lock(this);
   }
   
-  public static net.geoprism.registry.ListTypeAttributeGroupDTO lock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
+  public static net.geoprism.registry.ListTypeGroupDTO lock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
   {
     String[] _declaredTypes = new String[]{"java.lang.String"};
     Object[] _parameters = new Object[]{oid};
-    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.ListTypeAttributeGroupDTO.CLASS, "lock", _declaredTypes);
-    return (net.geoprism.registry.ListTypeAttributeGroupDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.ListTypeGroupDTO.CLASS, "lock", _declaredTypes);
+    return (net.geoprism.registry.ListTypeGroupDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
   public void unlock()
@@ -599,12 +558,12 @@ public abstract class ListTypeAttributeGroupDTOBase extends com.runwaysdk.busine
     getRequest().unlock(this);
   }
   
-  public static net.geoprism.registry.ListTypeAttributeGroupDTO unlock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
+  public static net.geoprism.registry.ListTypeGroupDTO unlock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
   {
     String[] _declaredTypes = new String[]{"java.lang.String"};
     Object[] _parameters = new Object[]{oid};
-    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.ListTypeAttributeGroupDTO.CLASS, "unlock", _declaredTypes);
-    return (net.geoprism.registry.ListTypeAttributeGroupDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.ListTypeGroupDTO.CLASS, "unlock", _declaredTypes);
+    return (net.geoprism.registry.ListTypeGroupDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
 }

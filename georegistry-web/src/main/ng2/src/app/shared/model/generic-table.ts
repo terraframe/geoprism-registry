@@ -18,6 +18,13 @@ export class GenericTableConfig {
 
 }
 
+export class GenericTableGroup {
+
+    label: string;
+    colspan: number;
+
+}
+
 export class GenericTableColumn {
 
     header: string;

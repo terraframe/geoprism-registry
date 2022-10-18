@@ -29,7 +29,6 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -38,6 +37,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -63,6 +63,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.ComponentIF;
+import com.runwaysdk.Pair;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
@@ -84,11 +85,9 @@ import com.runwaysdk.constants.MdTableInfo;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMomentDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeNumberDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.ValueObject;
-import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
@@ -99,6 +98,8 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.LocalizedValueStore;
+import com.runwaysdk.localization.LocalizedValueStoreStoreValue;
+import com.runwaysdk.localization.SupportedLocaleIF;
 import com.runwaysdk.query.AttributeBoolean;
 import com.runwaysdk.query.BasicCondition;
 import com.runwaysdk.query.ComponentQuery;
@@ -116,7 +117,6 @@ import com.runwaysdk.system.gis.metadata.MdAttributeMultiPolygon;
 import com.runwaysdk.system.gis.metadata.MdAttributePoint;
 import com.runwaysdk.system.gis.metadata.MdAttributePolygon;
 import com.runwaysdk.system.gis.metadata.MdAttributeShape;
-import com.runwaysdk.system.metadata.MdAttribute;
 import com.runwaysdk.system.metadata.MdAttributeBoolean;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
 import com.runwaysdk.system.metadata.MdAttributeConcrete;
@@ -141,8 +141,14 @@ import net.geoprism.registry.curation.ListCurationHistory;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.localization.DefaultLocaleView;
-import net.geoprism.registry.masterlist.ListTypeAttributeComparator;
+import net.geoprism.registry.masterlist.ListAttribute;
+import net.geoprism.registry.masterlist.ListAttributeGroup;
+import net.geoprism.registry.masterlist.ListColumn;
 import net.geoprism.registry.masterlist.TableMetadata;
+import net.geoprism.registry.masterlist.TableMetadata.Attribute;
+import net.geoprism.registry.masterlist.TableMetadata.Group;
+import net.geoprism.registry.masterlist.TableMetadata.HierarchyGroup;
+import net.geoprism.registry.masterlist.TableMetadata.TypeGroup;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.LocationInfo;
@@ -151,7 +157,6 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.ListTypeVersionPageQuery;
@@ -179,17 +184,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
   public static String      ATTRIBUTES       = "attributes";
 
-  public static String      NAME             = "name";
-
-  public static String      LABEL            = "label";
-
-  public static String      VALUE            = "value";
-
-  public static String      TYPE             = "type";
-
-  public static String      BASE             = "base";
-
-  public static String      DEPENDENCY       = "dependency";
+  public static String      HIERARCHIES      = "hierarchies";
 
   public static String      DEFAULT_LOCALE   = "DefaultLocale";
 
@@ -358,26 +353,27 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     return true;
   }
 
-  public static TableMetadata createMdAttributeFromAttributeType(ListTypeVersion version, ServerGeoObjectType type, AttributeType attributeType, Collection<Locale> locales, String defaultLocaleLabel)
+  public static TableMetadata createMdAttributeFromAttributeType(ListTypeVersion version, ServerGeoObjectType type, AttributeType attributeType, Collection<SupportedLocaleIF> locales, String defaultLocaleLabel)
   {
     TableMetadata metadata = new TableMetadata();
     metadata.setMdBusiness(version.getMdBusiness());
 
     createMdAttributeFromAttributeType(metadata, attributeType, type, locales, defaultLocaleLabel);
 
-    Map<MdAttribute, MdAttribute> pairs = metadata.getPairs();
-
-    Set<Entry<MdAttribute, MdAttribute>> entries = pairs.entrySet();
-
-    for (Entry<MdAttribute, MdAttribute> entry : entries)
-    {
-      ListTypeAttributeGroup.create(version, entry.getValue(), entry.getKey());
-    }
+    // TODO ADD SUPPORT FOR ADDING GROUPS TO NEW ATTRIBUTES
+    // Map<MdAttribute, MdAttribute> pairs = metadata.getPairs();
+    //
+    // Set<Entry<MdAttribute, MdAttribute>> entries = pairs.entrySet();
+    //
+    // for (Entry<MdAttribute, MdAttribute> entry : entries)
+    // {
+    // ListTypeAttributeGroup.create(version, entry.getValue(), entry.getKey());
+    // }
 
     return metadata;
   }
 
-  protected static void createMdAttributeFromAttributeType(TableMetadata metadata, AttributeType attributeType, ServerGeoObjectType type, Collection<Locale> locales, String defaultLocaleLabel)
+  protected static void createMdAttributeFromAttributeType(TableMetadata metadata, AttributeType attributeType, ServerGeoObjectType type, Collection<SupportedLocaleIF> locales, String defaultLocaleLabel)
   {
     MdBusiness mdBusiness = metadata.getMdBusiness();
 
@@ -435,8 +431,6 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       cloneAttribute.setDefiningMdClass(mdBusiness);
       cloneAttribute.apply();
 
-      metadata.addPair(cloneAttribute, cloneAttribute);
-
       MdAttributeCharacter mdAttributeDefaultLocale = new MdAttributeCharacter();
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + DEFAULT_LOCALE);
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
@@ -445,19 +439,15 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (" + defaultLocaleLabel + ")");
       mdAttributeDefaultLocale.apply();
 
-      metadata.addPair(mdAttributeDefaultLocale, cloneAttribute);
-
-      for (Locale locale : locales)
+      for (SupportedLocaleIF locale : locales)
       {
         MdAttributeCharacter mdAttributeLocale = new MdAttributeCharacter();
-        mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + locale.toString());
+        mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + locale.getLocale().toString());
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
         mdAttributeLocale.setDefiningMdClass(mdBusiness);
-        LocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), attributeType.getLabel(), " (" + locale.toString() + ")");
+        LocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), attributeType.getLabel(), " (" + locale.getDisplayLabel().getValue() + ")");
         LocalizedValueConverter.populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
         mdAttributeLocale.apply();
-
-        metadata.addPair(mdAttributeLocale, cloneAttribute);
       }
 
       // MdAttributeUUID mdAttributeOid = new MdAttributeUUID();
@@ -482,13 +472,13 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (" + defaultLocaleLabel + ")");
       mdAttributeDefaultLocale.apply();
 
-      for (Locale locale : locales)
+      for (SupportedLocaleIF locale : locales)
       {
         MdAttributeCharacter mdAttributeLocale = new MdAttributeCharacter();
-        mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + locale.toString());
+        mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + locale.getLocale().toString());
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
         mdAttributeLocale.setDefiningMdClass(mdBusiness);
-        LocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (" + locale.toString() + ")");
+        LocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (" + locale.getDisplayLabel().getValue() + ")");
         LocalizedValueConverter.populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
         mdAttributeLocale.apply();
       }
@@ -538,7 +528,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   private TableMetadata createTable()
   {
     LocalizedValueStore lvs = LocalizedValueStore.getByKey(DefaultLocaleView.LABEL);
-    String defaultLocaleLabel = lvs.getStoreValue().getValue();
+    LocalizedValueStoreStoreValue storeValue = lvs.getStoreValue();
+    String defaultLocaleLabel = storeValue.getValue();
 
     ListType masterlist = this.getListType();
 
@@ -567,7 +558,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     metadata.setMdBusiness(mdBusiness);
 
-    Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
+    Collection<SupportedLocaleIF> locales = LocalizationFacade.getSupportedLocales();
 
     ServerGeoObjectType type = masterlist.getGeoObjectType();
 
@@ -620,7 +611,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
 
-      List<String> pCodes = masterlist.getParentCodes(hierarchy);
+      List<Pair<String, Integer>> pCodes = masterlist.getParentCodes(hierarchy);
 
       if (pCodes.size() > 0)
       {
@@ -629,9 +620,20 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         ServerHierarchyType hierarchyType = ServiceFactory.getMetadataCache().getHierachyType(hCode).get();
         String hierarchyLabel = hierarchyType.getDisplayLabel().getValue(currentLocale);
 
-        for (String pCode : pCodes)
+        HierarchyGroup hierarchyGroup = metadata.addHierarchyGroup(hierarchyType);
+
+        int level = 0;
+
+        for (Pair<String, Integer> pair : pCodes)
         {
+          level++;
+
+          String pCode = pair.getFirst();
+
           ServerGeoObjectType got = ServerGeoObjectType.get(pCode);
+
+          TypeGroup typeGroup = hierarchyGroup.addTypeGroup(got, level);
+
           String typeLabel = got.getLabel().getValue(currentLocale);
           String attributeName = hCode.toLowerCase() + pCode.toLowerCase();
           String label = typeLabel + " (" + hierarchyLabel + ")";
@@ -653,6 +655,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           mdAttributeCode.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, codeDescription);
           mdAttributeCode.apply();
 
+          typeGroup.addChild(new Attribute(typeGroup, mdAttributeCode, LocalizationFacade.localizeAll("data.property.label.code")));
+
           MdAttributeCharacterDAO mdAttributeDefaultLocale = MdAttributeCharacterDAO.newInstance();
           mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeName + DEFAULT_LOCALE);
           mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
@@ -661,15 +665,22 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, labelDescription.replaceAll("\\{locale\\}", "default"));
           mdAttributeDefaultLocale.apply();
 
-          for (Locale locale : locales)
+          typeGroup.addChild(new Attribute(typeGroup, mdAttributeDefaultLocale, storeValue));
+
+          for (SupportedLocaleIF locale : locales)
           {
+            String localeLabel = locale.getDisplayLabel().getValue();
+
             MdAttributeCharacterDAO mdAttributeLocale = MdAttributeCharacterDAO.newInstance();
-            mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeName + locale.toString());
+            mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeName + locale.getLocale().toString());
             mdAttributeLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
             mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
-            mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label + " (" + locale + ")");
-            mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, labelDescription.replaceAll("\\{locale\\}", locale.toString()));
+            mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, label + " (" + localeLabel + ")");
+            mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, labelDescription.replaceAll("\\{locale\\}", localeLabel));
             mdAttributeLocale.apply();
+
+            typeGroup.addChild(new Attribute(typeGroup, mdAttributeLocale, locale));
+
           }
         }
       }
@@ -715,14 +726,16 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, labelDescription.replaceAll("\\{locale\\}", "default"));
         mdAttributeDefaultLocale.apply();
 
-        for (Locale locale : locales)
+        for (SupportedLocaleIF locale : locales)
         {
+          String localeLabel = locale.getDisplayLabel().getValue();
+
           MdAttributeCharacterDAO mdAttributeLocale = MdAttributeCharacterDAO.newInstance();
-          mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeName + locale.toString());
+          mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeName + locale.getLocale().toString());
           mdAttributeLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
           mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
-          mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyLabel + " (" + locale + ")");
-          mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, labelDescription.replaceAll("\\{locale\\}", locale.toString()));
+          mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyLabel + " (" + localeLabel + ")");
+          mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, labelDescription.replaceAll("\\{locale\\}", localeLabel));
           mdAttributeLocale.apply();
         }
       }
@@ -746,7 +759,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     // Delete tile cache
     ListTileCache.deleteTiles(this);
 
-    ListTypeAttributeGroup.deleteAll(this);
+    ListTypeGroup.deleteAll(this);
 
     MdBusiness mdTable = this.getMdBusiness();
 
@@ -882,13 +895,12 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       MdAttributeConcreteDAO status = (MdAttributeConcreteDAO) mdBusiness.definesAttribute("status");
       if (status != null)
       {
-        ListTypeAttributeGroup.remove(status);
         status.delete();
       }
+
       MdAttributeConcreteDAO statusDefaultLocale = (MdAttributeConcreteDAO) mdBusiness.definesAttribute("statusDefaultLocale");
       if (statusDefaultLocale != null)
       {
-        ListTypeAttributeGroup.remove(statusDefaultLocale);
         statusDefaultLocale.delete();
       }
 
@@ -1417,176 +1429,63 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
   private JsonArray getAttributesAsJson()
   {
-    Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
-    ListType list = this.getListType();
+    List<ListColumn> columns = new LinkedList<ListColumn>();
 
-    Map<String, JsonArray> dependencies = new HashMap<String, JsonArray>();
-    Map<String, String> baseAttributes = new HashMap<String, String>();
-    List<String> attributesOrder = new LinkedList<String>();
-
-    JsonArray hierarchies = list.getHierarchiesAsJson();
-
-    for (int i = 0; i < hierarchies.size(); i++)
-    {
-      JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
-
-      List<String> pCodes = list.getParentCodes(hierarchy);
-
-      if (pCodes.size() > 0)
-      {
-        String hCode = hierarchy.get(DefaultAttribute.CODE.getName()).getAsString();
-
-        String previous = null;
-
-        for (String pCode : pCodes)
-        {
-          String attributeName = hCode.toLowerCase() + pCode.toLowerCase();
-
-          baseAttributes.put(attributeName, attributeName);
-          baseAttributes.put(attributeName + DEFAULT_LOCALE, attributeName);
-
-          for (Locale locale : locales)
-          {
-            baseAttributes.put(attributeName + locale.toString(), attributeName);
-          }
-
-          attributesOrder.add(attributeName);
-          attributesOrder.add(attributeName + DEFAULT_LOCALE);
-
-          for (Locale locale : locales)
-          {
-            attributesOrder.add(attributeName + locale.toString());
-          }
-
-          if (previous != null)
-          {
-            addDependency(dependencies, attributeName, previous);
-            addDependency(dependencies, attributeName + DEFAULT_LOCALE, previous);
-
-            for (Locale locale : locales)
-            {
-              addDependency(dependencies, attributeName + locale.toString(), previous);
-            }
-          }
-
-          previous = attributeName;
-        }
-
-        if (previous != null)
-        {
-          addDependency(dependencies, DefaultAttribute.CODE.getName(), previous);
-          addDependency(dependencies, DefaultAttribute.DISPLAY_LABEL.getName() + DEFAULT_LOCALE, previous);
-
-          for (Locale locale : locales)
-          {
-            addDependency(dependencies, DefaultAttribute.DISPLAY_LABEL.getName() + locale.toString(), previous);
-          }
-        }
-      }
-    }
-
-    baseAttributes.put(DefaultAttribute.CODE.getName(), DefaultAttribute.CODE.getName());
-    baseAttributes.put(DefaultAttribute.DISPLAY_LABEL.getName() + DEFAULT_LOCALE, DefaultAttribute.CODE.getName());
-
-    for (Locale locale : locales)
-    {
-      baseAttributes.put(DefaultAttribute.DISPLAY_LABEL.getName() + locale.toString(), DefaultAttribute.CODE.getName());
-    }
-
-    attributesOrder.add(DefaultAttribute.CODE.getName());
-    attributesOrder.add(DefaultAttribute.DISPLAY_LABEL.getName() + DEFAULT_LOCALE);
-
-    for (Locale locale : locales)
-    {
-      attributesOrder.add(DefaultAttribute.DISPLAY_LABEL.getName() + locale.toString());
-    }
-
-    JsonArray attributes = new JsonArray();
     String mdBusinessId = this.getMdBusinessOid();
 
     if (mdBusinessId != null && mdBusinessId.length() > 0)
     {
+      Set<String> attributeIds = new TreeSet<String>();
+
+      List<ListTypeGroup> groups = ListTypeGroup.getRoots(this);
+      columns.addAll(groups.stream().map(group -> group.toColumn()).collect(Collectors.toList()));
+      columns.forEach(column -> attributeIds.addAll(column.getColumnsIds()));
+
       MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(mdBusinessId);
       List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered();
-
-      Collections.sort(mdAttributes, new ListTypeAttributeComparator(attributesOrder, mdAttributes));
 
       MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
       if (mdGeometry instanceof MdAttributePointDAOIF)
       {
-        JsonObject longitude = new JsonObject();
-        longitude.addProperty(NAME, "longitude");
-        longitude.addProperty(LABEL, LocalizationFacade.localize(GeoObjectImportConfiguration.LONGITUDE_KEY));
-        longitude.addProperty(TYPE, "none");
-
-        attributes.add(longitude);
-
-        JsonObject latitude = new JsonObject();
-        latitude.addProperty(NAME, "latitude");
-        latitude.addProperty(LABEL, LocalizationFacade.localize(GeoObjectImportConfiguration.LATITUDE_KEY));
-        latitude.addProperty(TYPE, "none");
-
-        attributes.add(latitude);
+        columns.add(0, new ListAttribute("longitude", LocalizationFacade.localize(GeoObjectImportConfiguration.LONGITUDE_KEY), "none"));
+        columns.add(0, new ListAttribute("latitude", LocalizationFacade.localize(GeoObjectImportConfiguration.LATITUDE_KEY), "none"));
       }
+
+      ListAttributeGroup typeGroup = new ListAttributeGroup();
+
+      ListAttributeGroup hierarchyGroup = new ListAttributeGroup(mdBusiness.getDisplayLabel(Session.getCurrentLocale()));
+      hierarchyGroup.add(typeGroup);
+
+      columns.add(0, hierarchyGroup);
 
       for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
       {
-        if (this.isValid(mdAttribute))
+        if (mdAttribute.definesAttribute().equals(DefaultAttribute.INVALID.getName()))
         {
-          String attributeName = mdAttribute.definesAttribute();
+          ListAttribute attribute = new ListAttribute(mdAttribute);
 
-          try
-          {
-            ListTypeAttributeGroup group = ListTypeAttributeGroup.getByKey(mdAttribute.getOid());
+          ListAttributeGroup subgroup = new ListAttributeGroup();
+          subgroup.add(attribute);
 
-            if (group != null)
-            {
-              baseAttributes.put(mdAttribute.definesAttribute(), group.getSourceAttribute().getAttributeName());
-            }
-          }
-          catch (DataNotFoundException e)
-          {
-            // Ignore
-          }
+          ListAttributeGroup group = new ListAttributeGroup("", mdAttribute.definesAttribute());
+          group.add(subgroup);
 
-          JsonObject attribute = new JsonObject();
-          attribute.addProperty(NAME, attributeName);
-          attribute.addProperty(LABEL, mdAttribute.getDisplayLabel(Session.getCurrentLocale()));
-          attribute.addProperty(TYPE, baseAttributes.containsKey(attributeName) ? "list" : "input");
-          attribute.addProperty(BASE, baseAttributes.containsKey(attributeName) ? baseAttributes.get(attributeName) : attributeName);
-          attribute.add(DEPENDENCY, dependencies.containsKey(attributeName) ? dependencies.get(attributeName) : new JsonArray());
+          columns.add(group);
+        }
+        else if (this.isValid(mdAttribute) && !attributeIds.contains(mdAttribute.getOid()))
+        {
+          ListAttribute attribute = new ListAttribute(mdAttribute);
 
-          if (mdAttribute instanceof MdAttributeMomentDAOIF)
-          {
-            attribute.addProperty(TYPE, "date");
-            attribute.add(VALUE, new JsonObject());
-          }
-          else if (mdAttribute instanceof MdAttributeBooleanDAOIF)
-          {
-            attribute.addProperty(TYPE, "boolean");
-          }
-          else if (mdAttribute instanceof MdAttributeNumberDAOIF)
-          {
-            attribute.addProperty(TYPE, "number");
-          }
-
-          attributes.add(attribute);
+          typeGroup.add(attribute);
         }
       }
     }
 
-    return attributes;
-  }
+    JsonArray array = columns.stream().map(m -> m.toJSON()).collect(() -> new JsonArray(), (a, e) -> a.add(e), (listA, listB) -> {
+    });
 
-  private void addDependency(Map<String, JsonArray> dependencies, String attributeName, String dependency)
-  {
-    // if (!dependencies.containsKey(attributeName))
-    // {
-    // dependencies.put(attributeName, new JsonArray());
-    // }
-    //
-    // dependencies.get(attributeName).add(dependency);
+    return array;
   }
 
   public void removeAttributeType(AttributeType attributeType)
@@ -1636,7 +1535,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     if (mdAttribute != null)
     {
-      ListTypeAttributeGroup.remove(mdAttribute);
+      // TODO remove grouping metadata
+      // ListTypeAttributeGroup.remove(mdAttribute);
 
       mdAttribute.getBusinessDAO().delete();
     }
@@ -1993,13 +1893,12 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     if (tableMetadata != null)
     {
-      Map<MdAttribute, MdAttribute> pairs = tableMetadata.getPairs();
+      // Create the Hierarchy Attribute metadata
+      List<Group> groups = tableMetadata.getGroups();
 
-      Set<Entry<MdAttribute, MdAttribute>> entries = pairs.entrySet();
-
-      for (Entry<MdAttribute, MdAttribute> entry : entries)
+      for (Group group : groups)
       {
-        ListTypeAttributeGroup.create(version, entry.getValue(), entry.getKey());
+        group.create(version, null);
       }
     }
 

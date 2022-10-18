@@ -12,6 +12,14 @@
 		</ng-template>
 
 		<ng-template pTemplate="header" let-columns>
+			<ng-container *ngIf="groups != null">
+				<tr *ngFor="let row of groups">
+					<th *ngFor="let col of row" [attr.colspan]="col.colspan">
+						{{col.label}}
+					</th>
+				</tr>	
+			</ng-container>
+
 			<tr>
 				<th *ngFor="let col of columns" [pSortableColumn]="col.field"
 					[ngClass]="{'actions-col' : col.type === 'ACTIONS'}" pResizableColumn>

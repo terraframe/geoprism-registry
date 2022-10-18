@@ -128,6 +128,7 @@ public class ListTypeService
     }
     catch (DataNotFoundException e)
     {
+      e.printStackTrace();
       // Do nothing
     }
   }

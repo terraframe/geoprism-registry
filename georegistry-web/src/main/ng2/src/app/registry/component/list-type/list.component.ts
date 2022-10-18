@@ -8,7 +8,6 @@ import { Subject, Subscription } from "rxjs";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
 import { GeoObjectEditorComponent } from "../geoobject-editor/geoobject-editor.component";
-import * as ColorGen from "color-generator";
 
 import { ErrorHandler } from "@shared/component";
 import { AuthService, ProgressService } from "@shared/service";
@@ -16,11 +15,10 @@ import { ListData, ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
-import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
+import { GenericTableColumn, GenericTableConfig, GenericTableGroup, TableEvent } from "@shared/model/generic-table";
 import { LngLatBounds } from "mapbox-gl";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
-import { ListVectorLayerDataSource } from "@registry/service/layer-data-source";
 import { GeometryService } from "@registry/service/geometry.service";
 import { LocationManagerStateService } from "@registry/service/location-manager.service";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
@@ -47,6 +45,7 @@ export class ListComponent implements OnInit, OnDestroy {
     userOrgCodes: string[];
 
     config: GenericTableConfig = null;
+    groups: GenericTableGroup[][] = null;
     cols: GenericTableColumn[] = null;
     refresh: Subject<void>;
 
@@ -168,45 +167,74 @@ export class ListComponent implements OnInit, OnDestroy {
 
     refreshColumns(): void {
         this.cols = [];
+        const orderedArray = [];
+
+        const mainGroups: GenericTableGroup[] = [];
+        const subGroups: GenericTableGroup[] = [];
 
         if (this.list.isMember || this.list.geospatialMetadata.visibility === "PUBLIC") {
             this.cols.push({ header: "", type: "ACTIONS", sortable: false });
+
+            mainGroups.push({ label: "", colspan: 1 });
+            subGroups.push({ label: "", colspan: 1 });
         }
 
-        //
-        // Order list columns
-        // mdAttributes don't currently define the difference between hierarchy or custom attributes.
-        // This ordering is a best attempt given these constraints.
-        //
-        let orderedArray = [];
-        let code = this.list.attributes.filter(obj => {
-            return obj.name === "code";
-        });
-        let label = this.list.attributes.filter(obj => {
-            return obj.name.includes("displayLabel");
-        });
+        // //
+        // // Order list columns
+        // // mdAttributes don't currently define the difference between hierarchy or custom attributes.
+        // // This ordering is a best attempt given these constraints.
+        // //
+        // let orderedArray = [];
+        // let code = this.list.attributes.filter(obj => {
+        //     return obj.name === "code";
+        // });
+        // let label = this.list.attributes.filter(obj => {
+        //     return obj.name.includes("displayLabel");
+        // });
 
-        orderedArray.push(code[0], ...label);
+        // orderedArray.push(code[0], ...label);
 
-        let customAttrs = [];
-        let otherAttrs = [];
-        this.list.attributes.forEach(attr => {
-            if (attr.type === "input" && attr.name !== "latitude" && attr.name !== "longitude") {
-                customAttrs.push(attr);
-            } else if (attr.name !== "code" && !attr.name.includes("displayLabel") && attr.name !== "latitude" && attr.name !== "longitude") {
-                otherAttrs.push(attr);
+        // let customAttrs = [];
+        // let otherAttrs = [];
+        // this.list.attributes.forEach(attr => {
+        //     if (attr.type === "input" && attr.name !== "latitude" && attr.name !== "longitude") {
+        //         customAttrs.push(attr);
+        //     } else if (attr.name !== "code" && !attr.name.includes("displayLabel") && attr.name !== "latitude" && attr.name !== "longitude") {
+        //         otherAttrs.push(attr);
+        //     }
+        // });
+
+        // orderedArray.push(...customAttrs, ...otherAttrs);
+
+        // let coords = this.list.attributes.filter(obj => {
+        //     return obj.name === "latitude" || obj.name === "longitude";
+        // });
+
+        // if (coords.length === 2) {
+        //     orderedArray.push(...coords);
+        // }
+
+        this.list.attributes.forEach(group => {
+            if (this.showInvalid || group.name !== "invalid") {
+                mainGroups.push({
+                    label: group.label,
+                    colspan: group.colspan
+                });
+
+                group.columns.forEach(subgroup => {
+                    subGroups.push({
+                        label: subgroup.label,
+                        colspan: subgroup.colspan
+                    });
+
+                    subgroup.columns.forEach(attribute => {
+                        orderedArray.push(attribute);
+                    });
+                });
             }
         });
 
-        orderedArray.push(...customAttrs, ...otherAttrs);
-
-        let coords = this.list.attributes.filter(obj => {
-            return obj.name === "latitude" || obj.name === "longitude";
-        });
-
-        if (coords.length === 2) {
-            orderedArray.push(...coords);
-        }
+        this.groups = [mainGroups, subGroups];
 
         orderedArray.forEach(attribute => {
             if (this.showInvalid || attribute.name !== "invalid") {

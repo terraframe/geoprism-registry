@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.conversion;
 
@@ -42,6 +42,7 @@ import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
 import com.runwaysdk.dataaccess.graph.GraphObjectDAO;
 import com.runwaysdk.dataaccess.metadata.MetadataDAO;
 import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.localization.LocalizedValueIF;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -59,10 +60,10 @@ public class LocalizedValueConverter
   }
 
   /**
-   * This method will coalesce the value for all of the locales. So if
-   * the value is empty for a particular locale, that locale will actually have
-   * the default locale placed in it. For this reason, usage of this method
-   * should be deprecated.
+   * This method will coalesce the value for all of the locales. So if the value
+   * is empty for a particular locale, that locale will actually have the
+   * default locale placed in it. For this reason, usage of this method should
+   * be deprecated.
    * 
    * Use convertNoAutoCoalesce instead.
    */
@@ -213,6 +214,23 @@ public class LocalizedValueConverter
     for (Locale locale : locales)
     {
       if (label.contains(locale))
+      {
+        struct.setValue(locale, label.getValue(locale));
+      }
+    }
+  }
+
+  public static void populate(LocalStruct struct, LocalizedValueIF label)
+  {
+    struct.setValue(label.getValue());
+    struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, label.getDefaultValue());
+
+    Set<Locale> locales = LocalizationFacade.getInstalledLocales();
+    Map<String, String> map = label.getLocaleMap();
+
+    for (Locale locale : locales)
+    {
+      if (map.containsKey(locale.toString()))
       {
         struct.setValue(locale, label.getValue(locale));
       }

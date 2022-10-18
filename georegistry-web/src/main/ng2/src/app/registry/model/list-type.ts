@@ -55,7 +55,22 @@ export class ListTypeVersion extends ListVersionMetadata {
     forDate: string;
     createDate: string;
     publishDate: string;
-    attributes: any[];
+    attributes: {
+        name?: string,
+        label: string,
+        colspan: number,
+        columns: {
+            label: string,
+            colspan: number,
+            columns: {
+                name: string,
+                label: string,
+                type: string,
+                value?: any
+            }[]
+        }[]
+    }[];
+
     isGeometryEditable: boolean;
     geometryType?: string;
     locales?: string[];

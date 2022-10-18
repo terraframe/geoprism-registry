@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.hl7.fhir.instance.model.api.IBaseResource;
@@ -154,7 +155,7 @@ public abstract class AbstractFhirDataPopulator extends BasicFhirDataPopulator i
 
       if (hCode.equals(hierarchyType.getCode()))
       {
-        List<String> pCodes = this.list.getParentCodes(hierarchy);
+        List<String> pCodes = this.list.getParentCodes(hierarchy).stream().map(p -> p.getFirst()).collect(Collectors.toList());
         Collections.reverse(pCodes);
 
         // Get the lowest one with a code
@@ -190,7 +191,7 @@ public abstract class AbstractFhirDataPopulator extends BasicFhirDataPopulator i
 
       if (hCode.equals(hierarchyType.getCode()))
       {
-        List<String> pCodes = this.list.getParentCodes(hierarchy);
+        List<String> pCodes = this.list.getParentCodes(hierarchy).stream().map(p -> p.getFirst()).collect(Collectors.toList());
         Collections.reverse(pCodes);
 
         // Get the lowest one with a code

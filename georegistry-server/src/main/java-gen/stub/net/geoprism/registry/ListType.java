@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Optional;
@@ -45,6 +46,7 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.Pair;
 import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
@@ -58,6 +60,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.LocalizedValueStore;
+import com.runwaysdk.localization.SupportedLocaleIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OR;
 import com.runwaysdk.query.QueryFactory;
@@ -144,7 +147,7 @@ public abstract class ListType extends ListTypeBase
     {
       throw new InvalidMasterListCodeException("The list code has an invalid character");
     }
-    
+
     SerializedListTypeCache.getInstance().remove(this.getOid());
 
     super.apply();
@@ -266,7 +269,7 @@ public abstract class ListType extends ListTypeBase
     {
       JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
 
-      List<String> pCodes = this.getParentCodes(hierarchy);
+      List<Pair<String, Integer>> pCodes = this.getParentCodes(hierarchy);
 
       if (pCodes.size() > 0)
       {
@@ -289,9 +292,9 @@ public abstract class ListType extends ListTypeBase
     return map;
   }
 
-  public List<String> getParentCodes(JsonObject hierarchy)
+  public List<Pair<String, Integer>> getParentCodes(JsonObject hierarchy)
   {
-    List<String> list = new LinkedList<String>();
+    List<Pair<String, Integer>> list = new LinkedList<Pair<String, Integer>>();
 
     JsonArray parents = hierarchy.get("parents").getAsJsonArray();
 
@@ -301,7 +304,7 @@ public abstract class ListType extends ListTypeBase
 
       if (parent.has("selected") && parent.get("selected").getAsBoolean())
       {
-        list.add(parent.get("code").getAsString());
+        list.add(new Pair<String, Integer>(parent.get("code").getAsString(), Integer.valueOf(i + 1)));
       }
     }
 
@@ -612,7 +615,7 @@ public abstract class ListType extends ListTypeBase
 
         if (hCode.equals(hierarchyType.getCode()) || actualHierarchy.getCode().equals(hierarchyType.getCode()))
         {
-          List<String> pCodes = this.getParentCodes(hierarchy);
+          List<String> pCodes = this.getParentCodes(hierarchy).stream().map(p -> p.getFirst()).collect(Collectors.toList());
 
           if (pCodes.contains(type.getCode()) || type.getCode().equals(masterlistType.getCode()))
           {
@@ -650,7 +653,7 @@ public abstract class ListType extends ListTypeBase
 
       if (ht.isPresent())
       {
-        List<String> pCodes = this.getParentCodes(hierarchy);
+        List<String> pCodes = this.getParentCodes(hierarchy).stream().map(p -> p.getFirst()).collect(Collectors.toList());
 
         if (pCodes.contains(type.getCode()) || type.getCode().equals(masterlistType.getCode()))
         {
@@ -701,7 +704,7 @@ public abstract class ListType extends ListTypeBase
     return ( this.getValid() == null || this.getValid() );
   }
 
-  private void createMdAttributeFromAttributeType(ServerGeoObjectType type, AttributeType attributeType, Collection<Locale> locales)
+  private void createMdAttributeFromAttributeType(ServerGeoObjectType type, AttributeType attributeType, Collection<SupportedLocaleIF> locales)
   {
     LocalizedValueStore lvs = LocalizedValueStore.getByKey(DefaultLocaleView.LABEL);
     String defaultLocaleLabel = lvs.getStoreValue().getValue();
@@ -962,7 +965,7 @@ public abstract class ListType extends ListTypeBase
         {
           return a.getDisplayLabel().getValue().compareTo(b.getDisplayLabel().getValue());
         }
-        
+
         return compareTo;
       }).filter(f -> {
         // TODO Make visible if the type has a public version???
@@ -1023,13 +1026,13 @@ public abstract class ListType extends ListTypeBase
         }
       }
     }
-    
+
     SerializedListTypeCache.getInstance().clear();
   }
 
   public static void createMdAttribute(ServerGeoObjectType type, AttributeType attributeType)
   {
-    Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
+    Collection<SupportedLocaleIF> locales = LocalizationFacade.getSupportedLocales();
 
     ListTypeQuery query = new ListTypeQuery(new QueryFactory());
     query.WHERE(query.getUniversal().EQ(type.getUniversal()));

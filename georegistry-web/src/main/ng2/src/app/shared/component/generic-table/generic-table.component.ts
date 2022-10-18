@@ -3,7 +3,7 @@ import { FilterMetadata, LazyLoadEvent } from "primeng/api";
 import { Table } from "primeng/table";
 
 import { Subject } from "rxjs";
-import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
+import { GenericTableColumn, GenericTableConfig, GenericTableGroup, TableEvent } from "@shared/model/generic-table";
 import { PageResult } from "@shared/model/core";
 import { LocalizationService } from "@shared/service";
 
@@ -22,6 +22,8 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
     };
 
     @Input() cols: GenericTableColumn[] = [];
+
+    @Input() groups: GenericTableGroup[][] = null;
 
     @Input() pageConfig: any = null;
 
