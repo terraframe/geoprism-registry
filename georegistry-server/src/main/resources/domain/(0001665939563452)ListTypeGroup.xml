@@ -10,7 +10,7 @@
       <mdBusiness name="net.geoprism.registry.ListTypeGroup" label="List Type Hierarchy Group" generateController="false" cacheAlgorithm="nothing">
         <attributes>
           <reference name="version" type="net.geoprism.registry.ListTypeVersion" required="true" label="Version" />
-          <localText name="label" required="true" label="label" />          
+          <localText name="label" required="false" label="label" />          
           <reference name="parent" type="net.geoprism.registry.ListTypeGroup" required="false" label="Parent Group" />          
         </attributes>
       </mdBusiness>        
@@ -30,7 +30,7 @@
           <reference name="listGroup" type="net.geoprism.registry.ListTypeGroup" required="true" label="Group" />                  
           <reference name="listAttribute" type="com.runwaysdk.system.metadata.MdAttribute" required="true" label="Target" />
           <text name="locale" required="false" label="Locale" />
-          <localText name="label" required="true" label="label" />                    
+          <localText name="label" required="false" label="label" />                    
         </attributes>
       </mdBusiness>        
     </create>

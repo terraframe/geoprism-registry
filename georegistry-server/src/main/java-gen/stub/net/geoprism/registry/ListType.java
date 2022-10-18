@@ -60,6 +60,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.LocalizedValueStore;
+import com.runwaysdk.localization.LocalizedValueStoreStoreValue;
 import com.runwaysdk.localization.SupportedLocaleIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OR;
@@ -707,7 +708,7 @@ public abstract class ListType extends ListTypeBase
   private void createMdAttributeFromAttributeType(ServerGeoObjectType type, AttributeType attributeType, Collection<SupportedLocaleIF> locales)
   {
     LocalizedValueStore lvs = LocalizedValueStore.getByKey(DefaultLocaleView.LABEL);
-    String defaultLocaleLabel = lvs.getStoreValue().getValue();
+    LocalizedValueStoreStoreValue defaultLocaleLabel = lvs.getStoreValue();
 
     List<ListTypeVersion> versions = this.getVersions();
 

@@ -3,11 +3,14 @@ package net.geoprism.registry;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.runwaysdk.localization.LocalizedValueIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.masterlist.ListAttributeGroup;
 import net.geoprism.registry.masterlist.ListColumn;
+import net.geoprism.registry.model.ServerHierarchyType;
 
 public class ListTypeGroup extends ListTypeGroupBase
 {
@@ -91,6 +94,22 @@ public class ListTypeGroup extends ListTypeGroupBase
     {
       return new LinkedList<ListTypeGroup>(it.getAll());
     }
+  }
+
+  public static ListTypeGroup create(ListTypeVersion version, ListTypeGroup parent, LocalizedValueIF label)
+  {
+    ListTypeGroup group = new ListTypeGroup();
+    group.setVersion(version);
+    group.setParent(parent);
+
+    if (label != null)
+    {
+      LocalizedValueConverter.populate(group.getLabel(), label);
+    }
+
+    group.apply();
+
+    return group;
   }
 
 }

@@ -22,10 +22,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 
+import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.localization.LocalizedValueIF;
 import com.runwaysdk.localization.SupportedLocaleIF;
+import com.runwaysdk.system.metadata.MdAttribute;
+import com.runwaysdk.system.metadata.MdAttributeConcrete;
 import com.runwaysdk.system.metadata.MdBusiness;
 
 import net.geoprism.registry.ListTypeAttribute;
@@ -33,6 +37,7 @@ import net.geoprism.registry.ListTypeGeoObjectTypeGroup;
 import net.geoprism.registry.ListTypeGroup;
 import net.geoprism.registry.ListTypeHierarchyGroup;
 import net.geoprism.registry.ListTypeVersion;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.model.LocalizedValueContainer;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -51,12 +56,6 @@ public class TableMetadata
       this.children = new LinkedList<Group>();
     }
 
-    public Group(Group parent)
-    {
-      this.parent = parent;
-      this.children = new LinkedList<Group>();
-    }
-
     public Group getParent()
     {
       return parent;
@@ -72,11 +71,13 @@ public class TableMetadata
       return children;
     }
 
-    public <T extends Group> T addChild(T group)
+    public <T extends Group> T addChild(T child)
     {
-      this.children.add(group);
+      child.setParent(this);
 
-      return group;
+      this.children.add(child);
+
+      return child;
     }
 
     public abstract void create(ListTypeVersion version, ListTypeGroup parent);
@@ -115,7 +116,7 @@ public class TableMetadata
 
     public TypeGroup addTypeGroup(ServerGeoObjectType type, int level)
     {
-      return this.addChild(new TypeGroup(this, type, level));
+      return this.addChild(new TypeGroup(type, level));
     }
   }
 
@@ -126,9 +127,14 @@ public class TableMetadata
 
     private Integer             level;
 
-    public TypeGroup(Group parent, ServerGeoObjectType type, Integer level)
+    public TypeGroup(ServerGeoObjectType type)
     {
-      super(parent);
+      this.type = type;
+      this.level = null;
+    }
+
+    public TypeGroup(ServerGeoObjectType type, Integer level)
+    {
       this.type = type;
       this.level = level;
     }
@@ -164,6 +170,47 @@ public class TableMetadata
     }
   }
 
+  public static class AttributeGroup extends Group
+  {
+
+    private AttributeType attributeType;
+
+    public AttributeGroup(AttributeType attributeType)
+    {
+      this.attributeType = attributeType;
+    }
+
+    @Override
+    public void create(ListTypeVersion version, ListTypeGroup parent)
+    {
+      LocalizedValue label = this.attributeType.getLabel();
+
+      ListTypeGroup group = ListTypeGroup.create(version, parent, new LocalizedValueContainer(label));
+
+      this.getChildren().forEach(child -> {
+        child.create(version, group);
+      });
+    }
+  }
+
+  public static class HolderGroup extends Group
+  {
+    public HolderGroup(Group parent)
+    {
+
+    }
+
+    @Override
+    public void create(ListTypeVersion version, ListTypeGroup parent)
+    {
+      ListTypeGroup group = ListTypeGroup.create(version, parent, null);
+
+      this.getChildren().forEach(child -> {
+        child.create(version, group);
+      });
+    }
+  }
+
   public static class Attribute extends Group
   {
 
@@ -173,28 +220,49 @@ public class TableMetadata
 
     private LocalizedValueIF  label;
 
-    public Attribute(Group parent, MdAttributeDAO mdAttribute, LocalizedValue label)
+    public Attribute(MdAttribute mdAttribute)
     {
-      super(parent);
+      this.mdAttribute = (MdAttributeDAO) BusinessFacade.getEntityDAO(mdAttribute);
+      this.label = mdAttribute.getDisplayLabel();
+    }
+
+    public Attribute(MdAttributeDAO mdAttribute)
+    {
+      this.mdAttribute = mdAttribute;
+      this.label = new LocalizedValueContainer(LocalizedValueConverter.convert(mdAttribute.getDisplayLabels()));
+    }
+
+    public Attribute(MdAttributeDAO mdAttribute, LocalizedValue label)
+    {
 
       this.mdAttribute = mdAttribute;
       this.label = new LocalizedValueContainer(label);
     }
 
-    public Attribute(Group parent, MdAttributeDAO mdAttribute, LocalizedValueIF label)
+    public Attribute(MdAttributeDAO mdAttribute, LocalizedValueIF label)
     {
-      super(parent);
 
       this.mdAttribute = mdAttribute;
       this.label = label;
     }
 
-    public Attribute(Group parent, MdAttributeDAO mdAttribute, SupportedLocaleIF locale)
+    public Attribute(MdAttribute mdAttribute, LocalizedValueIF label)
     {
-      super(parent);
+      this.mdAttribute = (MdAttributeDAO) BusinessFacade.getEntityDAO(mdAttribute);
+      this.label = label;
+    }
 
-      this.locale = locale;
+    public Attribute(MdAttributeDAO mdAttribute, SupportedLocaleIF locale)
+    {
       this.mdAttribute = mdAttribute;
+      this.locale = locale;
+      this.label = locale.getDisplayLabel();
+    }
+
+    public Attribute(MdAttribute mdAttribute, SupportedLocaleIF locale)
+    {
+      this.mdAttribute = (MdAttributeDAO) BusinessFacade.getEntityDAO(mdAttribute);
+      this.locale = locale;
       this.label = locale.getDisplayLabel();
     }
 
@@ -239,9 +307,23 @@ public class TableMetadata
 
   private List<Group> groups;
 
+  private TypeGroup   root;
+
+  private HolderGroup holder;
+
   public TableMetadata()
   {
+
+  }
+
+  public TableMetadata(MdBusiness mdBusiness, ServerGeoObjectType type)
+  {
+    this.mdBusiness = mdBusiness;
     this.groups = new LinkedList<Group>();
+    this.root = new TypeGroup(type);
+    this.holder = this.root.addChild(new HolderGroup(this.root));
+
+    this.groups.add(this.root);
   }
 
   public MdBusiness getMdBusiness()
@@ -259,7 +341,17 @@ public class TableMetadata
     return groups;
   }
 
-  public HierarchyGroup addHierarchyGroup(ServerHierarchyType hierarchy)
+  public TypeGroup getRoot()
+  {
+    return root;
+  }
+
+  public HolderGroup getHolder()
+  {
+    return holder;
+  }
+
+  public HierarchyGroup addRootHierarchyGroup(ServerHierarchyType hierarchy)
   {
     HierarchyGroup group = new HierarchyGroup(hierarchy);
 

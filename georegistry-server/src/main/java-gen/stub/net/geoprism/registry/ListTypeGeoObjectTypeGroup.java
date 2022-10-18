@@ -17,9 +17,18 @@ public class ListTypeGeoObjectTypeGroup extends ListTypeGeoObjectTypeGroupBase
 
   public ListColumn toColumn()
   {
-    ListAttributeGroup column = new ListAttributeGroup(this.getLabel().getValue() + " - " + this.getLevel());
+    String label = this.getLabel().getValue();
 
-    // this.getChildren().forEach(child -> column.add(child.toColumn()));
+    Integer level = this.getLevel();
+
+    if (level != null)
+    {
+      label += " - " + level;
+    }
+
+    ListAttributeGroup column = new ListAttributeGroup(label);
+
+    this.getChildren().forEach(child -> column.add(child.toColumn()));
     this.getAttributes().forEach(child -> column.add(child.toColumn()));
 
     return column;
