@@ -321,6 +321,7 @@ public class SearchService
     {
       String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
       String escapedText = text.replaceAll(regex, "\\\\\\\\$1").trim();
+      escapedText = escapedText.replaceAll("\\'", "\\\\'"); // Special usecase for apostrophes
       
       String[] escapedTokens = StringUtils.split(escapedText, " ");
       String term;
