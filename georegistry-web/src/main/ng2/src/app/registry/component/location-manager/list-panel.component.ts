@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from "@angular/core";
 import { ListData, ListTypeVersion } from "@registry/model/list-type";
-import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
+import { GenericTableColumn, GenericTableConfig, GenericTableGroup, TableEvent } from "@shared/model/generic-table";
 import { BsModalService } from "ngx-bootstrap/modal";
 import { LazyLoadEvent } from "primeng/api";
 import { ListTypeService } from "@registry/service/list-type.service";
@@ -48,6 +48,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
     userOrgCodes: string[];
 
     config: GenericTableConfig = null;
+    groups: GenericTableGroup[][] = null;
     cols: GenericTableColumn[] = null;
 
     showInvalid = false;
@@ -143,47 +144,39 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
 
     refreshColumns(): void {
         this.cols = [];
+        const orderedArray = [];
+
+        const mainGroups: GenericTableGroup[] = [];
+        const subGroups: GenericTableGroup[] = [];
 
         if (this.list.isMember || this.list.geospatialMetadata.visibility === "PUBLIC") {
             this.cols.push({ header: "", type: "ACTIONS", sortable: false });
+
+            mainGroups.push({ label: "", colspan: 1 });
+            subGroups.push({ label: "", colspan: 1 });
         }
 
-        //
-        // Order list columns
-        // mdAttributes don't currently define the difference between hierarchy or custom attributes.
-        // This ordering is a best attempt given these constraints.
-        //
-        let orderedArray = [];
-        let code = this.list.attributes.filter(obj => {
-            return obj.name === "code";
-        });
-        let label = this.list.attributes.filter(obj => {
-            return obj.name.includes("displayLabel");
-        });
+        this.list.attributes.forEach(group => {
+            if (this.showInvalid || group.name !== "invalid") {
+                mainGroups.push({
+                    label: group.label,
+                    colspan: group.colspan
+                });
 
-        orderedArray.push(code[0], ...label);
+                group.columns.forEach(subgroup => {
+                    subGroups.push({
+                        label: subgroup.label,
+                        colspan: subgroup.colspan
+                    });
 
-        if (this.list.isMember || this.list.listMetadata.visibility === "PUBLIC") {
-            let customAttrs = [];
-            let otherAttrs = [];
-            this.list.attributes.forEach(attr => {
-                if (attr.type === "input" && attr.name !== "latitude" && attr.name !== "longitude") {
-                    customAttrs.push(attr);
-                } else if (attr.name !== "code" && !attr.name.includes("displayLabel") && attr.name !== "latitude" && attr.name !== "longitude") {
-                    otherAttrs.push(attr);
-                }
-            });
-
-            orderedArray.push(...customAttrs, ...otherAttrs);
-        }
-
-        let coords = this.list.attributes.filter(obj => {
-            return obj.name === "latitude" || obj.name === "longitude";
+                    subgroup.columns.forEach(attribute => {
+                        orderedArray.push(attribute);
+                    });
+                });
+            }
         });
 
-        if (coords.length === 2) {
-            orderedArray.push(...coords);
-        }
+        this.groups = [mainGroups, subGroups];
 
         orderedArray.forEach(attribute => {
             if (this.showInvalid || attribute.name !== "invalid") {

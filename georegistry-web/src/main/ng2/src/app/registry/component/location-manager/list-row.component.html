@@ -22,7 +22,7 @@
                 <div *ngIf="list != null && tableState != null" class="col-md-12">
 
                     <ng-container *ngIf="cols != null && config != null">
-                        <generic-table [cols]="cols" [config]="config" [refresh]="refresh"
+                        <generic-table [cols]="cols" [config]="config" [groups]="groups" [refresh]="refresh"
                             [pageConfig]="{oid: list.oid, showInvalid: false}" [initialState]="tableState"
                             [paginator]="false"></generic-table>
                     </ng-container>

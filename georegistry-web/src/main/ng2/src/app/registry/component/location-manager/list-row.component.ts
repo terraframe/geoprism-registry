@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from "@angular/core";
 import { ListTypeVersion } from "@registry/model/list-type";
-import { GenericTableColumn, GenericTableConfig } from "@shared/model/generic-table";
+import { GenericTableColumn, GenericTableConfig, GenericTableGroup } from "@shared/model/generic-table";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { LazyLoadEvent } from "primeng/api";
@@ -25,6 +25,7 @@ export class ListRowComponent implements OnInit, OnDestroy, OnChanges {
 
     config: GenericTableConfig = null;
     cols: GenericTableColumn[] = null;
+    groups: GenericTableGroup[][] = null;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private service: ListTypeService) {
@@ -87,38 +88,32 @@ export class ListRowComponent implements OnInit, OnDestroy, OnChanges {
 
     refreshColumns(): void {
         this.cols = [];
+        const orderedArray = [];
 
-        let orderedArray = [];
-        let code = this.list.attributes.filter(obj => {
-            return obj.name === "code";
-        });
-        let label = this.list.attributes.filter(obj => {
-            return obj.name.includes("displayLabel");
-        });
+        const mainGroups: GenericTableGroup[] = [];
+        const subGroups: GenericTableGroup[] = [];
 
-        orderedArray.push(code[0], ...label);
+        this.list.attributes.forEach(group => {
+            if (group.name !== "invalid") {
+                mainGroups.push({
+                    label: group.label,
+                    colspan: group.colspan
+                });
 
-        if (this.list.isMember || this.list.listMetadata.visibility === "PUBLIC") {
-            let customAttrs = [];
-            let otherAttrs = [];
-            this.list.attributes.forEach(attr => {
-                if (attr.type === "input" && attr.name !== "latitude" && attr.name !== "longitude") {
-                    customAttrs.push(attr);
-                } else if (attr.name !== "code" && !attr.name.includes("displayLabel") && attr.name !== "latitude" && attr.name !== "longitude") {
-                    otherAttrs.push(attr);
-                }
-            });
+                group.columns.forEach(subgroup => {
+                    subGroups.push({
+                        label: subgroup.label,
+                        colspan: subgroup.colspan
+                    });
 
-            orderedArray.push(...customAttrs, ...otherAttrs);
-        }
-
-        let coords = this.list.attributes.filter(obj => {
-            return obj.name === "latitude" || obj.name === "longitude";
+                    subgroup.columns.forEach(attribute => {
+                        orderedArray.push(attribute);
+                    });
+                });
+            }
         });
 
-        if (coords.length === 2) {
-            orderedArray.push(...coords);
-        }
+        this.groups = [mainGroups, subGroups];
 
         orderedArray.forEach(attribute => {
             if (attribute.name !== "invalid") {
@@ -137,7 +132,6 @@ export class ListRowComponent implements OnInit, OnDestroy, OnChanges {
                 } else if (attribute.type === "number") {
                     column.type = "NUMBER";
                 }
-
                 this.cols.push(column);
             }
         });
