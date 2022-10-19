@@ -147,11 +147,11 @@
         <version>1.92</version>
         <inherited>false</inherited>
         <configuration>
+          <file>CHANGELOG2.md</file>
          <templateContent>
-# Changelog
 {{#tags}}
 {{#ifReleaseTag .}}
-{{#ifMatches name "[1-9]\.\d+\.\d+"}}
+{{#ifMatches name "${project.version}"}}
 ## [{{name}}](https://github.com/terraframe/geoprism-registry/releases/tag/{{name}}) ({{tagDate .}})
 
   {{#ifContainsType commits type='feat'}}

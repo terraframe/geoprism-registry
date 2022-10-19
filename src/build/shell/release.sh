@@ -86,12 +86,19 @@ if [ "$release_georegistry" == "true" ]; then
   
   # Generate Changelog
   cd $WORKSPACE/georegistry
+  sed -i "0,/<version>.*<\/version>/s//<version>$CGR_RELEASE_VERSION<\/version>/" pom.xml
   mvn git-changelog-maven-plugin:git-changelog --non-recursive
+  mv CHANGELOG.md CHANGELOG-old.md
+  head -n 3 CHANGELOG-old.md > CHANGELOG.md
+  cat CHANGELOG2.md >> CHANGELOG.md
+  tail -n +3 CHANGELOG-old.md >> CHANGELOG.md
   git add CHANGELOG.md
   git commit -m "chore(release): Update changelog for $CGR_RELEASE_VERSION."
   if [ "$dry_run" == "false" ]; then
     git push
   else
+    echo "Generated changelog as:"
+    cat CHANGELOG.md
     git reset --hard
   fi
 else
