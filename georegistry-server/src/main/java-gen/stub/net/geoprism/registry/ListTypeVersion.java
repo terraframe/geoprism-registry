@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -149,6 +150,7 @@ import net.geoprism.registry.masterlist.TableMetadata.Attribute;
 import net.geoprism.registry.masterlist.TableMetadata.AttributeGroup;
 import net.geoprism.registry.masterlist.TableMetadata.Group;
 import net.geoprism.registry.masterlist.TableMetadata.HierarchyGroup;
+import net.geoprism.registry.masterlist.TableMetadata.HolderGroup;
 import net.geoprism.registry.masterlist.TableMetadata.TypeGroup;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
@@ -360,15 +362,31 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     createMdAttributeFromAttributeType(metadata, attributeType, type, locales, defaultLocaleLabel);
 
-    // TODO ADD SUPPORT FOR ADDING GROUPS TO NEW ATTRIBUTES
-    // Map<MdAttribute, MdAttribute> pairs = metadata.getPairs();
-    //
-    // Set<Entry<MdAttribute, MdAttribute>> entries = pairs.entrySet();
-    //
-    // for (Entry<MdAttribute, MdAttribute> entry : entries)
-    // {
-    // ListTypeAttributeGroup.create(version, entry.getValue(), entry.getKey());
-    // }
+    if (metadata != null)
+    {
+      ListTypeGeoObjectTypeGroup root = ListTypeGeoObjectTypeGroup.getRoot(version, type);
+
+      // TODO IS THERE A BETTER WAY TO DETERMINE THE EMPTY HOLDER GROUP
+      ListTypeGroup holder = root.getChildren().stream().filter(p -> {
+        return p.getLabel().getDefaultValue().equals("");
+      }).findFirst().get();
+
+      // Create the Hierarchy Attribute metadata
+      List<Group> groups = metadata.getGroups();
+      Group typeGroup = groups.get(0);
+
+      for (Group group : typeGroup.getChildren())
+      {
+        if (group instanceof HolderGroup)
+        {
+          group.getChildren().forEach(g -> g.create(version, holder));
+        }
+        else
+        {
+          group.create(version, root);
+        }
+      }
+    }
 
     return metadata;
   }
@@ -438,7 +456,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       cloneAttribute.setDefiningMdClass(mdBusiness);
       cloneAttribute.apply();
 
-      attributeGroup.addChild(new Attribute(cloneAttribute));
+      attributeGroup.addChild(new Attribute(cloneAttribute, LocalizationFacade.localizeAll("data.property.label.code")));
 
       MdAttributeCharacter mdAttributeDefaultLocale = new MdAttributeCharacter();
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + DEFAULT_LOCALE);
@@ -1542,8 +1560,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     if (mdAttribute != null)
     {
-      // TODO remove grouping metadata
-      // ListTypeAttributeGroup.remove(mdAttribute);
+      ListTypeAttribute.remove(mdAttribute);
 
       mdAttribute.getBusinessDAO().delete();
     }

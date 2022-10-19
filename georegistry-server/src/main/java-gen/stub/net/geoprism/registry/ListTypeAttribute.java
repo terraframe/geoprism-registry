@@ -82,4 +82,24 @@ public class ListTypeAttribute extends ListTypeAttributeBase
     attribute.apply();
   }
 
+  public static void remove(MdAttributeConcreteDAOIF mdAttribute)
+  {
+    ListTypeAttributeQuery query = new ListTypeAttributeQuery(new QueryFactory());
+    query.WHERE(query.getListAttribute().EQ(mdAttribute.getOid()));
+
+    try (OIterator<? extends ListTypeAttribute> it = query.getIterator())
+    {
+      it.forEach(t -> {
+        t.delete();
+
+        ListTypeGroup parent = t.getListGroup();
+
+        if (parent.getChildren().size() == 0)
+        {
+          parent.delete();
+        }
+      });
+    }
+  }
+
 }

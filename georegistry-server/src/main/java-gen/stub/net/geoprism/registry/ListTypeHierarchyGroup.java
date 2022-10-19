@@ -25,12 +25,9 @@ public class ListTypeHierarchyGroup extends ListTypeHierarchyGroupBase
     group.setHierarchy(hierarchy.getHierarchicalRelationshipType());
 
     LocalizedValueConverter.populate(group.getLabel(), hierarchy.getLabel());
-    
-    System.out.println(group.getHierarchyOid());
 
     group.apply();
 
     return group;
   }
-
 }
