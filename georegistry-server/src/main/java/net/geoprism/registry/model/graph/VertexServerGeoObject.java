@@ -103,7 +103,6 @@ import com.vividsolutions.jts.geom.Polygon;
 import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.BusinessType;
-import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.DuplicateGeoObjectCodeException;
 import net.geoprism.registry.DuplicateGeoObjectException;
 import net.geoprism.registry.DuplicateGeoObjectMultipleException;
@@ -2044,10 +2043,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
     
-    String statement = "SELECT expand(in) FROM (";
-    statement = "SELECT expand(outE('" + mdEdge.getDBClassName() + "')[id = '" + externalId + "']) FROM :system)";
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT expand(in) FROM (");
+    statement.append("SELECT expand(outE('" + mdEdge.getDBClassName() + "')[id = '" + externalId + "']) FROM :system)");
 
-    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement);
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
     query.setParameter("system", system.getRID());
 
     VertexObject vo = query.getSingleResult();

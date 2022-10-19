@@ -22,8 +22,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -57,8 +60,10 @@ public class DHIS2TestService implements DHIS2TransportServiceIF
   public static final String SIERRA_LEONE_ID = "ImspTQPwCqd";
   
   public static final String ATTRIBUTE_COLOR_ID = "uhA8DG5EtXa";
-
+  
   private LinkedList<Dhis2Payload> payloads = new LinkedList<Dhis2Payload>();
+  
+  private Map<Method, LinkedList<DHIS2MockResponseProvider>> responses = new HashMap<>();
   
   public Dhis2Payload getLastPayload()
   {
@@ -76,6 +81,43 @@ public class DHIS2TestService implements DHIS2TransportServiceIF
     jo.addProperty("status", "SUCCESS");
     
     return jo;
+  }
+  
+  public enum Method {
+    METADATA_POST;
+  }
+  
+  public class DHIS2MockResponseProvider
+  {
+    private String response;
+    
+    private int httpCode;
+    
+    public DHIS2MockResponseProvider(String resp, int httpCode)
+    {
+      this.response = resp;
+      this.httpCode = httpCode;
+    }
+
+    public String getResponse()
+    {
+      return response;
+    }
+
+    public void setResponse(String response)
+    {
+      this.response = response;
+    }
+
+    public int getHttpCode()
+    {
+      return httpCode;
+    }
+
+    public void setHttpCode(int httpCode)
+    {
+      this.httpCode = httpCode;
+    }
   }
   
   public class Dhis2Payload
@@ -201,18 +243,31 @@ public class DHIS2TestService implements DHIS2TransportServiceIF
   @Override
   public ImportReportResponse metadataPost(List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
   {
+    ImportReportResponse response = null;
+    
     try
     {
       String data = IOUtils.toString(payload.getContent(), Charset.forName("UTF-8"));
       
       this.payloads.add(new Dhis2Payload(params, data));
+      
+      LinkedList<DHIS2MockResponseProvider> providers = this.responses.get(Method.METADATA_POST);
+      if (!providers.isEmpty())
+      {
+        DHIS2MockResponseProvider provider = providers.removeFirst();
+        response = new ImportReportResponse(provider.getResponse(), provider.getHttpCode());
+      }
+      else
+      {
+        response = new ImportReportResponse(getSuccessJson().toString(), 200);
+      }
     }
     catch (UnsupportedOperationException | IOException e)
     {
       e.printStackTrace();
     }
     
-    return new ImportReportResponse(getSuccessJson().toString(), 200);
+    return response; 
   }
 
   @Override
@@ -362,6 +417,13 @@ public class DHIS2TestService implements DHIS2TransportServiceIF
     {
       throw new ProgrammingErrorException(e);
     }
+  }
+
+  public void addResponse(Method method, String response, int httpCode)
+  {
+    LinkedList<DHIS2MockResponseProvider> list = this.responses.getOrDefault(method, new LinkedList<DHIS2MockResponseProvider>());
+    list.add(new DHIS2MockResponseProvider(response, httpCode));
+    this.responses.put(method, list);
   }
 
 }

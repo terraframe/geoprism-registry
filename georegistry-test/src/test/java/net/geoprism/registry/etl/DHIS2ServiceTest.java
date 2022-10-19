@@ -30,6 +30,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
@@ -52,6 +53,7 @@ import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
@@ -64,7 +66,10 @@ import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.etl.DHIS2TestService.Dhis2Payload;
+import net.geoprism.registry.etl.DHIS2TestService.Method;
 import net.geoprism.registry.etl.dhis2.DHIS2PayloadValidator;
+import net.geoprism.registry.etl.export.ExportError;
+import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
@@ -553,6 +558,67 @@ public class DHIS2ServiceTest
     ((VertexServerGeoObject) AllAttributesDataset.GO_BOOL.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
     
     exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL, null);
+  }
+  
+  /*
+   * Mimic what happens when we try to update an existing DHIS2 object but DHIS2 throws an error.
+   */
+  @Test
+  @Request
+  public void testSyncUpdateError() throws Exception
+  {
+    ((VertexServerGeoObject) AllAttributesDataset.GO_BOOL.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
+    
+    String postResp = IOUtils.toString(DHIS2ServiceTest.class.getResourceAsStream("/dhis2/metadata-post-update-nonexist.json"), "UTF-8");
+    this.dhis2.addResponse(Method.METADATA_POST, this.dhis2.getSuccessJson().toString(), 200); // Response for submitting parent
+    this.dhis2.addResponse(Method.METADATA_POST, postResp, 401); // Response for submitting child (ERROR)
+    
+    TestGeoObjectTypeInfo got = AllAttributesDataset.GOT_BOOL;
+    TestAttributeTypeInfo attr = AllAttributesDataset.AT_GO_BOOL;
+    
+    /*
+     * Create a config
+     */
+    DHIS2SyncLevel level2 = new DHIS2SyncLevel();
+    level2.setGeoObjectType(got.getServerObject().getCode());
+    level2.setSyncType(DHIS2SyncLevel.Type.ALL);
+    level2.setLevel(1);
+
+    Collection<DHIS2AttributeMapping> mappings = getDefaultMappings();
+
+    DHIS2AttributeMapping mapping = new DHIS2AttributeMapping();
+    mapping.setAttributeMappingStrategy(DHIS2AttributeMapping.class.getName());
+    mapping.setCgrAttrName(attr.getAttributeName());
+    mapping.setDhis2AttrName(attr.getAttributeName());
+    mapping.setExternalId("TEST_EXTERNAL_ID");
+    mappings.add(mapping);
+
+    level2.setMappings(mappings);
+
+    SynchronizationConfig config = createSyncConfig(this.system, level2, true, TestDataSet.DEFAULT_OVER_TIME_DATE, false);
+
+    /*
+     * Run the sync service
+     */
+    JsonObject jo = syncService.run(testData.clientSession.getSessionId(), config.getOid());
+    ExportHistory hist = ExportHistory.get(jo.get("historyId").getAsString());
+
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FAILURE);
+
+    /*
+     * Validate the error report
+     */
+    ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
+    query.WHERE(query.getHistory().EQ(hist));
+    Assert.assertEquals(1, query.getCount());
+    
+    ExportError ee = query.getIterator().next();
+    Assert.assertEquals(new Integer(401), ee.getErrorCode());
+    Assert.assertEquals("Missing required property `openingDate`.", ee.getErrorMessage());
+    Assert.assertEquals(DHIS2TestService.SIERRA_LEONE_ID, JsonParser.parseString(ee.getSubmittedJson()).getAsJsonObject().get("id").getAsString());
+    JsonParser.parseString(ee.getResponseJson()).getAsJsonObject();
+    Assert.assertEquals(AllAttributesDataset.GO_BOOL.getServerObject().getCode(), ee.getCode());
+    Assert.assertEquals(new Long(1), ee.getRowIndex());
   }
   
   private void testExists(Collection<DHIS2AttributeMapping> paramMappings) throws Exception
