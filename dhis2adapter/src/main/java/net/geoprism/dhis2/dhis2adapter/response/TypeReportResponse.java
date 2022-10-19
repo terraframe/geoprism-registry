@@ -19,6 +19,7 @@
 package net.geoprism.dhis2.dhis2adapter.response;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -27,7 +28,6 @@ import com.google.gson.reflect.TypeToken;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
-import net.geoprism.dhis2.dhis2adapter.response.model.ObjectReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.TypeReport;
 
 public class TypeReportResponse extends DHIS2ImportResponse
@@ -61,26 +61,6 @@ public class TypeReportResponse extends DHIS2ImportResponse
       
       this.typeReport =  gson.fromJson(this.getJsonObject().get("response"), tt);
     }
-  }
-  
-  public Boolean hasErrorReports()
-  {
-    if (this.typeReport != null)
-    {
-      return this.typeReport.hasErrorReports();
-    }
-    
-    return false;
-  }
-  
-  public List<ErrorReport> getErrorReports()
-  {
-    if (this.typeReport != null)
-    {
-      return this.typeReport.getErrorReports();
-    }
-    
-    return null;
   }
 
   public TypeReport getTypeReport()

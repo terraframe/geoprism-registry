@@ -1,6 +1,5 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit } from "@angular/core";
-import { FilterMetadata, LazyLoadEvent } from "primeng/api";
-import { Table } from "primeng/table";
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from "@angular/core";
+import { LazyLoadEvent } from "primeng/api";
 
 import { Subject } from "rxjs";
 import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
@@ -12,7 +11,7 @@ import { LocalizationService } from "@shared/service";
     templateUrl: "./generic-table.component.html",
     styleUrls: ["./generic-table.css"]
 })
-export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class GenericTableComponent implements OnInit, OnDestroy {
 
     page: PageResult<Object> = {
         resultSet: [],
@@ -29,14 +28,8 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
 
     @Input() refresh: Subject<void>;
 
-    @Input() initialState: LazyLoadEvent = null;
-
     @Output() click = new EventEmitter<TableEvent>();
-    @Output() onLoadEvent = new EventEmitter<LazyLoadEvent>();
-
-    @ViewChild("dt") dt: Table;
-
-    first: number = 0;
+    @Output() onFilter = new EventEmitter<LazyLoadEvent>();
 
     loading: boolean = true;
 
@@ -53,65 +46,12 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     ngOnInit(): void {
-        if (this.initialState != null) {
-            this.first = this.initialState.first != null ? this.initialState.first : 0;
-
-            if (this.initialState.multiSortMeta != null) {
-                this.config.sort = this.initialState.multiSortMeta;
-            }
-
-            this.cols.forEach(column => {
-                if (column.type === "DATE") {
-                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        const dates = this.initialState.filters[column.field].value;
-
-                        column.startDate = dates.startDate;
-                        column.endDate = dates.endDate;
-                    }
-                } else if (column.type === "BOOLEAN") {
-                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        column.value = this.initialState.filters[column.field].value;
-                    }
-                } else if (column.type === "NUMBER") {
-                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        column.value = this.initialState.filters[column.field].value;
-                    }
-                } else if (column.type === "AUTOCOMPLETE") {
-                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        column.text = this.initialState.filters[column.field].value;
-                    }
-                }
-            });
-        }
-
         if (this.refresh != null) {
             this.refresh.subscribe(() => {
                 if (this.event != null) {
                     this.onPageChange(this.event);
                 }
             });
-        }
-
-        if (this.config.baseZIndex == null) {
-            this.config.baseZIndex = 0;
-        }
-
-        if (this.config.pageSize != null) {
-            this.page.pageSize = this.config.pageSize;
-        }
-    }
-
-    ngAfterViewInit(): void {
-        if (this.dt != null && this.initialState != null) {
-            if (this.initialState.filters != null) {
-                const keys = Object.keys(this.initialState.filters);
-
-                keys.forEach(key => {
-                    const metadata: FilterMetadata = this.initialState.filters[key];
-
-                    this.dt.filter(metadata.value, key, metadata.matchMode);
-                });
-            }
         }
     }
 
@@ -128,8 +68,6 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
         setTimeout(() => {
             this.config.service.page(event, this.pageConfig).then(page => {
                 this.page = page;
-
-                this.onLoadEvent.emit(event);
             }).finally(() => {
                 this.loading = false;
             });
@@ -157,7 +95,7 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     handleFilter(event: LazyLoadEvent): void {
-        this.onLoadEvent.emit(event);
+        this.onFilter.emit(event);
     }
 
 }

@@ -137,6 +137,11 @@ public class Task extends TaskBase
         LocalizedValue value = values.get(token);
 
         String replacement = value.getValue(locale);
+        
+        if (replacement == null)
+        {
+          replacement = "";
+        }
 
         if (replacement == null)
         {

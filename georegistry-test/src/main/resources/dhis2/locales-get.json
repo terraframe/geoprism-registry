@@ -1,0 +1,722 @@
+[
+  {
+    "name": "Afrikaans",
+    "created": "2013-10-06T12:30:32.642",
+    "lastUpdated": "2013-10-06T12:30:32.642",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "af",
+    "displayName": "Afrikaans",
+    "favorite": false,
+    "id": "ZKmSdQcSAPl",
+    "attributeValues": []
+  },
+  {
+    "name": "Arabic",
+    "created": "2013-10-06T12:30:32.677",
+    "lastUpdated": "2013-10-06T12:30:32.677",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "ar",
+    "displayName": "Arabic",
+    "favorite": false,
+    "id": "yOCa2ceCpya",
+    "attributeValues": []
+  },
+  {
+    "name": "Bislama",
+    "created": "2013-10-06T12:30:32.683",
+    "lastUpdated": "2013-10-06T12:30:32.683",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "bi",
+    "displayName": "Bislama",
+    "favorite": false,
+    "id": "COEqVJgeUo2",
+    "attributeValues": []
+  },
+  {
+    "name": "German",
+    "created": "2013-10-06T12:30:32.688",
+    "lastUpdated": "2013-10-06T12:30:32.688",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "de",
+    "displayName": "German",
+    "favorite": false,
+    "id": "AtXLVVvs12j",
+    "attributeValues": []
+  },
+  {
+    "name": "Spanish",
+    "created": "2013-10-06T12:30:32.702",
+    "lastUpdated": "2013-10-06T12:30:32.702",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "es",
+    "displayName": "Spanish",
+    "favorite": false,
+    "id": "wj2g0Klq1z5",
+    "attributeValues": []
+  },
+  {
+    "name": "Persian",
+    "created": "2013-10-06T12:30:32.707",
+    "lastUpdated": "2013-10-06T12:30:32.707",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "fa",
+    "displayName": "Persian",
+    "favorite": false,
+    "id": "yUvUf2QBTp4",
+    "attributeValues": []
+  },
+  {
+    "name": "Hindi",
+    "created": "2013-10-06T12:30:32.722",
+    "lastUpdated": "2013-10-06T12:30:32.722",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "hi",
+    "displayName": "Hindi",
+    "favorite": false,
+    "id": "PpkbwOkEh57",
+    "attributeValues": []
+  },
+  {
+    "name": "Italian",
+    "created": "2013-10-06T12:30:32.730",
+    "lastUpdated": "2013-10-06T12:30:32.730",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "it",
+    "displayName": "Italian",
+    "favorite": false,
+    "id": "ypThHMslaIW",
+    "attributeValues": []
+  },
+  {
+    "name": "Nepali",
+    "created": "2013-10-06T12:30:32.753",
+    "lastUpdated": "2013-10-06T12:30:32.753",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "ne",
+    "displayName": "Nepali",
+    "favorite": false,
+    "id": "NfMxTM8SNBk",
+    "attributeValues": []
+  },
+  {
+    "name": "Dutch",
+    "created": "2013-10-06T12:30:32.759",
+    "lastUpdated": "2013-10-06T12:30:32.759",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "nl",
+    "displayName": "Dutch",
+    "favorite": false,
+    "id": "zatTgHVCOhc",
+    "attributeValues": []
+  },
+  {
+    "name": "Pushto",
+    "created": "2013-10-06T12:30:32.770",
+    "lastUpdated": "2013-10-06T12:30:32.770",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "ps",
+    "displayName": "Pushto",
+    "favorite": false,
+    "id": "Wopbb9BeVk2",
+    "attributeValues": []
+  },
+  {
+    "name": "Russian",
+    "created": "2013-10-06T12:30:32.780",
+    "lastUpdated": "2013-10-06T12:30:32.780",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "ru",
+    "displayName": "Russian",
+    "favorite": false,
+    "id": "CXoH1TyYINk",
+    "attributeValues": []
+  },
+  {
+    "name": "Kinyarwanda",
+    "created": "2013-10-06T12:30:32.786",
+    "lastUpdated": "2013-10-06T12:30:32.786",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "rw",
+    "displayName": "Kinyarwanda",
+    "favorite": false,
+    "id": "X0E8WRTAR4B",
+    "attributeValues": []
+  },
+  {
+    "name": "Swahili",
+    "created": "2013-10-06T12:30:32.791",
+    "lastUpdated": "2013-10-06T12:30:32.791",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "sw",
+    "displayName": "Swahili",
+    "favorite": false,
+    "id": "jeblPSTD43N",
+    "attributeValues": []
+  },
+  {
+    "name": "Vietnamese",
+    "created": "2013-10-06T12:30:32.802",
+    "lastUpdated": "2013-10-06T12:30:32.802",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "vi",
+    "displayName": "Vietnamese",
+    "favorite": false,
+    "id": "zKXyVL1J6EY",
+    "attributeValues": []
+  },
+  {
+    "name": "Spanish (Mexico)",
+    "created": "2013-10-16T16:18:08.520",
+    "lastUpdated": "2013-10-16T16:18:08.520",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "es_MX",
+    "displayName": "Spanish (Mexico)",
+    "favorite": false,
+    "id": "HNPSBZZsQXh",
+    "attributeValues": []
+  },
+  {
+    "name": "Spanish (Guatemala)",
+    "created": "2013-11-04T23:34:50.617",
+    "lastUpdated": "2013-11-04T23:34:50.617",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "es_GT",
+    "displayName": "Spanish (Guatemala)",
+    "favorite": false,
+    "id": "dSspqwWuFqp",
+    "attributeValues": []
+  },
+  {
+    "name": "French (Senegal)",
+    "created": "2013-11-05T12:48:25.258",
+    "lastUpdated": "2013-11-05T12:48:25.258",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "fr_SN",
+    "displayName": "French (Senegal)",
+    "favorite": false,
+    "id": "VdO7aLjItea",
+    "attributeValues": []
+  },
+  {
+    "name": "Amharic",
+    "created": "2013-11-18T13:00:43.768",
+    "lastUpdated": "2013-11-18T13:00:43.768",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "am",
+    "displayName": "Amharic",
+    "favorite": false,
+    "id": "UYO3tugQ83J",
+    "attributeValues": []
+  },
+  {
+    "name": "Dzongkha",
+    "created": "2013-11-18T13:00:43.776",
+    "lastUpdated": "2013-11-18T13:00:43.776",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "dz",
+    "displayName": "Dzongkha",
+    "favorite": false,
+    "id": "aAWAyLVxGqa",
+    "attributeValues": []
+  },
+  {
+    "name": "English",
+    "created": "2013-11-18T13:00:43.780",
+    "lastUpdated": "2013-11-18T13:00:43.780",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "en",
+    "displayName": "English",
+    "favorite": false,
+    "id": "PtUMDC8qqEj",
+    "attributeValues": []
+  },
+  {
+    "name": "French",
+    "created": "2013-11-18T13:00:43.791",
+    "lastUpdated": "2013-11-18T13:00:43.791",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "fr",
+    "displayName": "French",
+    "favorite": false,
+    "id": "CURNUpOkTOV",
+    "attributeValues": []
+  },
+  {
+    "name": "Gujarati",
+    "created": "2013-11-18T13:00:43.796",
+    "lastUpdated": "2013-11-18T13:00:43.796",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "gu",
+    "displayName": "Gujarati",
+    "favorite": false,
+    "id": "Yike1Cb9lDC",
+    "attributeValues": []
+  },
+  {
+    "name": "Indonesian",
+    "created": "2013-11-18T13:00:43.805",
+    "lastUpdated": "2013-11-18T13:00:43.805",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "in",
+    "displayName": "Indonesian",
+    "favorite": false,
+    "id": "EONEjS9PbWQ",
+    "attributeValues": []
+  },
+  {
+    "name": "Khmer",
+    "created": "2013-11-18T13:00:43.814",
+    "lastUpdated": "2013-11-18T13:00:43.814",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "km",
+    "displayName": "Khmer",
+    "favorite": false,
+    "id": "MTjeE6D179x",
+    "attributeValues": []
+  },
+  {
+    "name": "Lao",
+    "created": "2013-11-18T13:00:43.820",
+    "lastUpdated": "2013-11-18T13:00:43.820",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "lo",
+    "displayName": "Lao",
+    "favorite": false,
+    "id": "rnvjSrk7uEg",
+    "attributeValues": []
+  },
+  {
+    "name": "Burmese",
+    "created": "2013-11-18T13:00:43.824",
+    "lastUpdated": "2013-11-18T13:00:43.824",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "my",
+    "displayName": "Burmese",
+    "favorite": false,
+    "id": "cPjCyswY5Kt",
+    "attributeValues": []
+  },
+  {
+    "name": "Norwegian",
+    "created": "2013-11-18T13:00:43.837",
+    "lastUpdated": "2013-11-18T13:00:43.837",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "no",
+    "displayName": "Norwegian",
+    "favorite": false,
+    "id": "oBMTTQceViV",
+    "attributeValues": []
+  },
+  {
+    "name": "Portuguese",
+    "created": "2013-11-18T13:00:43.848",
+    "lastUpdated": "2013-11-18T13:00:43.848",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "pt",
+    "displayName": "Portuguese",
+    "favorite": false,
+    "id": "p1acj6TIwrZ",
+    "attributeValues": []
+  },
+  {
+    "name": "Tajik",
+    "created": "2013-11-18T13:00:43.865",
+    "lastUpdated": "2013-11-18T13:00:43.865",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "tg",
+    "displayName": "Tajik",
+    "favorite": false,
+    "id": "Z3sGgX9i23w",
+    "attributeValues": []
+  },
+  {
+    "name": "Chinese",
+    "created": "2013-11-18T13:00:43.876",
+    "lastUpdated": "2013-11-18T13:00:43.876",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "zh",
+    "displayName": "Chinese",
+    "favorite": false,
+    "id": "BF5VLeNQIhN",
+    "attributeValues": []
+  },
+  {
+    "name": "English (Uganda)",
+    "created": "2013-11-28T12:15:47.792",
+    "lastUpdated": "2013-11-28T12:15:47.792",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "en_UG",
+    "displayName": "English (Uganda)",
+    "favorite": false,
+    "id": "BsbfBieSw1G",
+    "attributeValues": []
+  },
+  {
+    "name": "French (Senegal)",
+    "created": "2013-12-12T14:40:31.013",
+    "lastUpdated": "2013-12-12T14:40:31.013",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "fr_SN",
+    "displayName": "French (Senegal)",
+    "favorite": false,
+    "id": "gjYFjyhfjTL",
+    "attributeValues": []
+  },
+  {
+    "name": "English (Cambodia)",
+    "created": "2014-02-04T09:19:01.519",
+    "lastUpdated": "2014-02-04T09:19:01.519",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "en_KH",
+    "displayName": "English (Cambodia)",
+    "favorite": false,
+    "id": "i0ntSg5B48D",
+    "attributeValues": []
+  },
+  {
+    "name": "English (Tanzania)",
+    "created": "2014-02-13T13:04:11.621",
+    "lastUpdated": "2014-02-13T13:04:11.621",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "en_TZ",
+    "displayName": "English (Tanzania)",
+    "favorite": false,
+    "id": "gBAQtl6rB5r",
+    "attributeValues": []
+  },
+  {
+    "name": "English (Botswana)",
+    "created": "2014-11-07T15:34:41.403",
+    "lastUpdated": "2014-11-07T15:34:41.403",
+    "translations": [],
+    "externalAccess": false,
+    "userGroupAccesses": [],
+    "userAccesses": [],
+    "favorites": [],
+    "sharing": {
+      "external": false,
+      "users": {},
+      "userGroups": {}
+    },
+    "locale": "en_BW",
+    "displayName": "English (Botswana)",
+    "favorite": false,
+    "id": "BXSwwmUe8fv",
+    "attributeValues": []
+  }
+]

@@ -23,17 +23,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TimeZone;
 
+import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.LocaleUtils;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wololo.jts2geojson.GeoJSONWriter;
@@ -45,7 +41,6 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.localization.LocalizationFacade;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
@@ -58,8 +53,8 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.DHIS2SyncLevel;
+import net.geoprism.registry.etl.GeoObjectCache;
 import net.geoprism.registry.etl.export.ExportRemoteException;
-import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.InvalidGeometryException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -91,7 +86,10 @@ public class DHIS2GeoObjectJsonAdapters
     
     private List<DHIS2Locale>   dhis2Locales;
     
-    public DHIS2Serializer(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel syncLevel, List<DHIS2Locale> dhis2Locales)
+    // Links Geo-Object reference (typeCode + SEPARATOR + goUid) -> externalId
+    private BidiMap<String, String> newExternalIds;
+    
+    public DHIS2Serializer(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel syncLevel, List<DHIS2Locale> dhis2Locales, BidiMap<String, String> newExternalIds)
     {
       this.got = syncLevel.getGeoObjectType();
       this.hierarchyType = dhis2Config.getHierarchy();
@@ -101,24 +99,34 @@ public class DHIS2GeoObjectJsonAdapters
       this.levels = dhis2Config.getLevels();
       this.dhis2Config = dhis2Config;
       this.dhis2Locales = dhis2Locales;
+      this.newExternalIds = newExternalIds;
 
       this.calculateDepth();
     }
     
     private String getExternalId(ServerGeoObjectIF serverGo)
     {
-      String externalId = serverGo.getExternalId(this.ex);
+      String goRef = serverGo.getType().getCode() + GeoObjectCache.SEPARATOR + serverGo.getUid();
       
-      if (externalId == null)
+      if (this.newExternalIds.containsKey(goRef))
       {
-        ParentExternalIdException ex = new ParentExternalIdException();
-        ex.setParentLabel(serverGo.getCode());
-        throw ex;
+        return this.newExternalIds.get(goRef);
       }
-      
-      return externalId;
+      else
+      {
+        String externalId = serverGo.getExternalId(this.ex);
+        
+        if (externalId == null)
+        {
+          ParentExternalIdException ex = new ParentExternalIdException();
+          ex.setParentLabel(serverGo.getCode());
+          throw ex;
+        }
+        
+        return externalId;
+      }
     }
-
+    
     private synchronized String getOrCreateExternalId(ServerGeoObjectIF serverGo)
     {
       String externalId = serverGo.getExternalId(this.ex);
@@ -138,7 +146,8 @@ public class DHIS2GeoObjectJsonAdapters
           throw remoteEx;
         }
 
-        serverGo.createExternalId(this.ex, externalId, ImportStrategy.NEW_ONLY);
+        String goRef = serverGo.getType().getCode() + GeoObjectCache.SEPARATOR + serverGo.getUid();
+        this.newExternalIds.put(goRef, externalId);
       }
 
       return externalId;

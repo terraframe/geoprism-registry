@@ -193,7 +193,14 @@ public class OrganisationUnit
 
   public JsonArray getAttributeValues()
   {
-    return attributeValues;
+    if (this.attributeValues == null)
+    {
+      return new JsonArray();
+    }
+    else
+    {
+      return attributeValues;
+    }
   }
 
   public void setAttributeValues(JsonArray attributeValues)
@@ -203,7 +210,14 @@ public class OrganisationUnit
 
   public JsonArray getTranslations()
   {
-    return translations;
+    if (this.translations == null)
+    {
+      return new JsonArray();
+    }
+    else
+    {
+      return translations;
+    }
   }
 
   public void setTranslations(JsonArray translations)

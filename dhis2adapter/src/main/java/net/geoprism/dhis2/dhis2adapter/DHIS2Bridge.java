@@ -37,11 +37,10 @@ import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 import net.geoprism.dhis2.dhis2adapter.response.EntityGetResponse;
+import net.geoprism.dhis2.dhis2adapter.response.ImportReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
-import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
-import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
 
 public class DHIS2Bridge
 {
@@ -179,9 +178,9 @@ public class DHIS2Bridge
    * @throws HTTPException
    * @throws BadServerUriException 
    */
-  public TypeReportResponse entityTranslations(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
+  public ImportReportResponse entityTranslations(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
   {
-    return new TypeReportResponse(this.apiPut(entityName + "/" + entityId + "/translations", params, payload));
+    return new ImportReportResponse(this.apiPut(entityName + "/" + entityId + "/translations", params, payload));
   }
   
   /**
@@ -194,9 +193,9 @@ public class DHIS2Bridge
    * @throws HTTPException
    * @throws BadServerUriException 
    */
-  public MetadataImportResponse metadataPost(List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
+  public ImportReportResponse metadataPost(List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
   {
-    return new MetadataImportResponse(this.apiPost("metadata", params, payload));
+    return new ImportReportResponse(this.apiPost("metadata", params, payload));
   }
   
   public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type) throws InvalidLoginException, HTTPException, BadServerUriException

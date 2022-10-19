@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2OrgUnitGroupAttributeMapping;
+import net.geoprism.registry.etl.DHIS2TestService;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.test.AllAttributesDataset;
 import net.geoprism.registry.test.TestAttributeTypeInfo;
@@ -45,18 +46,67 @@ public class DHIS2PayloadValidator
     }
     else
     {
+      Assert.assertTrue(orgUnit.has("attributeValues"));
+      
+      final JsonArray attributeValues = orgUnit.get("attributeValues").getAsJsonArray();
+      
       Assert.assertEquals(go.getCode(), orgUnit.get("code").getAsString());
 
-      Assert.assertTrue(orgUnit.has("attributeValues"));
-
-      JsonArray attributeValues = orgUnit.get("attributeValues").getAsJsonArray();
-      
       if (!(mapping instanceof DHIS2OrgUnitGroupAttributeMapping))
       {
-        Assert.assertEquals(1, attributeValues.size());
- 
-        JsonObject attributeValue = attributeValues.get(0).getAsJsonObject();
- 
+        JsonObject attributeValue = null;
+        
+        if (DHIS2TestService.SIERRA_LEONE_ID.equals(orgUnit.get("id").getAsString()))
+        {
+          Assert.assertEquals(2, attributeValues.size());
+          
+          for (int i = 0; i < attributeValues.size(); ++i)
+          {
+            JsonObject av = attributeValues.get(i).getAsJsonObject();
+            
+            if (av.get("attribute").getAsJsonObject().get("id").getAsString().equals(DHIS2TestService.ATTRIBUTE_COLOR_ID))
+            {
+              Assert.assertEquals("blue", av.get("value").getAsString());
+            }
+            else if (av.get("attribute").getAsJsonObject().get("id").getAsString().equals("TEST_EXTERNAL_ID"))
+            {
+              attributeValue = av;
+            }
+            else
+            {
+              Assert.fail();
+            }
+          }
+          
+          JsonArray translations = orgUnit.get("translations").getAsJsonArray();
+          
+          Assert.assertEquals(2, translations.size());
+          
+          for (int i = 0; i < translations.size(); ++i)
+          {
+            JsonObject tran = translations.get(i).getAsJsonObject();
+            
+            if (tran.get("property").getAsString().equals("NAME") && tran.get("locale").getAsString().equals("en_GB"))
+            {
+              Assert.assertEquals("Sierra Leone", tran.get("value").getAsString());
+            }
+            else if (tran.get("property").getAsString().equals("SHORT_NAME") && tran.get("locale").getAsString().equals("en_GB"))
+            {
+              Assert.assertEquals("Sierra Leone", tran.get("value").getAsString());
+            }
+            else
+            {
+              throw new AssertionError();
+            }
+          }
+        }
+        else
+        {
+          Assert.assertEquals(1, attributeValues.size());
+          
+          attributeValue = attributeValues.get(0).getAsJsonObject();
+        }
+        
         Assert.assertNotNull(attributeValue.get("lastUpdated").getAsString());
  
         Assert.assertNotNull(attributeValue.get("created").getAsString());

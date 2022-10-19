@@ -142,7 +142,6 @@ import { GeometryService } from "@registry/service/geometry.service";
 import { RegistryCacheService } from "./service/registry-cache.service";
 import { BusinessObjectPanelComponent } from "./component/location-manager/business-object-panel.component";
 import { BusinessObjectService } from "./service/business-object.service";
-import { ListModalComponent } from "./component/location-manager/list-modal.component";
 
 @NgModule({
     imports: [
@@ -245,7 +244,6 @@ import { ListModalComponent } from "./component/location-manager/list-modal.comp
         RecordPanelComponent,
         RecordPopupComponent,
         BusinessObjectPanelComponent,
-        ListModalComponent,
         // Business Type components
         BusinessTypeManagerComponent,
         CreateBusinessTypeModalComponent,
@@ -333,7 +331,6 @@ import { ListModalComponent } from "./component/location-manager/list-modal.comp
         ClassificationTypePublishModalComponent,
         ClassificationPublishModalComponent,
         ClassificationFieldModalComponent,
-        ListModalComponent,
         RecordPopupComponent
     ]
 })

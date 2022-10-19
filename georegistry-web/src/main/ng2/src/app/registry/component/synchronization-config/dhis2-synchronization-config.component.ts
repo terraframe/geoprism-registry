@@ -7,6 +7,8 @@ import { SynchronizationConfigService } from "@registry/service";
 import { AttributeConfigInfo, DHIS2AttributeMapping, SyncLevel } from "@registry/model/sync";
 
 let DEFAULT_MAPPING_STRATEGY = "net.geoprism.registry.etl.DHIS2AttributeMapping";
+let END_DATE_MAPPING = "net.geoprism.registry.etl.DHIS2EndDateAttributeMapping";
+let START_DATE_MAPPING = "net.geoprism.registry.etl.DHIS2StartDateAttributeMapping";
 
 export interface GOTAttributeConfig {
   geoObjectTypeCode?: string;
@@ -127,11 +129,18 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
               dhis2AttrName: "code"
           },
           {
-              attributeMappingStrategy: DEFAULT_MAPPING_STRATEGY,
-              cgrAttrName: "createDate",
+              attributeMappingStrategy: START_DATE_MAPPING,
+              cgrAttrName: "exists",
               externalId: null,
               dhis2Id: "openingDate",
               dhis2AttrName: "openingDate"
+          },
+          {
+              attributeMappingStrategy: END_DATE_MAPPING,
+              cgrAttrName: "exists",
+              externalId: null,
+              dhis2Id: "closedDate",
+              dhis2AttrName: "closedDate"
           }
           /*
           {

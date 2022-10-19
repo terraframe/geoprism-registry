@@ -401,6 +401,9 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
                 return val1.length === val2.length && val1[0] === val2[0];
             }
         } else if (this.attr.type === "geometry") {
+            if (((val1 != null && val1.coordinates != null && val1.coordinates.length != null) && (val2 != null && val2.coordinates != null && val2.coordinates.length != null)) && val1.coordinates.length !== val2.coordinates.length) {
+                return false;
+            }
             return turf_booleanequal(val1, val2);
         } else if (this.attr.type === "date") {
             let casted1 = (typeof val1 === "string") ? parseInt(val1) : val1;

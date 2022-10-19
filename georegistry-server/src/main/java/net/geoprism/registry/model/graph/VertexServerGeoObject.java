@@ -69,7 +69,6 @@ import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
@@ -78,8 +77,6 @@ import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
-import com.runwaysdk.dataaccess.metadata.MdAttributeLocalDAO;
-import com.runwaysdk.dataaccess.metadata.MdAttributeLocalEmbeddedDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
@@ -119,6 +116,7 @@ import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.upload.ClassifierCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.geoobject.ValueOutOfRangeException;
+import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexSynonym;
@@ -2039,6 +2037,31 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     this.vertex.addChild(synonym, GeoVertex.HAS_SYNONYM).apply();
 
     return synonym.getOid();
+  }
+  
+  public static VertexServerGeoObject getByExternalId(String externalId, DHIS2ExternalSystem system)
+  {
+    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
+    
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT expand(in) FROM (");
+    statement.append("SELECT expand(outE('" + mdEdge.getDBClassName() + "')[id = '" + externalId + "']) FROM :system)");
+
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+    query.setParameter("system", system.getRID());
+
+    VertexObject vo = query.getSingleResult();
+    
+    if (vo != null)
+    {
+      ServerGeoObjectType type = ServerGeoObjectType.get((MdVertexDAOIF) vo.getMdClass());
+      
+      return new VertexServerGeoObject(type, vo);
+    }
+    else
+    {
+      return null;
+    }
   }
 
   private EdgeObject getExternalIdEdge(ExternalSystem system)

@@ -52,8 +52,8 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.ImportReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
-import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
@@ -408,7 +408,7 @@ public class RemoteDHIS2APITest
   {
     // Make sure our prerequsite data exists on the server
     String attrPayload = IOUtils.toString(RemoteDHIS2APITest.class.getClassLoader().getResourceAsStream("remote-dhis2-api-test-attrs.json"), "UTF-8");
-    MetadataImportResponse attrImportResponse = this.dhis2.metadataPost(null, new StringEntity(attrPayload.toString(), Charset.forName("UTF-8")));
+    ImportReportResponse attrImportResponse = this.dhis2.metadataPost(null, new StringEntity(attrPayload.toString(), Charset.forName("UTF-8")));
     Assert.assertTrue(attrImportResponse.isSuccess());
     
     SynchronizationConfig config = createSyncConfig(got, go, attr, externalAttrId);
