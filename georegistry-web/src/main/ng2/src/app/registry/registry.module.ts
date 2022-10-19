@@ -143,8 +143,6 @@ import { RegistryCacheService } from "./service/registry-cache.service";
 import { BusinessObjectPanelComponent } from "./component/location-manager/business-object-panel.component";
 import { BusinessObjectService } from "./service/business-object.service";
 import { ListModalComponent } from "./component/location-manager/list-modal.component";
-import { ListPanelComponent } from "./component/location-manager/list-panel.component";
-import { ListRowComponent } from "./component/location-manager/list-row.component";
 
 @NgModule({
     imports: [
@@ -248,8 +246,6 @@ import { ListRowComponent } from "./component/location-manager/list-row.componen
         RecordPopupComponent,
         BusinessObjectPanelComponent,
         ListModalComponent,
-        ListPanelComponent,
-        ListRowComponent,
         // Business Type components
         BusinessTypeManagerComponent,
         CreateBusinessTypeModalComponent,
