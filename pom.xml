@@ -159,7 +159,7 @@
 
     {{#commits}}
       {{#ifCommitType . type='feat'}}
- - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} ([{{hash}}](https://github.com/terraframe/geoprism-registry/commit/{{hashFull}}))
+ - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} {{#messageBodyItems}}{{.}}{{/messageBodyItems}} ([{{subString hash 0 5}}](https://github.com/terraframe/geoprism-registry/commit/{{hashFull}}))
       {{/ifCommitType}}
     {{/commits}}
   {{/ifContainsType}}
@@ -169,7 +169,7 @@
 
     {{#commits}}
       {{#ifCommitType . type='fix'}}
- - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} ([{{hash}}](https://github.com/terraframe/geoprism-registry/commit/{{hashFull}}))
+ - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} {{#messageBodyItems}}{{.}}{{/messageBodyItems}} ([{{subString hash 0 5}}](https://github.com/terraframe/geoprism-registry/commit/{{hashFull}}))
       {{/ifCommitType}}
     {{/commits}}
   {{/ifContainsType}}
