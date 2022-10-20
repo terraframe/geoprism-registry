@@ -159,6 +159,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.model.graph.ServerHierarchyStrategy;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
@@ -625,6 +626,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       mdAttributeLatitude.setValue(MdAttributeFloatInfo.DECIMAL, "8");
       mdAttributeLatitude.apply();
 
+      metadata.getHolder().addChild(new Attribute(mdAttributeLatitude));
+
       MdAttributeFloatDAO mdAttributeLongitude = MdAttributeFloatDAO.newInstance();
       mdAttributeLongitude.setValue(MdAttributeFloatInfo.NAME, "longitude");
       mdAttributeLongitude.setStructValue(MdAttributeFloatInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Longitude");
@@ -638,6 +641,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       mdAttributeLongitude.setValue(MdAttributeFloatInfo.LENGTH, "12");
       mdAttributeLongitude.setValue(MdAttributeFloatInfo.DECIMAL, "8");
       mdAttributeLongitude.apply();
+
+      metadata.getHolder().addChild(new Attribute(mdAttributeLongitude));
     }
 
     JsonArray hierarchies = masterlist.getHierarchiesAsJson();
@@ -731,8 +736,13 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       {
         String hCode = hierarchy.get("code").getAsString();
 
-        HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode).get();
+        ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
+
         String hierarchyLabel = hierarchyType.getLabel().getValue(currentLocale);
+
+        HierarchyGroup hierarchyGroup = metadata.addRootHierarchyGroup(hierarchyType);
+
+        HolderGroup holderGroup = hierarchyGroup.addChild(new HolderGroup());
 
         String attributeName = hCode.toLowerCase();
 
@@ -753,6 +763,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         mdAttributeCode.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, codeDescription);
         mdAttributeCode.apply();
 
+        holderGroup.addChild(new Attribute(mdAttributeCode, LocalizationFacade.localizeAll("data.property.label.code")));
+
         MdAttributeCharacterDAO mdAttributeDefaultLocale = MdAttributeCharacterDAO.newInstance();
         mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeName + DEFAULT_LOCALE);
         mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
@@ -760,6 +772,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyLabel + " (" + defaultLocaleLabel + ")");
         mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, labelDescription.replaceAll("\\{locale\\}", "default"));
         mdAttributeDefaultLocale.apply();
+
+        holderGroup.addChild(new Attribute(mdAttributeDefaultLocale, storeValue));
 
         for (SupportedLocaleIF locale : locales)
         {
@@ -772,6 +786,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyLabel + " (" + localeLabel + ")");
           mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, labelDescription.replaceAll("\\{locale\\}", localeLabel));
           mdAttributeLocale.apply();
+
+          holderGroup.addChild(new Attribute(mdAttributeLocale, locale));
         }
       }
     }

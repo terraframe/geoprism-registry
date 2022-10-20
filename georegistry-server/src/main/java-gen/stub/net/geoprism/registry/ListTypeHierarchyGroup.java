@@ -18,11 +18,12 @@ public class ListTypeHierarchyGroup extends ListTypeHierarchyGroupBase
     return ServerHierarchyType.get(this.getHierarchy());
   }
 
-  public static ListTypeHierarchyGroup create(ListTypeVersion version, ServerHierarchyType hierarchy)
+  public static ListTypeHierarchyGroup create(ListTypeVersion version, ListTypeGroup parent, ServerHierarchyType hierarchy)
   {
     ListTypeHierarchyGroup group = new ListTypeHierarchyGroup();
     group.setVersion(version);
     group.setHierarchy(hierarchy.getHierarchicalRelationshipType());
+    group.setParent(parent);
 
     LocalizedValueConverter.populate(group.getLabel(), hierarchy.getLabel());
 

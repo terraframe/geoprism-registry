@@ -107,7 +107,7 @@ public class TableMetadata
     @Override
     public void create(ListTypeVersion version, ListTypeGroup parent)
     {
-      ListTypeHierarchyGroup group = ListTypeHierarchyGroup.create(version, this.hierarchy);
+      ListTypeHierarchyGroup group = ListTypeHierarchyGroup.create(version, parent, this.hierarchy);
 
       this.getChildren().forEach(child -> {
         child.create(version, group);
@@ -195,7 +195,7 @@ public class TableMetadata
 
   public static class HolderGroup extends Group
   {
-    public HolderGroup(Group parent)
+    public HolderGroup()
     {
 
     }
@@ -321,7 +321,7 @@ public class TableMetadata
     this.mdBusiness = mdBusiness;
     this.groups = new LinkedList<Group>();
     this.root = new TypeGroup(type);
-    this.holder = this.root.addChild(new HolderGroup(this.root));
+    this.holder = this.root.addChild(new HolderGroup());
 
     this.groups.add(this.root);
   }
