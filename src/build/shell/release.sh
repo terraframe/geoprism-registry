@@ -184,7 +184,7 @@ if [ "$release_github" == "true" ]; then
     #wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-adapter-android/$CGR_RELEASE_VERSION/georegistry-adapter-android-$CGR_RELEASE_VERSION.aar -O georegistry-adapter-android-$CGR_RELEASE_VERSION.aar
   
     #gh release create $CGR_RELEASE_VERSION "georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp" "georegistry-adapter-$CGR_RELEASE_VERSION.jar#CGR Java Adapter" "georegistry-adapter-android-$CGR_RELEASE_VERSION.aar#CGR Android Adapter"
-    gh release create $CGR_RELEASE_VERSION "georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp" "georegistry-adapter-$CGR_RELEASE_VERSION.jar#CGR Java Adapter"
+    gh release create $CGR_RELEASE_VERSION --notes-file CHANGELOG2.md "georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp" "georegistry-adapter-$CGR_RELEASE_VERSION.jar#CGR Java Adapter"
   fi
   
   
