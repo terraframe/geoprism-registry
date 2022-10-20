@@ -163,7 +163,7 @@
     {{#issues}}
       {{#commits}}
         {{#ifCommitType . type='feat'}}
- - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}}{{{commitDescription .}}} {{#messageBodyItems}}{{.}}{{/messageBodyItems}} {{#hasIssue}}([{{issue}}]({{link}})){{/hasIssue}} ([{{subString hash 0 5}}](https://github.com/terraframe/geoprism-registry/commit/{{hashFull}}))
+ - {{#ifCommitBreaking .}}![BREAKING CHANGE](https://raw.githubusercontent.com/terraframe/geoprism-registry/master/src/build/changelog/breaking-change.png) {{/ifCommitBreaking}}{{#eachCommitScope .}}**{{.}}** {{/eachCommitScope}}{{{commitDescription .}}} {{#messageBodyItems}}{{.}}{{/messageBodyItems}} {{#hasIssue}}([{{issue}}]({{link}})){{/hasIssue}} ([{{subString hash 0 5}}](https://github.com/terraframe/geoprism-registry/commit/{{hashFull}}))
         {{/ifCommitType}}
       {{/commits}}
     {{/issues}}
@@ -175,7 +175,7 @@
     {{#issues}}
       {{#commits}}
         {{#ifCommitType . type='fix'}}
-   - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}}{{{commitDescription .}}} {{#messageBodyItems}}{{.}}{{/messageBodyItems}} {{#hasIssue}}([{{issue}}]({{link}})){{/hasIssue}} ([{{subString hash 0 5}}](https://github.com/terraframe/geoprism-registry/commit/{{hashFull}}))
+   - {{#ifCommitBreaking .}}![BREAKING CHANGE](https://raw.githubusercontent.com/terraframe/geoprism-registry/master/src/build/changelog/breaking-change.png) {{/ifCommitBreaking}}{{#eachCommitScope .}}**{{.}}** {{/eachCommitScope}}{{{commitDescription .}}} {{#messageBodyItems}}{{.}}{{/messageBodyItems}} {{#hasIssue}}([{{issue}}]({{link}})){{/hasIssue}} ([{{subString hash 0 5}}](https://github.com/terraframe/geoprism-registry/commit/{{hashFull}}))
         {{/ifCommitType}}
       {{/commits}}
     {{/issues}}
