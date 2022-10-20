@@ -148,7 +148,10 @@
         <inherited>false</inherited>
         <configuration>
           <file>CHANGELOG2.md</file>
-         <templateContent>
+          <useIntegrations>true</useIntegrations>
+          <gitHubEnabled>true</gitHubEnabled>
+          <gitHubApi>https://api.github.com/repos/terraframe/geoprism-registry</gitHubApi>
+          <templateContent>
 {{#tags}}
 {{#ifReleaseTag .}}
 {{#ifMatches name "${project.version}"}}
@@ -157,21 +160,25 @@
   {{#ifContainsType commits type='feat'}}
 ### Features
 
-    {{#commits}}
-      {{#ifCommitType . type='feat'}}
- - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} {{#messageBodyItems}}{{.}}{{/messageBodyItems}} ([{{subString hash 0 5}}](https://github.com/terraframe/geoprism-registry/commit/{{hashFull}}))
-      {{/ifCommitType}}
-    {{/commits}}
+    {{#issues}}
+      {{#commits}}
+        {{#ifCommitType . type='feat'}}
+ - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}}{{{commitDescription .}}} {{#messageBodyItems}}{{.}}{{/messageBodyItems}} {{#hasIssue}}([{{issue}}]({{link}})){{/hasIssue}} ([{{subString hash 0 5}}](https://github.com/terraframe/geoprism-registry/commit/{{hashFull}}))
+        {{/ifCommitType}}
+      {{/commits}}
+    {{/issues}}
   {{/ifContainsType}}
 
   {{#ifContainsType commits type='fix'}}
 ### Bug Fixes
 
-    {{#commits}}
-      {{#ifCommitType . type='fix'}}
- - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}} {{#messageBodyItems}}{{.}}{{/messageBodyItems}} ([{{subString hash 0 5}}](https://github.com/terraframe/geoprism-registry/commit/{{hashFull}}))
-      {{/ifCommitType}}
-    {{/commits}}
+    {{#issues}}
+      {{#commits}}
+        {{#ifCommitType . type='fix'}}
+   - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}}{{{commitDescription .}}} {{#messageBodyItems}}{{.}}{{/messageBodyItems}} {{#hasIssue}}([{{issue}}]({{link}})){{/hasIssue}} ([{{subString hash 0 5}}](https://github.com/terraframe/geoprism-registry/commit/{{hashFull}}))
+        {{/ifCommitType}}
+      {{/commits}}
+    {{/issues}}
   {{/ifContainsType}}
 
 {{/ifMatches}}
