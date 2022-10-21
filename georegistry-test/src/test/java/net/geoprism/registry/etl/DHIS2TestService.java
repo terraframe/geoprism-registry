@@ -251,7 +251,7 @@ public class DHIS2TestService implements DHIS2TransportServiceIF
       
       this.payloads.add(new Dhis2Payload(params, data));
       
-      LinkedList<DHIS2MockResponseProvider> providers = this.responses.get(Method.METADATA_POST);
+      LinkedList<DHIS2MockResponseProvider> providers = this.responses.getOrDefault(Method.METADATA_POST, new LinkedList<DHIS2MockResponseProvider>());
       if (!providers.isEmpty())
       {
         DHIS2MockResponseProvider provider = providers.removeFirst();

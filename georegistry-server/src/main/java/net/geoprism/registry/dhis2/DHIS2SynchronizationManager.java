@@ -41,6 +41,7 @@ import org.apache.http.message.BasicNameValuePair;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
@@ -48,6 +49,7 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.JobHistory;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
@@ -240,7 +242,7 @@ public class DHIS2SynchronizationManager
                 }
                 else
                 {
-                  this.recordExportError(new DHIS2SyncError(rowIndex, null, null, t, null));
+                  this.recordExportError(new DHIS2SyncError(rowIndex, null, null, t, go.getCode()));
                 }
               }
               
@@ -763,6 +765,11 @@ public class DHIS2SynchronizationManager
     if (ex != null)
     {
       exportError.setErrorJson(JobHistory.exceptionToJson(ex).toString());
+      
+      if (exportError.getErrorMessage() == null || exportError.getErrorMessage().length() == 0)
+      {
+        exportError.setErrorMessage(RunwayException.localizeThrowable(ex, Session.getCurrentLocale()));
+      }
     }
     
     if (ee.rowIndex != null && ee.rowIndex >= 0)

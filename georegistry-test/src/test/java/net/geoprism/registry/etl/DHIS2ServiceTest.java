@@ -47,6 +47,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
@@ -55,12 +56,14 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
@@ -73,6 +76,7 @@ import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
+import net.geoprism.registry.etl.export.dhis2.NoParentException;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -92,6 +96,8 @@ import net.geoprism.registry.test.TestUserInfo;
 
 public class DHIS2ServiceTest
 {
+  public static final TestGeoObjectInfo GO_NO_PARENT = new TestGeoObjectInfo("BOOL_NO_PARENT", AllAttributesDataset.GOT_BOOL);
+  
   protected static AllAttributesDataset  testData;
 
   protected SynchronizationConfigService syncService;
@@ -123,7 +129,7 @@ public class DHIS2ServiceTest
   public void setUp()
   {
     testData.setUpInstanceData();
-
+    
     this.dhis2 = new DHIS2TestService();
     DHIS2ServiceFactory.setDhis2TransportService(this.dhis2);
 
@@ -142,6 +148,8 @@ public class DHIS2ServiceTest
   public void tearDown()
   {
     testData.logOut();
+    
+    GO_NO_PARENT.delete();
 
     testData.tearDownInstanceData();
 
@@ -546,6 +554,71 @@ public class DHIS2ServiceTest
     mappings.add(mapping2);
     
     testExists(mappings);
+  }
+  
+  /*
+   * Test syncing a Geo-Object where there is no parent. It should log a NoParentException.
+   */
+  @Test
+  @Request
+  public void testSyncNoParent() throws Exception
+  {
+    GO_NO_PARENT.apply();
+    
+    TestGeoObjectInfo go = GO_NO_PARENT;
+    TestGeoObjectTypeInfo got = AllAttributesDataset.GOT_BOOL;
+    TestAttributeTypeInfo attr = AllAttributesDataset.AT_GO_BOOL;
+    
+    /*
+     * Create a config
+     */
+    DHIS2SyncLevel level2 = new DHIS2SyncLevel();
+    level2.setGeoObjectType(got.getServerObject().getCode());
+    level2.setSyncType(DHIS2SyncLevel.Type.ALL);
+    level2.setLevel(1);
+
+    Collection<DHIS2AttributeMapping> mappings = getDefaultMappings();
+
+    DHIS2AttributeMapping mapping = new DHIS2AttributeMapping();
+    mapping.setAttributeMappingStrategy(DHIS2AttributeMapping.class.getName());
+    mapping.setCgrAttrName(attr.getAttributeName());
+    mapping.setDhis2AttrName(attr.getAttributeName());
+    mapping.setExternalId("TEST_EXTERNAL_ID");
+    mappings.add(mapping);
+
+    level2.setMappings(mappings);
+
+    SynchronizationConfig config = createSyncConfig(this.system, level2, true, TestDataSet.DEFAULT_OVER_TIME_DATE, false);
+
+    /*
+     * Run the sync service
+     */
+    JsonObject jo = syncService.run(testData.clientSession.getSessionId(), config.getOid());
+    ExportHistory hist = ExportHistory.get(jo.get("historyId").getAsString());
+
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FAILURE);
+
+    /*
+     * Validate the error report
+     */
+    ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
+    query.WHERE(query.getHistory().EQ(hist));
+    Assert.assertEquals(1, query.getCount());
+    
+    ExportError ee = query.getIterator().next();
+    
+    NoParentException ex = new NoParentException();
+    ex.setSyncLevel("1");
+    ex.setTypeCode(AllAttributesDataset.GOT_ALL.getCode());
+    ex.setHierarchyCode(AllAttributesDataset.HIER.getCode());
+    ex.setDateLabel(GeoRegistryUtil.formatIso8601(TestDataSet.DEFAULT_OVER_TIME_DATE, false));
+    String errorMessage = RunwayException.localizeThrowable(ex, Session.getCurrentSession().getLocale());
+    Assert.assertEquals(errorMessage, ee.getErrorMessage());
+    
+    Assert.assertTrue(ee.getSubmittedJson() == null || ee.getSubmittedJson().length() == 0);
+    Assert.assertTrue(ee.getResponseJson() == null || ee.getResponseJson().length() == 0);
+    Assert.assertEquals(go.getCode(), ee.getCode());
+    Assert.assertEquals(new Long(2), ee.getRowIndex());
   }
   
   /*
