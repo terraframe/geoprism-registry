@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 import { EventService } from "@shared/service";
-import { ExternalSystem, PageResult } from "@shared/model/core";
+import { ExternalSystem, PageResult, SystemCapabilities } from "@shared/model/core";
 
 import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
@@ -56,7 +56,7 @@ export class ExternalSystemService {
             .toPromise();
     }
 
-    getSystemCapabilities(system: ExternalSystem): Promise<{ oauth: boolean }> {
+    getSystemCapabilities(system: ExternalSystem): Promise<SystemCapabilities> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -64,7 +64,7 @@ export class ExternalSystemService {
         this.eventService.start();
 
         return this.http
-            .post<{ oauth: boolean }>(registry.contextPath + "/external-system/system-capabilities", JSON.stringify({ system: system }), { headers: headers })
+            .post<SystemCapabilities>(registry.contextPath + "/external-system/system-capabilities", JSON.stringify({ system: system }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

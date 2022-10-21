@@ -120,7 +120,7 @@
         </div>
         <div class="holder">
           <span class="text">
-            <input type="text" [(ngModel)]="system.username" name="username" required>
+            <input type="text" (focusout)="dhis2FocusOut()" [(ngModel)]="system.username" name="username" required>
           </span>
         </div>
       </div>
@@ -153,8 +153,18 @@
         </div>
         <div class="holder">
           <span class="text">
-            <input type="text" [(ngModel)]="system.url" name="url" required>
+            <input type="text" (focusout)="dhis2FocusOut()" [(ngModel)]="system.url" name="url" required>
           </span>
+        </div>
+      </div>
+      <div *ngIf="connectMessage != null">
+        <div class="alert alert-danger" role="alert">
+          {{connectMessage}}
+        </div>
+      </div>
+      <div *ngIf="capabilities && !capabilities.supportedVersion">
+        <div class="alert alert-danger" role="alert">
+          <localize key="external.system.versionNotSupported"></localize>
         </div>
       </div>
       <div *ngIf="system.type === 'FhirExternalSystem'" class="row-holder">
@@ -189,12 +199,12 @@
             <hr *ngIf="system.oAuthServer != null" style="border-color:lightgrey;">
           </div>
         </div>
-        <div *ngIf="!oauthSupported">
+        <div *ngIf="capabilities && !capabilities.oauth">
           <div class="alert alert-danger" role="alert">
             <localize key="external.system.oauthNotSupported"></localize>
           </div>
         </div>
-        <div *ngIf="system.oAuthServer != null">
+        <div *ngIf="this.oauthEnabled && system.oAuthServer != null">
           <!--
               <div class="holder">
                 <div>
@@ -335,7 +345,7 @@
           <div class="button-holder">
             <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />
             <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary"
-              [disabled]="!(form.valid)" />
+              [disabled]="!(form.valid) || connectMessage != null" />
           </div>
         </div>
       </div>

@@ -49,18 +49,20 @@ export class Organization {
 }
 
 export class ExternalSystem {
-	oid?: string;
-	id: string;
-	type: string;
-	organization: string;
-	label: LocalizedValue;
-	description: LocalizedValue;
-	username?: string;
-	password?: string;
-	url?: string;
-	system?: string;
-	version?: string;
-	oAuthServer?: OAuthServer;
+
+    oid?: string;
+    id: string;
+    type: string;
+    organization: string;
+    label: LocalizedValue;
+    description: LocalizedValue;
+    username?: string;
+    password?: string;
+    url?: string;
+    system?: string;
+    version?: string;
+    oAuthServer?: OAuthServer;
+
 }
 
 export class OAuthServer {
@@ -74,6 +76,13 @@ export class OAuthServer {
     clientId: string;
     secretKey: string;
     serverType: string;
+
+}
+
+export class SystemCapabilities {
+
+    supportedVersion: boolean;
+    oauth: boolean;
 
 }
 

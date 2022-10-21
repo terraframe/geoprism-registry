@@ -311,57 +311,6 @@ public class DHIS2FeatureService
     }
   }
 
-  @Request(RequestType.SESSION)
-  public JsonObject getSystemCapabilities(String sessionId, String systemJSON)
-  {
-    JsonObject capabilities = new JsonObject();
-
-    JsonObject jo = JsonParser.parseString(systemJSON).getAsJsonObject();
-
-    ExternalSystem system = ExternalSystem.desieralize(jo);
-
-    if (system instanceof DHIS2ExternalSystem)
-    {
-      DHIS2ExternalSystem dhis2System = (DHIS2ExternalSystem) system;
-
-      DHIS2TransportServiceIF dhis2 = getTransportService(dhis2System);
-
-      String version = dhis2.getVersionRemoteServer();
-
-      if (ArrayUtils.contains(DHIS2FeatureService.OAUTH_INCOMPATIBLE_VERSIONS, version))
-      {
-        capabilities.addProperty("oauth", false);
-      }
-      else
-      {
-        capabilities.addProperty("oauth", true);
-      }
-      
-      boolean hasLocales = false;
-      try
-      {
-        LocaleGetResponse resp = dhis2.localesGet();
-        hasLocales = resp.getLocales().size() > 0;
-      }
-      catch (Throwable t)
-      {
-        // Ignore
-      }
-      
-      capabilities.addProperty("locales", hasLocales);
-    }
-    else if (system instanceof FhirExternalSystem)
-    {
-      capabilities.addProperty("oauth", true);
-    }
-    else
-    {
-      capabilities.addProperty("oauth", false);
-    }
-
-    return capabilities;
-  }
-  
   /**
    * Returns a new translations array which represents the "update" translations applied onto the "current" translations.
    * 
