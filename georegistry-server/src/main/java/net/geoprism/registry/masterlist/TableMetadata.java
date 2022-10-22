@@ -25,11 +25,10 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
 import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.localization.LocalizedValueIF;
 import com.runwaysdk.localization.SupportedLocaleIF;
 import com.runwaysdk.system.metadata.MdAttribute;
-import com.runwaysdk.system.metadata.MdAttributeConcrete;
 import com.runwaysdk.system.metadata.MdBusiness;
 
 import net.geoprism.registry.ListTypeAttribute;
@@ -216,30 +215,30 @@ public class TableMetadata
 
     private SupportedLocaleIF locale;
 
-    private MdAttributeDAO    mdAttribute;
+    private MdAttributeDAOIF  mdAttribute;
 
     private LocalizedValueIF  label;
 
     public Attribute(MdAttribute mdAttribute)
     {
-      this.mdAttribute = (MdAttributeDAO) BusinessFacade.getEntityDAO(mdAttribute);
+      this.mdAttribute = (MdAttributeDAOIF) BusinessFacade.getEntityDAO(mdAttribute);
       this.label = mdAttribute.getDisplayLabel();
     }
 
-    public Attribute(MdAttributeDAO mdAttribute)
+    public Attribute(MdAttributeDAOIF mdAttribute)
     {
       this.mdAttribute = mdAttribute;
       this.label = new LocalizedValueContainer(LocalizedValueConverter.convert(mdAttribute.getDisplayLabels()));
     }
 
-    public Attribute(MdAttributeDAO mdAttribute, LocalizedValue label)
+    public Attribute(MdAttributeDAOIF mdAttribute, LocalizedValue label)
     {
 
       this.mdAttribute = mdAttribute;
       this.label = new LocalizedValueContainer(label);
     }
 
-    public Attribute(MdAttributeDAO mdAttribute, LocalizedValueIF label)
+    public Attribute(MdAttributeDAOIF mdAttribute, LocalizedValueIF label)
     {
 
       this.mdAttribute = mdAttribute;
@@ -248,11 +247,11 @@ public class TableMetadata
 
     public Attribute(MdAttribute mdAttribute, LocalizedValueIF label)
     {
-      this.mdAttribute = (MdAttributeDAO) BusinessFacade.getEntityDAO(mdAttribute);
+      this.mdAttribute = (MdAttributeDAOIF) BusinessFacade.getEntityDAO(mdAttribute);
       this.label = label;
     }
 
-    public Attribute(MdAttributeDAO mdAttribute, SupportedLocaleIF locale)
+    public Attribute(MdAttributeDAOIF mdAttribute, SupportedLocaleIF locale)
     {
       this.mdAttribute = mdAttribute;
       this.locale = locale;
@@ -261,7 +260,7 @@ public class TableMetadata
 
     public Attribute(MdAttribute mdAttribute, SupportedLocaleIF locale)
     {
-      this.mdAttribute = (MdAttributeDAO) BusinessFacade.getEntityDAO(mdAttribute);
+      this.mdAttribute = (MdAttributeDAOIF) BusinessFacade.getEntityDAO(mdAttribute);
       this.locale = locale;
       this.label = locale.getDisplayLabel();
     }
@@ -276,12 +275,12 @@ public class TableMetadata
       this.locale = locale;
     }
 
-    public MdAttributeDAO getMdAttribute()
+    public MdAttributeDAOIF getMdAttribute()
     {
       return mdAttribute;
     }
 
-    public void setMdAttribute(MdAttributeDAO mdAttribute)
+    public void setMdAttribute(MdAttributeDAOIF mdAttribute)
     {
       this.mdAttribute = mdAttribute;
     }
