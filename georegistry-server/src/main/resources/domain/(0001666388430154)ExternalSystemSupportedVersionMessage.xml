@@ -5,7 +5,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="external.system.versionNotSupported" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="The remote server version is not officially supported. See external system documentation for more information." />
+          <attribute name="defaultLocale" value="The remote server version is not officially supported. Proceeding with this server may cause unexpected errors. See external system documentation for more information." />
         </attributeStruct>
       </object>
     </createOrUpdate>

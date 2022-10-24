@@ -157,13 +157,21 @@
           </span>
         </div>
       </div>
-      <div *ngIf="connectMessage != null">
-        <div class="alert alert-danger" role="alert">
+      <div *ngIf="connectMessage != null" class="row-holder">
+        <div class="label-holder">
+          <label>
+          </label>
+        </div>
+        <div class="alert alert-danger holder" role="alert" style="padding-top:18px;">
           {{connectMessage}}
         </div>
       </div>
-      <div *ngIf="capabilities && !capabilities.supportedVersion">
-        <div class="alert alert-danger" role="alert">
+      <div *ngIf="capabilities && !capabilities.supportedVersion" class="row-holder">
+        <div class="label-holder">
+          <label>
+          </label>
+        </div>
+        <div class="alert alert-danger holder" role="alert" style="padding-top:18px;">
           <localize key="external.system.versionNotSupported"></localize>
         </div>
       </div>
@@ -199,8 +207,12 @@
             <hr *ngIf="system.oAuthServer != null" style="border-color:lightgrey;">
           </div>
         </div>
-        <div *ngIf="capabilities && !capabilities.oauth">
-          <div class="alert alert-danger" role="alert">
+        <div *ngIf="capabilities && !capabilities.oauth" class="row-holder">
+          <div class="label-holder">
+	          <label>
+	          </label>
+	        </div>
+          <div class="alert alert-danger holder" role="alert" style="padding-top:18px;">
             <localize key="external.system.oauthNotSupported"></localize>
           </div>
         </div>
