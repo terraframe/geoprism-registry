@@ -26,7 +26,7 @@ NOTE: This is synchronized with GitHub so it is as current as GitHub. This sytem
 * <a href="https://api.geoprismregistry.com/" target="_blank">REST API Documentation</a>
 
 ### Installation Documentation with Docker
-* <a href="https://hub.docker.com/r/terraframe/geoprism-registry"> target="_blank">GeoPrism Registry on Docker Hub</a>
+* <a href="https://hub.docker.com/r/terraframe/geoprism-registry" target="_blank">GeoPrism Registry on Docker Hub</a>
 
 
 ## Contributing 
