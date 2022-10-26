@@ -14,20 +14,20 @@ There are numerous organizations involved with designing, building, and testing 
 
 NOTE: This is synchronized with GitHub so it is as current as GitHub. This sytem simply adds some more higher level roadmap features on top of GitHub.
 
-## Roadmap
-* <a href="https://docs.google.com/document/d/1gManPUfI2ZdrEAJw9fEh4ZlCLpJNmR06bZgdZvXZH1c/edit#heading=h.5ky8q5gj6oye" target="_blank"> Roadmap (in progress) </a>
+## Project Website (including roadmap)
+* <a href="https://geoprismregistry.com/" target="_blank"> geoprismregistry.com </a>
 
-## Documentation
+## Documentation & Resources
 
-### Implementor (user) Documentation
-* <a href="https://terraframe.atlassian.net/wiki/spaces/GGR/pages/901873771/Implementor+Documentation" target="_blank">General Usage Documentation</a>
-
-### Developer API
-* <a href="https://terraframe.atlassian.net/wiki/spaces/GGR/pages/901513246/Developer+APIs" target="_blank">REST API Documentation</a>
+### User Documentation
+* <a href="https://docs.geoprismregistry.com/" target="_blank">User Documentation</a>
 
 ### REST API Documentation
-The CGR implements the CGR REST API specification which is a supporting opensrouce project.
-* <a href="https://terraframe.github.io/common-geo-registry-specification-rest-api-documentation/" target="_blank">CGR REST Specification Docs</a>
+* <a href="https://api.geoprismregistry.com/" target="_blank">REST API Documentation</a>
+
+### Installation Documentation with Docker
+* <a href="https://hub.docker.com/r/terraframe/geoprism-registry"> target="_blank">GeoPrism Registry on Docker Hub</a>
+
 
 ## Contributing 
 For information about contributing (tickets or code) to this project see the [contributing section](https://github.com/terraframe/geoprism-registry/blob/master/contributing.md)
