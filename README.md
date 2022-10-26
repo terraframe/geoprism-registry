@@ -15,7 +15,7 @@ There are numerous organizations involved with designing, building, and testing 
 NOTE: This is synchronized with GitHub so it is as current as GitHub. This sytem simply adds some more higher level roadmap features on top of GitHub.
 
 ## Project Website (including roadmap)
-* <a href="https://geoprismregistry.com/" target="_blank"> geoprismregistry.com </a>
+* <a href="https://geoprismregistry.com/" target="_blank">geoprismregistry.com</a>
 
 ## Documentation & Resources
 
