@@ -42,6 +42,25 @@
     <url-pattern>/*</url-pattern>
   </filter-mapping>
   
+  <!-- Spring Servlet Dispatcher -->
+  <servlet>
+    <servlet-name>SpringDispatcher</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+    <init-param>
+      <param-name>contextClass</param-name>
+      <param-value>org.springframework.web.context.support.AnnotationConfigWebApplicationContext</param-value>
+    </init-param>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>net.geoprism.registry.SpringAppConfig</param-value>
+    </init-param>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SpringDispatcher</servlet-name>
+    <url-pattern>/api/*</url-pattern>
+  </servlet-mapping>
+  
   <servlet>
     <servlet-name>JavascriptServlet</servlet-name>
     <servlet-class>net.jawr.web.servlet.JawrServlet</servlet-class>
@@ -49,7 +68,7 @@
       <param-name>configLocation</param-name>
       <param-value>/jawr.properties</param-value>
     </init-param>
-    <load-on-startup>1</load-on-startup>
+    <load-on-startup>2</load-on-startup>
   </servlet>
   <servlet>
     <servlet-name>CSSServlet</servlet-name>
@@ -62,7 +81,7 @@
       <param-name>type</param-name>
       <param-value>css</param-value>
     </init-param>
-    <load-on-startup>1</load-on-startup>
+    <load-on-startup>2</load-on-startup>
   </servlet>
   <servlet-mapping>
     <servlet-name>JavascriptServlet</servlet-name>
@@ -88,6 +107,9 @@
     <filter-name>SessionFilter</filter-name>
     <url-pattern>*</url-pattern>
   </filter-mapping>
+  
+  
+  <!-- Runway Servlet Dispatcher -->
   <filter>
     <filter-name>UrlMapperFilter</filter-name>
     <filter-class>com.runwaysdk.web.filter.UrlMapperFilter</filter-class>
@@ -96,6 +118,8 @@
     <filter-name>UrlMapperFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
+  
+  
   <listener>
     <listener-class>net.geoprism.GeoprismContextListener</listener-class>
   </listener>

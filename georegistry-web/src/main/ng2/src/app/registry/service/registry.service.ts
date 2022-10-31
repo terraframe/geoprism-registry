@@ -643,7 +643,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .get<Organization[]>(registry.contextPath + "/cgr/organizations/get-all")
+            .get<Organization[]>(registry.contextPath + "/api/organization/get-all")
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

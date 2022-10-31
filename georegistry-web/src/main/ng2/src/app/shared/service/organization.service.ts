@@ -19,7 +19,7 @@ export class OrganizationService {
         this.eventService.start();
 
         return this.http
-            .get<Organization[]>(registry.contextPath + "/cgr/organizations/get-all")
+            .get<Organization[]>(registry.contextPath + "/api/organization/get-all")
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -34,7 +34,7 @@ export class OrganizationService {
         this.eventService.start();
 
         return this.http
-            .post<Organization>(registry.contextPath + "/cgr/orgainization/update", JSON.stringify({ json: json }), { headers: headers })
+            .post<Organization>(registry.contextPath + "/api/organization/update", JSON.stringify(json), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -49,14 +49,14 @@ export class OrganizationService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/cgr/orgainization/create", JSON.stringify({ json: json }), { headers: headers })
+            .post<any>(registry.contextPath + "/api/organization/create", JSON.stringify(json), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
             .toPromise();
     }
 
-    removeOrganization(code: any): Promise<void> {
+    removeOrganization(code: string): Promise<void> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -64,7 +64,7 @@ export class OrganizationService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/cgr/orgainization/delete", JSON.stringify({ code: code }), { headers: headers })
+            .post<any>(registry.contextPath + "/api/organization/delete", code, { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

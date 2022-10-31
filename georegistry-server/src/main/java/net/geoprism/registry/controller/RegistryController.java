@@ -60,6 +60,7 @@ import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.AccountService;
 import net.geoprism.registry.service.ExternalSystemService;
+import net.geoprism.registry.service.OrganizationService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -1054,7 +1055,7 @@ public class RegistryController
   @Endpoint(url = "init-settings", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF initSettings(ClientRequestIF request) throws ParseException
   {
-    OrganizationDTO[] orgs = this.registryService.getOrganizations(request.getSessionId(), null);
+    OrganizationDTO[] orgs = new OrganizationService().getOrganizations(request.getSessionId(), null); // TODO : This violates autowiring principles
     JsonArray jaLocales = this.registryService.getLocales(request.getSessionId());
     JsonObject esPage = new ExternalSystemService().page(request.getSessionId(), 1, 10);
     JsonObject sraPage = JsonParser.parseString(AccountService.getInstance().getSRAs(request.getSessionId(), 1, 10)).getAsJsonObject();
@@ -1076,77 +1077,6 @@ public class RegistryController
     settingsView.add("sras", sraPage);
 
     return new RestBodyResponse(settingsView);
-  }
-
-  /**
-   * Returns an array of (label, entityId) pairs that under the given
-   * parent/hierarchy and have the given label.
-   * 
-   * @throws ParseException
-   *
-   * @pre
-   * @post
-   *
-   * @returns @throws
-   **/
-  @Endpoint(url = "organizations/get-all", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF getOrganizations(ClientRequestIF request) throws ParseException
-  {
-
-    OrganizationDTO[] orgs = this.registryService.getOrganizations(request.getSessionId(), null);
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-
-    JsonArray orgsJson = new JsonArray();
-    for (OrganizationDTO org : orgs)
-    {
-      orgsJson.add(org.toJSON(serializer));
-    }
-
-    return new RestBodyResponse(orgsJson);
-  }
-
-  /**
-   * Submit new organization.
-   * 
-   * @param sessionId
-   * @param json
-   */
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/create")
-  public ResponseIF submitNewOrganization(ClientRequestIF request, @RequestParamter(name = "json", required = true) String json)
-  {
-    OrganizationDTO org = this.registryService.createOrganization(request.getSessionId(), json);
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-
-    return new RestBodyResponse(org.toJSON(serializer));
-  }
-
-  /**
-   * Delete organization.
-   * 
-   * @param sessionId
-   * @param json
-   */
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/delete")
-  public ResponseIF removeOrganization(ClientRequestIF request, @RequestParamter(name = "code", required = true) String code)
-  {
-    this.registryService.deleteOrganization(request.getSessionId(), code);
-
-    return new RestResponse();
-  }
-
-  /**
-   * Update organization.
-   * 
-   * @param sessionId
-   * @param json
-   */
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "orgainization/update")
-  public ResponseIF updateOrganization(ClientRequestIF request, @RequestParamter(name = "json", required = true) String json)
-  {
-    OrganizationDTO org = this.registryService.updateOrganization(request.getSessionId(), json);
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-
-    return new RestBodyResponse(org.toJSON(serializer));
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/search")
