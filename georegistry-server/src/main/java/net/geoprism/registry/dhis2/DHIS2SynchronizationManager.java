@@ -276,7 +276,7 @@ public class DHIS2SynchronizationManager
             
             syncOrgUnitGroups(level, metadataPayload);
             
-            this.submitMetadata(metadataPayload);
+            this.submitMetadata(level, metadataPayload);
           }
           catch (DHIS2SyncError ee)
           {
@@ -389,7 +389,7 @@ public class DHIS2SynchronizationManager
     }
   }
   
-  private void submitMetadata(JsonObject payload)
+  private void submitMetadata(DHIS2SyncLevel level, JsonObject payload)
   {
     String submittedJson = null;
     ImportReportResponse resp = null;
@@ -411,7 +411,7 @@ public class DHIS2SynchronizationManager
         
         resp = dhis2.metadataPost(params, new StringEntity(submittedJson, Charset.forName("UTF-8")));
         
-        processMetadataImportResponse(submittedJson, resp, orgUnitsPayload, orgUnitGroupsPayload);
+        processMetadataImportResponse(level, submittedJson, resp, orgUnitsPayload, orgUnitGroupsPayload);
       }
       catch (InvalidLoginException e)
       {
@@ -438,7 +438,7 @@ public class DHIS2SynchronizationManager
     }
   }
 
-  private void processMetadataImportResponse(String submittedJson, ImportReportResponse resp, final JsonArray orgUnitsPayload, final JsonArray orgUnitGroupsPayload)
+  private void processMetadataImportResponse(DHIS2SyncLevel level, String submittedJson, ImportReportResponse resp, final JsonArray orgUnitsPayload, final JsonArray orgUnitGroupsPayload)
   {
     long successfulImports = 0L;
     
@@ -471,7 +471,7 @@ public class DHIS2SynchronizationManager
               }
               else // Update existing organisation unit
               {
-                serverGo = VertexServerGeoObject.getByExternalId(or.getUid(), this.dhis2Config.getSystem());
+                serverGo = VertexServerGeoObject.getByExternalId(or.getUid(), this.dhis2Config.getSystem(), level.getGeoObjectType());
               }
               
               // Find the relevant submitted json
@@ -543,7 +543,7 @@ public class DHIS2SynchronizationManager
         }
         catch (Throwable t)
         {
-          this.recordExportError(new DHIS2SyncError(null, null, submittedJson, t, null));
+          this.recordExportError(new DHIS2SyncError(or.getIndex() == null ? null : Long.valueOf(or.getIndex()), null, submittedJson, t, null));
         }
       }
     }

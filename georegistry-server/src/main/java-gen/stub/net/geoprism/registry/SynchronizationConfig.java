@@ -38,6 +38,7 @@ import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
+import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.etl.FhirSyncLevel;
 import net.geoprism.registry.etl.export.DataExportJob;
@@ -193,6 +194,11 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     else
     {
       config.setSyncNonExistent(true);
+    }
+    
+    if (config instanceof DHIS2SyncConfig && json.has(DHIS2SyncConfig.PREFERRED_LOCALE) && !json.get(DHIS2SyncConfig.PREFERRED_LOCALE).isJsonNull())
+    {
+      ((DHIS2SyncConfig)config).setPreferredLocale(json.get(DHIS2SyncConfig.PREFERRED_LOCALE).getAsString());
     }
 
     return config;

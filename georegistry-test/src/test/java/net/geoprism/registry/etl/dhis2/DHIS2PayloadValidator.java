@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2OrgUnitGroupAttributeMapping;
+import net.geoprism.registry.etl.DHIS2SyncLevel;
 import net.geoprism.registry.etl.DHIS2TestService;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.test.AllAttributesDataset;
@@ -28,7 +29,7 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 
 public class DHIS2PayloadValidator
 {
-  public static void orgUnit(TestGeoObjectInfo go, TestAttributeTypeInfo attr, DHIS2AttributeMapping mapping, int level, JsonObject joPayload)
+  public static void orgUnit(TestGeoObjectInfo go, TestAttributeTypeInfo attr, DHIS2AttributeMapping mapping, int level, JsonObject joPayload, DHIS2SyncLevel.Type level1SyncType)
   {
     JsonArray orgUnits = joPayload.get("organisationUnits").getAsJsonArray();
 

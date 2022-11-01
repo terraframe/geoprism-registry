@@ -70,8 +70,6 @@ public class DHIS2GeoObjectJsonAdapters
 
     private ServerHierarchyType hierarchyType;
 
-    private ServerGeoObjectType got;
-
     private Integer             depth;
 
     private ExternalSystem      ex;
@@ -91,7 +89,6 @@ public class DHIS2GeoObjectJsonAdapters
     
     public DHIS2Serializer(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel syncLevel, List<DHIS2Locale> dhis2Locales, BidiMap<String, String> newExternalIds)
     {
-      this.got = syncLevel.getGeoObjectType();
       this.hierarchyType = dhis2Config.getHierarchy();
       this.dhis2 = dhis2;
       this.ex = dhis2Config.getSystem();
@@ -229,44 +226,12 @@ public class DHIS2GeoObjectJsonAdapters
           mapping.writeStandardAttributes(serverGo, this.dhis2Config.getDate(), jo, this.dhis2Config, this.syncLevel);
         }
       }
-      
-      // Fill in any required attributes with some sensible defaults
-      // TODO : Attribute mapping should be optional
-//      if (!jo.has("code"))
-//      {
-//        jo.addProperty("code", serverGo.getCode());
-//      }
 
       if (!jo.has("id"))
       {
         jo.addProperty("id", this.getOrCreateExternalId(serverGo));
       }
-
-//      if (!jo.has("created"))
-//      {
-//        jo.addProperty("created", formatDate(serverGo.getCreateDate()));
-//      }
-
-//      if (!jo.has("lastUpdated"))
-//      {
-//        jo.addProperty("lastUpdated", formatDate(serverGo.getLastUpdateDate()));
-//      }
-
-//      if (!jo.has("name"))
-//      {
-//        jo.addProperty("name", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
-//      }
-//
-//      if (!jo.has("shortName"))
-//      {
-//        jo.addProperty("shortName", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
-//      }
-
-//      if (!jo.has("openingDate"))
-//      {
-//        jo.addProperty("openingDate", formatDate(serverGo.getCreateDate()));
-//      }
-
+      
       if (!jo.has("featureType") || !jo.has("coordinates"))
       {
         writeGeometry(jo, serverGo);
@@ -278,6 +243,32 @@ public class DHIS2GeoObjectJsonAdapters
       }
 
       this.writeCustomAttributes(serverGo, jo);
+      
+      this.enforceRequiredAttributes(jo);
+    }
+    
+    private void enforceRequiredAttributes(JsonObject jo)
+    {
+      final String[] attributes = new String[] {
+          "name", "shortName", "openingDate"
+      };
+      
+      List<String> labels = new ArrayList<String>();
+      
+      for (String attribute : attributes)
+      {
+        if (!jo.has(attribute) || jo.get(attribute).isJsonNull() || StringUtils.isEmpty(jo.get(attribute).getAsString()))
+        {
+          labels.add(attribute);
+        }
+      }
+      
+      if (labels.size() > 0)
+      {
+        RequiredValueException ex = new RequiredValueException();
+        ex.setDhis2AttrLabels(StringUtils.join(labels, ", "));
+        throw ex;
+      }
     }
 
     private void writeCustomAttributes(VertexServerGeoObject serverGo, JsonObject jo)

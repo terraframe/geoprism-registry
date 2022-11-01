@@ -5,6 +5,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { SynchronizationConfig, OrgSyncInfo, GeoObjectType } from "@registry/model/registry";
 import { SynchronizationConfigService } from "@registry/service";
 import { AttributeConfigInfo, DHIS2AttributeMapping, SyncLevel } from "@registry/model/sync";
+import { LocalizationService } from "@shared/service/localization.service";
 
 let DEFAULT_MAPPING_STRATEGY = "net.geoprism.registry.etl.DHIS2AttributeMapping";
 let END_DATE_MAPPING = "net.geoprism.registry.etl.DHIS2EndDateAttributeMapping";
@@ -49,7 +50,7 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
   orgUnitGroups: any[] = [];
 
   // eslint-disable-next-line no-useless-constructor
-  constructor(private service: SynchronizationConfigService) { }
+  constructor(private service: SynchronizationConfigService, public localizationService: LocalizationService) { }
 
   ngOnInit(): void {
     // Get the types
@@ -61,7 +62,8 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
           this.config.configuration = {
               levels: [],
               hierarchyCode: null,
-              syncNonExistent: false
+              syncNonExistent: false,
+              preferredLocale: "defaultLocale"
           };
       }
 
@@ -77,6 +79,10 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
           }
       } else {
           this.config.configuration.levels = [];
+      }
+      
+      if (this.config.configuration.preferredLocale == null) {
+        this.config.configuration.preferredLocale = "defaultLocale";
       }
 
       if (this.config.configuration.hierarchyCode != null) {

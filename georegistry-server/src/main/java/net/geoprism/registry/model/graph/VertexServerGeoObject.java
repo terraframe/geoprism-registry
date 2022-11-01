@@ -2039,13 +2039,24 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return synonym.getOid();
   }
   
-  public static VertexServerGeoObject getByExternalId(String externalId, DHIS2ExternalSystem system)
+  public static VertexServerGeoObject getByExternalId(String externalId, DHIS2ExternalSystem system, ServerGeoObjectType type)
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
     
     StringBuilder statement = new StringBuilder();
+    
+    if (type != null)
+    {
+      statement.append("SELECT FROM (");
+    }
+    
     statement.append("SELECT expand(in) FROM (");
     statement.append("SELECT expand(outE('" + mdEdge.getDBClassName() + "')[id = '" + externalId + "']) FROM :system)");
+    
+    if (type != null)
+    {
+      statement.append(") WHERE @class='" + type.getMdVertex().getDBClassName() + "'");
+    }
 
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
     query.setParameter("system", system.getRID());
@@ -2054,7 +2065,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     
     if (vo != null)
     {
-      ServerGeoObjectType type = ServerGeoObjectType.get((MdVertexDAOIF) vo.getMdClass());
+      if (type == null)
+      {
+        type = ServerGeoObjectType.get((MdVertexDAOIF) vo.getMdClass());
+      }
       
       return new VertexServerGeoObject(type, vo);
     }

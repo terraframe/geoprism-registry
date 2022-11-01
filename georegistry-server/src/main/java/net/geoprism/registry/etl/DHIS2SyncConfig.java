@@ -32,19 +32,23 @@ import net.geoprism.registry.model.ServerHierarchyType;
 
 public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 {
-  public static final String            ATTRIBUTES      = "attributes";
+  public static final String            ATTRIBUTES       = "attributes";
 
-  public static final String            HIERARCHY       = "hierarchyCode";
+  public static final String            HIERARCHY        = "hierarchyCode";
 
-  public static final String            LEVELS          = "levels";
+  public static final String            LEVELS           = "levels";
 
-  public static final String            GEO_OBJECT_TYPE = "geoObjectType";
+  public static final String            GEO_OBJECT_TYPE  = "geoObjectType";
 
-  public static final String            TYPE            = "type";
+  public static final String            TYPE             = "type";
+  
+  public static final String            PREFERRED_LOCALE = "preferredLocale";
 
   private SortedSet<DHIS2SyncLevel>     levels;
 
   private String                        hierarchyCode;
+  
+  private String                        preferredLocale;
 
   private transient ServerHierarchyType hierarchy;
 
@@ -77,6 +81,16 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
   {
     this.hierarchy = hierarchy;
     this.hierarchyCode = hierarchy.getCode();
+  }
+  
+  public String getPreferredLocale()
+  {
+    return preferredLocale;
+  }
+
+  public void setPreferredLocale(String preferredLocale)
+  {
+    this.preferredLocale = preferredLocale;
   }
 
   @Override

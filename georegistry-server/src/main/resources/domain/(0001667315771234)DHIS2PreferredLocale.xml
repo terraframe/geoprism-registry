@@ -1,0 +1,35 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.preferredLocale">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.preferredLocale" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Perferred Locale" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.preferredLocale.tooltip">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.preferredLocale.tooltip" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Specifies the locale to use when populating the 'name' and 'shortName' DHIS2 fields." />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create>
+      <mdException name="net.geoprism.registry.etl.export.dhis2.RequiredValueException"
+                   label="Required Value Exception" 
+                   message="The DHIS2 attribute(s) [{dhis2AttrLabels}] require a value, but one was not mapped. Make sure that the Geo-Object has a label in either your preferred locale, or your default locale.">
+        <attributes>
+          <text name="dhis2AttrLabels" label="DHIS2 Attribute Labels" required="true"/>
+        </attributes>
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.export.dhis2.RequiredValueException" type="com.runwaysdk.system.metadata.MdException"/>
+    </delete>
+  </undoIt>
+</version>
