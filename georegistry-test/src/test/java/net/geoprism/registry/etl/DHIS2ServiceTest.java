@@ -51,7 +51,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.RunwayException;
-import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
@@ -65,6 +64,7 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
+import net.geoprism.dhis2.dhis2adapter.response.ImportReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.DHIS2Locale;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
@@ -74,6 +74,8 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
+import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
+import net.geoprism.registry.dhis2.DHIS2SynchronizationManagerProxy;
 import net.geoprism.registry.etl.DHIS2TestService.Dhis2Payload;
 import net.geoprism.registry.etl.DHIS2TestService.Method;
 import net.geoprism.registry.etl.dhis2.DHIS2PayloadValidator;
@@ -81,6 +83,7 @@ import net.geoprism.registry.etl.export.ExportError;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
+import net.geoprism.registry.etl.export.UnexpectedRemoteResponse;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.etl.export.dhis2.NoParentException;
 import net.geoprism.registry.etl.export.dhis2.RequiredValueException;
@@ -1310,5 +1313,53 @@ public class DHIS2ServiceTest
     
     VertexServerGeoObject goChar = VertexServerGeoObject.getByExternalId(DHIS2TestService.SIERRA_LEONE_ID, (DHIS2ExternalSystem) system, AllAttributesDataset.GO_CHAR.getGeoObjectType().getServerObject());
     Assert.assertEquals(AllAttributesDataset.GO_CHAR.getCode(), goChar.getCode());
+  }
+  
+  @Test(expected = UnexpectedRemoteResponse.class)
+  @Request
+  public void testUnexpectedImportResponse()
+  {
+    /*
+     * Create our Geo-Object
+     */
+    // Parent needs an externalId otherwise we can't export the reference to it
+    ((VertexServerGeoObject) AllAttributesDataset.GO_ALL.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
+    
+    /*
+     * Define the objects we're going to be using
+     */
+    final TestGeoObjectInfo go = GO_NO_DEFAULT_LOCALE;
+    final TestGeoObjectTypeInfo got = go.getGeoObjectType();
+    final TestAttributeTypeInfo attr = AllAttributesDataset.AT_GO_BOOL;
+    final VertexServerGeoObject serverGo = (VertexServerGeoObject) go.getServerObject();
+    
+    /*
+     * Create a config
+     */
+    DHIS2SyncLevel level2 = new DHIS2SyncLevel();
+    level2.setGeoObjectType(got.getServerObject().getCode());
+    level2.setSyncType(DHIS2SyncLevel.Type.ALL);
+    level2.setLevel(1);
+
+    Collection<DHIS2AttributeMapping> mappings = getDefaultMappings();
+
+    DHIS2AttributeMapping mapping = new DHIS2AttributeMapping();
+    mapping.setAttributeMappingStrategy(DHIS2AttributeMapping.class.getName());
+    mapping.setCgrAttrName(attr.getAttributeName());
+    mapping.setDhis2AttrName(attr.getAttributeName());
+    mapping.setExternalId("TEST_EXTERNAL_ID");
+    mappings.add(mapping);
+
+    level2.setMappings(mappings);
+
+    SynchronizationConfig config = createSyncConfig(this.system, level2, true, TestDataSet.DEFAULT_OVER_TIME_DATE, false, null, null);
+    
+    ExportHistory history = new ExportHistory();
+    
+    ImportReportResponse resp = new ImportReportResponse("Lorem ipsum dolor sit amet, consectetur adipiscing elit", 306);
+    
+    DHIS2SynchronizationManager manager = new DHIS2SynchronizationManager(dhis2, (DHIS2SyncConfig) config.buildConfiguration(), history);
+    
+    DHIS2SynchronizationManagerProxy.processMetadataImportResponse(manager, level2, "", resp, new JsonArray(), new JsonArray());
   }
 }

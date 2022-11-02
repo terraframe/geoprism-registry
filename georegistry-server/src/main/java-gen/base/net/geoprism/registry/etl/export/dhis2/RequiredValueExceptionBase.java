@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl.export.dhis2;
 
-@com.runwaysdk.business.ClassSignature(hash = 182917420)
+@com.runwaysdk.business.ClassSignature(hash = -2106415512)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,10 +11,11 @@ package net.geoprism.registry.etl.export.dhis2;
 public abstract class RequiredValueExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.dhis2.RequiredValueException";
+  public static java.lang.String DATELABEL = "dateLabel";
   public static java.lang.String DHIS2ATTRLABELS = "dhis2AttrLabels";
   public static java.lang.String OID = "oid";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 182917420;
+  private static final long serialVersionUID = -2106415512;
   
   public RequiredValueExceptionBase()
   {
@@ -34,6 +35,34 @@ public abstract class RequiredValueExceptionBase extends com.runwaysdk.business.
   public RequiredValueExceptionBase(java.lang.Throwable cause)
   {
     super(cause);
+  }
+  
+  public String getDateLabel()
+  {
+    return getValue(DATELABEL);
+  }
+  
+  public void validateDateLabel()
+  {
+    this.validateAttribute(DATELABEL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getDateLabelMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.export.dhis2.RequiredValueException.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(DATELABEL);
+  }
+  
+  public void setDateLabel(String value)
+  {
+    if(value == null)
+    {
+      setValue(DATELABEL, "");
+    }
+    else
+    {
+      setValue(DATELABEL, value);
+    }
   }
   
   public String getDhis2AttrLabels()
@@ -88,6 +117,7 @@ public abstract class RequiredValueExceptionBase extends com.runwaysdk.business.
   public java.lang.String localize(java.util.Locale locale)
   {
     java.lang.String message = super.localize(locale);
+    message = replace(message, "{dateLabel}", this.getDateLabel());
     message = replace(message, "{dhis2AttrLabels}", this.getDhis2AttrLabels());
     message = replace(message, "{oid}", this.getOid());
     return message;

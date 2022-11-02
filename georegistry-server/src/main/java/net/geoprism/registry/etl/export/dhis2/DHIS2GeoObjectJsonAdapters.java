@@ -267,6 +267,7 @@ public class DHIS2GeoObjectJsonAdapters
       {
         RequiredValueException ex = new RequiredValueException();
         ex.setDhis2AttrLabels(StringUtils.join(labels, ", "));
+        ex.setDateLabel(GeoRegistryUtil.formatDateForPresentation(this.dhis2Config.getDate(), false));
         throw ex;
       }
     }
@@ -423,7 +424,7 @@ public class DHIS2GeoObjectJsonAdapters
         ex.setSyncLevel(String.valueOf(parentSyncLevel.getLevel()+1));
         ex.setTypeCode(parentSyncLevel.getGeoObjectType().getCode());
         ex.setHierarchyCode(this.hierarchyType.getCode());
-        ex.setDateLabel(GeoRegistryUtil.formatIso8601(this.dhis2Config.getDate(), false));
+        ex.setDateLabel(GeoRegistryUtil.formatDateForPresentation(this.dhis2Config.getDate(), false));
         throw ex;
       }
       
@@ -435,7 +436,7 @@ public class DHIS2GeoObjectJsonAdapters
         ex.setSyncLevel(String.valueOf(parentSyncLevel.getLevel()+1));
         ex.setTypeCode(parentSyncLevel.getGeoObjectType().getCode());
         ex.setHierarchyCode(this.hierarchyType.getCode());
-        ex.setDateLabel(GeoRegistryUtil.formatIso8601(this.dhis2Config.getDate(), false));
+        ex.setDateLabel(GeoRegistryUtil.formatDateForPresentation(this.dhis2Config.getDate(), false));
         throw ex;
       }
 

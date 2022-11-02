@@ -80,9 +80,9 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
       } else {
           this.config.configuration.levels = [];
       }
-      
+
       if (this.config.configuration.preferredLocale == null) {
-        this.config.configuration.preferredLocale = "defaultLocale";
+          this.config.configuration.preferredLocale = "defaultLocale";
       }
 
       if (this.config.configuration.hierarchyCode != null) {
@@ -466,6 +466,7 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
       mapping.info = info;
       mapping.dhis2AttrName = null;
       mapping.externalId = null;
+      mapping.dhis2Id = null;
       mapping.terms = {};
 
       if (mapping.info.attributeMappingStrategies.length > 0) {

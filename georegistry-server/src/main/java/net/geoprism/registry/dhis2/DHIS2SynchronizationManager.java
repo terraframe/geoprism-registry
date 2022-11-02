@@ -438,91 +438,48 @@ public class DHIS2SynchronizationManager
     }
   }
 
-  private void processMetadataImportResponse(DHIS2SyncLevel level, String submittedJson, ImportReportResponse resp, final JsonArray orgUnitsPayload, final JsonArray orgUnitGroupsPayload)
+  protected void processMetadataImportResponse(DHIS2SyncLevel level, String submittedJson, ImportReportResponse resp, final JsonArray orgUnitsPayload, final JsonArray orgUnitGroupsPayload)
   {
     long successfulImports = 0L;
     
     // Process Response
-    for (TypeReport tr : resp.getTypeReports())
+    if (resp.hasTypeReports())
     {
-      boolean passedValidation = tr.getStats().getCreated() > 0 || tr.getStats().getUpdated() > 0;
-      
-      for (ObjectReport or : tr.getObjectReports())
+      for (TypeReport tr : resp.getTypeReports())
       {
-        try
+        boolean passedValidation = tr.getStats().getCreated() > 0 || tr.getStats().getUpdated() > 0;
+        
+        for (ObjectReport or : tr.getObjectReports())
         {
-          if (tr.getKlass().endsWith("OrganisationUnit"))
+          try
           {
-            if (or.hasErrorReports())
+            if (tr.getKlass().endsWith("OrganisationUnit"))
             {
-              final ErrorReport er = or.getErrorReports().get(0);
-              final ExportError ee = new ExportError();
-              final JsonObject serializedOR = new GsonBuilder().create().toJsonTree(or, or.getClass()).getAsJsonObject();
-              
-              // Fetch the Geo-Object it's referencing
-              VertexServerGeoObject serverGo;
-              if (this.newExternalIds.containsValue(or.getUid())) // Create new organisation unit
+              if (or.hasErrorReports())
               {
-                String goRef = this.newExternalIds.getKey(or.getUid());
-                String typeCode = goRef.split(GeoObjectCache.SEPARATOR.replace("$", "\\$"))[0];
-                String goUid = goRef.split(GeoObjectCache.SEPARATOR.replace("$", "\\$"))[1];
+                final ErrorReport er = or.getErrorReports().get(0);
+                final ExportError ee = new ExportError();
+                final JsonObject serializedOR = new GsonBuilder().create().toJsonTree(or, or.getClass()).getAsJsonObject();
                 
-                serverGo = new VertexGeoObjectStrategy(ServerGeoObjectType.get(typeCode)).getGeoObjectByUid(goUid);
-              }
-              else // Update existing organisation unit
-              {
-                serverGo = VertexServerGeoObject.getByExternalId(or.getUid(), this.dhis2Config.getSystem(), level.getGeoObjectType());
-              }
-              
-              // Find the relevant submitted json
-              for (int i = 0; i < orgUnitsPayload.size(); ++i)
-              {
-                JsonObject submitted = orgUnitsPayload.get(i).getAsJsonObject();
-                
-                if (submitted.get("id").getAsString().equals(or.getUid()))
+                // Fetch the Geo-Object it's referencing
+                VertexServerGeoObject serverGo;
+                if (this.newExternalIds.containsValue(or.getUid())) // Create new organisation unit
                 {
-                  ee.setSubmittedJson(submitted.toString());
-                  break;
+                  String goRef = this.newExternalIds.getKey(or.getUid());
+                  String typeCode = goRef.split(GeoObjectCache.SEPARATOR.replace("$", "\\$"))[0];
+                  String goUid = goRef.split(GeoObjectCache.SEPARATOR.replace("$", "\\$"))[1];
+                  
+                  serverGo = new VertexGeoObjectStrategy(ServerGeoObjectType.get(typeCode)).getGeoObjectByUid(goUid);
                 }
-              }
-              
-              ee.setResponseJson(serializedOR.toString());
-              ee.setRowIndex(Long.valueOf(or.getIndex()));
-              ee.setErrorMessage(er.getMessage());
-              ee.setErrorCode(resp.getStatusCode());
-              ee.setCode(serverGo == null ? or.getUid() : serverGo.getCode());
-              ee.setHistory(history);
-              ee.apply();
-            }
-            else if (passedValidation)
-            {
-              successfulImports++;
-              
-              if (this.newExternalIds.containsValue(or.getUid()))
-              {
-                String goRef = this.newExternalIds.getKey(or.getUid());
-                String typeCode = goRef.split(GeoObjectCache.SEPARATOR.replace("$", "\\$"))[0];
-                String goUid = goRef.split(GeoObjectCache.SEPARATOR.replace("$", "\\$"))[1];
-                
-                VertexServerGeoObject serverGo = new VertexGeoObjectStrategy(ServerGeoObjectType.get(typeCode)).getGeoObjectByUid(goUid);
-                serverGo.createExternalId(this.dhis2Config.getSystem(), or.getUid(), net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy.NEW_ONLY);
-              }
-            }
-          }
-          else
-          {
-            if (or.hasErrorReports())
-            {
-              final ErrorReport er = or.getErrorReports().get(0);
-              final ExportError ee = new ExportError();
-              final JsonObject serializedOR = new GsonBuilder().create().toJsonTree(or, or.getClass()).getAsJsonObject();
-              
-              // Find the relevant submitted json
-              if (tr.getKlass().endsWith("OrganisationUnitGroup"))
-              {
-                for (int i = 0; i < orgUnitGroupsPayload.size(); ++i)
+                else // Update existing organisation unit
                 {
-                  JsonObject submitted = orgUnitGroupsPayload.get(i).getAsJsonObject();
+                  serverGo = VertexServerGeoObject.getByExternalId(or.getUid(), this.dhis2Config.getSystem(), level.getGeoObjectType());
+                }
+                
+                // Find the relevant submitted json
+                for (int i = 0; i < orgUnitsPayload.size(); ++i)
+                {
+                  JsonObject submitted = orgUnitsPayload.get(i).getAsJsonObject();
                   
                   if (submitted.get("id").getAsString().equals(or.getUid()))
                   {
@@ -530,22 +487,72 @@ public class DHIS2SynchronizationManager
                     break;
                   }
                 }
+                
+                ee.setResponseJson(serializedOR.toString());
+                ee.setRowIndex(Long.valueOf(or.getIndex()));
+                ee.setErrorMessage(er.getMessage());
+                ee.setErrorCode(resp.getStatusCode());
+                ee.setCode(serverGo == null ? or.getUid() : serverGo.getCode());
+                ee.setHistory(history);
+                ee.apply();
               }
-              
-              ee.setResponseJson(serializedOR.toString());
-              ee.setRowIndex(Long.valueOf(or.getIndex()));
-              ee.setErrorMessage(er.getMessage());
-              ee.setErrorCode(resp.getStatusCode());
-              ee.setHistory(history);
-              ee.apply();
+              else if (passedValidation)
+              {
+                successfulImports++;
+                
+                if (this.newExternalIds.containsValue(or.getUid()))
+                {
+                  String goRef = this.newExternalIds.getKey(or.getUid());
+                  String typeCode = goRef.split(GeoObjectCache.SEPARATOR.replace("$", "\\$"))[0];
+                  String goUid = goRef.split(GeoObjectCache.SEPARATOR.replace("$", "\\$"))[1];
+                  
+                  VertexServerGeoObject serverGo = new VertexGeoObjectStrategy(ServerGeoObjectType.get(typeCode)).getGeoObjectByUid(goUid);
+                  serverGo.createExternalId(this.dhis2Config.getSystem(), or.getUid(), net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy.NEW_ONLY);
+                }
+              }
+            }
+            else
+            {
+              if (or.hasErrorReports())
+              {
+                final ErrorReport er = or.getErrorReports().get(0);
+                final ExportError ee = new ExportError();
+                final JsonObject serializedOR = new GsonBuilder().create().toJsonTree(or, or.getClass()).getAsJsonObject();
+                
+                // Find the relevant submitted json
+                if (tr.getKlass().endsWith("OrganisationUnitGroup"))
+                {
+                  for (int i = 0; i < orgUnitGroupsPayload.size(); ++i)
+                  {
+                    JsonObject submitted = orgUnitGroupsPayload.get(i).getAsJsonObject();
+                    
+                    if (submitted.get("id").getAsString().equals(or.getUid()))
+                    {
+                      ee.setSubmittedJson(submitted.toString());
+                      break;
+                    }
+                  }
+                }
+                
+                ee.setResponseJson(serializedOR.toString());
+                ee.setRowIndex(Long.valueOf(or.getIndex()));
+                ee.setErrorMessage(er.getMessage());
+                ee.setErrorCode(resp.getStatusCode());
+                ee.setHistory(history);
+                ee.apply();
+              }
             }
           }
-        }
-        catch (Throwable t)
-        {
-          this.recordExportError(new DHIS2SyncError(or.getIndex() == null ? null : Long.valueOf(or.getIndex()), null, submittedJson, t, null));
+          catch (Throwable t)
+          {
+            this.recordExportError(new DHIS2SyncError(or.getIndex() == null ? null : Long.valueOf(or.getIndex()), null, submittedJson, t, null));
+          }
         }
       }
+    }
+    else
+    {
+      this.service.validateDhis2Response(resp);
     }
     
     history.appLock();

@@ -1,11 +1,11 @@
 package net.geoprism.registry.etl.export.dhis2;
 
-@com.runwaysdk.business.ClassSignature(hash = -1053803860)
+@com.runwaysdk.business.ClassSignature(hash = 112284904)
 public abstract class RequiredValueExceptionDTOBase extends com.runwaysdk.business.SmartExceptionDTO
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.dhis2.RequiredValueException";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1053803860;
+  private static final long serialVersionUID = 112284904;
   
   public RequiredValueExceptionDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequestIF)
   {
@@ -52,8 +52,46 @@ public abstract class RequiredValueExceptionDTOBase extends com.runwaysdk.busine
     return CLASS;
   }
   
+  public static java.lang.String DATELABEL = "dateLabel";
   public static java.lang.String DHIS2ATTRLABELS = "dhis2AttrLabels";
   public static java.lang.String OID = "oid";
+  public String getDateLabel()
+  {
+    return getValue(DATELABEL);
+  }
+  
+  public void setDateLabel(String value)
+  {
+    if(value == null)
+    {
+      setValue(DATELABEL, "");
+    }
+    else
+    {
+      setValue(DATELABEL, value);
+    }
+  }
+  
+  public boolean isDateLabelWritable()
+  {
+    return isWritable(DATELABEL);
+  }
+  
+  public boolean isDateLabelReadable()
+  {
+    return isReadable(DATELABEL);
+  }
+  
+  public boolean isDateLabelModified()
+  {
+    return isModified(DATELABEL);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getDateLabelMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(DATELABEL).getAttributeMdDTO();
+  }
+  
   public String getDhis2AttrLabels()
   {
     return getValue(DHIS2ATTRLABELS);
@@ -99,6 +137,7 @@ public abstract class RequiredValueExceptionDTOBase extends com.runwaysdk.busine
   {
     java.lang.String template = super.getMessage();
     
+    template = template.replace("{dateLabel}", this.getDateLabel().toString());
     template = template.replace("{dhis2AttrLabels}", this.getDhis2AttrLabels().toString());
     template = template.replace("{oid}", this.getOid().toString());
     
