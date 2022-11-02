@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
@@ -391,6 +392,8 @@ public class DHIS2SynchronizationManager
   
   private void submitMetadata(DHIS2SyncLevel level, JsonObject payload)
   {
+    if (payload.get(DHIS2Objects.ORGANISATION_UNITS).getAsJsonArray().size() == 0) { return; }
+    
     String submittedJson = null;
     ImportReportResponse resp = null;
     
@@ -596,7 +599,7 @@ public class DHIS2SynchronizationManager
       List<NameValuePair> orgUnitGetParams = new ArrayList<NameValuePair>();
       orgUnitGetParams.add(new BasicNameValuePair("translate", "false"));
       
-      List<String> fields = Arrays.asList(new String[] {"translations", "attributeValues"});
+      List<String> fields = Arrays.stream(new String[] {"translations", "attributeValues"}).collect(Collectors.toCollection(ArrayList::new));
       if (level.getSyncType() == DHIS2SyncLevel.Type.RELATIONSHIPS)
       {
         fields.addAll(Arrays.asList(new String[] {"id", "name", "shortName", "openingDate"}));
@@ -645,13 +648,8 @@ public class DHIS2SynchronizationManager
       
       JsonObject orgUnitRelationships = new JsonObject();
       
-      // These attributes must be included at the requirement of DHIS2 API
-      orgUnitRelationships.addProperty("id", serializedOrgUnit.get("id").getAsString());
-      orgUnitRelationships.addProperty("name", serializedOrgUnit.get("name").getAsString());
-      orgUnitRelationships.addProperty("shortName", serializedOrgUnit.get("shortName").getAsString());
-      orgUnitRelationships.addProperty("openingDate", serializedOrgUnit.get("openingDate").getAsString());
-      
       // We don't want to actually update any of these attributes, so we use the values they have in their server instead, since they are required
+      orgUnitRelationships.addProperty("id", existingOrgUnit.getId());
       orgUnitRelationships.addProperty("name", existingOrgUnit.getName());
       orgUnitRelationships.addProperty("shortName", existingOrgUnit.getShortName());
       orgUnitRelationships.addProperty("openingDate", DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate(existingOrgUnit.getOpeningDate()));

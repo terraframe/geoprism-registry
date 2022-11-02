@@ -401,7 +401,7 @@ public class DHIS2ServiceTest
     
     if (syncNonExist || TestDataSet.DEFAULT_OVER_TIME_DATE.equals(date))
     {
-      boolean didExportParent = level1SyncType != DHIS2SyncLevel.Type.NONE;
+      boolean didExportParent = level1SyncType == null || level1SyncType == DHIS2SyncLevel.Type.ALL || level1SyncType == DHIS2SyncLevel.Type.ORG_UNITS;
       
       Assert.assertEquals(didExportParent ? 2 : 1 , payloads.size());
   
@@ -1295,6 +1295,19 @@ public class DHIS2ServiceTest
     ((VertexServerGeoObject) AllAttributesDataset.GO_ALL.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
     
     exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL, null, TestDataSet.DEFAULT_OVER_TIME_DATE, false, DHIS2SyncLevel.Type.NONE);
+  }
+  
+  /**
+   * Test that we can set the parent sync level to RELATIONSHIPS
+   */
+  @Test
+  @Request
+  public void testRelationshipSync() throws Exception
+  {
+    // Our parent needs an external id if we're not creating it.
+    ((VertexServerGeoObject) AllAttributesDataset.GO_ALL.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
+    
+    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL, null, TestDataSet.DEFAULT_OVER_TIME_DATE, false, DHIS2SyncLevel.Type.RELATIONSHIPS);
   }
   
   /*

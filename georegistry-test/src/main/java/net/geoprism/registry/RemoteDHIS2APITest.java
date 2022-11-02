@@ -83,17 +83,27 @@ import net.geoprism.registry.test.TestUserInfo;
 @Ignore
 public class RemoteDHIS2APITest
 {
-  public static final String TEST_DATA_KEY = "RemoteDHIS2Test";
+  /*
+   * Which server are we connecting to?
+   */
+  private static final Integer API_VERSION = 39;
   
-  private static final Integer API_VERSION = 38;
-  
-  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".1.1";
+  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".0";
   
   private static final String URL = "https://play.dhis2.org/" + VERSION + "/";
+  
+  /*
+   * Constants that reference expected data in the remote system
+   */
+//  public static final String REMOTE_COUNTRY_CODE = "OU_525";
+  public static final String REMOTE_COUNTRY_CODE = "ZM RCZ";
+  
+  public static final String TEST_DATA_KEY = "RemoteDHIS2Test";
   
   private static final String USERNAME = "admin";
   
   private static final String PASSWORD = "district";
+  
   
   protected static RemoteDHIS2Dataset  testData;
   
@@ -227,7 +237,7 @@ public class RemoteDHIS2APITest
   @Request
   private void setRootExternalId() throws Exception
   {
-    OrganisationUnit ou = this.getRemoteOrgUnitByCode("OU_525");
+    OrganisationUnit ou = this.getRemoteOrgUnitByCode(REMOTE_COUNTRY_CODE);
     RemoteDHIS2Dataset.REMOTE_GO_PARENT.getServerObject().createExternalId(this.system, ou.getId(), ImportStrategy.NEW_ONLY);
   }
   

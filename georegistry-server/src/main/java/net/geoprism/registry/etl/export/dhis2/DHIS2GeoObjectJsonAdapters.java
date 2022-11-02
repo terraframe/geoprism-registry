@@ -249,6 +249,11 @@ public class DHIS2GeoObjectJsonAdapters
     
     private void enforceRequiredAttributes(JsonObject jo)
     {
+      if (DHIS2SyncLevel.Type.RELATIONSHIPS.equals(this.syncLevel.getSyncType()) || DHIS2SyncLevel.Type.NONE.equals(this.syncLevel.getSyncType()))
+      {
+        return;
+      }
+      
       final String[] attributes = new String[] {
           "name", "shortName", "openingDate"
       };

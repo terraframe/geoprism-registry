@@ -196,7 +196,9 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
 
   onSelectLevelType(levelRow: LevelRow): void {
       if (levelRow.level.type === "RELATIONSHIPS") {
-          levelRow.attrCfg.mappings = [];
+          if (levelRow.attrCfg) {
+              levelRow.attrCfg.mappings = [];
+          }
           levelRow.level.mappings = [];
 
           let editorIndex = this.getEditorIndex();
@@ -204,7 +206,7 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
               this.levelRows.splice(editorIndex, 1);
           }
       } else {
-          if (levelRow.attrCfg.mappings.length === 0) {
+          if (levelRow.attrCfg && levelRow.attrCfg.mappings.length === 0) {
               levelRow.attrCfg.mappings = this.buildDefaultMappings();
               levelRow.level.mappings = levelRow.attrCfg.mappings;
 
