@@ -342,3 +342,4 @@ import { ListRowComponent } from "./component/location-manager/list-row.componen
     ]
 })
 export class RegistryModule { }
+

@@ -19,6 +19,7 @@
 package net.geoprism.registry.dhis2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,6 @@ import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
-import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
@@ -67,7 +67,7 @@ public class DHIS2FeatureService
 {
   public static final String[] OAUTH_INCOMPATIBLE_VERSIONS   = new String[] { "2.35.0", "2.35.1" };
 
-  public static final int      LAST_TESTED_DHIS2_API_VERSION = 38;
+  public static final int      LAST_TESTED_DHIS2_API_VERSION = 39;
 
   private static final Logger  logger                        = LoggerFactory.getLogger(DHIS2FeatureService.class);
 
@@ -80,7 +80,7 @@ public class DHIS2FeatureService
   {
     private static final long     serialVersionUID = 8463740942015611693L;
 
-    protected DHIS2ImportResponse response;
+    protected DHIS2Response response;
 
     protected String              submittedJson;
 
@@ -90,7 +90,7 @@ public class DHIS2FeatureService
 
     protected Long                rowIndex;
 
-    public DHIS2SyncError(Long rowIndex, DHIS2ImportResponse response, String submittedJson, Throwable t, String geoObjectCode)
+    public DHIS2SyncError(Long rowIndex, DHIS2Response response, String submittedJson, Throwable t, String geoObjectCode)
     {
       super("");
       this.response = response;
@@ -311,54 +311,80 @@ public class DHIS2FeatureService
     }
   }
 
-  @Request(RequestType.SESSION)
-  public JsonObject getSystemCapabilities(String sessionId, String systemJSON)
+  /**
+   * Returns a new translations array which represents the "update" translations applied onto the "current" translations.
+   * 
+   * @param current
+   * @param update
+   * @return
+   */
+  public JsonArray mergeTranslations(JsonArray current, JsonArray update)
   {
-    JsonObject capabilities = new JsonObject();
-
-    JsonObject jo = JsonParser.parseString(systemJSON).getAsJsonObject();
-
-    ExternalSystem system = ExternalSystem.desieralize(jo);
-
-    if (system instanceof DHIS2ExternalSystem)
+    if (current == null)
     {
-      DHIS2ExternalSystem dhis2System = (DHIS2ExternalSystem) system;
-
-      DHIS2TransportServiceIF dhis2 = getTransportService(dhis2System);
-
-      String version = dhis2.getVersionRemoteServer();
-
-      if (ArrayUtils.contains(DHIS2FeatureService.OAUTH_INCOMPATIBLE_VERSIONS, version))
-      {
-        capabilities.addProperty("oauth", false);
-      }
-      else
-      {
-        capabilities.addProperty("oauth", true);
-      }
+      current = new JsonArray();
+    }
+    if (update == null)
+    {
+      update = new JsonArray();
+    }
+    
+    JsonArray merged = new JsonArray();
+    
+    Map<String, JsonObject> mergedMap = new HashMap<String, JsonObject>();
+    
+    for (int i = 0; i < current.size(); ++i)
+    {
+      JsonObject existingTranslation = current.get(i).getAsJsonObject();
+      mergedMap.put(existingTranslation.get("locale").getAsString() + "-" + existingTranslation.get("property").getAsString(), existingTranslation);
+    }
+    
+    for (int i = 0; i < update.size(); ++i)
+    {
+      JsonObject translation = update.get(i).getAsJsonObject();
       
-      boolean hasLocales = false;
-      try
-      {
-        LocaleGetResponse resp = dhis2.localesGet();
-        hasLocales = resp.getLocales().size() > 0;
-      }
-      catch (Throwable t)
-      {
-        // Ignore
-      }
+      mergedMap.put(translation.get("locale").getAsString() + "-" + translation.get("property").getAsString(), translation);
+    }
+    
+    for (JsonObject translation : mergedMap.values())
+    {
+      merged.add(translation);
+    }
+    
+    return merged;
+  }
+  
+  /**
+   * Returns a new attribute values array which represents the "update" applied onto the "current".
+   * 
+   * @param current
+   * @param update
+   * @return
+   */
+  public JsonArray mergeAttributeValues(JsonArray current, JsonArray update)
+  {
+    JsonArray merged = new JsonArray();
+    
+    Map<String, JsonObject> mergedMap = new HashMap<String, JsonObject>();
+    
+    for (int i = 0; i < current.size(); ++i)
+    {
+      JsonObject av = current.get(i).getAsJsonObject();
+      mergedMap.put(av.get("attribute").getAsJsonObject().get("id").getAsString(), av);
+    }
+    
+    for (int i = 0; i < update.size(); ++i)
+    {
+      JsonObject av = update.get(i).getAsJsonObject();
       
-      capabilities.addProperty("locales", hasLocales);
+      mergedMap.put(av.get("attribute").getAsJsonObject().get("id").getAsString(), av);
     }
-    else if (system instanceof FhirExternalSystem)
+    
+    for (JsonObject av : mergedMap.values())
     {
-      capabilities.addProperty("oauth", true);
+      merged.add(av);
     }
-    else
-    {
-      capabilities.addProperty("oauth", false);
-    }
-
-    return capabilities;
+    
+    return merged;
   }
 }

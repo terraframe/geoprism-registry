@@ -42,6 +42,7 @@ import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.StreamResource;
 
@@ -68,6 +69,16 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   public GeoRegistryUtil()
   {
     super();
+  }
+  
+  public static String formatDateForPresentation(Date date, boolean includeTime)
+  {
+    if (date == null)
+    {
+      return LocalizationFacade.localize("changeovertime.present");
+    }
+    
+    return formatIso8601(date, includeTime);
   }
 
   public static String formatIso8601(Date date, boolean includeTime)

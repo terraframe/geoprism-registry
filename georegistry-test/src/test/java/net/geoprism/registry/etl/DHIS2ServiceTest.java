@@ -24,12 +24,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
@@ -46,17 +50,23 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
+import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
+import net.geoprism.dhis2.dhis2adapter.response.ImportReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
+import net.geoprism.dhis2.dhis2adapter.response.model.DHIS2Locale;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 import net.geoprism.registry.GeoRegistryUtil;
@@ -64,11 +74,19 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
+import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
+import net.geoprism.registry.dhis2.DHIS2SynchronizationManagerProxy;
 import net.geoprism.registry.etl.DHIS2TestService.Dhis2Payload;
+import net.geoprism.registry.etl.DHIS2TestService.Method;
 import net.geoprism.registry.etl.dhis2.DHIS2PayloadValidator;
+import net.geoprism.registry.etl.export.ExportError;
+import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
+import net.geoprism.registry.etl.export.UnexpectedRemoteResponse;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
+import net.geoprism.registry.etl.export.dhis2.NoParentException;
+import net.geoprism.registry.etl.export.dhis2.RequiredValueException;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -76,6 +94,7 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.AttributeTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.AllAttributesDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
@@ -87,6 +106,12 @@ import net.geoprism.registry.test.TestUserInfo;
 
 public class DHIS2ServiceTest
 {
+  public static final TestGeoObjectInfo GO_NO_PARENT = new TestGeoObjectInfo("BOOL_NO_PARENT", AllAttributesDataset.GOT_BOOL);
+  
+  public static final TestGeoObjectInfo GO_NO_DEFAULT_LOCALE = new TestGeoObjectInfo("NO_DEFAULT_LOCALE", AllAttributesDataset.GOT_BOOL);
+  
+  public static final String GO_NO_DEFAULT_LOCALE_CANADA_LABEL = "some canada value eh";
+  
   protected static AllAttributesDataset  testData;
 
   protected SynchronizationConfigService syncService;
@@ -101,6 +126,8 @@ public class DHIS2ServiceTest
     TestDataSet.deleteExternalSystems("DHIS2ExportTest");
     testData = AllAttributesDataset.newTestData();
     testData.setUpMetadata();
+    
+    LocalizationFacade.install(Locale.CANADA);
 
     if (!SchedulerManager.initialized())
     {
@@ -111,6 +138,8 @@ public class DHIS2ServiceTest
   @AfterClass
   public static void cleanUpClass()
   {
+    LocalizationFacade.uninstall(Locale.CANADA);
+    
     testData.tearDownMetadata();
   }
 
@@ -118,7 +147,7 @@ public class DHIS2ServiceTest
   public void setUp()
   {
     testData.setUpInstanceData();
-
+    
     this.dhis2 = new DHIS2TestService();
     DHIS2ServiceFactory.setDhis2TransportService(this.dhis2);
 
@@ -132,11 +161,36 @@ public class DHIS2ServiceTest
 
     testData.logIn(AllAttributesDataset.USER_ORG_RA);
   }
+  
+  @Request
+  private void setUpNoDefaultLocaleGeoObject(String canadaLabel)
+  {
+    GO_NO_DEFAULT_LOCALE.apply();
+    
+    VertexServerGeoObject serverGo = (VertexServerGeoObject) GO_NO_DEFAULT_LOCALE.getServerObject();
+    LocalizedValue lv = serverGo.getDisplayLabel();
+    lv.setValue(Locale.CANADA, canadaLabel);
+    lv.setValue(LocalizedValue.DEFAULT_LOCALE, null);
+    serverGo.setDisplayLabel(lv, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    serverGo.apply(false);
+    
+    Assert.assertTrue(StringUtils.isEmpty(GO_NO_DEFAULT_LOCALE.getServerObject().getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE)));
+    
+    if (!StringUtils.isEmpty(canadaLabel))
+    {
+      Assert.assertFalse(StringUtils.isEmpty(GO_NO_DEFAULT_LOCALE.getServerObject().getDisplayLabel().getValue(Locale.CANADA.toString())));
+    }
+    
+    AllAttributesDataset.GO_ALL.addChild(GO_NO_DEFAULT_LOCALE, AllAttributesDataset.HIER);
+  }
 
   @After
   public void tearDown()
   {
     testData.logOut();
+    
+    GO_NO_PARENT.delete();
+    GO_NO_DEFAULT_LOCALE.delete();
 
     testData.tearDownInstanceData();
 
@@ -205,12 +259,17 @@ public class DHIS2ServiceTest
   
   public static SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel, boolean apply)
   {
-    return createSyncConfig(system, additionalLevel, apply, TestDataSet.DEFAULT_OVER_TIME_DATE, false);
+    return createSyncConfig(system, additionalLevel, apply, TestDataSet.DEFAULT_OVER_TIME_DATE, false, null, null);
   }
 
   @Request
-  public static SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel, boolean apply, Date date, boolean syncNonExist)
+  public static SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel, boolean apply, Date date, boolean syncNonExist, String preferredLocale, DHIS2SyncLevel.Type level1SyncType)
   {
+    if (level1SyncType == null)
+    {
+      level1SyncType = DHIS2SyncLevel.Type.ALL;
+    }
+    
     // Define reusable objects
     final ServerHierarchyType ht = AllAttributesDataset.HIER.getServerObject();
     final Organization org = AllAttributesDataset.ORG.getServerObject();
@@ -223,13 +282,18 @@ public class DHIS2ServiceTest
     dhis2Config.setOrganization(org);
     dhis2Config.setDate(date);
     dhis2Config.setSyncNonExistent(syncNonExist);
+    
+    if (preferredLocale != null)
+    {
+      dhis2Config.setPreferredLocale(preferredLocale);
+    }
 
     // Populate Levels
     SortedSet<DHIS2SyncLevel> levels = new TreeSet<DHIS2SyncLevel>();
 
     DHIS2SyncLevel level = new DHIS2SyncLevel();
     level.setGeoObjectType(AllAttributesDataset.GOT_ALL.getServerObject().getCode());
-    level.setSyncType(DHIS2SyncLevel.Type.ALL);
+    level.setSyncType(level1SyncType);
     level.setMappings(getDefaultMappings());
     level.setLevel(0);
     levels.add(level);
@@ -291,12 +355,12 @@ public class DHIS2ServiceTest
     return mappings;
   }
   
-  private void exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, DHIS2AttributeMapping mapping) throws InterruptedException
+  private LinkedList<Dhis2Payload> exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, DHIS2AttributeMapping mapping) throws InterruptedException
   {
-    exportCustomAttribute(got, go, attr, mapping, TestDataSet.DEFAULT_OVER_TIME_DATE, false);
+    return exportCustomAttribute(got, go, attr, mapping, TestDataSet.DEFAULT_OVER_TIME_DATE, false, null);
   }
 
-  private void exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, DHIS2AttributeMapping mapping, Date date, boolean syncNonExist) throws InterruptedException
+  private LinkedList<Dhis2Payload> exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, DHIS2AttributeMapping mapping, Date date, boolean syncNonExist, DHIS2SyncLevel.Type level1SyncType) throws InterruptedException
   {
     /*
      * Create a config
@@ -320,7 +384,7 @@ public class DHIS2ServiceTest
 
     level2.setMappings(mappings);
 
-    SynchronizationConfig config = createSyncConfig(this.system, level2, true, date, syncNonExist);
+    SynchronizationConfig config = createSyncConfig(this.system, level2, true, date, syncNonExist, null, level1SyncType);
 
     /*
      * Run the sync service
@@ -337,21 +401,26 @@ public class DHIS2ServiceTest
     
     if (syncNonExist || TestDataSet.DEFAULT_OVER_TIME_DATE.equals(date))
     {
-      Assert.assertEquals((mapping instanceof DHIS2OrgUnitGroupAttributeMapping) ? 3 : 2, payloads.size());
+      boolean didExportParent = level1SyncType == null || level1SyncType == DHIS2SyncLevel.Type.ALL || level1SyncType == DHIS2SyncLevel.Type.ORG_UNITS;
+      
+      Assert.assertEquals(didExportParent ? 2 : 1 , payloads.size());
   
-      for (int level = 0; level < payloads.size(); ++level)
+      for (int i = 0; i < payloads.size(); ++i)
       {
-        Dhis2Payload payload = payloads.get(level);
+        int level = didExportParent ? i : i + 1;
+        
+        Dhis2Payload payload = payloads.get(i);
   
         JsonObject joPayload = JsonParser.parseString(payload.getData()).getAsJsonObject();
   
         if (level == 0 || level == 1)
         {
-          DHIS2PayloadValidator.orgUnit(go, attr, mapping, level, joPayload);
-        }
-        else
-        {
-          DHIS2PayloadValidator.orgUnitGroup(go, attr, (DHIS2OrgUnitGroupAttributeMapping) mapping, level, joPayload);
+          DHIS2PayloadValidator.orgUnit(go, attr, mapping, level, joPayload, level1SyncType);
+          
+          if (mapping instanceof DHIS2OrgUnitGroupAttributeMapping && level == 1)
+          {
+            DHIS2PayloadValidator.orgUnitGroup(go, attr, (DHIS2OrgUnitGroupAttributeMapping) mapping, level, joPayload);
+          }
         }
       }
     }
@@ -359,6 +428,8 @@ public class DHIS2ServiceTest
     {
       Assert.assertEquals(0, payloads.size());
     }
+    
+    return payloads;
   }
 
   // @Test
@@ -392,7 +463,7 @@ public class DHIS2ServiceTest
   @Request
   public void testDontSyncNonExist() throws Exception
   {
-    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR, null, new Date(), false);
+    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR, null, new Date(), false, null);
   }
   
   @Test
@@ -404,7 +475,7 @@ public class DHIS2ServiceTest
     sgo.setExists(false, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_OVER_TIME_DATE);
     sgo.apply(false);
     
-    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR, null, TestDataSet.DEFAULT_OVER_TIME_DATE, true);
+    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR, null, TestDataSet.DEFAULT_OVER_TIME_DATE, true, null);
   }
   
   @Test
@@ -448,7 +519,7 @@ public class DHIS2ServiceTest
   {
     exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL, null);
   }
-
+  
   @Test
   @Request
   public void testExportTermAsOptionSet() throws Exception
@@ -540,6 +611,144 @@ public class DHIS2ServiceTest
     testExists(mappings);
   }
   
+  /*
+   * Test syncing a Geo-Object where there is no parent. It should log a NoParentException.
+   */
+  @Test
+  @Request
+  public void testSyncNoParent() throws Exception
+  {
+    GO_NO_PARENT.apply();
+    
+    TestGeoObjectInfo go = GO_NO_PARENT;
+    TestGeoObjectTypeInfo got = AllAttributesDataset.GOT_BOOL;
+    TestAttributeTypeInfo attr = AllAttributesDataset.AT_GO_BOOL;
+    
+    /*
+     * Create a config
+     */
+    DHIS2SyncLevel level2 = new DHIS2SyncLevel();
+    level2.setGeoObjectType(got.getServerObject().getCode());
+    level2.setSyncType(DHIS2SyncLevel.Type.ALL);
+    level2.setLevel(1);
+
+    Collection<DHIS2AttributeMapping> mappings = getDefaultMappings();
+
+    DHIS2AttributeMapping mapping = new DHIS2AttributeMapping();
+    mapping.setAttributeMappingStrategy(DHIS2AttributeMapping.class.getName());
+    mapping.setCgrAttrName(attr.getAttributeName());
+    mapping.setDhis2AttrName(attr.getAttributeName());
+    mapping.setExternalId("TEST_EXTERNAL_ID");
+    mappings.add(mapping);
+
+    level2.setMappings(mappings);
+
+    SynchronizationConfig config = createSyncConfig(this.system, level2, true, TestDataSet.DEFAULT_OVER_TIME_DATE, false, null, null);
+
+    /*
+     * Run the sync service
+     */
+    JsonObject jo = syncService.run(testData.clientSession.getSessionId(), config.getOid());
+    ExportHistory hist = ExportHistory.get(jo.get("historyId").getAsString());
+
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FAILURE);
+
+    /*
+     * Validate the error report
+     */
+    ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
+    query.WHERE(query.getHistory().EQ(hist));
+    Assert.assertEquals(1, query.getCount());
+    
+    ExportError ee = query.getIterator().next();
+    
+    NoParentException ex = new NoParentException();
+    ex.setSyncLevel("1");
+    ex.setTypeCode(AllAttributesDataset.GOT_ALL.getCode());
+    ex.setHierarchyCode(AllAttributesDataset.HIER.getCode());
+    ex.setDateLabel(GeoRegistryUtil.formatIso8601(TestDataSet.DEFAULT_OVER_TIME_DATE, false));
+    String errorMessage = RunwayException.localizeThrowable(ex, Session.getCurrentSession().getLocale());
+    Assert.assertEquals(errorMessage, ee.getErrorMessage());
+    
+    Assert.assertTrue("Expected submitted json to be empty but was " + ee.getSubmittedJson(), ee.getSubmittedJson() == null || ee.getSubmittedJson().length() == 0);
+    Assert.assertTrue("Expected response json to be empty but was" + ee.getResponseJson(), ee.getResponseJson() == null || ee.getResponseJson().length() == 0);
+    Assert.assertEquals(go.getCode(), ee.getCode());
+    Assert.assertTrue("Expected row index to be either 2 or 3, but was " + String.valueOf(ee.getRowIndex()), new Long(2).equals(ee.getRowIndex()) || new Long(3).equals(ee.getRowIndex()));
+  }
+  
+  /*
+   * The rest of the tests are creates. Let's intentionally test an update.
+   */
+  @Test
+  @Request
+  public void testSyncUpdate() throws Exception
+  {
+    ((VertexServerGeoObject) AllAttributesDataset.GO_BOOL.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
+    
+    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL, null);
+  }
+  
+  /*
+   * Mimic what happens when we try to update an existing DHIS2 object but DHIS2 throws an error.
+   */
+  @Test
+  @Request
+  public void testSyncUpdateError() throws Exception
+  {
+    ((VertexServerGeoObject) AllAttributesDataset.GO_BOOL.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
+    
+    String postResp = IOUtils.toString(DHIS2ServiceTest.class.getResourceAsStream("/dhis2/metadata-post-update-nonexist.json"), "UTF-8");
+    this.dhis2.addResponse(Method.METADATA_POST, this.dhis2.getSuccessJson().toString(), 200); // Response for submitting parent
+    this.dhis2.addResponse(Method.METADATA_POST, postResp, 401); // Response for submitting child (ERROR)
+    
+    TestGeoObjectTypeInfo got = AllAttributesDataset.GOT_BOOL;
+    TestAttributeTypeInfo attr = AllAttributesDataset.AT_GO_BOOL;
+    
+    /*
+     * Create a config
+     */
+    DHIS2SyncLevel level2 = new DHIS2SyncLevel();
+    level2.setGeoObjectType(got.getServerObject().getCode());
+    level2.setSyncType(DHIS2SyncLevel.Type.ALL);
+    level2.setLevel(1);
+
+    Collection<DHIS2AttributeMapping> mappings = getDefaultMappings();
+
+    DHIS2AttributeMapping mapping = new DHIS2AttributeMapping();
+    mapping.setAttributeMappingStrategy(DHIS2AttributeMapping.class.getName());
+    mapping.setCgrAttrName(attr.getAttributeName());
+    mapping.setDhis2AttrName(attr.getAttributeName());
+    mapping.setExternalId("TEST_EXTERNAL_ID");
+    mappings.add(mapping);
+
+    level2.setMappings(mappings);
+
+    SynchronizationConfig config = createSyncConfig(this.system, level2, true, TestDataSet.DEFAULT_OVER_TIME_DATE, false, null, null);
+
+    /*
+     * Run the sync service
+     */
+    JsonObject jo = syncService.run(testData.clientSession.getSessionId(), config.getOid());
+    ExportHistory hist = ExportHistory.get(jo.get("historyId").getAsString());
+
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FAILURE);
+
+    /*
+     * Validate the error report
+     */
+    ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
+    query.WHERE(query.getHistory().EQ(hist));
+    Assert.assertEquals(1, query.getCount());
+    
+    ExportError ee = query.getIterator().next();
+    Assert.assertEquals(new Integer(401), ee.getErrorCode());
+    Assert.assertEquals("Missing required property `openingDate`.", ee.getErrorMessage());
+    Assert.assertEquals(DHIS2TestService.SIERRA_LEONE_ID, JsonParser.parseString(ee.getSubmittedJson()).getAsJsonObject().get("id").getAsString());
+    JsonParser.parseString(ee.getResponseJson()).getAsJsonObject();
+    Assert.assertEquals(AllAttributesDataset.GO_BOOL.getServerObject().getCode(), ee.getCode());
+    Assert.assertEquals(new Long(1), ee.getRowIndex());
+  }
+  
   private void testExists(Collection<DHIS2AttributeMapping> paramMappings) throws Exception
   {
     DHIS2AttributeMapping mapping = paramMappings.iterator().next();
@@ -584,7 +793,7 @@ public class DHIS2ServiceTest
       
       if (level == 0)
       {
-        DHIS2PayloadValidator.orgUnit(go, null, mapping, level, joPayload);
+        DHIS2PayloadValidator.orgUnit(go, null, mapping, level, joPayload, null);
       }
       else if (level == 1)
       {
@@ -936,7 +1145,7 @@ public class DHIS2ServiceTest
     Assert.assertEquals("AllAttrGO_ALL", orgUnit.get("code").getAsString());
   }
   
-  /*
+  /**
    * Tests exporting GeoObjects when the remote server is a snapshot version
    */
   @Request
@@ -983,5 +1192,187 @@ public class DHIS2ServiceTest
 
     Assert.assertEquals("AllAttrGO_ALL", orgUnit.get("code").getAsString());
   }
+  
+  /*
+   * Preferred locale tests
+   */
+  
+  /**
+   * If they attempt to export a Geo-Object who does not have a display label for the default locale, but they do specify a preferred locale, make sure we
+   * set the name / short name to that preferred locale.
+   */
+  @Test
+  public void testPreferredLocale()
+  {
+    setUpNoDefaultLocaleGeoObject(GO_NO_DEFAULT_LOCALE_CANADA_LABEL);
+    
+    preferredLocaleHelper(Locale.CANADA.toString());
+  }
+  
+  /**
+   * If they attempt to export a Geo-Object which has no label mapped to name or short name, throw a localized error
+   */
+  @Test
+  public void testNoLabelForName()
+  {
+    try
+    {
+      setUpNoDefaultLocaleGeoObject(null);
+      
+      preferredLocaleHelper(Locale.CANADA.toString());
+    }
+    catch (RequiredValueException ex)
+    {
+      Assert.assertEquals("name, shortName", ex.getDhis2AttrLabels());
+    }
+  }
+  
+  @Request
+  private void preferredLocaleHelper(String preferredLocale)
+  {
+    /*
+     * Create our Geo-Object
+     */
+    // Parent needs an externalId otherwise we can't export the reference to it
+    ((VertexServerGeoObject) AllAttributesDataset.GO_ALL.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
+    
+    /*
+     * Define the objects we're going to be using
+     */
+    final TestGeoObjectInfo go = GO_NO_DEFAULT_LOCALE;
+    final TestGeoObjectTypeInfo got = go.getGeoObjectType();
+    final TestAttributeTypeInfo attr = AllAttributesDataset.AT_GO_BOOL;
+    final VertexServerGeoObject serverGo = (VertexServerGeoObject) go.getServerObject();
+    
+    /*
+     * Create a config
+     */
+    DHIS2SyncLevel level2 = new DHIS2SyncLevel();
+    level2.setGeoObjectType(got.getServerObject().getCode());
+    level2.setSyncType(DHIS2SyncLevel.Type.ALL);
+    level2.setLevel(1);
 
+    Collection<DHIS2AttributeMapping> mappings = getDefaultMappings();
+
+    DHIS2AttributeMapping mapping = new DHIS2AttributeMapping();
+    mapping.setAttributeMappingStrategy(DHIS2AttributeMapping.class.getName());
+    mapping.setCgrAttrName(attr.getAttributeName());
+    mapping.setDhis2AttrName(attr.getAttributeName());
+    mapping.setExternalId("TEST_EXTERNAL_ID");
+    mappings.add(mapping);
+
+    level2.setMappings(mappings);
+
+    SynchronizationConfig config = createSyncConfig(this.system, level2, true, TestDataSet.DEFAULT_OVER_TIME_DATE, false, preferredLocale, null);
+    
+    /*
+     * Serialize it
+     */
+    GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(dhis2, (DHIS2SyncConfig) config.buildConfiguration(), level2, new ArrayList<DHIS2Locale>(), new DualHashBidiMap<String, String>()));
+     
+    JsonObject joGo = builder.create().toJsonTree(serverGo, serverGo.getClass()).getAsJsonObject();
+    
+    /*
+     * Test it
+     */
+    Assert.assertEquals(GO_NO_DEFAULT_LOCALE_CANADA_LABEL, joGo.get("name").getAsString());
+    Assert.assertEquals(GO_NO_DEFAULT_LOCALE_CANADA_LABEL, joGo.get("shortName").getAsString());
+  }
+  
+  /*
+   * Sync Type tests
+   */
+  
+  /**
+   * Test that we can set the parent sync level to none and it won't send any payloads for our parent.
+   */
+  @Test
+  @Request
+  public void testNoSyncParent() throws Exception
+  {
+    // Our parent needs an external id if we're not creating it.
+    ((VertexServerGeoObject) AllAttributesDataset.GO_ALL.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
+    
+    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL, null, TestDataSet.DEFAULT_OVER_TIME_DATE, false, DHIS2SyncLevel.Type.NONE);
+  }
+  
+  /**
+   * Test that we can set the parent sync level to RELATIONSHIPS
+   */
+  @Test
+  @Request
+  public void testRelationshipSync() throws Exception
+  {
+    // Our parent needs an external id if we're not creating it.
+    ((VertexServerGeoObject) AllAttributesDataset.GO_ALL.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
+    
+    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL, null, TestDataSet.DEFAULT_OVER_TIME_DATE, false, DHIS2SyncLevel.Type.RELATIONSHIPS);
+  }
+  
+  /*
+   * Internal utility method tests
+   */
+  
+  @Test
+  @Request
+  public void testTwoObjectsSameIdWithDifferentType()
+  {
+    ((VertexServerGeoObject) AllAttributesDataset.GO_BOOL.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
+    ((VertexServerGeoObject) AllAttributesDataset.GO_CHAR.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
+    
+    VertexServerGeoObject goBool = VertexServerGeoObject.getByExternalId(DHIS2TestService.SIERRA_LEONE_ID, (DHIS2ExternalSystem) system, AllAttributesDataset.GO_BOOL.getGeoObjectType().getServerObject());
+    Assert.assertEquals(AllAttributesDataset.GO_BOOL.getCode(), goBool.getCode());
+    
+    VertexServerGeoObject goChar = VertexServerGeoObject.getByExternalId(DHIS2TestService.SIERRA_LEONE_ID, (DHIS2ExternalSystem) system, AllAttributesDataset.GO_CHAR.getGeoObjectType().getServerObject());
+    Assert.assertEquals(AllAttributesDataset.GO_CHAR.getCode(), goChar.getCode());
+  }
+  
+  @Test(expected = UnexpectedRemoteResponse.class)
+  @Request
+  public void testUnexpectedImportResponse()
+  {
+    /*
+     * Create our Geo-Object
+     */
+    // Parent needs an externalId otherwise we can't export the reference to it
+    ((VertexServerGeoObject) AllAttributesDataset.GO_ALL.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
+    
+    /*
+     * Define the objects we're going to be using
+     */
+    final TestGeoObjectInfo go = GO_NO_DEFAULT_LOCALE;
+    final TestGeoObjectTypeInfo got = go.getGeoObjectType();
+    final TestAttributeTypeInfo attr = AllAttributesDataset.AT_GO_BOOL;
+    final VertexServerGeoObject serverGo = (VertexServerGeoObject) go.getServerObject();
+    
+    /*
+     * Create a config
+     */
+    DHIS2SyncLevel level2 = new DHIS2SyncLevel();
+    level2.setGeoObjectType(got.getServerObject().getCode());
+    level2.setSyncType(DHIS2SyncLevel.Type.ALL);
+    level2.setLevel(1);
+
+    Collection<DHIS2AttributeMapping> mappings = getDefaultMappings();
+
+    DHIS2AttributeMapping mapping = new DHIS2AttributeMapping();
+    mapping.setAttributeMappingStrategy(DHIS2AttributeMapping.class.getName());
+    mapping.setCgrAttrName(attr.getAttributeName());
+    mapping.setDhis2AttrName(attr.getAttributeName());
+    mapping.setExternalId("TEST_EXTERNAL_ID");
+    mappings.add(mapping);
+
+    level2.setMappings(mappings);
+
+    SynchronizationConfig config = createSyncConfig(this.system, level2, true, TestDataSet.DEFAULT_OVER_TIME_DATE, false, null, null);
+    
+    ExportHistory history = new ExportHistory();
+    
+    ImportReportResponse resp = new ImportReportResponse("Lorem ipsum dolor sit amet, consectetur adipiscing elit", 306);
+    
+    DHIS2SynchronizationManager manager = new DHIS2SynchronizationManager(dhis2, (DHIS2SyncConfig) config.buildConfiguration(), history);
+    
+    DHIS2SynchronizationManagerProxy.processMetadataImportResponse(manager, level2, "", resp, new JsonArray(), new JsonArray());
+  }
 }

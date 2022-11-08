@@ -22,6 +22,17 @@
           </div>
         </div>
         
+        <div class="row-holder">
+          <div class="label-holder" [title]="'sync.preferredLocale.tooltip' | localize">
+            <label><localize key="sync.preferredLocale"></localize></label>
+          </div>
+          <div class="holder" style="margin-top:9px;">
+            <select type="text" [(ngModel)]="config.configuration.preferredLocale" name="preferredLocale" required>
+              <option *ngFor="let locale of localizationService.getLocales()" [value]="locale.toString">{{locale.label.localizedValue}}</option>
+            </select>
+          </div>
+        </div>
+        
         <div *ngIf="config.configuration.hierarchyCode != null" class="row-holder" >
       
           <div class="label-holder">

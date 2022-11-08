@@ -1,8 +1,8 @@
 <ng-template #customItemTemplate let-model="item" let-index="index">
 	<h5>{{model.name }} : {{ model.code }}</h5>
 	<h6>
-		{{model.layer.label}} - {{ model.layer.forDate }} ( <span *ngIf="model.layer.versionNumber !== 0">
-			<localize key="list.type.version"></localize> {{model.layer.versionNumber}}
+		{{model.layer.label}} - {{ model.layer.forDate }} ( <span *ngIf="model.layer.versionNumber !== 0"> <localize
+				key="list.type.version"></localize> {{model.layer.versionNumber}}
 		</span>
 		<localize *ngIf="model.layer.versionNumber === 0" key="list.type.working.version"></localize>
 		)
@@ -25,27 +25,22 @@
 					<!-- 
                     		Search features from the working versions of lists
                 	-->
-					<article class="panel-toggle" [ngClass]="{'detached' : data.length === 0 && current == null}">
+                	<article class="panel-toggle" [ngClass]="{'detached' : data.length === 0 && current == null}">
 						<ng-container>
-							<!-- 							<div class="col-md-4"> -->
-							<!-- 								<date-field [(value)]="dateFieldValue" label="" [inputName]="'date'" [allowInfinity]="false" -->
-							<!-- 									[allowFutureDates]="false" [required]="false" [placement]="'right'" style="display:inline-grid;"> </date-field> -->
-							<!-- 							</div> -->
-							<div class="col-md-12">
-
+<!-- 							<div class="col-md-4"> -->
+<!-- 								<date-field [(value)]="dateFieldValue" label="" [inputName]="'date'" [allowInfinity]="false" -->
+<!-- 									[allowFutureDates]="false" [required]="false" [placement]="'right'" style="display:inline-grid;"> </date-field> -->
+<!-- 							</div> -->
+							<div class="col-md-12" >
+								
 								<div class="input-group">
-									<ngx-spinner [fullScreen]="false" [name]="CONSTANTS.SEARCH_OVERLAY"
-										type="ball-clip-rotate-multiple" size="medium"></ngx-spinner>
-									<date-field [(value)]="dateFieldValue" label="" [inputName]="'date'"
-										[allowInfinity]="false" [allowFutureDates]="false" [required]="false"
-										style="display:table-cell;vertical-align:middle;width:175px;"> </date-field>
-
-									<input type="text" class="form-control"
-										[placeholder]="'explorer.search.placeholder' | localize"
-										(keyup.enter)="search()" [(ngModel)]="searchFieldText" name="text"> <span
-										class="input-group-btn">
-										<button [disabled]="isEdit" class="btn btn-primary" type="button"
-											(click)="search()">
+								  <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.SEARCH_OVERLAY" type="ball-clip-rotate-multiple" size="medium"></ngx-spinner>
+								  <date-field [(value)]="dateFieldValue" label="" [inputName]="'date'" [allowInfinity]="false"
+									[allowFutureDates]="false" [required]="false" style="display:table-cell;vertical-align:middle;width:175px;"> </date-field>
+									
+									<input type="text" class="form-control" [placeholder]="'explorer.search.placeholder' | localize"
+										(keyup.enter)="search()" [(ngModel)]="searchFieldText" name="text"> <span class="input-group-btn">
+										<button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="search()">
 											<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
 										</button>
 									</span>
@@ -60,84 +55,74 @@
 						<ng-container *ngIf="mode === MODE.SEARCH && searchEnabled">
 							<div class="row">
 								<div class="col-md-12" [ngClass]="{'full-height-sidebar' : data.length > 0 }">
-									<div id="hierarchy-tree-container"
-										class="location-management-widget-section location-management-list-container">
+									<div id="hierarchy-tree-container" class="location-management-widget-section location-management-list-container">
 										<div class="list-group">
-
+		
 											<div *ngFor="let node of data; let i = index" class="list-group-item">
 												<div class="card card-default" (click)="selectGeoObject(node)">
 													<div class="card-body">
-														<!--
+													  <!--
 						                              <i class="fa fa-map-marker clickable" style="float:right;font-size:25px;" aria-hidden="true"
 						                                (click)="zoomToFeature(node, $event)" [title]="'explorer.zoom.label' | localize"></i>
 						                              <i class="fa fa-sitemap clickable" style="float:right;font-size:25px;" aria-hidden="true" (click)="visualizeRelationships(node, VISUALIZE_MODE.GRAPH, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
 						                              -->
-														<h4 class="clickable" style="word-break: break-all;"
-															title="View Geo-Object details">
-															{{node.properties.code}} -
-															{{node.properties.displayLabel.localizedValue}}
+														<h4 class="clickable" style="word-break: break-all;" title="View Geo-Object details">
+															{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}
 														</h4>
 													</div>
 													<div class="card-footer">{{node.properties.type}}</div>
-												</div>
+												</div>												
 											</div>
-
+		
 										</div>
 									</div>
 								</div>
 							</div>
 						</ng-container>
 
-						<ng-container *ngIf="mode === MODE.VIEW && current != null">
-							<div class="row">
-								<div class="col-md-12"
-									[ngClass]="{'full-height-sidebar' : current != null, 'max-height' : !searchEnabled }">
-									<feature-panel *ngIf="current.objectType === 'GEOOBJECT' && typeCache.ready()"
-										#FeaturePanel [type]="typeCache.getTypeByCode(state.type)" [code]="current.code"
-										[forDate]="current.forDate" (forDateChange)="featurePanelForDateChange($event)"
-										[readOnly]="false" (modeChange)="onModeChange($event)"
-										(panelCancel)="clearRecord()" (panelSubmit)="onPanelSubmit($event)">
-									</feature-panel>
+			            <ng-container *ngIf="mode === MODE.VIEW && current != null">
+            				<div class="row">
+                  				<div class="col-md-12" [ngClass]="{'full-height-sidebar' : current != null, 'max-height' : !searchEnabled }">
+                    				<feature-panel *ngIf="current.objectType === 'GEOOBJECT' && typeCache.ready()" #FeaturePanel [type]="typeCache.getTypeByCode(state.type)" [code]="current.code" [forDate]="current.forDate"
+                      				  (forDateChange)="featurePanelForDateChange($event)" [readOnly]="false"
+                      				  (modeChange)="onModeChange($event)" (panelCancel)="clearRecord()"
+                      				  (panelSubmit)="onPanelSubmit($event)">
+				                    </feature-panel>
 
-									<business-object-panel *ngIf="current.objectType === 'BUSINESS'"
-										[type]="current.businessType" [object]="current.businessObject"
-										(close)="mode = MODE.VIEW">
-									</business-object-panel>
-								</div>
-							</div>
+									<business-object-panel *ngIf="current.objectType === 'BUSINESS'" [type]="current.businessType" [object]="current.businessObject"
+  										(close)="mode = MODE.VIEW">
+								  	</business-object-panel>  
+                				</div>
+			                </div>
 						</ng-container>
 					</div>
 				</div>
-
+				
 			</div> <!--  END sidebar panel -->
-
-			<div [ngClass]="{'col-md-6':!state.attrPanelOpen, 'col-md-8':state.attrPanelOpen}"
-				style="z-index:4;padding-top:10px;">
-
+	
+			<div [ngClass]="{'col-md-6':!state.attrPanelOpen, 'col-md-8':state.attrPanelOpen}" style="z-index:4;padding-top:10px;">
+			
 				<div style="z-index:999;padding-top:10px;overflow-y:auto;position:absolute;top:0;overflow:visible;">
-					<div *ngIf="searchEnabled || current != null" class="map-button clickable"
-						style="padding-bottom: 5px;" (click)="!isEdit && togglePanel()">
+					<div *ngIf="searchEnabled || current != null" class="map-button clickable" style="padding-bottom: 5px;" (click)="!isEdit && togglePanel()">
 						<div class="map-button-icon">
 							<span class="fa clickable" style="font-size: 35px;"
 								[title]="(state.attrPanelOpen ? 'explorer.resize.closeAttributePanel' : 'explorer.resize.openAttributePanel') | localize"
-								[ngClass]="{'fa-angle-double-left': state.attrPanelOpen, 'fa-angle-double-right': !state.attrPanelOpen}"
-								aria-hidden="true">
+								[ngClass]="{'fa-angle-double-left': state.attrPanelOpen, 'fa-angle-double-right': !state.attrPanelOpen}" aria-hidden="true">
 							</span>
 						</div>
 					</div>
-					<span *ngIf="current != null && graphVisualizerEnabled" class="map-button visualize-mode-toggle">
-						<i style="margin-right: initial" class="visualize-mode-hierarchy clickable fa fa-share-alt"
-							aria-hidden="true"
-							[title]="(state.graphPanelOpen ? 'explorer.resize.closeGraphViz' : 'explorer.resize.openGraphViz') | localize"
-							(click)="toggleGraphPanel()"></i>
+					<span *ngIf="current != null && graphVisualizerEnabled" class="map-button visualize-mode-toggle"> 
+						<i style="margin-right: initial" class="visualize-mode-hierarchy clickable fa fa-share-alt" aria-hidden="true"
+						[title]="(state.graphPanelOpen ? 'explorer.resize.closeGraphViz' : 'explorer.resize.openGraphViz') | localize"
+						(click)="toggleGraphPanel()"></i>
 					</span>
 				</div>
-
-				<div *ngIf="state.graphPanelOpen && graphVisualizerEnabled && state.type && state.code"
-					id="graph-container" style="height: calc(100vh - 74px);padding-left: 58px;">
+				
+				<div *ngIf="state.graphPanelOpen && graphVisualizerEnabled && state.type && state.code" id="graph-container" style="height: calc(100vh - 74px);padding-left: 58px;">
 					<div style="background-color: white; opacity: 100%; width: 100%; height: 100%;">
-						<relationship-visualizer (nodeSelect)="onGraphNodeSelect($event)">
-						</relationship-visualizer>
+              <relationship-visualizer
+                (nodeSelect)="onGraphNodeSelect($event)">
+              </relationship-visualizer>
 					</div>
 				</div>
 			</div>
@@ -148,34 +133,12 @@
 	<div class="row">
 		<div class="col-md-12">
 			<div class="row">
-
+				
 				<article id="navigator-layer-panel" class="base-layer-panel"
 					[ngClass]="{'second-map-button' : searchEnabled && !state.attrPanelOpen}"
 					[ngStyle]="{'max-width': layersPanelSize === 2 ? '50%' : 'unset', 'padding-left': layersPanelSize === 2 ? '10px' : 'unset'}">
-					<layer-panel (create)="onCreate($event)" [panelSize]="layersPanelSize"
-						(viewList)="onViewList($event)"> </layer-panel>
+					<layer-panel (create)="onCreate($event)" [panelSize]="layersPanelSize"> </layer-panel>
 				</article>
-
-				<article *ngIf="list != null && !state.graphPanelOpen" id="navigator-list-panel" class="list-panel"
-					style="position: absolute; right: 5px; bottom: 0px; z-index: 500; width: 100%; pointer-events: none;"
-					>
-					<div class="row" style="margin-left: 5px; ">
-						<div [ngClass]="{'col-md-4':isAttributePanelOpen()}">
-						</div>
-
-						<div [ngClass]="{'col-md-12':!isAttributePanelOpen(), 'col-md-8':isAttributePanelOpen()}"
-							style="pointer-events: all;">
-
-							<list-panel *ngIf="list.uid == null" [oid]="list.versionId" (close)="onListPanelClose()"
-								(error)="error($event)" (onRowSelect)="onRowSelect($event)"> </list-panel>
-
-							<list-row *ngIf="list.uid != null" [oid]="list.versionId" [uid]="list.uid"
-								(close)="onListPanelClose()" (error)="error($event)"> </list-row>
-
-						</div>
-					</div>
-				</article>
-
 
 				<div id="map" class="map-view-port"></div>
 

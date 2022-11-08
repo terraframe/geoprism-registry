@@ -1,0 +1,42 @@
+{
+    "responseType": "ImportReport",
+    "stats": {
+        "created": 0,
+        "updated": 0,
+        "deleted": 0,
+        "ignored": 2,
+        "total": 2
+    },
+    "typeReports": [
+        {
+            "klass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+            "stats": {
+                "created": 0,
+                "updated": 0,
+                "deleted": 0,
+                "ignored": 2,
+                "total": 2
+            },
+            "objectReports": [
+                {
+                    "klass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+                    "index": 0,
+                    "uid": "ImspTQPwCqd",
+                    "errorReports": [
+                        {
+                            "message": "Missing required property `openingDate`.",
+                            "mainKlass": "org.hisp.dhis.organisationunit.OrganisationUnit",
+                            "errorCode": "E4000",
+                            "errorKlass": "java.util.Date",
+                            "errorProperty": "openingDate",
+                            "errorProperties": [
+                                "openingDate"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "status": "ERROR"
+}

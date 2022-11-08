@@ -145,7 +145,7 @@
                 <ng-container *ngIf="cols != null && config != null">
                     <generic-table [cols]="cols" [config]="config" [groups]="groups" [refresh]="refresh"
                         [pageConfig]="{oid: list.oid, showInvalid: showInvalid}" (click)="onClick($event)"
-                        (onLoadEvent)="onLoadEvent($event)" [initialState]="tableState"></generic-table>
+                        (onFilter)="onFilter($event)"></generic-table>
                 </ng-container>
 
             </div>

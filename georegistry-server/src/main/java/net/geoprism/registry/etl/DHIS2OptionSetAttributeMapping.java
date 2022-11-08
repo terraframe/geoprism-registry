@@ -80,7 +80,7 @@ public class DHIS2OptionSetAttributeMapping extends DHIS2AttributeMapping
   }
   
   @Override
-  protected void writeAttributeValue(AttributeType attr, String propertyName, Object value, JsonObject av)
+  protected void writeAttributeValue(AttributeType attr, String propertyName, Object value, JsonObject av, DHIS2SyncConfig dhis2Config)
   {
     if (attr instanceof AttributeTermType)
     {

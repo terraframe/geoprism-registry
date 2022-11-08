@@ -20,6 +20,7 @@ package net.geoprism.registry.service;
 
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.json.JSONException;
 
 import com.google.gson.Gson;
@@ -32,10 +33,12 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.account.OauthServer;
+import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.etl.OauthExternalSystem;
+import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.FhirExternalSystem;
@@ -80,6 +83,46 @@ public class ExternalSystemService
     }
 
     return system.toJSON();
+  }
+  
+  @Request(RequestType.SESSION)
+  public JsonObject getSystemCapabilities(String sessionId, String systemJSON)
+  {
+    JsonObject capabilities = new JsonObject();
+
+    JsonObject jo = JsonParser.parseString(systemJSON).getAsJsonObject();
+
+    ExternalSystem system = ExternalSystem.desieralize(jo);
+
+    if (system instanceof DHIS2ExternalSystem)
+    {
+      DHIS2ExternalSystem dhis2System = (DHIS2ExternalSystem) system;
+
+      DHIS2TransportServiceIF dhis2 = new DHIS2FeatureService().getTransportService(dhis2System);
+
+      String version = dhis2.getVersionRemoteServer();
+
+      if (ArrayUtils.contains(DHIS2FeatureService.OAUTH_INCOMPATIBLE_VERSIONS, version))
+      {
+        capabilities.addProperty("oauth", false);
+      }
+      else
+      {
+        capabilities.addProperty("oauth", true);
+      }
+      
+      capabilities.addProperty("supportedVersion", dhis2.getVersionRemoteServerApi() <= DHIS2FeatureService.LAST_TESTED_DHIS2_API_VERSION);
+    }
+    else if (system instanceof FhirExternalSystem)
+    {
+      capabilities.addProperty("oauth", true);
+    }
+    else
+    {
+      capabilities.addProperty("oauth", false);
+    }
+
+    return capabilities;
   }
 
   @Request(RequestType.SESSION)

@@ -23,17 +23,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TimeZone;
 
+import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.LocaleUtils;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wololo.jts2geojson.GeoJSONWriter;
@@ -45,7 +41,6 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.localization.LocalizationFacade;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
@@ -58,8 +53,8 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.DHIS2SyncLevel;
+import net.geoprism.registry.etl.GeoObjectCache;
 import net.geoprism.registry.etl.export.ExportRemoteException;
-import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.InvalidGeometryException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -75,8 +70,6 @@ public class DHIS2GeoObjectJsonAdapters
 
     private ServerHierarchyType hierarchyType;
 
-    private ServerGeoObjectType got;
-
     private Integer             depth;
 
     private ExternalSystem      ex;
@@ -91,9 +84,11 @@ public class DHIS2GeoObjectJsonAdapters
     
     private List<DHIS2Locale>   dhis2Locales;
     
-    public DHIS2Serializer(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel syncLevel, List<DHIS2Locale> dhis2Locales)
+    // Links Geo-Object reference (typeCode + SEPARATOR + goUid) -> externalId
+    private BidiMap<String, String> newExternalIds;
+    
+    public DHIS2Serializer(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel syncLevel, List<DHIS2Locale> dhis2Locales, BidiMap<String, String> newExternalIds)
     {
-      this.got = syncLevel.getGeoObjectType();
       this.hierarchyType = dhis2Config.getHierarchy();
       this.dhis2 = dhis2;
       this.ex = dhis2Config.getSystem();
@@ -101,24 +96,34 @@ public class DHIS2GeoObjectJsonAdapters
       this.levels = dhis2Config.getLevels();
       this.dhis2Config = dhis2Config;
       this.dhis2Locales = dhis2Locales;
+      this.newExternalIds = newExternalIds;
 
       this.calculateDepth();
     }
     
     private String getExternalId(ServerGeoObjectIF serverGo)
     {
-      String externalId = serverGo.getExternalId(this.ex);
+      String goRef = serverGo.getType().getCode() + GeoObjectCache.SEPARATOR + serverGo.getUid();
       
-      if (externalId == null)
+      if (this.newExternalIds.containsKey(goRef))
       {
-        ParentExternalIdException ex = new ParentExternalIdException();
-        ex.setParentLabel(serverGo.getCode());
-        throw ex;
+        return this.newExternalIds.get(goRef);
       }
-      
-      return externalId;
+      else
+      {
+        String externalId = serverGo.getExternalId(this.ex);
+        
+        if (externalId == null)
+        {
+          ParentExternalIdException ex = new ParentExternalIdException();
+          ex.setParentLabel(serverGo.getCode());
+          throw ex;
+        }
+        
+        return externalId;
+      }
     }
-
+    
     private synchronized String getOrCreateExternalId(ServerGeoObjectIF serverGo)
     {
       String externalId = serverGo.getExternalId(this.ex);
@@ -138,7 +143,8 @@ public class DHIS2GeoObjectJsonAdapters
           throw remoteEx;
         }
 
-        serverGo.createExternalId(this.ex, externalId, ImportStrategy.NEW_ONLY);
+        String goRef = serverGo.getType().getCode() + GeoObjectCache.SEPARATOR + serverGo.getUid();
+        this.newExternalIds.put(goRef, externalId);
       }
 
       return externalId;
@@ -220,44 +226,12 @@ public class DHIS2GeoObjectJsonAdapters
           mapping.writeStandardAttributes(serverGo, this.dhis2Config.getDate(), jo, this.dhis2Config, this.syncLevel);
         }
       }
-      
-      // Fill in any required attributes with some sensible defaults
-      // TODO : Attribute mapping should be optional
-//      if (!jo.has("code"))
-//      {
-//        jo.addProperty("code", serverGo.getCode());
-//      }
 
       if (!jo.has("id"))
       {
         jo.addProperty("id", this.getOrCreateExternalId(serverGo));
       }
-
-//      if (!jo.has("created"))
-//      {
-//        jo.addProperty("created", formatDate(serverGo.getCreateDate()));
-//      }
-
-//      if (!jo.has("lastUpdated"))
-//      {
-//        jo.addProperty("lastUpdated", formatDate(serverGo.getLastUpdateDate()));
-//      }
-
-//      if (!jo.has("name"))
-//      {
-//        jo.addProperty("name", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
-//      }
-//
-//      if (!jo.has("shortName"))
-//      {
-//        jo.addProperty("shortName", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
-//      }
-
-//      if (!jo.has("openingDate"))
-//      {
-//        jo.addProperty("openingDate", formatDate(serverGo.getCreateDate()));
-//      }
-
+      
       if (!jo.has("featureType") || !jo.has("coordinates"))
       {
         writeGeometry(jo, serverGo);
@@ -269,6 +243,38 @@ public class DHIS2GeoObjectJsonAdapters
       }
 
       this.writeCustomAttributes(serverGo, jo);
+      
+      this.enforceRequiredAttributes(jo);
+    }
+    
+    private void enforceRequiredAttributes(JsonObject jo)
+    {
+      if (DHIS2SyncLevel.Type.RELATIONSHIPS.equals(this.syncLevel.getSyncType()) || DHIS2SyncLevel.Type.NONE.equals(this.syncLevel.getSyncType()))
+      {
+        return;
+      }
+      
+      final String[] attributes = new String[] {
+          "name", "shortName", "openingDate"
+      };
+      
+      List<String> labels = new ArrayList<String>();
+      
+      for (String attribute : attributes)
+      {
+        if (!jo.has(attribute) || jo.get(attribute).isJsonNull() || StringUtils.isEmpty(jo.get(attribute).getAsString()))
+        {
+          labels.add(attribute);
+        }
+      }
+      
+      if (labels.size() > 0)
+      {
+        RequiredValueException ex = new RequiredValueException();
+        ex.setDhis2AttrLabels(StringUtils.join(labels, ", "));
+        ex.setDateLabel(GeoRegistryUtil.formatDateForPresentation(this.dhis2Config.getDate(), false));
+        throw ex;
+      }
     }
 
     private void writeCustomAttributes(VertexServerGeoObject serverGo, JsonObject jo)
@@ -423,7 +429,7 @@ public class DHIS2GeoObjectJsonAdapters
         ex.setSyncLevel(String.valueOf(parentSyncLevel.getLevel()+1));
         ex.setTypeCode(parentSyncLevel.getGeoObjectType().getCode());
         ex.setHierarchyCode(this.hierarchyType.getCode());
-        ex.setDateLabel(GeoRegistryUtil.formatIso8601(this.dhis2Config.getDate(), false));
+        ex.setDateLabel(GeoRegistryUtil.formatDateForPresentation(this.dhis2Config.getDate(), false));
         throw ex;
       }
       
@@ -435,7 +441,7 @@ public class DHIS2GeoObjectJsonAdapters
         ex.setSyncLevel(String.valueOf(parentSyncLevel.getLevel()+1));
         ex.setTypeCode(parentSyncLevel.getGeoObjectType().getCode());
         ex.setHierarchyCode(this.hierarchyType.getCode());
-        ex.setDateLabel(GeoRegistryUtil.formatIso8601(this.dhis2Config.getDate(), false));
+        ex.setDateLabel(GeoRegistryUtil.formatDateForPresentation(this.dhis2Config.getDate(), false));
         throw ex;
       }
 

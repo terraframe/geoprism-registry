@@ -18,14 +18,15 @@
  */
 package net.geoprism.registry.dhis2;
 
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
-
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
+import net.geoprism.dhis2.response.DHIS2UnexpectedResponseException;
+import net.geoprism.registry.etl.export.HttpError;
+import net.geoprism.registry.etl.export.LoginException;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportService;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
@@ -77,9 +78,17 @@ public class DHIS2ServiceFactory
           dhis2.setVersionApiCompat(compatLayerVersion);
         }
       }
-      catch (IncompatibleServerVersionException e)
+      catch (InvalidLoginException e)
       {
-        throw new ProgrammingErrorException(e);
+        throw new LoginException(e);
+      }
+      catch (HTTPException | IllegalArgumentException | BadServerUriException e)
+      {
+        throw new HttpError(e);
+      }
+      catch (UnexpectedResponseException | IncompatibleServerVersionException e)
+      {
+        throw new DHIS2UnexpectedResponseException(e);
       }
       
       return dhis2;

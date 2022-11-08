@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -181,7 +182,7 @@ public class DHIS2AttributeMapping
         return;
       }
       
-      this.writeAttributeValue(attr, this.dhis2AttrName, value, jo);
+      this.writeAttributeValue(attr, this.dhis2AttrName, value, jo, dhis2Config);
     }
   }
 
@@ -206,7 +207,7 @@ public class DHIS2AttributeMapping
 
       av.addProperty("created", createDate);
 
-      this.writeAttributeValue(attr, "value", value, av);
+      this.writeAttributeValue(attr, "value", value, av, dhis2Config);
 
       JsonObject joAttr = new JsonObject();
       joAttr.addProperty("id", this.getExternalId());
@@ -342,7 +343,7 @@ public class DHIS2AttributeMapping
     }
   }
 
-  protected void writeAttributeValue(AttributeType attr, String propertyName, Object value, JsonObject json)
+  protected void writeAttributeValue(AttributeType attr, String propertyName, Object value, JsonObject json, DHIS2SyncConfig dhis2Config)
   {
     if (attr instanceof AttributeBooleanType)
     {
@@ -367,7 +368,21 @@ public class DHIS2AttributeMapping
     }
     else if (attr instanceof AttributeLocalType)
     {
-      json.addProperty(propertyName, ((LocalizedValue)value).getValue(LocalizedValue.DEFAULT_LOCALE));
+      String preferredLocale = LocalizedValue.DEFAULT_LOCALE;
+      
+      if (!StringUtils.isEmpty(dhis2Config.getPreferredLocale()))
+      {
+        preferredLocale = dhis2Config.getPreferredLocale();
+      }
+      
+      String label = ((LocalizedValue)value).getValue(preferredLocale);
+      
+      if (StringUtils.isEmpty(label))
+      {
+        label = ((LocalizedValue)value).getValue();
+      }
+      
+      json.addProperty(propertyName, label);
     }
     else
     {

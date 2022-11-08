@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, HostListener, Injector, ApplicationRef, ComponentFactoryResolver } from "@angular/core";
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, HostListener, Injector, ApplicationRef, ComponentFactoryResolver, EmbeddedViewRef } from "@angular/core";
 import { Location } from "@angular/common";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Map, NavigationControl, AttributionControl, IControl, LngLatBounds } from "mapbox-gl";
+import { Map, NavigationControl, AttributionControl, IControl, LngLatBounds, Popup } from "mapbox-gl";
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
@@ -26,6 +26,7 @@ import { NgxSpinnerService } from "ngx-spinner";
 import { ModalTypes } from "@shared/model/modal";
 import { FeaturePanelComponent } from "./feature-panel.component";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
+import { RecordPopupComponent } from "./record-popup.component";
 import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLayerDataSource, LIST_VECTOR_SOURCE_TYPE, SEARCH_DATASOURCE_TYPE, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, GeoObjectLayerDataSource, ValueOverTimeDataSource, RelationshipVisualizionDataSource } from "@registry/service/layer-data-source";
 import { BusinessObject, BusinessType } from "@registry/model/business-type";
 import { BusinessObjectService } from "@registry/service/business-object.service";
@@ -46,13 +47,6 @@ class SelectedObject {
     // If business object
     businessObject?: BusinessObject;
     businessType?: BusinessType;
-
-}
-
-class SelectedList {
-
-    versionId: string;
-    uid?: string;
 
 }
 
@@ -80,6 +74,8 @@ export interface LocationManagerState {
     styleUrls: ["./location-manager.css"]
 })
 export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestroy {
+
+    popup: any = null;
 
     pageMode: string = "";
 
@@ -190,9 +186,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     searchFieldText: string;
 
     dateFieldValue: string;
-
-    list: SelectedList = null;
-    recordContext: string = "MAP";
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
@@ -585,8 +578,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                                 }
                             } else {
                                 if (layer.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE) {
-                                    this.recordContext = "MAP";
-
                                     const versionId = (layer.dataSource as ListVectorLayerDataSource).getVersionId();
 
                                     /*
@@ -596,7 +587,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                                         this.updateState({ version: versionId, uid: feature.properties.uid }, false);
                                     } else {
                                       */
-                                    this.selectListRecord(versionId, feature.properties.uid);
+                                        this.selectListRecord(versionId, feature.properties.uid);
                                     // }
                                 } else if (layer.dataSource.getDataSourceType() === GEO_OBJECT_DATA_SOURCE_TYPE) {
                                     let geoObject: GeoObject = JSON.parse(JSON.stringify(feature));
@@ -822,25 +813,67 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 } as GeoObject);
                 */
             } else if (record.recordType === "LIST") {
-                if (this.recordContext === "MAP") {
-                    this.list = {
-                        versionId: this.state.version,
-                        uid: this.state.uid
-                    };
-                } else {
-                    const bounds = record.bbox;
-
-                    if (bounds && Array.isArray(bounds)) {
-                        let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
-                        let config: any = { padding: { top: 10, bottom: 10, left: 10, right: 10 }, animate: true, maxDuration: 5000, maxZoom: 20 };
-
-                        this.map.fitBounds(llb, config);
-                    }
-                }
+                this.renderListRecordPopup(record, this.state.uid);
             }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
+    }
+
+    renderListRecordPopup(record, uid: string): void {
+        const bounds = record.bbox;
+
+        if (bounds && Array.isArray(bounds)) {
+            // 1. Create a component reference from the component
+            const componentRef = this.componentFactoryResolver
+                .resolveComponentFactory(RecordPopupComponent)
+                .create(this.injector);
+
+            componentRef.instance.record = record;
+            componentRef.instance.edit.subscribe(() => {
+                const code: string = record.data["code"];
+                // const uid: string = record.data["originalOid"];
+
+                // this.handleSelect(record.typeCode, code, uid);
+
+                /*
+                this.router.navigate([], {
+                    relativeTo: this.route,
+                    queryParams: { objectType: "GEOOBJECT", type: record.typeCode, code: code, uid: uid, version: record.version },
+                    queryParamsHandling: "merge" // remove to replace all query params by provided
+                });
+                */
+
+                this.selectGeoObject({
+                    properties: {
+                        type: record.typeCode,
+                        code: code,
+                        uid: uid,
+                        displayLabel: new LocalizedValue(record.data.displayLabelDefaultLocale, [])
+                    }
+                } as GeoObject, record.forDate);
+                // this.zoomToFeature(node, null);
+            });
+
+            // 2. Attach component to the appRef so that it's inside the ng component tree
+            this.appRef.attachView(componentRef.hostView);
+
+            // 3. Get DOM element from component
+            const domElem = (componentRef.hostView as EmbeddedViewRef<any>)
+                .rootNodes[0] as HTMLElement;
+
+            // 4. Append DOM element to the body
+            let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+
+            if (this.popup) {
+                this.popup.remove();
+            }
+
+            this.popup = new Popup({ closeOnClick: true, closeButton: false })
+                .setLngLat(llb.getCenter())
+                .setDOMContent(domElem)
+                .addTo(this.map);
+        }
     }
 
     selectListRecord(list: string, uid: string): void {
@@ -985,34 +1018,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         ]);
 
         return bounds;
-    }
-
-    onViewList(oid: string): void {
-        let newState = this.locationManagerService.clearListRecord(this.geomService.getState());
-
-        this.updateState(newState, true);
-
-        this.list = {
-            versionId: oid
-        };
-    }
-
-    onRowSelect(event: { version: string, uid: string }): void {
-        this.recordContext = "ROW";
-
-        this.selectListRecord(event.version, event.uid);
-    }
-
-    onListPanelClose(): void {
-        let newState = this.locationManagerService.clearListRecord(this.geomService.getState());
-
-        this.updateState(newState, true);
-
-        this.list = null;
-    }
-
-    isAttributePanelOpen(): boolean {
-        return (this.state.attrPanelOpen && ((this.mode === this.MODE.VIEW && this.current != null) || (this.mode === this.MODE.SEARCH && this.searchEnabled && this.data.length > 0)));
     }
 
     error(err: HttpErrorResponse): void {

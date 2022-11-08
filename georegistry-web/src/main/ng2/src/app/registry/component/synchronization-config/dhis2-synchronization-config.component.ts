@@ -5,8 +5,11 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { SynchronizationConfig, OrgSyncInfo, GeoObjectType } from "@registry/model/registry";
 import { SynchronizationConfigService } from "@registry/service";
 import { AttributeConfigInfo, DHIS2AttributeMapping, SyncLevel } from "@registry/model/sync";
+import { LocalizationService } from "@shared/service/localization.service";
 
 let DEFAULT_MAPPING_STRATEGY = "net.geoprism.registry.etl.DHIS2AttributeMapping";
+let END_DATE_MAPPING = "net.geoprism.registry.etl.DHIS2EndDateAttributeMapping";
+let START_DATE_MAPPING = "net.geoprism.registry.etl.DHIS2StartDateAttributeMapping";
 
 export interface GOTAttributeConfig {
   geoObjectTypeCode?: string;
@@ -47,7 +50,7 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
   orgUnitGroups: any[] = [];
 
   // eslint-disable-next-line no-useless-constructor
-  constructor(private service: SynchronizationConfigService) { }
+  constructor(private service: SynchronizationConfigService, public localizationService: LocalizationService) { }
 
   ngOnInit(): void {
     // Get the types
@@ -59,7 +62,8 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
           this.config.configuration = {
               levels: [],
               hierarchyCode: null,
-              syncNonExistent: false
+              syncNonExistent: false,
+              preferredLocale: "defaultLocale"
           };
       }
 
@@ -75,6 +79,10 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
           }
       } else {
           this.config.configuration.levels = [];
+      }
+
+      if (this.config.configuration.preferredLocale == null) {
+          this.config.configuration.preferredLocale = "defaultLocale";
       }
 
       if (this.config.configuration.hierarchyCode != null) {
@@ -127,11 +135,18 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
               dhis2AttrName: "code"
           },
           {
-              attributeMappingStrategy: DEFAULT_MAPPING_STRATEGY,
-              cgrAttrName: "createDate",
+              attributeMappingStrategy: START_DATE_MAPPING,
+              cgrAttrName: "exists",
               externalId: null,
               dhis2Id: "openingDate",
               dhis2AttrName: "openingDate"
+          },
+          {
+              attributeMappingStrategy: END_DATE_MAPPING,
+              cgrAttrName: "exists",
+              externalId: null,
+              dhis2Id: "closedDate",
+              dhis2AttrName: "closedDate"
           }
           /*
           {
@@ -181,7 +196,9 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
 
   onSelectLevelType(levelRow: LevelRow): void {
       if (levelRow.level.type === "RELATIONSHIPS") {
-          levelRow.attrCfg.mappings = [];
+          if (levelRow.attrCfg) {
+              levelRow.attrCfg.mappings = [];
+          }
           levelRow.level.mappings = [];
 
           let editorIndex = this.getEditorIndex();
@@ -189,7 +206,7 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
               this.levelRows.splice(editorIndex, 1);
           }
       } else {
-          if (levelRow.attrCfg.mappings.length === 0) {
+          if (levelRow.attrCfg && levelRow.attrCfg.mappings.length === 0) {
               levelRow.attrCfg.mappings = this.buildDefaultMappings();
               levelRow.level.mappings = levelRow.attrCfg.mappings;
 
@@ -451,6 +468,7 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
       mapping.info = info;
       mapping.dhis2AttrName = null;
       mapping.externalId = null;
+      mapping.dhis2Id = null;
       mapping.terms = {};
 
       if (mapping.info.attributeMappingStrategies.length > 0) {

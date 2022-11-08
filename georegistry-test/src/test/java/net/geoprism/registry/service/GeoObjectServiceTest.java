@@ -20,9 +20,11 @@ package net.geoprism.registry.service;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.GeoObjectTypeNotFoundException;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -45,6 +47,7 @@ import com.vividsolutions.jts.geom.Point;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
@@ -570,7 +573,7 @@ public class GeoObjectServiceTest
     geoObj.setUid(UUID.randomUUID().toString());
     testData.adapter.createGeoObject(geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
   }
-
+  
   /**
    * Test to make sure we can't just provide random ids, they actually have to
    * be issued by our id service

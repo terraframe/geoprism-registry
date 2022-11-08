@@ -20,6 +20,7 @@ package net.geoprism.registry.service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,7 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.etl.GeoObjectCache;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.localization.LocalizationService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -275,10 +277,15 @@ public class SearchService
 
       Set<String> attributeNames = LocalizationService.getLocaleNames();
 
+      Set<String> labels = new HashSet<String>(); // Using a set so we don't have duplicates
+      
       for (String attributeName : attributeNames)
       {
-        String label = value.getObjectValue(attributeName);
-
+        labels.add(value.getObjectValue(attributeName));
+      }
+      
+      for (String label : labels)
+      {
         if (label != null && label.length() > 0)
         {
           VertexObject vertex = new VertexObject(mdVertex.definesType());
@@ -321,6 +328,7 @@ public class SearchService
     {
       String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
       String escapedText = text.replaceAll(regex, "\\\\\\\\$1").trim();
+      escapedText = escapedText.replaceAll("\\'", "\\\\'"); // Special usecase for apostrophes
       
       String[] escapedTokens = StringUtils.split(escapedText, " ");
       String term;
@@ -378,13 +386,23 @@ public class SearchService
     }
 
     List<VertexObject> results = query.getResults();
+    
+    Set<String> codeSet = new HashSet<String>();
 
     for (VertexObject result : results)
     {
       MdVertexDAOIF mdVertexType = (MdVertexDAOIF) result.getMdClass();
       ServerGeoObjectType type = ServerGeoObjectType.get(mdVertexType);
-
-      list.add(new VertexServerGeoObject(type, result, date));
+      
+      VertexServerGeoObject vsgo = new VertexServerGeoObject(type, result, date);
+      
+      // Due to the way we add multiple records (for different locales) for Geo-Objects we may have duplicates. Remove them now as it will be confusing to the end user.
+      String key = type.getCode() + GeoObjectCache.SEPARATOR + vsgo.getCode();
+      if (!codeSet.contains(key))
+      {
+        list.add(vsgo);
+        codeSet.add(key);
+      }
     }
 
     return list;
