@@ -67,8 +67,10 @@ import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.ElementInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
+import com.runwaysdk.dataaccess.DuplicateDataExceptionHacker;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.MdClassDAOIF;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
@@ -115,6 +117,7 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.upload.ClassifierCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.exception.DuplicateExternalIdException;
 import net.geoprism.registry.geoobject.ValueOutOfRangeException;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -2078,7 +2081,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
   }
 
-  private EdgeObject getExternalIdEdge(ExternalSystem system)
+  private ExternalId getExternalIdEdge(ExternalSystem system)
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
 
@@ -2089,7 +2092,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     query.setParameter("parent", system.getRID());
     query.setParameter("child", this.getVertex().getRID());
 
-    return query.getSingleResult();
+    EdgeObject edge = query.getSingleResult();
+    
+    if (edge == null)
+    {
+      return null;
+    }
+    else
+    {
+      return new ExternalId(edge);
+    }
   }
 
   @Override
@@ -2097,32 +2109,32 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     if (importStrategy.equals(ImportStrategy.NEW_ONLY))
     {
-      EdgeObject edge = this.getVertex().addParent(system, GeoVertex.EXTERNAL_ID);
-      edge.setValue("id", id);
-      edge.apply();
+      ExternalId externalId = new ExternalId(this.getVertex().addParent(system, GeoVertex.EXTERNAL_ID));
+      externalId.setExternalId(id);
+      externalId.apply();
     }
     else
     {
-      EdgeObject edge = this.getExternalIdEdge(system);
+      ExternalId externalId = this.getExternalIdEdge(system);
 
-      if (edge == null)
+      if (externalId == null)
       {
-        edge = this.getVertex().addParent(system, GeoVertex.EXTERNAL_ID);
+        externalId = new ExternalId(this.getVertex().addParent(system, GeoVertex.EXTERNAL_ID));
       }
 
-      edge.setValue("id", id);
-      edge.apply();
+      externalId.setExternalId(id);
+      externalId.apply();
     }
   }
 
   @Override
   public String getExternalId(ExternalSystem system)
   {
-    EdgeObject edge = this.getExternalIdEdge(system);
+    ExternalId edge = this.getExternalIdEdge(system);
 
     if (edge != null)
     {
-      return edge.getObjectValue("id");
+      return edge.getExternalId();
     }
 
     return null;
@@ -2470,42 +2482,58 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
   public static void handleDuplicateDataException(ServerGeoObjectType type, DuplicateDataException e)
   {
-    if (e.getAttributes().size() == 0)
+    MdClassDAOIF mdClass = DuplicateDataExceptionHacker.getMdClassDAOIF(e);
+    
+    if (mdClass.definesType().equals(ExternalId.CLASS))
     {
-      throw e;
-    }
-    else if (e.getAttributes().size() == 1)
-    {
-      MdAttributeDAOIF attr = e.getAttributes().get(0);
-
-      if (isCodeAttribute(attr))
-      {
-        DuplicateGeoObjectCodeException ex = new DuplicateGeoObjectCodeException();
-        ex.setGeoObjectType(findTypeLabelFromGeoObjectCode(e.getValues().get(0)));
-        ex.setValue(e.getValues().get(0));
-        throw ex;
-      }
-      else
-      {
-        DuplicateGeoObjectException ex = new DuplicateGeoObjectException();
-        ex.setGeoObjectType(type.getLabel().getValue());
-        ex.setValue(e.getValues().get(0));
-        ex.setAttributeName(getAttributeLabel(type, attr));
-        throw ex;
-      }
+      String key = e.getValues().get(0);
+      String externalId = key.split(ExternalId.KEY_SEPARATOR)[0];
+      String externalSystem = ExternalSystem.get(key.split(ExternalId.KEY_SEPARATOR)[1]).getDisplayLabel().getValue();
+      
+      DuplicateExternalIdException ex = new DuplicateExternalIdException();
+      ex.setExternalId(externalId);
+      ex.setExternalSystem(externalSystem);
+      throw ex;
     }
     else
     {
-      List<String> attrLabels = new ArrayList<String>();
-
-      for (MdAttributeDAOIF attr : e.getAttributes())
+      if (e.getAttributes().size() == 0)
       {
-        attrLabels.add(getAttributeLabel(type, attr));
+        throw e;
       }
-
-      DuplicateGeoObjectMultipleException ex = new DuplicateGeoObjectMultipleException();
-      ex.setAttributeLabels(StringUtils.join(attrLabels, ", "));
-      throw ex;
+      else if (e.getAttributes().size() == 1)
+      {
+        MdAttributeDAOIF attr = e.getAttributes().get(0);
+  
+        if (isCodeAttribute(attr))
+        {
+          DuplicateGeoObjectCodeException ex = new DuplicateGeoObjectCodeException();
+          ex.setGeoObjectType(findTypeLabelFromGeoObjectCode(e.getValues().get(0)));
+          ex.setValue(e.getValues().get(0));
+          throw ex;
+        }
+        else
+        {
+          DuplicateGeoObjectException ex = new DuplicateGeoObjectException();
+          ex.setGeoObjectType(type.getLabel().getValue());
+          ex.setValue(e.getValues().get(0));
+          ex.setAttributeName(getAttributeLabel(type, attr));
+          throw ex;
+        }
+      }
+      else
+      {
+        List<String> attrLabels = new ArrayList<String>();
+  
+        for (MdAttributeDAOIF attr : e.getAttributes())
+        {
+          attrLabels.add(getAttributeLabel(type, attr));
+        }
+  
+        DuplicateGeoObjectMultipleException ex = new DuplicateGeoObjectMultipleException();
+        ex.setAttributeLabels(StringUtils.join(attrLabels, ", "));
+        throw ex;
+      }
     }
   }
 
