@@ -29,7 +29,7 @@ package net.geoprism.registry.etl.export;
 public abstract class UnexpectedRemoteResponseBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.UnexpectedRemoteResponse";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = 306110023;
   
   public UnexpectedRemoteResponseBase()

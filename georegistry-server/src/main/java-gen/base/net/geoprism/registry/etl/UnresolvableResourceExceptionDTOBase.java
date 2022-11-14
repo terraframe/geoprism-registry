@@ -69,8 +69,8 @@ public abstract class UnresolvableResourceExceptionDTOBase extends com.runwaysdk
     return CLASS;
   }
   
-  public static java.lang.String IDENTIFIER = "identifier";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String IDENTIFIER = "identifier";
+  public static final java.lang.String OID = "oid";
   public String getIdentifier()
   {
     return getValue(IDENTIFIER);

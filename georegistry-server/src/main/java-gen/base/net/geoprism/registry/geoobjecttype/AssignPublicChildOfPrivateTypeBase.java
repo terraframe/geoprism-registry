@@ -29,7 +29,7 @@ package net.geoprism.registry.geoobjecttype;
 public abstract class AssignPublicChildOfPrivateTypeBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.geoobjecttype.AssignPublicChildOfPrivateType";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = 1672925970;
   
   public AssignPublicChildOfPrivateTypeBase()

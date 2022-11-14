@@ -29,7 +29,7 @@ package net.geoprism.registry.etl;
 public abstract class ListTypeJobBase extends com.runwaysdk.system.scheduler.ExecutableJob
 {
   public final static String CLASS = "net.geoprism.registry.etl.ListTypeJob";
-  public static java.lang.String LISTTYPE = "listType";
+  public static final java.lang.String LISTTYPE = "listType";
   private static final long serialVersionUID = 124550077;
   
   public ListTypeJobBase()

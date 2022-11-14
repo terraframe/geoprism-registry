@@ -69,8 +69,8 @@ public abstract class FhirResponseExceptionDTOBase extends com.runwaysdk.busines
     return CLASS;
   }
   
-  public static java.lang.String ERRORMESSAGE = "errorMessage";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String ERRORMESSAGE = "errorMessage";
+  public static final java.lang.String OID = "oid";
   public String getErrorMessage()
   {
     return getValue(ERRORMESSAGE);

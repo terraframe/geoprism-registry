@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from "@angular/core";
-import { ListData, ListTypeVersion } from "@registry/model/list-type";
-import { GenericTableColumn, GenericTableConfig, GenericTableGroup, TableEvent } from "@shared/model/generic-table";
+import { ListColumn, ListData, ListTypeVersion } from "@registry/model/list-type";
+import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
 import { BsModalService } from "ngx-bootstrap/modal";
 import { LazyLoadEvent } from "primeng/api";
 import { ListTypeService } from "@registry/service/list-type.service";
@@ -48,8 +48,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
     userOrgCodes: string[];
 
     config: GenericTableConfig = null;
-    groups: GenericTableGroup[][] = null;
-    cols: GenericTableColumn[] = null;
+    setup: TableColumnSetup = null;
 
     showInvalid = false;
 
@@ -143,72 +142,96 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     refreshColumns(): void {
-        this.cols = [];
+        const columns = [];
+
+        const mainGroups: GenericTableColumn[] = [];
+        const subGroups: GenericTableColumn[] = [];
         const orderedArray = [];
 
-        const mainGroups: GenericTableGroup[] = [];
-        const subGroups: GenericTableGroup[] = [];
-
         if (this.list.isMember || this.list.geospatialMetadata.visibility === "PUBLIC") {
-            this.cols.push({ header: "", type: "ACTIONS", sortable: false });
+            const column = { header: "", type: "ACTIONS", sortable: false, rowspan: 3, colspan: 1, headerType: "ATTRIBUTE" };
 
-            mainGroups.push({ label: "", colspan: 1 });
-            subGroups.push({ label: "", colspan: 1 });
+            mainGroups.push(column);
+            columns.push(column);
         }
 
         this.list.attributes.forEach(group => {
             if (this.showInvalid || group.name !== "invalid") {
                 mainGroups.push({
-                    label: group.label,
-                    colspan: group.colspan
+                    header: group.label,
+                    colspan: group.colspan,
+                    rowspan: group.rowspan,
+                    headerType: "GROUP"
                 });
 
                 group.columns.forEach(subgroup => {
-                    subGroups.push({
-                        label: subgroup.label,
-                        colspan: subgroup.colspan
-                    });
+                    if (subgroup.columns != null) {
+                        subGroups.push({
+                            header: subgroup.label,
+                            colspan: subgroup.colspan,
+                            rowspan: subgroup.rowspan,
+                            headerType: "GROUP"
+                        });
 
-                    subgroup.columns.forEach(attribute => {
-                        orderedArray.push(attribute);
-                    });
+                        subgroup.columns.forEach(attribute => {
+                            if (this.showInvalid || attribute.name !== "invalid") {
+                                const column = this.createColumn(attribute);
+
+                                orderedArray.push(column);
+                                columns.push(column);
+                            }
+                        });
+                    } else {
+                        if (this.showInvalid || subgroup.name !== "invalid") {
+                            const column = this.createColumn(subgroup);
+
+                            subGroups.push(column);
+                            columns.push(column);
+                        }
+                    }
                 });
             }
         });
 
-        this.groups = [mainGroups, subGroups];
+        this.setup = {
+            headers: [mainGroups, subGroups, orderedArray],
+            columns: columns
+        };
 
-        orderedArray.forEach(attribute => {
-            if (this.showInvalid || attribute.name !== "invalid") {
-                let column: GenericTableColumn = {
-                    header: attribute.label,
-                    field: attribute.name,
-                    type: "TEXT",
-                    sortable: true,
-                    filter: true
-                };
+        console.log(this.setup);
+    }
 
-                if (attribute.type === "date") {
-                    column.type = "DATE";
-                } else if (attribute.name === "invalid" || attribute.type === "boolean") {
-                    column.type = "BOOLEAN";
-                } else if (attribute.type === "number") {
-                    column.type = "NUMBER";
-                } else if (attribute.type === "list") {
-                    column.type = "AUTOCOMPLETE";
-                    column.text = "";
-                    column.onComplete = () => {
-                        this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
-                            column.results = options;
-                        }).catch((err: HttpErrorResponse) => {
-                            this.error.emit(err);
-                        });
-                    };
-                }
+    createColumn(attribute: ListColumn): GenericTableColumn {
+        let column: GenericTableColumn = {
+            headerType: "ATTRIBUTE",
+            header: attribute.label,
+            field: attribute.name,
+            type: "TEXT",
+            sortable: true,
+            filter: true,
+            rowspan: attribute.rowspan,
+            colspan: attribute.colspan
+        };
 
-                this.cols.push(column);
-            }
-        });
+        if (attribute.type === "date") {
+            column.type = "DATE";
+        } else if (attribute.name === "invalid" || attribute.type === "boolean") {
+            column.type = "BOOLEAN";
+        } else if (attribute.type === "number") {
+            column.type = "NUMBER";
+        } else if (attribute.type === "list") {
+            column.type = "AUTOCOMPLETE";
+            column.text = "";
+            column.onComplete = () => {
+                this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
+                    column.results = options;
+                }).catch((err: HttpErrorResponse) => {
+                    this.error.emit(err);
+                });
+            };
+        }
+
+        return column;
     }
 
     handleShowInvalidChange(): void {

@@ -45,7 +45,7 @@ public abstract class DataExportJobDTOBase extends com.runwaysdk.system.schedule
     return CLASS;
   }
   
-  public static java.lang.String CONFIG = "config";
+  public static final java.lang.String CONFIG = "config";
   public net.geoprism.registry.SynchronizationConfigDTO getConfig()
   {
     if(getValue(CONFIG) == null || getValue(CONFIG).trim().equals(""))

@@ -234,7 +234,7 @@ public class RegistryAccountUtil extends RegistryAccountUtilBase
       throw new InvalidUserInviteToken();
     }
 
-    if ( ( System.currentTimeMillis() - invite.getStartTime().getTime() ) > ( GeoprismProperties.getInviteUserTokenExpireTime() * 3600000 ))
+    if ( ( System.currentTimeMillis() - invite.getStartTime().getTime() ) > ( GeoprismProperties.getInviteUserTokenExpireTime() * 3600000L ))
     {
       throw new InvalidUserInviteToken();
     }

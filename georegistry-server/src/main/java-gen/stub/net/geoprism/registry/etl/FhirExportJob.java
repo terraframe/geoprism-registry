@@ -53,8 +53,8 @@ public class FhirExportJob extends FhirExportJobBase
   {
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
 
-    FhirExternalSystem system = this.getExternalSystem();
-
+//    FhirExternalSystem system = this.getExternalSystem();
+//
 //    this.getVersion().exportToFhir(system, this.getImplementation());
   }
 

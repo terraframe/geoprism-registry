@@ -11,9 +11,9 @@ package net.geoprism.registry.etl.export.dhis2;
 public abstract class RequiredValueExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.dhis2.RequiredValueException";
-  public static java.lang.String DATELABEL = "dateLabel";
-  public static java.lang.String DHIS2ATTRLABELS = "dhis2AttrLabels";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String DATELABEL = "dateLabel";
+  public static final java.lang.String DHIS2ATTRLABELS = "dhis2AttrLabels";
+  public static final java.lang.String OID = "oid";
   @SuppressWarnings("unused")
   private static final long serialVersionUID = -2106415512;
   

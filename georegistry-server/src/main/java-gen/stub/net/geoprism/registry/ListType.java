@@ -835,6 +835,10 @@ public abstract class ListType extends ListTypeBase
     {
       list = new IntervalListType();
     }
+    else
+    {
+      throw new UnsupportedOperationException("Unknown list type");
+    }
 
     list.parse(object);
 

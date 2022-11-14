@@ -29,7 +29,7 @@ package net.geoprism.registry;
 public abstract class InvalidMasterListExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.InvalidMasterListException";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -1354170396;
   
   public InvalidMasterListExceptionBase()

@@ -69,10 +69,10 @@ public abstract class DuplicateGeoObjectExceptionDTOBase extends com.runwaysdk.b
     return CLASS;
   }
   
-  public static java.lang.String ATTRIBUTENAME = "attributeName";
-  public static java.lang.String GEOOBJECTTYPE = "geoObjectType";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String VALUE = "value";
+  public static final java.lang.String ATTRIBUTENAME = "attributeName";
+  public static final java.lang.String GEOOBJECTTYPE = "geoObjectType";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String VALUE = "value";
   public String getAttributeName()
   {
     return getValue(ATTRIBUTENAME);

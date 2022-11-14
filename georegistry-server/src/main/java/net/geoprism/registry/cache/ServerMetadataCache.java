@@ -18,9 +18,7 @@
  */
 package net.geoprism.registry.cache;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,12 +27,10 @@ import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.metadata.HierarchyNode;
 
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.ServiceFactory;
 
 /**
  * This is a singleton instance that caches {@link ServerGeoObjectType} objects
@@ -43,7 +39,7 @@ import net.geoprism.registry.service.ServiceFactory;
  * @author nathan
  *
  */
-public class ServerMetadataCache implements Serializable
+public class ServerMetadataCache
 {
   /**
    * 

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.fhir;
 
@@ -96,30 +96,33 @@ public class FhirBulkDataImporter
         byte[] result = Base64.getDecoder().decode(base64);
 
         IParser parser = ctx.newJsonParser();
-        String message = new String(result);
-
-        try (BufferedReader reader = new BufferedReader(new StringReader(message)))
+        try
         {
-          String line = null;
+          String message = new String(result, "UTF-8");
 
-          while ( ( line = reader.readLine() ) != null)
+          try (BufferedReader reader = new BufferedReader(new StringReader(message)))
           {
-            IBaseResource resource = parser.parseResource(line);
+            String line = null;
 
-            IIdType id = resource.getIdElement();
-            String resourceType = id.getResourceType();
-
-            if (resourceType.equals(ResourceTypes.LOCATION.toCode()))
+            while ( ( line = reader.readLine() ) != null)
             {
-              Location location = (Location) resource;
+              IBaseResource resource = parser.parseResource(line);
 
-              this.processor.process(location);
-            }
-            else if (resourceType.equals(ResourceTypes.ORGANIZATION.toCode()))
-            {
-              Organization organization = (Organization) resource;
+              IIdType id = resource.getIdElement();
+              String resourceType = id.getResourceType();
 
-              this.processor.process(organization);
+              if (resourceType.equals(ResourceTypes.LOCATION.toCode()))
+              {
+                Location location = (Location) resource;
+
+                this.processor.process(location);
+              }
+              else if (resourceType.equals(ResourceTypes.ORGANIZATION.toCode()))
+              {
+                Organization organization = (Organization) resource;
+
+                this.processor.process(organization);
+              }
             }
           }
         }

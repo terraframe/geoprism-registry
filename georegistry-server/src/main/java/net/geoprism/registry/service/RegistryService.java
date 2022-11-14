@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -386,14 +386,19 @@ public class RegistryService
   {
     ServerGeoObjectIF object = this.service.getGeoObject(uid, geoObjectTypeCode);
 
-    if (object == null)
-    {
-      net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
-      ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
-      ex.setDataIdentifier(uid);
-      ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.UID.getName()));
-      throw ex;
-    }
+    // TODO: Figure out if this should be deleted. It is impossible to fall into
+    // the following branch because this.service.getGeoObject will throw an
+    // exception if the object is null
+
+    // if (object == null)
+    // {
+    // net.geoprism.registry.DataNotFoundException ex = new
+    // net.geoprism.registry.DataNotFoundException();
+    // ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
+    // ex.setDataIdentifier(uid);
+    // ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.UID.getName()));
+    // throw ex;
+    // }
 
     final GeoObjectPermissionServiceIF pService = ServiceFactory.getGeoObjectPermissionService();
     pService.enforceCanRead(object.getType().getOrganization().getCode(), object.getType());
@@ -595,7 +600,7 @@ public class RegistryService
 
     // If this did not error out then add to the cache
     ServiceFactory.getMetadataCache().addOrganization(org);
-    
+
     SerializedListTypeCache.getInstance().clear();
 
     return ServiceFactory.getAdapter().getMetadataCache().getOrganization(org.getCode()).get();
@@ -616,7 +621,7 @@ public class RegistryService
     ServiceFactory.getOrganizationPermissionService().enforceActorCanDelete();
 
     organization.delete();
-    
+
     SerializedListTypeCache.getInstance().clear();
 
     // If this did not error out then remove from the cache
@@ -664,6 +669,7 @@ public class RegistryService
 
     type = new ServerGeoObjectTypeConverter().create(gtJSON);
 
+    // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
     // If this did not error out then add to the cache
@@ -960,10 +966,10 @@ public class RegistryService
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(code);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(type.getOrganization().getCode(), type, type.getIsPrivate());
-
     if (type != null)
     {
+      ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(type.getOrganization().getCode(), type, type.getIsPrivate());
+
       type.delete();
     }
   }
@@ -1082,7 +1088,7 @@ public class RegistryService
     }
     else
     {
-      query.setParameter("text", text);
+      query.setParameter("text", null);
     }
 
     @SuppressWarnings("unchecked")
@@ -1286,14 +1292,19 @@ public class RegistryService
   {
     ServerGeoObjectIF object = this.service.getGeoObject(id, typeCode);
 
-    if (object == null)
-    {
-      net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
-      ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
-      ex.setDataIdentifier(id);
-      ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.UID.getName()));
-      throw ex;
-    }
+    // TODO: Figure out if this should be deleted. It is impossible to fall into
+    // the following branch because this.service.getGeoObject will throw an
+    // exception if the object is null
+
+    // if (object == null)
+    // {
+    // net.geoprism.registry.DataNotFoundException ex = new
+    // net.geoprism.registry.DataNotFoundException();
+    // ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
+    // ex.setDataIdentifier(id);
+    // ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.UID.getName()));
+    // throw ex;
+    // }
 
     ServiceFactory.getGeoObjectPermissionService().enforceCanRead(object.getType().getOrganization().getCode(), object.getType());
 

@@ -29,9 +29,9 @@ package net.geoprism.registry.graph;
 public abstract class GeoVertexSynonymBase extends com.runwaysdk.business.graph.VertexObject
 {
   public final static String CLASS = "net.geoprism.registry.graph.GeoVertexSynonym";
-  public static java.lang.String LABEL = "label";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String SEQ = "seq";
+  public static final java.lang.String LABEL = "label";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String SEQ = "seq";
   private static final long serialVersionUID = -1205350658;
   
   public GeoVertexSynonymBase()

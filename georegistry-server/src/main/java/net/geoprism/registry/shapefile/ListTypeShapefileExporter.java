@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.shapefile;
 
@@ -157,10 +157,16 @@ public class ListTypeShapefileExporter
     String name = SessionPredicate.generateId();
 
     File root = new File(new File(VaultProperties.getPath("vault.default"), "files"), name);
-    root.mkdirs();
+    if (!root.mkdirs())
+    {
+      logger.debug("Unable to create directory [" + root.getAbsolutePath() + "]");
+    }
 
     File directory = new File(root, this.getList().getCode());
-    directory.mkdirs();
+    if (!directory.mkdirs())
+    {
+      logger.debug("Unable to create directory [" + directory.getAbsolutePath() + "]");
+    }
 
     File file = new File(directory, this.getList().getCode() + ".shp");
 
@@ -237,13 +243,15 @@ public class ListTypeShapefileExporter
     try
     {
       File file = new File(directory, "metadata.xlsx");
-      FileOutputStream fos = new FileOutputStream(file);
 
-      ListTypeExcelExporter exporter = new ListTypeExcelExporter(this.version, mdBusiness, mdAttributes, new ListTypeExcelExporterSheet[] { ListTypeExcelExporterSheet.DICTIONARY, ListTypeExcelExporterSheet.METADATA }, criteria, ListMetadataSource.GEOSPATIAL);
+      try (FileOutputStream fos = new FileOutputStream(file))
+      {
+        ListTypeExcelExporter exporter = new ListTypeExcelExporter(this.version, mdBusiness, mdAttributes, new ListTypeExcelExporterSheet[] { ListTypeExcelExporterSheet.DICTIONARY, ListTypeExcelExporterSheet.METADATA }, criteria, ListMetadataSource.GEOSPATIAL);
 
-      Workbook wb = exporter.createWorkbook();
+        Workbook wb = exporter.createWorkbook();
 
-      wb.write(fos);
+        wb.write(fos);
+      }
     }
     catch (IOException e)
     {
@@ -292,14 +300,17 @@ public class ListTypeShapefileExporter
           {
             File[] files = directory.listFiles();
 
-            for (File file : files)
+            if (files != null)
             {
-              ZipEntry entry = new ZipEntry(file.getName());
-              zipFile.putNextEntry(entry);
-
-              try (FileInputStream in = new FileInputStream(file))
+              for (File file : files)
               {
-                IOUtils.copy(in, zipFile);
+                ZipEntry entry = new ZipEntry(file.getName());
+                zipFile.putNextEntry(entry);
+
+                try (FileInputStream in = new FileInputStream(file))
+                {
+                  IOUtils.copy(in, zipFile);
+                }
               }
             }
           }
@@ -402,7 +413,7 @@ public class ListTypeShapefileExporter
 
       int count = 1;
 
-      String value = new String(format);
+      String value = format;
 
       while (this.columnNames.containsValue(value))
       {

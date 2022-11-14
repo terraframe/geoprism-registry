@@ -4,31 +4,26 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action.geoobject;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.geoobject.UpdateGeoObjectActionDTO;
-import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTimeJsonAdapters;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -50,11 +45,9 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
 {
-  private static final long            serialVersionUID           = 2090460439;
-  
-  private static final Logger logger = LoggerFactory.getLogger(UpdateGeoObjectAction.class);
+  private static final long   serialVersionUID = 2090460439;
 
-  private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
+  private static final Logger logger           = LoggerFactory.getLogger(UpdateGeoObjectAction.class);
 
   public UpdateGeoObjectAction()
   {
@@ -81,6 +74,7 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
 
     ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
 
+    GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
     geoObjectPermissionService.enforceCanWriteCR(type.getOrganization().getCode(), type);
 
     super.apply();
@@ -109,12 +103,10 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
   public void buildFromJson(JSONObject joAction)
   {
     super.buildFromJson(joAction);
-    
+
     Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this.getAllRequest().next());
 
-    if (perms.containsAll(Arrays.asList(
-        ChangeRequestPermissionAction.WRITE_DETAILS
-      )))
+    if (perms.containsAll(Arrays.asList(ChangeRequestPermissionAction.WRITE_DETAILS)))
     {
       this.setGeoObjectJson(joAction.getJSONObject(UpdateGeoObjectAction.GEOOBJECTJSON).toString());
     }

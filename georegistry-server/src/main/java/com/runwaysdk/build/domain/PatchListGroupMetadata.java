@@ -152,7 +152,7 @@ public class PatchListGroupMetadata
 
           if (mdAttribute != null)
           {
-            metadata.getHolder().addChild(new Attribute(mdAttribute));
+            metadata.getRoot().addChild(new Attribute(mdAttribute, 2));
           }
         }
       }
@@ -164,14 +164,14 @@ public class PatchListGroupMetadata
 
       if (mdAttributeLatitude != null)
       {
-        metadata.getHolder().addChild(new Attribute(mdAttributeLatitude));
+        metadata.getRoot().addChild(new Attribute(mdAttributeLatitude, 2));
       }
 
       MdAttributeConcreteDAOIF mdAttributeLongitude = mdBusiness.definesAttribute("longitude");
 
       if (mdAttributeLongitude != null)
       {
-        metadata.getHolder().addChild(new Attribute(mdAttributeLongitude));
+        metadata.getRoot().addChild(new Attribute(mdAttributeLongitude, 2));
       }
     }
 

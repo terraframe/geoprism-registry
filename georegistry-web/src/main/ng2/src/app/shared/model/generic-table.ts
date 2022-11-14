@@ -18,18 +18,14 @@ export class GenericTableConfig {
 
 }
 
-export class GenericTableGroup {
-
-    label: string;
-    colspan: number;
-
-}
-
 export class GenericTableColumn {
 
+    headerType: string;
     header: string;
-    type: string;
-    sortable: boolean;
+    rowspan: number;
+    colspan: number;
+    type?: string;
+    sortable?: boolean;
     field?: string;
     baseUrl?: string;
     urlField?: string;
@@ -49,5 +45,12 @@ export class TableEvent {
     type: string;
     row?: Object;
     col?: GenericTableColumn;
+
+}
+
+export class TableColumnSetup {
+
+    headers: GenericTableColumn[][];
+    columns: GenericTableColumn[];
 
 }

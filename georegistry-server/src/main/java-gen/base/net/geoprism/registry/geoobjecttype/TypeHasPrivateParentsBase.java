@@ -29,8 +29,8 @@ package net.geoprism.registry.geoobjecttype;
 public abstract class TypeHasPrivateParentsBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.geoobjecttype.TypeHasPrivateParents";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String TYPELABEL = "typeLabel";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String TYPELABEL = "typeLabel";
   private static final long serialVersionUID = -1070515664;
   
   public TypeHasPrivateParentsBase()

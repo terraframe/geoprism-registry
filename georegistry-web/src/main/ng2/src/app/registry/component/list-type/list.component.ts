@@ -11,11 +11,11 @@ import { GeoObjectEditorComponent } from "../geoobject-editor/geoobject-editor.c
 
 import { ErrorHandler } from "@shared/component";
 import { AuthService, ProgressService } from "@shared/service";
-import { ListData, ListTypeVersion } from "@registry/model/list-type";
+import { ListColumn, ListData, ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
-import { GenericTableColumn, GenericTableConfig, GenericTableGroup, TableEvent } from "@shared/model/generic-table";
+import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
 import { LngLatBounds } from "mapbox-gl";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
@@ -45,8 +45,7 @@ export class ListComponent implements OnInit, OnDestroy {
     userOrgCodes: string[];
 
     config: GenericTableConfig = null;
-    groups: GenericTableGroup[][] = null;
-    cols: GenericTableColumn[] = null;
+    setup: TableColumnSetup = null;
     refresh: Subject<void>;
 
     tableState: LazyLoadEvent = null;
@@ -166,107 +165,94 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     refreshColumns(): void {
-        this.cols = [];
+        const columns = [];
+
+        const mainGroups: GenericTableColumn[] = [];
+        const subGroups: GenericTableColumn[] = [];
         const orderedArray = [];
 
-        const mainGroups: GenericTableGroup[] = [];
-        const subGroups: GenericTableGroup[] = [];
-
         if (this.list.isMember || this.list.geospatialMetadata.visibility === "PUBLIC") {
-            this.cols.push({ header: "", type: "ACTIONS", sortable: false });
+            const column = { header: "", type: "ACTIONS", sortable: false, rowspan: 3, colspan: 1, headerType: "ATTRIBUTE" };
 
-            mainGroups.push({ label: "", colspan: 1 });
-            subGroups.push({ label: "", colspan: 1 });
+            mainGroups.push(column);
+            columns.push(column);
         }
-
-        // //
-        // // Order list columns
-        // // mdAttributes don't currently define the difference between hierarchy or custom attributes.
-        // // This ordering is a best attempt given these constraints.
-        // //
-        // let orderedArray = [];
-        // let code = this.list.attributes.filter(obj => {
-        //     return obj.name === "code";
-        // });
-        // let label = this.list.attributes.filter(obj => {
-        //     return obj.name.includes("displayLabel");
-        // });
-
-        // orderedArray.push(code[0], ...label);
-
-        // let customAttrs = [];
-        // let otherAttrs = [];
-        // this.list.attributes.forEach(attr => {
-        //     if (attr.type === "input" && attr.name !== "latitude" && attr.name !== "longitude") {
-        //         customAttrs.push(attr);
-        //     } else if (attr.name !== "code" && !attr.name.includes("displayLabel") && attr.name !== "latitude" && attr.name !== "longitude") {
-        //         otherAttrs.push(attr);
-        //     }
-        // });
-
-        // orderedArray.push(...customAttrs, ...otherAttrs);
-
-        // let coords = this.list.attributes.filter(obj => {
-        //     return obj.name === "latitude" || obj.name === "longitude";
-        // });
-
-        // if (coords.length === 2) {
-        //     orderedArray.push(...coords);
-        // }
 
         this.list.attributes.forEach(group => {
             if (this.showInvalid || group.name !== "invalid") {
                 mainGroups.push({
-                    label: group.label,
-                    colspan: group.colspan
+                    header: group.label,
+                    colspan: group.colspan,
+                    rowspan: group.rowspan,
+                    headerType: "GROUP"
                 });
 
                 group.columns.forEach(subgroup => {
-                    subGroups.push({
-                        label: subgroup.label,
-                        colspan: subgroup.colspan
-                    });
+                    if (subgroup.columns != null) {
+                        subGroups.push({
+                            header: subgroup.label,
+                            colspan: subgroup.colspan,
+                            rowspan: subgroup.rowspan,
+                            headerType: "GROUP"
+                        });
 
-                    subgroup.columns.forEach(attribute => {
-                        orderedArray.push(attribute);
-                    });
+                        subgroup.columns.forEach(attribute => {
+                            if (this.showInvalid || attribute.name !== "invalid") {
+                                const column = this.createColumn(attribute);
+
+                                orderedArray.push(column);
+                                columns.push(column);
+                            }
+                        });
+                    } else {
+                        if (this.showInvalid || subgroup.name !== "invalid") {
+                            const column = this.createColumn(subgroup);
+
+                            subGroups.push(column);
+                            columns.push(column);
+                        }
+                    }
                 });
             }
         });
 
-        this.groups = [mainGroups, subGroups];
+        this.setup = {
+            headers: [mainGroups, subGroups, orderedArray],
+            columns: columns
+        };
+    }
 
-        orderedArray.forEach(attribute => {
-            if (this.showInvalid || attribute.name !== "invalid") {
-                let column: GenericTableColumn = {
-                    header: attribute.label,
-                    field: attribute.name,
-                    type: "TEXT",
-                    sortable: true,
-                    filter: true
-                };
+    createColumn(attribute: ListColumn): GenericTableColumn {
+        let column: GenericTableColumn = {
+            headerType: "ATTRIBUTE",
+            header: attribute.label,
+            field: attribute.name,
+            type: "TEXT",
+            sortable: true,
+            filter: true,
+            rowspan: attribute.rowspan,
+            colspan: attribute.colspan
+        };
 
-                if (attribute.type === "date") {
-                    column.type = "DATE";
-                } else if (attribute.name === "invalid" || attribute.type === "boolean") {
-                    column.type = "BOOLEAN";
-                } else if (attribute.type === "number") {
-                    column.type = "NUMBER";
-                } else if (attribute.type === "list") {
-                    column.type = "AUTOCOMPLETE";
-                    column.text = "";
-                    column.onComplete = () => {
-                        this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
-                            column.results = options;
-                        }).catch((err: HttpErrorResponse) => {
-                            this.error(err);
-                        });
-                    };
-                }
+        if (attribute.type === "date") {
+            column.type = "DATE";
+        } else if (attribute.name === "invalid" || attribute.type === "boolean") {
+            column.type = "BOOLEAN";
+        } else if (attribute.type === "number") {
+            column.type = "NUMBER";
+        } else if (attribute.type === "list") {
+            column.type = "AUTOCOMPLETE";
+            column.text = "";
+            column.onComplete = () => {
+                this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
+                    column.results = options;
+                }).catch((err: HttpErrorResponse) => {
+                    this.error(err);
+                });
+            };
+        }
 
-                this.cols.push(column);
-            }
-        });
+        return column;
     }
 
     handleShowInvalidChange(): void {

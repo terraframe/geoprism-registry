@@ -29,8 +29,8 @@ package net.geoprism.registry;
 public abstract class CodeLengthExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.CodeLengthException";
-  public static java.lang.String LENGTH = "length";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String LENGTH = "length";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = 1138520491;
   
   public CodeLengthExceptionBase()

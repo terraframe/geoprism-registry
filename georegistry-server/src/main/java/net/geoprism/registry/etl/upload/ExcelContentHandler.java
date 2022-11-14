@@ -142,7 +142,7 @@ public class ExcelContentHandler implements SheetHandler
       {
         // Wrap all exceptions with information about the cell and row
         ExcelObjectException exception = new ExcelObjectException(e);
-        exception.setRow(new Long(this.rowNum));
+        exception.setRow(Long.valueOf(this.rowNum));
         exception.setMsg(ExceptionUtil.getLocalizedException(e));
 
         throw exception;
@@ -153,7 +153,7 @@ public class ExcelContentHandler implements SheetHandler
   protected String setColumnName(String cellReference, String columnName)
   {
     CellReference reference = new CellReference(cellReference);
-    Integer column = new Integer(reference.getCol());
+    Integer column = Integer.valueOf(reference.getCol());
 
     return this.map.put(column, columnName);
   }
@@ -161,7 +161,7 @@ public class ExcelContentHandler implements SheetHandler
   protected String getColumnName(String cellReference)
   {
     CellReference reference = new CellReference(cellReference);
-    Integer column = new Integer(reference.getCol());
+    Integer column = Integer.valueOf(reference.getCol());
 
     return this.map.get(column);
   }
@@ -197,7 +197,7 @@ public class ExcelContentHandler implements SheetHandler
           }
           else if (cellType.equals(ColumnType.BOOLEAN))
           {
-            this.row.put(columnName, new Boolean(contentValue.equals("TRUE")));
+            this.row.put(columnName, Boolean.valueOf(contentValue.equals("TRUE")));
           }
           else
           {

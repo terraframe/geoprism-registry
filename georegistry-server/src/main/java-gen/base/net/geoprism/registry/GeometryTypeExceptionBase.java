@@ -29,9 +29,9 @@ package net.geoprism.registry;
 public abstract class GeometryTypeExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.GeometryTypeException";
-  public static java.lang.String ACTUALTYPE = "actualType";
-  public static java.lang.String EXPECTEDTYPE = "expectedType";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String ACTUALTYPE = "actualType";
+  public static final java.lang.String EXPECTEDTYPE = "expectedType";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -472896437;
   
   public GeometryTypeExceptionBase()

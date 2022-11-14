@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.fhir;
 
@@ -32,6 +32,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipOutputStream;
 import org.hl7.fhir.r4.model.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -56,6 +58,8 @@ import net.geoprism.registry.ws.NotificationFacade;
 
 public class FhirExportSynchronizationManager
 {
+  private static final Logger  logger = LoggerFactory.getLogger(FhirExportSynchronizationManager.class);
+
   private FhirSyncExportConfig config;
 
   private ExportHistory        history;
@@ -151,14 +155,17 @@ public class FhirExportSynchronizationManager
           {
             File[] files = directory.listFiles();
 
-            for (File file : files)
+            if (files != null)
             {
-              ZipEntry entry = new ZipEntry(file.getName());
-              zipFile.putNextEntry(entry);
-
-              try (FileInputStream in = new FileInputStream(file))
+              for (File file : files)
               {
-                IOUtils.copy(in, zipFile);
+                ZipEntry entry = new ZipEntry(file.getName());
+                zipFile.putNextEntry(entry);
+
+                try (FileInputStream in = new FileInputStream(file))
+                {
+                  IOUtils.copy(in, zipFile);
+                }
               }
             }
           }
@@ -192,16 +199,19 @@ public class FhirExportSynchronizationManager
       String name = SessionPredicate.generateId();
 
       File root = new File(new File(VaultProperties.getPath("vault.default"), "files"), name);
-      root.mkdirs();
+      if (!root.mkdirs())
+      {
+        logger.debug("Unable to create directory: " + root.getAbsolutePath());
+      }
 
       Bundle bundle = this.generateBundle(connection);
 
       FhirContext ctx = FhirContext.forR4();
       IParser parser = ctx.newJsonParser();
 
-      try
+      try (FileWriter writer = new FileWriter(new File(root, "bundle.json")))
       {
-        parser.encodeResourceToWriter(bundle, new FileWriter(new File(root, "bundle.json")));
+        parser.encodeResourceToWriter(bundle, writer);
       }
       catch (DataFormatException | IOException e)
       {
@@ -209,10 +219,6 @@ public class FhirExportSynchronizationManager
       }
 
       return root;
-    }
-    catch (Exception e)
-    {
-      throw new HttpError(e);
     }
   }
 

@@ -37,7 +37,7 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
 {
   private static final long serialVersionUID = 1112663869;
 
-  public static String      VERSIONS         = "versions";
+  public static final String      VERSIONS         = "versions";
 
   public ListTypeEntry()
   {

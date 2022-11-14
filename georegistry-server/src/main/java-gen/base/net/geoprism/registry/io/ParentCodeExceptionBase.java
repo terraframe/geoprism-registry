@@ -29,10 +29,10 @@ package net.geoprism.registry.io;
 public abstract class ParentCodeExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.io.ParentCodeException";
-  public static java.lang.String CONTEXT = "context";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String PARENTCODE = "parentCode";
-  public static java.lang.String PARENTTYPE = "parentType";
+  public static final java.lang.String CONTEXT = "context";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String PARENTCODE = "parentCode";
+  public static final java.lang.String PARENTTYPE = "parentType";
   private static final long serialVersionUID = -1944410550;
   
   public ParentCodeExceptionBase()

@@ -45,25 +45,25 @@ public abstract class UserInfoDTOBase extends com.runwaysdk.business.BusinessDTO
     return CLASS;
   }
   
-  public static java.lang.String ALTFIRSTNAME = "altFirstName";
-  public static java.lang.String ALTLASTNAME = "altLastName";
-  public static java.lang.String ALTPHONENUMBER = "altPhoneNumber";
-  public static java.lang.String CREATEDATE = "createDate";
-  public static java.lang.String CREATEDBY = "createdBy";
-  public static java.lang.String DEPARTMENT = "department";
-  public static java.lang.String ENTITYDOMAIN = "entityDomain";
-  public static java.lang.String EXTERNALSYSTEMOID = "externalSystemOid";
-  public static java.lang.String GEOPRISMUSER = "geoprismUser";
-  public static java.lang.String KEYNAME = "keyName";
-  public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
-  public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
-  public static java.lang.String LOCKEDBY = "lockedBy";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String OWNER = "owner";
-  public static java.lang.String POSITION = "position";
-  public static java.lang.String SEQ = "seq";
-  public static java.lang.String SITEMASTER = "siteMaster";
-  public static java.lang.String TYPE = "type";
+  public static final java.lang.String ALTFIRSTNAME = "altFirstName";
+  public static final java.lang.String ALTLASTNAME = "altLastName";
+  public static final java.lang.String ALTPHONENUMBER = "altPhoneNumber";
+  public static final java.lang.String CREATEDATE = "createDate";
+  public static final java.lang.String CREATEDBY = "createdBy";
+  public static final java.lang.String DEPARTMENT = "department";
+  public static final java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static final java.lang.String EXTERNALSYSTEMOID = "externalSystemOid";
+  public static final java.lang.String GEOPRISMUSER = "geoprismUser";
+  public static final java.lang.String KEYNAME = "keyName";
+  public static final java.lang.String LASTUPDATEDATE = "lastUpdateDate";
+  public static final java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
+  public static final java.lang.String LOCKEDBY = "lockedBy";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String OWNER = "owner";
+  public static final java.lang.String POSITION = "position";
+  public static final java.lang.String SEQ = "seq";
+  public static final java.lang.String SITEMASTER = "siteMaster";
+  public static final java.lang.String TYPE = "type";
   public String getAltFirstName()
   {
     return getValue(ALTFIRSTNAME);

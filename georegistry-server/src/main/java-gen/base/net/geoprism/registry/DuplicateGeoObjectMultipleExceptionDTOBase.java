@@ -69,8 +69,8 @@ public abstract class DuplicateGeoObjectMultipleExceptionDTOBase extends com.run
     return CLASS;
   }
   
-  public static java.lang.String ATTRIBUTELABELS = "attributeLabels";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String ATTRIBUTELABELS = "attributeLabels";
+  public static final java.lang.String OID = "oid";
   public String getAttributeLabels()
   {
     return getValue(ATTRIBUTELABELS);

@@ -69,8 +69,8 @@ public abstract class RequiredMappingExceptionDTOBase extends com.runwaysdk.busi
     return CLASS;
   }
   
-  public static java.lang.String ATTRIBUTELABEL = "attributeLabel";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String ATTRIBUTELABEL = "attributeLabel";
+  public static final java.lang.String OID = "oid";
   public String getAttributeLabel()
   {
     return getValue(ATTRIBUTELABEL);

@@ -29,7 +29,7 @@ package net.geoprism.registry.etl;
 public abstract class ImportFileFormatExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.ImportFileFormatException";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = 84041996;
   
   public ImportFileFormatExceptionBase()

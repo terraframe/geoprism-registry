@@ -22,6 +22,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -303,12 +304,12 @@ public class ExcelFieldContentsHandler implements SheetHandler
       attributes.put(GeoObjectImportConfiguration.NUMERIC, new JSONArray());
       attributes.put(AttributeDateType.TYPE, new JSONArray());
 
-      Set<Integer> keys = this.map.keySet();
+      Set<Entry<Integer, Field>> entrySet = this.map.entrySet();
 
-      for (Integer key : keys)
+      for (Entry<Integer, Field> entry : entrySet)
       {
-        Field field = this.map.get(key);
-        validateField(field, key);
+        Field field = entry.getValue();
+        validateField(field, entry.getKey());
 
         String name = field.getName();
         String baseType = field.getBaseType();
@@ -348,7 +349,7 @@ public class ExcelFieldContentsHandler implements SheetHandler
   public void cell(String cellReference, String contentValue, String formattedValue, ColumnType cellType)
   {
     CellReference reference = new CellReference(cellReference);
-    final Integer colNum = new Integer(reference.getCol());
+    final Integer colNum = Integer.valueOf(reference.getCol());
 
     if (cellType.equals(ColumnType.FORMULA))
     {

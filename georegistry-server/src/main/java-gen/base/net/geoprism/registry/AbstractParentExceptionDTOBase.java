@@ -69,10 +69,10 @@ public abstract class AbstractParentExceptionDTOBase extends com.runwaysdk.busin
     return CLASS;
   }
   
-  public static java.lang.String CHILDGEOOBJECTTYPELABEL = "childGeoObjectTypeLabel";
-  public static java.lang.String HIERARCHYTYPELABEL = "hierarchyTypeLabel";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String PARENTGEOOBJECTTYPELABEL = "parentGeoObjectTypeLabel";
+  public static final java.lang.String CHILDGEOOBJECTTYPELABEL = "childGeoObjectTypeLabel";
+  public static final java.lang.String HIERARCHYTYPELABEL = "hierarchyTypeLabel";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String PARENTGEOOBJECTTYPELABEL = "parentGeoObjectTypeLabel";
   public String getChildGeoObjectTypeLabel()
   {
     return getValue(CHILDGEOOBJECTTYPELABEL);

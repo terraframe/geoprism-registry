@@ -4,20 +4,21 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.fhir;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Date;
@@ -82,14 +83,14 @@ public abstract class AbstractFhirResourceProcessor implements FhirResourceProce
       {
         Decoder decoder = Base64.getDecoder();
         byte[] binary = decoder.decode(value.getDataElement().getValueAsString());
-        String geojson = new String(binary);
-
-        GeoJsonReader reader = new GeoJsonReader();
         try
         {
+          String geojson = new String(binary, "UTF-8");
+
+          GeoJsonReader reader = new GeoJsonReader();
           return reader.read(geojson);
         }
-        catch (ParseException e)
+        catch (ParseException | UnsupportedEncodingException e)
         {
           e.printStackTrace();
         }

@@ -69,8 +69,8 @@ public abstract class OrganizationRAExceptionDTOBase extends com.runwaysdk.busin
     return CLASS;
   }
   
-  public static java.lang.String OID = "oid";
-  public static java.lang.String ORGANIZATIONLABEL = "organizationLabel";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String ORGANIZATIONLABEL = "organizationLabel";
   public String getOrganizationLabel()
   {
     return getValue(ORGANIZATIONLABEL);

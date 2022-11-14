@@ -1,4 +1,5 @@
-<div style="background-color: white; background-color: white; overflow: hidden auto; height: calc(-50px + 100vh); padding-left: 20px; " [style.height]="'calc(' + size + 'vh - 50px)'">
+<div style="background-color: white; background-color: white; overflow: hidden auto; height: calc(-50px + 100vh); padding-left: 20px; "
+    [style.height]="'calc(' + size + 'vh - 50px)'">
 
     <div class="row">
         <div class="col-md-12">
@@ -55,8 +56,8 @@
             <div class="row">
                 <div *ngIf="list" class="col-md-12">
 
-                    <ng-container *ngIf="cols != null && config != null">
-                        <generic-table [cols]="cols" [config]="config" [groups]="groups" [refresh]="refresh"
+                    <ng-container *ngIf="setup != null && config != null">
+                        <generic-table [setup]="setup" [config]="config" [refresh]="refresh"
                             [pageConfig]="{oid: list.oid, showInvalid: showInvalid}" (click)="onClick($event)"
                             (onLoadEvent)="onLoadEvent($event)" [initialState]="tableState">
                         </generic-table>

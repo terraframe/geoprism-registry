@@ -4,20 +4,21 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.graph;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -36,8 +37,10 @@ import net.geoprism.registry.model.GraphType;
 
 public class AbstractGraphStrategy
 {
-  protected static class EdgeComparator implements Comparator<EdgeObject>
+  protected static class EdgeComparator implements Comparator<EdgeObject>, Serializable
   {
+    private static final long serialVersionUID = 1L;
+
     @Override
     public int compare(EdgeObject o1, EdgeObject o2)
     {
@@ -47,14 +50,14 @@ public class AbstractGraphStrategy
       return d1.compareTo(d2);
     }
   }
-  
+
   private GraphType type;
 
   public AbstractGraphStrategy(GraphType type)
   {
     this.type = type;
   }
-  
+
   protected SortedSet<EdgeObject> getParentEdges(VertexServerGeoObject geoObject)
   {
     TreeSet<EdgeObject> set = new TreeSet<EdgeObject>(new EdgeComparator());
@@ -69,41 +72,41 @@ public class AbstractGraphStrategy
 
     return set;
   }
-  
+
   protected String wrapQueryWithBounds(String innerQuery, String inOrOut, Date date, String boundsWKT, Map<String, Object> parameters)
   {
     StringBuilder statement = new StringBuilder();
-    
+
     statement.append("SELECT FROM (");
-    
+
     statement.append(innerQuery);
-    
+
     statement.append(") WHERE ");
-    
+
     statement.append("(");
-    
+
     String dateRestriction = "";
     if (date != null)
     {
       dateRestriction = "(:date BETWEEN startDate AND endDate) AND";
       parameters.put("date", date);
     }
-    
+
     final String[] geometryTypes = new String[] { "shape_cot", "geoPoint_cot", "geoLine_cot", "geoMultiLine_cot", "geoMultiPoint_cot", "geoMultiPolygon_cot", "shape_cot", "geoPolygon_cot" };
-    
+
     List<String> geometryRestrictions = new ArrayList<String>();
-    
+
     for (String geometryType : geometryTypes)
     {
       geometryRestrictions.add(inOrOut + "." + geometryType + " CONTAINS ( " + dateRestriction + " ST_INTERSECTS(value, :bounds) = true )");
     }
-    
+
     statement.append(StringUtils.join(geometryRestrictions, " OR "));
-    
+
     statement.append(")");
-    
+
     parameters.put("bounds", boundsWKT);
-    
+
     return statement.toString();
   }
 }

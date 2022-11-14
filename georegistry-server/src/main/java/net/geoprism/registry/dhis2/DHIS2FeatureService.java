@@ -4,21 +4,23 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.dhis2;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -42,7 +43,6 @@ import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
-import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
@@ -58,18 +58,16 @@ import net.geoprism.registry.etl.export.UnexpectedRemoteResponse;
 import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
-import net.geoprism.registry.graph.ExternalSystem;
-import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.AttributeTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class DHIS2FeatureService
 {
-  public static final String[] OAUTH_INCOMPATIBLE_VERSIONS   = new String[] { "2.35.0", "2.35.1" };
+  public static final List<String> OAUTH_INCOMPATIBLE_VERSIONS   = Collections.unmodifiableList(Arrays.asList("2.35.0", "2.35.1"));
 
-  public static final int      LAST_TESTED_DHIS2_API_VERSION = 39;
+  public static final int          LAST_TESTED_DHIS2_API_VERSION = 39;
 
-  private static final Logger  logger                        = LoggerFactory.getLogger(DHIS2FeatureService.class);
+  private static final Logger      logger                        = LoggerFactory.getLogger(DHIS2FeatureService.class);
 
   public DHIS2FeatureService()
   {
@@ -78,17 +76,17 @@ public class DHIS2FeatureService
 
   public static class DHIS2SyncError extends RunwayException
   {
-    private static final long     serialVersionUID = 8463740942015611693L;
+    private static final long serialVersionUID = 8463740942015611693L;
 
-    protected DHIS2Response response;
+    protected DHIS2Response   response;
 
-    protected String              submittedJson;
+    protected String          submittedJson;
 
-    protected Throwable           error;
+    protected Throwable       error;
 
-    protected String              geoObjectCode;
+    protected String          geoObjectCode;
 
-    protected Long                rowIndex;
+    protected Long            rowIndex;
 
     public DHIS2SyncError(Long rowIndex, DHIS2Response response, String submittedJson, Throwable t, String geoObjectCode)
     {
@@ -175,7 +173,7 @@ public class DHIS2FeatureService
         for (DHIS2AttributeMapping strategy : strategies)
         {
           JsonObject configInfo = strategy.getConfigurationInfo(optionCache, dhis2Attrs, cgrAttr);
-          
+
           jaStrategies.add(configInfo);
         }
         joAttr.add("attributeMappingStrategies", jaStrategies);
@@ -312,7 +310,8 @@ public class DHIS2FeatureService
   }
 
   /**
-   * Returns a new translations array which represents the "update" translations applied onto the "current" translations.
+   * Returns a new translations array which represents the "update" translations
+   * applied onto the "current" translations.
    * 
    * @param current
    * @param update
@@ -328,34 +327,35 @@ public class DHIS2FeatureService
     {
       update = new JsonArray();
     }
-    
+
     JsonArray merged = new JsonArray();
-    
+
     Map<String, JsonObject> mergedMap = new HashMap<String, JsonObject>();
-    
+
     for (int i = 0; i < current.size(); ++i)
     {
       JsonObject existingTranslation = current.get(i).getAsJsonObject();
       mergedMap.put(existingTranslation.get("locale").getAsString() + "-" + existingTranslation.get("property").getAsString(), existingTranslation);
     }
-    
+
     for (int i = 0; i < update.size(); ++i)
     {
       JsonObject translation = update.get(i).getAsJsonObject();
-      
+
       mergedMap.put(translation.get("locale").getAsString() + "-" + translation.get("property").getAsString(), translation);
     }
-    
+
     for (JsonObject translation : mergedMap.values())
     {
       merged.add(translation);
     }
-    
+
     return merged;
   }
-  
+
   /**
-   * Returns a new attribute values array which represents the "update" applied onto the "current".
+   * Returns a new attribute values array which represents the "update" applied
+   * onto the "current".
    * 
    * @param current
    * @param update
@@ -364,27 +364,27 @@ public class DHIS2FeatureService
   public JsonArray mergeAttributeValues(JsonArray current, JsonArray update)
   {
     JsonArray merged = new JsonArray();
-    
+
     Map<String, JsonObject> mergedMap = new HashMap<String, JsonObject>();
-    
+
     for (int i = 0; i < current.size(); ++i)
     {
       JsonObject av = current.get(i).getAsJsonObject();
       mergedMap.put(av.get("attribute").getAsJsonObject().get("id").getAsString(), av);
     }
-    
+
     for (int i = 0; i < update.size(); ++i)
     {
       JsonObject av = update.get(i).getAsJsonObject();
-      
+
       mergedMap.put(av.get("attribute").getAsJsonObject().get("id").getAsString(), av);
     }
-    
+
     for (JsonObject av : mergedMap.values())
     {
       merged.add(av);
     }
-    
+
     return merged;
   }
 }

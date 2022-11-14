@@ -52,9 +52,9 @@ public abstract class RequiredValueExceptionDTOBase extends com.runwaysdk.busine
     return CLASS;
   }
   
-  public static java.lang.String DATELABEL = "dateLabel";
-  public static java.lang.String DHIS2ATTRLABELS = "dhis2AttrLabels";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String DATELABEL = "dateLabel";
+  public static final java.lang.String DHIS2ATTRLABELS = "dhis2AttrLabels";
+  public static final java.lang.String OID = "oid";
   public String getDateLabel()
   {
     return getValue(DATELABEL);

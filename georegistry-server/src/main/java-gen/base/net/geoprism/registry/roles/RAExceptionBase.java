@@ -29,7 +29,7 @@ package net.geoprism.registry.roles;
 public abstract class RAExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.roles.RAException";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -1113116139;
   
   public RAExceptionBase()

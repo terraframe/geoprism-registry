@@ -29,15 +29,15 @@ package net.geoprism.registry.graph.transition;
 public abstract class TransitionEventBase extends com.runwaysdk.business.graph.VertexObject
 {
   public final static String CLASS = "net.geoprism.registry.graph.transition.TransitionEvent";
-  public static java.lang.String AFTERTYPECODE = "afterTypeCode";
-  public static java.lang.String AFTERTYPEORGCODE = "afterTypeOrgCode";
-  public static java.lang.String BEFORETYPECODE = "beforeTypeCode";
-  public static java.lang.String BEFORETYPEORGCODE = "beforeTypeOrgCode";
-  public static java.lang.String DESCRIPTION = "description";
-  public static java.lang.String EVENTDATE = "eventDate";
-  public static java.lang.String EVENTID = "eventId";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String SEQ = "seq";
+  public static final java.lang.String AFTERTYPECODE = "afterTypeCode";
+  public static final java.lang.String AFTERTYPEORGCODE = "afterTypeOrgCode";
+  public static final java.lang.String BEFORETYPECODE = "beforeTypeCode";
+  public static final java.lang.String BEFORETYPEORGCODE = "beforeTypeOrgCode";
+  public static final java.lang.String DESCRIPTION = "description";
+  public static final java.lang.String EVENTDATE = "eventDate";
+  public static final java.lang.String EVENTID = "eventId";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String SEQ = "seq";
   private static final long serialVersionUID = -435815979;
   
   public TransitionEventBase()

@@ -29,8 +29,8 @@ package net.geoprism.registry.etl.export;
 public abstract class ExportRemoteExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.ExportRemoteException";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String REMOTEERROR = "remoteError";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String REMOTEERROR = "remoteError";
   private static final long serialVersionUID = 2027503528;
   
   public ExportRemoteExceptionBase()

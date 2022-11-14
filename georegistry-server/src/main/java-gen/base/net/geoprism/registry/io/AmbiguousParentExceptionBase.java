@@ -29,9 +29,9 @@ package net.geoprism.registry.io;
 public abstract class AmbiguousParentExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.io.AmbiguousParentException";
-  public static java.lang.String CONTEXT = "context";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String PARENTLABEL = "parentLabel";
+  public static final java.lang.String CONTEXT = "context";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String PARENTLABEL = "parentLabel";
   private static final long serialVersionUID = 883147272;
   
   public AmbiguousParentExceptionBase()

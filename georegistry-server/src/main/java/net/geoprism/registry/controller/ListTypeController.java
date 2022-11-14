@@ -268,7 +268,7 @@ public class ListTypeController
       @RequestParamter(name = "sortAttr") String sortAttr, 
       @RequestParamter(name = "isAscending") Boolean isAscending)
   {
-    if (sortAttr == null || sortAttr == "")
+    if (sortAttr == null || sortAttr.equals(""))
     {
       sortAttr = ListTypeJob.CREATEDATE;
     }

@@ -131,7 +131,7 @@ public class FhirSyncLevel implements Comparable<FhirSyncLevel>
   @Override
   public int hashCode()
   {
-    return new String(versionId).hashCode() + level;
+    return versionId.hashCode() + level;
   }
 
   @Override

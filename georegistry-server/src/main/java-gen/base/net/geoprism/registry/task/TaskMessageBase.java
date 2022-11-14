@@ -29,10 +29,10 @@ package net.geoprism.registry.task;
 public abstract class TaskMessageBase extends com.runwaysdk.business.LocalStruct
 {
   public final static String CLASS = "net.geoprism.registry.task.TaskMessage";
-  public static java.lang.String DEFAULTLOCALE = "defaultLocale";
-  public static java.lang.String KEYNAME = "keyName";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String SITEMASTER = "siteMaster";
+  public static final java.lang.String DEFAULTLOCALE = "defaultLocale";
+  public static final java.lang.String KEYNAME = "keyName";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String SITEMASTER = "siteMaster";
   private static final long serialVersionUID = 980094639;
   
   public TaskMessageBase()

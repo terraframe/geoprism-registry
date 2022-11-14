@@ -69,8 +69,8 @@ public abstract class GeoObjectTypeAlreadyInHierarchyExceptionDTOBase extends co
     return CLASS;
   }
   
-  public static java.lang.String GOTCODE = "gotCode";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String GOTCODE = "gotCode";
+  public static final java.lang.String OID = "oid";
   public String getGotCode()
   {
     return getValue(GOTCODE);

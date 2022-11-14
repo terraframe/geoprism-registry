@@ -29,10 +29,10 @@ package net.geoprism.registry.graph;
 public abstract class GeoVertexTypeBase extends com.runwaysdk.business.graph.VertexObject
 {
   public final static String CLASS = "net.geoprism.registry.graph.GeoVertexType";
-  public static java.lang.String CODE = "code";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String SEQ = "seq";
-  public static java.lang.String UNIVERSAL = "universal";
+  public static final java.lang.String CODE = "code";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String SEQ = "seq";
+  public static final java.lang.String UNIVERSAL = "universal";
   private static final long serialVersionUID = 1576016724;
   
   public GeoVertexTypeBase()

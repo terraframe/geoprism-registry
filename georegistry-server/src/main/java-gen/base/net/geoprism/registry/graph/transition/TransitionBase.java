@@ -29,14 +29,14 @@ package net.geoprism.registry.graph.transition;
 public abstract class TransitionBase extends com.runwaysdk.business.graph.VertexObject
 {
   public final static String CLASS = "net.geoprism.registry.graph.transition.Transition";
-  public static java.lang.String EVENT = "event";
-  public static java.lang.String IMPACT = "impact";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String ORDER = "order";
-  public static java.lang.String SEQ = "seq";
-  public static java.lang.String SOURCE = "source";
-  public static java.lang.String TARGET = "target";
-  public static java.lang.String TRANSITIONTYPE = "transitionType";
+  public static final java.lang.String EVENT = "event";
+  public static final java.lang.String IMPACT = "impact";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String ORDER = "order";
+  public static final java.lang.String SEQ = "seq";
+  public static final java.lang.String SOURCE = "source";
+  public static final java.lang.String TARGET = "target";
+  public static final java.lang.String TRANSITIONTYPE = "transitionType";
   private static final long serialVersionUID = 942019818;
   
   public TransitionBase()

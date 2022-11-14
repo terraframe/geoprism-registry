@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ListData, ListTypeVersion } from "@registry/model/list-type";
-import { GenericTableColumn, GenericTableConfig, GenericTableGroup, TableEvent } from "@shared/model/generic-table";
+import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { LazyLoadEvent } from "primeng/api";
 import { ListTypeService } from "@registry/service/list-type.service";
@@ -38,7 +38,6 @@ export class ListModalComponent implements OnInit, OnDestroy {
     userOrgCodes: string[];
 
     config: GenericTableConfig = null;
-    groups: GenericTableGroup[][] = null;
     cols: GenericTableColumn[] = null;
 
     showInvalid = false;
@@ -150,71 +149,71 @@ export class ListModalComponent implements OnInit, OnDestroy {
 
     refreshColumns(): void {
         this.cols = [];
-        const orderedArray = [];
+        // const orderedArray = [];
 
-        const mainGroups: GenericTableGroup[] = [];
-        const subGroups: GenericTableGroup[] = [];
+        // const mainGroups: GenericTableGroup[] = [];
+        // const subGroups: GenericTableGroup[] = [];
 
-        if (this.list.isMember || this.list.geospatialMetadata.visibility === "PUBLIC") {
-            this.cols.push({ header: "", type: "ACTIONS", sortable: false });
+        // if (this.list.isMember || this.list.geospatialMetadata.visibility === "PUBLIC") {
+        //     this.cols.push({ header: "", type: "ACTIONS", sortable: false });
 
-            mainGroups.push({ label: "", colspan: 1 });
-            subGroups.push({ label: "", colspan: 1 });
-        }
+        //     mainGroups.push({ label: "", colspan: 1 });
+        //     subGroups.push({ label: "", colspan: 1 });
+        // }
 
-        this.list.attributes.forEach(group => {
-            if (this.showInvalid || group.name !== "invalid") {
-                mainGroups.push({
-                    label: group.label,
-                    colspan: group.colspan
-                });
+        // this.list.attributes.forEach(group => {
+        //     if (this.showInvalid || group.name !== "invalid") {
+        //         mainGroups.push({
+        //             label: group.label,
+        //             colspan: group.colspan
+        //         });
 
-                group.columns.forEach(subgroup => {
-                    subGroups.push({
-                        label: subgroup.label,
-                        colspan: subgroup.colspan
-                    });
+        //         group.columns.forEach(subgroup => {
+        //             subGroups.push({
+        //                 label: subgroup.label,
+        //                 colspan: subgroup.colspan
+        //             });
 
-                    subgroup.columns.forEach(attribute => {
-                        orderedArray.push(attribute);
-                    });
-                });
-            }
-        });
+        //             subgroup.columns.forEach(attribute => {
+        //                 orderedArray.push(attribute);
+        //             });
+        //         });
+        //     }
+        // });
 
-        this.groups = [mainGroups, subGroups];
+        // this.groups = [mainGroups, subGroups];
 
-        orderedArray.forEach(attribute => {
-            if (this.showInvalid || attribute.name !== "invalid") {
-                let column: GenericTableColumn = {
-                    header: attribute.label,
-                    field: attribute.name,
-                    type: "TEXT",
-                    sortable: true,
-                    filter: true
-                };
+        // orderedArray.forEach(attribute => {
+        //     if (this.showInvalid || attribute.name !== "invalid") {
+        //         let column: GenericTableColumn = {
+        //             header: attribute.label,
+        //             field: attribute.name,
+        //             type: "TEXT",
+        //             sortable: true,
+        //             filter: true
+        //         };
 
-                if (attribute.type === "date") {
-                    column.type = "DATE";
-                } else if (attribute.name === "invalid" || attribute.type === "boolean") {
-                    column.type = "BOOLEAN";
-                } else if (attribute.type === "number") {
-                    column.type = "NUMBER";
-                } else if (attribute.type === "list") {
-                    column.type = "AUTOCOMPLETE";
-                    column.text = "";
-                    column.onComplete = () => {
-                        this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
-                            column.results = options;
-                        }).catch((err: HttpErrorResponse) => {
-                            this.error(err);
-                        });
-                    };
-                }
+        //         if (attribute.type === "date") {
+        //             column.type = "DATE";
+        //         } else if (attribute.name === "invalid" || attribute.type === "boolean") {
+        //             column.type = "BOOLEAN";
+        //         } else if (attribute.type === "number") {
+        //             column.type = "NUMBER";
+        //         } else if (attribute.type === "list") {
+        //             column.type = "AUTOCOMPLETE";
+        //             column.text = "";
+        //             column.onComplete = () => {
+        //                 this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
+        //                     column.results = options;
+        //                 }).catch((err: HttpErrorResponse) => {
+        //                     this.error(err);
+        //                 });
+        //             };
+        //         }
 
-                this.cols.push(column);
-            }
-        });
+        //         this.cols.push(column);
+        //     }
+        // });
     }
 
     handleShowInvalidChange(): void {

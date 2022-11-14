@@ -265,7 +265,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
 
-    if (json.contains("invalid"))
+    if (json != null && json.contains("invalid"))
     {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
     }
@@ -300,7 +300,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
 
-    if (json.contains("invalid"))
+    if (json != null && json.contains("invalid"))
     {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
     }

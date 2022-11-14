@@ -29,11 +29,11 @@ package net.geoprism.registry.action;
 public abstract class ChangeRequestGeoObjectTypeLabelBase extends com.runwaysdk.business.LocalStruct
 {
   public final static String CLASS = "net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabel";
-  public static java.lang.String DEFAULTLOCALE = "defaultLocale";
-  public static java.lang.String KEYNAME = "keyName";
-  public static java.lang.String LO_LA = "lo_LA";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String SITEMASTER = "siteMaster";
+  public static final java.lang.String DEFAULTLOCALE = "defaultLocale";
+  public static final java.lang.String KEYNAME = "keyName";
+  public static final java.lang.String LO_LA = "lo_LA";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String SITEMASTER = "siteMaster";
   private static final long serialVersionUID = -1801590330;
   
   public ChangeRequestGeoObjectTypeLabelBase()

@@ -102,7 +102,7 @@ public class RunwayJsonAdapters
       {
         if (mdAttr.isSystem()) { continue; }
         
-        if (this.attrs == null || (this.attrs != null && ArrayUtils.contains(attrs, mdAttr.definesAttribute())))
+        if (this.attrs == null || (ArrayUtils.contains(attrs, mdAttr.definesAttribute())))
         {
           if (mdAttr instanceof MdAttributePrimitiveDAOIF)
           {

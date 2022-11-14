@@ -94,7 +94,7 @@ public class ETLController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-active")
   public ResponseIF getActiveImports(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "sortAttr") String sortAttr, @RequestParamter(name = "isAscending") Boolean isAscending)
   {
-    if (sortAttr == null || sortAttr == "")
+    if (sortAttr == null || sortAttr.equals(""))
     {
       sortAttr = JobHistory.CREATEDATE;
     }
@@ -112,7 +112,7 @@ public class ETLController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-completed")
   public ResponseIF getCompletedImports(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "sortAttr") String sortAttr, @RequestParamter(name = "isAscending") Boolean isAscending)
   {
-    if (sortAttr == null || sortAttr == "")
+    if (sortAttr == null || sortAttr.equals(""))
     {
       sortAttr = JobHistory.CREATEDATE;
     }

@@ -4,20 +4,21 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.graph;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -147,8 +148,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 {
   private static final Logger logger = LoggerFactory.getLogger(VertexServerGeoObject.class);
 
-  private static class EdgeComparator implements Comparator<EdgeObject>
+  private static class EdgeComparator implements Comparator<EdgeObject>, Serializable
   {
+    private static final long serialVersionUID = 1L;
+
     @Override
     public int compare(EdgeObject o1, EdgeObject o2)
     {
@@ -389,11 +392,6 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     LocalizedValue lv = this.getDisplayLabel();
 
-    if (lv == null)
-    {
-      return "";
-    }
-
     return lv.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE);
   }
 
@@ -402,19 +400,22 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     LocalizedValue lv = this.getDisplayLabel();
 
-    if (lv == null)
-    {
-      return "";
-    }
-
     return lv.getValue(locale);
   }
 
   @Override
   public void setValue(String attributeName, Object value)
   {
-    AttributeType at = this.type.getAttribute(attributeName).orElse(null); // This may return null if it's a Geometry attribute.
-    
+    AttributeType at = this.type.getAttribute(attributeName).orElse(null); // This
+                                                                           // may
+                                                                           // return
+                                                                           // null
+                                                                           // if
+                                                                           // it's
+                                                                           // a
+                                                                           // Geometry
+                                                                           // attribute.
+
     if (at instanceof AttributeLocalType)
     {
       LocalizedValueConverter.populate(this.vertex, attributeName, (LocalizedValue) value, this.date, null);
@@ -428,16 +429,24 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setValue(String attributeName, Object value, Date startDate, Date endDate)
   {
-    AttributeType at = this.type.getAttribute(attributeName).orElse(null); // This may return null if it's a Geometry attribute.
-    
+    AttributeType at = this.type.getAttribute(attributeName).orElse(null); // This
+                                                                           // may
+                                                                           // return
+                                                                           // null
+                                                                           // if
+                                                                           // it's
+                                                                           // a
+                                                                           // Geometry
+                                                                           // attribute.
+
     if (at instanceof AttributeLocalType)
     {
       LocalizedValueConverter.populate(this.vertex, attributeName, (LocalizedValue) value, startDate, endDate);
     }
     else
     {
-//        this.vertex.setValue(attributeName, value, startDate, endDate);
-      
+      // this.vertex.setValue(attributeName, value, startDate, endDate);
+
       // TODO I don't know why this if check is here
       if (value != null)
       {
@@ -502,15 +511,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         {
           Object value = geoObject.getValue(attributeName);
 
-//          if (value != null)
-//          {
-//            this.vertex.setValue(attributeName, value, startDate, endDate);
-//          }
-//          else
-//          {
-//            this.vertex.setValue(attributeName, (String) null, startDate, endDate);
-//          }
-          
+          // if (value != null)
+          // {
+          // this.vertex.setValue(attributeName, value, startDate, endDate);
+          // }
+          // else
+          // {
+          // this.vertex.setValue(attributeName, (String) null, startDate,
+          // endDate);
+          // }
+
           this.setValue(attributeName, value, startDate, endDate);
         }
       }
@@ -543,16 +553,18 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       // this.setGeometry(geom, votDTO.getStartDate(), votDTO.getEndDate());
       // }
       // }
-//      else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
-//      {
-//        this.getValuesOverTime(attributeName).clear();
-//        for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
-//        {
-//          LocalizedValue label = (LocalizedValue) votDTO.getValue();
-//
-//          this.setDisplayLabel(label, votDTO.getStartDate(), votDTO.getEndDate());
-//        }
-//      }
+      // else if
+      // (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
+      // {
+      // this.getValuesOverTime(attributeName).clear();
+      // for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
+      // {
+      // LocalizedValue label = (LocalizedValue) votDTO.getValue();
+      //
+      // this.setDisplayLabel(label, votDTO.getStartDate(),
+      // votDTO.getEndDate());
+      // }
+      // }
       else if (this.vertex.hasAttribute(attributeName) && !this.vertex.getMdAttributeDAO(attributeName).isSystem())
       {
         this.getValuesOverTime(attributeName).clear();
@@ -600,15 +612,17 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           {
             Object value = votDTO.getValue();
 
-//            if (value != null)
-//            {
-//              this.vertex.setValue(attributeName, value, votDTO.getStartDate(), votDTO.getEndDate());
-//            }
-//            else
-//            {
-//              this.vertex.setValue(attributeName, (String) null, votDTO.getStartDate(), votDTO.getEndDate());
-//            }
-            
+            // if (value != null)
+            // {
+            // this.vertex.setValue(attributeName, value, votDTO.getStartDate(),
+            // votDTO.getEndDate());
+            // }
+            // else
+            // {
+            // this.vertex.setValue(attributeName, (String) null,
+            // votDTO.getStartDate(), votDTO.getEndDate());
+            // }
+
             this.setValue(attributeName, value, votDTO.getStartDate(), votDTO.getEndDate());
           }
         }
@@ -668,7 +682,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     throw new UnsupportedOperationException();
   }
-  
+
   public List<VertexServerGeoObject> getAncestors(ServerHierarchyType hierarchy)
   {
     return getAncestors(hierarchy, false);
@@ -863,10 +877,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       statement.append("MATCH ");
       statement.append("{class:" + dbClassName + ", where: (@rid=:rid)}");
       statement.append(".in('" + hierarchy.getMdEdge().getDBClassName() + "')");
-      
+
       String existCriteria = includeNonExist ? "" : "exists=true AND";
       statement.append("{as: ancestor, where: (" + existCriteria + " invalid=false), while: (true)}");
-      
+
       statement.append("RETURN $elements");
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
@@ -880,10 +894,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       statement.append("MATCH ");
       statement.append("{class:" + dbClassName + ", where: (@rid=:rid)}");
       statement.append(".(inE('" + hierarchy.getMdEdge().getDBClassName() + "'){where: (:date BETWEEN startDate AND endDate)}.outV())");
-      
+
       String existCriteria = includeNonExist ? "" : "AND exists_cot CONTAINS (value=true AND :date BETWEEN startDate AND endDate )";
       statement.append("{as: ancestor, where: (invalid=false " + existCriteria + "), while: (true)}");
-      
+
       statement.append("RETURN $elements");
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
@@ -969,8 +983,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public Object getValue(String attributeName)
   {
-    AttributeType at = this.type.getAttribute(attributeName).orElse(null); // This may return null if it's a Geometry attribute.
-    
+    AttributeType at = this.type.getAttribute(attributeName).orElse(null); // This
+                                                                           // may
+                                                                           // return
+                                                                           // null
+                                                                           // if
+                                                                           // it's
+                                                                           // a
+                                                                           // Geometry
+                                                                           // attribute.
+
     if (attributeName.equals(DefaultAttribute.CODE.getName()))
     {
       return this.getCode();
@@ -1010,8 +1032,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public Object getValue(String attributeName, Date date)
   {
-    AttributeType at = this.type.getAttribute(attributeName).orElse(null); // This may return null if it's a Geometry attribute.
-    
+    AttributeType at = this.type.getAttribute(attributeName).orElse(null); // This
+                                                                           // may
+                                                                           // return
+                                                                           // null
+                                                                           // if
+                                                                           // it's
+                                                                           // a
+                                                                           // Geometry
+                                                                           // attribute.
+
     if (attributeName.equals(DefaultAttribute.CODE.getName()))
     {
       return this.getCode();
@@ -1032,7 +1062,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       return this.getValueLocalized(attributeName, date);
     }
-    
+
     if (at != null && !at.isChangeOverTime())
     {
       return this.vertex.getObjectValue(attributeName);
@@ -1418,7 +1448,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       ValueOverTime inVot = null;
       for (ValueOverTime vot : votc)
       {
-        if (vot.getOid() == edge.getOid())
+        if (vot.getOid().equals(edge.getOid()))
         {
           inVot = vot;
           break;
@@ -1482,7 +1512,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
       for (EdgeObject edge : edges)
       {
-        if (vot.getOid() == edge.getOid())
+        if (vot.getOid().equals(edge.getOid()))
         {
           isNew = false;
         }
@@ -1895,7 +1925,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     return this.getValueLocalized(DefaultAttribute.DISPLAY_LABEL.getName());
   }
-  
+
   private LocalizedValue getValueLocalized(String attributeName)
   {
     VertexObjectDAO vertexObjectDAO = null;
@@ -1926,7 +1956,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     return this.getValueLocalized(DefaultAttribute.DISPLAY_LABEL.getName(), date);
   }
-  
+
   private LocalizedValue getValueLocalized(String attributeName, Date date)
   {
     GraphObject graphObject = vertex.getEmbeddedComponent(attributeName, date);
@@ -2038,21 +2068,21 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return synonym.getOid();
   }
-  
+
   public static VertexServerGeoObject getByExternalId(String externalId, DHIS2ExternalSystem system, ServerGeoObjectType type)
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
-    
+
     StringBuilder statement = new StringBuilder();
-    
+
     if (type != null)
     {
       statement.append("SELECT FROM (");
     }
-    
+
     statement.append("SELECT expand(in) FROM (");
     statement.append("SELECT expand(outE('" + mdEdge.getDBClassName() + "')[id = '" + externalId + "']) FROM :system)");
-    
+
     if (type != null)
     {
       statement.append(") WHERE @class='" + type.getMdVertex().getDBClassName() + "'");
@@ -2062,14 +2092,14 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     query.setParameter("system", system.getRID());
 
     VertexObject vo = query.getSingleResult();
-    
+
     if (vo != null)
     {
       if (type == null)
       {
         type = ServerGeoObjectType.get((MdVertexDAOIF) vo.getMdClass());
       }
-      
+
       return new VertexServerGeoObject(type, vo);
     }
     else

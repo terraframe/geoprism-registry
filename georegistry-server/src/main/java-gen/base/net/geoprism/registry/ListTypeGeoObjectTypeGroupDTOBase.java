@@ -28,8 +28,8 @@ public abstract class ListTypeGeoObjectTypeGroupDTOBase extends net.geoprism.reg
     return CLASS;
   }
   
-  public static java.lang.String LEVEL = "level";
-  public static java.lang.String UNIVERSAL = "universal";
+  public static final java.lang.String LEVEL = "level";
+  public static final java.lang.String UNIVERSAL = "universal";
   public Integer getLevel()
   {
     return com.runwaysdk.constants.MdAttributeIntegerUtil.getTypeSafeValue(getValue(LEVEL));

@@ -29,7 +29,7 @@ package net.geoprism.registry;
 public abstract class SingleListTypeBase extends net.geoprism.registry.ListType
 {
   public final static String CLASS = "net.geoprism.registry.SingleListType";
-  public static java.lang.String VALIDON = "validOn";
+  public static final java.lang.String VALIDON = "validOn";
   private static final long serialVersionUID = -2019382851;
   
   public SingleListTypeBase()

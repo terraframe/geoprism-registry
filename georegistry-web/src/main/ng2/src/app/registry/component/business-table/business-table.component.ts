@@ -44,7 +44,7 @@ export class BusinessTableComponent implements OnInit {
                     type = "DATE";
                 }
 
-                this.cols.push({ header: attribute.label.localizedValue, field: attribute.code, type: type, sortable: sortable, filter: sortable });
+                this.cols.push({ header: attribute.label.localizedValue, field: attribute.code, type: type, sortable: sortable, filter: sortable, rowspan: 1, colspan: 1, headerType: "ATTRIBUTE" });
             });
             // this.cols.push({
             //     header: this.localizationService.decode("dropdown.select.geoobject.label"),

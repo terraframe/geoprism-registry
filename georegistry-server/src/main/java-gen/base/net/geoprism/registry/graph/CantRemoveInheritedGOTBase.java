@@ -29,10 +29,10 @@ package net.geoprism.registry.graph;
 public abstract class CantRemoveInheritedGOTBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.graph.CantRemoveInheritedGOT";
-  public static java.lang.String GOTCODE = "gotCode";
-  public static java.lang.String HIERCODE = "hierCode";
-  public static java.lang.String INHERITEDHIERARCHYLIST = "inheritedHierarchyList";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String GOTCODE = "gotCode";
+  public static final java.lang.String HIERCODE = "hierCode";
+  public static final java.lang.String INHERITEDHIERARCHYLIST = "inheritedHierarchyList";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -1107950113;
   
   public CantRemoveInheritedGOTBase()

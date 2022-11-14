@@ -29,8 +29,8 @@ package net.geoprism.registry.roles;
 public abstract class GeoObjectViewRelationshipPermissionExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.roles.GeoObjectViewRelationshipPermissionException";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String ORGANIZATION = "organization";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String ORGANIZATION = "organization";
   private static final long serialVersionUID = -288253195;
   
   public GeoObjectViewRelationshipPermissionExceptionBase()

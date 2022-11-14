@@ -29,31 +29,31 @@ package net.geoprism.registry.action;
 public abstract class ChangeRequestBase extends com.runwaysdk.business.Business
 {
   public final static String CLASS = "net.geoprism.registry.action.ChangeRequest";
-  public static java.lang.String ADDITIONALNOTES = "additionalNotes";
-  public static java.lang.String APPROVALSTATUS = "approvalStatus";
-  public static java.lang.String CONTRIBUTORNOTES = "contributorNotes";
-  public static java.lang.String CREATEDATE = "createDate";
-  public static java.lang.String CREATEDBY = "createdBy";
-  public static java.lang.String ENTITYDOMAIN = "entityDomain";
-  public static java.lang.String GEOOBJECTCODE = "geoObjectCode";
-  public static java.lang.String GEOOBJECTLABEL = "geoObjectLabel";
+  public static final java.lang.String ADDITIONALNOTES = "additionalNotes";
+  public static final java.lang.String APPROVALSTATUS = "approvalStatus";
+  public static final java.lang.String CONTRIBUTORNOTES = "contributorNotes";
+  public static final java.lang.String CREATEDATE = "createDate";
+  public static final java.lang.String CREATEDBY = "createdBy";
+  public static final java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static final java.lang.String GEOOBJECTCODE = "geoObjectCode";
+  public static final java.lang.String GEOOBJECTLABEL = "geoObjectLabel";
   private com.runwaysdk.business.Struct geoObjectLabel = null;
   
-  public static java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
-  public static java.lang.String GEOOBJECTTYPELABEL = "geoObjectTypeLabel";
+  public static final java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
+  public static final java.lang.String GEOOBJECTTYPELABEL = "geoObjectTypeLabel";
   private com.runwaysdk.business.Struct geoObjectTypeLabel = null;
   
-  public static java.lang.String KEYNAME = "keyName";
-  public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
-  public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
-  public static java.lang.String LOCKEDBY = "lockedBy";
-  public static java.lang.String MAINTAINERNOTES = "maintainerNotes";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String ORGANIZATIONCODE = "organizationCode";
-  public static java.lang.String OWNER = "owner";
-  public static java.lang.String SEQ = "seq";
-  public static java.lang.String SITEMASTER = "siteMaster";
-  public static java.lang.String TYPE = "type";
+  public static final java.lang.String KEYNAME = "keyName";
+  public static final java.lang.String LASTUPDATEDATE = "lastUpdateDate";
+  public static final java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
+  public static final java.lang.String LOCKEDBY = "lockedBy";
+  public static final java.lang.String MAINTAINERNOTES = "maintainerNotes";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String ORGANIZATIONCODE = "organizationCode";
+  public static final java.lang.String OWNER = "owner";
+  public static final java.lang.String SEQ = "seq";
+  public static final java.lang.String SITEMASTER = "siteMaster";
+  public static final java.lang.String TYPE = "type";
   private static final long serialVersionUID = 824408301;
   
   public ChangeRequestBase()

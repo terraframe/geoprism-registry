@@ -29,8 +29,8 @@ package net.geoprism.registry;
 public abstract class RequiredAttributeExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.RequiredAttributeException";
-  public static java.lang.String ATTRIBUTELABEL = "attributeLabel";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String ATTRIBUTELABEL = "attributeLabel";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -1091705676;
   
   public RequiredAttributeExceptionBase()

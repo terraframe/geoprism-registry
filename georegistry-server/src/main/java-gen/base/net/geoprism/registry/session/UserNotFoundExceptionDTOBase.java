@@ -69,8 +69,8 @@ public abstract class UserNotFoundExceptionDTOBase extends com.runwaysdk.busines
     return CLASS;
   }
   
-  public static java.lang.String OID = "oid";
-  public static java.lang.String USERNAME = "username";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String USERNAME = "username";
   public String getUsername()
   {
     return getValue(USERNAME);

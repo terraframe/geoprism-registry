@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -58,6 +58,8 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
 import com.google.gson.JsonArray;
@@ -150,39 +152,41 @@ import net.geoprism.registry.shapefile.MasterListShapefileExporter;
 
 public class MasterListVersion extends MasterListVersionBase implements TableEntity
 {
-  private static final long serialVersionUID = -351397872;
+  private static final long  serialVersionUID = -351397872;
 
-  public static String      PREFIX           = "ml_";
+  private static Logger      logger           = LoggerFactory.getLogger(MasterListVersion.class);
 
-  public static String      ORIGINAL_OID     = "originalOid";
+  public static final String PREFIX           = "ml_";
 
-  public static String      LEAF             = "leaf";
+  public static final String ORIGINAL_OID     = "originalOid";
 
-  public static String      TYPE_CODE        = "typeCode";
+  public static final String LEAF             = "leaf";
 
-  public static String      ORG_CODE         = "orgCode";
+  public static final String TYPE_CODE        = "typeCode";
 
-  public static String      ATTRIBUTES       = "attributes";
+  public static final String ORG_CODE         = "orgCode";
 
-  public static String      NAME             = "name";
+  public static final String ATTRIBUTES       = "attributes";
 
-  public static String      LABEL            = "label";
+  public static final String NAME             = "name";
 
-  public static String      VALUE            = "value";
+  public static final String LABEL            = "label";
 
-  public static String      TYPE             = "type";
+  public static final String VALUE            = "value";
 
-  public static String      BASE             = "base";
+  public static final String TYPE             = "type";
 
-  public static String      DEPENDENCY       = "dependency";
+  public static final String BASE             = "base";
 
-  public static String      DEFAULT_LOCALE   = "DefaultLocale";
+  public static final String DEPENDENCY       = "dependency";
 
-  public static String      PERIOD           = "period";
+  public static final String DEFAULT_LOCALE   = "DefaultLocale";
 
-  public static String      PUBLISHED        = "PUBLISHED";
+  public static final String PERIOD           = "period";
 
-  public static String      EXPLORATORY      = "EXPLORATORY";
+  public static final String PUBLISHED        = "PUBLISHED";
+
+  public static final String EXPLORATORY      = "EXPLORATORY";
 
   public MasterListVersion()
   {
@@ -330,7 +334,6 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
     createMdAttributeFromAttributeType(metadata, attributeType, type, locales);
 
-
     return metadata;
   }
 
@@ -477,6 +480,10 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
     else if (attributeType.equals(GeometryType.MIXED))
     {
       mdAttribute = new MdAttributeShape();
+    }
+    else
+    {
+      throw new UnsupportedOperationException("Bad type");
     }
 
     mdAttribute.setAttributeName(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
@@ -713,7 +720,10 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
     final MasterList list = this.getMasterlist();
 
     final File directory = list.getShapefileDirectory();
-    directory.mkdirs();
+    if (!directory.mkdirs())
+    {
+      logger.debug("Unable to create directory [" + directory.getAbsolutePath() + "]");
+    }
 
     final File file = new File(directory, filename);
 
@@ -748,7 +758,10 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
     final MasterList list = this.getMasterlist();
 
     final File directory = list.getShapefileDirectory();
-    directory.mkdirs();
+    if (!directory.mkdirs())
+    {
+      logger.debug("Unable to create directory [" + directory.getAbsolutePath() + "]");
+    }
 
     final File file = new File(directory, filename);
 

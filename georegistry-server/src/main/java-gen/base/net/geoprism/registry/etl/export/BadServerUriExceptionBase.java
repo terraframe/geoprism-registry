@@ -29,7 +29,7 @@ package net.geoprism.registry.etl.export;
 public abstract class BadServerUriExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.BadServerUriException";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -1397641906;
   
   public BadServerUriExceptionBase()

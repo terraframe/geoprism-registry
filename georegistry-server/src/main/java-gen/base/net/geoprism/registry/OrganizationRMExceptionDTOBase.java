@@ -69,9 +69,9 @@ public abstract class OrganizationRMExceptionDTOBase extends com.runwaysdk.busin
     return CLASS;
   }
   
-  public static java.lang.String GEOOBJECTTYPELABEL = "geoObjectTypeLabel";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String ORGANIZATIONLABEL = "organizationLabel";
+  public static final java.lang.String GEOOBJECTTYPELABEL = "geoObjectTypeLabel";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String ORGANIZATIONLABEL = "organizationLabel";
   public String getGeoObjectTypeLabel()
   {
     return getValue(GEOOBJECTTYPELABEL);

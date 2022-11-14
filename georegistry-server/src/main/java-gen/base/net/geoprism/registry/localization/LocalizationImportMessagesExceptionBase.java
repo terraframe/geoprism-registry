@@ -29,8 +29,8 @@ package net.geoprism.registry.localization;
 public abstract class LocalizationImportMessagesExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.localization.LocalizationImportMessagesException";
-  public static java.lang.String MESSAGES = "messages";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String MESSAGES = "messages";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = 1361220382;
   
   public LocalizationImportMessagesExceptionBase()

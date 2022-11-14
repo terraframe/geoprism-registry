@@ -50,6 +50,7 @@ public class UndirectedGraphTypeService
 
     UndirectedGraphType type = UndirectedGraphType.create(object);
 
+    // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
     return type.toJSON();

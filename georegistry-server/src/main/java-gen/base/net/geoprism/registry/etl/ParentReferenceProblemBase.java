@@ -29,10 +29,10 @@ package net.geoprism.registry.etl;
 public abstract class ParentReferenceProblemBase extends net.geoprism.registry.etl.ValidationProblem
 {
   public final static String CLASS = "net.geoprism.registry.etl.ParentReferenceProblem";
-  public static java.lang.String CONTEXT = "context";
-  public static java.lang.String LABEL = "label";
-  public static java.lang.String PARENTCODE = "parentCode";
-  public static java.lang.String TYPECODE = "typeCode";
+  public static final java.lang.String CONTEXT = "context";
+  public static final java.lang.String LABEL = "label";
+  public static final java.lang.String PARENTCODE = "parentCode";
+  public static final java.lang.String TYPECODE = "typeCode";
   private static final long serialVersionUID = 121927462;
   
   public ParentReferenceProblemBase()

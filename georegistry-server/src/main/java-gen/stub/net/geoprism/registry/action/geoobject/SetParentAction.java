@@ -19,13 +19,8 @@
 package net.geoprism.registry.action.geoobject;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.dataaccess.GeoObjectJsonAdapters;
-
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +38,6 @@ import net.geoprism.registry.action.tree.RemoveChildAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
-import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime.ServerParentTreeNodeOverTimeDeserializer;
@@ -55,8 +48,6 @@ public class SetParentAction extends SetParentActionBase
   
   private static final Logger logger = LoggerFactory.getLogger(RemoveChildAction.class);
 
-  private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
-
   public SetParentAction()
   {
     super();
@@ -64,8 +55,6 @@ public class SetParentAction extends SetParentActionBase
   
   public static class ReferencesGOTGeoObjectNullDeserializer extends ServerParentTreeNodeOverTimeDeserializer
   {
-    protected boolean referencesType = false;
-    
     public ReferencesGOTGeoObjectNullDeserializer(ServerGeoObjectType type)
     {
       super(type);
@@ -73,12 +62,7 @@ public class SetParentAction extends SetParentActionBase
     
     @Override
     protected ServerGeoObjectIF deserializeGeoObject(JsonObject go, String goTypeCode, final JsonDeserializationContext context)
-    {
-      if (goTypeCode.equals(type.getCode()))
-      {
-        referencesType = true;
-      }
-      
+    {      
       return null;
     }
   }

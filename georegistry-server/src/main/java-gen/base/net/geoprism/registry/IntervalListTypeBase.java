@@ -29,7 +29,7 @@ package net.geoprism.registry;
 public abstract class IntervalListTypeBase extends net.geoprism.registry.ListType
 {
   public final static String CLASS = "net.geoprism.registry.IntervalListType";
-  public static java.lang.String INTERVALJSON = "intervalJson";
+  public static final java.lang.String INTERVALJSON = "intervalJson";
   private static final long serialVersionUID = -2054102832;
   
   public IntervalListTypeBase()

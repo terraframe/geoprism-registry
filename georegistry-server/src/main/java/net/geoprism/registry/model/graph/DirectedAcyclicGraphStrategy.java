@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.graph;
 
@@ -55,12 +55,12 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
   public ServerChildGraphNode getChildren(VertexServerGeoObject parent, Boolean recursive, Date date, String boundsWKT, Long skip, Long limit)
   {
     ServerChildGraphNode tnRoot = new ServerChildGraphNode(parent, this.type, date, null, null);
-    
+
     if (limit != null && limit <= 0)
     {
       return tnRoot;
     }
-    
+
     if (skip != null && recursive)
     {
       throw new UnsupportedOperationException();
@@ -81,17 +81,17 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
     }
 
     statement.append(") FROM :rid");
-    
+
     if (boundsWKT != null)
     {
       statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "in", date, boundsWKT, parameters));
     }
-    
+
     if (skip != null)
     {
       statement.append(" SKIP " + skip);
     }
-    
+
     if (limit != null)
     {
       statement.append(" LIMIT " + limit);
@@ -100,7 +100,7 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
     List<EdgeObject> edges = query.getResults();
-    
+
     long resultsCount = edges.size();
 
     for (EdgeObject edge : edges)
@@ -115,11 +115,11 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
 
       ServerChildGraphNode tnParent;
 
-      if (recursive && (limit == null || limit - resultsCount > 0))
+      if (recursive && ( limit == null || limit - resultsCount > 0 ))
       {
-        tnParent = this.getChildren(child, recursive, date, boundsWKT, null, (limit == null ? null : limit - resultsCount));
+        tnParent = this.getChildren(child, recursive, date, boundsWKT, null, ( limit == null ? null : limit - resultsCount ));
         tnParent.setOid(edge.getOid());
-        
+
         resultsCount += tnParent.getChildren().size();
       }
       else
@@ -138,12 +138,12 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
   public ServerParentGraphNode getParents(VertexServerGeoObject child, Boolean recursive, Date date, String boundsWKT, Long skip, Long limit)
   {
     ServerParentGraphNode tnRoot = new ServerParentGraphNode(child, this.type, date, null, null);
-    
+
     if (limit != null && limit <= 0)
     {
       return tnRoot;
     }
-    
+
     if (skip != null && recursive)
     {
       throw new UnsupportedOperationException();
@@ -164,17 +164,17 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
     }
 
     statement.append(") FROM :rid");
-    
+
     if (boundsWKT != null)
     {
       statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), "out", date, boundsWKT, parameters));
     }
-    
+
     if (skip != null)
     {
       statement.append(" SKIP " + skip);
     }
-    
+
     if (limit != null)
     {
       statement.append(" LIMIT " + limit);
@@ -183,7 +183,7 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
     List<EdgeObject> edges = query.getResults();
-    
+
     long resultsCount = edges.size();
 
     for (EdgeObject edge : edges)
@@ -198,11 +198,11 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
 
       ServerParentGraphNode tnParent;
 
-      if (recursive && (limit == null || limit - resultsCount > 0))
+      if (recursive && ( limit == null || limit - resultsCount > 0 ))
       {
-        tnParent = this.getParents(parent, recursive, date, boundsWKT, null, (limit == null ? null : limit - resultsCount));
+        tnParent = this.getParents(parent, recursive, date, boundsWKT, null, ( limit == null ? null : limit - resultsCount ));
         tnParent.setOid(edge.getOid());
-        
+
         resultsCount += tnParent.getParents().size();
       }
       else
@@ -411,7 +411,7 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
 
       for (EdgeObject edge : edges)
       {
-        if (vot.getOid() == edge.getOid())
+        if (vot.getOid().equals(edge.getOid()))
         {
           isNew = false;
         }

@@ -69,10 +69,10 @@ public abstract class CantRemoveInheritedGOTDTOBase extends com.runwaysdk.busine
     return CLASS;
   }
   
-  public static java.lang.String GOTCODE = "gotCode";
-  public static java.lang.String HIERCODE = "hierCode";
-  public static java.lang.String INHERITEDHIERARCHYLIST = "inheritedHierarchyList";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String GOTCODE = "gotCode";
+  public static final java.lang.String HIERCODE = "hierCode";
+  public static final java.lang.String INHERITEDHIERARCHYLIST = "inheritedHierarchyList";
+  public static final java.lang.String OID = "oid";
   public String getGotCode()
   {
     return getValue(GOTCODE);

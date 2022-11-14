@@ -29,8 +29,8 @@ package net.geoprism.registry.etl.export;
 public abstract class ExportHistoryBase extends com.runwaysdk.system.scheduler.JobHistory
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.ExportHistory";
-  public static java.lang.String EXPORTEDRECORDS = "exportedRecords";
-  public static java.lang.String STAGE = "stage";
+  public static final java.lang.String EXPORTEDRECORDS = "exportedRecords";
+  public static final java.lang.String STAGE = "stage";
   private static final long serialVersionUID = 961615369;
   
   public ExportHistoryBase()

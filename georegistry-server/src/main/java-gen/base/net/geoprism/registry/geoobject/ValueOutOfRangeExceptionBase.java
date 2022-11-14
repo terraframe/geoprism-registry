@@ -29,11 +29,11 @@ package net.geoprism.registry.geoobject;
 public abstract class ValueOutOfRangeExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.geoobject.ValueOutOfRangeException";
-  public static java.lang.String ATTRIBUTE = "attribute";
-  public static java.lang.String ENDDATE = "endDate";
-  public static java.lang.String GEOOBJECT = "geoObject";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String STARTDATE = "startDate";
+  public static final java.lang.String ATTRIBUTE = "attribute";
+  public static final java.lang.String ENDDATE = "endDate";
+  public static final java.lang.String GEOOBJECT = "geoObject";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String STARTDATE = "startDate";
   private static final long serialVersionUID = 882041771;
   
   public ValueOutOfRangeExceptionBase()

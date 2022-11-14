@@ -69,10 +69,10 @@ public abstract class ExternalParentReferenceExceptionDTOBase extends com.runway
     return CLASS;
   }
   
-  public static java.lang.String CONTEXT = "context";
-  public static java.lang.String EXTERNALID = "externalId";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String PARENTTYPE = "parentType";
+  public static final java.lang.String CONTEXT = "context";
+  public static final java.lang.String EXTERNALID = "externalId";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String PARENTTYPE = "parentType";
   public String getContext()
   {
     return getValue(CONTEXT);

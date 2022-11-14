@@ -52,6 +52,7 @@ public class ClassificationTypeService
   {
     String retJson = GeoRegistryUtil.applyClassificationType(json);
 
+    // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
     return JsonParser.parseString(retJson).getAsJsonObject();

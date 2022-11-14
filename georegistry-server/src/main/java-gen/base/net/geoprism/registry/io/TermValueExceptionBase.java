@@ -29,9 +29,9 @@ package net.geoprism.registry.io;
 public abstract class TermValueExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.io.TermValueException";
-  public static java.lang.String ATTRIBUTELABEL = "attributeLabel";
-  public static java.lang.String CODE = "code";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String ATTRIBUTELABEL = "attributeLabel";
+  public static final java.lang.String CODE = "code";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = 120198479;
   
   public TermValueExceptionBase()

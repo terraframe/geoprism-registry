@@ -80,7 +80,7 @@ public class RegistrySessionService extends RegistrySessionServiceBase
    * @return
    */
   @Authenticate
-  public static java.lang.String ologin(java.lang.String serverId, java.lang.String code, java.lang.String locales, java.lang.String redirectBase)
+  public static String ologin(String serverId, String code, String locales, String redirectBase)
   {
     try
     {

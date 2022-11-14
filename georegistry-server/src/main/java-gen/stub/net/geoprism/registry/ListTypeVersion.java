@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -56,8 +55,9 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.kms.model.UnsupportedOperationException;
 import com.google.gson.JsonArray;
@@ -96,7 +96,6 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeFloatDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.LocalizedValueStore;
 import com.runwaysdk.localization.LocalizedValueStoreStoreValue;
@@ -159,7 +158,6 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
-import net.geoprism.registry.model.graph.ServerHierarchyStrategy;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
@@ -174,29 +172,31 @@ import net.geoprism.registry.view.Page;
 
 public class ListTypeVersion extends ListTypeVersionBase implements TableEntity, LabeledVersion
 {
-  private static final long serialVersionUID = -351397872;
+  private static final long  serialVersionUID = -351397872;
 
-  public static String      PREFIX           = "lt_";
+  private static Logger      logger           = LoggerFactory.getLogger(ListTypeVersion.class);
 
-  public static String      ORIGINAL_OID     = "originalOid";
+  public static final String PREFIX           = "lt_";
 
-  public static String      LEAF             = "leaf";
+  public static final String ORIGINAL_OID     = "originalOid";
 
-  public static String      TYPE_CODE        = "typeCode";
+  public static final String LEAF             = "leaf";
 
-  public static String      ORG_CODE         = "orgCode";
+  public static final String TYPE_CODE        = "typeCode";
 
-  public static String      ATTRIBUTES       = "attributes";
+  public static final String ORG_CODE         = "orgCode";
 
-  public static String      HIERARCHIES      = "hierarchies";
+  public static final String ATTRIBUTES       = "attributes";
 
-  public static String      DEFAULT_LOCALE   = "DefaultLocale";
+  public static final String HIERARCHIES      = "hierarchies";
 
-  public static String      PERIOD           = "period";
+  public static final String DEFAULT_LOCALE   = "DefaultLocale";
 
-  public static String      PUBLISHED        = "PUBLISHED";
+  public static final String PERIOD           = "period";
 
-  public static String      EXPLORATORY      = "EXPLORATORY";
+  public static final String PUBLISHED        = "PUBLISHED";
+
+  public static final String EXPLORATORY      = "EXPLORATORY";
 
   public ListTypeVersion()
   {
@@ -441,7 +441,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
       if (! ( attributeType.getName().equals(DefaultAttribute.UID.getName()) || attributeType.getName().equals(DefaultAttribute.INVALID.getName()) ))
       {
-        metadata.getHolder().addChild(new Attribute(mdAttribute));
+        metadata.getRoot().addChild(new Attribute(mdAttribute, 2));
       }
     }
     else if (attributeType instanceof AttributeTermType || attributeType instanceof AttributeClassificationType)
@@ -555,6 +555,10 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       mdAttribute = new MdAttributeShape();
     }
+    else
+    {
+      throw new UnsupportedOperationException("Unsupported geometry type [" + attributeType + "]");
+    }
 
     mdAttribute.setAttributeName(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
     mdAttribute.getDisplayLabel().setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
@@ -626,7 +630,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       mdAttributeLatitude.setValue(MdAttributeFloatInfo.DECIMAL, "8");
       mdAttributeLatitude.apply();
 
-      metadata.getHolder().addChild(new Attribute(mdAttributeLatitude));
+      metadata.getRoot().addChild(new Attribute(mdAttributeLatitude, 2));
 
       MdAttributeFloatDAO mdAttributeLongitude = MdAttributeFloatDAO.newInstance();
       mdAttributeLongitude.setValue(MdAttributeFloatInfo.NAME, "longitude");
@@ -642,7 +646,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       mdAttributeLongitude.setValue(MdAttributeFloatInfo.DECIMAL, "8");
       mdAttributeLongitude.apply();
 
-      metadata.getHolder().addChild(new Attribute(mdAttributeLongitude));
+      metadata.getRoot().addChild(new Attribute(mdAttributeLongitude, 2));
     }
 
     JsonArray hierarchies = masterlist.getHierarchiesAsJson();
@@ -865,7 +869,10 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     final ListType list = this.getListType();
 
     final File directory = list.getShapefileDirectory();
-    directory.mkdirs();
+    if (!directory.mkdirs())
+    {
+      logger.debug("Unable to create directory [" + directory.getAbsolutePath() + "]");
+    }
 
     final File file = new File(directory, filename);
 
@@ -900,7 +907,10 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     final ListType list = this.getListType();
 
     final File directory = list.getShapefileDirectory();
-    directory.mkdirs();
+    if (!directory.mkdirs())
+    {
+      logger.debug("Unable to create directory [" + directory.getAbsolutePath() + "]");
+    }
 
     final File file = new File(directory, filename);
 
@@ -1809,10 +1819,11 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     if (this.getWorking() && listType.doesActorHaveExploratoryPermission())
     {
       ServerGeoObjectIF geoObject = new ServerGeoObjectService().getGeoObject(uid, listType.getGeoObjectType().getCode());
-      geoObject.setDate(this.getForDate());
 
       if (geoObject != null)
       {
+        geoObject.setDate(this.getForDate());
+
         JsonObject record = new JsonObject();
         record.addProperty("recordType", "GEO_OBJECT");
         record.addProperty("code", geoObject.getCode());

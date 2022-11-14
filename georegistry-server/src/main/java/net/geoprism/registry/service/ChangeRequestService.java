@@ -217,7 +217,7 @@ public class ChangeRequestService
 
     query.restrictRows(pageSize, pageNumber);
     
-    if (sort != null && sort.length() > 0 && sort != "[]")
+    if (sort != null && sort.length() > 0 && !sort.equals("[]"))
     {
       JsonArray ja = JsonParser.parseString(sort).getAsJsonArray();
       

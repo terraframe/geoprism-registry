@@ -29,22 +29,22 @@ package net.geoprism.registry.etl;
 public abstract class ValidationProblemBase extends com.runwaysdk.business.Business
 {
   public final static String CLASS = "net.geoprism.registry.etl.ValidationProblem";
-  public static java.lang.String AFFECTEDROWS = "affectedRows";
-  public static java.lang.String CREATEDATE = "createDate";
-  public static java.lang.String CREATEDBY = "createdBy";
-  public static java.lang.String ENTITYDOMAIN = "entityDomain";
-  public static java.lang.String HISTORY = "history";
-  public static java.lang.String KEYNAME = "keyName";
-  public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
-  public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
-  public static java.lang.String LOCKEDBY = "lockedBy";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String OWNER = "owner";
-  public static java.lang.String RESOLUTION = "resolution";
-  public static java.lang.String SEQ = "seq";
-  public static java.lang.String SEVERITY = "severity";
-  public static java.lang.String SITEMASTER = "siteMaster";
-  public static java.lang.String TYPE = "type";
+  public static final java.lang.String AFFECTEDROWS = "affectedRows";
+  public static final java.lang.String CREATEDATE = "createDate";
+  public static final java.lang.String CREATEDBY = "createdBy";
+  public static final java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static final java.lang.String HISTORY = "history";
+  public static final java.lang.String KEYNAME = "keyName";
+  public static final java.lang.String LASTUPDATEDATE = "lastUpdateDate";
+  public static final java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
+  public static final java.lang.String LOCKEDBY = "lockedBy";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String OWNER = "owner";
+  public static final java.lang.String RESOLUTION = "resolution";
+  public static final java.lang.String SEQ = "seq";
+  public static final java.lang.String SEVERITY = "severity";
+  public static final java.lang.String SITEMASTER = "siteMaster";
+  public static final java.lang.String TYPE = "type";
   private static final long serialVersionUID = -812915980;
   
   public ValidationProblemBase()

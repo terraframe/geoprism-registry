@@ -29,8 +29,8 @@ package net.geoprism.registry.etl.export.dhis2;
 public abstract class ParentExternalIdExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.dhis2.ParentExternalIdException";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String PARENTLABEL = "parentLabel";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String PARENTLABEL = "parentLabel";
   private static final long serialVersionUID = 551262736;
   
   public ParentExternalIdExceptionBase()

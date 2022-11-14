@@ -48,6 +48,7 @@ public class BusinessTypeService
   {
     BusinessType type = BusinessType.apply(JsonParser.parseString(ptJSON).getAsJsonObject());
 
+    // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
     return type.toJSON();
@@ -78,6 +79,7 @@ public class BusinessTypeService
     BusinessType type = BusinessType.get(oid);
     type.delete();
 
+    // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
   }
 

@@ -1,9 +1,8 @@
 <div>
-	<p-table #dt [columns]="cols" [value]="page.resultSet" [autoLayout]="true" [scrollable]="false"
+	<p-table #dt [columns]="setup.columns" [value]="page.resultSet" [autoLayout]="true" [scrollable]="false"
 		[resizableColumns]="true" sortMode="multiple" styleClass="p-datatable-gridlines" [lazy]="true"
 		(onLazyLoad)="onPageChange($event)" [paginator]="true" [totalRecords]="page.count" [rows]="page.pageSize"
-		[loading]="loading" [multiSortMeta]="config.sort != null ? config.sort : []"
-		(onFilter)="handleFilter($event)">
+		[loading]="loading" [multiSortMeta]="config.sort != null ? config.sort : []" (onFilter)="handleFilter($event)">
 
 		<ng-template pTemplate="colgroup" let-columns>
 			<colgroup>
@@ -12,25 +11,25 @@
 		</ng-template>
 
 		<ng-template pTemplate="header" let-columns>
-			<ng-container *ngIf="groups != null">
-				<tr *ngFor="let row of groups">
-					<th *ngFor="let col of row" [attr.colspan]="col.colspan">
-						{{col.label}}
+			<tr *ngFor="let row of setup.headers">
+				<ng-container *ngFor="let col of row">
+					<th *ngIf="col.headerType !== 'ATTRIBUTE'" [attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan">
+						{{col.header}}
 					</th>
-				</tr>	
-			</ng-container>
-
-			<tr>
-				<th *ngFor="let col of columns" [pSortableColumn]="col.field"
-					[ngClass]="{'actions-col' : col.type === 'ACTIONS'}" pResizableColumn>
-					{{col.header}}
-					<p-sortIcon *ngIf="col.sortable" [field]="col.field" ariaLabel="Activate to sort"
-						style="float:right;" ariaLabelDesc="Activate to sort in descending order"
-						ariaLabelAsc="Activate to sort in ascending order">
-					</p-sortIcon>
-				</th>
+					<th *ngIf="col.headerType === 'ATTRIBUTE'" [pSortableColumn]="col.field"
+						[ngClass]="{'actions-col' : col.type === 'ACTIONS'}" pResizableColumn
+						[attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan">
+						{{col.header}}
+						<p-sortIcon *ngIf="col.sortable" [field]="col.field" ariaLabel="Activate to sort"
+							style="float:right;" ariaLabelDesc="Activate to sort in descending order"
+							ariaLabelAsc="Activate to sort in ascending order">
+						</p-sortIcon>
+					</th>
+				</ng-container>
 			</tr>
-			<tr>
+
+			<!-- Create filter columns -->
+			<tr *ngIf="hasFilter">
 				<th *ngFor="let col of columns" [ngSwitch]="col.type">
 					<ng-container *ngIf="col.filter !== false">
 						<input *ngSwitchCase="'URL'" pInputText type="text"

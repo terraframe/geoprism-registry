@@ -122,6 +122,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
     // Refresh the users session
     if (Session.getCurrentSession() != null)
     {
+      // Refresh the users session
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
     }
 
@@ -166,6 +167,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
     // Refresh the users session
     if (Session.getCurrentSession() != null)
     {
+      // Refresh the users session
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
     }
   }

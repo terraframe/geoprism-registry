@@ -29,8 +29,8 @@ package net.geoprism.registry;
 public abstract class OrganizationRAExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.OrganizationRAException";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String ORGANIZATIONLABEL = "organizationLabel";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String ORGANIZATIONLABEL = "organizationLabel";
   private static final long serialVersionUID = -471734424;
   
   public OrganizationRAExceptionBase()

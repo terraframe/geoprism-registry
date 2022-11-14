@@ -69,8 +69,8 @@ public abstract class DuplicateMasterListExceptionDTOBase extends com.runwaysdk.
     return CLASS;
   }
   
-  public static java.lang.String GEOOBJECTTYPE = "geoObjectType";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String GEOOBJECTTYPE = "geoObjectType";
+  public static final java.lang.String OID = "oid";
   public String getGeoObjectType()
   {
     return getValue(GEOOBJECTTYPE);

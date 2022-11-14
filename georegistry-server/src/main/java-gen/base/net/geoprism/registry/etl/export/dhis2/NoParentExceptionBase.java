@@ -29,11 +29,11 @@ package net.geoprism.registry.etl.export.dhis2;
 public abstract class NoParentExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.dhis2.NoParentException";
-  public static java.lang.String DATELABEL = "dateLabel";
-  public static java.lang.String HIERARCHYCODE = "hierarchyCode";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String SYNCLEVEL = "syncLevel";
-  public static java.lang.String TYPECODE = "typeCode";
+  public static final java.lang.String DATELABEL = "dateLabel";
+  public static final java.lang.String HIERARCHYCODE = "hierarchyCode";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String SYNCLEVEL = "syncLevel";
+  public static final java.lang.String TYPECODE = "typeCode";
   private static final long serialVersionUID = -1879349409;
   
   public NoParentExceptionBase()

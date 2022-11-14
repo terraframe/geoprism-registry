@@ -29,7 +29,7 @@ package net.geoprism.registry.account;
 public abstract class RegistryAccountUtilBase extends com.runwaysdk.business.Util
 {
   public final static String CLASS = "net.geoprism.registry.account.RegistryAccountUtil";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -338050549;
   
   public RegistryAccountUtilBase()

@@ -632,9 +632,7 @@ public class DHIS2SynchronizationManager
       serializedOrgUnit.add("translations", this.service.mergeTranslations(existingOrgUnit.getTranslations(), serializedOrgUnit.get("translations").getAsJsonArray()));
       serializedOrgUnit.add("attributeValues", this.service.mergeAttributeValues(existingOrgUnit.getAttributeValues(), serializedOrgUnit.get("attributeValues").getAsJsonArray()));
     }
-    
-    externalId = serializedOrgUnit.get("id").getAsString();
-    
+        
     if (level.getSyncType() == DHIS2SyncLevel.Type.ALL)
     {
       orgUnitsPayload.add(serializedOrgUnit);

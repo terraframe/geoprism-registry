@@ -29,8 +29,8 @@ package net.geoprism.registry.etl;
 public abstract class FhirResponseExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.FhirResponseException";
-  public static java.lang.String ERRORMESSAGE = "errorMessage";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String ERRORMESSAGE = "errorMessage";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -1758507225;
   
   public FhirResponseExceptionBase()

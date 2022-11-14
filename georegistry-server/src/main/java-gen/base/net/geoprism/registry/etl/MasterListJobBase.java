@@ -29,7 +29,7 @@ package net.geoprism.registry.etl;
 public abstract class MasterListJobBase extends com.runwaysdk.system.scheduler.ExecutableJob
 {
   public final static String CLASS = "net.geoprism.registry.etl.MasterListJob";
-  public static java.lang.String MASTERLIST = "masterList";
+  public static final java.lang.String MASTERLIST = "masterList";
   private static final long serialVersionUID = 1275181660;
   
   public MasterListJobBase()

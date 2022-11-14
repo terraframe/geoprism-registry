@@ -39,4 +39,9 @@ public class BusinessEdgeTypeDTO extends BusinessEdgeTypeDTOBase
     super(businessDTO, clientRequest);
   }
   
+  @Override
+  public int hashCode()
+  {
+    return this.getOid().hashCode();
+  }
 }

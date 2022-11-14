@@ -45,7 +45,7 @@ public abstract class ListCurationHistoryDTOBase extends com.runwaysdk.system.sc
     return CLASS;
   }
   
-  public static java.lang.String VERSION = "version";
+  public static final java.lang.String VERSION = "version";
   public net.geoprism.registry.ListTypeVersionDTO getVersion()
   {
     if(getValue(VERSION) == null || getValue(VERSION).trim().equals(""))

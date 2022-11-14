@@ -29,9 +29,9 @@ package net.geoprism.registry.roles;
 public abstract class DeleteGeoObjectTypePermissionExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.roles.DeleteGeoObjectTypePermissionException";
-  public static java.lang.String GEOOBJECTTYPE = "geoObjectType";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String ORGANIZATION = "organization";
+  public static final java.lang.String GEOOBJECTTYPE = "geoObjectType";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String ORGANIZATION = "organization";
   private static final long serialVersionUID = -756298573;
   
   public DeleteGeoObjectTypePermissionExceptionBase()

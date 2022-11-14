@@ -29,10 +29,10 @@ package net.geoprism.registry;
 public abstract class AbstractParentExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.AbstractParentException";
-  public static java.lang.String CHILDGEOOBJECTTYPELABEL = "childGeoObjectTypeLabel";
-  public static java.lang.String HIERARCHYTYPELABEL = "hierarchyTypeLabel";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String PARENTGEOOBJECTTYPELABEL = "parentGeoObjectTypeLabel";
+  public static final java.lang.String CHILDGEOOBJECTTYPELABEL = "childGeoObjectTypeLabel";
+  public static final java.lang.String HIERARCHYTYPELABEL = "hierarchyTypeLabel";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String PARENTGEOOBJECTTYPELABEL = "parentGeoObjectTypeLabel";
   private static final long serialVersionUID = -1438572362;
   
   public AbstractParentExceptionBase()

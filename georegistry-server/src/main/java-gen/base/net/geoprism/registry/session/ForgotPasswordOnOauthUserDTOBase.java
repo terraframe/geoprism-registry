@@ -69,9 +69,9 @@ public abstract class ForgotPasswordOnOauthUserDTOBase extends com.runwaysdk.bus
     return CLASS;
   }
   
-  public static java.lang.String OAUTHSERVER = "oauthServer";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String USERNAME = "username";
+  public static final java.lang.String OAUTHSERVER = "oauthServer";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String USERNAME = "username";
   public String getOauthServer()
   {
     return getValue(OAUTHSERVER);

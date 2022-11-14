@@ -34,7 +34,7 @@ public abstract class RegistrySessionServiceDTOBase extends com.runwaysdk.busine
     return CLASS;
   }
   
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   public static final java.lang.String ologin(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String serverId, java.lang.String code, java.lang.String locales, java.lang.String redirectBase)
   {
     String[] _declaredTypes = new String[]{"java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String"};

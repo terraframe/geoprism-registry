@@ -69,9 +69,9 @@ public abstract class DeleteGeoObjectPermissionExceptionDTOBase extends com.runw
     return CLASS;
   }
   
-  public static java.lang.String GEOOBJECTTYPE = "geoObjectType";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String ORGANIZATION = "organization";
+  public static final java.lang.String GEOOBJECTTYPE = "geoObjectType";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String ORGANIZATION = "organization";
   public String getGeoObjectType()
   {
     return getValue(GEOOBJECTTYPE);

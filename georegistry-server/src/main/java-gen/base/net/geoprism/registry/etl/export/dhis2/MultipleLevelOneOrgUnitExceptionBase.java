@@ -29,7 +29,7 @@ package net.geoprism.registry.etl.export.dhis2;
 public abstract class MultipleLevelOneOrgUnitExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.dhis2.MultipleLevelOneOrgUnitException";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -574178350;
   
   public MultipleLevelOneOrgUnitExceptionBase()
