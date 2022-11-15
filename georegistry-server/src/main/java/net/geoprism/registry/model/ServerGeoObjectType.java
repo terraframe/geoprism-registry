@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -79,11 +79,13 @@ import com.runwaysdk.system.metadata.MdAttributeConcrete;
 import com.runwaysdk.system.metadata.MdAttributeDateTime;
 import com.runwaysdk.system.metadata.MdAttributeDouble;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
+import com.runwaysdk.system.metadata.MdAttributeLocalCharacterEmbedded;
 import com.runwaysdk.system.metadata.MdAttributeLocalText;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdClass;
+import com.runwaysdk.system.metadata.MdGraphClass;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
@@ -1151,7 +1153,14 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
     }
     else if (attributeType.getType().equals(AttributeLocalType.TYPE))
     {
-      mdAttribute = new MdAttributeLocalText();
+      if (mdClass instanceof MdGraphClass)
+      {
+        mdAttribute = new MdAttributeLocalCharacterEmbedded();
+      }
+      else
+      {
+        mdAttribute = new MdAttributeLocalText();
+      }
     }
     else
     {

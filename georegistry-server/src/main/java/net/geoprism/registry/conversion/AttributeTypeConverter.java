@@ -48,6 +48,7 @@ import com.runwaysdk.dataaccess.MdAttributeDecDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeEnumerationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeLocalDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeLocalEmbeddedDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeLongDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
@@ -83,7 +84,7 @@ public class AttributeTypeConverter extends LocalizedValueConverter
     {
       return AttributeType.factory(attributeName, displayLabel, description, AttributeBooleanType.TYPE, required, unique, isChangeOverTime);
     }
-    else if (mdAttribute instanceof MdAttributeLocalDAOIF)
+    else if (mdAttribute instanceof MdAttributeLocalDAOIF || mdAttribute instanceof MdAttributeLocalEmbeddedDAOIF)
     {
       return AttributeType.factory(attributeName, displayLabel, description, AttributeLocalType.TYPE, required, unique, isChangeOverTime);
     }
