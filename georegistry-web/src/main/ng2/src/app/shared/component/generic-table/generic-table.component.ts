@@ -12,7 +12,7 @@ import { LocalizationService } from "@shared/service";
     templateUrl: "./generic-table.component.html",
     styleUrls: ["./generic-table.css"]
 })
-export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
 
     page: PageResult<Object> = {
         resultSet: [],
@@ -56,6 +56,12 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
             { value: true, label: this.localizationService.decode("change.request.boolean.option.true") },
             { value: false, label: this.localizationService.decode("change.request.boolean.option.false") }
         ];
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes.setup != null) {
+            console.log(this.setup);
+        }
     }
 
     ngOnInit(): void {
@@ -135,8 +141,6 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
                 }
             }
         });
-
-        console.log('Setup', this.setup);
     }
 
     onPageChange(event: LazyLoadEvent): void {

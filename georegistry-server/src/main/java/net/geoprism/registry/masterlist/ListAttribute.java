@@ -40,7 +40,7 @@ public class ListAttribute implements ListColumn
     this.id = mdAttribute.getOid();
     this.name = mdAttribute.definesAttribute();
     this.label = mdAttribute.getDisplayLabel(Session.getCurrentLocale());
-    this.type = "input";
+    this.type = "list";
     this.rowpsan = 1;
 
     if (mdAttribute instanceof MdAttributeMomentDAOIF)

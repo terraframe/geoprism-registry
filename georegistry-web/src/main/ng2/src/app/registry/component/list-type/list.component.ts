@@ -23,6 +23,7 @@ import { GeometryService } from "@registry/service/geometry.service";
 import { LocationManagerStateService } from "@registry/service/location-manager.service";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { LocationManagerState } from "../location-manager/location-manager.component";
+import Utils from "@registry/utility/Utils";
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -165,94 +166,13 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     refreshColumns(): void {
-        const columns = [];
-
-        const mainGroups: GenericTableColumn[] = [];
-        const subGroups: GenericTableColumn[] = [];
-        const orderedArray = [];
-
-        if (this.list.isMember || this.list.geospatialMetadata.visibility === "PUBLIC") {
-            const column = { header: "", type: "ACTIONS", sortable: false, rowspan: 3, colspan: 1, headerType: "ATTRIBUTE" };
-
-            mainGroups.push(column);
-            columns.push(column);
-        }
-
-        this.list.attributes.forEach(group => {
-            if (this.showInvalid || group.name !== "invalid") {
-                mainGroups.push({
-                    header: group.label,
-                    colspan: group.colspan,
-                    rowspan: group.rowspan,
-                    headerType: "GROUP"
-                });
-
-                group.columns.forEach(subgroup => {
-                    if (subgroup.columns != null) {
-                        subGroups.push({
-                            header: subgroup.label,
-                            colspan: subgroup.colspan,
-                            rowspan: subgroup.rowspan,
-                            headerType: "GROUP"
-                        });
-
-                        subgroup.columns.forEach(attribute => {
-                            if (this.showInvalid || attribute.name !== "invalid") {
-                                const column = this.createColumn(attribute);
-
-                                orderedArray.push(column);
-                                columns.push(column);
-                            }
-                        });
-                    } else {
-                        if (this.showInvalid || subgroup.name !== "invalid") {
-                            const column = this.createColumn(subgroup);
-
-                            subGroups.push(column);
-                            columns.push(column);
-                        }
-                    }
-                });
-            }
+        this.setup = Utils.createColumns(this.list, this.showInvalid, false, (attribute, column) => {
+            this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
+                column.results = options;
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
         });
-
-        this.setup = {
-            headers: [mainGroups, subGroups, orderedArray],
-            columns: columns
-        };
-    }
-
-    createColumn(attribute: ListColumn): GenericTableColumn {
-        let column: GenericTableColumn = {
-            headerType: "ATTRIBUTE",
-            header: attribute.label,
-            field: attribute.name,
-            type: "TEXT",
-            sortable: true,
-            filter: true,
-            rowspan: attribute.rowspan,
-            colspan: attribute.colspan
-        };
-
-        if (attribute.type === "date") {
-            column.type = "DATE";
-        } else if (attribute.name === "invalid" || attribute.type === "boolean") {
-            column.type = "BOOLEAN";
-        } else if (attribute.type === "number") {
-            column.type = "NUMBER";
-        } else if (attribute.type === "list") {
-            column.type = "AUTOCOMPLETE";
-            column.text = "";
-            column.onComplete = () => {
-                this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
-                    column.results = options;
-                }).catch((err: HttpErrorResponse) => {
-                    this.error(err);
-                });
-            };
-        }
-
-        return column;
     }
 
     handleShowInvalidChange(): void {

@@ -13,18 +13,27 @@
 		<ng-template pTemplate="header" let-columns>
 			<tr *ngFor="let row of setup.headers">
 				<ng-container *ngFor="let col of row">
-					<th *ngIf="col.headerType !== 'ATTRIBUTE'" [attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan">
+					<th *ngIf="col.headerType !== 'ATTRIBUTE'" [attr.colspan]="col.colspan"
+						[attr.rowspan]="col.rowspan">
 						{{col.header}}
 					</th>
-					<th *ngIf="col.headerType === 'ATTRIBUTE'" [pSortableColumn]="col.field"
-						[ngClass]="{'actions-col' : col.type === 'ACTIONS'}" pResizableColumn
-						[attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan">
-						{{col.header}}
-						<p-sortIcon *ngIf="col.sortable" [field]="col.field" ariaLabel="Activate to sort"
-							style="float:right;" ariaLabelDesc="Activate to sort in descending order"
-							ariaLabelAsc="Activate to sort in ascending order">
-						</p-sortIcon>
-					</th>
+
+					<ng-container *ngIf="col.headerType === 'ATTRIBUTE'">
+						<th *ngIf="col.sortable" [pSortableColumn]="col.field"
+							[ngClass]="{'actions-col' : col.type === 'ACTIONS'}" pResizableColumn
+							[attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan">
+							{{col.header}}
+							<p-sortIcon [field]="col.field" ariaLabel="Activate to sort" style="float:right;"
+								ariaLabelDesc="Activate to sort in descending order"
+								ariaLabelAsc="Activate to sort in ascending order">
+							</p-sortIcon>
+						</th>
+						<th *ngIf="!col.sortable" [ngClass]="{'actions-col' : col.type === 'ACTIONS'}" pResizableColumn
+							[attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan">
+							{{col.header}}
+						</th>
+
+					</ng-container>
 				</ng-container>
 			</tr>
 

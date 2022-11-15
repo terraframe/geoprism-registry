@@ -1,5 +1,7 @@
+import { ListColumn, ListTypeVersion } from "@registry/model/list-type";
 import { AttributeType, GeoObject } from "@registry/model/registry";
 import { LocalizedValue } from "@shared/model/core";
+import { GenericTableColumn, TableColumnSetup } from "@shared/model/generic-table";
 // eslint-disable-next-line camelcase
 import turf_booleanequal from "@turf/boolean-equal";
 
@@ -10,9 +12,9 @@ export default class Utils {
      * @param arr
      */
     static removeStatuses(arr: any[]): any[] {
-        var newArray = [];
+        let newArray = [];
 
-        for (var i = 0; i < arr.length; ++i) {
+        for (let i = 0; i < arr.length; ++i) {
             if (!(arr[i].code === "CGR:Status-New" ||
                 arr[i].code === "CGR:Status-Pending")) {
                 newArray.push(arr[i]);
@@ -149,6 +151,94 @@ export default class Utils {
             }
         }
         arr.splice(newIndex, 0, arr.splice(oldIndex, 1)[0]);
+    }
+
+    static createColumn(attribute: ListColumn, readonly: boolean, autocomplete: Function): GenericTableColumn {
+        let column: GenericTableColumn = {
+            headerType: "ATTRIBUTE",
+            header: attribute.label,
+            field: attribute.name,
+            type: "TEXT",
+            sortable: !readonly,
+            filter: !readonly,
+            rowspan: attribute.rowspan,
+            colspan: attribute.colspan
+        };
+
+        if (attribute.type === "date") {
+            column.type = "DATE";
+        } else if (attribute.name === "invalid" || attribute.type === "boolean") {
+            column.type = "BOOLEAN";
+        } else if (attribute.type === "number") {
+            column.type = "NUMBER";
+        } else if (!readonly && attribute.type === "list") {
+            column.type = "AUTOCOMPLETE";
+            column.text = "";
+            column.onComplete = () => {
+                autocomplete(attribute, column);
+            };
+        }
+
+        return column;
+    }
+
+    static createColumns(list: ListTypeVersion, showInvalid: boolean, readonly: boolean, autocomplete?: Function): TableColumnSetup {
+        const displayInvalidColumn = (!readonly && showInvalid);
+        const columns = [];
+
+        const mainGroups: GenericTableColumn[] = [];
+        const subGroups: GenericTableColumn[] = [];
+        const orderedArray = [];
+
+        if (list.isMember || list.geospatialMetadata.visibility === "PUBLIC") {
+            const column = { header: "", type: "ACTIONS", sortable: false, rowspan: 3, colspan: 1, headerType: "ATTRIBUTE" };
+
+            mainGroups.push(column);
+            columns.push(column);
+        }
+
+        list.attributes.forEach(group => {
+            if (displayInvalidColumn || group.name !== "invalid") {
+                mainGroups.push({
+                    header: group.label,
+                    colspan: group.colspan,
+                    rowspan: group.rowspan,
+                    headerType: "GROUP"
+                });
+
+                group.columns.forEach(subgroup => {
+                    if (subgroup.columns != null) {
+                        subGroups.push({
+                            header: subgroup.label,
+                            colspan: subgroup.colspan,
+                            rowspan: subgroup.rowspan,
+                            headerType: "GROUP"
+                        });
+
+                        subgroup.columns.forEach(attribute => {
+                            if (displayInvalidColumn || attribute.name !== "invalid") {
+                                const column = this.createColumn(attribute, readonly, autocomplete);
+
+                                orderedArray.push(column);
+                                columns.push(column);
+                            }
+                        });
+                    } else {
+                        if (displayInvalidColumn || subgroup.name !== "invalid") {
+                            const column = this.createColumn(subgroup, readonly, autocomplete);
+
+                            subGroups.push(column);
+                            columns.push(column);
+                        }
+                    }
+                });
+            }
+        });
+
+        return {
+            headers: [mainGroups, subGroups, orderedArray],
+            columns: columns
+        };
     }
 
 }
