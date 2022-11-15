@@ -152,8 +152,6 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
                 this.error.emit(err);
             });
         });
-
-        console.log(this.setup);
     }
 
     handleShowInvalidChange(): void {
