@@ -23,9 +23,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.EdgeObject;
+import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -39,6 +43,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class BusinessObject
@@ -101,12 +106,41 @@ public class BusinessObject
 
   public void setValue(String attributeName, Object value)
   {
-    this.vertex.setValue(attributeName, value);
+    AttributeType at = this.type.getAttribute(attributeName);
+
+    if (at instanceof AttributeLocalType)
+    {
+      LocalizedValueConverter.populate(this.vertex, attributeName, (LocalizedValue) value);
+    }
+    else
+    {
+      this.vertex.setValue(attributeName, value);
+    }
   }
 
+  @SuppressWarnings("unchecked")
   public <T> T getObjectValue(String attributeName)
   {
+    AttributeType at = this.type.getAttribute(attributeName);
+
+    if (at instanceof AttributeLocalType)
+    {
+      return (T) this.getValueLocalized(attributeName);
+    }
+
     return this.vertex.getObjectValue(attributeName);
+  }
+
+  private LocalizedValue getValueLocalized(String attributeName)
+  {
+    GraphObject graphObject = vertex.getEmbeddedComponent(attributeName);
+
+    if (graphObject == null)
+    {
+      return null;
+    }
+
+    return LocalizedValueConverter.convert(graphObject);
   }
 
   public JsonObject toJSON()

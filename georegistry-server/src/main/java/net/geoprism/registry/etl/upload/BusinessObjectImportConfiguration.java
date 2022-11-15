@@ -210,7 +210,7 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
     SimpleDateFormat format = new SimpleDateFormat(BusinessObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-    JSONObject type = new JSONObject(this.type.toJSON(true).toString());
+    JSONObject type = new JSONObject(this.type.toJSON(true, true).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)

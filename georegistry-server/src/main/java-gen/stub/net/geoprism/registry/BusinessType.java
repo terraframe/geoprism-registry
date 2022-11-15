@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -23,9 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
 import com.google.gson.JsonArray;
@@ -54,6 +57,8 @@ import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.MdGeoVertexInfo;
+import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.localization.SupportedLocaleIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
@@ -67,6 +72,7 @@ import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.localization.DefaultLocaleView;
 import net.geoprism.registry.model.AttributedType;
 import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -234,10 +240,10 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
   @Override
   public JsonObject toJSON()
   {
-    return toJSON(false);
+    return toJSON(false, false);
   }
 
-  public JsonObject toJSON(boolean includeAttribute)
+  public JsonObject toJSON(boolean includeAttribute, boolean flattenLocalAttributes)
   {
     Organization organization = this.getOrganization();
 
@@ -270,10 +276,39 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
 
       JsonArray attributes = this.getAttributeMap().values().stream().sorted((a, b) -> {
         return a.getName().compareTo(b.getName());
-      }).map(a -> a.toJSON()).collect(collector);
+      }).flatMap(attr -> {
+        if (flattenLocalAttributes && attr instanceof AttributeLocalType)
+        {
+          List<JsonObject> list = new LinkedList<>();
+          list.add(this.serializeLocale(attr, LocalizedValue.DEFAULT_LOCALE, LocalizationFacade.localize(DefaultLocaleView.LABEL)));
+
+          for (SupportedLocaleIF locale : LocalizationFacade.getSupportedLocales())
+          {
+            list.add(this.serializeLocale(attr, locale.getLocale().toString(), locale.getDisplayLabel().getValue()));
+          }
+
+          return list.stream();
+        }
+
+        return Stream.of(attr.toJSON());
+      }).collect(collector);
 
       object.add(JSON_ATTRIBUTES, attributes);
     }
+
+    return object;
+  }
+
+  private JsonObject serializeLocale(AttributeType attributeType, String key, String label)
+  {
+    JsonObject object = attributeType.toJSON();
+    object.addProperty("locale", key);
+    object.addProperty(AttributeType.JSON_CODE, attributeType.getName());
+
+    JsonObject jaLabel = object.get(AttributeType.JSON_LOCALIZED_LABEL).getAsJsonObject();
+    String value = jaLabel.get(LocalizedValue.LOCALIZED_VALUE).getAsString();
+    value += " (" + label + ")";
+    jaLabel.addProperty(LocalizedValue.LOCALIZED_VALUE, value);
 
     return object;
   }
@@ -378,7 +413,10 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
     {
       String attributeName = object.get(BusinessType.LABELATTRIBUTE).getAsString();
 
-      businessType.setLabelAttribute(attributeName);
+      if (!StringUtils.isEmpty(attributeName))
+      {
+        businessType.setLabelAttribute(attributeName);
+      }
     }
 
     businessType.apply();

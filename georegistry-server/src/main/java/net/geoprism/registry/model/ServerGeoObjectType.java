@@ -79,11 +79,13 @@ import com.runwaysdk.system.metadata.MdAttributeConcrete;
 import com.runwaysdk.system.metadata.MdAttributeDateTime;
 import com.runwaysdk.system.metadata.MdAttributeDouble;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
+import com.runwaysdk.system.metadata.MdAttributeLocalCharacterEmbedded;
 import com.runwaysdk.system.metadata.MdAttributeLocalText;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdClass;
+import com.runwaysdk.system.metadata.MdGraphClass;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
@@ -1158,7 +1160,14 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
     }
     else if (attributeType.getType().equals(AttributeLocalType.TYPE))
     {
-      mdAttribute = new MdAttributeLocalText();
+      if (mdClass instanceof MdGraphClass)
+      {
+        mdAttribute = new MdAttributeLocalCharacterEmbedded();
+      }
+      else
+      {
+        mdAttribute = new MdAttributeLocalText();
+      }
     }
     else
     {

@@ -1,0 +1,24 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.exception.DuplicateExternalIdException" message="The external id [{externalId}] is already mapped to the external system [{externalSystem}].">
+        <attributes>
+          <text name="externalId"/>
+          <text name="externalSystem"/>
+        </attributes>
+      </mdException>
+    </create>
+    <update>
+      <mdEdge name="net.geoprism.registry.graph.ExternalID" label="External ID" parent="net.geoprism.registry.graph.ExternalSystem" child="net.geoprism.registry.graph.GeoVertex" generateSource="false">
+        <create>
+          <attributes>
+            <text name="key" label="Key" required="false" />
+          </attributes>
+        </create>
+      </mdEdge>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

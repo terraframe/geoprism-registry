@@ -208,7 +208,7 @@ public class ExcelService
 
   private JSONObject getType(BusinessType pType)
   {
-    JSONObject type = new JSONObject(pType.toJSON(true).toString());
+    JSONObject type = new JSONObject(pType.toJSON(true, true).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)
