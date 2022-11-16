@@ -38,7 +38,7 @@ export class BusinessTableComponent implements OnInit {
                     type = "NUMBER";
                 } else if (attribute.type === "boolean") {
                     type = "BOOLEAN";
-                } else if (attribute.type === "term") {
+                } else if (attribute.type === "term" || attribute.type === "classification") {
                     sortable = false;
                 } else if (attribute.type === "date") {
                     type = "DATE";
