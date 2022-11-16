@@ -1505,19 +1505,6 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(mdBusinessId);
       List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered();
 
-      // MdAttributeConcreteDAOIF mdGeometry =
-      // mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-      //
-      // if (mdGeometry instanceof MdAttributePointDAOIF)
-      // {
-      // columns.add(0, new ListAttribute("longitude",
-      // LocalizationFacade.localize(GeoObjectImportConfiguration.LONGITUDE_KEY),
-      // "none"));
-      // columns.add(0, new ListAttribute("latitude",
-      // LocalizationFacade.localize(GeoObjectImportConfiguration.LATITUDE_KEY),
-      // "none"));
-      // }
-
       // Any attribute not already in a group is standalone
       for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
       {

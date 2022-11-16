@@ -13,4 +13,9 @@ public interface ListColumn
   public int getRowspan();
 
   public Set<String> getColumnsIds();
+
+  public String getLabel();
+
+  public String getName();
+
 }

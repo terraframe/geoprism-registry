@@ -1,7 +1,9 @@
 package net.geoprism.registry;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Collections;
+import java.util.Comparator;
+
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -25,17 +27,37 @@ public class ListTypeGeoObjectTypeGroup extends ListTypeGeoObjectTypeGroupBase
   {
     String label = this.getLabel().getValue();
 
-    Integer level = this.getLevel();
-
-    if (level != null)
-    {
-      label += " - " + level;
-    }
-
+//    Integer level = this.getLevel();
+//
+//    if (level != null)
+//    {
+//      label += " - " + level;
+//    }
+//
     ListAttributeGroup column = new ListAttributeGroup(label);
 
     this.getChildren().forEach(child -> column.add(child.toColumn()));
     this.getAttributes().forEach(child -> column.add(child.toColumn()));
+
+    Collections.sort(column.getColumns(), new Comparator<ListColumn>()
+    {
+
+      @Override
+      public int compare(ListColumn o1, ListColumn o2)
+      {
+        if (o1.getName() != null && o1.getName().equals(DefaultAttribute.CODE.getName()))
+        {
+          return -1;
+        }
+
+        if (o2.getName() != null && o2.getName().equals(DefaultAttribute.CODE.getName()))
+        {
+          return 1;
+        }
+
+        return o1.getLabel().compareTo(o2.getLabel());
+      }
+    });
 
     return column;
   }

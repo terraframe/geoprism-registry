@@ -37,6 +37,11 @@ public class ListAttributeGroup implements ListColumn
   {
     this.columns.add(column);
   }
+  
+  public List<ListColumn> getColumns()
+  {
+    return columns;
+  }
 
   @Override
   public JsonObject toJSON()
@@ -78,5 +83,15 @@ public class ListAttributeGroup implements ListColumn
   public int getRowspan()
   {
     return 1;
+  }
+  
+  public String getLabel()
+  {
+    return label;
+  }
+  
+  public String getName()
+  {
+    return name;
   }
 }

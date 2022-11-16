@@ -119,4 +119,8 @@ public class ListAttribute implements ListColumn
     return new TreeSet<String>();
   }
 
+  public String getLabel()
+  {
+    return label;
+  }
 }
