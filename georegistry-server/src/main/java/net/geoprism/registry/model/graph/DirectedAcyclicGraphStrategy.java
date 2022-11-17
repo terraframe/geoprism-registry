@@ -327,10 +327,10 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
 
   private SortedSet<EdgeObject> setParentCollection(VertexServerGeoObject geoObject, Set<ValueOverTime> votc)
   {
-    SortedSet<EdgeObject> newEdges = new TreeSet<EdgeObject>(new EdgeComparator());
-    SortedSet<EdgeObject> edges = this.getParentEdges(geoObject);
+    SortedSet<EdgeObject> resultEdges = new TreeSet<EdgeObject>(new EdgeComparator());
+    SortedSet<EdgeObject> existingEdges = this.getParentEdges(geoObject);
 
-    for (EdgeObject edge : edges)
+    for (EdgeObject edge : existingEdges)
     {
       final Date startDate = edge.getObjectValue(GeoVertex.START_DATE);
       final Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
@@ -344,7 +344,7 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
 
       for (ValueOverTime vot : votc)
       {
-        if (vot.getOid() == edge.getOid())
+        if (vot.getOid().equals(edge.getOid()))
         {
           inVot = vot;
           break;
@@ -379,19 +379,21 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
           newEdge.setValue(GeoVertex.END_DATE, endDate);
           newEdge.apply();
 
-          newEdges.add(newEdge);
+          resultEdges.add(newEdge);
         }
         else
         {
           boolean hasChanges = false;
+          Date votStartDate = inVot.getStartDate();
+          Date votEndDate = inVot.getEndDate();
 
-          if (startDate != inVot.getStartDate())
+          if (!startDate.equals(votStartDate))
           {
             hasChanges = true;
-            edge.setValue(GeoVertex.START_DATE, startDate);
+            edge.setValue(GeoVertex.START_DATE, votStartDate);
           }
 
-          if (endDate != inVot.getEndDate())
+          if (endDate != votEndDate)
           {
             hasChanges = true;
             edge.setValue(GeoVertex.END_DATE, endDate);
@@ -409,7 +411,7 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
     {
       boolean isNew = true;
 
-      for (EdgeObject edge : edges)
+      for (EdgeObject edge : existingEdges)
       {
         if (vot.getOid().equals(edge.getOid()))
         {
@@ -424,11 +426,11 @@ public class DirectedAcyclicGraphStrategy extends AbstractGraphStrategy implemen
         newEdge.setValue(GeoVertex.END_DATE, vot.getEndDate());
         newEdge.apply();
 
-        newEdges.add(newEdge);
+        resultEdges.add(newEdge);
       }
     }
 
-    return newEdges;
+    return resultEdges;
   }
 
   private SortedSet<EdgeObject> getParentEdges(VertexServerGeoObject geoObject, VertexServerGeoObject parent, Date startDate, Date endDate)

@@ -1435,10 +1435,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
   public SortedSet<EdgeObject> setParentCollection(ServerHierarchyType hierarchyType, ValueOverTimeCollection votc)
   {
-    SortedSet<EdgeObject> newEdges = new TreeSet<EdgeObject>(new EdgeComparator());
-    SortedSet<EdgeObject> edges = this.getEdges(hierarchyType);
+    SortedSet<EdgeObject> resultEdges = new TreeSet<EdgeObject>(new EdgeComparator());
+    SortedSet<EdgeObject> existingEdges = this.getEdges(hierarchyType);
 
-    for (EdgeObject edge : edges)
+    for (EdgeObject edge : existingEdges)
     {
       final Date startDate = edge.getObjectValue(GeoVertex.START_DATE);
       final Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
@@ -1483,22 +1483,25 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
           EdgeObject newEdge = this.addParentRaw(inGo.getVertex(), hierarchyType.getMdEdge(), startDate, endDate);
 
-          newEdges.add(newEdge);
+          resultEdges.add(newEdge);
         }
         else
         {
           boolean hasChanges = false;
 
-          if (startDate != inVot.getStartDate())
+          Date inStartDate = inVot.getStartDate();
+          Date inEndDate = inVot.getEndDate();
+
+          if (!startDate.equals(inStartDate))
           {
             hasChanges = true;
-            edge.setValue(GeoVertex.START_DATE, startDate);
+            edge.setValue(GeoVertex.START_DATE, inStartDate);
           }
 
-          if (endDate != inVot.getEndDate())
+          if (!endDate.equals(inEndDate))
           {
             hasChanges = true;
-            edge.setValue(GeoVertex.END_DATE, endDate);
+            edge.setValue(GeoVertex.END_DATE, inEndDate);
           }
 
           if (hasChanges)
@@ -1513,11 +1516,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       boolean isNew = true;
 
-      for (EdgeObject edge : edges)
+      for (EdgeObject edge : existingEdges)
       {
         if (vot.getOid().equals(edge.getOid()))
         {
           isNew = false;
+          resultEdges.add(edge);
         }
       }
 
@@ -1525,11 +1529,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       {
         EdgeObject newEdge = this.addParentRaw( ( (VertexServerGeoObject) vot.getValue() ).getVertex(), hierarchyType.getMdEdge(), vot.getStartDate(), vot.getEndDate());
 
-        newEdges.add(newEdge);
+        resultEdges.add(newEdge);
       }
     }
 
-    return newEdges;
+    return resultEdges;
   }
 
   @Override
@@ -2665,7 +2669,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       return false;
     }
 
-    return this.getCode().equals( ( (VertexServerGeoObject) obj ).getCode());
+    return this.getUid().equals( ( (VertexServerGeoObject) obj ).getUid());
   }
 
   @Override
