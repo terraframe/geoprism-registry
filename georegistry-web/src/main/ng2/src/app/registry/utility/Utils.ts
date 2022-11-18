@@ -190,7 +190,7 @@ export default class Utils {
         const subGroups: GenericTableColumn[] = [];
         const orderedArray = [];
 
-        if (list.isMember || list.geospatialMetadata.visibility === "PUBLIC") {
+        if (!readonly && (list.isMember || list.geospatialMetadata.visibility === "PUBLIC")) {
             const column = { header: "", type: "ACTIONS", sortable: false, rowspan: 3, colspan: 1, headerType: "ATTRIBUTE" };
 
             mainGroups.push(column);

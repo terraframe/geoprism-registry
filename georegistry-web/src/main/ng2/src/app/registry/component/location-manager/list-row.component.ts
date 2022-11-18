@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from "@angular/core";
-import { ListColumn, ListTypeVersion } from "@registry/model/list-type";
-import { GenericTableColumn, GenericTableConfig, TableColumnSetup } from "@shared/model/generic-table";
+import { ListTypeVersion } from "@registry/model/list-type";
+import { GenericTableConfig, TableColumnSetup } from "@shared/model/generic-table";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { LazyLoadEvent } from "primeng/api";

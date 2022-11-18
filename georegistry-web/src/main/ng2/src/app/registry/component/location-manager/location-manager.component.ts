@@ -987,9 +987,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     onViewList(oid: string): void {
-        // let newState = this.locationManagerService.clearListRecord(this.geomService.getState());
+        let newState = this.locationManagerService.clearListRecord(this.geomService.getState());
 
-        // this.updateState(newState, true);
+        this.updateState(newState, true);
 
         this.list = {
             versionId: oid
