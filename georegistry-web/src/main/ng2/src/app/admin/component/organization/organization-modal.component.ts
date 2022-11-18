@@ -45,7 +45,7 @@ export class OrganizationModalComponent implements OnInit {
 	ngOnInit(): void {
 		this.onSuccess = new Subject();
 		
-		console.log(this.organization.label.localeValues);
+		// console.log(this.organization.label.localeValues);
 	}
 
 	cancel(): void {

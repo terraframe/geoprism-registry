@@ -59,9 +59,6 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit, 
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.setup != null) {
-            console.log(this.setup);
-        }
     }
 
     ngOnInit(): void {
