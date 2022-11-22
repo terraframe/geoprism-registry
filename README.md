@@ -30,7 +30,9 @@ NOTE: This is synchronized with GitHub so it is as current as GitHub. This sytem
 
 
 ## Contributing 
-For information about contributing (tickets or code) to this project see the [contributing section](https://github.com/terraframe/geoprism-registry/blob/master/contributing.md)
+For information about contributing (tickets or code) to this project first see the [contributing section](https://github.com/terraframe/geoprism-registry/blob/master/contributing.md)
+
+To get started setting up a development environment see the [developer docs in this repos wiki](https://github.com/terraframe/geoprism-registry/wiki).
 
 
 ## Latest Unit Test Results
