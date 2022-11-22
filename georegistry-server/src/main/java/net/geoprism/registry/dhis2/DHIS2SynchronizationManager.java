@@ -42,7 +42,6 @@ import org.apache.http.message.BasicNameValuePair;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
@@ -50,8 +49,7 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.query.QueryFactory;
-import com.runwaysdk.session.Session;
-import com.runwaysdk.system.scheduler.JobHistory;
+import com.runwaysdk.system.scheduler.AllJobStatus;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
 import net.geoprism.dhis2.dhis2adapter.configuration.ImportReportMode;
@@ -60,7 +58,6 @@ import net.geoprism.dhis2.dhis2adapter.configuration.MergeMode;
 import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
-import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 import net.geoprism.dhis2.dhis2adapter.response.EntityGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ImportReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.LocaleGetResponse;
@@ -83,13 +80,13 @@ import net.geoprism.registry.etl.export.ExportError;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportRemoteException;
-import net.geoprism.registry.etl.export.ExportStage;
 import net.geoprism.registry.etl.export.HttpError;
 import net.geoprism.registry.etl.export.LoginException;
 import net.geoprism.registry.etl.export.UnexpectedRemoteResponse;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 import net.geoprism.registry.etl.export.dhis2.MultipleLevelOneOrgUnitException;
+import net.geoprism.registry.etl.export.dhis2.NoParentException;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -109,17 +106,20 @@ public class DHIS2SynchronizationManager
   
   private DHIS2SyncConfig dhis2Config;
   
-  private ExportHistory history;
-  
   private List<DHIS2Locale> dhis2Locales = new ArrayList<DHIS2Locale>();
+  
+  protected ExportHistory history;
+  
+  protected SynchronizationProgressMonitorIF progressListener;
   
   // Links Geo-Object reference (typeCode + SEPARATOR + goUid) -> externalId
   private BidiMap<String, String> newExternalIds = new DualHashBidiMap<String, String>();
   
-  public DHIS2SynchronizationManager(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, ExportHistory history)
+  public DHIS2SynchronizationManager(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, ExportHistory history, SynchronizationProgressMonitorIF progressListener)
   {
     this.dhis2 = dhis2;
     this.history = history;
+    this.progressListener = progressListener;
     this.dhis2Config = dhis2Config;
   }
   
@@ -173,43 +173,31 @@ public class DHIS2SynchronizationManager
     }
   }
   
-  public void synchronize()
+  public AllJobStatus synchronize()
   {
     this.init();
     
-    final ExternalSystem es = dhis2Config.getSystem();
+    HashMap<Integer, Long> countAtLevel = calculateWorkTotal();
     
-    long rowIndex = 0;
-    long total = 0;
-    
-    SortedSet<DHIS2SyncLevel> levels = dhis2Config.getLevels();
-    
-    // First calculate the total number of records
-    HashMap<Integer, Long> countAtLevel = new HashMap<Integer, Long>();
-    int expectedLevel = 0;
-    for (DHIS2SyncLevel level : levels)
+    try
     {
-      if (level.getLevel() != expectedLevel)
-      {
-        throw new ProgrammingErrorException("Unexpected level number [" + level.getLevel() + "].");
-      }
-      
-      if (level.getSyncType() != null && !DHIS2SyncLevel.Type.NONE.equals(level.getSyncType()))
-      {
-        long count = this.getCount(level.getGeoObjectType());
-        total += count;
-        
-        countAtLevel.put(level.getLevel(), count);
-      }
-      
-      expectedLevel++;
+      synchronizePerLevel(countAtLevel);
+    }
+    finally
+    {
+      this.progressListener.finalize();
     }
     
-    history.appLock();
-    history.setWorkTotal(total);
-    history.apply();
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+
+    return calculateJobStatus();
+  }
+
+  private void synchronizePerLevel(HashMap<Integer, Long> countAtLevel)
+  {
+    final SortedSet<DHIS2SyncLevel> levels = dhis2Config.getLevels();
+    final ExternalSystem es = dhis2Config.getSystem();
     
-    // Now do the work
     for (DHIS2SyncLevel level : levels)
     {
       if (level.getSyncType() != null && !DHIS2SyncLevel.Type.NONE.equals(level.getSyncType()))
@@ -233,23 +221,23 @@ public class DHIS2SynchronizationManager
             {
               try
               {
-                this.exportGeoObject(metadataPayload, dhis2Config, level, levels, rowIndex, go);
+                this.exportGeoObject(metadataPayload, dhis2Config, level, levels, go);
               }
               catch (Throwable t)
               {
                 if (t instanceof DHIS2SyncError)
                 {
-                  this.recordExportError((DHIS2SyncError) t);
+                  this.progressListener.recordError((DHIS2SyncError) t, ErrorType.ERROR);
+                }
+                else if (t instanceof NoParentException)
+                {
+                  this.progressListener.recordError(new DHIS2SyncError(this.progressListener.getRowNumber(), null, null, t, go.getCode()), ErrorType.WARNING);
                 }
                 else
                 {
-                  this.recordExportError(new DHIS2SyncError(rowIndex, null, null, t, go.getCode()));
+                  this.progressListener.recordError(new DHIS2SyncError(this.progressListener.getRowNumber(), null, null, t, go.getCode()), ErrorType.ERROR);
                 }
               }
-              
-              history.appLock();
-              history.setWorkProgress(rowIndex);
-              history.apply();
               
               if (level.getOrgUnitGroupId() != null && level.getOrgUnitGroupId().length() > 0)
               {
@@ -272,7 +260,7 @@ public class DHIS2SynchronizationManager
                 }
               }
             
-              rowIndex++;
+              this.progressListener.setRowNumber(this.progressListener.getRowNumber() + 1);
             }
             
             syncOrgUnitGroups(level, metadataPayload);
@@ -281,7 +269,7 @@ public class DHIS2SynchronizationManager
           }
           catch (DHIS2SyncError ee)
           {
-            recordExportError(ee);
+            this.progressListener.recordError(ee, ErrorType.ERROR);
           }
   
           skip += pageSize;
@@ -290,16 +278,36 @@ public class DHIS2SynchronizationManager
         }
       }
     }
-    
-    history.appLock();
-    history.setWorkProgress(rowIndex);
-    history.clearStage();
-    history.addStage(ExportStage.COMPLETE);
-    history.apply();
-    
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+  }
 
-    handleExportErrors();
+  private HashMap<Integer, Long> calculateWorkTotal()
+  {
+    final SortedSet<DHIS2SyncLevel> levels = dhis2Config.getLevels();
+    long total = 0;
+    
+    HashMap<Integer, Long> countAtLevel = new HashMap<Integer, Long>();
+    int expectedLevel = 0;
+    for (DHIS2SyncLevel level : levels)
+    {
+      if (level.getLevel() != expectedLevel)
+      {
+        throw new ProgrammingErrorException("Unexpected level number [" + level.getLevel() + "].");
+      }
+      
+      if (level.getSyncType() != null && !DHIS2SyncLevel.Type.NONE.equals(level.getSyncType()))
+      {
+        long count = this.getCount(level.getGeoObjectType());
+        total += count;
+        
+        countAtLevel.put(level.getLevel(), count);
+      }
+      
+      expectedLevel++;
+    }
+    
+    this.progressListener.setWorkTotal(total);
+    
+    return countAtLevel;
   }
 
   private void syncOrgUnitGroups(DHIS2SyncLevel level, JsonObject metadataPayload)
@@ -376,18 +384,27 @@ public class DHIS2SynchronizationManager
     }
   }
   
-  private void handleExportErrors()
+  private AllJobStatus calculateJobStatus()
   {
-    ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
-    query.WHERE(query.getHistory().EQ(history));
-    Boolean hasErrors = query.getCount() > 0;
+    ExportErrorQuery errorQuery = new ExportErrorQuery(new QueryFactory());
+    errorQuery.WHERE(errorQuery.getHistory().EQ(this.history));
+    errorQuery.WHERE(errorQuery.getErrorType().EQ(ErrorType.ERROR.name()));
     
-    if (hasErrors)
+    if (errorQuery.getCount() > 0)
     {
-      ExportJobHasErrors ex = new ExportJobHasErrors();
-      
-      throw ex;
+      return AllJobStatus.FAILURE;
     }
+    
+    ExportErrorQuery warningQuery = new ExportErrorQuery(new QueryFactory());
+    warningQuery.WHERE(warningQuery.getHistory().EQ(this.history));
+    warningQuery.WHERE(warningQuery.getErrorType().EQ(ErrorType.WARNING.name()));
+    
+    if (warningQuery.getCount() > 0)
+    {
+      return AllJobStatus.WARNING;
+    }
+    
+    return AllJobStatus.SUCCESS;
   }
   
   private void submitMetadata(DHIS2SyncLevel level, JsonObject payload)
@@ -460,8 +477,8 @@ public class DHIS2SynchronizationManager
             {
               if (or.hasErrorReports())
               {
+                String submittedJsonRow = null;
                 final ErrorReport er = or.getErrorReports().get(0);
-                final ExportError ee = new ExportError();
                 final JsonObject serializedOR = new GsonBuilder().create().toJsonTree(or, or.getClass()).getAsJsonObject();
                 
                 // Fetch the Geo-Object it's referencing
@@ -486,18 +503,12 @@ public class DHIS2SynchronizationManager
                   
                   if (submitted.get("id").getAsString().equals(or.getUid()))
                   {
-                    ee.setSubmittedJson(submitted.toString());
+                    submittedJsonRow = submitted.toString();
                     break;
                   }
                 }
                 
-                ee.setResponseJson(serializedOR.toString());
-                ee.setRowIndex(Long.valueOf(or.getIndex()));
-                ee.setErrorMessage(er.getMessage());
-                ee.setErrorCode(resp.getStatusCode());
-                ee.setCode(serverGo == null ? or.getUid() : serverGo.getCode());
-                ee.setHistory(history);
-                ee.apply();
+                this.progressListener.recordError(er.getMessage(), resp.getStatusCode(), serializedOR.toString(), submittedJsonRow, Long.valueOf(or.getIndex()), (serverGo == null ? or.getUid() : serverGo.getCode()), ErrorType.ERROR);
               }
               else if (passedValidation)
               {
@@ -518,8 +529,8 @@ public class DHIS2SynchronizationManager
             {
               if (or.hasErrorReports())
               {
+                String submittedJsonRow = null;
                 final ErrorReport er = or.getErrorReports().get(0);
-                final ExportError ee = new ExportError();
                 final JsonObject serializedOR = new GsonBuilder().create().toJsonTree(or, or.getClass()).getAsJsonObject();
                 
                 // Find the relevant submitted json
@@ -531,24 +542,19 @@ public class DHIS2SynchronizationManager
                     
                     if (submitted.get("id").getAsString().equals(or.getUid()))
                     {
-                      ee.setSubmittedJson(submitted.toString());
+                      submittedJsonRow = submitted.toString();
                       break;
                     }
                   }
                 }
                 
-                ee.setResponseJson(serializedOR.toString());
-                ee.setRowIndex(Long.valueOf(or.getIndex()));
-                ee.setErrorMessage(er.getMessage());
-                ee.setErrorCode(resp.getStatusCode());
-                ee.setHistory(history);
-                ee.apply();
+                this.progressListener.recordError(er.getMessage(), resp.getStatusCode(), serializedOR.toString(), submittedJsonRow, Long.valueOf(or.getIndex()), null, ErrorType.ERROR);
               }
             }
           }
           catch (Throwable t)
           {
-            this.recordExportError(new DHIS2SyncError(or.getIndex() == null ? null : Long.valueOf(or.getIndex()), null, submittedJson, t, null));
+            this.progressListener.recordError(new DHIS2SyncError(or.getIndex() == null ? null : Long.valueOf(or.getIndex()), null, submittedJson, t, null), ErrorType.ERROR);
           }
         }
       }
@@ -558,9 +564,7 @@ public class DHIS2SynchronizationManager
       this.service.validateDhis2Response(resp);
     }
     
-    history.appLock();
-    history.setExportedRecords( (history.getExportedRecords() == null ? 0 : history.getExportedRecords()) + successfulImports);
-    history.apply();
+    this.progressListener.setExportedRecords(this.progressListener.getExportedRecords() + successfulImports);
   }
   
   /**
@@ -574,7 +578,7 @@ public class DHIS2SynchronizationManager
    * @return
    * @throws ExportError
    */
-  private void exportGeoObject(JsonObject payload,  DHIS2SyncConfig dhis2Config, DHIS2SyncLevel level, SortedSet<DHIS2SyncLevel> levels, Long rowIndex, VertexServerGeoObject serverGo) throws DHIS2SyncError
+  private void exportGeoObject(JsonObject payload,  DHIS2SyncConfig dhis2Config, DHIS2SyncLevel level, SortedSet<DHIS2SyncLevel> levels, VertexServerGeoObject serverGo) throws DHIS2SyncError
   {
     final JsonArray orgUnitsPayload = payload.get(DHIS2Objects.ORGANISATION_UNITS).getAsJsonArray();
     
@@ -615,7 +619,7 @@ public class DHIS2SynchronizationManager
       }
       catch (InvalidLoginException | HTTPException | BadServerUriException | ExportRemoteException | UnexpectedRemoteResponse e)
       {
-        DHIS2SyncError er = new DHIS2SyncError(rowIndex, orgUnitGetResp, null, e, serverGo.getCode());
+        DHIS2SyncError er = new DHIS2SyncError(this.progressListener.getRowNumber(), orgUnitGetResp, null, e, serverGo.getCode());
         throw er;
       }
       
@@ -736,52 +740,5 @@ public class DHIS2SynchronizationManager
     }
 
     return response;
-  }
-  
-  private void recordExportError(DHIS2SyncError ee)
-  {
-    DHIS2Response resp = ee.response;
-    Throwable ex = ee.error;
-    String geoObjectCode = ee.geoObjectCode;
-    
-    ExportError exportError = new ExportError();
-
-    if (ee.submittedJson != null)
-    {
-      exportError.setSubmittedJson(ee.submittedJson);
-    }
-    
-    if (resp != null)
-    {
-      if (resp.getResponse() != null && resp.getResponse().length() > 0)
-      {
-        exportError.setResponseJson(resp.getResponse());
-        
-        exportError.setErrorMessage(resp.getMessage());
-      }
-      
-      exportError.setErrorCode(resp.getStatusCode());
-    }
-    
-    exportError.setCode(geoObjectCode);
-    
-    if (ex != null)
-    {
-      exportError.setErrorJson(JobHistory.exceptionToJson(ex).toString());
-      
-      if (exportError.getErrorMessage() == null || exportError.getErrorMessage().length() == 0)
-      {
-        exportError.setErrorMessage(RunwayException.localizeThrowable(ex, Session.getCurrentLocale()));
-      }
-    }
-    
-    if (ee.rowIndex != null && ee.rowIndex >= 0)
-    {
-      exportError.setRowIndex(ee.rowIndex);
-    }
-    
-    exportError.setHistory(history);
-    
-    exportError.apply();
   }
 }

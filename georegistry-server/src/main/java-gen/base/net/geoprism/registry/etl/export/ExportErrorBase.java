@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.etl.export;
 
-@com.runwaysdk.business.ClassSignature(hash = 308839031)
+@com.runwaysdk.business.ClassSignature(hash = 2085965584)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -29,31 +11,62 @@ package net.geoprism.registry.etl.export;
 public abstract class ExportErrorBase extends com.runwaysdk.business.Business
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.ExportError";
-  public static final java.lang.String CODE = "code";
-  public static final java.lang.String CREATEDATE = "createDate";
-  public static final java.lang.String CREATEDBY = "createdBy";
-  public static final java.lang.String ENTITYDOMAIN = "entityDomain";
-  public static final java.lang.String ERRORCODE = "errorCode";
-  public static final java.lang.String ERRORJSON = "errorJson";
-  public static final java.lang.String ERRORMESSAGE = "errorMessage";
-  public static final java.lang.String HISTORY = "history";
-  public static final java.lang.String KEYNAME = "keyName";
-  public static final java.lang.String LASTUPDATEDATE = "lastUpdateDate";
-  public static final java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
-  public static final java.lang.String LOCKEDBY = "lockedBy";
-  public static final java.lang.String OID = "oid";
-  public static final java.lang.String OWNER = "owner";
-  public static final java.lang.String RESPONSEJSON = "responseJson";
-  public static final java.lang.String ROWINDEX = "rowIndex";
-  public static final java.lang.String SEQ = "seq";
-  public static final java.lang.String SITEMASTER = "siteMaster";
-  public static final java.lang.String SUBMITTEDJSON = "submittedJson";
-  public static final java.lang.String TYPE = "type";
-  private static final long serialVersionUID = 308839031;
+  public final static java.lang.String AFFECTEDROWS = "affectedRows";
+  public final static java.lang.String CODE = "code";
+  public final static java.lang.String CREATEDATE = "createDate";
+  public final static java.lang.String CREATEDBY = "createdBy";
+  public final static java.lang.String ENTITYDOMAIN = "entityDomain";
+  public final static java.lang.String ERRORCODE = "errorCode";
+  public final static java.lang.String ERRORJSON = "errorJson";
+  public final static java.lang.String ERRORMESSAGE = "errorMessage";
+  public final static java.lang.String ERRORTYPE = "errorType";
+  public final static java.lang.String HISTORY = "history";
+  public final static java.lang.String KEYNAME = "keyName";
+  public final static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
+  public final static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
+  public final static java.lang.String LOCKEDBY = "lockedBy";
+  public final static java.lang.String OID = "oid";
+  public final static java.lang.String OWNER = "owner";
+  public final static java.lang.String RESPONSEJSON = "responseJson";
+  public final static java.lang.String ROWINDEX = "rowIndex";
+  public final static java.lang.String SEQ = "seq";
+  public final static java.lang.String SITEMASTER = "siteMaster";
+  public final static java.lang.String SUBMITTEDJSON = "submittedJson";
+  public final static java.lang.String TYPE = "type";
+  @SuppressWarnings("unused")
+  private static final long serialVersionUID = 2085965584;
   
   public ExportErrorBase()
   {
     super();
+  }
+  
+  public String getAffectedRows()
+  {
+    return getValue(AFFECTEDROWS);
+  }
+  
+  public void validateAffectedRows()
+  {
+    this.validateAttribute(AFFECTEDROWS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getAffectedRowsMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.export.ExportError.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(AFFECTEDROWS);
+  }
+  
+  public void setAffectedRows(String value)
+  {
+    if(value == null)
+    {
+      setValue(AFFECTEDROWS, "");
+    }
+    else
+    {
+      setValue(AFFECTEDROWS, value);
+    }
   }
   
   public String getCode()
@@ -261,6 +274,34 @@ public abstract class ExportErrorBase extends com.runwaysdk.business.Business
     else
     {
       setValue(ERRORMESSAGE, value);
+    }
+  }
+  
+  public String getErrorType()
+  {
+    return getValue(ERRORTYPE);
+  }
+  
+  public void validateErrorType()
+  {
+    this.validateAttribute(ERRORTYPE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getErrorTypeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.export.ExportError.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(ERRORTYPE);
+  }
+  
+  public void setErrorType(String value)
+  {
+    if(value == null)
+    {
+      setValue(ERRORTYPE, "");
+    }
+    else
+    {
+      setValue(ERRORTYPE, value);
     }
   }
   

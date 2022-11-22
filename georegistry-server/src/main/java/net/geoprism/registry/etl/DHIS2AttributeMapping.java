@@ -250,7 +250,7 @@ public class DHIS2AttributeMapping
           final Set<Locale> locales = LocalizationFacade.getInstalledLocales();
           for (Locale locale : locales)
           {
-            if (lv.contains(locale) && lv.getValue(locale) != null)
+            if (lv.contains(locale) && StringUtils.isNotEmpty(lv.getValue(locale)))
             {
               String localestring = locale.toString();
               if (mappings != null && mappings.containsKey(locale.toString()))

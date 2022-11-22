@@ -18,12 +18,14 @@
  */
 package net.geoprism.registry.etl.export;
 
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.JobHistory;
 
+import net.geoprism.registry.dhis2.ErrorType;
 import net.geoprism.registry.view.JsonSerializable;
 
 public class ExportError extends ExportErrorBase implements JsonSerializable
@@ -55,7 +57,9 @@ public class ExportError extends ExportErrorBase implements JsonSerializable
     
     jo.addProperty("id", this.getOid());
     
-    jo.addProperty("rowNum", this.getRowIndex());
+    jo.addProperty("rowNum", StringUtils.isEmpty(this.getAffectedRows()) ? String.valueOf(this.getRowIndex()) : this.getAffectedRows());
+    
+    jo.addProperty("type", this.getErrorType() == null ? ErrorType.ERROR.name() : this.getErrorType());
     
     return jo;
   }

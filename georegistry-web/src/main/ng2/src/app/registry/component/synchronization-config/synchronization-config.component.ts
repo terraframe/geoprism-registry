@@ -105,7 +105,9 @@ export class SynchronizationConfigComponent implements OnInit {
       } else if (job.status === "CANCELED") {
           return this.lService.decode("etl.JobStatus.CANCELED");
       } else if (job.status === "FAILURE") {
-          return this.lService.decode("etl.JobStatus.FAILURE");
+          return this.lService.decode("etl.JobStatus.ERROR");
+      } else if (job.status === "WARNING") {
+          return this.lService.decode("etl.JobStatus.WARNING");
       } else {
           return this.lService.decode("etl.JobStatus.RUNNING");
       }

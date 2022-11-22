@@ -59,6 +59,8 @@ public class DHIS2TestService implements DHIS2TransportServiceIF
 {
   public static final String SIERRA_LEONE_ID = "ImspTQPwCqd";
   
+  public static final String BO_ID = "O6uvpzGd5pu";
+  
   public static final String ATTRIBUTE_COLOR_ID = "uhA8DG5EtXa";
   
   private LinkedList<Dhis2Payload> payloads = new LinkedList<Dhis2Payload>();
@@ -199,6 +201,40 @@ public class DHIS2TestService implements DHIS2TransportServiceIF
         shortName.addProperty("property", "SHORT_NAME");
         shortName.addProperty("locale", "en_GB");
         shortName.addProperty("value", "Sierra Leone");
+        translations.add(shortName);
+        root.setTranslations(translations);
+        
+        JsonArray attributeValues = new JsonArray();
+        JsonObject av = new JsonObject();
+        av.addProperty("value", "blue");
+        JsonObject attr = new JsonObject();
+        attr.addProperty("id", ATTRIBUTE_COLOR_ID);
+        av.add("attribute", attr);
+        attributeValues.add(av);
+        root.setAttributeValues(attributeValues);
+        
+        GsonBuilder builder = new GsonBuilder();
+        builder.setDateFormat(DHIS2Constants.DATE_FORMAT);
+        joResp = builder.create().toJsonTree(root, root.getClass()).getAsJsonObject();
+      }
+      else if (entityId.equals(BO_ID))
+      {
+        OrganisationUnit root = new OrganisationUnit();
+        root.setName("Bo");
+        root.setShortName("Bo");
+        root.setId(BO_ID);
+        root.setOpeningDate(new Date());
+        
+        JsonArray translations = new JsonArray();
+        JsonObject name = new JsonObject();
+        name.addProperty("property", "NAME");
+        name.addProperty("locale", "en_GB");
+        name.addProperty("value", "Bo");
+        translations.add(name);
+        JsonObject shortName = new JsonObject();
+        shortName.addProperty("property", "SHORT_NAME");
+        shortName.addProperty("locale", "en_GB");
+        shortName.addProperty("value", "Bo");
         translations.add(shortName);
         root.setTranslations(translations);
         

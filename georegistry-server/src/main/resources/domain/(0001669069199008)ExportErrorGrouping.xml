@@ -1,0 +1,51 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.JobStatus.WARNING">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.JobStatus.WARNING" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Completed with warnings" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.JobStatus.WARNING.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.JobStatus.WARNING.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="The job completed successfully, but one or more warnings were generated. Please see full details." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.JobStatus.ERROR.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.JobStatus.ERROR.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="One or more errors occurred, please see full details." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.JobStatus.ERROR">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="etl.JobStatus.ERROR" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Error" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update>
+      <mdBusiness name="net.geoprism.registry.etl.export.ExportError">
+        <create>
+          <attributes>
+            <text name="errorType" label="errorType" />
+            <text name="affectedRows" label="affectedRows" />
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.export.ExportError.errorType" type="com.runwaysdk.system.metadata.MdAttribute"/>
+      <object key="net.geoprism.registry.etl.export.ExportError.affectedRows" type="com.runwaysdk.system.metadata.MdAttribute"/>
+    </delete>
+  </undoIt>
+</version>

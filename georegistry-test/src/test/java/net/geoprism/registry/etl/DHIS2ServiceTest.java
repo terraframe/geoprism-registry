@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -58,6 +59,7 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
@@ -76,9 +78,11 @@ import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManagerProxy;
+import net.geoprism.registry.dhis2.SynchronizationHistoryProgressScribe;
 import net.geoprism.registry.etl.DHIS2TestService.Dhis2Payload;
 import net.geoprism.registry.etl.DHIS2TestService.Method;
 import net.geoprism.registry.etl.dhis2.DHIS2PayloadValidator;
+import net.geoprism.registry.etl.dhis2.DHIS2ResponseMocker;
 import net.geoprism.registry.etl.export.ExportError;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
@@ -107,6 +111,10 @@ import net.geoprism.registry.test.TestUserInfo;
 public class DHIS2ServiceTest
 {
   public static final TestGeoObjectInfo GO_NO_PARENT = new TestGeoObjectInfo("BOOL_NO_PARENT", AllAttributesDataset.GOT_BOOL);
+  
+  public static final TestGeoObjectInfo GO_NO_PARENT2 = new TestGeoObjectInfo("BOOL_NO_PARENT2", AllAttributesDataset.GOT_BOOL);
+  
+  public static final TestGeoObjectInfo GO_NO_PARENT3 = new TestGeoObjectInfo("BOOL_NO_PARENT3", AllAttributesDataset.GOT_BOOL);
   
   public static final TestGeoObjectInfo GO_NO_DEFAULT_LOCALE = new TestGeoObjectInfo("NO_DEFAULT_LOCALE", AllAttributesDataset.GOT_BOOL);
   
@@ -190,6 +198,8 @@ public class DHIS2ServiceTest
     testData.logOut();
     
     GO_NO_PARENT.delete();
+    GO_NO_PARENT2.delete();
+    GO_NO_PARENT3.delete();
     GO_NO_DEFAULT_LOCALE.delete();
 
     testData.tearDownInstanceData();
@@ -618,11 +628,27 @@ public class DHIS2ServiceTest
   @Request
   public void testSyncNoParent() throws Exception
   {
+    /*
+     * Make sure data we're going to sync exists
+     */
     GO_NO_PARENT.apply();
+    GO_NO_PARENT2.apply();
+    GO_NO_PARENT3.apply();
     
-    TestGeoObjectInfo go = GO_NO_PARENT;
+    ((VertexServerGeoObject) AllAttributesDataset.GO_ALL.getServerObject()).createExternalId(system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
+    ((VertexServerGeoObject) AllAttributesDataset.GO_BOOL.getServerObject()).createExternalId(system, DHIS2TestService.BO_ID, ImportStrategy.NEW_ONLY);
+    
+    TestGeoObjectInfo go1 = GO_NO_PARENT;
+    TestGeoObjectInfo go2 = GO_NO_PARENT2;
+    TestGeoObjectInfo go3 = GO_NO_PARENT3;
     TestGeoObjectTypeInfo got = AllAttributesDataset.GOT_BOOL;
     TestAttributeTypeInfo attr = AllAttributesDataset.AT_GO_BOOL;
+    
+    /*
+     * Create some mock DHIS2 responses
+     */
+    this.dhis2.addResponse(Method.METADATA_POST, DHIS2ResponseMocker.getMetadataOrgUnitSuccess(DHIS2TestService.SIERRA_LEONE_ID).toString(), 200);
+    this.dhis2.addResponse(Method.METADATA_POST, DHIS2ResponseMocker.getMetadataOrgUnitSuccess(DHIS2TestService.BO_ID).toString(), 200);
     
     /*
      * Create a config
@@ -651,13 +677,29 @@ public class DHIS2ServiceTest
     JsonObject jo = syncService.run(testData.clientSession.getSessionId(), config.getOid());
     ExportHistory hist = ExportHistory.get(jo.get("historyId").getAsString());
 
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FAILURE);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.WARNING);
 
     /*
      * Validate the error report
      */
     ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
     query.WHERE(query.getHistory().EQ(hist));
+    
+    if (query.getCount() != 1) {
+      OIterator<? extends ExportError> it = query.getIterator();
+      
+      StringBuilder sb = new StringBuilder();
+      
+      while (it.hasNext()) {
+        ExportError ee = it.next();
+        
+        sb.append(ee.getCode());
+        sb.append(ee.getErrorMessage());
+        sb.append("\n");
+      }
+      
+      Assert.assertEquals(sb.toString(), 1, query.getCount());
+    }
     Assert.assertEquals(1, query.getCount());
     
     ExportError ee = query.getIterator().next();
@@ -672,8 +714,15 @@ public class DHIS2ServiceTest
     
     Assert.assertTrue("Expected submitted json to be empty but was " + ee.getSubmittedJson(), ee.getSubmittedJson() == null || ee.getSubmittedJson().length() == 0);
     Assert.assertTrue("Expected response json to be empty but was" + ee.getResponseJson(), ee.getResponseJson() == null || ee.getResponseJson().length() == 0);
-    Assert.assertEquals(go.getCode(), ee.getCode());
-    Assert.assertTrue("Expected row index to be either 2 or 3, but was " + String.valueOf(ee.getRowIndex()), new Long(2).equals(ee.getRowIndex()) || new Long(3).equals(ee.getRowIndex()));
+    Assert.assertEquals(go1.getCode() + "," + go2.getCode() + "," + go3.getCode(), ee.getCode());
+    
+    String[] validRows = new String[]{"2,3,4", "2,3,5", "2,4,5", "3,4,5"};
+    Assert.assertTrue("Affected rows [" + ee.getAffectedRows() + "] is not what we expected.", ArrayUtils.contains(validRows, ee.getAffectedRows()));
+    
+    hist = ExportHistory.get(jo.get("historyId").getAsString());
+    Assert.assertEquals(new Long(5), hist.getWorkTotal());
+    Assert.assertEquals(new Long(5), hist.getWorkProgress());
+    Assert.assertEquals(new Long(2), hist.getExportedRecords());
   }
   
   /*
@@ -1371,7 +1420,7 @@ public class DHIS2ServiceTest
     
     ImportReportResponse resp = new ImportReportResponse("Lorem ipsum dolor sit amet, consectetur adipiscing elit", 306);
     
-    DHIS2SynchronizationManager manager = new DHIS2SynchronizationManager(dhis2, (DHIS2SyncConfig) config.buildConfiguration(), history);
+    DHIS2SynchronizationManager manager = new DHIS2SynchronizationManager(dhis2, (DHIS2SyncConfig) config.buildConfiguration(), history, new SynchronizationHistoryProgressScribe(history));
     
     DHIS2SynchronizationManagerProxy.processMetadataImportResponse(manager, level2, "", resp, new JsonArray(), new JsonArray());
   }

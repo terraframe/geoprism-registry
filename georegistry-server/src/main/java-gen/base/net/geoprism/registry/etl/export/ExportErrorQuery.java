@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.etl.export;
 
-@com.runwaysdk.business.ClassSignature(hash = -1003457568)
+@com.runwaysdk.business.ClassSignature(hash = 1113580231)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -55,6 +37,23 @@ public  class ExportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
   public String getClassType()
   {
     return net.geoprism.registry.etl.export.ExportError.CLASS;
+  }
+  public com.runwaysdk.query.SelectableChar getAffectedRows()
+  {
+    return getAffectedRows(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.export.ExportError.AFFECTEDROWS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.export.ExportError.AFFECTEDROWS, alias, displayLabel);
+
   }
   public com.runwaysdk.query.SelectableChar getCode()
   {
@@ -185,6 +184,23 @@ public  class ExportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
   public com.runwaysdk.query.SelectableChar getErrorMessage(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.export.ExportError.ERRORMESSAGE, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getErrorType()
+  {
+    return getErrorType(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getErrorType(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.export.ExportError.ERRORTYPE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getErrorType(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.export.ExportError.ERRORTYPE, alias, displayLabel);
 
   }
   public net.geoprism.registry.etl.export.ExportHistoryQuery.ExportHistoryQueryReferenceIF getHistory()
@@ -499,6 +515,9 @@ public  class ExportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
   public interface ExportErrorQueryReferenceIF extends com.runwaysdk.query.SelectableReference
   {
 
+    public com.runwaysdk.query.SelectableChar getAffectedRows();
+    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias);
+    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getCode();
     public com.runwaysdk.query.SelectableChar getCode(String alias);
     public com.runwaysdk.query.SelectableChar getCode(String alias, String displayLabel);
@@ -520,6 +539,9 @@ public  class ExportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
     public com.runwaysdk.query.SelectableChar getErrorMessage();
     public com.runwaysdk.query.SelectableChar getErrorMessage(String alias);
     public com.runwaysdk.query.SelectableChar getErrorMessage(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getErrorType();
+    public com.runwaysdk.query.SelectableChar getErrorType(String alias);
+    public com.runwaysdk.query.SelectableChar getErrorType(String alias, String displayLabel);
     public net.geoprism.registry.etl.export.ExportHistoryQuery.ExportHistoryQueryReferenceIF getHistory();
     public net.geoprism.registry.etl.export.ExportHistoryQuery.ExportHistoryQueryReferenceIF getHistory(String alias);
     public net.geoprism.registry.etl.export.ExportHistoryQuery.ExportHistoryQueryReferenceIF getHistory(String alias, String displayLabel);
@@ -594,6 +616,23 @@ public  class ExportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
       return this.NE(exportError.getOid());
     }
 
+  public com.runwaysdk.query.SelectableChar getAffectedRows()
+  {
+    return getAffectedRows(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.export.ExportError.AFFECTEDROWS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.export.ExportError.AFFECTEDROWS, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getCode()
   {
     return getCode(null);
@@ -711,6 +750,23 @@ public  class ExportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
   public com.runwaysdk.query.SelectableChar getErrorMessage(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.export.ExportError.ERRORMESSAGE, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getErrorType()
+  {
+    return getErrorType(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getErrorType(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.export.ExportError.ERRORTYPE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getErrorType(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.export.ExportError.ERRORTYPE, alias, displayLabel);
 
   }
   public net.geoprism.registry.etl.export.ExportHistoryQuery.ExportHistoryQueryReferenceIF getHistory()
@@ -978,6 +1034,9 @@ public  class ExportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
   public interface ExportErrorQueryMultiReferenceIF extends com.runwaysdk.query.SelectableMultiReference
   {
 
+    public com.runwaysdk.query.SelectableChar getAffectedRows();
+    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias);
+    public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getCode();
     public com.runwaysdk.query.SelectableChar getCode(String alias);
     public com.runwaysdk.query.SelectableChar getCode(String alias, String displayLabel);
@@ -999,6 +1058,9 @@ public  class ExportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
     public com.runwaysdk.query.SelectableChar getErrorMessage();
     public com.runwaysdk.query.SelectableChar getErrorMessage(String alias);
     public com.runwaysdk.query.SelectableChar getErrorMessage(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getErrorType();
+    public com.runwaysdk.query.SelectableChar getErrorType(String alias);
+    public com.runwaysdk.query.SelectableChar getErrorType(String alias, String displayLabel);
     public net.geoprism.registry.etl.export.ExportHistoryQuery.ExportHistoryQueryReferenceIF getHistory();
     public net.geoprism.registry.etl.export.ExportHistoryQuery.ExportHistoryQueryReferenceIF getHistory(String alias);
     public net.geoprism.registry.etl.export.ExportHistoryQuery.ExportHistoryQueryReferenceIF getHistory(String alias, String displayLabel);
@@ -1122,6 +1184,23 @@ public  class ExportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
 
       return this.containsExactly(itemIdArray);
   }
+  public com.runwaysdk.query.SelectableChar getAffectedRows()
+  {
+    return getAffectedRows(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.export.ExportError.AFFECTEDROWS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAffectedRows(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.export.ExportError.AFFECTEDROWS, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getCode()
   {
     return getCode(null);
@@ -1239,6 +1318,23 @@ public  class ExportErrorQuery extends com.runwaysdk.query.GeneratedBusinessQuer
   public com.runwaysdk.query.SelectableChar getErrorMessage(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.export.ExportError.ERRORMESSAGE, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getErrorType()
+  {
+    return getErrorType(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getErrorType(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.export.ExportError.ERRORTYPE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getErrorType(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.export.ExportError.ERRORTYPE, alias, displayLabel);
 
   }
   public net.geoprism.registry.etl.export.ExportHistoryQuery.ExportHistoryQueryReferenceIF getHistory()

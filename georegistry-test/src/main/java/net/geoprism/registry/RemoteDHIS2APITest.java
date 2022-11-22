@@ -59,6 +59,7 @@ import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
+import net.geoprism.registry.dhis2.SynchronizationHistoryProgressScribe;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2OptionSetAttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
@@ -95,8 +96,7 @@ public class RemoteDHIS2APITest
   /*
    * Constants that reference expected data in the remote system
    */
-//  public static final String REMOTE_COUNTRY_CODE = "OU_525";
-  public static final String REMOTE_COUNTRY_CODE = "ZM RCZ";
+  public static final String REMOTE_COUNTRY_CODE = "OU_525";
   
   public static final String TEST_DATA_KEY = "RemoteDHIS2Test";
   
@@ -430,7 +430,7 @@ public class RemoteDHIS2APITest
     history.addStage(ExportStage.CONNECTING);
     history.apply();
     
-    new DHIS2SynchronizationManager(dhis2, dhis2Config, history).synchronize();
+    new DHIS2SynchronizationManager(dhis2, dhis2Config, history, new SynchronizationHistoryProgressScribe(history)).synchronize();
     
     history = ExportHistory.get(history.getOid());
     
