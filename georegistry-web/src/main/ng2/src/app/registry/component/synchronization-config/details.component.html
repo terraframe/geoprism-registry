@@ -65,6 +65,9 @@
 	                                <th *ngIf="config == null || !config.isImport" class="label-column">
                                     <localize key="scheduledjobs.import.table.row.number.header"></localize>
                                   </th>
+                                  <th *ngIf="config == null || !config.isImport" class="label-column">
+                                    <localize key="etl.feedback.severity.title"></localize>
+                                  </th>
                                 </tr>
                             </thead>
 
@@ -78,6 +81,12 @@
                                     </td>
                                     <td  *ngIf="config == null || !config.isImport" class="label-column" style="vertical-align: middle;">
                                       <p>{{row.rowNum}}</p>
+                                    </td>
+                                    <td  *ngIf="config == null || !config.isImport" class="label-column" style="vertical-align: middle;">
+                                      <p>
+                                        <localize *ngIf="row.type === 'ERROR'" key="etl.feedback.severity.error"></localize>
+                                        <localize *ngIf="row.type === 'WARNING'" key="etl.feedback.severity.warning"></localize>
+                                      </p>
                                     </td>
                                 </tr>
                             </tbody>
