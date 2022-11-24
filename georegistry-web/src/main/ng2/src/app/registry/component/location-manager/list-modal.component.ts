@@ -47,7 +47,7 @@ export class ListModalComponent implements OnInit, OnDestroy {
     message: string = null;
 
     public onRowSelect: Subject<{
-        version: string,
+        version: ListTypeVersion,
         uid: string
     }>;
 
@@ -283,7 +283,7 @@ export class ListModalComponent implements OnInit, OnDestroy {
             const result: any = event.row;
 
             this.onRowSelect.next({
-                version: this.list.oid,
+                version: this.list,
                 uid: result.uid
             });
 

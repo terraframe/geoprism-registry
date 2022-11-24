@@ -32,8 +32,8 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
 
     @Output() error: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
 
-    @Output() onRowSelect: EventEmitter<{ version: string, uid: string }> = new EventEmitter<{
-        version: string,
+    @Output() onRowSelect: EventEmitter<{ version: ListTypeVersion, uid: string }> = new EventEmitter<{
+        version: ListTypeVersion,
         uid: string
     }>();
 
@@ -203,7 +203,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
             const result: any = event.row;
 
             this.onRowSelect.next({
-                version: this.list.oid,
+                version: this.list,
                 uid: result.uid
             });
         }

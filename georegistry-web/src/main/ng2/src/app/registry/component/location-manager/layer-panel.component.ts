@@ -157,12 +157,11 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
         if (layersWithoutVersions.length > 0) {
             this.service.fetchVersionsAsListVersion(layersWithoutVersions).then((versions: ListVersion[]) => {
                 versions.forEach(version => {
-                    let layerIndex = this.layers.findIndex(l => l.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE && (l.dataSource as ListVectorLayerDataSource).getVersionId() === version.oid);
-                    if (layerIndex !== -1) {
-                        let layer = this.layers[layerIndex];
-                        version.layer = layer;
+                    let layers = this.layers.filter(l => l.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE && (l.dataSource as ListVectorLayerDataSource).getVersionId() === version.oid);
+                    version.layers = layers;
+                    layers.forEach(layer => {
                         this.versionMap[layer.getId()] = version;
-                    }
+                    });
                 });
             });
         }
@@ -175,12 +174,12 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
             let cLayer: ContextLayer = new ContextLayer(layer.getId(), layer.dataSource.getDataSourceType(), layer.legendLabel, layer.rendered, layer.color);
             return cLayer;
         }
-    
+
         private convertContextLayerToLayer(cLayer: ContextLayer): Layer {
             let serializedLayer: any = cLayer;
             delete serializedLayer.dataSourceType;
             serializedLayer.dataSource = { dataSourceType: cLayer.dataSourceType };
-    
+
             return new DataSourceFactory(this.geomService, this.registryService, this.vizService).deserializeLayer();
         }
         */
@@ -211,30 +210,34 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
                     for (let i = 0; i < list.versions.length; ++i) {
                         let version = list.versions[i];
 
-                        let layerIndex = this.layers.findIndex(l => l.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE && (l.dataSource as ListVectorLayerDataSource).getVersionId() === version.oid);
-                        if (layerIndex !== -1) {
-                            let layer = this.layers[layerIndex];
-                            version.layer = layer;
+                        let layers = this.layers.filter(l => l.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE && (l.dataSource as ListVectorLayerDataSource).getVersionId() === version.oid);
+                        version.layers = layers;
+                        layers.forEach(layer => {
                             this.versionMap[layer.getId()] = version;
-                        }
+                        });
                     }
                 });
             });
         });
 
-        for (const [layerId, ver] of Object.entries(this.versionMap)) {
+        for (const [, ver] of Object.entries(this.versionMap)) {
             let version: ListVersion = ver as ListVersion;
 
-            let layerIndex = this.layers.findIndex(l => l.getId() === layerId);
-            if (layerIndex !== -1) {
-                let layer = this.layers[layerIndex];
-                version.layer = layer;
-            }
+            let layers = this.layers.filter(l => l.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE && (l.dataSource as ListVectorLayerDataSource).getVersionId() === version.oid);
+            version.layers = layers;
         }
     }
 
-    clickToggleLayerRendered(layer: Layer, list: ContextList) {
-        this.toggleLayerRendered(layer);
+    clickToggleVersionRendered(version: ListVersion, list: ContextList) {
+        let rendered = ! this.versionIsRendered(version);
+      
+        if (version.layers != null) {
+            version.layers.forEach(layer => {
+                if (layer.rendered !== rendered) {
+                    this.toggleLayerRendered(layer);
+                }
+            });
+        }
     }
 
     toggleLayerRendered(layer: Layer): void {
@@ -268,15 +271,17 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
     }
 
     toggleVersionLayer(version: ListVersion, list: ContextList): void {
-        if (!version.layer) {
+        if (!version.layers || version.layers.length == 0) {
             let dataSource = new ListVectorLayerDataSource(this.listService, version.oid);
-            version.layer = dataSource.createLayer(list.label, true, ColorGen().hexString());
-            this.versionMap[version.layer.getId()] = version;
-            this.geomService.addOrUpdateLayer(version.layer);
+            version.layers = [ dataSource.createLayer(list.label, true, ColorGen().hexString()) ];
+            this.versionMap[version.layers[0].getId()] = version;
+            this.geomService.addOrUpdateLayer(version.layers[0]);
         } else {
-            this.geomService.removeLayer(version.layer.getId());
-            delete this.versionMap[version.layer.getId()];
-            delete version.layer;
+            version.layers.forEach(layer => {
+                this.geomService.removeLayer(layer.getId());
+                delete this.versionMap[layer.getId()];
+            });
+            delete version.layers;
         }
     }
 
@@ -285,9 +290,23 @@ export class LayerPanelComponent implements OnInit, OnDestroy {
 
         let version = this.versionMap[layer.getId()];
         if (version) {
-            delete this.versionMap[version.layer.getId()];
-            delete version.layer;
+            delete this.versionMap[layer.getId()];
+            version.layers = version.layers.filter(l => l.getId() !== layer.getId());
         }
+    }
+    
+    versionIsRendered(version: ListVersion) {
+        if (!version.layers || version.layers.length == 0) {
+            return false;
+        }
+      
+        let rendered = false;
+        
+        for (let i = 0; i < version.layers.length; ++i) {
+            rendered = rendered || version.layers[i].rendered;
+        }
+        
+        return rendered;
     }
 
     toggleBaseLayer(layer: BaseLayer): void {

@@ -32,13 +32,16 @@ import { BusinessObjectService } from "@registry/service/business-object.service
 import { Vertex } from "@registry/model/graph";
 import { LocalizedValue } from "@shared/model/core";
 import { LocationManagerStateService } from "@registry/service/location-manager.service";
+import { ListTypeVersion } from "@registry/model/list-type";
 
 declare let registry: GeoRegistryConfiguration;
 
 class SelectedObject {
 
     objectType: string;
-    code: string;
+
+    // If GO or BO
+    code?: string;
 
     // If geo object
     forDate?: string;
@@ -46,6 +49,10 @@ class SelectedObject {
     // If business object
     businessObject?: BusinessObject;
     businessType?: BusinessType;
+
+    // If list record
+    recordUid?: string;
+    versionId?: string;
 
 }
 
@@ -110,11 +117,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      * Currently selected record
      */
     current: SelectedObject;
-
-    /*
-     * Currently highlighted feature
-     */
-    feature: any;
 
     /*
      * Flag denoting if an object is currently being editted
@@ -386,12 +388,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 // Handle parameters for select a record from a context layer
                 if (newState.version != null && newState.uid != null) {
-                    if (this.current == null || this.feature == null || this.feature.version !== newState.version || this.feature.id !== newState.uid) {
+                    if (this.current == null || this.current.versionId !== newState.version || this.current.recordUid !== newState.uid) {
                         this.loadListRecordFromState();
                     }
 
-                    showPanel = true;
-                    mode = this.MODE.VIEW;
+                    // showPanel = true;
+                    // mode = this.MODE.VIEW;
                 }
 
                 if (newState.pageContext) {
@@ -469,12 +471,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             if (this.mode === this.MODE.SEARCH) {
                 this.isEdit = false;
 
-                if (this.feature != null) {
-                    this.map.removeFeatureState(this.feature);
-                }
-
                 this.current = null;
-                this.feature = null;
             } else if (this.mode === this.MODE.VIEW) {
                 // empty
             }
@@ -596,7 +593,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                                         this.updateState({ version: versionId, uid: feature.properties.uid }, false);
                                     } else {
                                       */
-                                    this.selectListRecord(versionId, feature.properties.uid);
+                                    this.listService.getVersion(versionId).then(version => {
+                                        this.selectListRecord(version, feature.properties.uid);
+                                    });
                                     // }
                                 } else if (layer.dataSource.getDataSourceType() === GEO_OBJECT_DATA_SOURCE_TYPE) {
                                     let geoObject: GeoObject = JSON.parse(JSON.stringify(feature));
@@ -780,72 +779,22 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     loadListRecordFromState() {
-        // Get the feature data from the server and populate the left-hand panel
-        this.listService.record(this.state.version, this.state.uid, false).then(record => {
-            if (this.feature != null) {
-                this.map.removeFeatureState(this.feature);
-
-                this.feature = null;
-            }
-
-            // Highlight the feature on the map
-            window.setTimeout(() => {
-                const index = this.geomService.getLayers().findIndex(lFind => lFind.dataSource.getDataSourceType() === LIST_VECTOR_SOURCE_TYPE && record.version === (lFind.dataSource as ListVectorLayerDataSource).getVersionId());
-
-                if (index !== -1) {
-                    const layer = this.geomService.getLayers()[index];
-
-                    if (this.map.getSource(layer.dataSource.getId()) != null) {
-                        this.feature = {
-                            source: layer.dataSource.getId(),
-                            sourceLayer: "context",
-                            id: this.state.uid,
-                            version: this.state.version
-                        };
-
-                        this.map.setFeatureState(this.feature, {
-                            selected: true
-                        });
-                    }
-                }
-            }, 50);
-
-            if (record.recordType === "GEO_OBJECT") {
-                /*
-                this.selectGeoObject({
-                    properties: {
-                        type: record.typeCode,
-                        code: record.code,
-                        uid: record.uid,
-                        displayLabel: record.displayLabel
-                    }
-                } as GeoObject);
-                */
-            } else if (record.recordType === "LIST") {
-                if (this.recordContext === "MAP") {
-                    this.list = {
-                        versionId: this.state.version,
-                        uid: this.state.uid
-                    };
-                } else {
-                    const bounds = record.bbox;
-
-                    if (bounds && Array.isArray(bounds)) {
-                        let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
-                        let config: any = { padding: { top: 10, bottom: 10, left: 10, right: 10 }, animate: true, maxDuration: 5000, maxZoom: 20 };
-
-                        this.map.fitBounds(llb, config);
-                    }
-                }
-            }
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
+        if (this.state.code == null) {
+            this.current = {
+                objectType: "LIST",
+                recordUid: this.state.uid,
+                versionId: this.state.version
+            };
+            this.list = {
+                versionId: this.state.version,
+                uid: this.state.uid
+            };
+        }
     }
 
-    selectListRecord(list: string, uid: string): void {
+    selectListRecord(list: ListTypeVersion, uid: string): void {
         this.closeEditSessionSafeguard().then(() => {
-            this.listService.record(list, uid, false).then(record => {
+            this.listService.record(list.oid, uid, false).then(record => {
                 this.typeCache.waitOnTypes().then(() => {
                     let newState = this.locationManagerService.selectListRecord(list, uid, record, this.geomService.getState());
 
@@ -864,12 +813,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         this.isEdit = false;
 
-        if (this.feature != null) {
-            this.map.removeFeatureState(this.feature);
-        }
-
         this.featurePanel.setEditMode(false);
-        this.feature = null;
     }
 
     clearRecord() {
@@ -886,11 +830,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     select(node: any, event: MouseEvent): void {
         if (!this.isEdit) {
-            if (this.feature != null) {
-                this.map.removeFeatureState(this.feature);
-                this.feature = null;
-            }
-
             this.updateState({ type: node.properties.type, code: node.properties.code, objectType: "GEOOBJECT", uid: node.properties.uid, version: null }, false);
 
             // this.zoomToFeature(node, null);
@@ -996,7 +935,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         };
     }
 
-    onRowSelect(event: { version: string, uid: string }): void {
+    onRowSelect(event: { version: ListTypeVersion, uid: string }): void {
         this.recordContext = "ROW";
 
         this.selectListRecord(event.version, event.uid);

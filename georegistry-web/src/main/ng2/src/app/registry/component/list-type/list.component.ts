@@ -291,9 +291,9 @@ export class ListComponent implements OnInit, OnDestroy {
     onGotoMap(result: any): void {
         let state: LocationManagerState = { pageContext: "DATA" };
 
-        this.locationManagerService.addLayerForList(this.list, state);
-
         if (result == null) {
+            this.locationManagerService.selectListRecord(this.list, result.uid, null, state);
+
             this.service.getBounds(this.list.oid).then(bounds => {
                 if (bounds && Array.isArray(bounds)) {
                     let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
@@ -311,14 +311,14 @@ export class ListComponent implements OnInit, OnDestroy {
         } else {
             this.service.record(this.list.oid, result.uid, false).then(record => {
                 this.cacheService.getTypeCache().waitOnTypes().then(() => {
-                    this.locationManagerService.selectListRecord(this.list.oid, result.uid, record, state);
+                    this.locationManagerService.selectListRecord(this.list, result.uid, record, state);
 
                     if (record.recordType === "GEO_OBJECT") {
                         this.router.navigate(["/registry/location-manager"], {
                             queryParams: state
                         });
                     } else {
-                        this.service.getBounds(this.list.oid).then(bounds => {
+                        this.service.getBounds(this.list.oid, result.uid).then(bounds => {
                             if (bounds && Array.isArray(bounds)) {
                                 let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
                                 const array = llb.toArray();

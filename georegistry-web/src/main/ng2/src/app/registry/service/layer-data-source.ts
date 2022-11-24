@@ -287,7 +287,12 @@ export class ListVectorLayerDataSource extends LayerDataSource {
     }
 
     getBounds(layer: Layer): Promise<LngLatBounds> {
-        return this.listService.getBounds(this.versionId).then((bounds: number[]) => {
+        let objectFilter = null;
+        if (layer instanceof ListVectorLayer) {
+            objectFilter = (layer as ListVectorLayer).getObjectFilter();
+        }
+
+        return this.listService.getBounds(this.versionId, objectFilter).then((bounds: number[]) => {
             if (bounds && Array.isArray(bounds)) {
                 return new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
             } else {
@@ -300,8 +305,20 @@ export class ListVectorLayerDataSource extends LayerDataSource {
 
 export class ListVectorLayer extends Layer {
 
+    objectFilter: string;
+
     configureMapboxLayer(layerType: string, layerConfig: any): void {
         layerConfig["source-layer"] = "context";
+
+        if (this.objectFilter != null) {
+            let filter = ["match", ["get", "uid"], this.objectFilter, true, false];
+
+            if (layerConfig["filter"] != null) {
+                layerConfig["filter"].push(filter);
+            } else {
+                layerConfig["filter"] = filter;
+            }
+        }
 
         if (layerType === "LABEL") {
             layerConfig.layout["text-field"] = ["case",
@@ -310,6 +327,28 @@ export class ListVectorLayer extends Layer {
                 ["coalesce", ["get", "displayLabel"], ["string", ["get", "code"]]
                 ]];
         }
+    }
+
+    public toJSON(): any {
+        return Object.assign(super.toJSON(), {
+            objectFilter: this.objectFilter
+        });
+    }
+
+    getId(): string {
+        return (this.objectFilter == null) ? this.dataSource.getId() : this.objectFilter + this.dataSource.getId();
+    }
+
+    public getKey(): string {
+        return (this.objectFilter == null) ? this.dataSource.getKey() : this.objectFilter + this.dataSource.getKey();
+    }
+
+    setObjectFilter(objectFilter: string) {
+        this.objectFilter = objectFilter;
+    }
+
+    getObjectFilter(): string {
+        return this.objectFilter;
     }
 
 }

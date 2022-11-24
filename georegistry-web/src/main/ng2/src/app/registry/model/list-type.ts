@@ -217,7 +217,7 @@ export class ListVersion {
     oid: string;
     forDate: string;
     versionNumber: number;
-    layer?: Layer;
+    layers?: Layer[];
 
 }
 
