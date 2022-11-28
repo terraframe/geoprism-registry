@@ -17,129 +17,174 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit } from "@angular/core";
+import { HttpErrorResponse } from "@angular/common/http";
 
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { Subject } from 'rxjs';
+import { BsModalRef } from "ngx-bootstrap/modal";
+import { Subject } from "rxjs";
 
-import { ExternalSystem, Organization } from '@shared/model/core';
+import { ExternalSystem, SystemCapabilities, Organization } from "@shared/model/core";
 
-import { LocalizationService, AuthService, ExternalSystemService } from '@shared/service';
+import { LocalizationService, AuthService, ExternalSystemService } from "@shared/service";
 
-import { ErrorHandler } from '@shared/component';
+import { ErrorHandler } from "@shared/component";
 
 import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component({
-	selector: 'external-system-modal',
-	templateUrl: './external-system-modal.component.html',
-	styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
+    selector: "external-system-modal",
+    templateUrl: "./external-system-modal.component.html",
+    styles: [".modal-form .check-block .chk-area { margin: 10px 0px 0 0;}"]
 })
 export class ExternalSystemModalComponent implements OnInit {
 
-	context: string;
+  context: string;
 
-	message: string = null;
+  message: string = null;
 
-	editPassword: boolean = false;
+  connectMessage: string = null;
 
-	isNew: boolean = false;
+  editPassword: boolean = false;
 
-	system: ExternalSystem = {
-		id: "",
-		type: 'DHIS2ExternalSystem',
-		organization: "",
-		label: this.lService.create(),
-		description: this.lService.create(),
-		version: "2.31",
-		oAuthServer: null
-	};
+  isNew: boolean = false;
 
-	organizations: Organization[] = [];
+  system: ExternalSystem = {
+      id: "",
+      type: "DHIS2ExternalSystem",
+      organization: "",
+      label: this.lService.create(),
+      description: this.lService.create(),
+      version: "2.31",
+      oAuthServer: null
+  };
 
-	oauthSupported: boolean = true;
+  organizations: Organization[] = [];
 
+  oauthEnabled: boolean = false;
 
-	public onSuccess: Subject<ExternalSystem>;
+  capabilities: SystemCapabilities = null;
 
-	constructor(private systemService: ExternalSystemService, private authService: AuthService, public bsModalRef: BsModalRef, private lService: LocalizationService) {
-		this.context = registry.contextPath;
-	}
+  public onSuccess: Subject<ExternalSystem>;
 
-	ngOnInit(): void {
-		this.onSuccess = new Subject();
-	}
+  constructor(private systemService: ExternalSystemService, private authService: AuthService, public bsModalRef: BsModalRef, private lService: LocalizationService) {
+      this.context = registry.contextPath;
+  }
 
-	init(organizations: Organization[], system: ExternalSystem): void {
-		this.organizations = organizations.filter(o => {
-			return this.authService.isOrganizationRA(o.code);
-		});
+  ngOnInit(): void {
+      this.onSuccess = new Subject();
+  }
 
-		if (system != null) {
-			this.system = system;
-			this.isNew = false;
-		}
-		else {
-			this.isNew = true;
-			this.editPassword = true;
-		}
-	}
+  init(organizations: Organization[], system: ExternalSystem): void {
+      this.organizations = organizations.filter(o => {
+          return this.authService.isOrganizationRA(o.code);
+      });
 
-	enableOAuth(): void {
-		if (!this.system.url.endsWith("/")) {
-			this.system.url = this.system.url + "/";
-		}
+      if (system != null) {
+          this.system = system;
+          this.oauthEnabled = this.system.oAuthServer != null;
+          this.isNew = false;
+      } else {
+          this.isNew = true;
+          this.editPassword = true;
+      }
+  }
 
-		this.oauthSupported = true;
-		this.message = null;
+  enableOAuth(): void {
+      this.oauthEnabled = true;
 
-		this.systemService.getSystemCapabilities(this.system).then(capabilities => {
-			if (capabilities.oauth) {
-				this.system.oAuthServer = {
-					authorizationLocation: this.system.url + "uaa/oauth/authorize",
-					tokenLocation: this.system.url + "uaa/oauth/token",
-					profileLocation: this.system.url + "api/me",
-					clientId: "georegistry",
-					secretKey: "",
-					serverType: "DHIS2"
-				};
-			}
-			else {
-				this.oauthSupported = false;
-			}
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
-	}
+      if (!this.system.url.endsWith("/")) {
+          this.system.url = this.system.url + "/";
+      }
 
-	removeOauth(): void {
-		delete this.system.oAuthServer;
-	}
+      this.message = null;
 
-	isOauthSupported(system:ExternalSystem) : boolean {
-		return system.type === 'DHIS2ExternalSystem' || system.type === 'FhirExternalSystem';
-	}
+      this.system.oAuthServer = {
+          authorizationLocation: this.system.url + "uaa/oauth/authorize",
+          tokenLocation: this.system.url + "uaa/oauth/token",
+          profileLocation: this.system.url + "api/me",
+          clientId: "georegistry",
+          secretKey: "",
+          serverType: "DHIS2"
+      };
 
-	downloadDhis2Plugin(): void {
-		window.location.href = this.context + "/external-system/download-dhis2-plugin";
-	}
+      if (this.system.type === "DHIS2ExternalSystem") {
+          this.getSystemCapabilities();
+      }
+  }
 
-	cancel(): void {
-		this.bsModalRef.hide();
-	}
+  getSystemCapabilities(): void {
+      if (this.capabilities != null || this.system.type !== "DHIS2ExternalSystem" ||
+        (this.system.username == null || this.system.username.length === 0) ||
+        (this.isNew && (this.system.password == null || this.system.password.length === 0)) ||
+        (this.system.url == null || this.system.url.length === 0)
+      ) { return; }
 
-	onSubmit(): void {
-		this.systemService.applyExternalSystem(this.system).then(data => {
-			this.onSuccess.next(data);
-			this.bsModalRef.hide();
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
-	}
+      this.systemService.getSystemCapabilities(this.system).then(capabilities => {
+          this.message = null;
+          this.connectMessage = null;
 
-	public error(err: HttpErrorResponse): void {
-		this.message = ErrorHandler.getMessageFromError(err);
-	}
+          this.capabilities = capabilities;
+
+          if (capabilities.oauth && this.oauthEnabled && this.system.oAuthServer == null) {
+              this.system.oAuthServer = {
+                  authorizationLocation: this.system.url + "uaa/oauth/authorize",
+                  tokenLocation: this.system.url + "uaa/oauth/token",
+                  profileLocation: this.system.url + "api/me",
+                  clientId: "georegistry",
+                  secretKey: "",
+                  serverType: "DHIS2"
+              };
+          }
+      }).catch((err: HttpErrorResponse) => {
+          this.connectMessage = ErrorHandler.getMessageFromError(err);
+      });
+  }
+
+  dhis2UrlKeyListener(event: any): void {
+      if (event.key === "Enter") {
+          this.capabilities = null;
+          this.getSystemCapabilities();
+      }
+  }
+
+  dhis2FocusOut(): void {
+      this.capabilities = null;
+      this.getSystemCapabilities();
+  }
+
+  removeOauth(): void {
+      this.oauthEnabled = false;
+      delete this.system.oAuthServer;
+  }
+
+  isOauthSupported(system:ExternalSystem) : boolean {
+      return system.type === "DHIS2ExternalSystem" || system.type === "FhirExternalSystem";
+  }
+
+  downloadDhis2Plugin(): void {
+      window.location.href = this.context + "/external-system/download-dhis2-plugin";
+  }
+
+  cancel(): void {
+      this.bsModalRef.hide();
+  }
+
+  onSubmit(): void {
+      this.systemService.applyExternalSystem(this.system).then(data => {
+          this.onSuccess.next(data);
+          this.bsModalRef.hide();
+      }).catch((err: HttpErrorResponse) => {
+          this.error(err);
+      });
+  }
+
+  public error(err: HttpErrorResponse): void {
+      document.querySelector("modal-container.modal").scroll({
+          top: 0,
+          left: 0,
+          behavior: "smooth"
+      });
+      this.message = ErrorHandler.getMessageFromError(err);
+  }
 
 }

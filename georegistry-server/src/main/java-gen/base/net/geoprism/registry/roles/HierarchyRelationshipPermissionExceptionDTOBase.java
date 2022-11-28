@@ -69,10 +69,10 @@ public abstract class HierarchyRelationshipPermissionExceptionDTOBase extends co
     return CLASS;
   }
   
-  public static java.lang.String CHILDGEOOBJECTTYPE = "childGeoObjectType";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String ORGANIZATION = "organization";
-  public static java.lang.String PARENTGEOOBJECTTYPE = "parentGeoObjectType";
+  public static final java.lang.String CHILDGEOOBJECTTYPE = "childGeoObjectType";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String ORGANIZATION = "organization";
+  public static final java.lang.String PARENTGEOOBJECTTYPE = "parentGeoObjectType";
   public String getChildGeoObjectType()
   {
     return getValue(CHILDGEOOBJECTTYPE);

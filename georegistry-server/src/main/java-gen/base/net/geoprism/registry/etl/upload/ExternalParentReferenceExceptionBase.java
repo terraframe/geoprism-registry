@@ -29,10 +29,10 @@ package net.geoprism.registry.etl.upload;
 public abstract class ExternalParentReferenceExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.upload.ExternalParentReferenceException";
-  public static java.lang.String CONTEXT = "context";
-  public static java.lang.String EXTERNALID = "externalId";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String PARENTTYPE = "parentType";
+  public static final java.lang.String CONTEXT = "context";
+  public static final java.lang.String EXTERNALID = "externalId";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String PARENTTYPE = "parentType";
   private static final long serialVersionUID = 853223658;
   
   public ExternalParentReferenceExceptionBase()

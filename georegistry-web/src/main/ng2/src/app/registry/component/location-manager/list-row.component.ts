@@ -1,10 +1,11 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from "@angular/core";
 import { ListTypeVersion } from "@registry/model/list-type";
-import { GenericTableColumn, GenericTableConfig, GenericTableGroup } from "@shared/model/generic-table";
+import { GenericTableConfig, TableColumnSetup } from "@shared/model/generic-table";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { LazyLoadEvent } from "primeng/api";
 import { timeout } from "d3";
+import Utils from "@registry/utility/Utils";
 
 @Component({
     selector: "list-row",
@@ -24,8 +25,7 @@ export class ListRowComponent implements OnInit, OnDestroy, OnChanges {
     tableState: LazyLoadEvent = null;
 
     config: GenericTableConfig = null;
-    cols: GenericTableColumn[] = null;
-    groups: GenericTableGroup[][] = null;
+    setup: TableColumnSetup = null;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private service: ListTypeService) {
@@ -87,54 +87,7 @@ export class ListRowComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     refreshColumns(): void {
-        this.cols = [];
-        const orderedArray = [];
-
-        const mainGroups: GenericTableGroup[] = [];
-        const subGroups: GenericTableGroup[] = [];
-
-        this.list.attributes.forEach(group => {
-            if (group.name !== "invalid") {
-                mainGroups.push({
-                    label: group.label,
-                    colspan: group.colspan
-                });
-
-                group.columns.forEach(subgroup => {
-                    subGroups.push({
-                        label: subgroup.label,
-                        colspan: subgroup.colspan
-                    });
-
-                    subgroup.columns.forEach(attribute => {
-                        orderedArray.push(attribute);
-                    });
-                });
-            }
-        });
-
-        this.groups = [mainGroups, subGroups];
-
-        orderedArray.forEach(attribute => {
-            if (attribute.name !== "invalid") {
-                let column: GenericTableColumn = {
-                    header: attribute.label,
-                    field: attribute.name,
-                    type: "TEXT",
-                    sortable: false,
-                    filter: false
-                };
-
-                if (attribute.type === "date") {
-                    column.type = "DATE";
-                } else if (attribute.name === "invalid" || attribute.type === "boolean") {
-                    column.type = "BOOLEAN";
-                } else if (attribute.type === "number") {
-                    column.type = "NUMBER";
-                }
-                this.cols.push(column);
-            }
-        });
+        this.setup = Utils.createColumns(this.list, false, true);
     }
 
     onClose(): void {

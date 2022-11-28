@@ -29,11 +29,11 @@ package net.geoprism.registry.graph;
 public abstract class FhirExternalSystemBase extends net.geoprism.registry.graph.ExternalSystem
 {
   public final static String CLASS = "net.geoprism.registry.graph.FhirExternalSystem";
-  public static java.lang.String OAUTHSERVER = "oauthServer";
-  public static java.lang.String PASSWORD = "password";
-  public static java.lang.String SYSTEM = "system";
-  public static java.lang.String URL = "url";
-  public static java.lang.String USERNAME = "username";
+  public static final java.lang.String OAUTHSERVER = "oauthServer";
+  public static final java.lang.String PASSWORD = "password";
+  public static final java.lang.String SYSTEM = "system";
+  public static final java.lang.String URL = "url";
+  public static final java.lang.String USERNAME = "username";
   private static final long serialVersionUID = 1528495806;
   
   public FhirExternalSystemBase()

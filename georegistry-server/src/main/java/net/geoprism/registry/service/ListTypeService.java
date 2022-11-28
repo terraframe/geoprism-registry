@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -88,6 +89,7 @@ public class ListTypeService
   {
     ListType mList = ListType.apply(list);
 
+    // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
     // Auto publish the working versions of the lists
@@ -109,6 +111,7 @@ public class ListTypeService
     ListType mList = ListType.get(oid);
     mList.createEntries(null);
 
+    // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
     return mList.toJSON(true);
@@ -124,6 +127,7 @@ public class ListTypeService
       this.enforceWritePermissions(listType);
 
       listType.delete();
+      // Refresh the users session
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
     }
     catch (DataNotFoundException e)
@@ -148,6 +152,7 @@ public class ListTypeService
 
     String version = entry.publish(metadata);
 
+    // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
     return JsonParser.parseString(version).getAsJsonObject();
@@ -437,6 +442,7 @@ public class ListTypeService
 
       version.delete();
 
+      // Refresh the users session
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
     }
     catch (DataNotFoundException e)
@@ -545,8 +551,11 @@ public class ListTypeService
 
     JsonArray jaOrgs = new JsonArray();
 
-    for (String orgCode : orgMap.keySet())
+    Set<Entry<String, Set<String>>> entrySet = orgMap.entrySet();
+    for (Entry<String, Set<String>> entry : entrySet)
     {
+      String orgCode = entry.getKey();
+
       Organization org = ServiceFactory.getMetadataCache().getOrganization(orgCode).get();
 
       JsonObject joOrg = new JsonObject();
@@ -557,7 +566,7 @@ public class ListTypeService
 
       JsonArray jaTypes = new JsonArray();
 
-      for (String gotCode : orgMap.get(orgCode))
+      for (String gotCode : entry.getValue())
       {
         ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode).get();
 

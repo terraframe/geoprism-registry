@@ -26,7 +26,7 @@ public class ErrorReport
   
   protected String errorCode;
   
-  protected String mainId;
+  protected String errorKlass;
   
   protected String errorProperty;
   
@@ -60,16 +60,6 @@ public class ErrorReport
   public void setErrorCode(String errorCode)
   {
     this.errorCode = errorCode;
-  }
-
-  public String getMainId()
-  {
-    return mainId;
-  }
-
-  public void setMainId(String mainId)
-  {
-    this.mainId = mainId;
   }
 
   public String getErrorProperty()

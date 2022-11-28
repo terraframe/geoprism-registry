@@ -29,8 +29,8 @@ package net.geoprism.registry;
 public abstract class InvalidRegistryIdExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.InvalidRegistryIdException";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String REGISTRYID = "registryId";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String REGISTRYID = "registryId";
   private static final long serialVersionUID = 2135017651;
   
   public InvalidRegistryIdExceptionBase()

@@ -29,14 +29,14 @@ package net.geoprism.registry.etl;
 public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.JobHistory
 {
   public final static String CLASS = "net.geoprism.registry.etl.ImportHistory";
-  public static java.lang.String CONFIGJSON = "configJson";
-  public static java.lang.String ERRORCOUNT = "errorCount";
-  public static java.lang.String ERRORRESOLVEDCOUNT = "errorResolvedCount";
-  public static java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
-  public static java.lang.String IMPORTFILE = "importFile";
-  public static java.lang.String IMPORTEDRECORDS = "importedRecords";
-  public static java.lang.String ORGANIZATION = "organization";
-  public static java.lang.String STAGE = "stage";
+  public static final java.lang.String CONFIGJSON = "configJson";
+  public static final java.lang.String ERRORCOUNT = "errorCount";
+  public static final java.lang.String ERRORRESOLVEDCOUNT = "errorResolvedCount";
+  public static final java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
+  public static final java.lang.String IMPORTFILE = "importFile";
+  public static final java.lang.String IMPORTEDRECORDS = "importedRecords";
+  public static final java.lang.String ORGANIZATION = "organization";
+  public static final java.lang.String STAGE = "stage";
   private static final long serialVersionUID = -254919921;
   
   public ImportHistoryBase()

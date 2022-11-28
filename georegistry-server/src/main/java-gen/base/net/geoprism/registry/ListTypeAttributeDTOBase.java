@@ -1,11 +1,11 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 2110944196)
+@com.runwaysdk.business.ClassSignature(hash = -140455225)
 public abstract class ListTypeAttributeDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.ListTypeAttribute";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 2110944196;
+  private static final long serialVersionUID = -140455225;
   
   protected ListTypeAttributeDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -41,6 +41,7 @@ public abstract class ListTypeAttributeDTOBase extends com.runwaysdk.business.Bu
   public static java.lang.String LOCKEDBY = "lockedBy";
   public static java.lang.String OID = "oid";
   public static java.lang.String OWNER = "owner";
+  public static java.lang.String ROWSPAN = "rowspan";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
@@ -498,6 +499,43 @@ public abstract class ListTypeAttributeDTOBase extends com.runwaysdk.business.Bu
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getOwnerMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(OWNER).getAttributeMdDTO();
+  }
+  
+  public Integer getRowspan()
+  {
+    return com.runwaysdk.constants.MdAttributeIntegerUtil.getTypeSafeValue(getValue(ROWSPAN));
+  }
+  
+  public void setRowspan(Integer value)
+  {
+    if(value == null)
+    {
+      setValue(ROWSPAN, "");
+    }
+    else
+    {
+      setValue(ROWSPAN, java.lang.Integer.toString(value));
+    }
+  }
+  
+  public boolean isRowspanWritable()
+  {
+    return isWritable(ROWSPAN);
+  }
+  
+  public boolean isRowspanReadable()
+  {
+    return isReadable(ROWSPAN);
+  }
+  
+  public boolean isRowspanModified()
+  {
+    return isModified(ROWSPAN);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeNumberMdDTO getRowspanMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeNumberMdDTO) getAttributeDTO(ROWSPAN).getAttributeMdDTO();
   }
   
   public Long getSeq()

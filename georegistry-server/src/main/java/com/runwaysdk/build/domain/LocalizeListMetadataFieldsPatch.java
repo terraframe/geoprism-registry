@@ -42,20 +42,20 @@ public class LocalizeListMetadataFieldsPatch
   private MdBusiness masterlistMd = (MdBusiness) MdBusiness.getMdBusiness(MasterList.CLASS);
   
   // Attributes on MasterList which were deleted and replaced
-  public static java.lang.String LISTABSTRACT = "listAbstract";
-  public static java.lang.String PROCESS = "process";
-  public static java.lang.String PROGRESS = "progress";
-  public static java.lang.String ACCESSCONSTRAINTS = "accessConstraints";
-  public static java.lang.String USECONSTRAINTS = "useConstraints";
-  public static java.lang.String ACKNOWLEDGEMENTS = "acknowledgements";
-  public static java.lang.String DISCLAIMER = "disclaimer";
+  public static final java.lang.String LISTABSTRACT = "listAbstract";
+  public static final java.lang.String PROCESS = "process";
+  public static final java.lang.String PROGRESS = "progress";
+  public static final java.lang.String ACCESSCONSTRAINTS = "accessConstraints";
+  public static final java.lang.String USECONSTRAINTS = "useConstraints";
+  public static final java.lang.String ACKNOWLEDGEMENTS = "acknowledgements";
+  public static final java.lang.String DISCLAIMER = "disclaimer";
   
-  public static final String[] newAttrs = new String[] {
+  static final String[] newAttrs = new String[] {
     MasterList.DESCRIPTIONLOCAL, MasterList.PROCESSLOCAL, MasterList.PROGRESSLOCAL, MasterList.ACCESSCONSTRAINTSLOCAL,
     MasterList.USECONSTRAINTSLOCAL, MasterList.ACKNOWLEDGEMENTSLOCAL, MasterList.DISCLAIMERLOCAL
   };
   
-  public static final String[] oldAttrs = new String[] {
+  static final String[] oldAttrs = new String[] {
       LISTABSTRACT, PROCESS, PROGRESS, ACCESSCONSTRAINTS, USECONSTRAINTS, ACKNOWLEDGEMENTS, DISCLAIMER
   };
   

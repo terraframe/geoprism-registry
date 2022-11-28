@@ -29,7 +29,7 @@ package net.geoprism.registry.etl;
 public abstract class InvalidExternalIdExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.InvalidExternalIdException";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -1078846289;
   
   public InvalidExternalIdExceptionBase()

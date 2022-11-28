@@ -45,7 +45,7 @@ public abstract class MasterListJobDTOBase extends com.runwaysdk.system.schedule
     return CLASS;
   }
   
-  public static java.lang.String MASTERLIST = "masterList";
+  public static final java.lang.String MASTERLIST = "masterList";
   public net.geoprism.registry.MasterListDTO getMasterList()
   {
     if(getValue(MASTERLIST) == null || getValue(MASTERLIST).trim().equals(""))

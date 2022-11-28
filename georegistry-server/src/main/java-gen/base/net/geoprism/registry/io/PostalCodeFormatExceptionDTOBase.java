@@ -69,9 +69,9 @@ public abstract class PostalCodeFormatExceptionDTOBase extends com.runwaysdk.bus
     return CLASS;
   }
   
-  public static java.lang.String CODE = "code";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String TYPELABEL = "typeLabel";
+  public static final java.lang.String CODE = "code";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String TYPELABEL = "typeLabel";
   public String getCode()
   {
     return getValue(CODE);

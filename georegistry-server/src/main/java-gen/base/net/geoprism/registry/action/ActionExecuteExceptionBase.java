@@ -29,7 +29,7 @@ package net.geoprism.registry.action;
 public abstract class ActionExecuteExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.action.ActionExecuteException";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -1235096786;
   
   public ActionExecuteExceptionBase()

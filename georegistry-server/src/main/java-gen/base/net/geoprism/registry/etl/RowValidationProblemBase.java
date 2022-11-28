@@ -29,7 +29,7 @@ package net.geoprism.registry.etl;
 public abstract class RowValidationProblemBase extends net.geoprism.registry.etl.ValidationProblem
 {
   public final static String CLASS = "net.geoprism.registry.etl.RowValidationProblem";
-  public static java.lang.String EXCEPTIONJSON = "exceptionJson";
+  public static final java.lang.String EXCEPTIONJSON = "exceptionJson";
   private static final long serialVersionUID = 440758212;
   
   public RowValidationProblemBase()

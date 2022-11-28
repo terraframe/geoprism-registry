@@ -167,7 +167,7 @@ public class OauthFhirConnection implements FhirConnection
   }
 
   @Override
-  public void close() throws Exception
+  public void close()
   {
     // this.connection.close();
   }

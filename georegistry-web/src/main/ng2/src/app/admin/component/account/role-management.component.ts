@@ -70,7 +70,7 @@ export class RoleManagementComponent {
 		this._roles.ORGANIZATIONS.forEach(org => {
 			if(org.CODE === orgCode){
 				org.GEOOBJECTTYPEROLES.forEach(got => {
-					console.log(got.GEOOBJECTTYPELABEL, got.ENABLEDROLE)
+					// console.log(got.GEOOBJECTTYPELABEL, got.ENABLEDROLE)
 					
 					if(got.ENABLEDROLE){
 						orgHasAssignedRole = true;
@@ -284,6 +284,6 @@ export class RoleManagementComponent {
 	}
 
 	showData() {
-		console.log(this._roles)
+		// console.log(this._roles)
 	}
 }

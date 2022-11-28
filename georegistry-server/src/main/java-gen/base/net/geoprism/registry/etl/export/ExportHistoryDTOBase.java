@@ -45,8 +45,8 @@ public abstract class ExportHistoryDTOBase extends com.runwaysdk.system.schedule
     return CLASS;
   }
   
-  public static java.lang.String EXPORTEDRECORDS = "exportedRecords";
-  public static java.lang.String STAGE = "stage";
+  public static final java.lang.String EXPORTEDRECORDS = "exportedRecords";
+  public static final java.lang.String STAGE = "stage";
   public Long getExportedRecords()
   {
     return com.runwaysdk.constants.MdAttributeLongUtil.getTypeSafeValue(getValue(EXPORTEDRECORDS));

@@ -51,7 +51,7 @@ public class ExternalSystemController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "system-capabilities")
   public ResponseIF getSystemCapabilities(ClientRequestIF request, @RequestParamter(name = "system") String systemJSON)
   {
-    JsonObject capabilities = new DHIS2FeatureService().getSystemCapabilities(request.getSessionId(), systemJSON);
+    JsonObject capabilities = this.service.getSystemCapabilities(request.getSessionId(), systemJSON);
     
     return new RestBodyResponse(capabilities);
   }

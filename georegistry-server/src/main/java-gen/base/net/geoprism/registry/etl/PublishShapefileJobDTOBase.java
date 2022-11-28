@@ -45,7 +45,7 @@ public abstract class PublishShapefileJobDTOBase extends net.geoprism.registry.e
     return CLASS;
   }
   
-  public static java.lang.String VERSION = "version";
+  public static final java.lang.String VERSION = "version";
   public net.geoprism.registry.MasterListVersionDTO getVersion()
   {
     if(getValue(VERSION) == null || getValue(VERSION).trim().equals(""))

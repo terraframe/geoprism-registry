@@ -29,9 +29,9 @@ package net.geoprism.registry.etl;
 public abstract class FhirExportJobBase extends net.geoprism.registry.etl.MasterListJob
 {
   public final static String CLASS = "net.geoprism.registry.etl.FhirExportJob";
-  public static java.lang.String EXTERNALSYSTEM = "externalSystem";
-  public static java.lang.String IMPLEMENTATION = "implementation";
-  public static java.lang.String VERSION = "version";
+  public static final java.lang.String EXTERNALSYSTEM = "externalSystem";
+  public static final java.lang.String IMPLEMENTATION = "implementation";
+  public static final java.lang.String VERSION = "version";
   private static final long serialVersionUID = -755080358;
   
   public FhirExportJobBase()

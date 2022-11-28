@@ -29,7 +29,7 @@ package net.geoprism.registry.etl;
 public abstract class PublishListTypeVersionJobBase extends net.geoprism.registry.etl.ListTypeJob
 {
   public final static String CLASS = "net.geoprism.registry.etl.PublishListTypeVersionJob";
-  public static java.lang.String VERSION = "version";
+  public static final java.lang.String VERSION = "version";
   private static final long serialVersionUID = -1046353469;
   
   public PublishListTypeVersionJobBase()

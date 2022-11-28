@@ -43,7 +43,7 @@ import net.geoprism.registry.tile.VectorTileBuilder;
 
 public class TileCache extends TileCacheBase
 {
-  public static ExecutorService executor = Executors.newFixedThreadPool(5);
+  public static final ExecutorService executor = Executors.newFixedThreadPool(1);
 
   private static class CacheCallable implements Callable<byte[]>
   {

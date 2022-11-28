@@ -29,9 +29,9 @@ package net.geoprism.registry.io;
 public abstract class LatLonExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.io.LatLonException";
-  public static java.lang.String LAT = "lat";
-  public static java.lang.String LON = "lon";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String LAT = "lat";
+  public static final java.lang.String LON = "lon";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = 1603249531;
   
   public LatLonExceptionBase()

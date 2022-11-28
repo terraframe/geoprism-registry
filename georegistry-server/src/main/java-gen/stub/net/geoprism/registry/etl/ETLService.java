@@ -460,8 +460,6 @@ public class ETLService
   @Request(RequestType.SESSION)
   public JsonObject getExportErrors(String sessionId, String historyId, int pageSize, int pageNumber)
   {
-    JsonArray ja = new JsonArray();
-
     ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
 
     query.WHERE(query.getHistory().EQ(historyId));

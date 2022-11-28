@@ -29,7 +29,7 @@ public class ListTypeAttribute extends ListTypeAttributeBase
   {
     MdAttributeConcreteDAOIF mdAttribute = MdAttributeConcreteDAO.get(this.getListAttributeOid());
 
-    return new ListAttribute(mdAttribute, this.getLabel().getValue());
+    return new ListAttribute(mdAttribute, this.getLabel().getValue(), this.getRowspan());
   }
 
   public static void deleteAll(ListTypeGroup group)
@@ -66,11 +66,12 @@ public class ListTypeAttribute extends ListTypeAttributeBase
     }
   }
 
-  public static void create(ListTypeGroup parent, MdAttributeDAOIF mdAttribute, SupportedLocaleIF locale, LocalizedValueIF label)
+  public static void create(ListTypeGroup parent, MdAttributeDAOIF mdAttribute, SupportedLocaleIF locale, LocalizedValueIF label, Integer rowspan)
   {
     ListTypeAttribute attribute = new ListTypeAttribute();
     attribute.setListGroup(parent);
     attribute.setListAttributeId(mdAttribute.getOid());
+    attribute.setRowspan(rowspan);
 
     if (locale != null)
     {

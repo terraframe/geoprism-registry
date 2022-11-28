@@ -29,9 +29,9 @@ package net.geoprism.registry.action.geoobject;
 public abstract class SetParentActionBase extends net.geoprism.registry.action.AbstractAction
 {
   public final static String CLASS = "net.geoprism.registry.action.geoobject.SetParentAction";
-  public static java.lang.String CHILDCODE = "childCode";
-  public static java.lang.String CHILDTYPECODE = "childTypeCode";
-  public static java.lang.String JSON = "json";
+  public static final java.lang.String CHILDCODE = "childCode";
+  public static final java.lang.String CHILDTYPECODE = "childTypeCode";
+  public static final java.lang.String JSON = "json";
   private static final long serialVersionUID = -701168202;
   
   public SetParentActionBase()

@@ -29,102 +29,102 @@ package net.geoprism.registry;
 public abstract class ListTypeBase extends com.runwaysdk.business.Business
 {
   public final static String CLASS = "net.geoprism.registry.ListType";
-  public static java.lang.String CODE = "code";
-  public static java.lang.String CREATEDATE = "createDate";
-  public static java.lang.String CREATEDBY = "createdBy";
-  public static java.lang.String DESCRIPTION = "description";
+  public static final java.lang.String CODE = "code";
+  public static final java.lang.String CREATEDATE = "createDate";
+  public static final java.lang.String CREATEDBY = "createdBy";
+  public static final java.lang.String DESCRIPTION = "description";
   private com.runwaysdk.business.Struct description = null;
   
-  public static java.lang.String DISPLAYLABEL = "displayLabel";
+  public static final java.lang.String DISPLAYLABEL = "displayLabel";
   private com.runwaysdk.business.Struct displayLabel = null;
   
-  public static java.lang.String ENTITYDOMAIN = "entityDomain";
-  public static java.lang.String FILTERJSON = "filterJson";
-  public static java.lang.String GEOSPATIALACCESSCONSTRAINTS = "geospatialAccessConstraints";
+  public static final java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static final java.lang.String FILTERJSON = "filterJson";
+  public static final java.lang.String GEOSPATIALACCESSCONSTRAINTS = "geospatialAccessConstraints";
   private com.runwaysdk.business.Struct geospatialAccessConstraints = null;
   
-  public static java.lang.String GEOSPATIALACKNOWLEDGEMENTS = "geospatialAcknowledgements";
+  public static final java.lang.String GEOSPATIALACKNOWLEDGEMENTS = "geospatialAcknowledgements";
   private com.runwaysdk.business.Struct geospatialAcknowledgements = null;
   
-  public static java.lang.String GEOSPATIALCOLLECTIONDATE = "geospatialCollectionDate";
-  public static java.lang.String GEOSPATIALCONTACTNAME = "geospatialContactName";
-  public static java.lang.String GEOSPATIALDESCRIPTION = "geospatialDescription";
+  public static final java.lang.String GEOSPATIALCOLLECTIONDATE = "geospatialCollectionDate";
+  public static final java.lang.String GEOSPATIALCONTACTNAME = "geospatialContactName";
+  public static final java.lang.String GEOSPATIALDESCRIPTION = "geospatialDescription";
   private com.runwaysdk.business.Struct geospatialDescription = null;
   
-  public static java.lang.String GEOSPATIALDISCLAIMER = "geospatialDisclaimer";
+  public static final java.lang.String GEOSPATIALDISCLAIMER = "geospatialDisclaimer";
   private com.runwaysdk.business.Struct geospatialDisclaimer = null;
   
-  public static java.lang.String GEOSPATIALDISTRIBUTIONFORMAT = "geospatialDistributionFormat";
-  public static java.lang.String GEOSPATIALEMAIL = "geospatialEmail";
-  public static java.lang.String GEOSPATIALLABEL = "geospatialLabel";
+  public static final java.lang.String GEOSPATIALDISTRIBUTIONFORMAT = "geospatialDistributionFormat";
+  public static final java.lang.String GEOSPATIALEMAIL = "geospatialEmail";
+  public static final java.lang.String GEOSPATIALLABEL = "geospatialLabel";
   private com.runwaysdk.business.Struct geospatialLabel = null;
   
-  public static java.lang.String GEOSPATIALLANGUAGES = "geospatialLanguages";
-  public static java.lang.String GEOSPATIALLINEAGE = "geospatialLineage";
-  public static java.lang.String GEOSPATIALORGANIZATION = "geospatialOrganization";
-  public static java.lang.String GEOSPATIALORIGINATOR = "geospatialOriginator";
-  public static java.lang.String GEOSPATIALPLACEKEYWORDS = "geospatialPlaceKeywords";
-  public static java.lang.String GEOSPATIALPROCESS = "geospatialProcess";
+  public static final java.lang.String GEOSPATIALLANGUAGES = "geospatialLanguages";
+  public static final java.lang.String GEOSPATIALLINEAGE = "geospatialLineage";
+  public static final java.lang.String GEOSPATIALORGANIZATION = "geospatialOrganization";
+  public static final java.lang.String GEOSPATIALORIGINATOR = "geospatialOriginator";
+  public static final java.lang.String GEOSPATIALPLACEKEYWORDS = "geospatialPlaceKeywords";
+  public static final java.lang.String GEOSPATIALPROCESS = "geospatialProcess";
   private com.runwaysdk.business.Struct geospatialProcess = null;
   
-  public static java.lang.String GEOSPATIALPROGRESS = "geospatialProgress";
+  public static final java.lang.String GEOSPATIALPROGRESS = "geospatialProgress";
   private com.runwaysdk.business.Struct geospatialProgress = null;
   
-  public static java.lang.String GEOSPATIALREFERENCESYSTEM = "geospatialReferenceSystem";
-  public static java.lang.String GEOSPATIALREPORTSPECIFICATION = "geospatialReportSpecification";
-  public static java.lang.String GEOSPATIALSCALERESOLUTION = "geospatialScaleResolution";
-  public static java.lang.String GEOSPATIALSPATIALREPRESENTATION = "geospatialSpatialRepresentation";
-  public static java.lang.String GEOSPATIALTELEPHONENUMBER = "geospatialTelephoneNumber";
-  public static java.lang.String GEOSPATIALTOPICCATEGORIES = "geospatialTopicCategories";
-  public static java.lang.String GEOSPATIALUPDATEFREQUENCY = "geospatialUpdateFrequency";
-  public static java.lang.String GEOSPATIALUSECONSTRAINTS = "geospatialUseConstraints";
+  public static final java.lang.String GEOSPATIALREFERENCESYSTEM = "geospatialReferenceSystem";
+  public static final java.lang.String GEOSPATIALREPORTSPECIFICATION = "geospatialReportSpecification";
+  public static final java.lang.String GEOSPATIALSCALERESOLUTION = "geospatialScaleResolution";
+  public static final java.lang.String GEOSPATIALSPATIALREPRESENTATION = "geospatialSpatialRepresentation";
+  public static final java.lang.String GEOSPATIALTELEPHONENUMBER = "geospatialTelephoneNumber";
+  public static final java.lang.String GEOSPATIALTOPICCATEGORIES = "geospatialTopicCategories";
+  public static final java.lang.String GEOSPATIALUPDATEFREQUENCY = "geospatialUpdateFrequency";
+  public static final java.lang.String GEOSPATIALUSECONSTRAINTS = "geospatialUseConstraints";
   private com.runwaysdk.business.Struct geospatialUseConstraints = null;
   
-  public static java.lang.String HIERARCHIES = "hierarchies";
-  public static java.lang.String INCLUDELATLONG = "includeLatLong";
-  public static java.lang.String KEYNAME = "keyName";
-  public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
-  public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
-  public static java.lang.String LISTACCESSCONSTRAINTS = "listAccessConstraints";
+  public static final java.lang.String HIERARCHIES = "hierarchies";
+  public static final java.lang.String INCLUDELATLONG = "includeLatLong";
+  public static final java.lang.String KEYNAME = "keyName";
+  public static final java.lang.String LASTUPDATEDATE = "lastUpdateDate";
+  public static final java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
+  public static final java.lang.String LISTACCESSCONSTRAINTS = "listAccessConstraints";
   private com.runwaysdk.business.Struct listAccessConstraints = null;
   
-  public static java.lang.String LISTACKNOWLEDGEMENTS = "listAcknowledgements";
+  public static final java.lang.String LISTACKNOWLEDGEMENTS = "listAcknowledgements";
   private com.runwaysdk.business.Struct listAcknowledgements = null;
   
-  public static java.lang.String LISTCOLLECTIONDATE = "listCollectionDate";
-  public static java.lang.String LISTCONTACTNAME = "listContactName";
-  public static java.lang.String LISTDESCRIPTION = "listDescription";
+  public static final java.lang.String LISTCOLLECTIONDATE = "listCollectionDate";
+  public static final java.lang.String LISTCONTACTNAME = "listContactName";
+  public static final java.lang.String LISTDESCRIPTION = "listDescription";
   private com.runwaysdk.business.Struct listDescription = null;
   
-  public static java.lang.String LISTDISCLAIMER = "listDisclaimer";
+  public static final java.lang.String LISTDISCLAIMER = "listDisclaimer";
   private com.runwaysdk.business.Struct listDisclaimer = null;
   
-  public static java.lang.String LISTEMAIL = "listEmail";
-  public static java.lang.String LISTLABEL = "listLabel";
+  public static final java.lang.String LISTEMAIL = "listEmail";
+  public static final java.lang.String LISTLABEL = "listLabel";
   private com.runwaysdk.business.Struct listLabel = null;
   
-  public static java.lang.String LISTORGANIZATION = "listOrganization";
-  public static java.lang.String LISTORIGINATOR = "listOriginator";
-  public static java.lang.String LISTPROCESS = "listProcess";
+  public static final java.lang.String LISTORGANIZATION = "listOrganization";
+  public static final java.lang.String LISTORIGINATOR = "listOriginator";
+  public static final java.lang.String LISTPROCESS = "listProcess";
   private com.runwaysdk.business.Struct listProcess = null;
   
-  public static java.lang.String LISTPROGRESS = "listProgress";
+  public static final java.lang.String LISTPROGRESS = "listProgress";
   private com.runwaysdk.business.Struct listProgress = null;
   
-  public static java.lang.String LISTTELEPHONENUMBER = "listTelephoneNumber";
-  public static java.lang.String LISTUSECONSTRAINTS = "listUseConstraints";
+  public static final java.lang.String LISTTELEPHONENUMBER = "listTelephoneNumber";
+  public static final java.lang.String LISTUSECONSTRAINTS = "listUseConstraints";
   private com.runwaysdk.business.Struct listUseConstraints = null;
   
-  public static java.lang.String LOCKEDBY = "lockedBy";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String ORGANIZATION = "organization";
-  public static java.lang.String OWNER = "owner";
-  public static java.lang.String SEQ = "seq";
-  public static java.lang.String SITEMASTER = "siteMaster";
-  public static java.lang.String SUBTYPEHIERARCHIES = "subtypeHierarchies";
-  public static java.lang.String TYPE = "type";
-  public static java.lang.String UNIVERSAL = "universal";
-  public static java.lang.String VALID = "valid";
+  public static final java.lang.String LOCKEDBY = "lockedBy";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String ORGANIZATION = "organization";
+  public static final java.lang.String OWNER = "owner";
+  public static final java.lang.String SEQ = "seq";
+  public static final java.lang.String SITEMASTER = "siteMaster";
+  public static final java.lang.String SUBTYPEHIERARCHIES = "subtypeHierarchies";
+  public static final java.lang.String TYPE = "type";
+  public static final java.lang.String UNIVERSAL = "universal";
+  public static final java.lang.String VALID = "valid";
   @SuppressWarnings("unused")
   private static final long serialVersionUID = 1768105755;
   

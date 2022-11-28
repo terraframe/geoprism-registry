@@ -145,14 +145,19 @@
                               <span style="display: block;"> {{job.fileName}} </span>
                               <span style="display: block;"> {{job.createDate}} </span>
                               <span style="display: block;"> {{formatJobStatus(job)}} </span>
-                              <span *ngIf="job.exception != null && job.exception.type != 'java.lang.RuntimeException'"
+                              <span *ngIf="job.exception != null && job.exception.message != '' && job.exception.type != 'java.lang.RuntimeException'"
                                 style="display: block;">
                                 {{job.exception.message}}
+                              </span>
+                              <span *ngIf="job.exception == null || job.exception.message == ''"
+                                style="display: block;">
+                                <localize *ngIf="job.status === 'FAILURE'" key="etl.JobStatus.ERROR.description"></localize>
+                                <localize *ngIf="job.status === 'WARNING'" key="etl.JobStatus.WARNING.description"></localize>
                               </span>
                             </p>
 
                             <step-indicator
-                              *ngIf="job.status !== 'SUCCESS' && job.status !== 'FAILURE' && job.status !== 'CANCELED'"
+                              *ngIf="job.status !== 'SUCCESS' && job.status !== 'FAILURE' && job.status !== 'CANCELED' && job.status !== 'WARNING'"
                               [steps]="job.stepConfig"></step-indicator>
 
                           </div>

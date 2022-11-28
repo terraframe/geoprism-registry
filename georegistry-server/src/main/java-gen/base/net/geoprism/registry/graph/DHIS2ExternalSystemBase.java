@@ -29,11 +29,11 @@ package net.geoprism.registry.graph;
 public abstract class DHIS2ExternalSystemBase extends net.geoprism.registry.graph.ExternalSystem
 {
   public final static String CLASS = "net.geoprism.registry.graph.DHIS2ExternalSystem";
-  public static java.lang.String OAUTHSERVER = "oauthServer";
-  public static java.lang.String PASSWORD = "password";
-  public static java.lang.String URL = "url";
-  public static java.lang.String USERNAME = "username";
-  public static java.lang.String VERSION = "version";
+  public static final java.lang.String OAUTHSERVER = "oauthServer";
+  public static final java.lang.String PASSWORD = "password";
+  public static final java.lang.String URL = "url";
+  public static final java.lang.String USERNAME = "username";
+  public static final java.lang.String VERSION = "version";
   private static final long serialVersionUID = -474237016;
   
   public DHIS2ExternalSystemBase()

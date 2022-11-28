@@ -69,10 +69,10 @@ public abstract class DataNotFoundExceptionDTOBase extends com.runwaysdk.busines
     return CLASS;
   }
   
-  public static java.lang.String ATTRIBUTELABEL = "attributeLabel";
-  public static java.lang.String DATAIDENTIFIER = "dataIdentifier";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String TYPELABEL = "typeLabel";
+  public static final java.lang.String ATTRIBUTELABEL = "attributeLabel";
+  public static final java.lang.String DATAIDENTIFIER = "dataIdentifier";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String TYPELABEL = "typeLabel";
   public String getAttributeLabel()
   {
     return getValue(ATTRIBUTELABEL);

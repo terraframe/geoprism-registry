@@ -28,7 +28,7 @@ public abstract class ListTypeHierarchyGroupDTOBase extends net.geoprism.registr
     return CLASS;
   }
   
-  public static java.lang.String HIERARCHY = "hierarchy";
+  public static final java.lang.String HIERARCHY = "hierarchy";
   public net.geoprism.registry.HierarchicalRelationshipTypeDTO getHierarchy()
   {
     if(getValue(HIERARCHY) == null || getValue(HIERARCHY).trim().equals(""))

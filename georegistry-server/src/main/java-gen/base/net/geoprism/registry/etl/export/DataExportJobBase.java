@@ -29,7 +29,7 @@ package net.geoprism.registry.etl.export;
 public abstract class DataExportJobBase extends com.runwaysdk.system.scheduler.ExecutableJob
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.DataExportJob";
-  public static java.lang.String CONFIG = "config";
+  public static final java.lang.String CONFIG = "config";
   private static final long serialVersionUID = -664204398;
   
   public DataExportJobBase()

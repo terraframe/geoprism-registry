@@ -29,8 +29,8 @@ package net.geoprism.registry.geoobjecttype;
 public abstract class PrivateTypeIsReferencedInPublicMasterListsBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.geoobjecttype.PrivateTypeIsReferencedInPublicMasterLists";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String TYPELABEL = "typeLabel";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String TYPELABEL = "typeLabel";
   private static final long serialVersionUID = 1060104771;
   
   public PrivateTypeIsReferencedInPublicMasterListsBase()

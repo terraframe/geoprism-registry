@@ -29,11 +29,11 @@ package net.geoprism.registry.etl;
 public abstract class TermReferenceProblemBase extends net.geoprism.registry.etl.ValidationProblem
 {
   public final static String CLASS = "net.geoprism.registry.etl.TermReferenceProblem";
-  public static java.lang.String ATTRIBUTECODE = "attributeCode";
-  public static java.lang.String ATTRIBUTELABEL = "attributeLabel";
-  public static java.lang.String LABEL = "label";
-  public static java.lang.String MDATTRIBUTE = "mdAttribute";
-  public static java.lang.String PARENTCODE = "parentCode";
+  public static final java.lang.String ATTRIBUTECODE = "attributeCode";
+  public static final java.lang.String ATTRIBUTELABEL = "attributeLabel";
+  public static final java.lang.String LABEL = "label";
+  public static final java.lang.String MDATTRIBUTE = "mdAttribute";
+  public static final java.lang.String PARENTCODE = "parentCode";
   private static final long serialVersionUID = -658120492;
   
   public TermReferenceProblemBase()

@@ -29,7 +29,7 @@ package net.geoprism.registry;
 public abstract class InvalidProjectionExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.InvalidProjectionException";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   @SuppressWarnings("unused")
   private static final long serialVersionUID = -883739947;
   

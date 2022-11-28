@@ -158,7 +158,7 @@ public class ShapefileImporter implements FormatSpecificImporterIF
             }
           });
 
-          if (dbfs.length > 0)
+          if (dbfs != null && dbfs.length > 0)
           {
             return new CloseableDelegateFile(dbfs[0], dir);
           }
@@ -259,7 +259,7 @@ public class ShapefileImporter implements FormatSpecificImporterIF
         throw new UnableToReadProjectionException();
       }
     }
-    
+
     SimpleFeatureCollection featCol = source.getFeatures();
     this.progressListener.setWorkTotal((long) featCol.size());
 

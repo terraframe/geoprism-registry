@@ -620,6 +620,7 @@ public class MasterList extends MasterListBase
         {
           MasterListVersion version = this.getOrCreateVersion(date, MasterListVersion.PUBLISHED);
 
+          // Refresh the users session
           ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
           version.publish();

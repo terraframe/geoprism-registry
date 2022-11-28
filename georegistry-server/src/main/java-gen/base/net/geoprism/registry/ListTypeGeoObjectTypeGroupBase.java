@@ -11,8 +11,8 @@ package net.geoprism.registry;
 public abstract class ListTypeGeoObjectTypeGroupBase extends net.geoprism.registry.ListTypeGroup
 {
   public final static String CLASS = "net.geoprism.registry.ListTypeGeoObjectTypeGroup";
-  public static java.lang.String LEVEL = "level";
-  public static java.lang.String UNIVERSAL = "universal";
+  public static final java.lang.String LEVEL = "level";
+  public static final java.lang.String UNIVERSAL = "universal";
   @SuppressWarnings("unused")
   private static final long serialVersionUID = -1419453990;
   

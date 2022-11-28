@@ -1,0 +1,24 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create></create>
+    <update>
+      <mdException name="net.geoprism.registry.etl.export.dhis2.RequiredValueException"
+                   label="Required Value Exception" 
+                   message="The DHIS2 attribute(s) [{dhis2AttrLabels}] require a value, but one was not mapped. Make sure that the Geo-Object has a label in either your preferred locale, or your default locale at the date [{dateLabel}].">
+        <create>
+          <attributes>
+            <text name="dateLabel" label="Date Label" required="true"/>
+          </attributes>
+        </create>
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.etl.export.dhis2.NoParentException"
+        message="Could not find a parent of Geo-Object Type [{typeCode}] in hierarchy [{hierarchyCode}] at date [{dateLabel}]" >
+      </mdException>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete>
+    </delete>
+  </undoIt>
+</version>

@@ -69,8 +69,8 @@ public abstract class DuplicateHierarchyTypeExceptionDTOBase extends com.runways
     return CLASS;
   }
   
-  public static java.lang.String DUPLICATEVALUE = "duplicateValue";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String DUPLICATEVALUE = "duplicateValue";
+  public static final java.lang.String OID = "oid";
   public String getDuplicateValue()
   {
     return getValue(DUPLICATEVALUE);

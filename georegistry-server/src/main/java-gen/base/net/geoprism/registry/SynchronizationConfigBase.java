@@ -29,27 +29,27 @@ package net.geoprism.registry;
 public abstract class SynchronizationConfigBase extends com.runwaysdk.business.Business
 {
   public final static String CLASS = "net.geoprism.registry.SynchronizationConfig";
-  public static java.lang.String CONFIGURATION = "configuration";
-  public static java.lang.String CREATEDATE = "createDate";
-  public static java.lang.String CREATEDBY = "createdBy";
-  public static java.lang.String ENTITYDOMAIN = "entityDomain";
-  public static java.lang.String HIERARCHY = "hierarchy";
-  public static java.lang.String ISIMPORT = "isImport";
-  public static java.lang.String KEYNAME = "keyName";
-  public static java.lang.String LABEL = "label";
+  public static final java.lang.String CONFIGURATION = "configuration";
+  public static final java.lang.String CREATEDATE = "createDate";
+  public static final java.lang.String CREATEDBY = "createdBy";
+  public static final java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static final java.lang.String HIERARCHY = "hierarchy";
+  public static final java.lang.String ISIMPORT = "isImport";
+  public static final java.lang.String KEYNAME = "keyName";
+  public static final java.lang.String LABEL = "label";
   private com.runwaysdk.business.Struct label = null;
   
-  public static java.lang.String LASTSYNCHDATE = "lastSynchDate";
-  public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
-  public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
-  public static java.lang.String LOCKEDBY = "lockedBy";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String ORGANIZATION = "organization";
-  public static java.lang.String OWNER = "owner";
-  public static java.lang.String SEQ = "seq";
-  public static java.lang.String SITEMASTER = "siteMaster";
-  public static java.lang.String SYSTEM = "system";
-  public static java.lang.String TYPE = "type";
+  public static final java.lang.String LASTSYNCHDATE = "lastSynchDate";
+  public static final java.lang.String LASTUPDATEDATE = "lastUpdateDate";
+  public static final java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
+  public static final java.lang.String LOCKEDBY = "lockedBy";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String ORGANIZATION = "organization";
+  public static final java.lang.String OWNER = "owner";
+  public static final java.lang.String SEQ = "seq";
+  public static final java.lang.String SITEMASTER = "siteMaster";
+  public static final java.lang.String SYSTEM = "system";
+  public static final java.lang.String TYPE = "type";
   private static final long serialVersionUID = -2053968632;
   
   public SynchronizationConfigBase()

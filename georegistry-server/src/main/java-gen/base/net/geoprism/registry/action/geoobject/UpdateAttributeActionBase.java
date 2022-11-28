@@ -29,8 +29,8 @@ package net.geoprism.registry.action.geoobject;
 public abstract class UpdateAttributeActionBase extends net.geoprism.registry.action.AbstractAction
 {
   public final static String CLASS = "net.geoprism.registry.action.geoobject.UpdateAttributeAction";
-  public static java.lang.String ATTRIBUTENAME = "attributeName";
-  public static java.lang.String JSON = "json";
+  public static final java.lang.String ATTRIBUTENAME = "attributeName";
+  public static final java.lang.String JSON = "json";
   private static final long serialVersionUID = 1405163012;
   
   public UpdateAttributeActionBase()

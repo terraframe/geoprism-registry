@@ -29,8 +29,8 @@ package net.geoprism.registry.etl;
 public abstract class UnresolvableResourceExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.UnresolvableResourceException";
-  public static java.lang.String IDENTIFIER = "identifier";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String IDENTIFIER = "identifier";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = 62279983;
   
   public UnresolvableResourceExceptionBase()

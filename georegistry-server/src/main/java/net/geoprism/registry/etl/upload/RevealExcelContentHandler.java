@@ -4,19 +4,22 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
+
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.poi.ss.util.CellReference;
 import org.slf4j.Logger;
@@ -38,24 +41,24 @@ import net.geoprism.registry.io.InvalidGeometryException;
 
 public class RevealExcelContentHandler extends ExcelContentHandler
 {
-  private static Logger        logger = LoggerFactory.getLogger(RevealExcelContentHandler.class);
-  
+  private static Logger logger      = LoggerFactory.getLogger(RevealExcelContentHandler.class);
+
   private StringBuilder geometry;
-  
-  private String geometryType;
-  
-  private Integer geometryColumnStart;
-  
-  private Integer colNum;
-  
-  private Boolean hasGeometry = true;
-  
-  private String revealGeometryColumn;
+
+  private String        geometryType;
+
+  private Integer       geometryColumnStart;
+
+  private Integer       colNum;
+
+  private Boolean       hasGeometry = true;
+
+  private String        revealGeometryColumn;
 
   public RevealExcelContentHandler(ObjectImporterIF objectImporter, ImportStage stage, Long startIndex, String revealGeometryColumn)
   {
     super(objectImporter, stage, startIndex);
-    
+
     this.revealGeometryColumn = revealGeometryColumn;
   }
 
@@ -63,7 +66,7 @@ public class RevealExcelContentHandler extends ExcelContentHandler
   public void startRow(int rowNum)
   {
     super.startRow(rowNum);
-    
+
     if (this.isFirstSheet)
     {
       this.geometry = new StringBuilder();
@@ -74,31 +77,33 @@ public class RevealExcelContentHandler extends ExcelContentHandler
   public void endRow()
   {
     super.endRow();
-    
+
     if (this.rowNum == 0)
     {
       if (this.revealGeometryColumn == null || this.revealGeometryColumn.length() == 0 || !this.map.containsValue(this.revealGeometryColumn))
       {
         this.hasGeometry = false;
       }
-      
+
       this.geometryColumnStart = colNum;
-      
-      for (Integer itCol : this.map.keySet())
+
+      Set<Entry<Integer, String>> entrySet = this.map.entrySet();
+
+      for (Entry<Integer, String> itCol : entrySet)
       {
-        String attrName = this.map.get(itCol);
-        
+        String attrName = itCol.getValue();
+
         if (attrName.equals(this.revealGeometryColumn))
         {
-          if (!this.geometryColumnStart.equals(itCol))
+          if (!this.geometryColumnStart.equals(itCol.getKey()))
           {
             throw new InvalidGeometryException("Geometry column must be at the end of the spreadsheet.");
           }
-          
+
           break;
         }
       }
-      
+
       if (!this.map.get(this.colNum - 1).equals("type"))
       {
         throw new InvalidGeometryException("Expected column header 'type' at column index [" + String.valueOf(this.colNum - 1) + "].");
@@ -110,10 +115,10 @@ public class RevealExcelContentHandler extends ExcelContentHandler
   public void cell(String cellReference, String contentValue, String formattedValue, ColumnType cellType)
   {
     super.cell(cellReference, contentValue, formattedValue, cellType);
-    
+
     final CellReference reference = new CellReference(cellReference);
-    this.colNum = new Integer(reference.getCol());
-    
+    this.colNum = Integer.valueOf(reference.getCol());
+
     if (this.isFirstSheet)
     {
       try
@@ -122,11 +127,11 @@ public class RevealExcelContentHandler extends ExcelContentHandler
         {
           if (this.colNum >= this.geometryColumnStart)
           {
-            if (this.colNum == geometryColumnStart && !contentValue.startsWith("["))
+            if (this.colNum.equals(geometryColumnStart) && !contentValue.startsWith("["))
             {
               this.hasGeometry = false;
             }
-            
+
             if (cellType.equals(ColumnType.TEXT) || cellType.equals(ColumnType.INLINE_STRING))
             {
               geometry.append(contentValue);
@@ -152,48 +157,49 @@ public class RevealExcelContentHandler extends ExcelContentHandler
       }
     }
   }
-  
+
   public Geometry getGeometry()
   {
     if (!this.hasGeometry)
     {
       return null;
     }
-    
+
     try
     {
       String sCoordinates = this.geometry.toString();
-      
+
       if (sCoordinates.endsWith(","))
       {
-        sCoordinates = sCoordinates.substring(0, sCoordinates.length()-1);
+        sCoordinates = sCoordinates.substring(0, sCoordinates.length() - 1);
       }
-      
+
       // remove newlines and spaces
-      sCoordinates = sCoordinates.replace("\n", "").replace("\r", "").replaceAll("\\s+","");
-      
+      sCoordinates = sCoordinates.replace("\n", "").replace("\r", "").replaceAll("\\s+", "");
+
       JsonArray joCoordinates = JsonParser.parseString(sCoordinates).getAsJsonArray();
-      
-      // TODO : Not sure if we want to keep this polygon -> multipolygon conversion code
+
+      // TODO : Not sure if we want to keep this polygon -> multipolygon
+      // conversion code
       if (this.geometryType.toUpperCase().equals("POLYGON"))
       {
         this.geometryType = "MultiPolygon";
-        
+
         JsonArray joCoordinates2 = new JsonArray();
         joCoordinates2.add(joCoordinates);
         joCoordinates = joCoordinates2;
       }
-      
+
       JsonObject joGeometry = new JsonObject();
       {
         joGeometry.add("coordinates", joCoordinates);
-        
+
         joGeometry.addProperty("type", this.geometryType);
       }
-      
+
       GeoJSONReader reader = new GeoJSONReader();
       Geometry jtsGeom = reader.read(joGeometry.toString());
-      
+
       return jtsGeom;
     }
     catch (Throwable t)

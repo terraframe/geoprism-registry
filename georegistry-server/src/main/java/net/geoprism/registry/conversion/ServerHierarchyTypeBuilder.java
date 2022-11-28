@@ -71,7 +71,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
 
     Organization organization = Organization.getByCode(hierarchyType.getOrganizationCode());
 
-    String addons = new String(RegistryConstants.UNIVERSAL_RELATIONSHIP_POST + "AllPathsTable");
+    String addons = RegistryConstants.UNIVERSAL_RELATIONSHIP_POST + "AllPathsTable";
 
     if (hierarchyType.getCode().length() > ( 64 - addons.length() ))
     {

@@ -29,8 +29,8 @@ package net.geoprism.registry;
 public abstract class DuplicateGeoObjectTypeExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.DuplicateGeoObjectTypeException";
-  public static java.lang.String DUPLICATEVALUE = "duplicateValue";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String DUPLICATEVALUE = "duplicateValue";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -1155109122;
   
   public DuplicateGeoObjectTypeExceptionBase()

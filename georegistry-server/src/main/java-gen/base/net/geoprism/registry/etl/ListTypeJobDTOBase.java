@@ -45,7 +45,7 @@ public abstract class ListTypeJobDTOBase extends com.runwaysdk.system.scheduler.
     return CLASS;
   }
   
-  public static java.lang.String LISTTYPE = "listType";
+  public static final java.lang.String LISTTYPE = "listType";
   public boolean isListTypeWritable()
   {
     return isWritable(LISTTYPE);

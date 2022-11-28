@@ -219,8 +219,17 @@ public class TableMetadata
 
     private LocalizedValueIF  label;
 
+    private int               rowspan = 1;
+
     public Attribute(MdAttribute mdAttribute)
     {
+      this.mdAttribute = (MdAttributeDAOIF) BusinessFacade.getEntityDAO(mdAttribute);
+      this.label = mdAttribute.getDisplayLabel();
+    }
+
+    public Attribute(MdAttribute mdAttribute, int rowspan)
+    {
+      this.rowspan = rowspan;
       this.mdAttribute = (MdAttributeDAOIF) BusinessFacade.getEntityDAO(mdAttribute);
       this.label = mdAttribute.getDisplayLabel();
     }
@@ -228,6 +237,13 @@ public class TableMetadata
     public Attribute(MdAttributeDAOIF mdAttribute)
     {
       this.mdAttribute = mdAttribute;
+      this.label = new LocalizedValueContainer(LocalizedValueConverter.convert(mdAttribute.getDisplayLabels()));
+    }
+
+    public Attribute(MdAttributeDAOIF mdAttribute, int rowspan)
+    {
+      this.mdAttribute = mdAttribute;
+      this.rowspan = rowspan;
       this.label = new LocalizedValueContainer(LocalizedValueConverter.convert(mdAttribute.getDisplayLabels()));
     }
 
@@ -295,10 +311,20 @@ public class TableMetadata
       this.label = label;
     }
 
+    public int getRowspan()
+    {
+      return rowspan;
+    }
+
+    public void setRowspan(int rowspan)
+    {
+      this.rowspan = rowspan;
+    }
+
     @Override
     public void create(ListTypeVersion version, ListTypeGroup parent)
     {
-      ListTypeAttribute.create(parent, this.mdAttribute, this.locale, this.label);
+      ListTypeAttribute.create(parent, this.mdAttribute, this.locale, this.label, this.rowspan);
     }
   }
 
@@ -307,8 +333,6 @@ public class TableMetadata
   private List<Group> groups;
 
   private TypeGroup   root;
-
-  private HolderGroup holder;
 
   public TableMetadata()
   {
@@ -320,7 +344,6 @@ public class TableMetadata
     this.mdBusiness = mdBusiness;
     this.groups = new LinkedList<Group>();
     this.root = new TypeGroup(type);
-    this.holder = this.root.addChild(new HolderGroup());
 
     this.groups.add(this.root);
   }
@@ -343,11 +366,6 @@ public class TableMetadata
   public TypeGroup getRoot()
   {
     return root;
-  }
-
-  public HolderGroup getHolder()
-  {
-    return holder;
   }
 
   public HierarchyGroup addRootHierarchyGroup(ServerHierarchyType hierarchy)

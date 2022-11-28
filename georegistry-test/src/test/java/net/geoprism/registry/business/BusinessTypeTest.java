@@ -464,7 +464,7 @@ public class BusinessTypeTest
 
     try
     {
-      JsonObject json = type.toJSON(true);
+      JsonObject json = type.toJSON(true, false);
 
       Assert.assertEquals(type.getCode(), json.get("code").getAsString());
       Assert.assertTrue(json.has("attributes"));

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -55,6 +55,7 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.attributes.AttributeClassification;
 import com.runwaysdk.dataaccess.graph.attributes.ClassificationValidationException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -137,8 +138,8 @@ public class GeoObjectImporter implements ObjectImporterIF
   protected ServerGeoObjectService         service;
 
   protected Map<String, ServerGeoObjectIF> parentCache;
-  
-  protected ClassifierCache classifierCache = new ClassifierCache();
+
+  protected ClassifierCache                classifierCache            = new ClassifierCache();
 
   protected static final String            parentConcatToken          = "&";
 
@@ -165,7 +166,8 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       private static final long serialVersionUID = 1L;
 
-      public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
+      public boolean removeEldestEntry(@SuppressWarnings("rawtypes")
+      Map.Entry eldest)
       {
         return size() > MAX_ENTRIES;
       }
@@ -215,15 +217,15 @@ public class GeoObjectImporter implements ObjectImporterIF
           ServerParentTreeNode tnParent = new ServerParentTreeNode(parent, hierarchy, GeoObjectImporter.this.configuration.getStartDate(), GeoObjectImporter.this.configuration.getEndDate(), null);
 
           ServerParentTreeNodeOverTime grandParentsOverTime = parent.getParentsOverTime(null, true);
-          
+
           if (grandParentsOverTime != null && grandParentsOverTime.hasEntries(hierarchy))
           {
             List<ServerParentTreeNode> entries = grandParentsOverTime.getEntries(hierarchy);
-            
+
             if (entries != null && entries.size() > 0)
             {
               ServerParentTreeNode ptn = grandParentsOverTime.getEntries(hierarchy).get(0);
-              
+
               tnParent.addParent(ptn);
             }
           }
@@ -357,7 +359,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             }
           }
 
-          GeoObjectOverTime go = ((VertexServerGeoObject) entity).toGeoObjectOverTime(false, this.classifierCache);
+          GeoObjectOverTime go = ( (VertexServerGeoObject) entity ).toGeoObjectOverTime(false, this.classifierCache);
           go.toJSON().toString();
 
           if (this.configuration.isExternalImport())
@@ -431,7 +433,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       try
       {
         boolean imported = this.importRowInTrans(row, data);
-        
+
         if (imported)
         {
           this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
@@ -453,7 +455,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       this.recordError(e);
     }
-    
+
     this.progressListener.setRowNumber(this.progressListener.getRowNumber() + 1);
 
     if (Thread.interrupted())
@@ -483,7 +485,7 @@ public class GeoObjectImporter implements ObjectImporterIF
   public boolean importRowInTrans(FeatureRow row, RowData data)
   {
     boolean imported = false;
-    
+
     // Refresh the session because it might expire on long imports
     final long curRowNum = this.progressListener.getRowNumber();
     if ( ( this.lastImportSessionRefresh + GeoObjectImporter.refreshSessionRecordCount ) < curRowNum)
@@ -576,27 +578,32 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           serverGo.setUid(ServiceFactory.getIdService().getUids(1)[0]);
         }
-        
+
         // Set exists first so we can validate attributes on it
-//        ShapefileFunction existsFunction = this.configuration.getFunction(DefaultAttribute.EXISTS.getName());
-//        
-//        if (existsFunction != null)
-//        {
-//          Object value = existsFunction.getValue(row);
-//          
-//          if (value != null && !this.isEmptyString(value))
-//          {
-//            this.setValue(serverGo, this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(), DefaultAttribute.EXISTS.getName(), value);
-//          }
-//        }
-//        else if (isNew)
-//        {
-//          ValueOverTime defaultExists = ((VertexServerGeoObject) serverGo).buildDefaultExists();
-//          if (defaultExists != null)
-//          {
-//            serverGo.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE, defaultExists.getStartDate(), defaultExists.getEndDate());
-//          }
-//        }
+        // ShapefileFunction existsFunction =
+        // this.configuration.getFunction(DefaultAttribute.EXISTS.getName());
+        //
+        // if (existsFunction != null)
+        // {
+        // Object value = existsFunction.getValue(row);
+        //
+        // if (value != null && !this.isEmptyString(value))
+        // {
+        // this.setValue(serverGo,
+        // this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(),
+        // DefaultAttribute.EXISTS.getName(), value);
+        // }
+        // }
+        // else if (isNew)
+        // {
+        // ValueOverTime defaultExists = ((VertexServerGeoObject)
+        // serverGo).buildDefaultExists();
+        // if (defaultExists != null)
+        // {
+        // serverGo.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE,
+        // defaultExists.getStartDate(), defaultExists.getEndDate());
+        // }
+        // }
         this.setValue(serverGo, this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(), DefaultAttribute.EXISTS.getName(), true);
 
         Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
@@ -618,32 +625,38 @@ public class GeoObjectImporter implements ObjectImporterIF
 
               if (value != null && !this.isEmptyString(value))
               {
-//                if (!(existsFunction == null && isNew))
-//                {
-//                  try
-//                  {
-//                    ((VertexServerGeoObject) serverGo).enforceAttributeSetWithinRange(serverGo.getDisplayLabel().getValue(), attributeName, this.configuration.getStartDate(), this.configuration.getEndDate());
-//                  }
-//                  catch (ValueOutOfRangeException e)
-//                  {
-//                    final SimpleDateFormat format = ValueOverTimeDTO.getTimeFormatter();
-//                    
-//                    ImportOutOfRangeException ex = new ImportOutOfRangeException();
-//                    ex.setStartDate(format.format(this.configuration.getStartDate()));
-//                    
-//                    if (ValueOverTime.INFINITY_END_DATE.equals(this.configuration.getEndDate()))
-//                    {
-//                      ex.setEndDate(LocalizationFacade.localize("changeovertime.present"));
-//                    }
-//                    else
-//                    {
-//                      ex.setEndDate(format.format(this.configuration.getEndDate()));
-//                    }
-//                    
-//                    throw ex;
-//                  }
-//                }
-                
+                // if (!(existsFunction == null && isNew))
+                // {
+                // try
+                // {
+                // ((VertexServerGeoObject)
+                // serverGo).enforceAttributeSetWithinRange(serverGo.getDisplayLabel().getValue(),
+                // attributeName, this.configuration.getStartDate(),
+                // this.configuration.getEndDate());
+                // }
+                // catch (ValueOutOfRangeException e)
+                // {
+                // final SimpleDateFormat format =
+                // ValueOverTimeDTO.getTimeFormatter();
+                //
+                // ImportOutOfRangeException ex = new
+                // ImportOutOfRangeException();
+                // ex.setStartDate(format.format(this.configuration.getStartDate()));
+                //
+                // if
+                // (ValueOverTime.INFINITY_END_DATE.equals(this.configuration.getEndDate()))
+                // {
+                // ex.setEndDate(LocalizationFacade.localize("changeovertime.present"));
+                // }
+                // else
+                // {
+                // ex.setEndDate(format.format(this.configuration.getEndDate()));
+                // }
+                //
+                // throw ex;
+                // }
+                // }
+
                 this.setValue(serverGo, attributeType, attributeName, value);
               }
               else if (this.configuration.getCopyBlank())
@@ -654,7 +667,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
         }
 
-        go = ((VertexServerGeoObject) serverGo).toGeoObjectOverTime(false, this.classifierCache);
+        go = ( (VertexServerGeoObject) serverGo ).toGeoObjectOverTime(false, this.classifierCache);
         goJson = go.toJSON().toString();
 
         /*
@@ -680,9 +693,9 @@ public class GeoObjectImporter implements ObjectImporterIF
         data.setGoJson(goJson);
         data.setNew(isNew);
         data.setParentBuilder(parentBuilder);
-        
+
         serverGo.apply(true);
-        
+
         imported = true;
       }
       finally
@@ -710,9 +723,10 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
         else
         {
-          // If we're a new object, we can speed things up quite a bit here by just directly applying the edge object since the addChild method
-          //   does a lot of unnecessary validation.
-          ((VertexServerGeoObject) serverGo).addParentRaw(((VertexServerGeoObject)parent).getVertex(), this.configuration.getHierarchy().getMdEdge(), this.configuration.getStartDate(), this.configuration.getEndDate());
+          // If we're a new object, we can speed things up quite a bit here by
+          // just directly applying the edge object since the addChild method
+          // does a lot of unnecessary validation.
+          ( (VertexServerGeoObject) serverGo ).addParentRaw( ( (VertexServerGeoObject) parent ).getVertex(), this.configuration.getHierarchy().getMdEdge(), this.configuration.getStartDate(), this.configuration.getEndDate());
         }
       }
       else if (isNew)
@@ -749,7 +763,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       buildRecordException(goJson, isNew, parentBuilder, t);
     }
-    
+
     return imported;
   }
 
@@ -1120,13 +1134,18 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           mdAttribute = (MdAttributeClassificationDAOIF) type.getSuperType().getMdBusinessDAO().definesAttribute(attributeName);
         }
-        
+
+        if (mdAttribute == null)
+        {
+          throw new ProgrammingErrorException("Unable to find mdAttribute: " + attributeName);
+        }
+
         VertexObject classifier = this.classifierCache.getClassifier(mdAttribute.getMdClassificationDAOIF().definesType(), value.toString().trim());
 
         if (classifier == null)
         {
           classifier = AbstractClassification.findMatchingClassification(value.toString().trim(), mdAttribute);
-          
+
           if (classifier != null)
           {
             this.classifierCache.putClassifier(mdAttribute.getMdClassificationDAOIF().definesType(), classifier.getObjectValue("code"), classifier);
@@ -1136,30 +1155,35 @@ public class GeoObjectImporter implements ObjectImporterIF
         if (classifier == null)
         {
           throw new UnknownTermException(value.toString().trim(), attributeType);
-//          Term rootClassification = ( (AttributeClassificationType) attributeType ).getRootTerm();
-//
-//          TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootClassification.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
-//          trp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
-//          trp.setHistoryId(this.configuration.getHistoryId());
-//
-//          this.progressListener.addReferenceProblem(trp);
+          // Term rootClassification = ( (AttributeClassificationType)
+          // attributeType ).getRootTerm();
+          //
+          // TermReferenceProblem trp = new
+          // TermReferenceProblem(value.toString(),
+          // rootClassification.getCode(), mdAttribute.getOid(), attributeName,
+          // attributeType.getLabel().getValue());
+          // trp.addAffectedRowNumber(this.progressListener.getWorkProgress() +
+          // 1);
+          // trp.setHistoryId(this.configuration.getHistoryId());
+          //
+          // this.progressListener.addReferenceProblem(trp);
         }
         else
         {
-          AttributeClassification attrClass = ((AttributeClassification) ((VertexServerGeoObject) entity).getVertex().getGraphObjectDAO().getAttribute(attributeName));
+          AttributeClassification attrClass = ( (AttributeClassification) ( (VertexServerGeoObject) entity ).getVertex().getGraphObjectDAO().getAttribute(attributeName) );
           Boolean validationResult = this.classifierCache.getClassifierAttributeValidation(mdAttribute.getOid(), classifier);
-          
+
           if (validationResult == null)
           {
             validationResult = attrClass.validateRid(classifier.getRID(), false);
-            
+
             this.classifierCache.putClassifierAttributeValidation(mdAttribute.getOid(), classifier, validationResult);
           }
-          
+
           if (Boolean.TRUE.equals(validationResult))
           {
             attrClass.setSkipValidation(true);
-            
+
             try
             {
               attrClass.setValue(classifier, startDate, endDate);
@@ -1222,7 +1246,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
       else if (value instanceof String)
       {
-        entity.setValue(attributeName, new Long((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
+        entity.setValue(attributeName, Long.valueOf((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
       }
       else if (value instanceof Number)
       {
@@ -1262,10 +1286,6 @@ public class GeoObjectImporter implements ObjectImporterIF
       {
         entity.setValue(attributeName, value.toString(), this.configuration.getStartDate(), this.configuration.getEndDate());
       }
-    }
-    else if (attributeType instanceof AttributeBooleanType)
-    {
-      entity.setValue(attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
     }
     else
     {

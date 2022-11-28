@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from "@angular/core";
-import { ListData, ListTypeVersion } from "@registry/model/list-type";
-import { GenericTableColumn, GenericTableConfig, GenericTableGroup, TableEvent } from "@shared/model/generic-table";
+import { ListColumn, ListData, ListTypeVersion } from "@registry/model/list-type";
+import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
 import { BsModalService } from "ngx-bootstrap/modal";
 import { LazyLoadEvent } from "primeng/api";
 import { ListTypeService } from "@registry/service/list-type.service";
@@ -13,6 +13,7 @@ import { ExportFormatModalComponent } from "../list-type/export-format-modal.com
 import { GeoRegistryConfiguration } from "@core/model/registry";
 import { OverlayerIdentifier } from "@registry/model/constants";
 import { NgxSpinnerService } from "ngx-spinner";
+import Utils from "@registry/utility/Utils";
 
 declare let registry: GeoRegistryConfiguration;
 
@@ -31,8 +32,8 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
 
     @Output() error: EventEmitter<HttpErrorResponse> = new EventEmitter<HttpErrorResponse>();
 
-    @Output() onRowSelect: EventEmitter<{ version: string, uid: string }> = new EventEmitter<{
-        version: string,
+    @Output() onRowSelect: EventEmitter<{ version: ListTypeVersion, uid: string }> = new EventEmitter<{
+        version: ListTypeVersion,
         uid: string
     }>();
 
@@ -48,8 +49,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
     userOrgCodes: string[];
 
     config: GenericTableConfig = null;
-    groups: GenericTableGroup[][] = null;
-    cols: GenericTableColumn[] = null;
+    setup: TableColumnSetup = null;
 
     showInvalid = false;
 
@@ -104,7 +104,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
                 label: this.list.displayLabel,
                 sort: [{ field: "code", order: 1 }],
                 baseZIndex: 1051,
-                pageSize: 30
+                pageSize: 20
             };
         });
 
@@ -121,7 +121,9 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnDestroy(): void {
-        this.refresh.unsubscribe();
+        if (this.refresh != null) {
+            this.refresh.unsubscribe();
+        }
 
         if (this.progressSubscription != null) {
             this.progressSubscription.unsubscribe();
@@ -133,7 +135,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes["oid"] != null) {
+        if (changes["oid"] != null && this.refresh != null) {
             this.list = null;
 
             this.ngOnDestroy();
@@ -143,71 +145,12 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     refreshColumns(): void {
-        this.cols = [];
-        const orderedArray = [];
-
-        const mainGroups: GenericTableGroup[] = [];
-        const subGroups: GenericTableGroup[] = [];
-
-        if (this.list.isMember || this.list.geospatialMetadata.visibility === "PUBLIC") {
-            this.cols.push({ header: "", type: "ACTIONS", sortable: false });
-
-            mainGroups.push({ label: "", colspan: 1 });
-            subGroups.push({ label: "", colspan: 1 });
-        }
-
-        this.list.attributes.forEach(group => {
-            if (this.showInvalid || group.name !== "invalid") {
-                mainGroups.push({
-                    label: group.label,
-                    colspan: group.colspan
-                });
-
-                group.columns.forEach(subgroup => {
-                    subGroups.push({
-                        label: subgroup.label,
-                        colspan: subgroup.colspan
-                    });
-
-                    subgroup.columns.forEach(attribute => {
-                        orderedArray.push(attribute);
-                    });
-                });
-            }
-        });
-
-        this.groups = [mainGroups, subGroups];
-
-        orderedArray.forEach(attribute => {
-            if (this.showInvalid || attribute.name !== "invalid") {
-                let column: GenericTableColumn = {
-                    header: attribute.label,
-                    field: attribute.name,
-                    type: "TEXT",
-                    sortable: true,
-                    filter: true
-                };
-
-                if (attribute.type === "date") {
-                    column.type = "DATE";
-                } else if (attribute.name === "invalid" || attribute.type === "boolean") {
-                    column.type = "BOOLEAN";
-                } else if (attribute.type === "number") {
-                    column.type = "NUMBER";
-                } else if (attribute.type === "list") {
-                    column.type = "AUTOCOMPLETE";
-                    column.text = "";
-                    column.onComplete = () => {
-                        this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
-                            column.results = options;
-                        }).catch((err: HttpErrorResponse) => {
-                            this.error.emit(err);
-                        });
-                    };
-                }
-
-                this.cols.push(column);
-            }
+        this.setup = Utils.createColumns(this.list, this.showInvalid, false, (attribute, column) => {
+            this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
+                column.results = options;
+            }).catch((err: HttpErrorResponse) => {
+                this.error.emit(err);
+            });
         });
     }
 
@@ -260,7 +203,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
             const result: any = event.row;
 
             this.onRowSelect.next({
-                version: this.list.oid,
+                version: this.list,
                 uid: result.uid
             });
         }

@@ -1,9 +1,9 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit } from "@angular/core";
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild, AfterViewInit, OnChanges, SimpleChanges } from "@angular/core";
 import { FilterMetadata, LazyLoadEvent } from "primeng/api";
 import { Table } from "primeng/table";
 
 import { Subject } from "rxjs";
-import { GenericTableColumn, GenericTableConfig, GenericTableGroup, TableEvent } from "@shared/model/generic-table";
+import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
 import { PageResult } from "@shared/model/core";
 import { LocalizationService } from "@shared/service";
 
@@ -12,7 +12,7 @@ import { LocalizationService } from "@shared/service";
     templateUrl: "./generic-table.component.html",
     styleUrls: ["./generic-table.css"]
 })
-export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
 
     page: PageResult<Object> = {
         resultSet: [],
@@ -21,9 +21,7 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
         pageSize: 30
     };
 
-    @Input() cols: GenericTableColumn[] = [];
-
-    @Input() groups: GenericTableGroup[][] = null;
+    @Input() setup: TableColumnSetup;
 
     @Input() pageConfig: any = null;
 
@@ -60,6 +58,9 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
         ];
     }
 
+    ngOnChanges(changes: SimpleChanges): void {
+    }
+
     ngOnInit(): void {
         if (this.initialState != null) {
             this.first = this.initialState.first != null ? this.initialState.first : 0;
@@ -67,34 +68,9 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
             if (this.initialState.multiSortMeta != null) {
                 this.config.sort = this.initialState.multiSortMeta;
             }
-
-            this.cols.forEach(column => {
-                if (column.filter) {
-                    this.hasFilter = true;
-                }
-
-                if (column.type === "DATE") {
-                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        const dates = this.initialState.filters[column.field].value;
-
-                        column.startDate = dates.startDate;
-                        column.endDate = dates.endDate;
-                    }
-                } else if (column.type === "BOOLEAN") {
-                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        column.value = this.initialState.filters[column.field].value;
-                    }
-                } else if (column.type === "NUMBER") {
-                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        column.value = this.initialState.filters[column.field].value;
-                    }
-                } else if (column.type === "AUTOCOMPLETE") {
-                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
-                        column.text = this.initialState.filters[column.field].value;
-                    }
-                }
-            });
         }
+
+        this.loadColumns();
 
         if (this.refresh != null) {
             this.refresh.subscribe(() => {
@@ -131,6 +107,37 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit {
         if (this.refresh != null) {
             this.refresh.unsubscribe();
         }
+    }
+
+    loadColumns(): void {
+        this.setup.columns.forEach(column => {
+            if (column.headerType === "ATTRIBUTE") {
+                if (column.filter) {
+                    this.hasFilter = true;
+                }
+
+                if (column.type === "DATE") {
+                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
+                        const dates = this.initialState.filters[column.field].value;
+
+                        column.startDate = dates.startDate;
+                        column.endDate = dates.endDate;
+                    }
+                } else if (column.type === "BOOLEAN") {
+                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
+                        column.value = this.initialState.filters[column.field].value;
+                    }
+                } else if (column.type === "NUMBER") {
+                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
+                        column.value = this.initialState.filters[column.field].value;
+                    }
+                } else if (column.type === "AUTOCOMPLETE") {
+                    if (this.initialState != null && this.initialState.filters != null && this.initialState.filters[column.field] != null) {
+                        column.text = this.initialState.filters[column.field].value;
+                    }
+                }
+            }
+        });
     }
 
     onPageChange(event: LazyLoadEvent): void {

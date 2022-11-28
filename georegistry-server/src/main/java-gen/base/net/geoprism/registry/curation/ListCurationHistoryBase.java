@@ -29,7 +29,7 @@ package net.geoprism.registry.curation;
 public abstract class ListCurationHistoryBase extends com.runwaysdk.system.scheduler.JobHistory
 {
   public final static String CLASS = "net.geoprism.registry.curation.ListCurationHistory";
-  public static java.lang.String VERSION = "version";
+  public static final java.lang.String VERSION = "version";
   private static final long serialVersionUID = -757036688;
   
   public ListCurationHistoryBase()

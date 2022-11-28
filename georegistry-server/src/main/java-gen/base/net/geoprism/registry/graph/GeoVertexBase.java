@@ -29,17 +29,17 @@ package net.geoprism.registry.graph;
 public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexObject
 {
   public final static String CLASS = "net.geoprism.registry.graph.GeoVertex";
-  public static java.lang.String CREATEDATE = "createDate";
-  public static java.lang.String GEOLINE = "geoLine";
-  public static java.lang.String GEOMULTILINE = "geoMultiLine";
-  public static java.lang.String GEOMULTIPOINT = "geoMultiPoint";
-  public static java.lang.String GEOMULTIPOLYGON = "geoMultiPolygon";
-  public static java.lang.String GEOPOINT = "geoPoint";
-  public static java.lang.String GEOPOLYGON = "geoPolygon";
-  public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String SEQ = "seq";
-  public static java.lang.String SHAPE = "shape";
+  public static final java.lang.String CREATEDATE = "createDate";
+  public static final java.lang.String GEOLINE = "geoLine";
+  public static final java.lang.String GEOMULTILINE = "geoMultiLine";
+  public static final java.lang.String GEOMULTIPOINT = "geoMultiPoint";
+  public static final java.lang.String GEOMULTIPOLYGON = "geoMultiPolygon";
+  public static final java.lang.String GEOPOINT = "geoPoint";
+  public static final java.lang.String GEOPOLYGON = "geoPolygon";
+  public static final java.lang.String LASTUPDATEDATE = "lastUpdateDate";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String SEQ = "seq";
+  public static final java.lang.String SHAPE = "shape";
   private static final long serialVersionUID = 1794115256;
   
   public GeoVertexBase()

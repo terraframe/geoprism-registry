@@ -29,8 +29,8 @@ package net.geoprism.registry;
 public abstract class DuplicateMasterListExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.DuplicateMasterListException";
-  public static java.lang.String GEOOBJECTTYPE = "geoObjectType";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String GEOOBJECTTYPE = "geoObjectType";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -553709700;
   
   public DuplicateMasterListExceptionBase()

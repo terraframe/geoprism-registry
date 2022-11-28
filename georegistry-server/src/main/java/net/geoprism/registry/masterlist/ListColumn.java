@@ -10,5 +10,12 @@ public interface ListColumn
 
   public int getNumberOfColumns();
 
+  public int getRowspan();
+
   public Set<String> getColumnsIds();
+
+  public String getLabel();
+
+  public String getName();
+
 }

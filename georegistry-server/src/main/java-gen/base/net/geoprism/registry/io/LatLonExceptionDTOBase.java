@@ -69,9 +69,9 @@ public abstract class LatLonExceptionDTOBase extends com.runwaysdk.business.Smar
     return CLASS;
   }
   
-  public static java.lang.String LAT = "lat";
-  public static java.lang.String LON = "lon";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String LAT = "lat";
+  public static final java.lang.String LON = "lon";
+  public static final java.lang.String OID = "oid";
   public String getLat()
   {
     return getValue(LAT);

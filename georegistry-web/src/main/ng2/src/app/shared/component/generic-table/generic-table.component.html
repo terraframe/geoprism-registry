@@ -1,9 +1,8 @@
 <div>
-	<p-table #dt [columns]="cols" [value]="page.resultSet" [autoLayout]="!scrollable" [scrollable]="scrollable"
+	<p-table #dt [columns]="setup.columns" [value]="page.resultSet" [autoLayout]="true" [scrollable]="false"
 		[resizableColumns]="true" sortMode="multiple" styleClass="p-datatable-gridlines" [lazy]="true"
-		(onLazyLoad)="onPageChange($event)" [paginator]="paginator" [totalRecords]="page.count" [first]="first" [rows]="page.pageSize"
-		[loading]="loading" [multiSortMeta]="config.sort != null ? config.sort : []"
-		(onFilter)="handleFilter($event)">
+		(onLazyLoad)="onPageChange($event)" [paginator]="true" [totalRecords]="page.count" [rows]="page.pageSize"
+		[loading]="loading" [multiSortMeta]="config.sort != null ? config.sort : []" (onFilter)="handleFilter($event)">
 
 		<ng-template pTemplate="colgroup" let-columns>
 			<colgroup>
@@ -12,32 +11,41 @@
 		</ng-template>
 
 		<ng-template pTemplate="header" let-columns>
-			<ng-container *ngIf="groups != null">
-				<tr *ngFor="let row of groups">
-					<th *ngFor="let col of row" [attr.colspan]="col.colspan">
-						{{col.label}}
+			<tr *ngFor="let row of setup.headers">
+				<ng-container *ngFor="let col of row">
+					<th *ngIf="col.headerType !== 'ATTRIBUTE'" [attr.colspan]="col.colspan"
+						[attr.rowspan]="col.rowspan">
+						{{col.header}}
 					</th>
-				</tr>	
-			</ng-container>
 
-			<tr>
-				<th *ngFor="let col of columns" [pSortableColumn]="col.field"
-					[ngClass]="{'actions-col' : col.type === 'ACTIONS'}" pResizableColumn>
-					{{col.header}}
-					<p-sortIcon *ngIf="col.sortable" [field]="col.field" ariaLabel="Activate to sort"
-						style="float:right;" ariaLabelDesc="Activate to sort in descending order"
-						ariaLabelAsc="Activate to sort in ascending order">
-					</p-sortIcon>
-				</th>
+					<ng-container *ngIf="col.headerType === 'ATTRIBUTE'">
+						<th *ngIf="col.sortable" [pSortableColumn]="col.field"
+							[ngClass]="{'actions-col' : col.type === 'ACTIONS'}" pResizableColumn
+							[attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan">
+							{{col.header}}
+							<p-sortIcon [field]="col.field" ariaLabel="Activate to sort" style="float:right;"
+								ariaLabelDesc="Activate to sort in descending order"
+								ariaLabelAsc="Activate to sort in ascending order">
+							</p-sortIcon>
+						</th>
+						<th *ngIf="!col.sortable" [ngClass]="{'actions-col' : col.type === 'ACTIONS'}" pResizableColumn
+							[attr.colspan]="col.colspan" [attr.rowspan]="col.rowspan">
+							{{col.header}}
+						</th>
+
+					</ng-container>
+				</ng-container>
 			</tr>
+
+			<!-- Create filter columns -->
 			<tr *ngIf="hasFilter">
 				<th *ngFor="let col of columns" [ngSwitch]="col.type">
 					<ng-container *ngIf="col.filter !== false">
-						<input *ngSwitchCase="'URL'" pInputText type="text" 
+						<input *ngSwitchCase="'URL'" pInputText type="text"
 							(input)="dt.filter($event.target.value, col.field, 'contains')">
-						<input *ngSwitchCase="'TEXT'" pInputText type="text" [(ngModel)]="col.text"
+						<input *ngSwitchCase="'TEXT'" pInputText type="text"
 							(input)="dt.filter($event.target.value, col.field, 'contains')">
-						<input *ngSwitchCase="'NUMBER'" pInputNumber type="number" step="any" [(ngModel)]="col.value"
+						<input *ngSwitchCase="'NUMBER'" pInputNumber type="number" step="any"
 							(input)="dt.filter($event.target.value, col.field, 'equals')">
 						<ng-container *ngSwitchCase="'DATE'">
 							<date-field [(value)]="col.startDate" [classNames]="'search-input'"
@@ -55,12 +63,11 @@
 						<p-autoComplete *ngSwitchCase="'AUTOCOMPLETE'" appendTo="body" [(ngModel)]="col.text"
 							[suggestions]="col.results" (completeMethod)="onComplete(col, $event)"
 							(onSelect)="dt.filter(col.text, col.field, 'equals')"
-							(onClear)="dt.filter(col.text, col.field, 'equals')"
-							[baseZIndex]="config.baseZIndex">
+							(onClear)="dt.filter(col.text, col.field, 'equals')">
 						</p-autoComplete>
-						<p-dropdown *ngSwitchCase="'BOOLEAN'" appendTo="body" [options]="booleanOptions" [(ngModel)]="col.value"
+						<p-dropdown *ngSwitchCase="'BOOLEAN'" appendTo="body" [options]="booleanOptions"
 							(onChange)="dt.filter($event.value.value, col.field, 'equals')" optionLabel="label"
-							optionValue="value" [virtualScroll]="true" [baseZIndex]="config.baseZIndex" [name]="col.field + '-input'"></p-dropdown>
+							optionValue="value" [virtualScroll]="true"></p-dropdown>
 					</ng-container>
 				</th>
 			</tr>
@@ -111,7 +118,6 @@
 		<!-- 			</p-button> -->
 		<!-- 		</ng-template> -->
 	</p-table>
-
 
 	<div style="width:100%;text-align:right;">
 		<button *ngIf="config.create" (click)="onClick('create', null, null)" style="margin: 10px 0 0;"

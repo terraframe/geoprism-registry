@@ -29,8 +29,8 @@ package net.geoprism.registry.etl.export.dhis2;
 public abstract class MissingDHIS2TermOrgUnitGroupMappingBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.export.dhis2.MissingDHIS2TermOrgUnitGroupMapping";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String TERMCODE = "termCode";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String TERMCODE = "termCode";
   private static final long serialVersionUID = -551054095;
   
   public MissingDHIS2TermOrgUnitGroupMappingBase()

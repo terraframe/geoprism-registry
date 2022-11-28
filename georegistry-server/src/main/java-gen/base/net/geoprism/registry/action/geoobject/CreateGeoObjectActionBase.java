@@ -29,8 +29,8 @@ package net.geoprism.registry.action.geoobject;
 public abstract class CreateGeoObjectActionBase extends net.geoprism.registry.action.AbstractAction
 {
   public final static String CLASS = "net.geoprism.registry.action.geoobject.CreateGeoObjectAction";
-  public static java.lang.String GEOOBJECTJSON = "geoObjectJson";
-  public static java.lang.String PARENTJSON = "parentJson";
+  public static final java.lang.String GEOOBJECTJSON = "geoObjectJson";
+  public static final java.lang.String PARENTJSON = "parentJson";
   private static final long serialVersionUID = 2104958592;
   
   public CreateGeoObjectActionBase()

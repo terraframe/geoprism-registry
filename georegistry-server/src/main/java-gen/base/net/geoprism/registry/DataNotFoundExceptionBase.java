@@ -29,10 +29,10 @@ package net.geoprism.registry;
 public abstract class DataNotFoundExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.DataNotFoundException";
-  public static java.lang.String ATTRIBUTELABEL = "attributeLabel";
-  public static java.lang.String DATAIDENTIFIER = "dataIdentifier";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String TYPELABEL = "typeLabel";
+  public static final java.lang.String ATTRIBUTELABEL = "attributeLabel";
+  public static final java.lang.String DATAIDENTIFIER = "dataIdentifier";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String TYPELABEL = "typeLabel";
   private static final long serialVersionUID = -1172561813;
   
   public DataNotFoundExceptionBase()

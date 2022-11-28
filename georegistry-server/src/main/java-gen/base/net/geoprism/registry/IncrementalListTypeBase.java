@@ -29,8 +29,8 @@ package net.geoprism.registry;
 public abstract class IncrementalListTypeBase extends net.geoprism.registry.ListType
 {
   public final static String CLASS = "net.geoprism.registry.IncrementalListType";
-  public static java.lang.String FREQUENCY = "frequency";
-  public static java.lang.String PUBLISHINGSTARTDATE = "publishingStartDate";
+  public static final java.lang.String FREQUENCY = "frequency";
+  public static final java.lang.String PUBLISHINGSTARTDATE = "publishingStartDate";
   private static final long serialVersionUID = -1683520924;
   
   public IncrementalListTypeBase()

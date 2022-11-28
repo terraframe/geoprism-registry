@@ -69,8 +69,8 @@ public abstract class CodeLengthExceptionDTOBase extends com.runwaysdk.business.
     return CLASS;
   }
   
-  public static java.lang.String LENGTH = "length";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String LENGTH = "length";
+  public static final java.lang.String OID = "oid";
   public Integer getLength()
   {
     return com.runwaysdk.constants.MdAttributeIntegerUtil.getTypeSafeValue(getValue(LENGTH));

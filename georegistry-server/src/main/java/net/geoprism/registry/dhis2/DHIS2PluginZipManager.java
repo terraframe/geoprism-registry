@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.dhis2;
 
@@ -51,38 +51,38 @@ import net.geoprism.registry.GeoregistryProperties;
  */
 public class DHIS2PluginZipManager
 {
-  private static final String REPLACE_FILENAME = "index.html";
-  
-  private static final String REPLACE_TOKEN = "REPLACE_WITH_URL";
-  
-  private static final String PLUGIN_ZIP_NAME = "CGR-DHIS2-Plugin.zip";
-  
-  private static final Logger logger = LoggerFactory.getLogger(DHIS2PluginZipManager.class);
+  private static final String          REPLACE_FILENAME = "index.html";
+
+  private static final String          REPLACE_TOKEN    = "REPLACE_WITH_URL";
+
+  private static final String          PLUGIN_ZIP_NAME  = "CGR-DHIS2-Plugin.zip";
+
+  private static final Logger          logger           = LoggerFactory.getLogger(DHIS2PluginZipManager.class);
 
   private static DHIS2PluginZipManager instance;
-  
-  private File pluginZip = null;
-  
+
+  private File                         pluginZip        = null;
+
   public static void main(String[] args)
   {
     DHIS2PluginZipManager.getPluginZip();
   }
-  
+
   synchronized public static DHIS2PluginZipManager getInstance()
   {
     if (instance == null)
     {
       instance = new DHIS2PluginZipManager();
     }
-    
+
     return instance;
   }
-  
+
   public static File getPluginZip()
   {
     return DHIS2PluginZipManager.getInstance().iGetPluginZip();
   }
-  
+
   public File iGetPluginZip()
   {
     if (pluginZip != null && pluginZip.exists())
@@ -92,76 +92,79 @@ public class DHIS2PluginZipManager
     else
     {
       pluginZip = new File(GeoprismProperties.getGeoprismFileStorage() + "/" + PLUGIN_ZIP_NAME);
-      
+
       if (pluginZip.exists())
       {
         FileUtils.deleteQuietly(pluginZip);
       }
-      
+
       try (CloseableFile directory = extractAndReplace())
       {
         zipDirectory(directory, pluginZip);
       }
-      
+
       return pluginZip;
     }
   }
-  
+
   private CloseableFile extractAndReplace()
   {
     // create a buffer to improve copy performance later.
     byte[] buffer = new byte[2048];
 
     CloseableFile directory = GeoprismProperties.newTempDirectory();
-    try
+    try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("cgr-dhis2-app.zip"))
     {
-      InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("cgr-dhis2-app.zip");
 
-      ZipInputStream zstream = new ZipInputStream(is);
-
-      ZipEntry entry;
-
-      while ( ( entry = zstream.getNextEntry() ) != null)
+      try (ZipInputStream zstream = new ZipInputStream(is))
       {
-        File file = new File(directory, entry.getName());
+        ZipEntry entry;
 
-        logger.info("Writing to [" + file.getAbsolutePath() + "].");
-
-        if (!entry.isDirectory())
+        while ( ( entry = zstream.getNextEntry() ) != null)
         {
-          FileOutputStream output = null;
+          File file = new File(directory, entry.getName());
 
-          try
+          logger.info("Writing to [" + file.getAbsolutePath() + "].");
+
+          if (!entry.isDirectory())
           {
-            output = new FileOutputStream(file);
+            FileOutputStream output = null;
 
-            int len = 0;
-
-            while ( ( len = zstream.read(buffer) ) > 0)
+            try
             {
-              output.write(buffer, 0, len);
+              output = new FileOutputStream(file);
+
+              int len = 0;
+
+              while ( ( len = zstream.read(buffer) ) > 0)
+              {
+                output.write(buffer, 0, len);
+              }
+            }
+            finally
+            {
+              if (output != null)
+              {
+                output.close();
+              }
+            }
+
+            if (file.getName().equals(REPLACE_FILENAME))
+            {
+              String indexHtml = FileUtils.readFileToString(file, "UTF-8");
+
+              indexHtml = indexHtml.replace(REPLACE_TOKEN, GeoregistryProperties.getRemoteServerUrl());
+
+              FileUtils.writeStringToFile(file, indexHtml, Charset.forName("UTF-8"));
             }
           }
-          finally
+          else
           {
-            if (output != null)
+            if (!file.mkdir())
             {
-              output.close();
+              logger.debug("Unable to create directory: " + file.getAbsolutePath());
             }
           }
-          
-          if (file.getName().equals(REPLACE_FILENAME))
-          {
-            String indexHtml = FileUtils.readFileToString(file, "UTF-8");
-            
-            indexHtml = indexHtml.replace(REPLACE_TOKEN, GeoregistryProperties.getRemoteServerUrl());
-            
-            FileUtils.writeStringToFile(file, indexHtml, Charset.forName("UTF-8"));
-          }
-        }
-        else
-        {
-          file.mkdir();
         }
       }
     }
@@ -169,36 +172,46 @@ public class DHIS2PluginZipManager
     {
       throw new RuntimeException(e1);
     }
-    
+
     return directory;
   }
-  
-  private void zipDirectory(File sourceFolder, File zip) {
+
+  private void zipDirectory(File sourceFolder, File zip)
+  {
     // Creating a ZipOutputStream by wrapping a FileOutputStream
-    try (FileOutputStream fos = new FileOutputStream(zip); 
-         ZipOutputStream zos = new ZipOutputStream(fos)) {
+    try (FileOutputStream fos = new FileOutputStream(zip); ZipOutputStream zos = new ZipOutputStream(fos))
+    {
       Path sourcePath = sourceFolder.toPath();
       // Walk the tree structure using WalkFileTree method
-      Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>(){
+      Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>()
+      {
         @Override
         // Before visiting the directory create the directory in zip archive
-        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
-          // Don't create dir for root folder as it is already created with .zip name 
-          if(!sourcePath.equals(dir)){
-            zos.putNextEntry(new ZipEntry(sourcePath.relativize(dir).toString() + "/"));                  
-            zos.closeEntry();    
+        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+        {
+          // Don't create dir for root folder as it is already created with .zip
+          // name
+          if (!sourcePath.equals(dir))
+          {
+            zos.putNextEntry(new ZipEntry(sourcePath.relativize(dir).toString() + "/"));
+            zos.closeEntry();
           }
           return FileVisitResult.CONTINUE;
         }
+
         @Override
         // For each visited file add it to zip entry
-        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
+        {
           zos.putNextEntry(new ZipEntry(sourcePath.relativize(file).toString()));
           Files.copy(file, zos);
           zos.closeEntry();
           return FileVisitResult.CONTINUE;
-        }});
-    } catch (IOException e) {
+        }
+      });
+    }
+    catch (IOException e)
+    {
       logger.error("Error occurred while zipping directory [" + sourceFolder.getAbsolutePath() + "].", e);
       throw new RuntimeException(e);
     }

@@ -29,7 +29,7 @@ package net.geoprism.registry;
 public abstract class ObjectHasDataExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.ObjectHasDataException";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -675057674;
   
   public ObjectHasDataExceptionBase()

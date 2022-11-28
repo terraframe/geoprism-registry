@@ -69,9 +69,9 @@ public abstract class AmbiguousParentExceptionDTOBase extends com.runwaysdk.busi
     return CLASS;
   }
   
-  public static java.lang.String CONTEXT = "context";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String PARENTLABEL = "parentLabel";
+  public static final java.lang.String CONTEXT = "context";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String PARENTLABEL = "parentLabel";
   public String getContext()
   {
     return getValue(CONTEXT);

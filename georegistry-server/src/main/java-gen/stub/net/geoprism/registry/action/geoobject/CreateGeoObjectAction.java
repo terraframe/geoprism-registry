@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action.geoobject;
 
@@ -47,11 +47,9 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 {
-  private static final long            serialVersionUID           = 154658500;
-  
-  private static final Logger logger = LoggerFactory.getLogger(CreateGeoObjectAction.class);
+  private static final long   serialVersionUID = 154658500;
 
-  private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
+  private static final Logger logger           = LoggerFactory.getLogger(CreateGeoObjectAction.class);
 
   public CreateGeoObjectAction()
   {
@@ -67,9 +65,9 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 
     ServerGeoObjectService service = new ServerGeoObjectService();
     service.apply(geoObject, true, false);
-    
+
     ServerGeoObjectIF child = service.getGeoObjectByCode(geoObject.getCode(), geoObject.getType().getCode());
-    
+
     ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getParentJson());
 
     child.setParents(ptnOt);
@@ -84,6 +82,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 
     ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
 
+    GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
     geoObjectPermissionService.enforceCanCreateCR(type.getOrganization().getCode(), type);
 
     super.apply();
@@ -114,10 +113,8 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
     super.buildFromJson(joAction);
 
     Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this.getAllRequest().next());
-    
-    if (perms.containsAll(Arrays.asList(
-        ChangeRequestPermissionAction.WRITE_DETAILS
-      )))
+
+    if (perms.containsAll(Arrays.asList(ChangeRequestPermissionAction.WRITE_DETAILS)))
     {
       this.setGeoObjectJson(joAction.getJSONObject(CreateGeoObjectAction.GEOOBJECTJSON).toString());
     }

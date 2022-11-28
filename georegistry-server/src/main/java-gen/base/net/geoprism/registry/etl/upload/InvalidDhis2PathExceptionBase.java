@@ -29,8 +29,8 @@ package net.geoprism.registry.etl.upload;
 public abstract class InvalidDhis2PathExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.etl.upload.InvalidDhis2PathException";
-  public static java.lang.String DHIS2PATH = "dhis2Path";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String DHIS2PATH = "dhis2Path";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = 749648032;
   
   public InvalidDhis2PathExceptionBase()

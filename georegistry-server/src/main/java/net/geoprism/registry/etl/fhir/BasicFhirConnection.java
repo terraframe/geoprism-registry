@@ -74,7 +74,7 @@ public class BasicFhirConnection implements FhirConnection
   }
 
   @Override
-  public void close() throws Exception
+  public void close()
   {
     // this.connection.close();
   }

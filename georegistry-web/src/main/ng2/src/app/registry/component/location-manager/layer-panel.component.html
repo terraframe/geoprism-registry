@@ -18,8 +18,8 @@
     <div *ngIf="list.open" class="list-group">
       <div *ngFor="let version of list.versions">
         <div class="layer-toggle-wrapper">
-			      <a class="fa" style="padding-right: 10px;" [ngClass]='{"fa-minus" : version.layer, "fa-plus" : !version.layer}' [title]="(version.layer ? 'explorer.layerPanel.removeFromLegend' : 'explorer.layerPanel.addToLegend') | localize" (click)="toggleVersionLayer(version, list)"></a>
-			      <boolean-field *ngIf="version.layer" [value]="version.layer.rendered" label="" [disable]="false" (change)="clickToggleLayerRendered(version.layer, list)" style="line-height:0;"></boolean-field>
+			      <a class="fa" style="padding-right: 10px;" [ngClass]='{"fa-minus" : (version.layers != null && version.layers.length > 0), "fa-plus" : (version.layers == null || version.layers.length == 0)}' [title]="(version.layers ? 'explorer.layerPanel.removeFromLegend' : 'explorer.layerPanel.addToLegend') | localize" (click)="toggleVersionLayer(version, list)"></a>
+			      <boolean-field *ngIf="version.layers && version.layers.length > 0" [value]="versionIsRendered(version)" label="" [disable]="false" (change)="clickToggleVersionRendered(version, list)" style="line-height:0;"></boolean-field>
 			  
 			      <div class="label-wrapper">
               		<date-text [date]="version.forDate"></date-text>

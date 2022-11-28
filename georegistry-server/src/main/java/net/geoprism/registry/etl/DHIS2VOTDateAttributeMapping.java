@@ -50,11 +50,12 @@ abstract public class DHIS2VOTDateAttributeMapping extends DHIS2AttributeMapping
   private static final Logger logger = LoggerFactory.getLogger(DHIS2StartDateAttributeMapping.class);
   
   @Override
-  protected void writeAttributeValue(AttributeType attr, String propertyName, Object value, JsonObject json)
+  protected void writeAttributeValue(AttributeType attr, String propertyName, Object value, JsonObject json, DHIS2SyncConfig dhis2Config)
   {
     json.addProperty(propertyName, DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate((Date) value));
   }
   
+  @Override
   protected Object getAttributeValue(VertexServerGeoObject serverGo, Date date, AttributeType attr, ServerGeoObjectType got)
   {
     Date result = null;

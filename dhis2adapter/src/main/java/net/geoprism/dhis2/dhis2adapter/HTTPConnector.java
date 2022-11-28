@@ -45,10 +45,12 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
@@ -56,6 +58,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.auth.BasicScheme;
@@ -193,7 +196,7 @@ public class HTTPConnector implements ConnectorIF
     {
       try (InputStream is = response.getEntity().getContent())
       {
-        String resp = IOUtils.toString(is);
+        String resp = IOUtils.toString(is, "UTF-8");
         
         return new DHIS2Response(resp, response.getStatusLine().getStatusCode());
       }
@@ -217,10 +220,7 @@ public class HTTPConnector implements ConnectorIF
       
       get.addHeader("Accept", "application/json");
       
-      try (CloseableHttpResponse response = client.execute(get, getContext()))
-      {
-        return this.convertResponse(response);
-      }
+      return this.httpRequest(get);
     }
     catch (URISyntaxException | IOException e)
     {
@@ -278,10 +278,7 @@ public class HTTPConnector implements ConnectorIF
       
       post.setEntity(body);
       
-      try (CloseableHttpResponse response = client.execute(post, this.getContext()))
-      {
-        return this.convertResponse(response);
-      }
+      return this.httpRequest(post);
     }
     catch (IOException | URISyntaxException e)
     {
@@ -304,10 +301,7 @@ public class HTTPConnector implements ConnectorIF
       
       put.setEntity(body);
       
-      try (CloseableHttpResponse response = client.execute(put, this.getContext()))
-      {
-        return this.convertResponse(response);
-      }
+      return this.httpRequest(put);
     }
     catch (IOException | URISyntaxException e)
     {
@@ -330,10 +324,7 @@ public class HTTPConnector implements ConnectorIF
       
       patch.setEntity(body);
       
-      try (CloseableHttpResponse response = client.execute(patch, this.getContext()))
-      {
-        return this.convertResponse(response);
-      }
+      return this.httpRequest(patch);
     }
     catch (IOException | URISyntaxException e)
     {
@@ -355,14 +346,43 @@ public class HTTPConnector implements ConnectorIF
       
       delete.addHeader("Content-Type", "application/json");
       
-      try (CloseableHttpResponse response = client.execute(delete, getContext()))
-      {
-        return this.convertResponse(response);
-      }
+      return this.httpRequest(delete);
     }
     catch (URISyntaxException | IOException e)
     {
       throw new HTTPException(e);
+    }
+  }
+  
+  public DHIS2Response httpRequest(HttpRequestBase method) throws InvalidLoginException, ClientProtocolException, IOException, URISyntaxException, BadServerUriException
+  {
+    this.logger.debug("Sending request to " + method.getURI());
+
+    // Execute the method.
+    try (CloseableHttpResponse response = client.execute(method, getContext()))
+    {
+      int statusCode = response.getStatusLine().getStatusCode();
+      
+      // Follow Redirects
+      if (statusCode == HttpStatus.SC_MOVED_TEMPORARILY || statusCode == HttpStatus.SC_MOVED_PERMANENTLY || statusCode == HttpStatus.SC_TEMPORARY_REDIRECT || statusCode == HttpStatus.SC_SEE_OTHER)
+      {
+        String location = response.getFirstHeader("Location") != null ? response.getFirstHeader("Location").getValue() : ""; 
+        
+        if (location.contains("security/login"))
+        {
+          throw new InvalidLoginException("Unable to log in to " + this.getServerUrl());
+        }
+        else if (! "".equals(location))
+        {
+          this.logger.debug("Redirected [" + statusCode + "] to [" + location + "].");
+          
+          method.setURI(new URI(location));
+          method.releaseConnection();
+          return httpRequest(method);
+        }
+      }
+      
+      return this.convertResponse(response);
     }
   }
 }

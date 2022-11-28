@@ -38,6 +38,7 @@ import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
+import net.geoprism.registry.dhis2.SynchronizationHistoryProgressScribe;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.etl.FhirSyncExportConfig;
@@ -118,7 +119,8 @@ public class DataExportJob extends DataExportJobBase
       DHIS2FeatureService dhis2FeatureService = new DHIS2FeatureService();
       dhis2FeatureService.setExternalSystemDhis2Version(dhis2, dhis2Config.getSystem());
 
-      new DHIS2SynchronizationManager(dhis2, dhis2Config, history).synchronize();
+      AllJobStatus status = new DHIS2SynchronizationManager(dhis2, dhis2Config, history, new SynchronizationHistoryProgressScribe(history)).synchronize();
+      executionContext.setStatus(status);
     }
     else if (config instanceof FhirSyncExportConfig)
     {

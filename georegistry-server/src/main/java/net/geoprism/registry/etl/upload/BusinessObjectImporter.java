@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -33,11 +33,11 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
@@ -490,7 +490,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
           }
         }
       }
-      
+
       /*
        * Try to get the parent and ensure that this row is not ignored. The
        * getParent method will throw a IgnoreRowException if the parent is
@@ -883,7 +883,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
       }
       else if (value instanceof String)
       {
-        entity.setValue(attributeName, new Long((String) value));
+        entity.setValue(attributeName, Long.valueOf((String) value));
       }
       else if (value instanceof Number)
       {
@@ -923,10 +923,6 @@ public class BusinessObjectImporter implements ObjectImporterIF
       {
         entity.setValue(attributeName, value.toString());
       }
-    }
-    else if (attributeType instanceof AttributeBooleanType)
-    {
-      entity.setValue(attributeName, value);
     }
     else
     {

@@ -1,10 +1,8 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
-<!-- 
     <delete>
       <object key="net.geoprism.registry.ListTypeAttributeGroup" type="com.runwaysdk.system.metadata.MdBusiness"></object>
     </delete>
- -->  
   
     <create>
       <mdBusiness name="net.geoprism.registry.ListTypeGroup" label="List Type Hierarchy Group" generateController="false" cacheAlgorithm="nothing">
@@ -12,6 +10,11 @@
           <reference name="version" type="net.geoprism.registry.ListTypeVersion" required="true" label="Version" />
           <localText name="label" required="false" label="label" />          
           <reference name="parent" type="net.geoprism.registry.ListTypeGroup" required="false" label="Parent Group" />          
+        </attributes>
+      </mdBusiness>        
+      <mdBusiness name="net.geoprism.registry.ListTypeAttributeGroup" extends="net.geoprism.registry.ListTypeGroup" label="List Type Hierarchy Group" generateController="false" cacheAlgorithm="nothing">
+        <attributes>
+          <reference name="typeAttribute" type="com.runwaysdk.system.metadata.MdAttribute" required="true" label="Target" />
         </attributes>
       </mdBusiness>        
       <mdBusiness name="net.geoprism.registry.ListTypeHierarchyGroup" extends="net.geoprism.registry.ListTypeGroup" label="List Type Hierarchy Group" generateController="false" cacheAlgorithm="nothing">
@@ -31,6 +34,7 @@
           <reference name="listAttribute" type="com.runwaysdk.system.metadata.MdAttribute" required="true" label="Target" />
           <text name="locale" required="false" label="Locale" />
           <localText name="label" required="false" label="label" />                    
+          <integer name="rowspan" required="false" label="Row span" />                    
         </attributes>
       </mdBusiness>        
     </create>

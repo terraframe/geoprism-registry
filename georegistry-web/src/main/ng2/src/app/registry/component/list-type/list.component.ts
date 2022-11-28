@@ -11,11 +11,11 @@ import { GeoObjectEditorComponent } from "../geoobject-editor/geoobject-editor.c
 
 import { ErrorHandler } from "@shared/component";
 import { AuthService, ProgressService } from "@shared/service";
-import { ListData, ListTypeVersion } from "@registry/model/list-type";
+import { ListColumn, ListData, ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
-import { GenericTableColumn, GenericTableConfig, GenericTableGroup, TableEvent } from "@shared/model/generic-table";
+import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
 import { LngLatBounds } from "mapbox-gl";
 
 import { GeoRegistryConfiguration } from "@core/model/registry";
@@ -23,6 +23,7 @@ import { GeometryService } from "@registry/service/geometry.service";
 import { LocationManagerStateService } from "@registry/service/location-manager.service";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { LocationManagerState } from "../location-manager/location-manager.component";
+import Utils from "@registry/utility/Utils";
 declare let registry: GeoRegistryConfiguration;
 
 @Component({
@@ -45,8 +46,7 @@ export class ListComponent implements OnInit, OnDestroy {
     userOrgCodes: string[];
 
     config: GenericTableConfig = null;
-    groups: GenericTableGroup[][] = null;
-    cols: GenericTableColumn[] = null;
+    setup: TableColumnSetup = null;
     refresh: Subject<void>;
 
     tableState: LazyLoadEvent = null;
@@ -166,106 +166,12 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     refreshColumns(): void {
-        this.cols = [];
-        const orderedArray = [];
-
-        const mainGroups: GenericTableGroup[] = [];
-        const subGroups: GenericTableGroup[] = [];
-
-        if (this.list.isMember || this.list.geospatialMetadata.visibility === "PUBLIC") {
-            this.cols.push({ header: "", type: "ACTIONS", sortable: false });
-
-            mainGroups.push({ label: "", colspan: 1 });
-            subGroups.push({ label: "", colspan: 1 });
-        }
-
-        // //
-        // // Order list columns
-        // // mdAttributes don't currently define the difference between hierarchy or custom attributes.
-        // // This ordering is a best attempt given these constraints.
-        // //
-        // let orderedArray = [];
-        // let code = this.list.attributes.filter(obj => {
-        //     return obj.name === "code";
-        // });
-        // let label = this.list.attributes.filter(obj => {
-        //     return obj.name.includes("displayLabel");
-        // });
-
-        // orderedArray.push(code[0], ...label);
-
-        // let customAttrs = [];
-        // let otherAttrs = [];
-        // this.list.attributes.forEach(attr => {
-        //     if (attr.type === "input" && attr.name !== "latitude" && attr.name !== "longitude") {
-        //         customAttrs.push(attr);
-        //     } else if (attr.name !== "code" && !attr.name.includes("displayLabel") && attr.name !== "latitude" && attr.name !== "longitude") {
-        //         otherAttrs.push(attr);
-        //     }
-        // });
-
-        // orderedArray.push(...customAttrs, ...otherAttrs);
-
-        // let coords = this.list.attributes.filter(obj => {
-        //     return obj.name === "latitude" || obj.name === "longitude";
-        // });
-
-        // if (coords.length === 2) {
-        //     orderedArray.push(...coords);
-        // }
-
-        this.list.attributes.forEach(group => {
-            if (this.showInvalid || group.name !== "invalid") {
-                mainGroups.push({
-                    label: group.label,
-                    colspan: group.colspan
-                });
-
-                group.columns.forEach(subgroup => {
-                    subGroups.push({
-                        label: subgroup.label,
-                        colspan: subgroup.colspan
-                    });
-
-                    subgroup.columns.forEach(attribute => {
-                        orderedArray.push(attribute);
-                    });
-                });
-            }
-        });
-
-        this.groups = [mainGroups, subGroups];
-
-        orderedArray.forEach(attribute => {
-            if (this.showInvalid || attribute.name !== "invalid") {
-                let column: GenericTableColumn = {
-                    header: attribute.label,
-                    field: attribute.name,
-                    type: "TEXT",
-                    sortable: true,
-                    filter: true
-                };
-
-                if (attribute.type === "date") {
-                    column.type = "DATE";
-                } else if (attribute.name === "invalid" || attribute.type === "boolean") {
-                    column.type = "BOOLEAN";
-                } else if (attribute.type === "number") {
-                    column.type = "NUMBER";
-                } else if (attribute.type === "list") {
-                    column.type = "AUTOCOMPLETE";
-                    column.text = "";
-                    column.onComplete = () => {
-                        this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
-                            column.results = options;
-                        }).catch((err: HttpErrorResponse) => {
-                            this.error(err);
-                        });
-                    };
-                }
-
-                this.cols.push(column);
-            }
+        this.setup = Utils.createColumns(this.list, this.showInvalid, false, (attribute, column) => {
+            this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
+                column.results = options;
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
         });
     }
 
@@ -385,9 +291,9 @@ export class ListComponent implements OnInit, OnDestroy {
     onGotoMap(result: any): void {
         let state: LocationManagerState = { pageContext: "DATA" };
 
-        this.locationManagerService.addLayerForList(this.list, state);
-
         if (result == null) {
+            this.locationManagerService.selectListRecord(this.list, null, null, state);
+
             this.service.getBounds(this.list.oid).then(bounds => {
                 if (bounds && Array.isArray(bounds)) {
                     let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
@@ -405,14 +311,14 @@ export class ListComponent implements OnInit, OnDestroy {
         } else {
             this.service.record(this.list.oid, result.uid, false).then(record => {
                 this.cacheService.getTypeCache().waitOnTypes().then(() => {
-                    this.locationManagerService.selectListRecord(this.list.oid, result.uid, record, state);
+                    this.locationManagerService.selectListRecord(this.list, result.uid, record, state);
 
                     if (record.recordType === "GEO_OBJECT") {
                         this.router.navigate(["/registry/location-manager"], {
                             queryParams: state
                         });
                     } else {
-                        this.service.getBounds(this.list.oid).then(bounds => {
+                        this.service.getBounds(this.list.oid, result.uid).then(bounds => {
                             if (bounds && Array.isArray(bounds)) {
                                 let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
                                 const array = llb.toArray();

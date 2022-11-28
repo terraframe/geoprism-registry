@@ -125,7 +125,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     
     GeoprismApplication scheduledJobs = new GeoprismApplication();
     scheduledJobs.setId("scheduledJobs");
-    scheduledJobs.setLabel(new String(LocalizationFacadeDTO.getFromBundles(request, "scheduledjobs.menu")));
+    scheduledJobs.setLabel(LocalizationFacadeDTO.getFromBundles(request, "scheduledjobs.menu"));
     scheduledJobs.setSrc("net/geoprism/images/job-scheduler.svg");
     scheduledJobs.setUrl("cgr/manage#/registry/scheduled-jobs");
     scheduledJobs.setDescription(LocalizationFacadeDTO.getFromBundles(request, "scheduledjobs.menu"));

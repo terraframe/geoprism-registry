@@ -28,7 +28,7 @@ public class DHIS2VersionManager
     OAUTH, SYNCHRONIZATION, PLUGIN
   }
   
-  public class DHIS2Version
+  public static class DHIS2Version
   {
     private SupportedFeature[] supportedFeatures;
     
@@ -51,6 +51,16 @@ public class DHIS2VersionManager
     public void setSupportedFeatures(SupportedFeature[] supportedFeatures)
     {
       this.supportedFeatures = supportedFeatures;
+    }
+    
+    public Integer getApiVersion()
+    {
+      return apiVersion;
+    }
+    
+    public Boolean getSupported()
+    {
+      return supported;
     }
   }
   

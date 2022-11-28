@@ -11,7 +11,7 @@ package net.geoprism.registry;
 public abstract class ListTypeHierarchyGroupBase extends net.geoprism.registry.ListTypeGroup
 {
   public final static String CLASS = "net.geoprism.registry.ListTypeHierarchyGroup";
-  public static java.lang.String HIERARCHY = "hierarchy";
+  public static final java.lang.String HIERARCHY = "hierarchy";
   @SuppressWarnings("unused")
   private static final long serialVersionUID = 1951403726;
   

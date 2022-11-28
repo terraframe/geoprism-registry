@@ -45,6 +45,18 @@ export class ListVersionMetadata {
 
 }
 
+export class ListColumn {
+
+    name?: string;
+    label: string;
+    type?: string;
+    value?: any
+    colspan: number;
+    rowspan: number;
+    columns: ListColumn[];
+
+}
+
 export class ListTypeVersion extends ListVersionMetadata {
 
     displayLabel: string;
@@ -55,21 +67,7 @@ export class ListTypeVersion extends ListVersionMetadata {
     forDate: string;
     createDate: string;
     publishDate: string;
-    attributes: {
-        name?: string,
-        label: string,
-        colspan: number,
-        columns: {
-            label: string,
-            colspan: number,
-            columns: {
-                name: string,
-                label: string,
-                type: string,
-                value?: any
-            }[]
-        }[]
-    }[];
+    attributes: ListColumn[];
 
     isGeometryEditable: boolean;
     geometryType?: string;
@@ -219,7 +217,7 @@ export class ListVersion {
     oid: string;
     forDate: string;
     versionNumber: number;
-    layer?: Layer;
+    layers?: Layer[];
 
 }
 

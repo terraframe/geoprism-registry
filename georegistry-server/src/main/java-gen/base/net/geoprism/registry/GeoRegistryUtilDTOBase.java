@@ -34,7 +34,7 @@ public abstract class GeoRegistryUtilDTOBase extends com.runwaysdk.business.Util
     return CLASS;
   }
   
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   public static final java.lang.String applyClassificationType(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String json)
   {
     String[] _declaredTypes = new String[]{"java.lang.String"};

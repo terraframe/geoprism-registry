@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.graph;
 
@@ -61,19 +61,19 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
   private ServerChildGraphNode getChildren(VertexServerGeoObject source, Boolean recursive, Date date, TreeSet<String> visited, String boundsWKT, Long skip, Long limit)
   {
     ServerChildGraphNode tnRoot = new ServerChildGraphNode(source, this.type, date, null, null);
-    
+
     if (limit != null && limit <= 0)
     {
       return tnRoot;
     }
-    
+
     if (skip != null && recursive)
     {
       throw new UnsupportedOperationException();
     }
 
     List<EdgeObject> edges = this.getEdges(source, date, boundsWKT, "out", skip, limit);
-    
+
     long resultsCount = edges.size();
 
     for (EdgeObject edge : edges)
@@ -92,13 +92,13 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
       {
         ServerChildGraphNode tnParent;
 
-        if (recursive && !visited.contains(target.getUid()) && (limit == null || limit - resultsCount > 0))
+        if (recursive && !visited.contains(target.getUid()) && ( limit == null || limit - resultsCount > 0 ))
         {
           visited.add(target.getUid());
 
-          tnParent = this.getChildren(target, recursive, date, visited, boundsWKT, null, (limit == null ? null : limit - resultsCount));
+          tnParent = this.getChildren(target, recursive, date, visited, boundsWKT, null, ( limit == null ? null : limit - resultsCount ));
           tnParent.setOid(edge.getOid());
-          
+
           resultsCount += tnParent.getChildren().size();
         }
         else
@@ -123,19 +123,19 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
   private ServerParentGraphNode getParents(VertexServerGeoObject source, Boolean recursive, Date date, TreeSet<String> visited, String boundsWKT, Long skip, Long limit)
   {
     ServerParentGraphNode tnRoot = new ServerParentGraphNode(source, this.type, date, null, null);
-    
+
     if (limit != null && limit <= 0)
     {
       return tnRoot;
     }
-    
+
     if (skip != null && recursive)
     {
       throw new UnsupportedOperationException();
     }
 
     List<EdgeObject> edges = this.getEdges(source, date, boundsWKT, "in", skip, limit);
-    
+
     long resultsCount = edges.size();
 
     for (EdgeObject edge : edges)
@@ -154,13 +154,13 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
       {
         ServerParentGraphNode tnParent;
 
-        if (recursive & !visited.contains(target.getUid()) && (limit == null || limit - resultsCount > 0))
+        if (recursive & !visited.contains(target.getUid()) && ( limit == null || limit - resultsCount > 0 ))
         {
           visited.add(target.getUid());
 
-          tnParent = this.getParents(target, recursive, date, visited, boundsWKT, null, (limit == null ? null : limit - resultsCount));
+          tnParent = this.getParents(target, recursive, date, visited, boundsWKT, null, ( limit == null ? null : limit - resultsCount ));
           tnParent.setOid(edge.getOid());
-          
+
           resultsCount += tnParent.getParents().size();
         }
         else
@@ -248,10 +248,10 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
 
   private SortedSet<EdgeObject> setParentCollection(VertexServerGeoObject geoObject, Set<ValueOverTime> votc)
   {
-    SortedSet<EdgeObject> newEdges = new TreeSet<EdgeObject>(new EdgeComparator());
-    SortedSet<EdgeObject> edges = this.getParentEdges(geoObject);
+    SortedSet<EdgeObject> resultEdges = new TreeSet<EdgeObject>(new EdgeComparator());
+    SortedSet<EdgeObject> existingEdges = this.getParentEdges(geoObject);
 
-    for (EdgeObject edge : edges)
+    for (EdgeObject edge : existingEdges)
     {
       final Date startDate = edge.getObjectValue(GeoVertex.START_DATE);
       final Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
@@ -265,7 +265,7 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
 
       for (ValueOverTime vot : votc)
       {
-        if (vot.getOid() == edge.getOid())
+        if (vot.getOid().equals(edge.getOid()))
         {
           inVot = vot;
           break;
@@ -300,19 +300,21 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
           newEdge.setValue(GeoVertex.END_DATE, endDate);
           newEdge.apply();
 
-          newEdges.add(newEdge);
+          resultEdges.add(newEdge);
         }
         else
         {
           boolean hasChanges = false;
+          Date votStartDate = inVot.getStartDate();
+          Date votEndDate = inVot.getEndDate();
 
-          if (startDate != inVot.getStartDate())
+          if (!startDate.equals(votStartDate))
           {
             hasChanges = true;
-            edge.setValue(GeoVertex.START_DATE, startDate);
+            edge.setValue(GeoVertex.START_DATE, votStartDate);
           }
 
-          if (endDate != inVot.getEndDate())
+          if (endDate != votEndDate)
           {
             hasChanges = true;
             edge.setValue(GeoVertex.END_DATE, endDate);
@@ -330,11 +332,13 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
     {
       boolean isNew = true;
 
-      for (EdgeObject edge : edges)
+      for (EdgeObject edge : existingEdges)
       {
-        if (vot.getOid() == edge.getOid())
+        if (vot.getOid().equals(edge.getOid()))
         {
           isNew = false;
+
+          resultEdges.add(edge);
         }
       }
 
@@ -345,11 +349,11 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
         newEdge.setValue(GeoVertex.END_DATE, vot.getEndDate());
         newEdge.apply();
 
-        newEdges.add(newEdge);
+        resultEdges.add(newEdge);
       }
     }
 
-    return newEdges;
+    return resultEdges;
   }
 
   private List<EdgeObject> getEdges(VertexServerGeoObject geoObject, Date date, String boundsWKT, String inOrOut, Long skip, Long limit)
@@ -369,22 +373,22 @@ public class UndirectedGraphStrategy extends AbstractGraphStrategy implements Gr
     }
 
     statement.append(") FROM :rid");
-    
+
     if (boundsWKT != null)
     {
       statement = new StringBuilder(this.wrapQueryWithBounds(statement.toString(), inOrOut, date, boundsWKT, parameters));
     }
-    
+
     if (skip != null)
     {
       statement.append(" SKIP " + skip);
     }
-    
+
     if (limit != null)
     {
       statement.append(" LIMIT " + limit);
     }
-    
+
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
     return query.getResults();

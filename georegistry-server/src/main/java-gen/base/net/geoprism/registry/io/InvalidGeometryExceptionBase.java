@@ -29,8 +29,8 @@ package net.geoprism.registry.io;
 public abstract class InvalidGeometryExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.io.InvalidGeometryException";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String REASON = "reason";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String REASON = "reason";
   private static final long serialVersionUID = 1159166474;
   
   public InvalidGeometryExceptionBase()

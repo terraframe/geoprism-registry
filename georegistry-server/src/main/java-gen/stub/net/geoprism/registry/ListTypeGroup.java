@@ -1,5 +1,6 @@
 package net.geoprism.registry;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -15,8 +16,10 @@ import net.geoprism.registry.masterlist.ListColumn;
 
 public class ListTypeGroup extends ListTypeGroupBase
 {
-  private static class GroupComparator implements Comparator<ListTypeGroup>
+  private static class GroupComparator implements Comparator<ListTypeGroup>, Serializable
   {
+    private static final long serialVersionUID = 1L;
+
     @Override
     public int compare(ListTypeGroup o1, ListTypeGroup o2)
     {

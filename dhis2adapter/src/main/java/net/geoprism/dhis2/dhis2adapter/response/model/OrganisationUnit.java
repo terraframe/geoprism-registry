@@ -25,6 +25,8 @@ import com.google.gson.JsonObject;
 
 public class OrganisationUnit
 {
+  public static final String CLASS = "org.hisp.dhis.organisationunit.OrganisationUnit";
+  
   public static final String NAME = "name";
   
   public static final String SHORT_NAME = "shortName";
@@ -193,7 +195,14 @@ public class OrganisationUnit
 
   public JsonArray getAttributeValues()
   {
-    return attributeValues;
+    if (this.attributeValues == null)
+    {
+      return new JsonArray();
+    }
+    else
+    {
+      return attributeValues;
+    }
   }
 
   public void setAttributeValues(JsonArray attributeValues)
@@ -203,7 +212,14 @@ public class OrganisationUnit
 
   public JsonArray getTranslations()
   {
-    return translations;
+    if (this.translations == null)
+    {
+      return new JsonArray();
+    }
+    else
+    {
+      return translations;
+    }
   }
 
   public void setTranslations(JsonArray translations)

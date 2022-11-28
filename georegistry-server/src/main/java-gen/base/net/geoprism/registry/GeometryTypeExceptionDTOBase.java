@@ -69,9 +69,9 @@ public abstract class GeometryTypeExceptionDTOBase extends com.runwaysdk.busines
     return CLASS;
   }
   
-  public static java.lang.String ACTUALTYPE = "actualType";
-  public static java.lang.String EXPECTEDTYPE = "expectedType";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String ACTUALTYPE = "actualType";
+  public static final java.lang.String EXPECTEDTYPE = "expectedType";
+  public static final java.lang.String OID = "oid";
   public String getActualType()
   {
     return getValue(ACTUALTYPE);

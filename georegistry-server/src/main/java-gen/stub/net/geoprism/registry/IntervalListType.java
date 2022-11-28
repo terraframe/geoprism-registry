@@ -34,9 +34,9 @@ public class IntervalListType extends IntervalListTypeBase
 {
   private static final long serialVersionUID = 1083396269;
 
-  public static String      START_DATE       = "startDate";
+  public static final String      START_DATE       = "startDate";
 
-  public static String      END_DATE         = "endDate";
+  public static final String      END_DATE         = "endDate";
 
   public IntervalListType()
   {

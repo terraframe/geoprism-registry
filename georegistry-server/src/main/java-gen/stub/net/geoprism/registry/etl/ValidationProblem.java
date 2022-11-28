@@ -18,7 +18,8 @@
  */
 package net.geoprism.registry.etl;
 
-import java.util.ArrayList;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -75,14 +76,14 @@ public abstract class ValidationProblem extends ValidationProblemBase implements
 
     if (sRows.length() > 0)
     {
-      ArrayList<String> lRows = new ArrayList<String>();
+      SortedSet<Long> lRows = new TreeSet<Long>();
 
       for (String row : StringUtils.split(sRows, ","))
       {
-        lRows.add(row);
+        lRows.add(Long.valueOf(row));
       }
 
-      lRows.add(String.valueOf(rowNum));
+      lRows.add(Long.valueOf(rowNum));
 
       sRows = StringUtils.join(lRows, ",");
     }

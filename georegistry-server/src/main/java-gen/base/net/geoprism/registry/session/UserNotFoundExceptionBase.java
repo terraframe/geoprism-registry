@@ -29,8 +29,8 @@ package net.geoprism.registry.session;
 public abstract class UserNotFoundExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.session.UserNotFoundException";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String USERNAME = "username";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String USERNAME = "username";
   private static final long serialVersionUID = -1677672245;
   
   public UserNotFoundExceptionBase()

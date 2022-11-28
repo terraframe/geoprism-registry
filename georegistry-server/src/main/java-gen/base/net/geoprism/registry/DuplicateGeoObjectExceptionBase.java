@@ -29,10 +29,10 @@ package net.geoprism.registry;
 public abstract class DuplicateGeoObjectExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.DuplicateGeoObjectException";
-  public static java.lang.String ATTRIBUTENAME = "attributeName";
-  public static java.lang.String GEOOBJECTTYPE = "geoObjectType";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String VALUE = "value";
+  public static final java.lang.String ATTRIBUTENAME = "attributeName";
+  public static final java.lang.String GEOOBJECTTYPE = "geoObjectType";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String VALUE = "value";
   private static final long serialVersionUID = 576784322;
   
   public DuplicateGeoObjectExceptionBase()

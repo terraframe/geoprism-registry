@@ -29,17 +29,17 @@ public abstract class ExternalSystemBase extends com.runwaysdk.business.graph.Ve
 {
   public final static String     CLASS            = "net.geoprism.registry.graph.ExternalSystem";
 
-  public static java.lang.String DESCRIPTION      = "description";
+  public static final java.lang.String DESCRIPTION      = "description";
 
-  public static java.lang.String ID               = "id";
+  public static final java.lang.String ID               = "id";
 
-  public static java.lang.String LABEL            = "label";
+  public static final java.lang.String LABEL            = "label";
 
-  public static java.lang.String OID              = "oid";
+  public static final java.lang.String OID              = "oid";
 
-  public static java.lang.String ORGANIZATION     = "organization";
+  public static final java.lang.String ORGANIZATION     = "organization";
 
-  public static java.lang.String SEQ              = "seq";
+  public static final java.lang.String SEQ              = "seq";
 
   private static final long      serialVersionUID = -1706731812;
 

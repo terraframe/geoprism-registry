@@ -29,9 +29,9 @@ package net.geoprism.registry.roles;
 public abstract class CreateGeoObjectPermissionExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.roles.CreateGeoObjectPermissionException";
-  public static java.lang.String GEOOBJECTTYPE = "geoObjectType";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String ORGANIZATION = "organization";
+  public static final java.lang.String GEOOBJECTTYPE = "geoObjectType";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String ORGANIZATION = "organization";
   private static final long serialVersionUID = 1917783528;
   
   public CreateGeoObjectPermissionExceptionBase()

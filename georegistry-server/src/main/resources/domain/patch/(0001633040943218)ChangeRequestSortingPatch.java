@@ -16,12 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <doIt>
-    <create></create>
-    <update></update>
-  </doIt>
-  <undoIt>
-    <delete></delete>
-  </undoIt>
-</version>
+/**
+ * This file is just a placeholder. The actual source exists in : src/main/java/com/runwaysdk/build/domain
+ */

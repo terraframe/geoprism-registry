@@ -74,7 +74,7 @@ public class UpdateParentView extends UpdateChangeOverTimeAttributeView
         edge.setValue(GeoVertex.END_DATE, ValueOverTime.INFINITY_END_DATE);
       }
       
-      if (startDate.after(endDate))
+      if (endDate != null && startDate.after(endDate))
       {
         throw new InvalidChangeRequestException();
       }

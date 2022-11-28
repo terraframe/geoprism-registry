@@ -61,6 +61,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.resource.ClasspathResource;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.VaultFile;
@@ -422,7 +423,8 @@ abstract public class TestDataSet
   @Request
   public void reloadPermissions()
   {
-    SessionFacade.getSessionForRequest(this.clientRequest.getSessionId()).reloadPermissions();
+    Session session = SessionFacade.getSessionForRequest(this.clientRequest.getSessionId());
+    session.setUser(session.getUser());
   }
 
   public void tearDownInstanceData()

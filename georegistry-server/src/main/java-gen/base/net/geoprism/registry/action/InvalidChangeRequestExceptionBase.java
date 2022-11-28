@@ -29,7 +29,7 @@ package net.geoprism.registry.action;
 public abstract class InvalidChangeRequestExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.action.InvalidChangeRequestException";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = 1468039291;
   
   public InvalidChangeRequestExceptionBase()

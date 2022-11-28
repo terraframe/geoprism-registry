@@ -29,7 +29,7 @@ package net.geoprism.registry.action.geoobject;
 public abstract class UpdateGeoObjectActionBase extends net.geoprism.registry.action.AbstractAction
 {
   public final static String CLASS = "net.geoprism.registry.action.geoobject.UpdateGeoObjectAction";
-  public static java.lang.String GEOOBJECTJSON = "geoObjectJson";
+  public static final java.lang.String GEOOBJECTJSON = "geoObjectJson";
   private static final long serialVersionUID = -1093091462;
   
   public UpdateGeoObjectActionBase()

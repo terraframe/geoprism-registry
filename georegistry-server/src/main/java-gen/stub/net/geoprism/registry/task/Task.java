@@ -64,19 +64,9 @@ public class Task extends TaskBase
       return titleKey;
     }
 
-    public void setTitleKey(String titleKey)
-    {
-      this.titleKey = titleKey;
-    }
-
     public String getTemplateKey()
     {
       return templateKey;
-    }
-
-    public void setMsgKey(String msgKey)
-    {
-      this.templateKey = msgKey;
     }
   }
 
@@ -137,7 +127,7 @@ public class Task extends TaskBase
         LocalizedValue value = values.get(token);
 
         String replacement = value.getValue(locale);
-
+        
         if (replacement == null)
         {
           replacement = "";

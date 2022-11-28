@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -61,7 +61,9 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public class UserInfo extends UserInfoBase
 {
-  private static final long serialVersionUID = 1228611031;
+  private static final long   serialVersionUID = 1228611031;
+
+  private static final Random RANDOM           = new Random();
 
   public UserInfo()
   {
@@ -111,15 +113,16 @@ public class UserInfo extends UserInfoBase
         // restrict by org code
         OrganizationQuery orgQuery = new OrganizationQuery(vQuery);
         OrganizationUserQuery relQuery = new OrganizationUserQuery(vQuery);
-        
+
         vQuery.WHERE(new LeftJoinEq(uQuery.getOid(), relQuery.getChild()));
         vQuery.WHERE(new LeftJoinEq(relQuery.getParent(), orgQuery.getOid()));
-        
+
         Condition cond = null;
-        
+
         for (Organization org : organizations)
         {
-          if (cond == null) {
+          if (cond == null)
+          {
             cond = orgQuery.getCode().EQ(org.getCode());
           }
           else
@@ -127,9 +130,9 @@ public class UserInfo extends UserInfoBase
             cond = cond.OR(orgQuery.getCode().EQ(org.getCode()));
           }
         }
-        
+
         cond = cond.OR(orgQuery.getCode().EQ((String) null));
-        
+
         vQuery.AND(cond);
       }
 
@@ -551,7 +554,7 @@ public class UserInfo extends UserInfoBase
     }
     else if (account.has(UserInfo.EXTERNALSYSTEMOID) && account.get(UserInfo.EXTERNALSYSTEMOID).getAsString().length() > 0)
     {
-      user.setPassword(String.valueOf(new Random().nextLong()));
+      user.setPassword(String.valueOf(RANDOM.nextLong()));
     }
 
     return user;

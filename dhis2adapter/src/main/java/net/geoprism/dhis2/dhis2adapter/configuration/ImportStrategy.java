@@ -16,10 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.dhis2.dhis2adapter.response.model;
+package net.geoprism.dhis2.dhis2adapter.configuration;
 
-public enum MergeMode
+public enum ImportStrategy
 {
-  REPLACE,
-  MERGE;
+  CREATE_AND_UPDATE,
+  CREATE,
+  UPDATE,
+  DELETE;
 }

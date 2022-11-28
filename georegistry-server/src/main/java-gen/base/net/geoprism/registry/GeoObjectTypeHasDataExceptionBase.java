@@ -29,8 +29,8 @@ package net.geoprism.registry;
 public abstract class GeoObjectTypeHasDataExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.GeoObjectTypeHasDataException";
-  public static java.lang.String NAME = "name";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String NAME = "name";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = 1881390402;
   
   public GeoObjectTypeHasDataExceptionBase()

@@ -29,9 +29,9 @@ package net.geoprism.registry.geoobject;
 public abstract class ImportOutOfRangeExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.geoobject.ImportOutOfRangeException";
-  public static java.lang.String ENDDATE = "endDate";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String STARTDATE = "startDate";
+  public static final java.lang.String ENDDATE = "endDate";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String STARTDATE = "startDate";
   private static final long serialVersionUID = 846776347;
   
   public ImportOutOfRangeExceptionBase()

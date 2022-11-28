@@ -29,26 +29,26 @@ package net.geoprism.registry;
 public abstract class BusinessTypeBase extends com.runwaysdk.business.Business
 {
   public final static String CLASS = "net.geoprism.registry.BusinessType";
-  public static java.lang.String CODE = "code";
-  public static java.lang.String CREATEDATE = "createDate";
-  public static java.lang.String CREATEDBY = "createdBy";
-  public static java.lang.String DISPLAYLABEL = "displayLabel";
+  public static final java.lang.String CODE = "code";
+  public static final java.lang.String CREATEDATE = "createDate";
+  public static final java.lang.String CREATEDBY = "createdBy";
+  public static final java.lang.String DISPLAYLABEL = "displayLabel";
   private com.runwaysdk.business.Struct displayLabel = null;
   
-  public static java.lang.String ENTITYDOMAIN = "entityDomain";
-  public static java.lang.String KEYNAME = "keyName";
-  public static java.lang.String LABELATTRIBUTE = "labelAttribute";
-  public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
-  public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
-  public static java.lang.String LOCKEDBY = "lockedBy";
-  public static java.lang.String MDEDGE = "mdEdge";
-  public static java.lang.String MDVERTEX = "mdVertex";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String ORGANIZATION = "organization";
-  public static java.lang.String OWNER = "owner";
-  public static java.lang.String SEQ = "seq";
-  public static java.lang.String SITEMASTER = "siteMaster";
-  public static java.lang.String TYPE = "type";
+  public static final java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static final java.lang.String KEYNAME = "keyName";
+  public static final java.lang.String LABELATTRIBUTE = "labelAttribute";
+  public static final java.lang.String LASTUPDATEDATE = "lastUpdateDate";
+  public static final java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
+  public static final java.lang.String LOCKEDBY = "lockedBy";
+  public static final java.lang.String MDEDGE = "mdEdge";
+  public static final java.lang.String MDVERTEX = "mdVertex";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String ORGANIZATION = "organization";
+  public static final java.lang.String OWNER = "owner";
+  public static final java.lang.String SEQ = "seq";
+  public static final java.lang.String SITEMASTER = "siteMaster";
+  public static final java.lang.String TYPE = "type";
   @SuppressWarnings("unused")
   private static final long serialVersionUID = -743011208;
   

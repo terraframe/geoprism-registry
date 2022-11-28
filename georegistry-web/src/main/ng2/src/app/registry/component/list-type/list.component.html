@@ -142,8 +142,8 @@
         <div class="row">
             <div *ngIf="list" class="col-md-12" style="max-height:calc(100vh - 460px); min-height:calc(100vh - 460px);">
 
-                <ng-container *ngIf="cols != null && config != null">
-                    <generic-table [cols]="cols" [config]="config" [groups]="groups" [refresh]="refresh"
+                <ng-container *ngIf="setup != null && config != null">
+                    <generic-table [setup]="setup" [config]="config" [refresh]="refresh"
                         [pageConfig]="{oid: list.oid, showInvalid: showInvalid}" (click)="onClick($event)"
                         (onLoadEvent)="onLoadEvent($event)" [initialState]="tableState"></generic-table>
                 </ng-container>

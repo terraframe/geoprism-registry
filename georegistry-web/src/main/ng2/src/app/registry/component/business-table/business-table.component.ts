@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 
 import { ActivatedRoute } from "@angular/router";
-import { GenericTableColumn, GenericTableConfig, TableEvent } from "@shared/model/generic-table";
+import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { BusinessType } from "@registry/model/business-type";
 import { LocalizationService } from "@shared/service";
@@ -18,7 +18,7 @@ export class BusinessTableComponent implements OnInit {
     businessType: BusinessType;
 
     config: GenericTableConfig = null;
-    cols: GenericTableColumn[] = [];
+    setup: TableColumnSetup = null;
 
     constructor(private service: BusinessTypeService, private localizationService: LocalizationService, private route: ActivatedRoute) { }
 
@@ -28,7 +28,7 @@ export class BusinessTableComponent implements OnInit {
         this.service.get(oid).then(businessType => {
             this.businessType = businessType;
 
-            this.cols = [];
+            const cols = [];
 
             this.businessType.attributes.forEach(attribute => {
                 let type = "TEXT";
@@ -38,22 +38,19 @@ export class BusinessTableComponent implements OnInit {
                     type = "NUMBER";
                 } else if (attribute.type === "boolean") {
                     type = "BOOLEAN";
-                } else if (attribute.type === "term") {
+                } else if (attribute.type === "term" || attribute.type === "classification") {
                     sortable = false;
                 } else if (attribute.type === "date") {
                     type = "DATE";
                 }
 
-                this.cols.push({ header: attribute.label.localizedValue, field: attribute.code, type: type, sortable: sortable, filter: sortable });
+                cols.push({ header: attribute.label.localizedValue, field: attribute.code, type: type, sortable: sortable, filter: sortable, rowspan: 1, colspan: 1, headerType: "ATTRIBUTE" });
             });
-            // this.cols.push({
-            //     header: this.localizationService.decode("dropdown.select.geoobject.label"),
-            //     field: "geoObject",
-            //     type: "TEXT",
-            //     sortable: true
-            // });
 
-            // this.cols.push({ header: "", type: "ACTIONS", sortable: false });
+            this.setup = {
+                headers: [cols],
+                columns: cols
+            };
 
             this.config = {
                 service: this.service,

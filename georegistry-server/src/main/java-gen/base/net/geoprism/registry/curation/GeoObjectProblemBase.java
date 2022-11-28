@@ -29,9 +29,9 @@ package net.geoprism.registry.curation;
 public abstract class GeoObjectProblemBase extends net.geoprism.registry.curation.CurationProblem
 {
   public final static String CLASS = "net.geoprism.registry.curation.GeoObjectProblem";
-  public static java.lang.String GOCODE = "goCode";
-  public static java.lang.String TYPECODE = "typeCode";
-  public static java.lang.String UID = "uid";
+  public static final java.lang.String GOCODE = "goCode";
+  public static final java.lang.String TYPECODE = "typeCode";
+  public static final java.lang.String UID = "uid";
   private static final long serialVersionUID = -1928968286;
   
   public GeoObjectProblemBase()

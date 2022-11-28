@@ -29,18 +29,18 @@ package net.geoprism.registry.action;
 public abstract class ActionHasDocumentBase extends com.runwaysdk.business.Relationship
 {
   public final static String CLASS = "net.geoprism.registry.action.ActionHasDocument";
-  public static java.lang.String CREATEDATE = "createDate";
-  public static java.lang.String CREATEDBY = "createdBy";
-  public static java.lang.String ENTITYDOMAIN = "entityDomain";
-  public static java.lang.String KEYNAME = "keyName";
-  public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
-  public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
-  public static java.lang.String LOCKEDBY = "lockedBy";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String OWNER = "owner";
-  public static java.lang.String SEQ = "seq";
-  public static java.lang.String SITEMASTER = "siteMaster";
-  public static java.lang.String TYPE = "type";
+  public static final java.lang.String CREATEDATE = "createDate";
+  public static final java.lang.String CREATEDBY = "createdBy";
+  public static final java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static final java.lang.String KEYNAME = "keyName";
+  public static final java.lang.String LASTUPDATEDATE = "lastUpdateDate";
+  public static final java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
+  public static final java.lang.String LOCKEDBY = "lockedBy";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String OWNER = "owner";
+  public static final java.lang.String SEQ = "seq";
+  public static final java.lang.String SITEMASTER = "siteMaster";
+  public static final java.lang.String TYPE = "type";
   private static final long serialVersionUID = 456868318;
   
   public ActionHasDocumentBase(String parentOid, String childOid)

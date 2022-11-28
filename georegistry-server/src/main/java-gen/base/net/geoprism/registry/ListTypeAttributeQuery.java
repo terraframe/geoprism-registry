@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 53393965)
+@com.runwaysdk.business.ClassSignature(hash = -682005200)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -307,6 +307,23 @@ public  class ListTypeAttributeQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.ListTypeAttribute.OWNER, mdAttributeIF, this, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableInteger getRowspan()
+  {
+    return getRowspan(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getRowspan(String alias)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.getComponentQuery().get(net.geoprism.registry.ListTypeAttribute.ROWSPAN, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getRowspan(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.getComponentQuery().get(net.geoprism.registry.ListTypeAttribute.ROWSPAN, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableLong getSeq()
   {
     return getSeq(null);
@@ -483,6 +500,9 @@ public  class ListTypeAttributeQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner();
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias);
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableInteger getRowspan();
+    public com.runwaysdk.query.SelectableInteger getRowspan(String alias);
+    public com.runwaysdk.query.SelectableInteger getRowspan(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableLong getSeq();
     public com.runwaysdk.query.SelectableLong getSeq(String alias);
     public com.runwaysdk.query.SelectableLong getSeq(String alias, String displayLabel);
@@ -748,6 +768,23 @@ public  class ListTypeAttributeQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF)this.get(net.geoprism.registry.ListTypeAttribute.OWNER,  alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableInteger getRowspan()
+  {
+    return getRowspan(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getRowspan(String alias)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.ListTypeAttribute.ROWSPAN, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getRowspan(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.ListTypeAttribute.ROWSPAN, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableLong getSeq()
   {
     return getSeq(null);
@@ -901,6 +938,9 @@ public  class ListTypeAttributeQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner();
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias);
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableInteger getRowspan();
+    public com.runwaysdk.query.SelectableInteger getRowspan(String alias);
+    public com.runwaysdk.query.SelectableInteger getRowspan(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableLong getSeq();
     public com.runwaysdk.query.SelectableLong getSeq(String alias);
     public com.runwaysdk.query.SelectableLong getSeq(String alias, String displayLabel);
@@ -1213,6 +1253,23 @@ public  class ListTypeAttributeQuery extends com.runwaysdk.query.GeneratedBusine
   public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF)this.get(net.geoprism.registry.ListTypeAttribute.OWNER,  alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableInteger getRowspan()
+  {
+    return getRowspan(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getRowspan(String alias)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.ListTypeAttribute.ROWSPAN, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getRowspan(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.ListTypeAttribute.ROWSPAN, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableLong getSeq()

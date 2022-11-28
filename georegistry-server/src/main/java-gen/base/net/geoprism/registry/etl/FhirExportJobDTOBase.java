@@ -45,9 +45,9 @@ public abstract class FhirExportJobDTOBase extends net.geoprism.registry.etl.Mas
     return CLASS;
   }
   
-  public static java.lang.String EXTERNALSYSTEM = "externalSystem";
-  public static java.lang.String IMPLEMENTATION = "implementation";
-  public static java.lang.String VERSION = "version";
+  public static final java.lang.String EXTERNALSYSTEM = "externalSystem";
+  public static final java.lang.String IMPLEMENTATION = "implementation";
+  public static final java.lang.String VERSION = "version";
   public String getImplementation()
   {
     return getValue(IMPLEMENTATION);

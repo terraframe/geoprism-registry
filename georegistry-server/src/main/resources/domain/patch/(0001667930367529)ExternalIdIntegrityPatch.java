@@ -16,12 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.dhis2.dhis2adapter.response.model;
-
-public enum ImportStrategy
-{
-  CREATE_AND_UPDATE,
-  CREATE,
-  UPDATE,
-  DELETE;
-}
+/**
+ * This file is just a placeholder. The actual source exists in : src/main/java/com/runwaysdk/build/domain
+ */

@@ -69,7 +69,7 @@ public abstract class InvalidMasterListExceptionDTOBase extends com.runwaysdk.bu
     return CLASS;
   }
   
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   /**
    * Overrides java.lang.Throwable#getMessage() to retrieve the localized
    * message from the exceptionDTO, instead of from a class variable.

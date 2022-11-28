@@ -52,13 +52,14 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.ImportReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
-import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
+import net.geoprism.registry.dhis2.SynchronizationHistoryProgressScribe;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2OptionSetAttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
@@ -83,17 +84,26 @@ import net.geoprism.registry.test.TestUserInfo;
 @Ignore
 public class RemoteDHIS2APITest
 {
-  public static final String TEST_DATA_KEY = "RemoteDHIS2Test";
+  /*
+   * Which server are we connecting to?
+   */
+  private static final Integer API_VERSION = 39;
   
-  private static final Integer API_VERSION = 38;
-  
-  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".1.1";
+  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".0";
   
   private static final String URL = "https://play.dhis2.org/" + VERSION + "/";
+  
+  /*
+   * Constants that reference expected data in the remote system
+   */
+  public static final String REMOTE_COUNTRY_CODE = "OU_525";
+  
+  public static final String TEST_DATA_KEY = "RemoteDHIS2Test";
   
   private static final String USERNAME = "admin";
   
   private static final String PASSWORD = "district";
+  
   
   protected static RemoteDHIS2Dataset  testData;
   
@@ -227,7 +237,7 @@ public class RemoteDHIS2APITest
   @Request
   private void setRootExternalId() throws Exception
   {
-    OrganisationUnit ou = this.getRemoteOrgUnitByCode("OU_525");
+    OrganisationUnit ou = this.getRemoteOrgUnitByCode(REMOTE_COUNTRY_CODE);
     RemoteDHIS2Dataset.REMOTE_GO_PARENT.getServerObject().createExternalId(this.system, ou.getId(), ImportStrategy.NEW_ONLY);
   }
   
@@ -408,7 +418,7 @@ public class RemoteDHIS2APITest
   {
     // Make sure our prerequsite data exists on the server
     String attrPayload = IOUtils.toString(RemoteDHIS2APITest.class.getClassLoader().getResourceAsStream("remote-dhis2-api-test-attrs.json"), "UTF-8");
-    MetadataImportResponse attrImportResponse = this.dhis2.metadataPost(null, new StringEntity(attrPayload.toString(), Charset.forName("UTF-8")));
+    ImportReportResponse attrImportResponse = this.dhis2.metadataPost(null, new StringEntity(attrPayload.toString(), Charset.forName("UTF-8")));
     Assert.assertTrue(attrImportResponse.isSuccess());
     
     SynchronizationConfig config = createSyncConfig(got, go, attr, externalAttrId);
@@ -420,7 +430,7 @@ public class RemoteDHIS2APITest
     history.addStage(ExportStage.CONNECTING);
     history.apply();
     
-    new DHIS2SynchronizationManager(dhis2, dhis2Config, history).synchronize();
+    new DHIS2SynchronizationManager(dhis2, dhis2Config, history, new SynchronizationHistoryProgressScribe(history)).synchronize();
     
     history = ExportHistory.get(history.getOid());
     

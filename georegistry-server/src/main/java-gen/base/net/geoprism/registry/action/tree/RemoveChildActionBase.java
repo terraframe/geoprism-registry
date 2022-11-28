@@ -29,11 +29,11 @@ package net.geoprism.registry.action.tree;
 public abstract class RemoveChildActionBase extends net.geoprism.registry.action.AbstractAction
 {
   public final static String CLASS = "net.geoprism.registry.action.tree.RemoveChildAction";
-  public static java.lang.String CHILDID = "childId";
-  public static java.lang.String CHILDTYPECODE = "childTypeCode";
-  public static java.lang.String HIERARCHYTYPECODE = "hierarchyTypeCode";
-  public static java.lang.String PARENTID = "parentId";
-  public static java.lang.String PARENTTYPECODE = "parentTypeCode";
+  public static final java.lang.String CHILDID = "childId";
+  public static final java.lang.String CHILDTYPECODE = "childTypeCode";
+  public static final java.lang.String HIERARCHYTYPECODE = "hierarchyTypeCode";
+  public static final java.lang.String PARENTID = "parentId";
+  public static final java.lang.String PARENTTYPECODE = "parentTypeCode";
   private static final long serialVersionUID = 1984558911;
   
   public RemoveChildActionBase()

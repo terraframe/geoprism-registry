@@ -29,8 +29,8 @@ package net.geoprism.registry;
 public abstract class DuplicateHierarchyTypeExceptionBase extends com.runwaysdk.business.SmartException
 {
   public final static String CLASS = "net.geoprism.registry.DuplicateHierarchyTypeException";
-  public static java.lang.String DUPLICATEVALUE = "duplicateValue";
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String DUPLICATEVALUE = "duplicateValue";
+  public static final java.lang.String OID = "oid";
   private static final long serialVersionUID = -25417191;
   
   public DuplicateHierarchyTypeExceptionBase()

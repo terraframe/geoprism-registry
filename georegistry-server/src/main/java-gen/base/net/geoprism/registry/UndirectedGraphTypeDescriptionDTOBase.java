@@ -45,10 +45,10 @@ public abstract class UndirectedGraphTypeDescriptionDTOBase extends com.runwaysd
     return CLASS;
   }
   
-  public static java.lang.String DEFAULTLOCALE = "defaultLocale";
-  public static java.lang.String KEYNAME = "keyName";
-  public static java.lang.String OID = "oid";
-  public static java.lang.String SITEMASTER = "siteMaster";
+  public static final java.lang.String DEFAULTLOCALE = "defaultLocale";
+  public static final java.lang.String KEYNAME = "keyName";
+  public static final java.lang.String OID = "oid";
+  public static final java.lang.String SITEMASTER = "siteMaster";
   public String getKeyName()
   {
     return getValue(KEYNAME);

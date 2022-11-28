@@ -34,7 +34,7 @@ public abstract class RegistryAccountUtilDTOBase extends com.runwaysdk.business.
     return CLASS;
   }
   
-  public static java.lang.String OID = "oid";
+  public static final java.lang.String OID = "oid";
   public static final void initiate(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String invite, java.lang.String serverUrl, java.lang.String roleIds)
   {
     String[] _declaredTypes = new String[]{"java.lang.String", "java.lang.String", "java.lang.String"};

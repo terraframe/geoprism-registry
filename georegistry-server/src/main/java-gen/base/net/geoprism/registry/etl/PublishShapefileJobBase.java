@@ -29,7 +29,7 @@ package net.geoprism.registry.etl;
 public abstract class PublishShapefileJobBase extends net.geoprism.registry.etl.MasterListJob
 {
   public final static String CLASS = "net.geoprism.registry.etl.PublishShapefileJob";
-  public static java.lang.String VERSION = "version";
+  public static final java.lang.String VERSION = "version";
   private static final long serialVersionUID = 1710443656;
   
   public PublishShapefileJobBase()

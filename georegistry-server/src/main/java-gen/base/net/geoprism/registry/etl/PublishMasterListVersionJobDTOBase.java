@@ -45,7 +45,7 @@ public abstract class PublishMasterListVersionJobDTOBase extends net.geoprism.re
     return CLASS;
   }
   
-  public static java.lang.String MASTERLISTVERSION = "masterListVersion";
+  public static final java.lang.String MASTERLISTVERSION = "masterListVersion";
   public net.geoprism.registry.MasterListVersionDTO getMasterListVersion()
   {
     if(getValue(MASTERLISTVERSION) == null || getValue(MASTERLISTVERSION).trim().equals(""))

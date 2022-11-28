@@ -9,7 +9,7 @@ import { ScheduledJob, SynchronizationConfig } from "@registry/model/registry";
 import { PageResult } from "@shared/model/core";
 
 @Component({
-    selector: "job",
+    selector: "sync-details",
     templateUrl: "./details.component.html",
     styleUrls: ["./details.css"]
 })

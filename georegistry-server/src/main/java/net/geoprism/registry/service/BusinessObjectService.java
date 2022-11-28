@@ -52,7 +52,7 @@ public class BusinessObjectService
     BusinessObject object = BusinessObject.getByCode(type, code);
     
     JsonObject response = new JsonObject();
-    response.add("type", type.toJSON(true));
+    response.add("type", type.toJSON(true, false));
     response.add("object", object.toJSON());
     
     return response;
