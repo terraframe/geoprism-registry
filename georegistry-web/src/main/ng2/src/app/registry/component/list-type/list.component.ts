@@ -292,7 +292,7 @@ export class ListComponent implements OnInit, OnDestroy {
         let state: LocationManagerState = { pageContext: "DATA" };
 
         if (result == null) {
-            this.locationManagerService.selectListRecord(this.list, result.uid, null, state);
+            this.locationManagerService.selectListRecord(this.list, null, null, state);
 
             this.service.getBounds(this.list.oid).then(bounds => {
                 if (bounds && Array.isArray(bounds)) {

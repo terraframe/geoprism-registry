@@ -52,11 +52,11 @@ export class LocationManagerStateService {
 
                 this.addLayerForList(version, null, state);
                 zoomLayer = this.addLayerForList(version, { label: label, uid: uid }, state);
+
+                state.date = record.forDate;
             } else {
                 zoomLayer = this.addLayerForList(version, null, state);
             }
-
-            state.date = record.forDate;
 
             this.geomService.zoomOnReady(zoomLayer.getId());
         }
@@ -84,7 +84,7 @@ export class LocationManagerStateService {
         } as GeoObject;
     }
 
-    addLayerForList(version: ListTypeVersion, objectFilter: {label: string, uid: string} = null, state: LocationManagerState = {}): Layer {
+    addLayerForList(version: ListTypeVersion, objectFilter: { label: string, uid: string } = null, state: LocationManagerState = {}): Layer {
         let layers: Layer[] = state.layers == null ? [] : this.geomService.deserializeLayers(state.layers);
         let dataSource = new ListVectorLayerDataSource(this.listTypeService, version.oid);
 
