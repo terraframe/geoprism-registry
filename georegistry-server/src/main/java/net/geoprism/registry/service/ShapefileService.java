@@ -40,11 +40,11 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.springframework.stereotype.Component;
 
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -65,6 +65,7 @@ import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
+@Component
 public class ShapefileService
 {
   @Request(RequestType.SESSION)

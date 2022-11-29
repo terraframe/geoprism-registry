@@ -4,82 +4,146 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.json.JSONException;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.controller.MultipartFileParameter;
-import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.ShapefileService;
 
-@Controller(url = "shapefile")
-public class ShapefileController
+@RestController
+public class ShapefileController extends RunwaySpringController
 {
-  private ShapefileService service;
-
-  public ShapefileController()
+  public static final class GetConfigurationInput
   {
-    this.service = new ShapefileService();
+    @NotEmpty(message = "Import type requires a value")
+    private String        type;
+
+    @JsonDeserialize(using = NullableDateDeserializer.class)
+    private Date          startDate;
+
+    @JsonDeserialize(using = NullableDateDeserializer.class)
+    private Date          endDate;
+
+    @NotNull(message = "Shapefile requires a value")
+    private MultipartFile file;
+
+    @NotEmpty(message = "Import Strategy requires a value")
+    private String        strategy;
+
+    @NotNull(message = "Import blank cells requires a value")
+    private Boolean       copyBlank;
+
+    public String getType()
+    {
+      return type;
+    }
+
+    public void setType(String type)
+    {
+      this.type = type;
+    }
+
+    public Date getStartDate()
+    {
+      return startDate;
+    }
+
+    public void setStartDate(Date startDate)
+    {
+      this.startDate = startDate;
+    }
+
+    public Date getEndDate()
+    {
+      return endDate;
+    }
+
+    public void setEndDate(Date endDate)
+    {
+      this.endDate = endDate;
+    }
+
+    public MultipartFile getFile()
+    {
+      return file;
+    }
+
+    public void setFile(MultipartFile file)
+    {
+      this.file = file;
+    }
+
+    public String getStrategy()
+    {
+      return strategy;
+    }
+
+    public void setStrategy(String strategy)
+    {
+      this.strategy = strategy;
+    }
+
+    public Boolean getCopyBlank()
+    {
+      return copyBlank;
+    }
+
+    public void setCopyBlank(Boolean copyBlank)
+    {
+      this.copyBlank = copyBlank;
+    }
+
   }
 
-  @Endpoint(url = "get-shapefile-configuration", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF getShapefileConfiguration(ClientRequestIF request, 
-      @RequestParamter(name = "type", required = true) String type, 
-      @RequestParamter(name = "startDate") String startDate, 
-      @RequestParamter(name = "endDate") String endDate, 
-      @RequestParamter(name = "file", required = true) MultipartFileParameter file, 
-      @RequestParamter(name = "strategy", required = true) String sStrategy, 
-      @RequestParamter(name = "copyBlank", required = true) Boolean copyBlank) throws IOException, JSONException, ParseException
+  public static final String API_PATH = "shapefile";
+
+  @Autowired
+  private ShapefileService   service;
+
+  @PostMapping(API_PATH + "/get-shapefile-configuration")
+  public ResponseEntity<String> getShapefileConfiguration(@Valid @ModelAttribute GetConfigurationInput input) throws IOException
   {
-    try (InputStream stream = file.getInputStream())
+    String sessionId = this.getSessionId();
+
+    try (InputStream stream = input.file.getInputStream())
     {
-      String fileName = file.getFilename();
+      String fileName = input.file.getOriginalFilename();
 
-      SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+      ImportStrategy strategy = ImportStrategy.valueOf(input.strategy);
 
-      Date sDate = startDate != null ? format.parse(startDate) : null;
-      Date eDate = endDate != null ? format.parse(endDate) : null;
+      JSONObject configuration = service.getShapefileConfiguration(sessionId, input.type, input.startDate, input.endDate, fileName, stream, strategy, input.copyBlank);
 
-      ImportStrategy strategy = ImportStrategy.valueOf(sStrategy);
-
-      JSONObject configuration = service.getShapefileConfiguration(request.getSessionId(), type, sDate, eDate, fileName, stream, strategy, copyBlank);
-
-      // object.add("options", service.getOptions(request.getSessionId()));
-      // object.put("classifiers", new
-      // JSONArray(ClassifierDTO.getCategoryClassifiersAsJSON(request)));
-
-      return new RestBodyResponse(configuration);
+      return new ResponseEntity<String>(configuration.toString(), HttpStatus.OK);
     }
   }
 }

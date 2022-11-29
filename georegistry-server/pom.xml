@@ -44,8 +44,13 @@
         <artifactId>spring-webmvc</artifactId>
         <version>5.2.12.RELEASE</version>
     </dependency>
-        
-  
+    <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-validator -->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>5.4.3.Final</version>
+    </dependency>    
+    
     <!-- The OrientDB Server is using the locationtech jts. Orientdb-Spatial is using vividsolutions jts.
          There is a very specific scenario that can happen, when creating a new index during patching,
          which can cause the orientdb-spatial jar to fetch a transaction from the OrientDB server. When

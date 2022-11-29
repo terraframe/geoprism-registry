@@ -193,7 +193,7 @@ export class DataImporterComponent implements OnInit {
 
         let getUrl = registry.contextPath + "/excel/get-configuration";
         if (this.format === "SHAPEFILE") {
-            getUrl = registry.contextPath + "/shapefile/get-shapefile-configuration";
+            getUrl = registry.contextPath + "/api/shapefile/get-shapefile-configuration";
 
             // this.showImportConfig = true; // show the upload widget if shapefile because external system from shapefile isn't supported
         }
