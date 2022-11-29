@@ -28,7 +28,13 @@ public class ListTypeGroup extends ListTypeGroupBase
       {
         if (o2 instanceof ListTypeGeoObjectTypeGroup)
         {
-          return ( (ListTypeGeoObjectTypeGroup) o1 ).getLevel().compareTo( ( (ListTypeGeoObjectTypeGroup) o2 ).getLevel());
+          ListTypeGeoObjectTypeGroup t1 = (ListTypeGeoObjectTypeGroup) o1;
+          ListTypeGeoObjectTypeGroup t2 = (ListTypeGeoObjectTypeGroup) o2;
+
+          if (t1.getLevel() != null && t2.getLevel() != null)
+          {
+            return t1.getLevel().compareTo(t2.getLevel());
+          }
         }
 
         return -1;

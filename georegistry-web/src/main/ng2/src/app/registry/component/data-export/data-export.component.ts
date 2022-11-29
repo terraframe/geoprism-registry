@@ -85,7 +85,7 @@ export class DataExportComponent implements OnInit {
         if (this.format === "SHAPEFILE") {
             window.location.href = registry.contextPath + "/shapefile/export-shapefile?type=" + this.code + "&hierarchyType=" + this.hierarchy;
         } else if (this.format === "EXCEL") {
-            window.location.href = registry.contextPath + "/excel/export-spreadsheet?type=" + this.code + "&hierarchyType=" + this.hierarchy;
+            window.location.href = registry.contextPath + "/api/excel/export-spreadsheet?type=" + this.code + "&hierarchyType=" + this.hierarchy;
         }
     }
 

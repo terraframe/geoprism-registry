@@ -191,7 +191,7 @@ export class DataImporterComponent implements OnInit {
             this.error(err);
         });
 
-        let getUrl = registry.contextPath + "/excel/get-configuration";
+        let getUrl = registry.contextPath + "/api/excel/get-configuration";
         if (this.format === "SHAPEFILE") {
             getUrl = registry.contextPath + "/api/shapefile/get-shapefile-configuration";
 

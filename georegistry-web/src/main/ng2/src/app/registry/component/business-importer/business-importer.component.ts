@@ -174,7 +174,7 @@ export class BusinessImporterComponent implements OnInit {
             this.error(err);
         });
 
-        let getUrl = registry.contextPath + "/excel/get-business-config";
+        let getUrl = registry.contextPath + "/api/excel/get-business-config";
 
         let options: FileUploaderOptions = {
             queueLimit: 1,
