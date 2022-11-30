@@ -154,10 +154,12 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
         if (changes.readonly && changes.readonly.previousValue !== changes.readonly.currentValue) {
             this.viewModels.forEach(vm => {
                 vm.destroy(this);
+                /*
                 if (vm.objectLayer != null) {
                     this.geomService.removeLayer(vm.objectLayer.getId());
                     vm.objectLayer = null;
                 }
+                */
             });
         }
     }
