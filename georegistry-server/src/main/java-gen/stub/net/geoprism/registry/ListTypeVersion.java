@@ -367,25 +367,12 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       ListTypeGeoObjectTypeGroup root = ListTypeGeoObjectTypeGroup.getRoot(version, type);
 
-      // TODO IS THERE A BETTER WAY TO DETERMINE THE EMPTY HOLDER GROUP
-      ListTypeGroup holder = root.getChildren().stream().filter(p -> {
-        return p.getLabel().getDefaultValue().equals("");
-      }).findFirst().get();
-
-      // Create the Hierarchy Attribute metadata
       List<Group> groups = metadata.getGroups();
       Group typeGroup = groups.get(0);
 
       for (Group group : typeGroup.getChildren())
       {
-        if (group instanceof HolderGroup)
-        {
-          group.getChildren().forEach(g -> g.create(version, holder));
-        }
-        else
-        {
-          group.create(version, root);
-        }
+        group.create(version, root);
       }
     }
 
