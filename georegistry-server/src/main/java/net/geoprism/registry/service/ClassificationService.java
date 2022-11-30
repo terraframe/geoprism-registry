@@ -22,6 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collector;
 
+import org.springframework.stereotype.Component;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
@@ -31,6 +33,7 @@ import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.view.Page;
 
+@Component
 public class ClassificationService
 {
   @Request(RequestType.SESSION)

@@ -4,100 +4,176 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.registry.service.ClassificationService;
 
-@Controller(url = "classification")
-public class ClassificationController
+@RestController
+@Validated
+public class ClassificationController extends RunwaySpringController
 {
+  public static class ApplyInput
+  {
+    @NotEmpty
+    private String     classificationCode;
+
+    @NotNull
+    @JsonDeserialize(using = JsonObjectDeserializer.class)
+    private JsonObject classification;
+
+    @NotNull
+    private Boolean    isNew;
+
+    private String     parentCode;
+
+    public String getClassificationCode()
+    {
+      return classificationCode;
+    }
+
+    public void setClassificationCode(String classificationCode)
+    {
+      this.classificationCode = classificationCode;
+    }
+
+    public String getParentCode()
+    {
+      return parentCode;
+    }
+
+    public void setParentCode(String parentCode)
+    {
+      this.parentCode = parentCode;
+    }
+
+    public JsonObject getClassification()
+    {
+      return classification;
+    }
+
+    public void setClassification(JsonObject classification)
+    {
+      this.classification = classification;
+    }
+
+    public Boolean getIsNew()
+    {
+      return isNew;
+    }
+
+    public void setIsNew(Boolean isNew)
+    {
+      this.isNew = isNew;
+    }
+  }
+
+  public static final String    API_PATH = "classification";
+
+  @Autowired
   private ClassificationService service;
 
-  public ClassificationController()
+  @PostMapping(API_PATH + "/apply")
+  public ResponseEntity<String> apply(@Valid
+  @RequestBody ApplyInput input)
   {
-    this.service = new ClassificationService();
+    JsonObject response = this.service.apply(this.getSessionId(), input.classificationCode, input.parentCode, input.classification, input.isNew);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "parentCode") String parentCode, @RequestParamter(name = "classification") String classification, @RequestParamter(name = "isNew") Boolean isNew)
+  @PostMapping(API_PATH + "/remove")
+  public ResponseEntity<Void> remove(@NotEmpty
+  @RequestParam String classificationCode,
+      @NotEmpty
+      @RequestParam String code)
   {
-    JsonObject object = JsonParser.parseString(classification).getAsJsonObject();
+    this.service.remove(this.getSessionId(), classificationCode, code);
 
-    JsonObject response = this.service.apply(request.getSessionId(), classificationCode, parentCode, object, isNew);
-
-    return new RestBodyResponse(response);
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove")
-  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code)
+  @GetMapping(API_PATH + "/get")
+  public ResponseEntity<String> get(@NotEmpty
+  @RequestParam String classificationCode,
+      @NotEmpty
+      @RequestParam String code)
   {
-    this.service.remove(request.getSessionId(), classificationCode, code);
+    JsonObject response = this.service.get(this.getSessionId(), classificationCode, code);
 
-    return new RestResponse();
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
-  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code)
+  @PostMapping(API_PATH + "/move")
+  public ResponseEntity<Void> move(@NotEmpty
+  @RequestParam String classificationCode,
+      @NotEmpty
+      @RequestParam String code,
+      @NotEmpty
+      @RequestParam String parentCode)
   {
-    JsonObject response = this.service.get(request.getSessionId(), classificationCode, code);
+    this.service.move(this.getSessionId(), classificationCode, code, parentCode);
 
-    return new RestBodyResponse(response);
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "move")
-  public ResponseIF move(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code, @RequestParamter(name = "parentCode") String parentCode)
+  @GetMapping(API_PATH + "/get-children")
+  public ResponseEntity<JsonObject> getChildren(@NotEmpty
+  @RequestParam String classificationCode,
+      @NotEmpty
+      @RequestParam String code, @RequestParam Integer pageSize, @RequestParam Integer pageNumber)
   {
-    this.service.move(request.getSessionId(), classificationCode, code, parentCode);
+    JsonObject page = this.service.getChildren(this.getSessionId(), classificationCode, code, pageSize, pageNumber);
 
-    return new RestResponse();
+    return new ResponseEntity<JsonObject>(page, HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-children")
-  public ResponseIF getChildren(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "code") String code, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
+  @GetMapping(API_PATH + "/get-ancestor-tree")
+  public ResponseEntity<String> getAncestorTree(@NotEmpty
+  @RequestParam String classificationCode, @RequestParam String rootCode,
+      @NotEmpty
+      @RequestParam String code, @RequestParam Integer pageSize)
   {
-    JsonObject page = this.service.getChildren(request.getSessionId(), classificationCode, code, pageSize, pageNumber);
+    JsonObject page = this.service.getAncestorTree(this.getSessionId(), classificationCode, rootCode, code, pageSize);
 
-    return new RestBodyResponse(page);
+    return new ResponseEntity<String>(page.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-ancestor-tree")
-  public ResponseIF getAncestorTree(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "rootCode") String rootCode, @RequestParamter(name = "code") String code, @RequestParamter(name = "pageSize") Integer pageSize)
+  @GetMapping(API_PATH + "/search")
+  public ResponseEntity<String> search(@NotEmpty
+  @RequestParam String classificationCode, @RequestParam String rootCode, @RequestParam String text)
   {
-    JsonObject page = this.service.getAncestorTree(request.getSessionId(), classificationCode, rootCode, code, pageSize);
+    JsonArray results = this.service.search(this.getSessionId(), classificationCode, rootCode, text);
 
-    return new RestBodyResponse(page);
-  }
-
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "search")
-  public ResponseIF search(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode, @RequestParamter(name = "rootCode") String rootCode, @RequestParamter(name = "text") String text)
-  {
-    JsonArray results = this.service.search(request.getSessionId(), classificationCode, rootCode, text);
-
-    return new RestBodyResponse(results);
+    return new ResponseEntity<String>(results.toString(), HttpStatus.OK);
   }
 }
