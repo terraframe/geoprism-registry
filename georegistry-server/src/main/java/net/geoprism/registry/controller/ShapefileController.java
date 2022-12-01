@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.service.ShapefileService;
+import net.geoprism.registry.spring.NullableDateDeserializer;
 
 @RestController
 public class ShapefileController extends RunwaySpringController

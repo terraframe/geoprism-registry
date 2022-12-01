@@ -1,4 +1,4 @@
-package net.geoprism.registry.controller;
+package net.geoprism.registry.spring;
 
 import java.io.IOException;
 import java.text.ParseException;

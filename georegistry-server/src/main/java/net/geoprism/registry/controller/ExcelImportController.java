@@ -48,6 +48,7 @@ import net.geoprism.registry.controller.ShapefileController.GetConfigurationInpu
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.ExcelService;
+import net.geoprism.registry.spring.NullableDateDeserializer;
 
 @RestController
 @Validated

@@ -2,6 +2,7 @@ package net.geoprism.registry;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -11,16 +12,21 @@ import org.springframework.format.datetime.DateFormatterRegistrar;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = { "net.geoprism.registry.controller", "net.geoprism.registry.service" })
+@ComponentScan(basePackages = { "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.spring" })
 public class SpringAppConfig extends WebMvcConfigurationSupport
 {
 
@@ -63,5 +69,14 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
     dateRegistrar.registerFormatters(conversionService);
 
     return conversionService;
+  }
+
+  @Override
+  public void configureMessageConverters(List<HttpMessageConverter<?>> converters)
+  {
+    GsonHttpMessageConverter msgConverter = new GsonHttpMessageConverter();
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    msgConverter.setGson(gson);
+    converters.add(msgConverter);
   }
 }

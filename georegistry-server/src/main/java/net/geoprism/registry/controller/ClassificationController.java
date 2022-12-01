@@ -37,6 +37,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.service.ClassificationService;
+import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController
 @Validated
@@ -147,21 +148,18 @@ public class ClassificationController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-children")
-  public ResponseEntity<JsonObject> getChildren(@NotEmpty
-  @RequestParam String classificationCode,
-      @NotEmpty
-      @RequestParam String code, @RequestParam Integer pageSize, @RequestParam Integer pageNumber)
+  public ResponseEntity<String> getChildren(@NotEmpty @RequestParam String classificationCode, @RequestParam(required = false) String code, @RequestParam(required = false) Integer pageSize, @RequestParam(required = false) Integer pageNumber)
   {
     JsonObject page = this.service.getChildren(this.getSessionId(), classificationCode, code, pageSize, pageNumber);
 
-    return new ResponseEntity<JsonObject>(page, HttpStatus.OK);
+    return new ResponseEntity<String>(page.toString(), HttpStatus.OK);
   }
 
   @GetMapping(API_PATH + "/get-ancestor-tree")
   public ResponseEntity<String> getAncestorTree(@NotEmpty
-  @RequestParam String classificationCode, @RequestParam String rootCode,
+  @RequestParam String classificationCode, @RequestParam(required = false) String rootCode,
       @NotEmpty
-      @RequestParam String code, @RequestParam Integer pageSize)
+      @RequestParam String code, @RequestParam(required = false) Integer pageSize)
   {
     JsonObject page = this.service.getAncestorTree(this.getSessionId(), classificationCode, rootCode, code, pageSize);
 
@@ -170,7 +168,7 @@ public class ClassificationController extends RunwaySpringController
 
   @GetMapping(API_PATH + "/search")
   public ResponseEntity<String> search(@NotEmpty
-  @RequestParam String classificationCode, @RequestParam String rootCode, @RequestParam String text)
+  @RequestParam String classificationCode, @RequestParam(required = false) String rootCode, @RequestParam(required = false) String text)
   {
     JsonArray results = this.service.search(this.getSessionId(), classificationCode, rootCode, text);
 
