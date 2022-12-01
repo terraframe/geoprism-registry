@@ -115,14 +115,14 @@ public class BusinessTypeService
    * @return updated {@link BusinessType}
    */
   @Request(RequestType.SESSION)
-  public AttributeType createAttributeType(String sessionId, String businessTypeCode, String attributeTypeJSON)
+  public AttributeType createAttributeType(String sessionId, String businessTypeCode, JsonObject attributeType)
   {
     BusinessType got = BusinessType.getByCode(businessTypeCode);
 
     // ServiceFactory.getBusinessTypePermissionService().enforceCanWrite(got.getOrganization().getCode(),
     // got, got.getIsPrivate());
 
-    AttributeType attrType = got.createAttributeType(attributeTypeJSON);
+    AttributeType attrType = got.createAttributeType(attributeType);
 
     return attrType;
   }
@@ -140,14 +140,14 @@ public class BusinessTypeService
    * @return updated {@link AttributeType}
    */
   @Request(RequestType.SESSION)
-  public AttributeType updateAttributeType(String sessionId, String businessTypeCode, String attributeTypeJSON)
+  public AttributeType updateAttributeType(String sessionId, String businessTypeCode, JsonObject attributeType)
   {
     BusinessType got = BusinessType.getByCode(businessTypeCode);
 
     // ServiceFactory.getBusinessTypePermissionService().enforceCanWrite(got.getOrganization().getCode(),
     // got, got.getIsPrivate());
 
-    AttributeType attrType = got.updateAttributeType(attributeTypeJSON);
+    AttributeType attrType = got.updateAttributeType(attributeType);
 
     return attrType;
   }

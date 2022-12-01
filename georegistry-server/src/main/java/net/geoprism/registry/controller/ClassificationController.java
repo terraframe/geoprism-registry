@@ -43,7 +43,78 @@ import net.geoprism.registry.spring.JsonObjectDeserializer;
 @Validated
 public class ClassificationController extends RunwaySpringController
 {
-  public static class ApplyInput
+  public static class ClassificationBody
+  {
+    @NotEmpty
+    String classificationCode;
+
+    @NotEmpty
+    String code;
+
+    public String getClassificationCode()
+    {
+      return classificationCode;
+    }
+
+    public void setClassificationCode(String classificationCode)
+    {
+      this.classificationCode = classificationCode;
+    }
+
+    public String getCode()
+    {
+      return code;
+    }
+
+    public void setCode(String code)
+    {
+      this.code = code;
+    }
+  }
+
+  public static class MoveBody
+  {
+    @NotEmpty
+    String classificationCode;
+
+    @NotEmpty
+    String code;
+
+    @NotEmpty
+    String parentCode;
+
+    public String getClassificationCode()
+    {
+      return classificationCode;
+    }
+
+    public void setClassificationCode(String classificationCode)
+    {
+      this.classificationCode = classificationCode;
+    }
+
+    public String getCode()
+    {
+      return code;
+    }
+
+    public void setCode(String code)
+    {
+      this.code = code;
+    }
+
+    public String getParentCode()
+    {
+      return parentCode;
+    }
+
+    public void setParentCode(String parentCode)
+    {
+      this.parentCode = parentCode;
+    }
+  }
+
+  public static class ApplyBody
   {
     @NotEmpty
     private String     classificationCode;
@@ -105,20 +176,18 @@ public class ClassificationController extends RunwaySpringController
 
   @PostMapping(API_PATH + "/apply")
   public ResponseEntity<String> apply(@Valid
-  @RequestBody ApplyInput input)
+  @RequestBody ApplyBody body)
   {
-    JsonObject response = this.service.apply(this.getSessionId(), input.classificationCode, input.parentCode, input.classification, input.isNew);
+    JsonObject response = this.service.apply(this.getSessionId(), body.classificationCode, body.parentCode, body.classification, body.isNew);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
   @PostMapping(API_PATH + "/remove")
-  public ResponseEntity<Void> remove(@NotEmpty
-  @RequestParam String classificationCode,
-      @NotEmpty
-      @RequestParam String code)
+  public ResponseEntity<Void> remove(@Valid
+  @RequestBody ClassificationBody body)
   {
-    this.service.remove(this.getSessionId(), classificationCode, code);
+    this.service.remove(this.getSessionId(), body.classificationCode, body.code);
 
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
@@ -135,20 +204,17 @@ public class ClassificationController extends RunwaySpringController
   }
 
   @PostMapping(API_PATH + "/move")
-  public ResponseEntity<Void> move(@NotEmpty
-  @RequestParam String classificationCode,
-      @NotEmpty
-      @RequestParam String code,
-      @NotEmpty
-      @RequestParam String parentCode)
+  public ResponseEntity<Void> move(@Valid
+  @RequestBody MoveBody body)
   {
-    this.service.move(this.getSessionId(), classificationCode, code, parentCode);
+    this.service.move(this.getSessionId(), body.classificationCode, body.code, body.parentCode);
 
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
   @GetMapping(API_PATH + "/get-children")
-  public ResponseEntity<String> getChildren(@NotEmpty @RequestParam String classificationCode, @RequestParam(required = false) String code, @RequestParam(required = false) Integer pageSize, @RequestParam(required = false) Integer pageNumber)
+  public ResponseEntity<String> getChildren(@NotEmpty
+  @RequestParam String classificationCode, @RequestParam(required = false) String code, @RequestParam(required = false) Integer pageSize, @RequestParam(required = false) Integer pageNumber)
   {
     JsonObject page = this.service.getChildren(this.getSessionId(), classificationCode, code, pageSize, pageNumber);
 

@@ -18,21 +18,26 @@
  */
 package net.geoprism.registry.controller;
 
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.google.gson.JsonArray;
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
 import net.geoprism.registry.service.BusinessObjectService;
 
-@Controller(url = "business-object")
-public class BusinessObjectController
+@RestController
+@Validated
+public class BusinessObjectController extends RunwaySpringController
 {
+  public static final String  API_PATH = "business-object";
+
+  @Autowired
   private BusinessObjectService service;
 
   public BusinessObjectController()
@@ -40,51 +45,51 @@ public class BusinessObjectController
     this.service = new BusinessObjectService();
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
-  public ResponseIF get(ClientRequestIF request, 
-      @RequestParamter(name = "businessTypeCode", required = true) String businessTypeCode,
-      @RequestParamter(name = "code", required = true) String code)
+  @GetMapping(API_PATH + "/get")
+  public ResponseIF get( 
+      @NotEmpty @RequestParam String businessTypeCode,
+      @NotEmpty @RequestParam String code)
   {
-    return new RestBodyResponse(service.get(request.getSessionId(), businessTypeCode, code));
+    return new RestBodyResponse(service.get(this.getSessionId(), businessTypeCode, code));
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-type-and-object")
-  public ResponseIF getTypeAndObject(ClientRequestIF request, 
-      @RequestParamter(name = "businessTypeCode", required = true) String businessTypeCode,
-      @RequestParamter(name = "code", required = true) String code)
+  @GetMapping(API_PATH + "/get-type-and-object")
+  public ResponseIF getTypeAndObject( 
+      @NotEmpty @RequestParam String businessTypeCode,
+      @NotEmpty @RequestParam String code)
   {
-    return new RestBodyResponse(service.getTypeAndObject(request.getSessionId(), businessTypeCode, code));
+    return new RestBodyResponse(service.getTypeAndObject(this.getSessionId(), businessTypeCode, code));
   }
   
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-parents")
-  public ResponseIF getParents(ClientRequestIF request, 
-      @RequestParamter(name = "businessTypeCode", required = true) String businessTypeCode,
-      @RequestParamter(name = "code", required = true) String code,
-      @RequestParamter(name = "businessEdgeTypeCode", required = true) String businessEdgeTypeCode)
+  @GetMapping(API_PATH + "/get-parents")
+  public ResponseIF getParents( 
+      @NotEmpty @RequestParam String businessTypeCode,
+      @NotEmpty @RequestParam String code,
+      @NotEmpty @RequestParam String businessEdgeTypeCode)
   {
-    JsonArray parents = this.service.getParents(request.getSessionId(), businessTypeCode, code, businessEdgeTypeCode);
+    JsonArray parents = this.service.getParents(this.getSessionId(), businessTypeCode, code, businessEdgeTypeCode);
     
     return new RestBodyResponse(parents);
   }
   
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-children")
-  public ResponseIF getChildren(ClientRequestIF request, 
-      @RequestParamter(name = "businessTypeCode", required = true) String businessTypeCode,
-      @RequestParamter(name = "code", required = true) String code,
-      @RequestParamter(name = "businessEdgeTypeCode", required = true) String businessEdgeTypeCode)
+  @GetMapping(API_PATH + "/get-children")
+  public ResponseIF getChildren( 
+      @NotEmpty @RequestParam String businessTypeCode,
+      @NotEmpty @RequestParam String code,
+      @NotEmpty @RequestParam String businessEdgeTypeCode)
   {
-    JsonArray parents = this.service.getChildren(request.getSessionId(), businessTypeCode, code, businessEdgeTypeCode);
+    JsonArray parents = this.service.getChildren(this.getSessionId(), businessTypeCode, code, businessEdgeTypeCode);
     
     return new RestBodyResponse(parents);
   }
   
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-geo-objects")
-  public ResponseIF getGeoObjects(ClientRequestIF request, 
-      @RequestParamter(name = "businessTypeCode", required = true) String businessTypeCode,
-      @RequestParamter(name = "code", required = true) String code,
-      @RequestParamter(name = "date", required = true) String date)
+  @GetMapping(API_PATH + "/get-geo-objects")
+  public ResponseIF getGeoObjects( 
+      @NotEmpty @RequestParam String businessTypeCode,
+      @NotEmpty @RequestParam String code,
+      @NotEmpty @RequestParam String date)
   {
-    JsonArray geoObjects = this.service.getGeoObjects(request.getSessionId(), businessTypeCode, code, date);
+    JsonArray geoObjects = this.service.getGeoObjects(this.getSessionId(), businessTypeCode, code, date);
     
     return new RestBodyResponse(geoObjects);
   }

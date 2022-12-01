@@ -33,7 +33,6 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
@@ -135,18 +134,15 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
     return new AttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
   }
 
-  public AttributeType createAttributeType(String attributeTypeJSON)
+  public AttributeType createAttributeType(JsonObject attrObj)
   {
-    JsonObject attrObj = JsonParser.parseString(attributeTypeJSON).getAsJsonObject();
-
     AttributeType attrType = AttributeType.parse(attrObj);
 
     return createAttributeType(attrType);
   }
 
-  public AttributeType updateAttributeType(String attributeTypeJSON)
+  public AttributeType updateAttributeType(JsonObject attrObj)
   {
-    JsonObject attrObj = JsonParser.parseString(attributeTypeJSON).getAsJsonObject();
     AttributeType attrType = AttributeType.parse(attrObj);
 
     return updateAttributeType(attrType);

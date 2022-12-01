@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -34,6 +35,7 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
+@Component
 public class BusinessObjectService
 {
   @Request(RequestType.SESSION)

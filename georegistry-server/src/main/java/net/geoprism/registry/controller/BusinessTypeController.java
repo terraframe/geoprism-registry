@@ -18,6 +18,9 @@
  */
 package net.geoprism.registry.controller;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,18 +29,97 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.service.BusinessTypeService;
+import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController
 @Validated
 public class BusinessTypeController extends RunwaySpringController
 {
+  public static class RemoveAttributeBody
+  {
+    @NotEmpty
+    String typeCode;
+
+    @NotEmpty
+    String attributeName;
+
+    public String getTypeCode()
+    {
+      return typeCode;
+    }
+
+    public void setTypeCode(String typeCode)
+    {
+      this.typeCode = typeCode;
+    }
+
+    public String getAttributeName()
+    {
+      return attributeName;
+    }
+
+    public void setAttributeName(String attributeName)
+    {
+      this.attributeName = attributeName;
+    }
+
+  }
+
+  public static class AttributeTypeBody
+  {
+    @NotEmpty
+    String     typeCode;
+
+    @NotNull
+    @JsonDeserialize(using = JsonObjectDeserializer.class)
+    JsonObject attributeType;
+
+    public String getTypeCode()
+    {
+      return typeCode;
+    }
+
+    public void setTypeCode(String typeCode)
+    {
+      this.typeCode = typeCode;
+    }
+
+    public JsonObject getAttributeType()
+    {
+      return attributeType;
+    }
+
+    public void setAttributeType(JsonObject attributeType)
+    {
+      this.attributeType = attributeType;
+    }
+  }
+
+  public static class OidBody
+  {
+    @NotEmpty
+    private String oid;
+
+    public String getOid()
+    {
+      return oid;
+    }
+
+    public void setOid(String oid)
+    {
+      this.oid = oid;
+    }
+  }
+
   public static final String  API_PATH = "business-type";
 
   @Autowired
@@ -67,8 +149,7 @@ public class BusinessTypeController extends RunwaySpringController
   }
 
   @PostMapping(API_PATH + "/apply")
-  public ResponseEntity<String> apply(@NotEmpty
-  @RequestParam String type)
+  public ResponseEntity<String> apply(@RequestBody String type)
   {
     JsonObject response = this.service.apply(this.getSessionId(), type);
 
@@ -76,61 +157,50 @@ public class BusinessTypeController extends RunwaySpringController
   }
 
   @PostMapping(API_PATH + "/remove")
-  public ResponseEntity<Void> remove(@NotEmpty
-  @RequestParam String oid)
+  public ResponseEntity<Void> remove(@Valid @RequestBody OidBody body)
   {
-    this.service.remove(this.getSessionId(), oid);
+    this.service.remove(this.getSessionId(), body.oid);
 
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
   @PostMapping(API_PATH + "/edit")
-  public ResponseEntity<String> edit(@NotEmpty @RequestParam String oid)
+  public ResponseEntity<String> edit(@Valid @RequestBody OidBody body)
   {
-    JsonObject response = this.service.edit(this.getSessionId(), oid);
+    JsonObject response = this.service.edit(this.getSessionId(), body.oid);
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
   @PostMapping(API_PATH + "/unlock")
-  public ResponseEntity<Void> unlock(@NotEmpty
-  @RequestParam String oid)
+  public ResponseEntity<Void> unlock(@Valid @RequestBody OidBody body)
   {
-    this.service.unlock(this.getSessionId(), oid);
+    this.service.unlock(this.getSessionId(), body.oid);
 
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
   @PostMapping(API_PATH + "/add-attribute")
-  public ResponseEntity<String> createAttributeType(@NotEmpty
-  @RequestParam String typeCode,
-      @NotEmpty
-      @RequestParam String attributeType)
+  public ResponseEntity<String> createAttributeType(@Valid @RequestBody AttributeTypeBody body)
   {
-    AttributeType attrType = this.service.createAttributeType(this.getSessionId(), typeCode, attributeType);
+    AttributeType attrType = this.service.createAttributeType(this.getSessionId(), body.typeCode, body.attributeType);
     JsonObject response = attrType.toJSON();
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
   @PostMapping(API_PATH + "/update-attribute")
-  public ResponseEntity<String> updateAttributeType(@NotEmpty
-  @RequestParam String typeCode,
-      @NotEmpty
-      @RequestParam String attributeType)
+  public ResponseEntity<String> updateAttributeType(@Valid @RequestBody AttributeTypeBody body)
   {
-    AttributeType attrType = this.service.updateAttributeType(this.getSessionId(), typeCode, attributeType);
+    AttributeType attrType = this.service.updateAttributeType(this.getSessionId(), body.typeCode, body.attributeType);
     JsonObject response = attrType.toJSON();
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
   @PostMapping(API_PATH + "/remove-attribute")
-  public ResponseEntity<Void> removeAttributeType(@NotEmpty
-  @RequestParam String typeCode,
-      @NotEmpty
-      @RequestParam String attributeName)
+  public ResponseEntity<Void> removeAttributeType(@Valid @RequestBody RemoveAttributeBody body)
   {
-    this.service.removeAttributeType(this.getSessionId(), typeCode, attributeName);
+    this.service.removeAttributeType(this.getSessionId(), body.typeCode, body.attributeName);
 
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }

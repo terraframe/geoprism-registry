@@ -21,7 +21,7 @@ export class BusinessObjectService {
 
         this.eventService.start();
 
-        return this.http.get<BusinessObject>(registry.contextPath + "/business-object/get", { params: params })
+        return this.http.get<BusinessObject>(registry.contextPath + "/api/business-object/get", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -35,7 +35,7 @@ export class BusinessObjectService {
 
         this.eventService.start();
 
-        return this.http.get<{type:BusinessType, object: BusinessObject}>(registry.contextPath + "/business-object/get-type-and-object", { params: params })
+        return this.http.get<{type:BusinessType, object: BusinessObject}>(registry.contextPath + "/api/business-object/get-type-and-object", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
