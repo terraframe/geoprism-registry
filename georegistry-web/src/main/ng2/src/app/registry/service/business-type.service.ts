@@ -22,7 +22,7 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http.get<BusinessTypeByOrg[]>(registry.contextPath + "/business-type/get-by-org", { params: params })
+        return this.http.get<BusinessTypeByOrg[]>(registry.contextPath + "/api/business-type/get-by-org", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -34,7 +34,7 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http.get<BusinessType[]>(registry.contextPath + "/business-type/get-all", { params: params })
+        return this.http.get<BusinessType[]>(registry.contextPath + "/api/business-type/get-all", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -47,7 +47,7 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http.get<BusinessType>(registry.contextPath + "/business-type/get", { params: params })
+        return this.http.get<BusinessType>(registry.contextPath + "/api/business-type/get", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -55,14 +55,13 @@ export class BusinessTypeService implements GenericTableService {
     }
 
     apply(type: BusinessType): Promise<BusinessType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
+        const data = new FormData();
+        data.append("type", JSON.stringify(type));
 
         this.eventService.start();
 
         return this.http
-            .post<BusinessType>(registry.contextPath + "/business-type/apply", JSON.stringify({ type: type }), { headers: headers })
+            .post<BusinessType>(registry.contextPath + "/api/business-type/apply", data)
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -70,14 +69,13 @@ export class BusinessTypeService implements GenericTableService {
     }
 
     remove(type: BusinessType): Promise<BusinessType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
+        const data = new FormData();
+        data.append("oid", type.oid);
 
         this.eventService.start();
 
         return this.http
-            .post<BusinessType>(registry.contextPath + "/business-type/remove", JSON.stringify({ oid: type.oid }), { headers: headers })
+            .post<BusinessType>(registry.contextPath + "/api/business-type/remove", data)
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -85,14 +83,13 @@ export class BusinessTypeService implements GenericTableService {
     }
 
     edit(oid: string): Promise<BusinessType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
+        const data = new FormData();
+        data.append("oid", oid);
 
         this.eventService.start();
 
         return this.http
-            .post<BusinessType>(registry.contextPath + "/business-type/edit", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<BusinessType>(registry.contextPath + "/api/business-type/edit", data)
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -100,14 +97,13 @@ export class BusinessTypeService implements GenericTableService {
     }
 
     unlock(oid: string): Promise<BusinessType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
+        const data = new FormData();
+        data.append("oid", oid);
 
         this.eventService.start();
 
         return this.http
-            .post<BusinessType>(registry.contextPath + "/business-type/unlock", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<BusinessType>(registry.contextPath + "/api/business-type/unlock", data)
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -115,14 +111,14 @@ export class BusinessTypeService implements GenericTableService {
     }
 
     addAttributeType(typeCode: string, attribute: AttributeType): Promise<AttributeType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
+        const data = new FormData();
+        data.append("typeCode", typeCode);
+        data.append("attributeType", JSON.stringify(attribute));
 
         this.eventService.start();
 
         return this.http
-            .post<AttributeType>(registry.contextPath + "/business-type/add-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
+            .post<AttributeType>(registry.contextPath + "/api/business-type/add-attribute", data)
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -130,14 +126,14 @@ export class BusinessTypeService implements GenericTableService {
     }
 
     updateAttributeType(typeCode: string, attribute: AttributeType): Promise<AttributeType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
+        const data = new FormData();
+        data.append("typeCode", typeCode);
+        data.append("attributeType", JSON.stringify(attribute));
 
         this.eventService.start();
 
         return this.http
-            .post<AttributeType>(registry.contextPath + "/business-type/update-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
+            .post<AttributeType>(registry.contextPath + "/api/business-type/update-attribute", data)
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -145,14 +141,14 @@ export class BusinessTypeService implements GenericTableService {
     }
 
     deleteAttributeType(typeCode: string, attributeName: string): Promise<boolean> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
+        const data = new FormData();
+        data.append("typeCode", typeCode);
+        data.append("attributeName", attributeName);
 
         this.eventService.start();
 
         return this.http
-            .post<boolean>(registry.contextPath + "/business-type/remove-attribute", JSON.stringify({ typeCode: typeCode, attributeName: attributeName }), { headers: headers })
+            .post<boolean>(registry.contextPath + "/api/business-type/remove-attribute", data)
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -165,7 +161,7 @@ export class BusinessTypeService implements GenericTableService {
         params = params.set("typeCode", pageConfig.typeCode);
 
         return this.http
-            .get<PageResult<Object>>(registry.contextPath + "/business-type/data", { params: params })
+            .get<PageResult<Object>>(registry.contextPath + "/api/business-type/data", { params: params })
             .toPromise();
     }
 

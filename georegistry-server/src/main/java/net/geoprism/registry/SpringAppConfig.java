@@ -74,9 +74,9 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
   @Override
   public void configureMessageConverters(List<HttpMessageConverter<?>> converters)
   {
-    GsonHttpMessageConverter msgConverter = new GsonHttpMessageConverter();
-    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    msgConverter.setGson(gson);
-    converters.add(msgConverter);
+//    GsonHttpMessageConverter msgConverter = new GsonHttpMessageConverter();
+//    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//    msgConverter.setGson(gson);
+//    converters.add(msgConverter);
   }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 
 import { ActivatedRoute } from "@angular/router";
-import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
+import { GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { BusinessType } from "@registry/model/business-type";
 import { LocalizationService } from "@shared/service";

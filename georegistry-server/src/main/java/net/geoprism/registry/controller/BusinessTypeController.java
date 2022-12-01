@@ -4,130 +4,153 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.registry.service.BusinessTypeService;
 
-@Controller(url = "business-type")
-public class BusinessTypeController
+@RestController
+@Validated
+public class BusinessTypeController extends RunwaySpringController
 {
+  public static final String  API_PATH = "business-type";
+
+  @Autowired
   private BusinessTypeService service;
 
-  public BusinessTypeController()
+  @GetMapping(API_PATH + "/get-by-org")
+  public ResponseEntity<String> getByOrg()
   {
-    this.service = new BusinessTypeService();
+    JsonArray response = service.listByOrg(this.getSessionId());
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-by-org")
-  public ResponseIF getByOrg(ClientRequestIF request)
+  @GetMapping(API_PATH + "/get-all")
+  public ResponseEntity<String> getAll()
   {
-    return new RestBodyResponse(service.listByOrg(request.getSessionId()));
+    JsonArray response = service.getAll(this.getSessionId());
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-all")
-  public ResponseIF getAll(ClientRequestIF request)
+  @GetMapping(API_PATH + "/get")
+  public ResponseEntity<String> get(@NotEmpty
+  @RequestParam String oid)
   {
-    return new RestBodyResponse(service.getAll(request.getSessionId()));
+    JsonObject response = service.get(this.getSessionId(), oid);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
-  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  @PostMapping(API_PATH + "/apply")
+  public ResponseEntity<String> apply(@NotEmpty
+  @RequestParam String type)
   {
-    return new RestBodyResponse(service.get(request.getSessionId(), oid));
+    JsonObject response = this.service.apply(this.getSessionId(), type);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "type") String typeJSON)
+  @PostMapping(API_PATH + "/remove")
+  public ResponseEntity<Void> remove(@NotEmpty
+  @RequestParam String oid)
   {
-    return new RestBodyResponse(this.service.apply(request.getSessionId(), typeJSON));
+    this.service.remove(this.getSessionId(), oid);
+
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove")
-  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  @PostMapping(API_PATH + "/edit")
+  public ResponseEntity<String> edit(@NotEmpty @RequestParam String oid)
   {
-    this.service.remove(request.getSessionId(), oid);
-
-    return new RestResponse();
+    JsonObject response = this.service.edit(this.getSessionId(), oid);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "edit")
-  public ResponseIF edit(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  @PostMapping(API_PATH + "/unlock")
+  public ResponseEntity<Void> unlock(@NotEmpty
+  @RequestParam String oid)
   {
-    return new RestBodyResponse(this.service.edit(request.getSessionId(), oid));
+    this.service.unlock(this.getSessionId(), oid);
+
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "unlock")
-  public ResponseIF unlock(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  @PostMapping(API_PATH + "/add-attribute")
+  public ResponseEntity<String> createAttributeType(@NotEmpty
+  @RequestParam String typeCode,
+      @NotEmpty
+      @RequestParam String attributeType)
   {
-    this.service.unlock(request.getSessionId(), oid);
+    AttributeType attrType = this.service.createAttributeType(this.getSessionId(), typeCode, attributeType);
+    JsonObject response = attrType.toJSON();
 
-    return new RestResponse();
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "add-attribute")
-  public ResponseIF createAttributeType(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "attributeType") String attributeType)
+  @PostMapping(API_PATH + "/update-attribute")
+  public ResponseEntity<String> updateAttributeType(@NotEmpty
+  @RequestParam String typeCode,
+      @NotEmpty
+      @RequestParam String attributeType)
   {
-    AttributeType attrType = this.service.createAttributeType(request.getSessionId(), typeCode, attributeType);
+    AttributeType attrType = this.service.updateAttributeType(this.getSessionId(), typeCode, attributeType);
+    JsonObject response = attrType.toJSON();
 
-    return new RestBodyResponse(attrType.toJSON());
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "update-attribute")
-  public ResponseIF updateAttributeType(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "attributeType") String attributeType)
+  @PostMapping(API_PATH + "/remove-attribute")
+  public ResponseEntity<Void> removeAttributeType(@NotEmpty
+  @RequestParam String typeCode,
+      @NotEmpty
+      @RequestParam String attributeName)
   {
-    AttributeType attrType = this.service.updateAttributeType(request.getSessionId(), typeCode, attributeType);
+    this.service.removeAttributeType(this.getSessionId(), typeCode, attributeName);
 
-    return new RestBodyResponse(attrType.toJSON());
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove-attribute")
-  public ResponseIF removeAttributeType(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "attributeName") String attributeName)
+  @GetMapping(API_PATH + "/data")
+  public ResponseEntity<String> data(@NotEmpty
+  @RequestParam String typeCode, @RequestParam(required = false) String criteria)
   {
-    this.service.removeAttributeType(request.getSessionId(), typeCode, attributeName);
+    JsonObject page = this.service.data(this.getSessionId(), typeCode, criteria);
 
-    return new RestResponse();
+    return new ResponseEntity<String>(page.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF data(ClientRequestIF request, @RequestParamter(name = "typeCode", required = true) String typeCode, @RequestParamter(name = "criteria") String criteria)
+  @GetMapping(API_PATH + "/get-edge-types")
+  public ResponseEntity<String> getEdgeTypes(@NotEmpty
+  @RequestParam String typeCode)
   {
-    JsonObject page = this.service.data(request.getSessionId(), typeCode, criteria);
+    JsonArray edgeTypes = this.service.getEdgeTypes(this.getSessionId(), typeCode);
 
-    return new RestBodyResponse(page);
+    return new ResponseEntity<String>(edgeTypes.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-edge-types")
-  public ResponseIF getEdgeTypes(ClientRequestIF request, @RequestParamter(name = "typeCode", required = true) String typeCode)
-  {
-    JsonArray edgeTypes = this.service.getEdgeTypes(request.getSessionId(), typeCode);
-    
-    return new RestBodyResponse(edgeTypes);
-  }
-  
 }

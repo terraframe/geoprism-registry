@@ -49,7 +49,7 @@ export class BusinessTypeManagerComponent implements OnInit {
     }
 
     onView(type: BusinessType): void {
-        this.service.edit(type.oid).then(t => {
+        this.service.get(type.oid).then(t => {
             this.bsModalRef = this.modalService.show(ManageBusinessTypeModalComponent, {
                 animated: true,
                 backdrop: true,
