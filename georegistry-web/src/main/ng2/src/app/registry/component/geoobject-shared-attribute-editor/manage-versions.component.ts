@@ -442,10 +442,6 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
         }
     }
 
-    stringify(obj: any): string {
-        return JSON.stringify(obj);
-    }
-
     toggleGeometryView(view: VersionDiffView) {
         // Using setTimeout() to pull the calc out of the animation stack so the dom can finish mutating before getting final height.
         setTimeout(() => {
