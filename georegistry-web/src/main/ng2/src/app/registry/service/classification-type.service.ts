@@ -33,14 +33,13 @@ export class ClassificationTypeService implements GenericTableService {
     }
 
     remove(type: ClassificationType): Promise<ClassificationType> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
+        const data = new FormData();
+        data.append("oid", type.oid);
 
         this.eventService.start();
 
         return this.http
-            .post<ClassificationType>(registry.contextPath + "/classification-type/remove", JSON.stringify({ oid: type.oid }), { headers: headers })
+            .post<ClassificationType>(registry.contextPath + "/classification-type/remove", data)
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

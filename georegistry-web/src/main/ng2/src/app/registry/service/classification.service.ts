@@ -42,19 +42,14 @@ export class ClassificationService {
     }
 
     remove(classificationCode: string, code: string): Promise<void> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        const params = {
-            classificationCode: classificationCode,
-            code: code
-        };
+        const data = new FormData();
+        data.append("classificationCode", classificationCode);
+        data.append("code", code);
 
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/api/classification/remove", JSON.stringify(params), { headers: headers })
+            .post<void>(registry.contextPath + "/api/classification/remove", data)
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -62,20 +57,15 @@ export class ClassificationService {
     }
 
     move(classificationCode: string, code: string, parentCode: string): Promise<void> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        const params = {
-            classificationCode: classificationCode,
-            code: code,
-            parentCode: parentCode
-        };
+        const data = new FormData();
+        data.append("classificationCode", classificationCode);
+        data.append("code", code);
+        data.append("parentCode", parentCode);
 
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/api/classification/move", JSON.stringify(params), { headers: headers })
+            .post<void>(registry.contextPath + "/api/classification/move", data)
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
