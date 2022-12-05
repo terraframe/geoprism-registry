@@ -21,6 +21,8 @@ package net.geoprism.registry.service;
 import java.util.List;
 import java.util.stream.Collector;
 
+import org.springframework.stereotype.Component;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -30,6 +32,7 @@ import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.DirectedAcyclicGraphType;
 
+@Component
 public class DirectedAcyclicGraphTypeService
 {
   @Request(RequestType.SESSION)
@@ -44,10 +47,8 @@ public class DirectedAcyclicGraphTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject create(String sessionId, String json)
+  public JsonObject create(String sessionId, JsonObject object)
   {
-    JsonObject object = JsonParser.parseString(json).getAsJsonObject();
-
     DirectedAcyclicGraphType type = DirectedAcyclicGraphType.create(object);
 
     // Refresh the users session
@@ -57,9 +58,8 @@ public class DirectedAcyclicGraphTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject update(String sessionId, String json)
+  public JsonObject update(String sessionId, JsonObject object)
   {
-    JsonObject object = JsonParser.parseString(json).getAsJsonObject();
     String code = object.get(DirectedAcyclicGraphType.CODE).getAsString();
 
     DirectedAcyclicGraphType type = DirectedAcyclicGraphType.getByCode(code);

@@ -18,9 +18,12 @@
  */
 package net.geoprism.registry.service;
 
+import org.springframework.stereotype.Component;
+
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.model.GraphType;
 
+@Component
 public class UndirectedGraphService extends GraphService
 {
 
