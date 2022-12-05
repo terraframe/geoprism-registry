@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -36,15 +37,12 @@ import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
-import com.runwaysdk.query.AggregateFunction;
 import com.runwaysdk.query.AttributeLocal;
 import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.OrderBy;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.Selectable;
-import com.runwaysdk.query.SelectableSQLDate;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.session.Request;
@@ -64,6 +62,7 @@ import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.view.Page;
 
+@Component
 public class ChangeRequestService
 {
   public ChangeRequestPermissionService permService = new ChangeRequestPermissionService();
@@ -207,29 +206,29 @@ public class ChangeRequestService
     {
       query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.valueOf(filter)));
     }
-    
+
     filterQueryBasedOnPermissions(query);
-    
+
     if (oid != null && oid.length() > 0)
     {
       pageNumber = this.findPageNumber(oid, query, pageSize);
     }
 
     query.restrictRows(pageSize, pageNumber);
-    
+
     if (sort != null && sort.length() > 0 && !sort.equals("[]"))
     {
       JsonArray ja = JsonParser.parseString(sort).getAsJsonArray();
-      
+
       for (int i = 0; i < ja.size(); ++i)
       {
         JsonObject jo = ja.get(i).getAsJsonObject();
-        
+
         boolean ascending = jo.get("ascending").getAsBoolean();
         String attribute = jo.get("attribute").getAsString();
-        
+
         Selectable sel = query.get(attribute);
-        
+
         if (attribute.equals(ChangeRequest.GEOOBJECTLABEL) || attribute.equals(ChangeRequest.GEOOBJECTTYPELABEL))
         {
           sel = ( (AttributeLocal) sel ).localize();
@@ -238,7 +237,7 @@ public class ChangeRequestService
         {
           sel = query.getApprovalStatus().getEnumName();
         }
-        
+
         query.ORDER_BY(sel, ascending ? SortOrder.ASC : SortOrder.DESC);
       }
     }
@@ -262,79 +261,86 @@ public class ChangeRequestService
 
     return new Page(query.getCount(), pageNumber, pageSize, list);
   }
-  
+
   // An attempt to do this without selectable sqls
-//  private int findPageNumber(String crOid, ChangeRequestQuery query, int pageSize)
-//  {
-//    QueryFactory qf = new QueryFactory();
-//    ValueQuery vq = new ValueQuery(qf);
-//    
-//    vq.FROM(query);
-//    
-//    vq.SELECT(query.getOid());
-//    vq.SELECT(query.getCreateDate());
-//    
-//    Selectable createDate = query.getCreateDate();
-//    
-//    vq.SELECT(vq.RANK("rn").OVER(null, new OrderBy(createDate, SortOrder.DESC)));
-//    
-//    vq.WHERE(query.getOid().EQ(crOid));
-//    
-//    ValueObject vo = vq.getIterator().getAll().get(0);
-//    
-//    long rowNum = Long.parseLong(vo.getValue("rn"));
-//    
-//    int pageNum = (int) ( (rowNum / pageSize) + 1 );
-//    
-//    return pageNum;
-//  }
-  
+  // private int findPageNumber(String crOid, ChangeRequestQuery query, int
+  // pageSize)
+  // {
+  // QueryFactory qf = new QueryFactory();
+  // ValueQuery vq = new ValueQuery(qf);
+  //
+  // vq.FROM(query);
+  //
+  // vq.SELECT(query.getOid());
+  // vq.SELECT(query.getCreateDate());
+  //
+  // Selectable createDate = query.getCreateDate();
+  //
+  // vq.SELECT(vq.RANK("rn").OVER(null, new OrderBy(createDate,
+  // SortOrder.DESC)));
+  //
+  // vq.WHERE(query.getOid().EQ(crOid));
+  //
+  // ValueObject vo = vq.getIterator().getAll().get(0);
+  //
+  // long rowNum = Long.parseLong(vo.getValue("rn"));
+  //
+  // int pageNum = (int) ( (rowNum / pageSize) + 1 );
+  //
+  // return pageNum;
+  // }
+
   private int findPageNumber(String crOid, ChangeRequestQuery query, int pageSize)
   {
     QueryFactory qf = new QueryFactory();
     ValueQuery innerVq = new ValueQuery(qf);
-    
+
     String sub1Sql = query.getSQL();
-    
+
     innerVq.FROM("(" + sub1Sql + ")", "sub1");
-    
+
     String createDateAlias = query.getCreateDate().getColumnAlias();
-    
+
     Matcher m = Pattern.compile("change_request_\\d+\\.create_date AS (create_date_\\d+),").matcher(sub1Sql);
-    if (m.find( )) {
-       createDateAlias = m.group(1);
+    if (m.find())
+    {
+      createDateAlias = m.group(1);
     }
-    
+
     innerVq.SELECT(innerVq.aSQLCharacter("oid", "oid"));
-    
-    // The rank function is forcing a group by, which we don't want to do. It also doesn't use our alias.
-    //SelectableSQLDate createDate = innerVq.aSQLDate(query.getCreateDate().getColumnAlias(), query.getCreateDate().getColumnAlias());
-    //AggregateFunction rank = innerVq.RANK("rn").OVER(null, new OrderBy(createDate, SortOrder.DESC));
+
+    // The rank function is forcing a group by, which we don't want to do. It
+    // also doesn't use our alias.
+    // SelectableSQLDate createDate =
+    // innerVq.aSQLDate(query.getCreateDate().getColumnAlias(),
+    // query.getCreateDate().getColumnAlias());
+    // AggregateFunction rank = innerVq.RANK("rn").OVER(null, new
+    // OrderBy(createDate, SortOrder.DESC));
     Selectable rank = innerVq.aSQLInteger("rn", "(ROW_NUMBER() OVER (ORDER BY " + createDateAlias + " DESC))");
-    
+
     innerVq.SELECT(rank);
-    
+
     ValueQuery outerVq = new ValueQuery(qf);
-    
+
     outerVq.FROM("(" + innerVq.getSQL() + ")", "sub2");
-    
+
     Selectable oidSel = outerVq.aSQLCharacter("oid", "oid");
-    
+
     outerVq.SELECT(oidSel);
     outerVq.SELECT(outerVq.aSQLInteger("rn", "rn"));
-    
+
     outerVq.WHERE(oidSel.EQ(crOid));
-    
+
     List<ValueObject> voList = outerVq.getIterator().getAll();
-    
+
     if (voList.size() > 0)
     {
       ValueObject vo = voList.get(0);
-      
+
       long rowNum = Long.parseLong(vo.getValue("rn"));
-      
-      int pageNum = (int) ( (rowNum / pageSize) + 1 );
-      
+
+      int pageNum = (int) ( ( rowNum / pageSize ) + 1 );
+
       return pageNum;
     }
     else
@@ -458,15 +464,14 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject update(String sessionId, String cr)
+  public JsonObject update(String sessionId, JsonObject request)
   {
-    JsonObject obj = JsonParser.parseString(cr).getAsJsonObject();
-    String oid = obj.get("oid").getAsString();
-    JsonArray actions = obj.get("actions").getAsJsonArray();
-    String notes = obj.get("contributorNotes").getAsString();
+    String oid = request.get("oid").getAsString();
+    JsonArray actions = request.get("actions").getAsJsonArray();
+    String notes = request.get("contributorNotes").getAsString();
 
     ChangeRequest current = ChangeRequest.get(oid);
-        
+
     ServerGeoObjectService service = new ServerGeoObjectService();
     service.updateChangeRequest(current, notes, actions);
 

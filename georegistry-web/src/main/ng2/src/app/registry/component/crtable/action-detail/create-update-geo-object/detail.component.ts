@@ -234,7 +234,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ActionDetailCompone
     unlockActionSync() {
 
         $.ajax({
-            url: registry.contextPath + "/changerequest/unlockAction",
+            url: registry.contextPath + "/api/changerequest/unlockAction",
             method: "POST",
             data: { actionId: this.action.oid },
             success: function(a) {

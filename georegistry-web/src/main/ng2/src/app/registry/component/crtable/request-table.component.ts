@@ -126,7 +126,7 @@ export class RequestTableComponent {
             this.toggleId = this.oid;
         }
 
-        let getUrl = registry.contextPath + "/changerequest/upload-file-cr";
+        let getUrl = registry.contextPath + "/api/changerequest/upload-file-cr";
 
         let options: FileUploaderOptions = {
             queueLimit: 1,
@@ -137,7 +137,7 @@ export class RequestTableComponent {
         this.uploader = new FileUploader(options);
 
         this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
-            form.append("crOid", this.uploadRequest.oid);
+            form.append("requestId", this.uploadRequest.oid);
         };
         this.uploader.onBeforeUploadItem = (fileItem: any) => {
             this.eventService.start();
@@ -219,7 +219,7 @@ export class RequestTableComponent {
     }
 
     onDownloadFile(request: ChangeRequest, fileOid: string): void {
-        window.location.href = registry.contextPath + "/changerequest/download-file-cr?crOid=" + request.oid + "&" + "vfOid=" + fileOid;
+        window.location.href = registry.contextPath + "/api/changerequest/download-file-cr?requestId=" + request.oid + "&" + "fileId=" + fileOid;
     }
 
     onDeleteFile(request: ChangeRequest, fileOid: string): void {

@@ -44,7 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.controller.ShapefileController.GetConfigurationInput;
+import net.geoprism.registry.controller.ShapefileController.GetConfigurationBody;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.ExcelService;
@@ -54,7 +54,7 @@ import net.geoprism.registry.spring.NullableDateDeserializer;
 @Validated
 public class ExcelImportController extends RunwaySpringController
 {
-  public static final class BusinessConfigurationInput
+  public static final class BusinessConfigurationBody
   {
     @NotEmpty(message = "Import type requires a value")
     private String        type;
@@ -129,20 +129,20 @@ public class ExcelImportController extends RunwaySpringController
   private ExcelService       service;
 
   @PostMapping(API_PATH + "/get-configuration")
-  public ResponseEntity<String> getConfiguration(@Valid @ModelAttribute GetConfigurationInput input) throws IOException
+  public ResponseEntity<String> getConfiguration(@Valid @ModelAttribute GetConfigurationBody body) throws IOException
   {
     String sessionId = this.getSessionId();
 
-    try (InputStream stream = input.getFile().getInputStream())
+    try (InputStream stream = body.getFile().getInputStream())
     {
-      String fileName = input.getFile().getOriginalFilename();
+      String fileName = body.getFile().getOriginalFilename();
 
       SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
       format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-      ImportStrategy strategy = ImportStrategy.valueOf(input.getStrategy());
+      ImportStrategy strategy = ImportStrategy.valueOf(body.getStrategy());
 
-      JSONObject configuration = service.getExcelConfiguration(sessionId, input.getType(), input.getStartDate(), input.getEndDate(), fileName, stream, strategy, input.getCopyBlank());
+      JSONObject configuration = service.getExcelConfiguration(sessionId, body.getType(), body.getStartDate(), body.getEndDate(), fileName, stream, strategy, body.getCopyBlank());
 
       return new ResponseEntity<String>(configuration.toString(), HttpStatus.OK);
     }
@@ -163,18 +163,18 @@ public class ExcelImportController extends RunwaySpringController
   }
 
   @PostMapping(API_PATH + "/get-business-config")
-  public ResponseEntity<String> getBusinessConfiguration(@Valid @ModelAttribute BusinessConfigurationInput input) throws IOException
+  public ResponseEntity<String> getBusinessConfiguration(@Valid @ModelAttribute BusinessConfigurationBody body) throws IOException
   {
-    try (InputStream stream = input.file.getInputStream())
+    try (InputStream stream = body.file.getInputStream())
     {
-      String fileName = input.file.getOriginalFilename();
+      String fileName = body.file.getOriginalFilename();
 
       SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
       format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-      ImportStrategy strategy = ImportStrategy.valueOf(input.getStrategy());
+      ImportStrategy strategy = ImportStrategy.valueOf(body.getStrategy());
 
-      JSONObject configuration = service.getBusinessTypeConfiguration(this.getSessionId(), input.type, input.date, fileName, stream, strategy, input.copyBlank);
+      JSONObject configuration = service.getBusinessTypeConfiguration(this.getSessionId(), body.type, body.date, fileName, stream, strategy, body.copyBlank);
 
       return new ResponseEntity<String>(configuration.toString(), HttpStatus.OK);
     }

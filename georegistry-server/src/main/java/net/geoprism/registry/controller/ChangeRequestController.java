@@ -4,40 +4,49 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.json.JSONException;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.NotEmpty;
+import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.controller.MultipartFileParameter;
-import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.InputStreamResponse;
-import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.resource.ApplicationResource;
 
 import net.geoprism.registry.service.ChangeRequestService;
+import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 /**
  * This controller is used by the change request table widget.
@@ -45,67 +54,172 @@ import net.geoprism.registry.service.ChangeRequestService;
  * @author rrowlands
  *
  */
-@Controller(url = "changerequest")
-public class ChangeRequestController
+@RestController
+@Validated
+public class ChangeRequestController extends RunwaySpringController
 {
-  private ChangeRequestService service;
-
-  public ChangeRequestController()
+  public static class RequestObjectBody
   {
-    this.service = new ChangeRequestService();
+    @NotNull
+    @JsonDeserialize(using = JsonObjectDeserializer.class)
+    private JsonObject request;
+
+    public JsonObject getRequest()
+    {
+      return request;
+    }
+
+    public void setRequest(JsonObject request)
+    {
+      this.request = request;
+    }
   }
+
+  public static class ChangeRequestBody
+  {
+    @NotEmpty
+    private String requestId;
+
+    public String getRequestId()
+    {
+      return requestId;
+    }
+
+    public void setRequestId(String requestId)
+    {
+      this.requestId = requestId;
+    }
+  }
+
+  public static class DocumentFileBody extends ChangeRequestBody
+  {
+    @NotEmpty
+    private String fileId;
+
+    public String getFileId()
+    {
+      return fileId;
+    }
+
+    public void setFileId(String fileId)
+    {
+      this.fileId = fileId;
+    }
+  }
+
+  public static class UploadFileBody extends ChangeRequestBody
+  {
+    @NotNull
+    private MultipartFile file;
+
+    public MultipartFile getFile()
+    {
+      return file;
+    }
+
+    public void setFile(MultipartFile file)
+    {
+      this.file = file;
+    }
+  }
+
+  public static class ActionStatusBody
+  {
+    @NotEmpty
+    private String actionOid;
+
+    @NotEmpty
+    private String status;
+
+    public String getActionOid()
+    {
+      return actionOid;
+    }
+
+    public void setActionOid(String actionOid)
+    {
+      this.actionOid = actionOid;
+    }
+
+    public String getStatus()
+    {
+      return status;
+    }
+
+    public void setStatus(String status)
+    {
+      this.status = status;
+    }
+
+  }
+
+  public static final String   API_PATH = "changerequest";
+
+  @Autowired
+  private ChangeRequestService service;
 
   /**
    * 
    * @param request
-   * @param crOid
+   * @param requestId
    * @param file
    * @return
    * @throws IOException
    */
-  @Endpoint(url = "upload-file-cr", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF uploadFileCR(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException
+  @PostMapping(API_PATH + "/upload-file-cr")
+  public ResponseEntity<String> uploadFileCR(@Valid
+  @ModelAttribute UploadFileBody body) throws IOException
   {
-    try (InputStream stream = file.getInputStream())
+    try (InputStream stream = body.file.getInputStream())
     {
-      String fileName = file.getFilename();
+      String fileName = body.file.getOriginalFilename();
 
-      String vfOid = service.uploadFileCR(request.getSessionId(), crOid, fileName, stream);
+      String fileId = service.uploadFileCR(this.getSessionId(), body.getRequestId(), fileName, stream);
 
-      return new RestBodyResponse(vfOid);
+      return new ResponseEntity<String>(fileId, HttpStatus.OK);
     }
   }
 
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF listDocumentsCR(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid)
+  @GetMapping(API_PATH + "/list-documents-cr")
+  public ResponseEntity<String> listDocumentsCR(@NotEmpty
+  @RequestParam String requestId)
   {
-    String json = service.listDocumentsCR(request.getSessionId(), crOid);
+    String json = service.listDocumentsCR(this.getSessionId(), requestId);
 
-    return new RestBodyResponse(json);
+    return new ResponseEntity<String>(json, HttpStatus.OK);
   }
 
-  @Endpoint(url = "download-file-cr", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF downloadDocumentCR(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "vfOid") String vfOid)
+  @GetMapping(API_PATH + "/download-file-cr")
+  public ResponseEntity<InputStreamResource> downloadDocumentCR(@NotEmpty
+  @RequestParam String requestId,
+      @NotEmpty
+      @RequestParam String fileId)
   {
-    ApplicationResource res = service.downloadDocumentCR(request.getSessionId(), crOid, vfOid);
+    ApplicationResource res = service.downloadDocumentCR(this.getSessionId(), requestId, fileId);
 
-    return new InputStreamResponse(res.openNewStream(), "application/octet-stream", res.getName());
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+    headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + res.getName());
+
+    return new ResponseEntity<InputStreamResource>(new InputStreamResource(res.openNewStream()), headers, HttpStatus.OK);
   }
 
-  @Endpoint(url = "delete-file-cr", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF deleteDocumentCR(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "vfOid") String vfOid)
+  @PostMapping(API_PATH + "/delete-file-cr")
+  public ResponseEntity<Void> deleteDocumentCR(@Valid
+  @RequestBody DocumentFileBody body)
   {
-    service.deleteDocumentCR(request.getSessionId(), crOid, vfOid);
+    service.deleteDocumentCR(this.getSessionId(), body.getRequestId(), body.getFileId());
 
-    return new RestResponse();
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
-  
-  @Endpoint(url = "reject", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF reject(ClientRequestIF request, @RequestParamter(name = "request") String cr)
-  {
-    service.reject(request.getSessionId(), cr);
 
-    return new RestResponse();
+  @PostMapping(API_PATH + "/reject")
+  public ResponseEntity<Void> reject(@Valid
+  @RequestBody ChangeRequestBody body)
+  {
+    service.reject(this.getSessionId(), body.getRequestId());
+
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
   /**
@@ -120,12 +234,15 @@ public class ChangeRequestController
    * @param filter
    *          May be one of PENDING, REJECTED, ACCEPTED, INVALID
    */
-  @Endpoint(error = ErrorSerialization.JSON, url = "get-all-requests", method = ServletMethod.GET)
-  public ResponseIF getAllRequests(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "filter") String filter, @RequestParamter(name = "sort") String sort, @RequestParamter(name = "oid") String oid)
+  @GetMapping(API_PATH + "/get-all-requests")
+  public ResponseEntity<String> getAllRequests(@NotNull
+  @RequestParam Integer pageSize,
+      @NotNull
+      @RequestParam Integer pageNumber, @RequestParam(required = false) String filter, @RequestParam(required = false) String sort, @RequestParam(required = false) String oid)
   {
-    JsonObject paginated = service.getAllRequestsSerialized(request.getSessionId(), pageSize, pageNumber, filter, sort, oid);
+    JsonObject paginated = service.getAllRequestsSerialized(this.getSessionId(), pageSize, pageNumber, filter, sort, oid);
 
-    return new RestBodyResponse(paginated.toString());
+    return new ResponseEntity<String>(paginated.toString(), HttpStatus.OK);
   }
 
   /**
@@ -141,12 +258,13 @@ public class ChangeRequestController
    * @throws net.geoprism.registry.CGRPermissionException
    * @return Empty response
    */
-  @Endpoint(error = ErrorSerialization.JSON, url = "set-action-status", method = ServletMethod.POST)
-  public ResponseIF setActionStatus(ClientRequestIF request, @RequestParamter(name = "actionOid") String actionOid, @RequestParamter(name = "status") String status)
+  @PostMapping(API_PATH + "/set-action-status")
+  public ResponseEntity<Void> setActionStatus(@Valid
+  @RequestBody ActionStatusBody body)
   {
-    service.setActionStatus(request.getSessionId(), actionOid, status);
+    service.setActionStatus(this.getSessionId(), body.actionOid, body.status);
 
-    return new RestResponse();
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
   /**
@@ -165,27 +283,29 @@ public class ChangeRequestController
    * @throws net.geoprism.registry.CGRPermissionException
    * @return Empty response
    */
-  @Endpoint(error = ErrorSerialization.JSON, url = "implement-decisions", method = ServletMethod.POST)
-  public ResponseIF implementDecisions(ClientRequestIF request, @RequestParamter(name = "request") String cr)
+  @PostMapping(API_PATH + "/implement-decisions")
+  public ResponseEntity<String> implementDecisions(@Valid
+  @RequestBody RequestObjectBody body)
   {
-    JsonObject details = service.implementDecisions(request.getSessionId(), cr);
+    JsonObject details = service.implementDecisions(this.getSessionId(), body.request.toString());
 
-    return new RestBodyResponse(details);
+    return new ResponseEntity<String>(details.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(error = ErrorSerialization.JSON, url = "update", method = ServletMethod.POST)
-  public ResponseIF update(ClientRequestIF request, @RequestParamter(name = "request") String cr)
+  @PostMapping(API_PATH + "/update")
+  public ResponseEntity<String> update(@RequestBody RequestObjectBody body)
   {
-    JsonObject details = service.update(request.getSessionId(), cr);
-    
-    return new RestBodyResponse(details);
-  }
-  
-  @Endpoint(error = ErrorSerialization.JSON, url = "delete", method = ServletMethod.POST)
-  public ResponseIF deleteChangeRequest(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
-  {
-    service.deleteChangeRequest(request.getSessionId(), requestId);
+    JsonObject details = service.update(this.getSessionId(), body.request);
 
-    return new RestResponse();
+    return new ResponseEntity<String>(details.toString(), HttpStatus.OK);
+  }
+
+  @PostMapping(API_PATH + "/delete")
+  public ResponseEntity<Void> deleteChangeRequest(@Valid
+  @RequestBody ChangeRequestBody body) throws JSONException
+  {
+    service.deleteChangeRequest(this.getSessionId(), body.requestId);
+
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 }

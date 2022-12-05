@@ -25,7 +25,7 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http
-            .post<ChangeRequest>(registry.contextPath + "/changerequest/implement-decisions", JSON.stringify({ request: request }), { headers: headers })
+            .post<ChangeRequest>(registry.contextPath + "/api/changerequest/implement-decisions", JSON.stringify({ request: request }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -40,7 +40,7 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http
-            .post<ChangeRequest>(registry.contextPath + "/changerequest/update", JSON.stringify({ request: request }), { headers: headers })
+            .post<ChangeRequest>(registry.contextPath + "/api/changerequest/update", JSON.stringify({ request: request }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -55,7 +55,7 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/changerequest/set-action-status", JSON.stringify({ actionOid: actionOid, status: status }), { headers: headers })
+            .post<void>(registry.contextPath + "/api/changerequest/set-action-status", JSON.stringify({ actionOid: actionOid, status: status }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -75,7 +75,7 @@ export class ChangeRequestService {
 
         this.eventService.start();
 
-        return this.http.get<PageResult<ChangeRequest>>(registry.contextPath + "/changerequest/get-all-requests", { params: params })
+        return this.http.get<PageResult<ChangeRequest>>(registry.contextPath + "/api/changerequest/get-all-requests", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -89,7 +89,7 @@ export class ChangeRequestService {
 
         this.eventService.start();
 
-        return this.http.post<void>(registry.contextPath + "/changerequest/reject", JSON.stringify({ request: request }), { headers: headers })
+        return this.http.post<void>(registry.contextPath + "/api/changerequest/reject", JSON.stringify({ request: request }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -103,14 +103,14 @@ export class ChangeRequestService {
 
         this.eventService.start();
 
-        return this.http.post<string>(registry.contextPath + "/changerequest/delete", JSON.stringify({ requestId: requestId }), { headers: headers })
+        return this.http.post<string>(registry.contextPath + "/api/changerequest/delete", JSON.stringify({ requestId: requestId }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
             .toPromise();
     }
 
-    deleteFile(crOid: string, fileId: string): Promise<ImportConfiguration> {
+    deleteFile(requestId: string, fileId: string): Promise<ImportConfiguration> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -118,7 +118,7 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http
-            .post<ImportConfiguration>(registry.contextPath + "/changerequest/delete-file-cr", JSON.stringify({ crOid: crOid, vfOid: fileId }), { headers: headers })
+            .post<ImportConfiguration>(registry.contextPath + "/api/changerequest/delete-file-cr", JSON.stringify({ requestId: requestId, fileId: fileId }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

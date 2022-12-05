@@ -44,7 +44,7 @@ import net.geoprism.registry.spring.NullableDateDeserializer;
 @RestController
 public class ShapefileController extends RunwaySpringController
 {
-  public static final class GetConfigurationInput
+  public static final class GetConfigurationBody
   {
     @NotEmpty(message = "Import type requires a value")
     private String        type;
@@ -132,7 +132,7 @@ public class ShapefileController extends RunwaySpringController
   private ShapefileService   service;
 
   @PostMapping(API_PATH + "/get-shapefile-configuration")
-  public ResponseEntity<String> getShapefileConfiguration(@Valid @ModelAttribute GetConfigurationInput input) throws IOException
+  public ResponseEntity<String> getShapefileConfiguration(@Valid @ModelAttribute GetConfigurationBody input) throws IOException
   {
     String sessionId = this.getSessionId();
 
