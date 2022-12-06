@@ -429,7 +429,7 @@ public class GeoObjectController extends RunwaySpringController
   public ResponseEntity<String> getChildGeoObjects( 
       @NotEmpty @RequestParam String parentCode, 
       @NotEmpty @RequestParam String parentTypeCode, 
-      @NotNull @RequestParam Date date, 
+      @RequestParam(required = false) Date date, 
       @RequestParam(required = false) String childrenTypes, 
       @NotNull @RequestParam Boolean recursive)
   {
@@ -471,7 +471,7 @@ public class GeoObjectController extends RunwaySpringController
   public ResponseEntity<String> getParentGeoObjects( 
       @NotEmpty @RequestParam String childCode, 
       @NotEmpty @RequestParam String childTypeCode, 
-      @NotNull @RequestParam Date date, 
+      @RequestParam(required = false) Date date, 
       @RequestParam(required = false) String parentTypes, 
       @NotNull @RequestParam Boolean recursive)
   {

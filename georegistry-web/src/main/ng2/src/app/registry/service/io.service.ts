@@ -131,7 +131,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<Synonym>(registry.contextPath + "/geo-synonym/createGeoEntitySynonym", JSON.stringify({ entityId: entityId, label: label }), { headers: headers })
+            .post<Synonym>(registry.contextPath + "/geo-synonym/create-geo-entity-synonym", JSON.stringify({ entityId: entityId, label: label }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -146,7 +146,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/geo-synonym/deleteGeoEntitySynonym", JSON.stringify({ synonymId: synonymId, vOid: vOid }), { headers: headers })
+            .post<void>(registry.contextPath + "/geo-synonym/create-geo-entity-synonym", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

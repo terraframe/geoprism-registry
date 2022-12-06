@@ -18,43 +18,85 @@
  */
 package net.geoprism.registry.controller;
 
-import org.json.JSONException;
+import javax.validation.Valid;
+
+import org.hibernate.validator.constraints.NotEmpty;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.mvc.RestResponse;
-
+import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.service.GeoSynonymService;
 
-@Controller(url = "geo-synonym")
-public class GeoSynonymController
+@RestController
+@Validated
+public class GeoSynonymController extends RunwaySpringController
 {
-  private GeoSynonymService service = new GeoSynonymService();
-
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF createGeoEntitySynonym(ClientRequestIF request, 
-      @RequestParamter(name = "typeCode", required = true) String typeCode, 
-      @RequestParamter(name = "code", required = true) String code, 
-      @RequestParamter(name = "label", required = true) String label) throws JSONException
+  public static final String API_PATH = "geo-synonym";
+  
+  public static final class SynonymBody
   {
-    JSONObject response = service.createGeoEntitySynonym(request.getSessionId(), typeCode, code, label);
+    @NotEmpty
+    private String typeCode;
 
-    return new RestBodyResponse(response);
+    @NotEmpty
+    private String code;
+
+    @NotEmpty
+    private String label;
+
+    public String getTypeCode()
+    {
+      return typeCode;
+    }
+
+    public void setTypeCode(String typeCode)
+    {
+      this.typeCode = typeCode;
+    }
+
+    public String getCode()
+    {
+      return code;
+    }
+
+    public void setCode(String code)
+    {
+      this.code = code;
+    }
+
+    public String getLabel()
+    {
+      return label;
+    }
+
+    public void setLabel(String label)
+    {
+      this.label = label;
+    }
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF deleteGeoEntitySynonym(ClientRequestIF request, @RequestParamter(name = "vOid", required = true) String vOid)
-  {
-    service.deleteGeoEntitySynonym(request.getSessionId(), vOid);
+  @Autowired
+  private GeoSynonymService service;
 
-    return new RestResponse();
+  @PostMapping(API_PATH + "/create-geo-entity-synonym")
+  public ResponseEntity<String> createGeoEntitySynonym(@Valid @RequestBody SynonymBody body)
+  {
+    JSONObject response = service.createGeoEntitySynonym(this.getSessionId(), body.typeCode, body.code, body.label);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
+  @PostMapping(API_PATH + "/delete-geo-entity-synonym")
+  public ResponseEntity<Void> deleteGeoEntitySynonym( @Valid @RequestBody OidBody body)
+  {
+    service.deleteGeoEntitySynonym(this.getSessionId(), body.getOid());
+
+    return new ResponseEntity<Void>(HttpStatus.OK);
+  }
 }
