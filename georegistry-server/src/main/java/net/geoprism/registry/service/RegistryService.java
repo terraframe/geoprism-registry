@@ -51,6 +51,7 @@ import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -117,6 +118,7 @@ import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
 
+@Component
 public class RegistryService
 {
   private RegistryAdapter        adapter;

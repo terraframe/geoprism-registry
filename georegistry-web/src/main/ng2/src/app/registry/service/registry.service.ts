@@ -24,7 +24,7 @@ import { finalize } from "rxjs/operators";
 
 import {
     GeoObject, GeoObjectType, AttributeType, Term, ParentTreeNode,
-    ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob
+    ChildTreeNode, GeoObjectOverTime, HierarchyOverTime, ScheduledJob
 } from "@registry/model/registry";
 
 import { HierarchyType } from "@registry/model/hierarchy";
@@ -84,7 +84,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .get<ParentTreeNode>(registry.contextPath + "/cgr/geoobject/get-parent-geoobjects", { params: params })
+            .get<ParentTreeNode>(registry.contextPath + "/api/geoobject/get-parent-geoobjects", { params: params })
             .toPromise();
     }
 
@@ -97,7 +97,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("recursive", JSON.stringify(recursive));
 
         return this.http
-            .get<ChildTreeNode>(registry.contextPath + "/cgr/geoobject/getchildren", { params: params })
+            .get<ChildTreeNode>(registry.contextPath + "/api/geoobject/getchildren", { params: params })
             .toPromise();
     }
 
@@ -110,7 +110,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("code", code);
 
         return this.http
-            .get<{ exists: boolean, invalid: boolean }>(registry.contextPath + "/geoobject/exists-at-range", { params: params })
+            .get<{ exists: boolean, invalid: boolean }>(registry.contextPath + "/api/geoobject/exists-at-range", { params: params })
             .toPromise();
     }
 
@@ -122,7 +122,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/cgr/geoobject/newGeoObjectInstance", JSON.stringify({ typeCode: typeCode }), { headers: headers })
+            .post<any>(registry.contextPath + "/api/geoobject/newGeoObjectInstance", JSON.stringify({ typeCode: typeCode }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -275,7 +275,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .get<GeoObject>(registry.contextPath + "/cgr/geoobject/get", { params: params })
+            .get<GeoObject>(registry.contextPath + "/api/geoobject/get", { params: params })
             .pipe(finalize(() => {
                 if (showOverlay) {
                     this.eventService.complete();
@@ -291,7 +291,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("typeCode", typeCode);
 
         return this.http
-            .get<number[]>(registry.contextPath + "/cgr/geoobject/get-bounds", { params: params })
+            .get<number[]>(registry.contextPath + "/api/geoobject/get-bounds", { params: params })
             .toPromise();
     }
 
@@ -317,7 +317,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("typeCode", typeCode);
 
         return this.http
-            .get<GeoObject>(registry.contextPath + "/cgr/geoobject/get-code", { params: params })
+            .get<GeoObject>(registry.contextPath + "/api/geoobject/get-code", { params: params })
             .toPromise();
     }
 
@@ -331,7 +331,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .get<HierarchyOverTime[]>(registry.contextPath + "/cgr/geoobject/get-hierarchies-over-time", { params: params })
+            .get<HierarchyOverTime[]>(registry.contextPath + "/api/geoobject/get-hierarchies-over-time", { params: params })
             .pipe(finalize(() => {
                 if (showOverlay) {
                     this.eventService.complete();
@@ -341,46 +341,36 @@ export class RegistryService implements AttributeTypeService {
     }
 
     getGeoObjectSuggestions(text: string, type: string, parent: string, parentTypeCode: string, hierarchy: string, startDate: string, endDate: string): Promise<{ id: string, code: string, name: string, typeCode: string, uid: string }[]> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        let params = {
-            text: text,
-            type: type
-        } as any;
+        let params: HttpParams = new HttpParams();
+        params = params.set("text", text);
+        params = params.set("type", type);
 
         if (parent != null && hierarchy != null) {
-            params.parent = parent;
-            params.hierarchy = hierarchy;
+            params = params.set("parent", parent);
+            params = params.set("hierarchy", hierarchy);
         }
 
         if (parentTypeCode != null) {
-            params.parentTypeCode = parentTypeCode;
+            params = params.set("parentTypeCode", parentTypeCode);
         }
 
         if (startDate != null && endDate != null) {
-            params.startDate = startDate;
-            params.endDate = endDate;
+            params = params.set("startDate", startDate);
+            params = params.set("endDate", endDate);
         }
 
         return this.http
-            .post<{ id: string, code: string, name: string, typeCode: string, uid: string }[]>(registry.contextPath + "/cgr/geoobject/suggestions", JSON.stringify(params), { headers: headers })
+            .get<{ id: string, code: string, name: string, typeCode: string, uid: string }[]>(registry.contextPath + "/api/geoobject/suggestions", { params: params })
             .toPromise();
     }
 
-    getGeoObjectSuggestionsTypeAhead(text: string, type: string): Promise<GeoObject> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        let params = {
-            text: text,
-            type: type
-        } as any;
+    getGeoObjectSuggestionsTypeAhead(text: string, type: string): Promise<{ id: string, code: string, name: string, typeCode: string, uid: string }[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("text", text);
+        params = params.set("type", type);
 
         return this.http
-            .post<GeoObject>(registry.contextPath + "/cgr/geoobject/suggestions", JSON.stringify(params), { headers: headers })
+            .get<{ id: string, code: string, name: string, typeCode: string, uid: string }[]>(registry.contextPath + "/api/geoobject/suggestions", { params: params })
             .toPromise();
     }
 
@@ -509,29 +499,6 @@ export class RegistryService implements AttributeTypeService {
                 if (showOverlay) {
                     this.eventService.complete();
                 }
-            }))
-            .toPromise();
-    }
-
-    setAttributeVersions(geoObjectCode: string, geoObjectTypeCode: string, attributeName: string, collection: ValueOverTime[]): Promise<Response> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        let params = {
-            geoObjectCode: geoObjectCode,
-            geoObjectTypeCode: geoObjectTypeCode,
-            attributeName: attributeName,
-            collection: collection
-
-        } as any;
-
-        this.eventService.start();
-
-        return this.http
-            .post<Response>(registry.contextPath + "/cgr/geoobject/setAttributeVersions", JSON.stringify(params), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
             }))
             .toPromise();
     }

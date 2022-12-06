@@ -30,8 +30,6 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.RegistryUrls;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
-import org.commongeoregistry.adapter.dataaccess.TreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -150,26 +148,6 @@ public class RegistryController
     return new RestBodyResponse(json);
   }
 
-  /**
-   * Returns a GeoObject with the given uid.
-   *
-   * @pre @post
-   *
-   * @param uid
-   *          The UID of the GeoObject.
-   *
-   * @returns a GeoObject in GeoJSON format with the given uid. @throws
-   **/
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET)
-  public ResponseIF getGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_ID) String id, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE) String typeCode, @RequestParamter(name = "date") String date) throws JSONException
-  {
-    GeoObject geoObject = this.registryService.getGeoObject(request.getSessionId(), id, typeCode, GeoRegistryUtil.parseDate(date, true));
-
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-
-    return new RestBodyResponse(geoObject.toJSON(serializer));
-  }
-
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TIME_GET)
   public ResponseIF getGeoObjectOverTime(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_GET_PARAM_ID) String id, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_GET_PARAM_TYPE_CODE) String typeCode) throws JSONException
   {
@@ -198,16 +176,6 @@ public class RegistryController
     return new RestBodyResponse(resp);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/get-bounds")
-  public ResponseIF getGeoObjectBounds(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE) String typeCode) throws JSONException
-  {
-    GeoObject geoObject = this.registryService.getGeoObjectByCode(request.getSessionId(), code, typeCode, null);
-
-    String bounds = this.registryService.getGeoObjectBounds(request.getSessionId(), geoObject);
-
-    return new RestBodyResponse(bounds);
-  }
-
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject-time/get-bounds")
   public ResponseIF getGeoObjectBoundsAtDate(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE) String typeCode, @RequestParamter(name = "date") String date) throws JSONException, ParseException
   {
@@ -220,97 +188,10 @@ public class RegistryController
     return new RestBodyResponse(bounds);
   }
 
-  /**
-   * Returns a GeoObject with the given code.
-   *
-   * @pre @post
-   *
-   * @param uid
-   *          The UID of the GeoObject.
-   *
-   * @returns a GeoObject in GeoJSON format with the given uid. @throws
-   **/
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET_CODE)
-  public ResponseIF getGeoObjectByCode(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_TYPE_CODE) String typeCode, @RequestParamter(name = "date") String date) throws JSONException
-  {
-    GeoObject geoObject = this.registryService.getGeoObjectByCode(request.getSessionId(), code, typeCode, GeoRegistryUtil.parseDate(date, true));
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-
-    return new RestBodyResponse(geoObject.toJSON(serializer));
-  }
-
-  /**
-   * Creates a new GeoObject in the Common Geo-Registry
-   *
-   * @pre
-   * @post
-   *
-   * @param geoObject
-   *          in GeoJSON format to be created.
-   * @throws ParseException 
-   *
-   * @returns
-   * @throws //TODO
-   **/
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_CREATE)
-  public ResponseIF createGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_CREATE_PARAM_GEOOBJECT) String jGeoObj, @RequestParamter(name = "startDate") String startDateString, @RequestParamter(name = "endDate") String endDateString) throws ParseException
-  {
-    Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString, true) : null;
-    Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString, true) : null;
-    
-    GeoObject geoObject = this.registryService.createGeoObject(request.getSessionId(), jGeoObj, startDate, endDate);
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-
-    return new RestBodyResponse(geoObject.toJSON(serializer));
-  }
-
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TIME_CREATE)
   public ResponseIF createGeoObjectOverTime(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TIME_CREATE_PARAM_GEOOBJECT) String jGeoObj)
   {
     GeoObjectOverTime geoObject = this.registryService.createGeoObjectOverTime(request.getSessionId(), jGeoObj);
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-
-    return new RestBodyResponse(geoObject.toJSON(serializer));
-  }
-
-  /**
-   * TODO : Not part of the official API (yet). Currently used for the GeoObject
-   * editing widget when creating a new GeoObject. The return value is a custom
-   * serialized json format because ParentTreeNode doesn't quite fit our needs
-   * (It allows for a GeoObject but not a GeoObjectType)
-   * 
-   * @param request
-   * @param typeCode
-   * @return
-   */
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_NEW_INSTANCE)
-  public ResponseIF newGeoObjectInstance(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_NEW_INSTANCE_PARAM_TYPE_CODE) String typeCode)
-  {
-    String resp = this.registryService.newGeoObjectInstance2(request.getSessionId(), typeCode);
-
-    return new RestBodyResponse(resp);
-  }
-
-  /**
-   * Update a new GeoObject in the Common Geo-Registry
-   *
-   * @pre
-   * @post
-   *
-   * @param geoObject
-   *          in GeoJSON format to be updated.
-   * @throws ParseException 
-   *
-   * @returns
-   * @throws //TODO
-   **/
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_UPDATE)
-  public ResponseIF updateGeoObject(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_UPDATE_PARAM_GEOOBJECT) String jGeoObj, @RequestParamter(name = "startDate") String startDateString, @RequestParamter(name = "endDate") String endDateString) throws ParseException
-  {
-    Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString, true) : null;
-    Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString, true) : null;
-
-    GeoObject geoObject = this.registryService.updateGeoObject(request.getSessionId(), jGeoObj, startDate, endDate);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(geoObject.toJSON(serializer));
@@ -449,178 +330,7 @@ public class RegistryController
 
     return new RestResponse();
   }
-
-  /**
-   * Get children of the given GeoObject
-   *
-   * @pre @post
-   *
-   * @param parentUid
-   *          UID of the parent object for which the call fetches
-   *          children. @param childrentTypes An array of GeoObjectType names of
-   *          the types of children GeoObjects to fetch. If blank then return
-   *          children of all types. @param recursive TRUE if recursive children
-   *          of the given parent with the given types should be returned, FALSE
-   *          if only single level children should be returned.
-   * 
-   * @returns @throws
-   **/
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET_CHILDREN)
-  public ResponseIF getChildGeoObjects(ClientRequestIF request, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTCODE, required = true) String parentCode, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_PARENT_TYPE_CODE, required = true) String parentTypeCode, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_DATE, required = true) String date, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_CHILDREN_TYPES) String childrenTypes, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CHILDREN_PARAM_RECURSIVE, required = true) Boolean recursive)
-  {
-    String[] aChildTypes = null;
-
-    if (childrenTypes != null)
-    {
-      JSONArray jaChildTypes = new JSONArray(childrenTypes);
-
-      aChildTypes = new String[jaChildTypes.length()];
-      for (int i = 0; i < jaChildTypes.length(); i++)
-      {
-        aChildTypes[i] = jaChildTypes.getString(i);
-      }
-    }
-
-    TreeNode tn = this.registryService.getChildGeoObjects(request.getSessionId(), parentCode, parentTypeCode, aChildTypes, recursive, GeoRegistryUtil.parseDate(date, true));
-
-    return new RestBodyResponse(tn.toJSON());
-  }
   
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/business-objects")
-  public ResponseIF getBusinessObjects(ClientRequestIF request, 
-      @RequestParamter(name = "typeCode", required = true) String typeCode,
-      @RequestParamter(name = "code", required = true) String code, 
-      @RequestParamter(name = "businessTypeCode", required = true) String businessTypeCode)
-  {
-    JsonArray objects = ServiceFactory.getGeoObjectService().getBusinessObjects(request.getSessionId(), typeCode, code, businessTypeCode);
-
-    return new RestBodyResponse(objects);
-  }
-
-  
-
-  /**
-   * Get parents of the given GeoObject
-   *
-   * @pre @post
-   *
-   * @param childUid
-   *          UID of the child object for which the call fetches parents. @param
-   *          parentTypes An array of GeoObjectType names of the types of parent
-   *          GeoObjects to fetch. If blank then return parents of all
-   *          types. @param recursive TRUE if recursive parents of the given
-   *          parent with the given types should be returned, FALSE if only
-   *          single level parents should be returned.
-   * @throws ParseException
-   * 
-   * @returns @throws
-   **/
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET_PARENTS)
-  public ResponseIF getParentGeoObjects(ClientRequestIF request, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILDCODE, required = true) String childCode, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_CHILD_TYPE_CODE, required = true) String childTypeCode, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_DATE, required = true) String date, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_PARENT_TYPES) String parentTypes, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARENTS_PARAM_RECURSIVE, required = true) Boolean recursive) throws ParseException
-  {
-    String[] aParentTypes = null;
-
-    if (parentTypes != null)
-    {
-      JSONArray jaParentTypes = new JSONArray(parentTypes);
-
-      aParentTypes = new String[jaParentTypes.length()];
-      for (int i = 0; i < jaParentTypes.length(); i++)
-      {
-        aParentTypes[i] = jaParentTypes.getString(i);
-      }
-    }
-
-    TreeNode tn = this.registryService.getParentGeoObjects(request.getSessionId(), childCode, childTypeCode, aParentTypes, recursive, GeoRegistryUtil.parseDate(date, true));
-
-    return new RestBodyResponse(tn.toJSON());
-  }
-
-  /**
-   * Get list of valid UIDs for use in creating new GeoObjects. The Common
-   * Geo-Registry will only accept newly created GeoObjects with a UID that was
-   * issued from the Common GeoRegistry.
-   *
-   * @pre @post
-   *
-   * @param amount
-   *          Number of globally unique ids that the Common Geo-Registry will
-   *          issue to the mobile device.
-   *
-   * @returns @throws
-   **/
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_GET_UIDS)
-  public ResponseIF getUIDs(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_UIDS_PARAM_AMOUNT, required = true) Integer amount)
-  {
-    String[] ids = this.registryService.getUIDS(request.getSessionId(), amount);
-
-    return new RestBodyResponse(ids);
-  }
-
-  /**
-   * Creates a relationship between @parentUid and @childUid.
-   *
-   * @pre Both the parent and child have already been persisted / applied
-   * @post A relationship will exist between @parent and @child
-   *
-   * @returns ParentTreeNode The new node which was created with the provided
-   *          parent.
-   * @param startDate TODO
-   * @param endDate TODO
-   */
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_ADD_CHILD)
-  public ResponseIF addChild(ClientRequestIF request, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTCODE, required = true) String parentCode, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE, required = true) String parentTypeCode, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDCODE, required = true) String childCode, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE, required = true) String childTypeCode, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE, required = true) String hierarchyRef, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_START_DATE) String startDateString, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_END_DATE) String endDateString)
-  {
-    Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString, true) : null;
-    Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString, true) : null;
-
-    ParentTreeNode pn = ServiceFactory.getGeoObjectService().addChild(request.getSessionId(), parentCode, parentTypeCode, childCode, childTypeCode, hierarchyRef, startDate, endDate);
-
-    return new RestBodyResponse(pn.toJSON());
-  }
-
-  /**
-   * Removes a relationship between @parentUid and @childUid.
-   *
-   * @pre Both the parent and child have already been persisted / applied
-   * @post A relationship will not exist between @parent and @child
-   *
-   * @returns
-   */
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_REMOVE_CHILD)
-  public ResponseIF removeChild(ClientRequestIF request, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENTCODE, required = true) String parentCode,
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_PARENT_TYPE_CODE, required = true) String parentTypeCode,
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILDCODE, required = true) String childCode, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_CHILD_TYPE_CODE, required = true) String childTypeCode, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_HIERARCHY_CODE, required = true) String hierarchyRef, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_START_DATE) String startDateString, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_ADD_CHILD_PARAM_END_DATE) String endDateString)
-  {
-    Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString, true) : null;
-    Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString, true) : null;
-
-    ServiceFactory.getGeoObjectService().removeChild(request.getSessionId(), parentCode, parentTypeCode, childCode, childTypeCode, hierarchyRef, startDate, endDate);
-
-    return new RestResponse();
-  }
 
   /**
    * Returns an array of {@link GeoOjectType} objects that define the given list
@@ -970,56 +680,6 @@ public class RegistryController
     return new RestBodyResponse(response);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/get-hierarchies")
-  public ResponseIF getHierarchiesForGeoObject(ClientRequestIF request, 
-      @RequestParamter(name = "code", required = true) String code, 
-      @RequestParamter(name = "typeCode", required = true) String typeCode, 
-      @RequestParamter(name = "date", required = true) String date)
-  {
-    JsonArray response = this.registryService.getHierarchiesForGeoObject(request.getSessionId(), code, typeCode, GeoRegistryUtil.parseDate(date, true));
-
-    return new RestBodyResponse(response);
-  }
-
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/get-hierarchies-over-time")
-  public ResponseIF getHierarchiesForGeoObjectOverTime(ClientRequestIF request, 
-      @RequestParamter(name = "code", required = true) String code, 
-      @RequestParamter(name = "typeCode", required = true) String typeCode)
-  {
-    JsonArray response = ServiceFactory.getHierarchyService().getHierarchiesForGeoObjectOverTime(request.getSessionId(), code, typeCode);
-
-    return new RestBodyResponse(response);
-  }
-
-  /**
-   * Returns an array of (label, entityId) pairs that under the given
-   * parent/hierarchy and have the given label.
-   * 
-   * @throws ParseException
-   *
-   * @pre
-   * @post
-   *
-   * @returns @throws
-   **/
-  @Endpoint(url = "geoobject/suggestions", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF getGeoObjectSuggestions(ClientRequestIF request, 
-      @RequestParamter(name = "text") String text, 
-      @RequestParamter(name = "type", required = true) String type, 
-      @RequestParamter(name = "parent") String parent, 
-      @RequestParamter(name = "parentTypeCode") String parentTypeCode, 
-      @RequestParamter(name = "hierarchy") String hierarchy, 
-      @RequestParamter(name = "startDate") String startDateString, 
-      @RequestParamter(name = "endDate") String endDateString)
-  {
-    Date startDate = (startDateString != null && startDateString.length() > 0) ? GeoRegistryUtil.parseDate(startDateString, true) : null;
-    Date endDate = (endDateString != null && endDateString.length() > 0) ? GeoRegistryUtil.parseDate(endDateString, true) : null;
-
-    JsonArray response = this.registryService.getGeoObjectSuggestions(request.getSessionId(), text, type, parent, parentTypeCode, hierarchy, startDate, endDate);
-
-    return new RestBodyResponse(response);
-  }
-
   /**
    * Returns a map with a list of all the types, all of the hierarchies, and all
    * of the locales currently installed in the system. This endpoint is used to
@@ -1077,26 +737,6 @@ public class RegistryController
     settingsView.add("sras", sraPage);
 
     return new RestBodyResponse(settingsView);
-  }
-
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/search")
-  public ResponseIF search(ClientRequestIF request, 
-      @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE, required = true) String typeCode, 
-      @RequestParamter(name = "text", required = true) String text, 
-      @RequestParamter(name = "date", required = true) String date) throws JSONException, ParseException
-  {
-    List<GeoObject> results = this.registryService.search(request.getSessionId(), typeCode, text, GeoRegistryUtil.parseDate(date, true));
-
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-
-    JsonArray response = new JsonArray();
-
-    for (GeoObject result : results)
-    {
-      response.add(result.toJSON(serializer));
-    }
-
-    return new RestBodyResponse(response);
   }
 
 }

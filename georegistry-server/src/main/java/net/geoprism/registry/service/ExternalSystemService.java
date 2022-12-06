@@ -21,6 +21,7 @@ package net.geoprism.registry.service;
 import java.util.List;
 
 import org.json.JSONException;
+import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -38,6 +39,7 @@ import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.view.Page;
 
+@Component
 public class ExternalSystemService
 {
   @Request(RequestType.SESSION)
@@ -50,16 +52,14 @@ public class ExternalSystemService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject apply(String sessionId, String json) throws JSONException
+  public JsonObject apply(String sessionId, JsonObject jo) throws JSONException
   {
-    return applyInTrans(json);
+    return applyInTrans(jo);
   }
 
   @Transaction
-  private JsonObject applyInTrans(String json)
+  private JsonObject applyInTrans(JsonObject jo)
   {
-    JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
-
     ExternalSystem system = ExternalSystem.desieralize(jo);
     system.apply();
 

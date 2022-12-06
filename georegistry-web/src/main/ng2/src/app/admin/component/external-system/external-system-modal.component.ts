@@ -162,7 +162,7 @@ export class ExternalSystemModalComponent implements OnInit {
   }
 
   downloadDhis2Plugin(): void {
-      window.location.href = this.context + "/external-system/download-dhis2-plugin";
+      window.location.href = this.context + "/api/external-system/download-dhis2-plugin";
   }
 
   cancel(): void {

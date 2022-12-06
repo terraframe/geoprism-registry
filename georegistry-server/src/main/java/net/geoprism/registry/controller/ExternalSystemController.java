@@ -4,95 +4,125 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import com.google.gson.JsonObject;
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.InputStreamResponse;
-import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.mvc.RestResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
-import net.geoprism.registry.dhis2.DHIS2FeatureService;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.gson.JsonObject;
+
+import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.dhis2.DHIS2PluginZipManager;
 import net.geoprism.registry.service.ExternalSystemService;
+import net.geoprism.registry.spring.JsonObjectDeserializer;
 
-@Controller(url = "external-system")
-public class ExternalSystemController
+@RestController
+@Validated
+public class ExternalSystemController extends RunwaySpringController
 {
+  public static final String API_PATH = "external-system";
+
+  public static final class SystemBody
+  {
+    @NotNull
+    @JsonDeserialize(using = JsonObjectDeserializer.class)
+    private JsonObject system;
+
+    public JsonObject getSystem()
+    {
+      return system;
+    }
+
+    public void setSystem(JsonObject system)
+    {
+      this.system = system;
+    }
+  }
+
+  @Autowired
   private ExternalSystemService service;
 
-  public ExternalSystemController()
+  @GetMapping(API_PATH + "/system-capabilities")
+  public ResponseEntity<String> getSystemCapabilities(@NotEmpty
+  @RequestParam String system)
   {
-    this.service = new ExternalSystemService();
-  }
-  
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "system-capabilities")
-  public ResponseIF getSystemCapabilities(ClientRequestIF request, @RequestParamter(name = "system") String systemJSON)
-  {
-    JsonObject capabilities = this.service.getSystemCapabilities(request.getSessionId(), systemJSON);
-    
-    return new RestBodyResponse(capabilities);
+    JsonObject response = this.service.getSystemCapabilities(this.getSessionId(), system);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "download-dhis2-plugin")
-  public ResponseIF downloadDhis2Plugin(ClientRequestIF request) throws FileNotFoundException
+  @GetMapping(API_PATH + "/download-dhis2-plugin")
+  public ResponseEntity<FileSystemResource> downloadDhis2Plugin() throws FileNotFoundException
   {
     File pluginZip = DHIS2PluginZipManager.getPluginZip();
-    
-    return new InputStreamResponse(new FileInputStream(pluginZip), "application/zip", "cgr-dhis2-app.zip");
-  }
-  
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-all")
-  public ResponseIF page(ClientRequestIF request, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize)
-  {
-    JsonObject response = this.service.page(request.getSessionId(), pageNumber, pageSize);
 
-    return new RestBodyResponse(response);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.valueOf("application/zip"));
+    headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=cgr-dhis2-app.zip");
+
+    return new ResponseEntity<FileSystemResource>(new FileSystemResource(pluginZip), headers, HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "system") String systemJSON)
+  @GetMapping(API_PATH + "/get-all")
+  public ResponseEntity<String> page(@RequestParam Integer pageNumber, @RequestParam Integer pageSize)
   {
-    JsonObject response = this.service.apply(request.getSessionId(), systemJSON);
+    JsonObject response = this.service.page(this.getSessionId(), pageNumber, pageSize);
 
-    return new RestBodyResponse(response);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove")
-  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  @PostMapping(API_PATH + "/apply")
+  public ResponseEntity<String> apply(@Valid @RequestBody SystemBody body)
   {
-    this.service.remove(request.getSessionId(), oid);
+    JsonObject response = this.service.apply(this.getSessionId(), body.system);
 
-    return new RestResponse();
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
-  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  @PostMapping(API_PATH + "/remove")
+  public ResponseEntity<Void> remove(@RequestBody OidBody body)
   {
-    JsonObject response = this.service.get(request.getSessionId(), oid);
+    this.service.remove(this.getSessionId(), body.getOid());
 
-    return new RestBodyResponse(response);
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+  }
+
+  @GetMapping(API_PATH + "/get")
+  public ResponseEntity<String> get(@NotEmpty
+  @RequestParam String oid)
+  {
+    JsonObject response = this.service.get(this.getSessionId(), oid);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 }

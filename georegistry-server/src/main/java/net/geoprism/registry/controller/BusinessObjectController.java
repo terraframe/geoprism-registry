@@ -20,13 +20,15 @@ package net.geoprism.registry.controller;
 
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonArray;
-import com.runwaysdk.mvc.ResponseIF;
+import com.google.gson.JsonObject;
 import com.runwaysdk.mvc.RestBodyResponse;
 
 import net.geoprism.registry.service.BusinessObjectService;
@@ -46,52 +48,56 @@ public class BusinessObjectController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get")
-  public ResponseIF get( 
+  public ResponseEntity<String> get( 
       @NotEmpty @RequestParam String businessTypeCode,
       @NotEmpty @RequestParam String code)
   {
-    return new RestBodyResponse(service.get(this.getSessionId(), businessTypeCode, code));
+    JsonObject response = service.get(this.getSessionId(), businessTypeCode, code);
+    
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
   @GetMapping(API_PATH + "/get-type-and-object")
-  public ResponseIF getTypeAndObject( 
+  public ResponseEntity<String> getTypeAndObject( 
       @NotEmpty @RequestParam String businessTypeCode,
       @NotEmpty @RequestParam String code)
   {
-    return new RestBodyResponse(service.getTypeAndObject(this.getSessionId(), businessTypeCode, code));
+    JsonObject response = service.getTypeAndObject(this.getSessionId(), businessTypeCode, code);
+    
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
   
   @GetMapping(API_PATH + "/get-parents")
-  public ResponseIF getParents( 
+  public ResponseEntity<String> getParents( 
       @NotEmpty @RequestParam String businessTypeCode,
       @NotEmpty @RequestParam String code,
       @NotEmpty @RequestParam String businessEdgeTypeCode)
   {
     JsonArray parents = this.service.getParents(this.getSessionId(), businessTypeCode, code, businessEdgeTypeCode);
     
-    return new RestBodyResponse(parents);
+    return new ResponseEntity<String>(parents.toString(), HttpStatus.OK);
   }
   
   @GetMapping(API_PATH + "/get-children")
-  public ResponseIF getChildren( 
+  public ResponseEntity<String> getChildren( 
       @NotEmpty @RequestParam String businessTypeCode,
       @NotEmpty @RequestParam String code,
       @NotEmpty @RequestParam String businessEdgeTypeCode)
   {
     JsonArray parents = this.service.getChildren(this.getSessionId(), businessTypeCode, code, businessEdgeTypeCode);
     
-    return new RestBodyResponse(parents);
+    return new ResponseEntity<String>(parents.toString(), HttpStatus.OK);
   }
   
   @GetMapping(API_PATH + "/get-geo-objects")
-  public ResponseIF getGeoObjects( 
+  public ResponseEntity<String> getGeoObjects( 
       @NotEmpty @RequestParam String businessTypeCode,
       @NotEmpty @RequestParam String code,
       @NotEmpty @RequestParam String date)
   {
     JsonArray geoObjects = this.service.getGeoObjects(this.getSessionId(), businessTypeCode, code, date);
     
-    return new RestBodyResponse(geoObjects);
+    return new ResponseEntity<String>(geoObjects.toString(), HttpStatus.OK);
   }
   
 }

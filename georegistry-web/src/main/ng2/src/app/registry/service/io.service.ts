@@ -109,22 +109,17 @@ export class IOService {
     }
 
     getGeoObjectSuggestions(text: string, type: string, parent: string, hierarchy: string): Promise<any> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        let params = {
-            text: text,
-            type: type
-        } as any;
+        let params: HttpParams = new HttpParams();
+        params = params.set("text", text);
+        params = params.set("type", type);
 
         if (parent != null && hierarchy != null) {
-            params.parent = parent;
-            params.hierarchy = parent;
+            params = params.set("parent", parent);
+            params = params.set("hierarchy", hierarchy);
         }
 
         return this.http
-            .post<any>(registry.contextPath + "/cgr/geoobject/suggestions", JSON.stringify(params), { headers: headers })
+            .get<any>(registry.contextPath + "/api/geoobject/suggestions", { params: params })
             .toPromise();
     }
 

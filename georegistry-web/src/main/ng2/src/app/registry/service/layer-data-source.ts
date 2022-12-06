@@ -219,7 +219,7 @@ export class GeoObjectLayerDataSource extends LayerDataSource {
             params = params.set("date", this.date);
         }
 
-        let url = registry.contextPath + "/cgr/geoobject/get-code" + "?" + params.toString();
+        let url = registry.contextPath + "/api/geoobject/get-code" + "?" + params.toString();
 
         return {
             type: "geojson",
