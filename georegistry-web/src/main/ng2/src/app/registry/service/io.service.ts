@@ -138,7 +138,7 @@ export class IOService {
             .toPromise();
     }
 
-    deleteGeoObjectSynonym(synonymId: string, vOid: string): Promise<void> {
+    deleteGeoObjectSynonym(synonymId: string, oid: string): Promise<void> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });

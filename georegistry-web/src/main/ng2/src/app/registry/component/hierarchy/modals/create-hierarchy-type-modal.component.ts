@@ -89,14 +89,14 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
         }
 
         if (this.edit) {
-            this.hierarchyService.updateHierarchyType(JSON.stringify(this.hierarchyType)).then(data => {
+            this.hierarchyService.updateHierarchyType(this.hierarchyType).then(data => {
                 this.onHierarchytTypeCreate.next(data);
                 this.bsModalRef.hide();
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
         } else {
-            this.hierarchyService.createHierarchyType(JSON.stringify(this.hierarchyType)).then(data => {
+            this.hierarchyService.createHierarchyType(this.hierarchyType).then(data => {
                 this.onHierarchytTypeCreate.next(data);
                 this.bsModalRef.hide();
             }).catch((err: HttpErrorResponse) => {

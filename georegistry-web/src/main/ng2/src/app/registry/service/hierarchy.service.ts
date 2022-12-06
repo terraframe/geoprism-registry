@@ -39,7 +39,7 @@ export class HierarchyService {
         params = params.set("types", JSON.stringify(types));
 
         return this.http
-            .get<HierarchyType[]>(registry.contextPath + "/cgr/hierarchytype/get-all", { params: params })
+            .get<HierarchyType[]>(registry.contextPath + "/api/hierarchytype/get-all", { params: params })
             .toPromise();
     }
 
@@ -59,7 +59,7 @@ export class HierarchyService {
         this.eventService.start();
 
         return this.http
-            .post<HierarchyType>(registry.contextPath + "/cgr/hierarchytype/add", JSON.stringify({ hierarchyCode: hierarchyCode, parentGeoObjectTypeCode: parentGeoObjectTypeCode, childGeoObjectTypeCode: childGeoObjectTypeCode }), { headers: headers })
+            .post<HierarchyType>(registry.contextPath + "/api/hierarchytype/add", JSON.stringify({ hierarchyCode: hierarchyCode, parentGeoObjectTypeCode: parentGeoObjectTypeCode, childGeoObjectTypeCode: childGeoObjectTypeCode }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -89,14 +89,14 @@ export class HierarchyService {
         this.eventService.start();
 
         return this.http
-            .post<HierarchyType>(registry.contextPath + "/cgr/hierarchytype/remove", JSON.stringify({ hierarchyCode: hierarchyCode, parentGeoObjectTypeCode: parentGeoObjectTypeCode, childGeoObjectTypeCode: childGeoObjectTypeCode }), { headers: headers })
+            .post<HierarchyType>(registry.contextPath + "/api/hierarchytype/remove", JSON.stringify({ hierarchyCode: hierarchyCode, parentGeoObjectTypeCode: parentGeoObjectTypeCode, childGeoObjectTypeCode: childGeoObjectTypeCode }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
             .toPromise();
     }
 
-    createHierarchyType(htJSON: string): Promise<HierarchyType> {
+    createHierarchyType(hierarchyType: HierarchyType): Promise<HierarchyType> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -104,14 +104,14 @@ export class HierarchyService {
         this.eventService.start();
 
         return this.http
-            .post<HierarchyType>(registry.contextPath + "/cgr/hierarchytype/create", JSON.stringify({ htJSON: htJSON }), { headers: headers })
+            .post<HierarchyType>(registry.contextPath + "/api/hierarchytype/create", JSON.stringify({ hierarchyType: hierarchyType }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
             .toPromise();
     }
 
-    updateHierarchyType(htJSON: string): Promise<HierarchyType> {
+    updateHierarchyType(hierarchyType: HierarchyType): Promise<HierarchyType> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -119,7 +119,7 @@ export class HierarchyService {
         this.eventService.start();
 
         return this.http
-            .post<HierarchyType>(registry.contextPath + "/cgr/hierarchytype/update", JSON.stringify({ htJSON: htJSON }), { headers: headers })
+            .post<HierarchyType>(registry.contextPath + "/api/hierarchytype/update", JSON.stringify({ hierarchyType: hierarchyType }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -134,7 +134,7 @@ export class HierarchyService {
         this.eventService.start();
 
         return this.http
-            .post<TreeEntity>(registry.contextPath + "/cgr/hierarchytype/delete", { code: code }, { headers: headers })
+            .post<TreeEntity>(registry.contextPath + "/api/hierarchytype/delete", { code: code }, { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
