@@ -51,6 +51,7 @@ import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
@@ -100,7 +101,6 @@ import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.hierarchy.HierarchyService;
 import net.geoprism.registry.localization.DefaultLocaleView;
 import net.geoprism.registry.localization.LocaleView;
-import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.OrganizationMetadata;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -122,12 +122,8 @@ public class RegistryService
 {
   private RegistryAdapter        adapter;
 
+  @Autowired
   private ServerGeoObjectService service;
-
-  protected RegistryService()
-  {
-    this.service = new ServerGeoObjectService();
-  }
 
   public static RegistryService getInstance()
   {
@@ -330,7 +326,12 @@ public class RegistryService
   {
     GeoObjectType[] gots = this.getGeoObjectTypes(sessionId, null, null, PermissionContext.READ);
     HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(sessionId, null, PermissionContext.READ);
-    OrganizationDTO[] orgDtos = new OrganizationService().getOrganizations(sessionId, null); // TODO : This violates autowiring principles
+    OrganizationDTO[] orgDtos = new OrganizationService().getOrganizations(sessionId, null); // TODO
+                                                                                             // :
+                                                                                             // This
+                                                                                             // violates
+                                                                                             // autowiring
+                                                                                             // principles
     CustomSerializer serializer = this.serializer(sessionId);
 
     JsonArray types = new JsonArray();
@@ -630,9 +631,8 @@ public class RegistryService
   }
 
   /**
->>>>>>> refs/remotes/origin/master
-   * Returns the {@link GeoObjectType}s with the given codes or all
-   * {@link GeoObjectType}s if no codes are provided.
+   * >>>>>>> refs/remotes/origin/master Returns the {@link GeoObjectType}s with
+   * the given codes or all {@link GeoObjectType}s if no codes are provided.
    * 
    * @param sessionId
    * @param codes
@@ -1093,8 +1093,7 @@ public class RegistryService
       query.setParameter("text", null);
     }
 
-    @SuppressWarnings("unchecked")
-    List<HashMap<String, Object>> results = (List<HashMap<String, Object>>) ( (Object) query.getResults() );
+    @SuppressWarnings("unchecked") List<HashMap<String, Object>> results = (List<HashMap<String, Object>>) ( (Object) query.getResults() );
 
     JsonArray array = new JsonArray();
 
