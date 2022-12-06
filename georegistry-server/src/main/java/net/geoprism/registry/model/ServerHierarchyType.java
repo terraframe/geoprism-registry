@@ -59,7 +59,6 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.RootNodeCannotBeInheritedException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.geoobjecttype.AssignPublicChildOfPrivateType;
 import net.geoprism.registry.graph.CantRemoveInheritedGOT;
 import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
@@ -68,6 +67,7 @@ import net.geoprism.registry.model.graph.ServerHierarchyStrategy;
 import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.service.SerializedListTypeCache;
+import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerHierarchyType implements ServerElement, GraphType

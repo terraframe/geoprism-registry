@@ -34,10 +34,10 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.geojson.GeoJsonReader;
 
-import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.ServerGeoObjectService;
 
 public abstract class AbstractFhirResourceProcessor implements FhirResourceProcessor
 {

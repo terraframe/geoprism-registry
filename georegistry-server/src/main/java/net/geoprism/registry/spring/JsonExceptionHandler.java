@@ -1,4 +1,4 @@
-package net.geoprism.registry.controller;
+package net.geoprism.registry.spring;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;

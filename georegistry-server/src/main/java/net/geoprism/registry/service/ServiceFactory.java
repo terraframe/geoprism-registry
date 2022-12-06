@@ -22,7 +22,6 @@ import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.RegistryAdapterServer;
 
 import net.geoprism.registry.cache.ServerMetadataCache;
-import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.hierarchy.HierarchyService;
 import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;

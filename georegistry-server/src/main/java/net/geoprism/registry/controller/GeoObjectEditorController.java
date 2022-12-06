@@ -18,22 +18,158 @@
  */
 package net.geoprism.registry.controller;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
 import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
 
-import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.spring.JsonArrayDeserializer;
+import net.geoprism.registry.spring.JsonObjectDeserializer;
 
-@Controller(url = "geoobject-editor")
-public class GeoObjectEditorController
+@RestController
+@Validated
+public class GeoObjectEditorController extends RunwaySpringController
 {
+  public static final String API_PATH = "geoobject-editor";
+  
+  public static final class CreateGeoObjectBody
+  {
+    @JsonDeserialize(using = JsonArrayDeserializer.class)
+    private JsonArray parentTreeNode;
+
+    @NotNull
+    @JsonDeserialize(using = JsonObjectDeserializer.class)
+    private JsonObject geoObject;
+
+    String             masterListId;
+
+    String             notes;
+    
+    public JsonArray getParentTreeNode()
+    {
+      return parentTreeNode;
+    }
+    
+    public void setParentTreeNode(JsonArray parentTreeNode)
+    {
+      this.parentTreeNode = parentTreeNode;
+    }
+
+    public JsonObject getGeoObject()
+    {
+      return geoObject;
+    }
+
+    public void setGeoObject(JsonObject geoObject)
+    {
+      this.geoObject = geoObject;
+    }
+
+    public String getMasterListId()
+    {
+      return masterListId;
+    }
+
+    public void setMasterListId(String masterListId)
+    {
+      this.masterListId = masterListId;
+    }
+
+    public String getNotes()
+    {
+      return notes;
+    }
+
+    public void setNotes(String notes)
+    {
+      this.notes = notes;
+    }
+  }
+
+  public static final class UpdateGeoObjectBody
+  {
+    @NotEmpty
+    private String    geoObjectCode;
+
+    @NotEmpty
+    private String    geoObjectTypeCode;
+
+    @JsonDeserialize(using = JsonArrayDeserializer.class)
+    private JsonArray actions;
+
+    private String    masterListId;
+
+    private String    notes;
+
+    public String getGeoObjectCode()
+    {
+      return geoObjectCode;
+    }
+
+    public void setGeoObjectCode(String geoObjectCode)
+    {
+      this.geoObjectCode = geoObjectCode;
+    }
+
+    public String getGeoObjectTypeCode()
+    {
+      return geoObjectTypeCode;
+    }
+
+    public void setGeoObjectTypeCode(String geoObjectTypeCode)
+    {
+      this.geoObjectTypeCode = geoObjectTypeCode;
+    }
+
+    public JsonArray getActions()
+    {
+      return actions;
+    }
+
+    public void setActions(JsonArray actions)
+    {
+      this.actions = actions;
+    }
+
+    public String getMasterListId()
+    {
+      return masterListId;
+    }
+
+    public void setMasterListId(String masterListId)
+    {
+      this.masterListId = masterListId;
+    }
+
+    public String getNotes()
+    {
+      return notes;
+    }
+
+    public void setNotes(String notes)
+    {
+      this.notes = notes;
+    }
+    
+    
+  }
+  
+  @Autowired
+  private ServerGeoObjectService service;
+  
   /**
    * Submits an edit to a Geo-Object. If you are a Registry Contributor, this will create a ChangeRequest with a CreateGeoObjectAction. If you
    * have edit permissions, this will attempt to create the Geo-Object immediately. If you do not have permissions for either a {@link net.geoprism.registry.CGRPermissionException}
@@ -48,16 +184,12 @@ public class GeoObjectEditorController
    * @throws JSONException
    * @throws net.geoprism.registry.CGRPermissionException
    */
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF createGeoObject(ClientRequestIF request, 
-      @RequestParamter(name = "parentTreeNode") String parentTreeNode,
-      @RequestParamter(name = "geoObject", required = true) String geoObject,
-      @RequestParamter(name = "masterListId") String masterListId,
-      @RequestParamter(name = "notes") String notes) throws JSONException
+  @PostMapping(API_PATH + "/create-geo-object")        
+  public ResponseEntity<String> createGeoObject(@Valid @RequestBody CreateGeoObjectBody body)
   {
-    JsonObject resp = new ServerGeoObjectService().createGeoObject(request.getSessionId(), parentTreeNode, geoObject, masterListId, notes);
+    JsonObject resp = this.service.createGeoObject(this.getSessionId(), body.parentTreeNode.toString(), body.geoObject.toString(), body.masterListId, body.notes);
 
-    return new RestBodyResponse(resp);
+    return new ResponseEntity<String>(resp.toString(), HttpStatus.OK);
   }
   
   /**
@@ -74,16 +206,11 @@ public class GeoObjectEditorController
    * @throws JSONException
    * @throws net.geoprism.registry.CGRPermissionException
    */
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF updateGeoObject(ClientRequestIF request, 
-      @RequestParamter(name = "geoObjectCode", required = true) String geoObjectCode,
-      @RequestParamter(name = "geoObjectTypeCode", required = true) String geoObjectTypeCode, 
-      @RequestParamter(name = "actions", required = true) String actions, 
-      @RequestParamter(name = "masterListId") String masterListId, 
-      @RequestParamter(name = "notes") String notes) throws JSONException
+  @PostMapping(API_PATH + "/update-geo-object")        
+  public ResponseEntity<String> updateGeoObject(@Valid @RequestBody UpdateGeoObjectBody body) throws JSONException
   {
-    JsonObject resp = new ServerGeoObjectService().updateGeoObject(request.getSessionId(), geoObjectCode, geoObjectTypeCode, actions, masterListId, notes);
+    JsonObject resp = this.service.updateGeoObject(this.getSessionId(), body.geoObjectCode, body.geoObjectTypeCode, body.actions.toString(), body.masterListId, body.notes);
 
-    return new RestBodyResponse(resp);
+    return new ResponseEntity<String>(resp.toString(), HttpStatus.OK);
   }
 }

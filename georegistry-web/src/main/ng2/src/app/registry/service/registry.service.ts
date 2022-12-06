@@ -537,7 +537,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .post<void>(registry.contextPath + "/geoobject-editor/updateGeoObject", JSON.stringify(params), { headers: headers })
+            .post<void>(registry.contextPath + "/api/geoobject-editor/update-geo-object", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
                 if (showOverlay) {
                     this.eventService.complete();
@@ -579,7 +579,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .post<void>(registry.contextPath + "/geoobject-editor/createGeoObject", JSON.stringify(params), { headers: headers })
+            .post<void>(registry.contextPath + "/api/geoobject-editor/create-geo-object", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
                 if (showOverlay) {
                     this.eventService.complete();

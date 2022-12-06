@@ -52,13 +52,13 @@ import net.geoprism.registry.action.ChangeRequest.ChangeRequestType;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.cache.ServerMetadataCache;
-import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.hierarchy.HierarchyService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.ChangeRequestService;
+import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ChangeRequestJsonAdapters

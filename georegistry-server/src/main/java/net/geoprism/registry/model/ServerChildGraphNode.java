@@ -34,7 +34,7 @@ import com.google.gson.JsonObject;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
-import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerChildGraphNode extends ServerGraphNode
