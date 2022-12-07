@@ -368,7 +368,7 @@ public class ListTypeController extends RunwaySpringController
     object.put("z", z);
     
     HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(new MediaType("application/x-protobuf"));
+    headers.set(HttpHeaders.CONTENT_TYPE, "application/x-protobuf");
 
     InputStreamResource isr = new InputStreamResource(this.service.getTile(this.getSessionId(), object));
     return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);        

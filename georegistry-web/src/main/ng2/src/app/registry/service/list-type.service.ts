@@ -175,17 +175,12 @@ export class ListTypeService implements GenericTableService {
     }
 
     page(criteria: Object, pageConfig: any): Promise<PageResult<Object>> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
+        let params: HttpParams = new HttpParams();
+        params = params.set("oid", pageConfig.oid);
+        params = params.set("showInvalid", pageConfig.showInvalid);
+        params = params.set("criteria", JSON.stringify(criteria));
 
-        let params = {
-            oid: pageConfig.oid,
-            showInvalid: pageConfig.showInvalid,
-            criteria: criteria
-        } as any;
-
-        return this.http.post<PageResult<Object>>(registry.contextPath + "/api/list-type/data", JSON.stringify(params), { headers: headers })
+        return this.http.get<PageResult<Object>>(registry.contextPath + "/api/list-type/data", { params: params })
             .toPromise();
     }
 
@@ -217,21 +212,16 @@ export class ListTypeService implements GenericTableService {
     // }
 
     record(oid: string, uid: string, showOverlay: boolean = true): Promise<LayerRecord> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        let params = {
-            oid: oid,
-            uid: uid
-        };
+        let params: HttpParams = new HttpParams();
+        params = params.set("oid", oid);
+        params = params.set("uid", uid);
 
         if (showOverlay) {
             this.eventService.start();
         }
 
         return this.http
-            .post<LayerRecord>(registry.contextPath + "/api/list-type/record", JSON.stringify(params), { headers: headers })
+            .get<LayerRecord>(registry.contextPath + "/api/list-type/record", { params: params })
             .pipe(finalize(() => {
                 if (showOverlay) {
                     this.eventService.complete();
@@ -241,25 +231,20 @@ export class ListTypeService implements GenericTableService {
     }
 
     values(oid: string, value: string, attributeName: string, filters: { [s: string]: FilterMetadata }): Promise<string[]> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        let params = {
-            oid: oid,
-            attributeName: attributeName
-        } as any;
+        let params: HttpParams = new HttpParams();
+        params = params.set("oid", oid);
+        params = params.set("attributeName", attributeName);
 
         if (filters != null) {
-            params.criteria = { filters: filters };
+            params = params.set("criteria", JSON.stringify({ filters: filters }));
         }
 
         if (value != null && value.length > 0) {
-            params.value = value;
+            params = params.set("value", value);
         }
 
         return this.http
-            .post<string[]>(registry.contextPath + "/api/list-type/values", JSON.stringify(params), { headers: headers })
+            .get<string[]>(registry.contextPath + "/api/list-type/values", { params: params })
             .toPromise();
     }
 
