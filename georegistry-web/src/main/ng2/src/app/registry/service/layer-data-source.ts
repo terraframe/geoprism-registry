@@ -277,7 +277,7 @@ export class ListVectorLayerDataSource extends LayerDataSource {
 
         return {
             type: "vector",
-            tiles: [protocol + "//" + host + registry.contextPath + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: this.versionId }))],
+            tiles: [protocol + "//" + host + registry.contextPath + "/api/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: this.versionId }))],
             promoteId: "uid"
         };
     }

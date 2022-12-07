@@ -267,7 +267,7 @@ export class ListComponent implements OnInit, OnDestroy {
         this.bsModalRef.content.init(this.list);
         this.bsModalRef.content.onFormat.subscribe(data => {
             if (data.format === "SHAPEFILE") {
-                let url = registry.contextPath + "/list-type/export-shapefile?oid=" + this.list.oid;
+                let url = registry.contextPath + "/api/list-type/export-shapefile?oid=" + this.list.oid;
                 url += "&criteria=" + encodeURIComponent(JSON.stringify(criteria));
 
                 if (data.actualGeometryType != null && data.actualGeometryType.length > 0) {
@@ -276,7 +276,7 @@ export class ListComponent implements OnInit, OnDestroy {
 
                 window.location.href = url;
             } else if (data.format === "EXCEL") {
-                window.location.href = registry.contextPath + "/list-type/export-spreadsheet?oid=" + this.list.oid + "&criteria=" + encodeURIComponent(JSON.stringify(criteria));
+                window.location.href = registry.contextPath + "/api/list-type/export-spreadsheet?oid=" + this.list.oid + "&criteria=" + encodeURIComponent(JSON.stringify(criteria));
             }
         });
     }

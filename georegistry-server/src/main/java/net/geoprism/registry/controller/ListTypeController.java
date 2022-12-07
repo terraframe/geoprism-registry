@@ -20,218 +20,277 @@ package net.geoprism.registry.controller;
 
 import java.text.ParseException;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.InputStreamResponse;
-import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
+import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.service.ListTypeService;
+import net.geoprism.registry.spring.JsonObjectDeserializer;
 
-@Controller(url = "list-type")
-public class ListTypeController
+@RestController
+@Validated
+public class ListTypeController extends RunwaySpringController
 {
-  private ListTypeService service;
-
-  public ListTypeController()
+  public static class ListTypeBody
   {
-    this.service = new ListTypeService();
-  }
+    @NotNull
+    @JsonDeserialize(using = JsonObjectDeserializer.class)
+    JsonObject list;
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "list-all")
-  public ResponseIF listAll(ClientRequestIF request)
-  {
-    return new RestBodyResponse(this.service.listAll(request.getSessionId()));
-  }
+    public JsonObject getList()
+    {
+      return list;
+    }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "list-for-type")
-  public ResponseIF listForType(ClientRequestIF request, @RequestParamter(name = "typeCode", required = true) String typeCode)
-  {
-    JsonObject response = this.service.listForType(request.getSessionId(), typeCode);
-
-    return new RestBodyResponse(response);
-  }
-
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "list", required = true) String listJSON)
-  {
-    JsonObject list = JsonParser.parseString(listJSON).getAsJsonObject();
-
-    JsonObject response = this.service.apply(request.getSessionId(), list);
-
-    return new RestBodyResponse(response);
-  }
-
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "create-entries")
-  public ResponseIF createEntries(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
-  {
-    JsonObject response = this.service.createEntries(request.getSessionId(), oid);
-
-    return new RestBodyResponse(response);
-  }
-
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove")
-  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
-  {
-    this.service.remove(request.getSessionId(), oid);
-
-    return new RestResponse();
-  }
-
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "create-version")
-  public ResponseIF createVersion(ClientRequestIF request, 
-      @RequestParamter(name = "oid", required = true) String oid, 
-      @RequestParamter(name = "metadata", required = true) String metadata) throws ParseException
-  {
-    JsonObject response = this.service.createVersion(request.getSessionId(), oid, metadata);
-
-    return new RestBodyResponse(response);
-  }
-
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply-version")
-  public ResponseIF applyVersion(ClientRequestIF request, 
-      @RequestParamter(name = "oid", required = true) String oid, 
-      @RequestParamter(name = "metadata", required = true) String metadata) throws ParseException
-  {
-    JsonObject response = this.service.applyVersion(request.getSessionId(), oid, metadata);
-
-    return new RestBodyResponse(response);
-  }
-
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "publish")
-  public ResponseIF publish(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid) throws ParseException
-  {
-    JsonObject response = this.service.publishVersion(request.getSessionId(), oid);
-
-    return new RestBodyResponse(response);
-  }
-
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
-  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
-  {
-    JsonObject response = this.service.get(request.getSessionId(), oid);
-
-    return new RestBodyResponse(response);
-  }
-
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "entries")
-  public ResponseIF entries(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
-  {
-    JsonObject response = this.service.getEntries(request.getSessionId(), oid);
-
-    return new RestBodyResponse(response);
-  }
-
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "versions")
-  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
-  {
-    JsonArray response = this.service.getVersions(request.getSessionId(), oid);
-
-    return new RestBodyResponse(response);
-  }
-
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "version")
-  public ResponseIF version(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
-  {
-    JsonObject response = this.service.getVersion(request.getSessionId(), oid);
-
-    return new RestBodyResponse(response);
+    public void setList(JsonObject list)
+    {
+      this.list = list;
+    }
   }
   
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "fetchVersionsAsListVersion")
-  public ResponseIF fetchVersionsAsListVersion(ClientRequestIF request, @RequestParamter(name = "oids", required = true) String oid)
+  public static class ListVersionBody
   {
-    JsonElement response = this.service.fetchVersionsAsListVersion(request.getSessionId(), oid);
+    @NotNull
+    @JsonDeserialize(using = JsonObjectDeserializer.class)
+    JsonObject metadata;
+    
+    @NotEmpty
+    String oid;
+    
+    public JsonObject getMetadata()
+    {
+      return metadata;
+    }
+    
+    public void setMetadata(JsonObject metadata)
+    {
+      this.metadata = metadata;
+    }
+    
+    public String getOid()
+    {
+      return oid;
+    }
+    
+    public void setOid(String oid)
+    {
+      this.oid = oid;
+    }
+  }
+  
+  public static final String API_PATH = "list-type";
 
-    return new RestBodyResponse(response);
+  @Autowired
+  private ListTypeService service;
+
+  @GetMapping(API_PATH + "/list-all")
+  public ResponseEntity<String> listAll()
+  {
+    JsonArray response = this.service.listAll(this.getSessionId());
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove-version")
-  public ResponseIF removeVersion(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
+  @GetMapping(API_PATH + "/list-for-type")  
+  public ResponseEntity<String> listForType(@NotEmpty @RequestParam String typeCode)
   {
-    this.service.removeVersion(request.getSessionId(), oid);
+    JsonObject response = this.service.listForType(this.getSessionId(), typeCode);
 
-    return new RestResponse();
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "data")
-  public ResponseIF data(ClientRequestIF request, 
-      @RequestParamter(name = "oid", required = true) String oid, 
-      @RequestParamter(name = "criteria", required = true) String criteria, 
-      @RequestParamter(name = "showInvalid", required = true) Boolean showInvalid,      
-      @RequestParamter(name = "includeGeometries") Boolean includeGeometries)
+  @PostMapping(API_PATH + "/apply")  
+  public ResponseEntity<String> apply(@Valid @RequestBody ListTypeBody body)
   {
-    JsonObject response = this.service.data(request.getSessionId(), oid, criteria, showInvalid, includeGeometries);
+    JsonObject response = this.service.apply(this.getSessionId(), body.list);
 
-    return new RestBodyResponse(response);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "record")
-  public ResponseIF record(ClientRequestIF request, 
-      @RequestParamter(name = "oid", required = true) String oid, 
-      @RequestParamter(name = "uid", required = true) String uid)
+  @PostMapping(API_PATH + "/create-entries")    
+  public ResponseEntity<String> createEntries(@Valid @RequestBody OidBody body)
   {
-    JsonObject response = this.service.record(request.getSessionId(), oid, uid);
+    JsonObject response = this.service.createEntries(this.getSessionId(), body.getOid());
 
-    return new RestBodyResponse(response);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "values")
-  public ResponseIF values(ClientRequestIF request, 
-      @RequestParamter(name = "oid", required = true) String oid, 
-      @RequestParamter(name = "value") String value, 
-      @RequestParamter(name = "attributeName", required = true) String attributeName,
-      @RequestParamter(name = "criteria") String criteria)
+  @PostMapping(API_PATH + "/remove")      
+  public ResponseEntity<Void> remove(@Valid @RequestBody OidBody body)
   {
-    JsonArray response = this.service.values(request.getSessionId(), oid, value, attributeName, criteria);
+    this.service.remove(this.getSessionId(), body.getOid());
 
-    return new RestBodyResponse(response);
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  @Endpoint(url = "export-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF exportShapefile(ClientRequestIF request, 
-      @RequestParamter(name = "oid", required = true) String oid, 
-      @RequestParamter(name = "criteria") String criteria,
-      @RequestParamter(name = "actualGeometryType") String actualGeometryType) throws JSONException
+  @PostMapping(API_PATH + "/create-version")        
+  public ResponseEntity<String> createVersion(@Valid @RequestBody ListVersionBody body)
   {
-    JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
+    JsonObject response = this.service.createVersion(this.getSessionId(), body.oid, body.metadata.toString());
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @PostMapping(API_PATH + "/apply-version")          
+  public ResponseEntity<String> applyVersion(@Valid @RequestBody ListVersionBody body) throws ParseException
+  {
+    JsonObject response = this.service.applyVersion(this.getSessionId(), body.oid, body.metadata.toString());
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @PostMapping(API_PATH + "/publish")            
+  public ResponseEntity<String> publish(@Valid @RequestBody OidBody body) throws ParseException
+  {
+    JsonObject response = this.service.publishVersion(this.getSessionId(), body.getOid());
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/get")              
+  public ResponseEntity<String> get(@NotEmpty @RequestParam String oid)
+  {
+    JsonObject response = this.service.get(this.getSessionId(), oid);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/entries")                
+  public ResponseEntity<String> entries(@NotEmpty @RequestParam String oid)
+  {
+    JsonObject response = this.service.getEntries(this.getSessionId(), oid);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/versions")                  
+  public ResponseEntity<String> versions(@NotEmpty @RequestParam String oid)
+  {
+    JsonArray response = this.service.getVersions(this.getSessionId(), oid);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/version")                    
+  public ResponseEntity<String> version(@NotEmpty @RequestParam String oid)
+  {
+    JsonObject response = this.service.getVersion(this.getSessionId(), oid);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+  
+  @GetMapping(API_PATH + "/fetchVersionsAsListVersion")                      
+  public ResponseEntity<String> fetchVersionsAsListVersion(@NotEmpty @RequestParam String oids)
+  {
+    JsonElement response = this.service.fetchVersionsAsListVersion(this.getSessionId(), oids);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @PostMapping(API_PATH + "/remove-version")            
+  public ResponseEntity<Void> removeVersion(@Valid @RequestBody OidBody body)
+  {
+    this.service.removeVersion(this.getSessionId(), body.getOid());
+
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+  }
+
+  @GetMapping(API_PATH + "/data")                      
+  public ResponseEntity<String> data(
+      @NotEmpty @RequestParam String oid, 
+      @RequestParam(required = false) String criteria, 
+      @RequestParam Boolean showInvalid,      
+      @RequestParam(required = false) Boolean includeGeometries)
+  {
+    JsonObject response = this.service.data(this.getSessionId(), oid, criteria, showInvalid, includeGeometries);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/record")                        
+  public ResponseEntity<String> record(
+      @NotEmpty @RequestParam String oid, 
+      @NotEmpty @RequestParam String uid)
+  {
+    JsonObject response = this.service.record(this.getSessionId(), oid, uid);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/values")                          
+  public ResponseEntity<String> values(
+      @NotEmpty @RequestParam String oid, 
+      @RequestParam(required = false) String value, 
+      @NotEmpty @RequestParam String attributeName,
+      @RequestParam(required = false) String criteria)
+  {
+    JsonArray response = this.service.values(this.getSessionId(), oid, value, attributeName, criteria);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/export-shapefile")                            
+  public ResponseEntity<InputStreamResource> exportShapefile(
+      @NotEmpty @RequestParam String oid, 
+      @RequestParam(required = false) String criteria,
+      @RequestParam(required = false) String actualGeometryType) throws JSONException
+  {
+    JsonObject masterList = this.service.getVersion(this.getSessionId(), oid);
+    String code = masterList.get(ListType.TYPE_CODE).getAsString() + "-" + masterList.get(ListTypeVersion.FORDATE).getAsString();
+    
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+    headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + code + ".zip");
+
+    InputStreamResource isr = new InputStreamResource(service.exportShapefile(this.getSessionId(), oid, criteria, actualGeometryType));
+    return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/download-shapefile")                            
+  public ResponseEntity<InputStreamResource> downloadShapefile(
+      @NotEmpty @RequestParam String oid, 
+      @RequestParam(required = false) String filter) throws JSONException
+  {
+    JsonObject masterList = this.service.getVersion(this.getSessionId(), oid);
     String code = masterList.get(ListType.TYPE_CODE).getAsString() + "-" + masterList.get(ListTypeVersion.FORDATE).getAsString();
 
-    return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid, criteria, actualGeometryType), "application/zip", code + ".zip");
-  }
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+    headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + code + ".zip");
 
-  @Endpoint(url = "download-shapefile", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF downloadShapefile(ClientRequestIF request, 
-      @RequestParamter(name = "oid", required = true) String oid, 
-      @RequestParamter(name = "filter") String filter) throws JSONException
-  {
-    JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
-    String code = masterList.get(ListType.TYPE_CODE).getAsString() + "-" + masterList.get(ListTypeVersion.FORDATE).getAsString();
-
-    return new InputStreamResponse(service.downloadShapefile(request.getSessionId(), oid), "application/zip", code + ".zip");
+    InputStreamResource isr = new InputStreamResource(service.downloadShapefile(this.getSessionId(), oid));
+    return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);    
   }
 
   // @Endpoint(url = "generate-shapefile", method = ServletMethod.POST, error =
   // ErrorSerialization.JSON)
-  // public ResponseIF generateShapefile(ClientRequestIF request,
+  // public ResponseEntity<String> generateShapefile(,
   // @RequestParamter(name = "oid") String oid) throws JSONException
   // {
-  // final String jobId = service.generateShapefile(request.getSessionId(),
+  // final String jobId = service.generateShapefile(this.getSessionId(),
   // oid);
   //
   // final RestResponse response = new RestResponse();
@@ -240,33 +299,37 @@ public class ListTypeController
   // return response;
   // }
 
-  @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF exportSpreadsheet(ClientRequestIF request, 
-      @RequestParamter(name = "oid", required = true) String oid, 
-      @RequestParamter(name = "criteria") String criteria) throws JSONException
+  @GetMapping(API_PATH + "/export-spreadsheet")                              
+  public ResponseEntity<InputStreamResource> exportSpreadsheet(
+      @NotEmpty @RequestParam String oid, 
+      @RequestParam(required = false) String criteria) throws JSONException
   {
-    JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
+    JsonObject masterList = this.service.getVersion(this.getSessionId(), oid);
     String code = masterList.get(ListType.TYPE_CODE).getAsString() + "-" + masterList.get(ListTypeVersion.FORDATE).getAsString();
 
-    return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), oid, criteria), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", code + ".xlsx");
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+    headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + code + ".xlsx");
+
+    InputStreamResource isr = new InputStreamResource(service.exportSpreadsheet(this.getSessionId(), oid, criteria));
+    return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);        
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "progress")
-  public ResponseIF progress(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
+  @GetMapping(API_PATH + "/progress")                                
+  public ResponseEntity<String> progress(@NotEmpty @RequestParam String oid)
   {
+    JsonObject response = this.service.progress(this.getSessionId(), oid);
 
-    JsonObject response = this.service.progress(request.getSessionId(), oid);
-
-    return new RestBodyResponse(response);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-publish-jobs")
-  public ResponseIF getPublishJobs(ClientRequestIF request, 
-      @RequestParamter(name = "oid", required = true) String oid, 
-      @RequestParamter(name = "pageSize", required = true) Integer pageSize, 
-      @RequestParamter(name = "pageNumber", required = true) Integer pageNumber, 
-      @RequestParamter(name = "sortAttr") String sortAttr, 
-      @RequestParamter(name = "isAscending") Boolean isAscending)
+  @GetMapping(API_PATH + "/get-publish-jobs")                                  
+  public ResponseEntity<String> getPublishJobs(
+      @NotEmpty @RequestParam String oid, 
+      @RequestParam Integer pageSize, 
+      @RequestParam Integer pageNumber, 
+      @RequestParam(required = false) String sortAttr, 
+      @RequestParam(required = false) Boolean isAscending)
   {
     if (sortAttr == null || sortAttr.equals(""))
     {
@@ -278,59 +341,65 @@ public class ListTypeController
       isAscending = true;
     }
 
-    JsonObject config = this.service.getPublishJobs(request.getSessionId(), oid, pageSize, pageNumber, sortAttr, isAscending);
+    JsonObject config = this.service.getPublishJobs(this.getSessionId(), oid, pageSize, pageNumber, sortAttr, isAscending);
 
-    return new RestBodyResponse(config.toString());
+    return new ResponseEntity<String>(config.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-publish-job")
-  public ResponseIF getPublishJob(ClientRequestIF request, 
-      @RequestParamter(name = "historyOid", required = true) String historyOid)
+  @GetMapping(API_PATH + "/get-publish-job")                                    
+  public ResponseEntity<String> getPublishJob(
+      @NotEmpty @RequestParam String historyOid)
   {
-    JsonObject job = this.service.getPublishJob(request.getSessionId(), historyOid);
+    JsonObject job = this.service.getPublishJob(this.getSessionId(), historyOid);
     
-    return new RestBodyResponse(job);
+    return new ResponseEntity<String>(job.toString(), HttpStatus.OK);
   }
   
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF tile(ClientRequestIF request, 
-      @RequestParamter(name = "x", required = true) Integer x, 
-      @RequestParamter(name = "y", required = true) Integer y, 
-      @RequestParamter(name = "z", required = true) Integer z, 
-      @RequestParamter(name = "config", required = true) String config) throws JSONException
+  @GetMapping(API_PATH + "/tile")                                      
+  public ResponseEntity<InputStreamResource> tile(
+      @RequestParam Integer x, 
+      @RequestParam Integer y, 
+      @RequestParam Integer z, 
+      @NotEmpty @RequestParam String config) throws JSONException
   {
     JSONObject object = new JSONObject(config);
     object.put("x", x);
     object.put("y", y);
     object.put("z", z);
+    
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(new MediaType("application/x-protobuf"));
 
-    return new InputStreamResponse(this.service.getTile(request.getSessionId(), object), "application/x-protobuf", null);
+    InputStreamResource isr = new InputStreamResource(this.service.getTile(this.getSessionId(), object));
+    return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);        
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-public-versions")
-  public ResponseIF getPublicVersions(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
+  @GetMapping(API_PATH + "/get-public-versions")                                        
+  public ResponseEntity<String> getPublicVersions(@NotEmpty @RequestParam String oid)
   {
-    return new RestBodyResponse(this.service.getPublicVersions(request.getSessionId(), oid));
+    JsonArray response = this.service.getPublicVersions(this.getSessionId(), oid);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-geospatial-versions")
-  public ResponseIF getGeospatialVersions(ClientRequestIF request, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate)
+  @GetMapping(API_PATH + "/get-geospatial-versions")                                          
+  public ResponseEntity<String> getGeospatialVersions(@RequestParam(required = false) String startDate, @RequestParam(required = false) String endDate)
   {
-    return new RestBodyResponse(this.service.getGeospatialVersions(request.getSessionId(), startDate, endDate));
+    JsonArray response = this.service.getGeospatialVersions(this.getSessionId(), startDate, endDate);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "bounds")
-  public ResponseIF getGeoObjectBounds(ClientRequestIF request, 
-      @RequestParamter(name = "oid", required = true) String oid, 
-      @RequestParamter(name = "uid") String uid)
+  @GetMapping(API_PATH + "/bounds")                                            
+  public ResponseEntity<String> getGeoObjectBounds(
+      @NotEmpty @RequestParam String oid, 
+      @RequestParam(required = false) String uid)
   {
-    JsonArray bounds = this.service.getBounds(request.getSessionId(), oid, uid);
+    JsonArray bounds = this.service.getBounds(this.getSessionId(), oid, uid);
 
     if (bounds != null)
     {
-      return new RestBodyResponse(bounds);
+      return new ResponseEntity<String>(bounds.toString(), HttpStatus.OK);
     }
 
-    return new RestResponse();
+    return new ResponseEntity<String>(HttpStatus.OK);
   }
 }

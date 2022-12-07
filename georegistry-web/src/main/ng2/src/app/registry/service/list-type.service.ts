@@ -25,7 +25,7 @@ export class ListTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http.get<ListTypeByType>(registry.contextPath + "/list-type/list-for-type", { params: params })
+        return this.http.get<ListTypeByType>(registry.contextPath + "/api/list-type/list-for-type", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -38,7 +38,7 @@ export class ListTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http.get<ListType>(registry.contextPath + "/list-type/entries", { params: params })
+        return this.http.get<ListType>(registry.contextPath + "/api/list-type/entries", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -51,7 +51,7 @@ export class ListTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http.get<ListTypeVersion[]>(registry.contextPath + "/list-type/versions", { params: params })
+        return this.http.get<ListTypeVersion[]>(registry.contextPath + "/api/list-type/versions", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -64,7 +64,7 @@ export class ListTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http.get<ListTypeVersion>(registry.contextPath + "/list-type/version", { params: params })
+        return this.http.get<ListTypeVersion>(registry.contextPath + "/api/list-type/version", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -77,7 +77,7 @@ export class ListTypeService implements GenericTableService {
 
         // this.eventService.start();
 
-        return this.http.get<ListVersion[]>(registry.contextPath + "/list-type/fetchVersionsAsListVersion", { params: params })
+        return this.http.get<ListVersion[]>(registry.contextPath + "/api/list-type/fetchVersionsAsListVersion", { params: params })
             .pipe(finalize(() => {
                 // this.eventService.complete();
             }))
@@ -92,7 +92,7 @@ export class ListTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<ListType>(registry.contextPath + "/list-type/apply", JSON.stringify({ list: list }), { headers: headers })
+            .post<ListType>(registry.contextPath + "/api/list-type/apply", JSON.stringify({ list: list }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -107,7 +107,7 @@ export class ListTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<ListType>(registry.contextPath + "/list-type/create-entries", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<ListType>(registry.contextPath + "/api/list-type/create-entries", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -122,7 +122,7 @@ export class ListTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<ListType>(registry.contextPath + "/list-type/remove", JSON.stringify({ oid: list.oid }), { headers: headers })
+            .post<ListType>(registry.contextPath + "/api/list-type/remove", JSON.stringify({ oid: list.oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -137,7 +137,7 @@ export class ListTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<ListTypeVersion>(registry.contextPath + "/list-type/create-version", JSON.stringify({ oid: entry.oid, metadata: metadata }), { headers: headers })
+            .post<ListTypeVersion>(registry.contextPath + "/api/list-type/create-version", JSON.stringify({ oid: entry.oid, metadata: metadata }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -152,7 +152,7 @@ export class ListTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<ListTypeVersion>(registry.contextPath + "/list-type/apply-version", JSON.stringify({ oid: metadata.oid, metadata: metadata }), { headers: headers })
+            .post<ListTypeVersion>(registry.contextPath + "/api/list-type/apply-version", JSON.stringify({ oid: metadata.oid, metadata: metadata }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -167,7 +167,7 @@ export class ListTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<ListType>(registry.contextPath + "/list-type/remove-version", JSON.stringify({ oid: list.oid }), { headers: headers })
+            .post<ListType>(registry.contextPath + "/api/list-type/remove-version", JSON.stringify({ oid: list.oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -185,7 +185,7 @@ export class ListTypeService implements GenericTableService {
             criteria: criteria
         } as any;
 
-        return this.http.post<PageResult<Object>>(registry.contextPath + "/list-type/data", JSON.stringify(params), { headers: headers })
+        return this.http.post<PageResult<Object>>(registry.contextPath + "/api/list-type/data", JSON.stringify(params), { headers: headers })
             .toPromise();
     }
 
@@ -212,7 +212,7 @@ export class ListTypeService implements GenericTableService {
     //     }
 
     //     return this.http
-    //         .post<any>(registry.contextPath + "/list-type/data", JSON.stringify(params), { headers: headers })
+    //         .post<any>(registry.contextPath + "/api/list-type/data", JSON.stringify(params), { headers: headers })
     //         .toPromise();
     // }
 
@@ -231,7 +231,7 @@ export class ListTypeService implements GenericTableService {
         }
 
         return this.http
-            .post<LayerRecord>(registry.contextPath + "/list-type/record", JSON.stringify(params), { headers: headers })
+            .post<LayerRecord>(registry.contextPath + "/api/list-type/record", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
                 if (showOverlay) {
                     this.eventService.complete();
@@ -259,7 +259,7 @@ export class ListTypeService implements GenericTableService {
         }
 
         return this.http
-            .post<string[]>(registry.contextPath + "/list-type/values", JSON.stringify(params), { headers: headers })
+            .post<string[]>(registry.contextPath + "/api/list-type/values", JSON.stringify(params), { headers: headers })
             .toPromise();
     }
 
@@ -268,14 +268,14 @@ export class ListTypeService implements GenericTableService {
             "Content-Type": "application/json"
         });
 
-        return this.http.post<{ jobOid: string }>(registry.contextPath + "/list-type/publish", JSON.stringify({ oid: oid }), { headers: headers });
+        return this.http.post<{ jobOid: string }>(registry.contextPath + "/api/list-type/publish", JSON.stringify({ oid: oid }), { headers: headers });
     }
 
     getAllLists(): Promise<{ label: string, oid: string }[]> {
         let params: HttpParams = new HttpParams();
 
         return this.http
-            .get<{ label: string, oid: string }[]>(registry.contextPath + "/list-type/list-all", { params: params })
+            .get<{ label: string, oid: string }[]>(registry.contextPath + "/api/list-type/list-all", { params: params })
             .toPromise();
     }
 
@@ -284,7 +284,7 @@ export class ListTypeService implements GenericTableService {
         params = params.append("oid", oid);
 
         return this.http
-            .get<ListTypeVersion[]>(registry.contextPath + "/list-type/get-public-versions", { params: params })
+            .get<ListTypeVersion[]>(registry.contextPath + "/api/list-type/get-public-versions", { params: params })
             .toPromise();
     }
 
@@ -300,7 +300,7 @@ export class ListTypeService implements GenericTableService {
         }
 
         return this.http
-            .get<ListOrgGroup[]>(registry.contextPath + "/list-type/get-geospatial-versions", { params: params })
+            .get<ListOrgGroup[]>(registry.contextPath + "/api/list-type/get-geospatial-versions", { params: params })
             .toPromise();
     }
 
@@ -313,7 +313,7 @@ export class ListTypeService implements GenericTableService {
         }
 
         return this.http
-            .get<number[]>(registry.contextPath + "/list-type/bounds", { params: params })
+            .get<number[]>(registry.contextPath + "/api/list-type/bounds", { params: params })
             .toPromise();
     }
 
@@ -400,7 +400,7 @@ export class ListTypeService implements GenericTableService {
         params = params.append("historyOid", historyOid);
 
         return this.http
-            .get<ScheduledJob>(registry.contextPath + "/list-type/get-publish-job", { params: params })
+            .get<ScheduledJob>(registry.contextPath + "/api/list-type/get-publish-job", { params: params })
             .toPromise();
     }
 
