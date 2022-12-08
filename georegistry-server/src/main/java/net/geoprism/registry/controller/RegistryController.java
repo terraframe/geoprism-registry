@@ -21,22 +21,11 @@ package net.geoprism.registry.controller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
 
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.RegistryUrls;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -53,9 +42,7 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.mvc.ViewResponse;
 
-import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeoregistryProperties;
-import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.AccountService;
 import net.geoprism.registry.service.ExternalSystemService;
 import net.geoprism.registry.service.OrganizationService;
@@ -89,131 +76,6 @@ public class RegistryController
 
     return resp;
   }
-
-  // /**
-  // * Submits a change request to the GeoRegistry. These actions will be
-  // reviewed
-  // * by an Administrator and if the actions are approved they may be executed
-  // * and accepted as formal changes to the GeoRegistry.
-  // *
-  // * @param request
-  // * @param uid
-  // * @return
-  // * @throws JSONException
-  // */
-  // @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url
-  // = RegistryUrls.SUBMIT_CHANGE_REQUEST)
-  // public ResponseIF submitChangeRequest(ClientRequestIF request,
-  // @RequestParamter(name = RegistryUrls.SUBMIT_CHANGE_REQUEST_PARAM_ACTIONS)
-  // String actions) throws JSONException
-  // {
-  // new ChangeRequestService().submitChangeRequest(request.getSessionId(),
-  // actions);
-  //
-  // return new RestResponse();
-  // }
-  /**
-   * Returns an OauthServer configuration with the specified id. If an id is not
-   * provided, this endpoint will return all configurations (in your
-   * organization).
-   * 
-   * @param request
-   * @param id
-   * @return A json array of serialized OauthServer configurations.
-   * @throws JSONException
-   */
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "oauth/get")
-  public ResponseIF oauthGetAll(ClientRequestIF request, @RequestParamter(name = "id") String id) throws JSONException
-  {
-    String json = this.registryService.oauthGetAll(request.getSessionId(), id);
-
-    return new RestBodyResponse(json);
-  }
-
-  /**
-   * Returns information which is available to public users (without
-   * permissions) which will allow them to login as an oauth user.
-   * 
-   * @param request
-   * @param id
-   * @return A json array of OauthServer configurations with only publicly
-   *         available information.
-   * @throws JSONException
-   */
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "oauth/get-public")
-  public ResponseIF oauthGetPublic(ClientRequestIF request, @RequestParamter(name = "id") String id) throws JSONException
-  {
-    String json = this.registryService.oauthGetPublic(request.getSessionId(), id);
-
-    return new RestBodyResponse(json);
-  }
-
-
-  //
-  // @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON,
-  // url=RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE)
-  // public ResponseIF updateAttributeType(ClientRequestIF request,
-  // @RequestParamter(name =
-  // RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE_PARAM) String geoObjTypeId,
-  // @RequestParamter(name =
-  // RegistryUrls.GEO_OBJECT_TYPE_UPDATE_ATTRIBUTE_TYPE_PARAM) String
-  // attributeType)
-  // {
-  // AttributeType attrType =
-  // this.registryService.updateAttributeType(request.getSessionId(),
-  // geoObjTypeId, attributeType);
-  //
-  // return new RestBodyResponse(attrType.toJSON());
-  // }
-  //
-  // @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON,
-  // url=RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE)
-  // public ResponseIF deleteAttributeType(ClientRequestIF request,
-  // @RequestParamter(name =
-  // RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE_PARAM) String geoObjTypeId,
-  // @RequestParamter(name =
-  // RegistryUrls.GEO_OBJECT_TYPE_DELETE_ATTRIBUTE_TYPE_PARAM) String
-  // attributeName)
-  // {
-  // this.registryService.deleteAttributeType(request.getSessionId(),
-  // geoObjTypeId, attributeName);
-  //
-  // return new RestResponse();
-  // }
-  //
-  // @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON,
-  // url=RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM)
-  // public ResponseIF createTerm(ClientRequestIF request, @RequestParamter(name
-  // = RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARENT_PARAM) String
-  // parentTermCode, @RequestParamter(name =
-  // RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM_PARAM) String termJSON)
-  // {
-  // Term term = this.registryService.createTerm(request.getSessionId(),
-  // parentTermCode, termJSON);
-  //
-  // return new RestBodyResponse(term.toJSON());
-  // }
-  //
-  // @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON,
-  // url=RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM)
-  // public ResponseIF updateTerm(ClientRequestIF request, @RequestParamter(name
-  // = RegistryUrls.GEO_OBJECT_TYPE_UPDATE_TERM_PARAM) String termJSON)
-  // {
-  // Term term = this.registryService.updateTerm(request.getSessionId(),
-  // termJSON);
-  //
-  // return new RestBodyResponse(term.toJSON());
-  // }
-  //
-  // @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON,
-  // url=RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM)
-  // public ResponseIF deleteTerm(ClientRequestIF request, @RequestParamter(name
-  // = RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM_PARAM) String termCode)
-  // {
-  // this.registryService.deleteTerm(request.getSessionId(), termCode);
-  //
-  // return new RestResponse();
-  // }
 
   /**
    * Create the {@link HierarchyType} from the given JSON.
