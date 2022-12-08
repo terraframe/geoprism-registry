@@ -25,7 +25,7 @@ export class SessionService {
         this.service.start();
 
         return this.http
-            .post<User>(registry.contextPath + "/cgrsession/login", JSON.stringify({ username: username, password: password }), { headers: headers })
+            .post<User>(registry.contextPath + "/api/cgrsession/login", JSON.stringify({ username: username, password: password }), { headers: headers })
             .pipe(finalize(() => {
                 this.service.complete();
             }))
@@ -34,7 +34,7 @@ export class SessionService {
                 this.authService.afterLogIn(logInResponse);
 
                 return logInResponse;
-            })
+            });
     }
 
     logout(): Promise<void> {
@@ -43,7 +43,6 @@ export class SessionService {
         });
 
         this.service.start();
-
 
         return this.http
             .post<void>(registry.contextPath + "/session/logout", { headers: headers })
@@ -55,6 +54,7 @@ export class SessionService {
                 this.authService.afterLogOut();
 
                 return response;
-            })
+            });
     }
+
 }

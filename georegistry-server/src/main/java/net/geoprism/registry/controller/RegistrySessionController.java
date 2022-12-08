@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.controller;
 
-import java.net.MalformedURLException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
@@ -27,11 +27,22 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -39,16 +50,8 @@ import com.runwaysdk.RunwayException;
 import com.runwaysdk.constants.ClientConstants;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.CommonProperties;
-import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.CookieResponse;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.RedirectResponse;
-import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.request.ServletRequestIF;
+import com.runwaysdk.request.RequestDecorator;
 import com.runwaysdk.web.WebClientSession;
 
 import net.geoprism.ClientConfigurationService;
@@ -59,21 +62,81 @@ import net.geoprism.SessionEvent.EventType;
 import net.geoprism.account.LocaleSerializer;
 import net.geoprism.account.OauthServerIF;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.spring.JsonObjectDeserializer;
 import net.geoprism.session.RegistrySessionServiceDTO;
 
-@Controller(url = "cgrsession")
-public class RegistrySessionController
+@RestController
+@Validated
+public class RegistrySessionController extends RunwaySpringController
 {
-  public static final long serialVersionUID = 1234283350799L;
-  
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF login(ServletRequestIF req, 
-      @RequestParamter(name = "username", required = true) String username, 
-      @RequestParamter(name = "password", required = true) String password) throws JSONException
+  public static class LoginBody
   {
-    if (username != null)
+    @NotEmpty
+    String username;
+
+    @NotEmpty
+    String password;
+
+    public String getUsername()
     {
-      username = username.trim();
+      return username;
+    }
+
+    public void setUsername(String username)
+    {
+      this.username = username;
+    }
+
+    public String getPassword()
+    {
+      return password;
+    }
+
+    public void setPassword(String password)
+    {
+      this.password = password;
+    }
+  }
+  
+  public static class OauthLoginBody
+  {
+    @NotEmpty
+    String code;
+
+    @NotNull
+    @JsonDeserialize(using = JsonObjectDeserializer.class)    
+    JsonObject state;
+
+    public String getCode()
+    {
+      return code;
+    }
+
+    public void setCode(String code)
+    {
+      this.code = code;
+    }
+    
+    public JsonObject getState()
+    {
+      return state;
+    }
+    
+    public void setState(JsonObject state)
+    {
+      this.state = state;
+    }
+  }
+  
+  public static final String API_PATH = "cgrsession";
+
+  
+  @PostMapping(API_PATH + "/login")
+  public ResponseEntity<String> login(HttpServletResponse response, HttpServletRequest req, @Valid @RequestBody LoginBody body) throws UnsupportedEncodingException 
+  {
+    if (body.username != null)
+    {
+      body.username = body.username.trim();
     }
 
     Locale[] locales = this.getLocales(req);
@@ -93,27 +156,30 @@ public class RegistrySessionController
 //      installedLocalesArr.put(locObj);
 //    }
     
-    ClientRequestIF clientRequest = loginWithLocales(req, username, password, locales);
+    ClientRequestIF clientRequest = loginWithLocales(req, body.username, body.password, locales);
     
     JSONArray jaLocales = new JSONArray(ServiceFactory.getRegistryService().getLocales(clientRequest.getSessionId()).toString());
 
     JsonArray roles = JsonParser.parseString(RoleViewDTO.getCurrentRoles(clientRequest)).getAsJsonArray();
     JsonArray roleDisplayLabels = JsonParser.parseString(RoleViewDTO.getCurrentRoleDisplayLabels(clientRequest)).getAsJsonArray();
-    
+
+    // Create the cookie
     JsonObject cookieValue = new JsonObject();
     cookieValue.addProperty("loggedIn", clientRequest.isLoggedIn());
     cookieValue.add("roles", roles);
     cookieValue.add("roleDisplayLabels", roleDisplayLabels);
-    cookieValue.addProperty("userName", username);
+    cookieValue.addProperty("userName", body.username);
     cookieValue.addProperty("version", ClientConfigurationService.getServerVersion());
+    
+    this.addCookie(response, req, cookieValue);
 
-    CookieResponse response = new CookieResponse("user", -1, cookieValue.toString());
-    response.set("installedLocales", jaLocales);
+    JSONObject object = new JSONObject();
+    object.put("installedLocales", jaLocales);
 
-    return response;
+    return new ResponseEntity<String>(object.toString(), HttpStatus.OK);
   }
 
-  public ClientRequestIF loginWithLocales(ServletRequestIF req, String username, String password, Locale[] locales)
+  public ClientRequestIF loginWithLocales(HttpServletRequest req, String username, String password, Locale[] locales)
   {
     try
     {
@@ -136,19 +202,18 @@ public class RegistrySessionController
     }
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF ologin(ServletRequestIF req, 
-      @RequestParamter(name = "code", required = true) String code, 
-      @RequestParamter(name = "state", required = true) String state) throws MalformedURLException, JSONException
+  @PostMapping(API_PATH + "/ologin")  
+  public String ologin(HttpServletResponse response, HttpServletRequest request, @Valid @RequestBody OauthLoginBody body) 
   {
+    RequestDecorator req = new RequestDecorator(request);
+    
     final SessionController geoprism = new SessionController();
     
 //    URL url = new URL(req.getScheme(), req.getServerName(), req.getServerPort(), req.getContextPath());
 //
 //    String redirect = url.toString();
 
-    JSONObject stateObject = new JSONObject(state);
-    String serverId = stateObject.getString(OauthServerIF.SERVER_ID);
+    String serverId = body.state.get(OauthServerIF.SERVER_ID).getAsString();
 
     Locale[] locales = geoprism.getLocales(req);
 
@@ -158,7 +223,7 @@ public class RegistrySessionController
     {
       ClientRequestIF clientRequest = clientSession.getRequest();
 
-      String cgrSessionJsonString = RegistrySessionServiceDTO.ologin(clientRequest, serverId, code, LocaleSerializer.serialize(locales), null);
+      String cgrSessionJsonString = RegistrySessionServiceDTO.ologin(clientRequest, serverId, body.code, LocaleSerializer.serialize(locales), null);
       
       JsonObject cgrSessionJson = (JsonObject) JsonParser.parseString(cgrSessionJsonString);
       final String sessionId = cgrSessionJson.get("sessionId").getAsString();
@@ -170,42 +235,19 @@ public class RegistrySessionController
       JsonArray roles = (JsonArray) JsonParser.parseString(RoleViewDTO.getCurrentRoles(clientRequest));
       JsonArray roleDisplayLabels = (JsonArray) JsonParser.parseString(RoleViewDTO.getCurrentRoleDisplayLabels(clientRequest));
       
+      JsonArray jaLocales = ServiceFactory.getRegistryService().getLocales(clientRequest.getSessionId());
+      
       JsonObject cookieJson = new JsonObject();
       cookieJson.addProperty("loggedIn", clientRequest.isLoggedIn());
       cookieJson.add("roles", roles);
       cookieJson.add("roleDisplayLabels", roleDisplayLabels);
       cookieJson.addProperty("userName", username);
       cookieJson.addProperty("version", ClientConfigurationService.getServerVersion());
-      
-//      final Locale sessionLocale = Session.getCurrentLocale();
-//      
-//      JsonArray installedLocalesArr = new JsonArray();
-//      Set<SupportedLocaleIF> installedLocales = LocalizationFacade.getSupportedLocales();
-//      for (SupportedLocaleIF supportedLocale : installedLocales)
-//      {
-//        Locale locale = supportedLocale.getLocale();
-//        
-//        JsonObject locObj = new JsonObject();
-//        locObj.addProperty("language", locale.getDisplayLanguage(sessionLocale));
-//        locObj.addProperty("country", locale.getDisplayCountry(sessionLocale));
-//        locObj.addProperty("name", locale.getDisplayName(sessionLocale));
-//        locObj.addProperty("variant", locale.getDisplayVariant(sessionLocale));
-//
-//        installedLocalesArr.add(locObj);
-//      }
-      
-      JsonArray jaLocales = ServiceFactory.getRegistryService().getLocales(clientRequest.getSessionId());
       cookieJson.add("installedLocales", jaLocales);
+            
+      this.addCookie(response, request, cookieJson);
       
-      final String cookieValue = URLEncoder.encode(cookieJson.toString(), "UTF-8");
-      
-      Cookie cookie = new Cookie("user", cookieValue);
-      cookie.setMaxAge(-1);
-      
-      RedirectResponse response = new RedirectResponse("/");
-      response.addCookie(cookie);
-      
-      return response;
+      return "redirect:/";
     }
     catch (Throwable t)
     {
@@ -227,8 +269,8 @@ public class RegistrySessionController
         throw new ProgrammingErrorException(t2);
       }
       
-      RedirectResponse response = new RedirectResponse("/cgr/manage#/login/" + errorMessage);
-      return response;
+      return "redirect:/cgr/manage#/login/" + errorMessage;
+
     }
     finally
     {
@@ -236,7 +278,7 @@ public class RegistrySessionController
     }
   }
   
-  public Locale[] getLocales(ServletRequestIF req)
+  public Locale[] getLocales(HttpServletRequest req)
   {
     Enumeration<Locale> enumeration = req.getLocales();
     List<Locale> locales = new LinkedList<Locale>();
@@ -248,4 +290,23 @@ public class RegistrySessionController
 
     return locales.toArray(new Locale[locales.size()]);
   }
+  
+  private void addCookie(HttpServletResponse response, HttpServletRequest req, JsonObject cookieValue) throws UnsupportedEncodingException
+  {
+    String path = req.getContextPath();
+
+    if (path.equals("") || path.length() == 0)
+    {
+      path = "/";
+    }
+
+    final String value = URLEncoder.encode(cookieValue.toString(), "UTF-8");
+    
+    Cookie cookie = new Cookie("user", value);
+    cookie.setMaxAge(-1);
+    cookie.setPath(path);    
+    
+    response.addCookie(cookie);
+  }
+
 }
