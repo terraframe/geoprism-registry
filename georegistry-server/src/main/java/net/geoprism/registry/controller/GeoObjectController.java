@@ -153,7 +153,7 @@ public class GeoObjectController extends RunwaySpringController
     }
   }
   
-  public static class GeoObjectObjectBody
+  public static class GeoObjectBody
   {
     @NotNull
     @JsonDeserialize(using = JsonObjectDeserializer.class)
@@ -360,7 +360,7 @@ public class GeoObjectController extends RunwaySpringController
    * @throws //TODO
    **/
   @PostMapping(RegistryUrls.GEO_OBJECT_UPDATE)        
-  public ResponseEntity<String> updateGeoObject(@Valid @RequestBody GeoObjectObjectBody body)
+  public ResponseEntity<String> updateGeoObject(@Valid @RequestBody GeoObjectBody body)
   {
     GeoObject geoObject = this.service.updateGeoObject(this.getSessionId(), body.geoObject.toString(), body.startDate, body.endDate);
     CustomSerializer serializer = this.service.serializer(this.getSessionId());
@@ -383,7 +383,7 @@ public class GeoObjectController extends RunwaySpringController
    * @throws //TODO
    **/
   @PostMapping(RegistryUrls.GEO_OBJECT_CREATE)          
-  public ResponseEntity<String> createGeoObject(@Valid @RequestBody GeoObjectObjectBody body)
+  public ResponseEntity<String> createGeoObject(@Valid @RequestBody GeoObjectBody body)
   {
     GeoObject geoObject = this.service.createGeoObject(this.getSessionId(), body.geoObject.toString(), body.startDate, body.endDate);
     CustomSerializer serializer = this.service.serializer(this.getSessionId());

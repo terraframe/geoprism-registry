@@ -19,7 +19,7 @@ export class ProfileService {
         });
 
         return this.http
-            .post<Profile>(registry.contextPath + "/registryaccount/get", { headers: headers })
+            .post<Profile>(registry.contextPath + "/api/registryaccount/get", { headers: headers })
             .toPromise();
     }
 
@@ -30,7 +30,7 @@ export class ProfileService {
         });
 
         return this.http
-            .post<Profile>(registry.contextPath + "/registryaccount/apply", JSON.stringify({ account: profile }), { headers: headers })
+            .post<Profile>(registry.contextPath + "/api/registryaccount/apply", JSON.stringify({ account: profile }), { headers: headers })
             .toPromise();
     }
 
@@ -40,7 +40,7 @@ export class ProfileService {
         });
 
         return this.http
-            .post<void>(registry.contextPath + "/registryaccount/unlock", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<void>(registry.contextPath + "/api/registryaccount/unlock", JSON.stringify({ oid: oid }), { headers: headers })
             .toPromise()
     }
 
@@ -61,7 +61,7 @@ export class ProfileService {
 
 
         return this.http
-            .post<Profile>(registry.contextPath + "/registryaccount/getRolesForUser", { userOID: userOID }, { headers: headers })
+            .post<Profile>(registry.contextPath + "/api/registryaccount/getRolesForUser", { userOID: userOID }, { headers: headers })
             .toPromise();
     }
 

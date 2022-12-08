@@ -306,7 +306,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .get<number[]>(registry.contextPath + "/cgr/geoobject-time/get-bounds", { params: params })
+            .get<number[]>(registry.contextPath + "/api/geoobject-time/get-bounds", { params: params })
             .toPromise();
     }
 
@@ -480,7 +480,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("typeCode", geoObjectTypeCode);
 
         return this.http
-            .get<GeoObjectOverTime>(registry.contextPath + "/cgr/geoobject-time/get-code", { params: params })
+            .get<GeoObjectOverTime>(registry.contextPath + "/api/geoobject-time/get-code", { params: params })
             .toPromise();
     }
 
@@ -494,7 +494,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .post<any>(registry.contextPath + "/cgr/geoobject-time/newGeoObjectInstance", JSON.stringify({ typeCode: typeCode }), { headers: headers })
+            .post<any>(registry.contextPath + "/api/geoobject-time/newGeoObjectInstance", JSON.stringify({ typeCode: typeCode }), { headers: headers })
             .pipe(finalize(() => {
                 if (showOverlay) {
                     this.eventService.complete();
