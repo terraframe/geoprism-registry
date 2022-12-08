@@ -17,210 +17,203 @@
 /// License along with Runway SDK(tm).  If not, see <ehttp://www.gnu.org/licenses/>.
 ///
 
-import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable } from "@angular/core";
+import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
 
 // import 'rxjs/add/operator/toPromise';
-import { finalize } from 'rxjs/operators';
+import { finalize } from "rxjs/operators";
 
-import { EventService } from '@shared/service'
+import { EventService } from "@shared/service";
 
-import { Account, User, UserInvite } from '@admin/model/account';
+import { Account, User, UserInvite } from "@admin/model/account";
 
-import { PageResult } from '@shared/model/core'
+import { PageResult } from "@shared/model/core";
 
 import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class AccountService {
 
-    constructor( private http: HttpClient, private eventService: EventService ) { }
+    constructor(private http: HttpClient, private eventService: EventService) { }
 
-    page( pageNumber: number, pageSize: number ): Promise<PageResult<User>> {
+    page(pageNumber: number, pageSize: number): Promise<PageResult<User>> {
         let params: HttpParams = new HttpParams();
-        params = params.set( 'pageNumber', pageNumber.toString() );
-        params = params.set( 'pageSize', pageSize.toString() );
+        params = params.set("pageNumber", pageNumber.toString());
+        params = params.set("pageSize", pageSize.toString());
 
         this.eventService.start();
 
         return this.http
-            .get<PageResult<User>>( registry.contextPath + '/registryaccount/page', { params: params } )
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
+            .get<PageResult<User>>(registry.contextPath + "/api/registryaccount/page", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
             .toPromise();
     }
 
-    getSRAs( pageNumber: number, pageSize: number ): Promise<PageResult<User>> {
+    getSRAs(pageNumber: number, pageSize: number): Promise<PageResult<User>> {
         let params: HttpParams = new HttpParams();
-        params = params.set( 'pageNumber', pageNumber.toString() );
-        params = params.set( 'pageSize', pageSize.toString() );
+        params = params.set("pageNumber", pageNumber.toString());
+        params = params.set("pageSize", pageSize.toString());
 
         this.eventService.start();
 
         return this.http
-            .get<PageResult<User>>( registry.contextPath + '/registryaccount/get-sras', { params: params } )
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
+            .get<PageResult<User>>(registry.contextPath + "/api/registryaccount/get-sras", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
             .toPromise();
     }
 
-    edit( oid: string ): Promise<Account> {
-
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+    edit(oid: string): Promise<Account> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
         this.eventService.start();
 
         return this.http
-            .post<Account>( registry.contextPath + '/registryaccount/edit', JSON.stringify( { oid: oid } ), { headers: headers } )
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
+            .post<Account>(registry.contextPath + "/api/registryaccount/edit", JSON.stringify({ oid: oid }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
             .toPromise();
     }
 
     newInstance(organizationCodes: string[]): Promise<Account> {
-
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
         this.eventService.start();
 
         return this.http
-            .post<Account>( registry.contextPath + '/registryaccount/newInstance', JSON.stringify( {"organizationCodes": organizationCodes} ), { headers: headers } )
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
+            .post<Account>(registry.contextPath + "/api/registryaccount/newInstance", JSON.stringify({ organizationCodes: organizationCodes }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
             .toPromise();
     }
 
     newUserInstance(): Promise<User> {
-
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
         this.eventService.start();
 
         return this.http
-            .post<User>( registry.contextPath + '/registryaccount/newUserInstance', JSON.stringify( {} ), { headers: headers } )
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
+            .post<User>(registry.contextPath + "/api/registryaccount/newUserInstance", JSON.stringify({}), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
             .toPromise();
     }
 
     newInvite(organizationCodes: string[]): Promise<Account> {
-
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
-
-        this.eventService.start();
-
-        return this.http
-            .post<Account>( registry.contextPath + '/registryaccount/newInvite', JSON.stringify( {"organizationCodes": organizationCodes} ), { headers: headers } )
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-            .toPromise();
-    }
-
-    remove( oid: string ): Promise<void> {
-
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
         this.eventService.start();
 
         return this.http
-            .post<void>( registry.contextPath + '/registryaccount/remove', JSON.stringify( { oid: oid } ), { headers: headers } )
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
+            .post<Account>(registry.contextPath + "/api/registryaccount/newInvite", JSON.stringify({ organizationCodes: organizationCodes }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
             .toPromise();
     }
 
-    apply( user: User, roleNames: string[] ): Promise<Account> {
-
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+    remove(oid: string): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
         this.eventService.start();
 
         return this.http
-            .post<Account>( registry.contextPath + '/registryaccount/apply', JSON.stringify( { account: user, roleNames: roleNames } ), { headers: headers } )
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
+            .post<void>(registry.contextPath + "/api/registryaccount/remove", JSON.stringify({ oid: oid }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
             .toPromise();
     }
 
-    unlock( oid: string ): Promise<void> {
-
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+    apply(user: User, roleNames: string[]): Promise<Account> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
         this.eventService.start();
 
         return this.http
-            .post<void>( registry.contextPath + '/registryaccount/unlock', JSON.stringify( { oid: oid } ), { headers: headers } )
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
+            .post<Account>(registry.contextPath + "/api/registryaccount/apply", JSON.stringify({ account: user, roleNames: roleNames }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
             .toPromise();
     }
 
-    inviteUser( invite: UserInvite, roleIds: string[] ): Promise<void> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
-
-        this.eventService.start();
-
-//        console.log( "Submitting to inviteUser : ", JSON.stringify( { invite: invite, roleIds: roleIds } ) );
-
-        return this.http
-            .post<void>( registry.contextPath + '/registryaccount/inviteUser', JSON.stringify( { invite: invite, roleIds: roleIds } ), { headers: headers } )
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-            .toPromise();
-    }
-
-    inviteComplete( user: User, token: string ): Promise<void> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+    unlock(oid: string): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
         this.eventService.start();
 
         return this.http
-            .post<void>( registry.contextPath + '/registryaccount/inviteComplete', JSON.stringify( { user: user, token: token } ), { headers: headers } )
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
+            .post<void>(registry.contextPath + "/api/registryaccount/unlock", JSON.stringify({ oid: oid }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
             .toPromise();
     }
 
-    getRolesForUser( userOID: string ): Promise<any> {
+    inviteUser(invite: UserInvite, roleIds: string[]): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        //        console.log( "Submitting to inviteUser : ", JSON.stringify( { invite: invite, roleIds: roleIds } ) );
+
+        return this.http
+            .post<void>(registry.contextPath + "/api/registryaccount/inviteUser", JSON.stringify({ invite: invite, roleIds: roleIds }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+    inviteComplete(user: User, token: string): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return this.http
+            .post<void>(registry.contextPath + "/api/registryaccount/inviteComplete", JSON.stringify({ user: user, token: token }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+    getRolesForUser(userOID: string): Promise<any> {
         let params: HttpParams = new HttpParams();
-        params = params.set( 'userOID', userOID );
+        params = params.set("userOID", userOID);
 
         this.eventService.start();
 
         return this.http
-            .get<any>( registry.contextPath + '/cgr/account/get-roles-for-user', { params: params } )
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
+            .get<any>(registry.contextPath + "/cgr/account/get-roles-for-user", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
             .toPromise();
     }
 

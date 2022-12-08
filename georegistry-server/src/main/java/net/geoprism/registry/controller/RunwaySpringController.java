@@ -4,8 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.runwaysdk.ClientRequest;
 import com.runwaysdk.constants.ClientConstants;
+import com.runwaysdk.constants.ClientRequestIF;
 
 public abstract class RunwaySpringController
 {
@@ -19,6 +19,11 @@ public abstract class RunwaySpringController
 
   protected String getSessionId()
   {
-    return ( (ClientRequest) request.getAttribute(ClientConstants.CLIENTREQUEST) ).getSessionId();
+    return getClientRequest().getSessionId();
+  }
+
+  public ClientRequestIF getClientRequest()
+  {
+    return (ClientRequestIF) request.getAttribute(ClientConstants.CLIENTREQUEST);
   }
 }
