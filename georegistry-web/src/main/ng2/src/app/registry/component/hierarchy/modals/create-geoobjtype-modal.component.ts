@@ -48,7 +48,7 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
     }
 
     init(organization: Organization, parents: GeoObjectType[], groupSuperType: GeoObjectType, isAbstract: boolean) {
-        this.geoObjectType.isAbstract = isAbstract ? isAbstract : false;
+        this.geoObjectType.isAbstract = isAbstract || false;
 
         if (groupSuperType) {
             this.geoObjectType.superTypeCode = groupSuperType.code;
@@ -68,7 +68,7 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
     handleOnSubmit(): void {
         this.message = null;
 
-        this.registryService.createGeoObjectType(JSON.stringify(this.geoObjectType)).then(data => {
+        this.registryService.createGeoObjectType(this.geoObjectType).then(data => {
             this.onGeoObjTypeCreate.next(data);
             this.bsModalRef.hide();
         }).catch((err: HttpErrorResponse) => {
@@ -91,4 +91,5 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
     error(err: HttpErrorResponse): void {
         this.message = ErrorHandler.getMessageFromError(err);
     }
+
 }

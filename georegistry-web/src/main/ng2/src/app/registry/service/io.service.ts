@@ -62,7 +62,7 @@ export class IOService {
         params = params.set("includeAbstractTypes", includeAbstractTypes.toString());
 
         return this.http
-            .get<{ label: string, code: string, orgCode: string }[]>(registry.contextPath + "/cgr/geoobjecttype/list-types", { params: params })
+            .get<{ label: string, code: string, orgCode: string }[]>(registry.contextPath + "/api/geoobjecttype/list-types", { params: params })
             .toPromise();
     }
 
@@ -74,7 +74,7 @@ export class IOService {
         params = params.set("includeChild", includeChild.toString());
 
         return this.http
-            .get<Location[]>(registry.contextPath + "/cgr/geoobjecttype/get-ancestors", { params: params })
+            .get<Location[]>(registry.contextPath + "/api/geoobjecttype/get-ancestors", { params: params })
             .toPromise();
     }
 
@@ -86,7 +86,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>(registry.contextPath + "/cgr/geoobjecttype/get-hierarchies", { params: params })
+            .get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>(registry.contextPath + "/api/geoobjecttype/get-hierarchies", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -101,7 +101,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>(registry.contextPath + "/cgr/geoobjecttype/get-subtype-hierarchies", { params: params })
+            .get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>(registry.contextPath + "/api/geoobjecttype/get-subtype-hierarchies", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -196,7 +196,7 @@ export class IOService {
         let params = { parentTermCode: parentTermCode, termJSON: { label: label, code: code } };
 
         return this.http
-            .post<Term>(registry.contextPath + "/cgr/geoobjecttype/addterm", JSON.stringify(params), { headers: headers })
+            .post<Term>(registry.contextPath + "/api/geoobjecttype/addterm", JSON.stringify(params), { headers: headers })
             .toPromise();
     }
 
@@ -206,7 +206,7 @@ export class IOService {
         });
 
         return this.http
-            .post<void>(registry.contextPath + "/cgr/geoobjecttype/deleteterm", JSON.stringify({ parentTermCode: parentTermCode, termCode: termCode }), { headers: headers })
+            .post<void>(registry.contextPath + "/api/geoobjecttype/deleteterm", JSON.stringify({ parentTermCode: parentTermCode, termCode: termCode }), { headers: headers })
             .toPromise();
     }
 

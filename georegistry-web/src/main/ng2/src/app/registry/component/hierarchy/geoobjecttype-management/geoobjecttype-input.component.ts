@@ -44,9 +44,9 @@ export class GeoObjectTypeInputComponent implements OnInit {
 
     @Input() readOnly: boolean = false;
     @Input() geoObjectType: GeoObjectType;
-    
+
     @Output() geoObjectTypeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
-    @Output() stateChange : EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
+    @Output() stateChange: EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
 
     editGeoObjectType: GeoObjectType;
 
@@ -171,9 +171,7 @@ export class GeoObjectTypeInputComponent implements OnInit {
 
     deleteAttributeType(geoObjectTypeCode: string, attr: AttributeType): void {
         this.registryService.deleteAttributeType(geoObjectTypeCode, attr.code).then(data => {
-            if (data) {
-                this.geoObjectType.attributes.splice(this.geoObjectType.attributes.indexOf(attr), 1);
-            }
+            this.geoObjectType.attributes.splice(this.geoObjectType.attributes.indexOf(attr), 1);
 
             this.geoObjectTypeChange.emit(this.geoObjectType);
         }).catch((err: HttpErrorResponse) => {
