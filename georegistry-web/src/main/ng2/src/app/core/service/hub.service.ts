@@ -17,39 +17,38 @@
 /// License along with Runway SDK(tm).  If not, see <ehttp://www.gnu.org/licenses/>.
 ///
 
-import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable } from "@angular/core";
+import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
 
-import { Application } from '@shared/model/application';
+import { Application } from "@shared/model/application";
 
 import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class HubService {
 
-	constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) { }
 
-	applications(): Promise<Application[]> {
+    applications(): Promise<Application[]> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
-		let headers = new HttpHeaders({
-			'Content-Type': 'application/json'
-		});
-
-		return this.http
-			.post<Application[]>(registry.contextPath + '/menu/applications', { headers: headers })
-			.toPromise();
-	}
-	
-	oauthGetPublic(id: string): Promise<any[]> {
-    let params: HttpParams = new HttpParams();
-
-    if (id)
-    {
-      params = params.set('id', id)
+        return this.http
+            .post<Application[]>(registry.contextPath + "/menu/applications", { headers: headers })
+            .toPromise();
     }
 
-    return this.http
-      .get<any[]>(registry.contextPath + '/cgr/oauth/get-public', { params: params })
-      .toPromise();
-  }
+    oauthGetPublic(id: string): Promise<any[]> {
+        let params: HttpParams = new HttpParams();
+
+        if (id) {
+            params = params.set("id", id);
+        }
+
+        return this.http
+            .get<any[]>(registry.contextPath + "/api/oauth/get-public", { params: params })
+            .toPromise();
+    }
+
 }

@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HttpHeaders, HttpClient } from "@angular/common/http";
+import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
 
 // import 'rxjs/add/operator/toPromise';
 
@@ -14,15 +14,10 @@ export class ProfileService {
     constructor(private http: HttpClient) { }
 
     get(): Promise<Profile> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
         return this.http
-            .post<Profile>(registry.contextPath + "/api/registryaccount/get", { headers: headers })
+            .get<Profile>(registry.contextPath + "/api/registryaccount/get")
             .toPromise();
     }
-
 
     apply(profile: Profile): Promise<Profile> {
         let headers = new HttpHeaders({
@@ -41,7 +36,7 @@ export class ProfileService {
 
         return this.http
             .post<void>(registry.contextPath + "/api/registryaccount/unlock", JSON.stringify({ oid: oid }), { headers: headers })
-            .toPromise()
+            .toPromise();
     }
 
     setLocale(locale: string): Promise<any> {
@@ -55,13 +50,11 @@ export class ProfileService {
     }
 
     getRolesForUser(userOID: string): Promise<any> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
+        let params: HttpParams = new HttpParams();
+        params = params.set("userOID", userOID);
 
         return this.http
-            .post<Profile>(registry.contextPath + "/api/registryaccount/getRolesForUser", { userOID: userOID }, { headers: headers })
+            .get<Profile>(registry.contextPath + "/api/registryaccount/getRolesForUser", { params: params })
             .toPromise();
     }
 
