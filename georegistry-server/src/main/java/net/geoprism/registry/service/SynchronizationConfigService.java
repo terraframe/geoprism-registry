@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -90,11 +89,9 @@ public class SynchronizationConfigService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject apply(String sessionId, String json) throws JSONException
+  public JsonObject apply(String sessionId, JsonObject element) throws JSONException
   {
-    JsonElement element = JsonParser.parseString(json);
-
-    SynchronizationConfig config = SynchronizationConfig.deserialize(element.getAsJsonObject(), true);
+    SynchronizationConfig config = SynchronizationConfig.deserialize(element, true);
     config.apply();
 
     return config.toJSON();

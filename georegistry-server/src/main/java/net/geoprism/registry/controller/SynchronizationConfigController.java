@@ -18,142 +18,188 @@
  */
 package net.geoprism.registry.controller;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.InputStreamResponse;
-import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.mvc.RestResponse;
 
+import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.etl.fhir.FhirFactory;
 import net.geoprism.registry.service.SynchronizationConfigService;
+import net.geoprism.registry.spring.JsonObjectDeserializer;
 
-@Controller(url = "synchronization-config")
-public class SynchronizationConfigController
+@RestController
+@Validated
+public class SynchronizationConfigController extends RunwaySpringController
 {
+  public static final String API_PATH = "synchronization-config";
+  
+  public static class ConfigBody 
+  {
+    @NotNull
+    @JsonDeserialize(using = JsonObjectDeserializer.class)
+    JsonObject config;  
+    
+    public JsonObject getConfig()
+    {
+      return config;
+    }
+    
+    public void setConfig(JsonObject config)
+    {
+      this.config = config;
+    }
+  }
+  
+  public static class OptionalOidBody
+  {
+    private String oid;
+
+    public String getOid()
+    {
+      return oid;
+    }
+
+    public void setOid(String oid)
+    {
+      this.oid = oid;
+    }
+  }
+
+
+  @Autowired
   private SynchronizationConfigService service;
 
-  public SynchronizationConfigController()
+  @GetMapping(API_PATH + "/get-config-for-es")
+  public ResponseEntity<String> getConfigForExternalSystem( 
+      @NotEmpty @RequestParam String externalSystemId,
+      @NotEmpty @RequestParam String hierarchyTypeCode)
   {
-    this.service = new SynchronizationConfigService();
+    JsonObject resp = this.service.getConfigForExternalSystem(this.getSessionId(), externalSystemId, hierarchyTypeCode);
+
+    return new ResponseEntity<String>(resp.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-config-for-es")
-  public ResponseIF getConfigForExternalSystem(ClientRequestIF request, 
-      @RequestParamter(name = "externalSystemId", required = true) String externalSystemId,
-      @RequestParamter(name = "hierarchyTypeCode", required = true) String hierarchyTypeCode)
+  @GetMapping(API_PATH + "/get-custom-attr")  
+  public ResponseEntity<String> getCustomAttributeConfiguration( 
+      @NotEmpty @RequestParam String geoObjectTypeCode, 
+      @NotEmpty @RequestParam String externalId)
   {
-    JsonObject resp = this.service.getConfigForExternalSystem(request.getSessionId(), externalSystemId, hierarchyTypeCode);
+    JsonArray resp = new DHIS2FeatureService().getDHIS2AttributeConfiguration(this.getSessionId(), externalId, geoObjectTypeCode);
 
-    return new RestBodyResponse(resp);
+    return new ResponseEntity<String>(resp.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-custom-attr")
-  public ResponseIF getCustomAttributeConfiguration(ClientRequestIF request, 
-      @RequestParamter(name = "geoObjectTypeCode", required = true) String geoObjectTypeCode, 
-      @RequestParamter(name = "externalId", required = true) String externalId)
+  @GetMapping(API_PATH + "/get-all")    
+  public ResponseEntity<String> getAll( 
+      @RequestParam Integer pageNumber, 
+      @RequestParam Integer pageSize)
   {
-    JsonArray resp = new DHIS2FeatureService().getDHIS2AttributeConfiguration(request.getSessionId(), externalId, geoObjectTypeCode);
+    JsonObject response = this.service.page(this.getSessionId(), pageNumber, pageSize);
 
-    return new RestBodyResponse(resp);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-all")
-  public ResponseIF getAll(ClientRequestIF request, 
-      @RequestParamter(name = "pageNumber", required = true) Integer pageNumber, 
-      @RequestParamter(name = "pageSize", required = true) Integer pageSize)
+  @PostMapping(API_PATH + "/apply")      
+  public ResponseEntity<String> apply( @Valid @RequestBody ConfigBody body)
   {
-    JsonObject response = this.service.page(request.getSessionId(), pageNumber, pageSize);
+    JsonObject response = this.service.apply(this.getSessionId(), body.config);
 
-    return new RestBodyResponse(response);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "config", required = true) String configJSON)
+  @PostMapping(API_PATH + "/remove")        
+  public ResponseEntity<Void> remove( @Valid @RequestBody OidBody body)
   {
-    JsonObject response = this.service.apply(request.getSessionId(), configJSON);
+    this.service.remove(this.getSessionId(), body.getOid());
 
-    return new RestBodyResponse(response);
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove")
-  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
+  @GetMapping(API_PATH + "/get")    
+  public ResponseEntity<String> get( @NotEmpty @RequestParam String oid)
   {
-    this.service.remove(request.getSessionId(), oid);
+    JsonObject response = this.service.get(this.getSessionId(), oid);
 
-    return new RestResponse();
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
-  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
+  @PostMapping(API_PATH + "/edit")          
+  public ResponseEntity<String> edit( @Valid @RequestBody OptionalOidBody body)
   {
-    JsonObject response = this.service.get(request.getSessionId(), oid);
+    JsonElement response = this.service.edit(this.getSessionId(), body.getOid());
 
-    return new RestBodyResponse(response);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "edit")
-  public ResponseIF edit(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  @PostMapping(API_PATH + "/unlock")          
+  public ResponseEntity<Void> unlock( @Valid @RequestBody OidBody body)
   {
-    JsonElement response = this.service.edit(request.getSessionId(), oid);
+    this.service.unlock(this.getSessionId(), body.getOid());
 
-    return new RestBodyResponse(response);
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "unlock")
-  public ResponseIF unlock(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
+  @GetMapping(API_PATH + "/get-jobs")      
+  public ResponseEntity<String> getJobs( 
+      @NotEmpty @RequestParam String oid, 
+      @RequestParam Integer pageNumber,
+      @RequestParam Integer pageSize)
   {
-    this.service.unlock(request.getSessionId(), oid);
+    JsonObject jobs = this.service.getJobs(this.getSessionId(), oid, pageSize, pageNumber);
 
-    return new RestResponse();
+    return new ResponseEntity<String>(jobs.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-jobs")
-  public ResponseIF getJobs(ClientRequestIF request, 
-      @RequestParamter(name = "oid", required = true) String oid, 
-      @RequestParamter(name = "pageNumber", required = true) Integer pageNumber,
-      @RequestParamter(name = "pageSize", required = true) Integer pageSize)
+  @PostMapping(API_PATH + "/run")            
+  public ResponseEntity<Void> run( @Valid @RequestBody OidBody body)
   {
-    JsonObject jobs = this.service.getJobs(request.getSessionId(), oid, pageSize, pageNumber);
+    this.service.run(this.getSessionId(), body.getOid());
 
-    return new RestBodyResponse(jobs.toString());
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "run")
-  public ResponseIF run(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
+  @GetMapping(API_PATH + "/generate-file")        
+  public ResponseEntity<InputStreamResource> generateFile( @NotEmpty @RequestParam String oid)
   {
-    this.service.run(request.getSessionId(), oid);
+    HttpHeaders headers = new HttpHeaders();
+    headers.set(HttpHeaders.CONTENT_TYPE, "application/zip");
+    headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=bundles.zip");
 
-    return new RestResponse();
+    InputStreamResource isr = new InputStreamResource(this.service.generateFile(this.getSessionId(), oid));
+    return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "generate-file")
-  public ResponseIF generateFile(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
-  {
-    return new InputStreamResponse(this.service.generateFile(request.getSessionId(), oid), "application/zip", "bundles.zip");
-  }
-
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-fhir-export-implementations")
-  public ResponseIF getFhirExportImplementations(ClientRequestIF request)
+  @GetMapping(API_PATH + "/get-fhir-export-implementations")          
+  public ResponseEntity<String> getFhirExportImplementations()
   {
     JsonArray implementations = FhirFactory.getExportImplementations();
 
-    return new RestBodyResponse(implementations);
+    return new ResponseEntity<String>(implementations.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-fhir-import-implementations")
-  public ResponseIF getFhirImportImplementations(ClientRequestIF request)
+  @GetMapping(API_PATH + "/get-fhir-import-implementations")            
+  public ResponseEntity<String> getFhirImportImplementations()
   {
     JsonArray implementations = FhirFactory.getImportImplementations();
 
-    return new RestBodyResponse(implementations);
+    return new ResponseEntity<String>(implementations.toString(), HttpStatus.OK);
   }
 }

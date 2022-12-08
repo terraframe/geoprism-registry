@@ -77,7 +77,7 @@ export class SynchronizationConfigComponent implements OnInit {
   }
 
   onGenerateFile(): void {
-      window.open(registry.contextPath + "/synchronization-config/generate-file?oid=" + encodeURIComponent(this.config.oid));
+      window.open(registry.contextPath + "/api/synchronization-config/generate-file?oid=" + encodeURIComponent(this.config.oid));
   }
 
   onPageChange(pageNumber: number): void {
