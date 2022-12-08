@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl;
+package net.geoprism.registry.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +40,7 @@ import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.system.scheduler.JobHistory;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.service.ETLService;
 
 @Controller(url = "etl")
 public class ETLController

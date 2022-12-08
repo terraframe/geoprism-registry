@@ -33,7 +33,6 @@ import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest.AuthenticationRequestBuilder;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.commongeoregistry.adapter.Optional;
-import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
@@ -120,21 +119,12 @@ import net.geoprism.registry.ws.NotificationFacade;
 @Component
 public class RegistryService
 {
-  private RegistryAdapter        adapter;
-
   @Autowired
   private ServerGeoObjectService service;
 
-  public static RegistryService getInstance()
-  {
-    return ServiceFactory.getRegistryService();
-  }
-
   @Request
-  public synchronized void initialize(RegistryAdapter adapter)
+  public synchronized void initialize()
   {
-    this.adapter = adapter;
-
     refreshMetadataCache();
   }
 
@@ -426,7 +416,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObject createGeoObject(String sessionId, String jGeoObj, Date startDate, Date endDate)
   {
-    GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
+    GeoObject geoObject = GeoObject.fromJSON(ServiceFactory.getAdapter(), jGeoObj);
 
     ServerGeoObjectIF object = service.apply(geoObject, startDate, endDate, true, false);
 
@@ -436,7 +426,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObject updateGeoObject(String sessionId, String jGeoObj, Date startDate, Date endDate)
   {
-    GeoObject geoObject = GeoObject.fromJSON(adapter, jGeoObj);
+    GeoObject geoObject = GeoObject.fromJSON(ServiceFactory.getAdapter(), jGeoObj);
 
     ServerGeoObjectIF object = service.apply(geoObject, startDate, endDate, false, false);
 
@@ -519,7 +509,7 @@ public class RegistryService
 
     if (codes == null || codes.length == 0)
     {
-      List<OrganizationDTO> cachedOrgs = adapter.getMetadataCache().getAllOrganizations();
+      List<OrganizationDTO> cachedOrgs = ServiceFactory.getAdapter().getMetadataCache().getAllOrganizations();
 
       for (OrganizationDTO cachedOrg : cachedOrgs)
       {
@@ -530,7 +520,7 @@ public class RegistryService
     {
       for (int i = 0; i < codes.length; ++i)
       {
-        Optional<OrganizationDTO> optional = adapter.getMetadataCache().getOrganization(codes[i]);
+        Optional<OrganizationDTO> optional = ServiceFactory.getAdapter().getMetadataCache().getOrganization(codes[i]);
 
         if (optional.isPresent())
         {
@@ -645,7 +635,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes, String[] hierarchies, PermissionContext context)
   {
-    List<GeoObjectType> lTypes = new GeoObjectTypeService(adapter).getGeoObjectTypes(codes, hierarchies, context);
+    List<GeoObjectType> lTypes = new GeoObjectTypeService(ServiceFactory.getAdapter()).getGeoObjectTypes(codes, hierarchies, context);
 
     return lTypes.toArray(new GeoObjectType[lTypes.size()]);
   }
@@ -716,7 +706,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObjectType updateGeoObjectType(String sessionId, String gtJSON)
   {
-    GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
+    GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, ServiceFactory.getAdapter());
     ServerGeoObjectType serverGeoObjectType = ServerGeoObjectType.get(geoObjectType.getCode());
 
     ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(geoObjectType.getOrganizationCode(), serverGeoObjectType, geoObjectType.getIsPrivate());
@@ -1120,19 +1110,19 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public GeoObject newGeoObjectInstance(String sessionId, String geoObjectTypeCode)
   {
-    return this.adapter.newGeoObjectInstance(geoObjectTypeCode);
+    return ServiceFactory.getAdapter().newGeoObjectInstance(geoObjectTypeCode);
   }
 
   @Request(RequestType.SESSION)
   public String newGeoObjectInstance2(String sessionId, String geoObjectTypeCode)
   {
-    CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
+    CustomSerializer serializer = this.serializer(sessionId);
     JSONObject joResp = new JSONObject();
 
     /**
      * Create a new GeoObject
      */
-    GeoObject go = this.adapter.newGeoObjectInstance(geoObjectTypeCode);
+    GeoObject go = ServiceFactory.getAdapter().newGeoObjectInstance(geoObjectTypeCode);
 
     /**
      * Add all locales so the front-end knows what are available.
@@ -1337,5 +1327,9 @@ public class RegistryService
 
     return objects;
   }
-
+  
+  public static RegistryService getInstance()
+  {
+    return ServiceFactory.getRegistryService();
+  }
 }

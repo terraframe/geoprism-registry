@@ -1,30 +1,29 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { Subject } from 'rxjs';
-import { ErrorHandler } from '@shared/component';
-import { Organization } from '@shared/model/core';
-import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
-import { EventService, LocalizationService } from '@shared/service';
+import { Component, OnInit, ElementRef, ViewChild } from "@angular/core";
+import { BsModalRef } from "ngx-bootstrap/modal";
+import { Subject } from "rxjs";
+import { ErrorHandler } from "@shared/component";
+import { Organization } from "@shared/model/core";
+import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
+import { EventService, LocalizationService } from "@shared/service";
 
 import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component({
-  selector: 'import-types-modal',
-  templateUrl: './import-types-modal.component.html',
-  styleUrls: []
+    selector: "import-types-modal",
+    templateUrl: "./import-types-modal.component.html",
+    styleUrls: []
 })
 export class ImportTypesModalComponent implements OnInit {
 
   public organizations: Organization[] = [];
   public orgCode: string;
 
-
   /*
    * File uploader
    */
   uploader: FileUploader;
 
-  @ViewChild('myFile')
+  @ViewChild("myFile")
   fileRef: ElementRef;
 
   message: string = null;
@@ -35,61 +34,58 @@ export class ImportTypesModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.onNodeChange = new Subject();
+      this.onNodeChange = new Subject();
   }
 
   init(organizations: Organization[]): void {
-    this.organizations = organizations;
+      this.organizations = organizations;
 
-    let options: FileUploaderOptions = {
-      queueLimit: 1,
-      removeAfterUpload: true,
-      url: registry.contextPath + '/cgr/import-types'
-    };
+      let options: FileUploaderOptions = {
+          queueLimit: 1,
+          removeAfterUpload: true,
+          url: registry.contextPath + "/api/cgr/import-types"
+      };
 
-    this.uploader = new FileUploader(options);
+      this.uploader = new FileUploader(options);
 
-    this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
-      form.append('orgCode', this.orgCode);
-    };
-    this.uploader.onBeforeUploadItem = (fileItem: any) => {
-      this.eventService.start();
-    };
-    this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
-      this.fileRef.nativeElement.value = "";
-      this.eventService.complete();
-    };
-    this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
-      this.onNodeChange.next(true);
-      this.bsModalRef.hide();
-    };
-    this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
-      const error = JSON.parse(response)
+      this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
+          form.append("orgCode", this.orgCode);
+      };
+      this.uploader.onBeforeUploadItem = (fileItem: any) => {
+          this.eventService.start();
+      };
+      this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
+          this.fileRef.nativeElement.value = "";
+          this.eventService.complete();
+      };
+      this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
+          this.onNodeChange.next(true);
+          this.bsModalRef.hide();
+      };
+      this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
+          const error = JSON.parse(response);
 
-      this.error({ error: error });
-    }
-
+          this.error({ error: error });
+      };
   }
 
   onSelect(orgCode: string): void {
-    this.orgCode = orgCode;
+      this.orgCode = orgCode;
   }
 
   onClick(): void {
-
-    if (this.uploader.queue != null && this.uploader.queue.length > 0) {
-      this.uploader.uploadAll();
-    }
-    else {
-      this.error({
-        message: this.localizationService.decode('io.missing.file'),
-        error: {},
-      });
-    }
+      if (this.uploader.queue != null && this.uploader.queue.length > 0) {
+          this.uploader.uploadAll();
+      } else {
+          this.error({
+              message: this.localizationService.decode("io.missing.file"),
+              error: {}
+          });
+      }
   }
-
 
   public error(err: any): void {
-    this.message = ErrorHandler.getMessageFromError(err);
+      this.message = ErrorHandler.getMessageFromError(err);
   }
+
 }

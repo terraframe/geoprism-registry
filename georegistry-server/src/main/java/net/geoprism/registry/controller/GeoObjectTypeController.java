@@ -254,8 +254,10 @@ public class GeoObjectTypeController extends RunwaySpringController
    * @returns @throws
    **/
   @GetMapping(RegistryUrls.GEO_OBJECT_TYPE_GET_ALL)
-  public ResponseEntity<String> getGeoObjectTypes(@RequestParam(required = false) String types, @RequestParam(required = false) String hierarchies, @NotEmpty
-  @RequestParam String context)
+  public ResponseEntity<String> getGeoObjectTypes(
+      @RequestParam(required = false) String types, 
+      @RequestParam(required = false) String hierarchies, 
+      @RequestParam(required = false) String context)
   {
     String[] aTypes = null;
     if (types != null)

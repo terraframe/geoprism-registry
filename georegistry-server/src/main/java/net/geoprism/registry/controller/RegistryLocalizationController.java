@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.localization;
+package net.geoprism.registry.controller;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -40,7 +40,8 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.localization.LocaleView;
+import net.geoprism.registry.service.LocalizationService;
 import net.geoprism.registry.service.ServiceFactory;
 
 @Controller(url = "localization")
@@ -70,7 +71,7 @@ public class RegistryLocalizationController
     JSONArray languages = new JSONArray();
     JSONArray countries = new JSONArray();
     
-    Locale sessionLocale = LocaleUtils.toLocale(RegistryService.getInstance().getCurrentLocale(request.getSessionId()));
+    Locale sessionLocale = LocaleUtils.toLocale(ServiceFactory.getRegistryService().getCurrentLocale(request.getSessionId()));
 
     for (Locale locale : LocalizationFacade.getAvailableLanguagesSorted())
     {

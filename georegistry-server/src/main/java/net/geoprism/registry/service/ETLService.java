@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl;
+package net.geoprism.registry.service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,23 +57,28 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import net.geoprism.DataUploader;
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.etl.DataImportJob;
+import net.geoprism.registry.etl.EdgeJsonImporter;
+import net.geoprism.registry.etl.ImportError;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
+import net.geoprism.registry.etl.ImportErrorQuery;
+import net.geoprism.registry.etl.ImportHistory;
+import net.geoprism.registry.etl.ImportHistoryQuery;
+import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.etl.ParentReferenceProblem;
+import net.geoprism.registry.etl.TermReferenceProblem;
+import net.geoprism.registry.etl.ValidationProblem;
 import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
+import net.geoprism.registry.etl.ValidationProblemQuery;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.ExportError;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
-import net.geoprism.registry.service.GeoSynonymService;
-import net.geoprism.registry.service.RegistryIdService;
-import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.ServerGeoObjectService;
-import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -727,7 +732,7 @@ public class ETLService
         String parentTermCode = config.get("parentTermCode").getAsString();
         String termJSON = config.get("termJSON").toString();
 
-        response = RegistryService.getInstance().createTerm(sessionId, parentTermCode, termJSON).toJSON();
+        response = ServiceFactory.getRegistryService().createTerm(sessionId, parentTermCode, termJSON).toJSON();
       }
       else if (problem instanceof ParentReferenceProblem)
       {

@@ -17,41 +17,42 @@
 /// License along with Runway SDK(tm).  If not, see <ehttp://www.gnu.org/licenses/>.
 ///
 
-import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable } from "@angular/core";
+import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
 
-import { finalize } from 'rxjs/operators';
+import { finalize } from "rxjs/operators";
 
-import { EventService } from '@shared/service'
+import { EventService } from "@shared/service";
 
-import { PageResult, Organization, ExternalSystem, LocaleView } from '@shared/model/core';
+import { PageResult, Organization, ExternalSystem, LocaleView } from "@shared/model/core";
 
-import { User } from '@admin/model/account';
+import { User } from "@admin/model/account";
 
 import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 export class SettingsInitView {
+
   organizations: Organization[];
   locales: LocaleView[];
   externalSystems: PageResult<ExternalSystem>;
   sras: PageResult<User>;
+
 }
 
 @Injectable()
 export class SettingsService {
 
-	constructor(private http: HttpClient, private eventService: EventService) { }
-	
-	getInitView(): Promise<SettingsInitView> {
+    constructor(private http: HttpClient, private eventService: EventService) { }
 
-    this.eventService.start();
+    getInitView(): Promise<SettingsInitView> {
+        this.eventService.start();
 
-    return this.http
-      .get<SettingsInitView>(registry.contextPath + '/cgr/init-settings')
-      .pipe(finalize(() => {
-        this.eventService.complete();
-      }))
-      .toPromise();
-  }
+        return this.http
+            .get<SettingsInitView>(registry.contextPath + "/api/cgr/init-settings")
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
 }

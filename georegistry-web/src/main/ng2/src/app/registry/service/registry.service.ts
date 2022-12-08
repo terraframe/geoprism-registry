@@ -50,7 +50,7 @@ export class RegistryService implements AttributeTypeService {
     constructor(private http: HttpClient, private eventService: EventService) { }
 
     init(): Promise<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }> {
-        return this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }>(registry.contextPath + "/cgr/init")
+        return this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }>(registry.contextPath + "/api/cgr/init")
             .toPromise();
     }
 

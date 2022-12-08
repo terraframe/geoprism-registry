@@ -29,6 +29,8 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -72,8 +74,12 @@ import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 
+@Component
 public class SynchronizationConfigService
 {
+  @Autowired
+  private RegistryService service;
+  
   @Request(RequestType.SESSION)
   public JsonObject page(String sessionId, Integer pageNumber, Integer pageSize) throws JSONException
   {
@@ -119,8 +125,8 @@ public class SynchronizationConfigService
     JsonObject ret = new JsonObject();
 
     // Add GeoObjectTypes
-    GeoObjectType[] gots = ServiceFactory.getRegistryService().getGeoObjectTypes(sessionId, null, new String[] { hierarchyTypeCode }, PermissionContext.WRITE);
-    CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
+    GeoObjectType[] gots = service.getGeoObjectTypes(sessionId, null, new String[] { hierarchyTypeCode }, PermissionContext.WRITE);
+    CustomSerializer serializer = service.serializer(sessionId);
 
     JsonArray jarray = new JsonArray();
     for (int i = 0; i < gots.length; ++i)

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -29,6 +29,7 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonArray;
@@ -77,6 +78,9 @@ import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 @Component
 public class ServerGeoObjectService extends LocalizedValueConverter
 {
+  @Autowired
+  private RegistryService              registryService;
+
   private GeoObjectPermissionServiceIF permissionService;
 
   public ServerGeoObjectService()
@@ -88,7 +92,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   {
     this.permissionService = permissionService;
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject getAll(String sessionId, String gotCode, String hierarchyCode, Date since, Boolean includeLevel, String format, String externalSystemId, Integer pageNumber, Integer pageSize)
   {
@@ -404,7 +408,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       JsonObject resp = new JsonObject();
 
       resp.addProperty("isChangeRequest", false);
-      resp.add("geoObject", serverGO.toGeoObjectOverTime().toJSON(ServiceFactory.getRegistryService().serializer(Session.getCurrentSession().getOid())));
+      resp.add("geoObject", serverGO.toGeoObjectOverTime().toJSON(registryService.serializer(Session.getCurrentSession().getOid())));
 
       return resp;
     }
@@ -473,7 +477,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       JsonObject resp = new JsonObject();
 
       resp.addProperty("isChangeRequest", false);
-      resp.add("geoObject", go.toGeoObjectOverTime().toJSON(ServiceFactory.getRegistryService().serializer(Session.getCurrentSession().getOid())));
+      resp.add("geoObject", go.toGeoObjectOverTime().toJSON(registryService.serializer(Session.getCurrentSession().getOid())));
 
       return resp;
     }

@@ -67,6 +67,11 @@ public class LocaleView
     this.label = label;
   }
   
+  public boolean isDefaultLocale()
+  {
+    return isDefaultLocale;
+  }
+  
   /**
    * Populates the SupportedLocaleIF with the display labels contained in this view.
    */

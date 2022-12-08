@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.localization;
+package net.geoprism.registry.service;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -64,9 +64,9 @@ import com.runwaysdk.system.metadata.MdLocalizable;
 import com.runwaysdk.system.metadata.Metadata;
 import com.runwaysdk.system.metadata.SupportedLocale;
 
-import net.geoprism.registry.service.SerializedListTypeCache;
-import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.service.WMSService;
+import net.geoprism.registry.localization.DefaultLocaleView;
+import net.geoprism.registry.localization.LocaleView;
+import net.geoprism.registry.localization.LocalizationImportMessagesException;
 
 public class LocalizationService
 {
@@ -121,7 +121,7 @@ public class LocalizationService
   @Transaction
   private LocaleView editLocaleInTransaction(LocaleView view)
   {
-    if (view.isDefaultLocale)
+    if (view.isDefaultLocale())
     {
       LocalizedValueStore lvs = LocalizedValueStore.getByKey(DefaultLocaleView.LABEL);
       
@@ -159,7 +159,7 @@ public class LocalizationService
     
     LocaleView view = LocaleView.fromJson(json);
     
-    if (view.isDefaultLocale)
+    if (view.isDefaultLocale())
     {
       return view;
     }

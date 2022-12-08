@@ -39,7 +39,7 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.RolesQuery;
 
 import net.geoprism.DefaultConfiguration;
-import net.geoprism.registry.etl.ETLService;
+import net.geoprism.registry.service.ETLService;
 import net.geoprism.registry.task.Task.TaskStatus;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;

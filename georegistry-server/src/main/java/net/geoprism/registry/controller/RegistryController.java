@@ -18,36 +18,15 @@
  */
 package net.geoprism.registry.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
-
 import org.commongeoregistry.adapter.constants.RegistryUrls;
-import org.commongeoregistry.adapter.metadata.CustomSerializer;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.mvc.ViewResponse;
 
 import net.geoprism.registry.GeoregistryProperties;
-import net.geoprism.registry.service.AccountService;
-import net.geoprism.registry.service.ExternalSystemService;
-import net.geoprism.registry.service.OrganizationService;
-import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.ServiceFactory;
 
 @Controller(url = RegistryUrls.REGISTRY_CONTROLLER_URL)
 public class RegistryController
@@ -55,13 +34,6 @@ public class RegistryController
   public static final String JSP_DIR   = "/WEB-INF/";
 
   public static final String INDEX_JSP = "net/geoprism/registry/index.jsp";
-
-  private RegistryService    registryService;
-
-  public RegistryController()
-  {
-    this.registryService = RegistryService.getInstance();
-  }
 
   @Endpoint(method = ServletMethod.GET)
   public ResponseIF manage()
@@ -76,67 +48,4 @@ public class RegistryController
 
     return resp;
   }
-
-  /**
-   * Create the {@link HierarchyType} from the given JSON.
-   * 
-   * @param sessionId
-   * @param htJSON
-   *          JSON of the {@link HierarchyType} to be created.
-   * @throws IOException
-   */
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "import-types")
-  public ResponseIF importTypes(ClientRequestIF request, 
-      @RequestParamter(name = "orgCode", required = true) String orgCode, 
-      @RequestParamter(name = "file", required = true) MultipartFileParameter file) throws IOException
-  {
-    try (InputStream istream = file.getInputStream())
-    {
-      ServiceFactory.getRegistryService().importTypes(request.getSessionId(), orgCode, istream);
-
-      return new RestResponse();
-    }
-  }
-
-  /**
-   * Returns a map with a list of all the types, all of the hierarchies, and all
-   * of the locales currently installed in the system. This endpoint is used to
-   * populate the hierarchy manager.
-   * 
-   * @param request
-   * @return
-   */
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "init")
-  public ResponseIF init(ClientRequestIF request)
-  {
-    return new RestBodyResponse(this.registryService.initHierarchyManager(request.getSessionId()));
-  }
-
-  @Endpoint(url = "init-settings", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF initSettings(ClientRequestIF request) throws ParseException
-  {
-    OrganizationDTO[] orgs = new OrganizationService().getOrganizations(request.getSessionId(), null); // TODO : This violates autowiring principles
-    JsonArray jaLocales = this.registryService.getLocales(request.getSessionId());
-    JsonObject esPage = new ExternalSystemService().page(request.getSessionId(), 1, 10);
-    JsonObject sraPage = JsonParser.parseString(AccountService.getInstance().getSRAs(request.getSessionId(), 1, 10)).getAsJsonObject();
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-
-    JsonObject settingsView = new JsonObject();
-
-    JsonArray orgsJson = new JsonArray();
-    for (OrganizationDTO org : orgs)
-    {
-      orgsJson.add(org.toJSON(serializer));
-    }
-    settingsView.add("organizations", orgsJson);
-
-    settingsView.add("locales", jaLocales);
-
-    settingsView.add("externalSystems", esPage);
-
-    settingsView.add("sras", sraPage);
-
-    return new RestBodyResponse(settingsView);
-  }
-
 }

@@ -59,7 +59,6 @@ import com.runwaysdk.system.Roles;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.etl.GeoObjectCache;
 import net.geoprism.registry.graph.GeoVertex;
-import net.geoprism.registry.localization.LocalizationService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;

@@ -35,7 +35,7 @@ export class MapService {
         this.eventService.start();
 
         return this.http
-            .get<LocationInformation>(registry.contextPath + "/registrylocation/roots", { params: params })
+            .get<LocationInformation>(registry.contextPath + "/api/registrylocation/roots", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -55,7 +55,7 @@ export class MapService {
         }
 
         return this.http
-            .get<{ type: string, features: GeoObject[] }>(registry.contextPath + "/registrylocation/search", { params: params })
+            .get<{ type: string, features: GeoObject[] }>(registry.contextPath + "/api/registrylocation/search", { params: params })
             .pipe(finalize(() => {
                 if (showOverlay) {
                     this.eventService.complete();

@@ -25,11 +25,12 @@ import java.util.List;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonElement;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
-import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -43,8 +44,12 @@ import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.view.LocationInformation;
 
+@Component
 public class LocationService
 {
+  @Autowired
+  private RegistryService service;
+  
   @Request(RequestType.SESSION)
   public List<GeoObject> search(String sessionId, String text, Date date)
   {
@@ -67,7 +72,7 @@ public class LocationService
   public JsonElement getLocationInformationJson(String sessionId, Date date, String typeCode, String hierarchyCode)
   {
     LocationInformation information = this.getLocationInformation(sessionId, date, typeCode, hierarchyCode);
-    CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
+    CustomSerializer serializer = service.serializer(sessionId);
 
     return information.toJson(serializer);
   }

@@ -4,45 +4,41 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
 
-import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.service.LocationService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.RegistryService;
 
 /**
  * This controller is used by the location manager widget.
@@ -50,11 +46,18 @@ import net.geoprism.registry.service.ServiceFactory;
  * @author rrowlands
  *
  */
-@Controller(url = "registrylocation")
-public class RegistryLocationController
+@RestController
+@Validated
+public class RegistryLocationController extends RunwaySpringController
 {
-  private LocationService service = new LocationService();
+  public static final String API_PATH = "registrylocation";
 
+  @Autowired
+  private LocationService    service;
+
+  @Autowired
+  private RegistryService    registryService;
+  
   /**
    * @param request
    * @param code
@@ -71,37 +74,27 @@ public class RegistryLocationController
    * @throws JSONException
    * @throws ParseException
    */
-//  @Endpoint(error = ErrorSerialization.JSON)
-//  public ResponseIF select(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "date") String date, @RequestParamter(name = "childTypeCode") String childTypeCode, @RequestParamter(name = "hierarchyCode") String hierarchyCode) throws JSONException, ParseException
-//  {
-//    // ServerGeoObjectIF parent = service.getGeoObjectByEntityId(oid);
-//
-//    LocationInformation information = service.getLocationInformation(request.getSessionId(), code, typeCode, parseDate(date), childTypeCode, hierarchyCode);
-//    CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(request.getSessionId());
-//
-//    return new RestBodyResponse(information.toJson(serializer));
-//  }
 
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF roots(ClientRequestIF request, 
-      @RequestParamter(name = "date") String date, 
-      @RequestParamter(name = "typeCode") String typeCode, 
-      @RequestParamter(name = "hierarchyCode") String hierarchyCode) throws JSONException, ParseException
+  @GetMapping(API_PATH + "/roots")
+  public ResponseEntity<String> roots(
+      @RequestParam(required = false) Date date, 
+      @RequestParam(required = false) String typeCode, 
+      @RequestParam(required = false) String hierarchyCode)
   {
     // ServerGeoObjectIF parent = service.getGeoObjectByEntityId(oid);
 
-    JsonElement json = service.getLocationInformationJson(request.getSessionId(), parseDate(date), typeCode, hierarchyCode);
+    JsonElement json = service.getLocationInformationJson(this.getSessionId(), date, typeCode, hierarchyCode);
 
-    return new RestBodyResponse(json);
+    return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF search(ClientRequestIF request, 
-      @RequestParamter(name = "text") String text, 
-      @RequestParamter(name = "date") String date) throws JSONException, ParseException
+  @GetMapping(API_PATH + "/search")
+  public ResponseEntity<String> search(
+      @RequestParam(required = false) String text, 
+      @RequestParam(required = false) Date date)
   {
-    List<GeoObject> results = service.search(request.getSessionId(), text, parseDate(date));
-    CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(request.getSessionId());
+    List<GeoObject> results = service.search(this.getSessionId(), text, date);
+    CustomSerializer serializer = registryService.serializer(this.getSessionId());
 
     JsonArray features = results.stream().collect(() -> new JsonArray(), (array, element) -> array.add(element.toJSON(serializer)), (listA, listB) -> {
     });
@@ -110,20 +103,6 @@ public class RegistryLocationController
     featureCollection.addProperty("type", "FeatureCollection");
     featureCollection.add("features", features);
 
-    return new RestBodyResponse(featureCollection);
-  }
-
-  private Date parseDate(String date) throws ParseException
-  {
-    if (date != null && date.length() > 0)
-    {
-      DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-      dateFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-      return dateFormat.parse(date);
-    }
-
-    return null;
-    // return ValueOverTime.INFINITY_END_DATE;
+    return new ResponseEntity<String>(featureCollection.toString(), HttpStatus.OK);
   }
 }
