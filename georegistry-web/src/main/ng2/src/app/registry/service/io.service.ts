@@ -20,7 +20,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<ImportConfiguration>(registry.contextPath + "/etl/import", JSON.stringify({ json: configuration }), { headers: headers })
+            .post<ImportConfiguration>(registry.contextPath + "/api/etl/import", JSON.stringify({ config: configuration }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -35,7 +35,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/etl/cancel-import", JSON.stringify({ configuration: configuration }), { headers: headers })
+            .post<void>(registry.contextPath + "/api/etl/cancel-import", JSON.stringify({ config: configuration }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -50,7 +50,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<ImportConfiguration>(registry.contextPath + "/etl/import", JSON.stringify({ json: configuration }), { headers: headers })
+            .post<ImportConfiguration>(registry.contextPath + "/api/etl/import", JSON.stringify({ config: configuration }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

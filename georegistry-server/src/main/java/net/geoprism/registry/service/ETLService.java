@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -37,7 +39,6 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
-import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.Condition;
@@ -83,6 +84,7 @@ import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
+@Component
 public class ETLService
 {
   @Request(RequestType.SESSION)
@@ -137,7 +139,7 @@ public class ETLService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject reImport(String sessionId, MultipartFileParameter file, String json)
+  public JsonObject reImport(String sessionId, MultipartFile file, String json)
   {
     reImportInTrans(file, json);
 
@@ -145,7 +147,7 @@ public class ETLService
   }
 
   @Transaction
-  public void reImportInTrans(MultipartFileParameter file, String json)
+  public void reImportInTrans(MultipartFile file, String json)
   {
     ImportConfiguration config = ImportConfiguration.build(json);
 
@@ -158,7 +160,7 @@ public class ETLService
     VaultFile vf2 = null;
     try (InputStream is = file.getInputStream())
     {
-      vf2 = VaultFile.createAndApply(file.getFilename(), is);
+      vf2 = VaultFile.createAndApply(file.getOriginalFilename(), is);
     }
     catch (IOException e)
     {
@@ -166,7 +168,7 @@ public class ETLService
     }
 
     config.setVaultFileId(vf2.getOid());
-    config.setFileName(file.getFilename());
+    config.setFileName(file.getOriginalFilename());
 
     hist = ImportHistory.lock(config.getHistoryId());
     hist.setImportFile(vf2);

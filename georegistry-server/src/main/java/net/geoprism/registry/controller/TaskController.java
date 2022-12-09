@@ -41,7 +41,7 @@ public class TaskController extends RunwaySpringController
 {
   public static final String  API_PATH = "tasks";
   
-  public class IdBody 
+  public static class IdBody 
   {
     @NotEmpty 
     private String id;
@@ -57,7 +57,7 @@ public class TaskController extends RunwaySpringController
     }
   }
 
-  public class TaskStatusBody extends IdBody
+  public static class TaskStatusBody extends IdBody
   {
     @NotEmpty
     private String status;

@@ -382,7 +382,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("isAscending", isAscending.toString());
 
         return this.http
-            .get<PageResult<any>>(registry.contextPath + "/etl/get-active", { params: params })
+            .get<PageResult<any>>(registry.contextPath + "/api/etl/get-active", { params: params })
             .toPromise();
     }
 
@@ -394,7 +394,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("isAscending", isAscending.toString());
 
         return this.http
-            .get<PageResult<any>>(registry.contextPath + "/etl/get-completed", { params: params })
+            .get<PageResult<any>>(registry.contextPath + "/api/etl/get-completed", { params: params })
             .toPromise();
     }
 
@@ -406,7 +406,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("onlyUnresolved", onlyUnresolved.toString());
 
         return this.http
-            .get<ScheduledJob>(registry.contextPath + "/etl/get-import-details", { params: params })
+            .get<ScheduledJob>(registry.contextPath + "/api/etl/get-import-details", { params: params })
             .toPromise();
     }
 
@@ -417,7 +417,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("pageNumber", pageNumber.toString());
 
         return this.http
-            .get<ScheduledJob>(registry.contextPath + "/etl/get-export-details", { params: params })
+            .get<ScheduledJob>(registry.contextPath + "/api/etl/get-export-details", { params: params })
             .toPromise();
     }
 
@@ -429,7 +429,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/etl/import-resolve", JSON.stringify({ historyId: historyId }), { headers: headers })
+            .post<void>(registry.contextPath + "/api/etl/import-resolve", JSON.stringify({ historyId: historyId }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -444,7 +444,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/etl/validation-resolve", JSON.stringify({ config: config }), { headers: headers })
+            .post<any>(registry.contextPath + "/api/etl/validation-resolve", JSON.stringify({ config: config }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -459,7 +459,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/etl/error-resolve", JSON.stringify({ config: config }), { headers: headers })
+            .post<any>(registry.contextPath + "/api/etl/error-resolve", JSON.stringify({ config: config }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

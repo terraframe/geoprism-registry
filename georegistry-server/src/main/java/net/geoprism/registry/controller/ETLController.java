@@ -23,77 +23,157 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.json.JSONException;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.NotEmpty;
+import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.controller.MultipartFileParameter;
-import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.system.scheduler.JobHistory;
 
-import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.service.ETLService;
+import net.geoprism.registry.spring.JsonObjectDeserializer;
+import net.geoprism.registry.spring.NullableDateDeserializer;
 
-@Controller(url = "etl")
-public class ETLController
+@RestController
+@Validated
+public class ETLController extends RunwaySpringController
 {
+  public static final String  API_PATH = "etl";
+  
+  public static class HistoryIdBody 
+  {
+    @NotEmpty
+    private String historyId;
+    
+    public String getHistoryId()
+    {
+      return historyId;
+    }
+    
+    public void setHistoryId(String historyId)
+    {
+      this.historyId = historyId;
+    }
+  }
+  
+  public static class ConfigBody 
+  {
+    @NotNull
+    @JsonDeserialize(using = JsonObjectDeserializer.class)
+    JsonObject config;
+    
+    public JsonObject getConfig()
+    {
+      return config;
+    }
+    
+    public void setConfig(JsonObject config)
+    {
+      this.config = config;
+    }
+  }
+  
+  public static class ReImportConfigBody extends ConfigBody
+  {
+    private MultipartFile file;
+    
+    public MultipartFile getFile()
+    {
+      return file;
+    }
+    
+    public void setFile(MultipartFile file)
+    {
+      this.file = file;
+    }
+  }
+  
+  public static class EdgeImportBody
+  {
+    @JsonDeserialize(using = NullableDateDeserializer.class)
+    private Date startDate;
+    
+    @JsonDeserialize(using = NullableDateDeserializer.class)
+    private Date endDate;
+    
+    private MultipartFile file;
+    
+    public MultipartFile getFile()
+    {
+      return file;
+    }
+    
+    public void setFile(MultipartFile file)
+    {
+      this.file = file;
+    }
+  }
+  
+
+  @Autowired
   protected ETLService service;
   
-  public ETLController()
+  @PostMapping(API_PATH + "/reimport")
+  public ResponseEntity<String> doReImport( @Valid @ModelAttribute ReImportConfigBody body)
   {
-    this.service = new ETLService();
-  }
-  
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "reimport")
-  public ResponseIF doReImport(ClientRequestIF request, @RequestParamter(name = "file") MultipartFileParameter file, @RequestParamter(name = "json") String json)
-  {
-    JsonObject config = this.service.reImport(request.getSessionId(), file, json);
+    JsonObject config = this.service.reImport(this.getSessionId(), body.file, body.config.toString());
     
-    return new RestBodyResponse(config.toString());
+    return new ResponseEntity<String>(config.toString(), HttpStatus.OK);
   }
   
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "import")
-  public ResponseIF doImport(ClientRequestIF request, @RequestParamter(name = "json") String json)
+  @PostMapping(API_PATH + "/import")  
+  public ResponseEntity<String> doImport( @Valid @RequestBody ConfigBody body)
   {
-    JsonObject config = this.service.doImport(request.getSessionId(), json);
+    JsonObject config = this.service.doImport(this.getSessionId(), body.config.toString());
     
-    return new RestBodyResponse(config.toString());
+    return new ResponseEntity<String>(config.toString(), HttpStatus.OK);
   }
   
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "validation-resolve")
-  public ResponseIF submitValidationProblemResolution(ClientRequestIF request, @RequestParamter(name = "config") String config)
+  @PostMapping(API_PATH + "/validation-resolve")  
+  public ResponseEntity<Void> submitValidationProblemResolution( @Valid @RequestBody ConfigBody body)
   {
-    this.service.submitValidationProblemResolution(request.getSessionId(), config);
+    this.service.submitValidationProblemResolution(this.getSessionId(), body.config.toString());
     
-    return new RestResponse();
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
   
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "error-resolve")
-  public ResponseIF submitImportErrorResolution(ClientRequestIF request, @RequestParamter(name = "config") String config)
+  @PostMapping(API_PATH + "/error-resolve")    
+  public ResponseEntity<Void> submitImportErrorResolution( @Valid @RequestBody ConfigBody body)
   {
-    this.service.submitImportErrorResolution(request.getSessionId(), config);
+    this.service.submitImportErrorResolution(this.getSessionId(), body.config.toString());
     
-    return new RestResponse();
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
   
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "import-resolve")
-  public ResponseIF resolveImport(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId)
+  @PostMapping(API_PATH + "/import-resolve")      
+  public ResponseEntity<Void> resolveImport( @Valid @RequestBody HistoryIdBody body)
   {
-    this.service.resolveImport(request.getSessionId(), historyId);
+    this.service.resolveImport(this.getSessionId(), body.getHistoryId());
     
-    return new RestResponse();
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
   
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-active")
-  public ResponseIF getActiveImports(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "sortAttr") String sortAttr, @RequestParamter(name = "isAscending") Boolean isAscending)
+  @GetMapping(API_PATH + "/get-active")        
+  public ResponseEntity<String> getActiveImports( 
+      @RequestParam(required = false) Integer pageSize, 
+      @RequestParam(required = false) Integer pageNumber, 
+      @RequestParam(required = false) String sortAttr, 
+      @RequestParam(required = false) Boolean isAscending)
   {
     if (sortAttr == null || sortAttr.equals(""))
     {
@@ -105,13 +185,17 @@ public class ETLController
       isAscending = true;
     }
     
-    JsonObject config = this.service.getActiveImports(request.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
+    JsonObject config = this.service.getActiveImports(this.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
     
-    return new RestBodyResponse(config.toString());
+    return new ResponseEntity<String>(config.toString(), HttpStatus.OK);
   }
   
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-completed")
-  public ResponseIF getCompletedImports(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "sortAttr") String sortAttr, @RequestParamter(name = "isAscending") Boolean isAscending)
+  @GetMapping(API_PATH + "/get-completed")          
+  public ResponseEntity<String> getCompletedImports( 
+      @RequestParam(required = false) Integer pageSize, 
+      @RequestParam(required = false) Integer pageNumber, 
+      @RequestParam(required = false) String sortAttr, 
+      @RequestParam(required = false) Boolean isAscending)
   {
     if (sortAttr == null || sortAttr.equals(""))
     {
@@ -123,54 +207,63 @@ public class ETLController
       isAscending = true;
     }
     
-    JsonObject json = this.service.getCompletedImports(request.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
+    JsonObject json = this.service.getCompletedImports(this.getSessionId(), pageSize, pageNumber, sortAttr, isAscending);
     
-    return new RestBodyResponse(json.toString());
+    return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
   }
   
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-errors")
-  public ResponseIF getImportErrors(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "onlyUnresolved") Boolean onlyUnresolved, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
+  @GetMapping(API_PATH + "/get-errors")            
+  public ResponseEntity<String> getImportErrors( 
+      @RequestParam(required = false) String historyId, 
+      @RequestParam(required = false) Boolean onlyUnresolved, 
+      @RequestParam(required = false) Integer pageSize, 
+      @RequestParam(required = false) Integer pageNumber)
   {
-    JsonObject json = this.service.getImportErrors(request.getSessionId(), historyId, onlyUnresolved, pageSize, pageNumber);
+    JsonObject json = this.service.getImportErrors(this.getSessionId(), historyId, onlyUnresolved, pageSize, pageNumber);
     
-    return new RestBodyResponse(json.toString());
+    return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
   }
   
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-import-details")
-  public ResponseIF getImportDetails(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "onlyUnresolved") Boolean onlyUnresolved, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
+  @GetMapping(API_PATH + "/get-import-details")              
+  public ResponseEntity<String> getImportDetails( 
+      @RequestParam(required = false) String historyId,
+      @RequestParam(required = false) Boolean onlyUnresolved,
+      @RequestParam(required = false) Integer pageSize,
+      @RequestParam(required = false) Integer pageNumber)
   {
-    JsonObject details = this.service.getImportDetails(request.getSessionId(), historyId, onlyUnresolved, pageSize, pageNumber);
+    JsonObject details = this.service.getImportDetails(this.getSessionId(), historyId, onlyUnresolved, pageSize, pageNumber);
     
-    return new RestBodyResponse(details.toString());
+    return new ResponseEntity<String>(details.toString(), HttpStatus.OK);
   }
   
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "cancel-import")
-  public ResponseIF cancelImport(ClientRequestIF request, @RequestParamter(name = "configuration") String config)
+  @PostMapping(API_PATH + "/cancel-import")                
+  public ResponseEntity<Void> cancelImport( @Valid @RequestBody ConfigBody body)
   {
-    this.service.cancelImport(request.getSessionId(), config);
+    this.service.cancelImport(this.getSessionId(), body.config.toString());
     
-    return new RestResponse();
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
   
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-export-details")
-  public ResponseIF getExportDetails(ClientRequestIF request, @RequestParamter(name = "historyId") String historyId, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
+  @GetMapping(API_PATH + "/get-export-details")                
+  public ResponseEntity<String> getExportDetails( 
+      @RequestParam(required = false) String historyId, 
+      @RequestParam(required = false) Integer pageSize, 
+      @RequestParam(required = false) Integer pageNumber)
   {
-    JsonObject details = this.service.getExportDetails(request.getSessionId(), historyId, pageSize, pageNumber);
+    JsonObject details = this.service.getExportDetails(this.getSessionId(), historyId, pageSize, pageNumber);
     
-    return new RestBodyResponse(details.toString());
+    return new ResponseEntity<String>(details.toString(), HttpStatus.OK);
   }
   
-  @Endpoint(url = "import-edge-json", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF importEdgeJson(ClientRequestIF request, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException, JSONException, ParseException
+  @PostMapping(API_PATH + "/import-edge-json")                  
+  public ResponseEntity<Void> importEdgeJson( 
+      @Valid @ModelAttribute EdgeImportBody body) throws IOException, JSONException, ParseException
   {
-    try (InputStream stream = file.getInputStream())
+    try (InputStream stream = body.file.getInputStream())
     {
-      Date sDate = startDate != null ? GeoRegistryUtil.parseDate(startDate) : null;
-      Date eDate = endDate != null ? GeoRegistryUtil.parseDate(endDate) : null;
+      service.importEdgeJson(this.getSessionId(), body.startDate, body.endDate, new StreamResource(stream, body.file.getOriginalFilename()));
 
-      service.importEdgeJson(request.getSessionId(), sDate, eDate, new StreamResource(stream, file.getFilename()));
-
-      return new RestResponse();
+      return new ResponseEntity<Void>(HttpStatus.OK);
     }
   }
 
