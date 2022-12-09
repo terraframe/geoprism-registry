@@ -603,8 +603,8 @@ public class GeoObjectRelationshipServiceTest
   @Test
   public void testAddChild()
   {
-    String startDate = GeoRegistryUtil.formatDate(FastTestDataset.DEFAULT_OVER_TIME_DATE, false);
-    String endDate = GeoRegistryUtil.formatDate(FastTestDataset.DEFAULT_END_TIME_DATE, false);
+    Date startDate = FastTestDataset.DEFAULT_OVER_TIME_DATE;
+    Date endDate = FastTestDataset.DEFAULT_END_TIME_DATE;
     
     TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", FastTestDataset.PROVINCE);
     testAddChild.apply();
@@ -640,8 +640,8 @@ public class GeoObjectRelationshipServiceTest
   @Test
   public void testInsertChild()
   {
-    String startDate = GeoRegistryUtil.formatDate(FastTestDataset.DEFAULT_OVER_TIME_DATE, false);
-    String endDate = GeoRegistryUtil.formatDate(FastTestDataset.DEFAULT_END_TIME_DATE, false);
+    Date startDate = FastTestDataset.DEFAULT_OVER_TIME_DATE;
+    Date endDate = FastTestDataset.DEFAULT_END_TIME_DATE;
 
     TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", FastTestDataset.PROVINCE);
     testAddChild.apply();
@@ -677,8 +677,8 @@ public class GeoObjectRelationshipServiceTest
   @Test
   public void testRemoveChild()
   {
-    String startDate = GeoRegistryUtil.formatDate(FastTestDataset.DEFAULT_OVER_TIME_DATE, false);
-    String endDate = GeoRegistryUtil.formatDate(FastTestDataset.DEFAULT_END_TIME_DATE, false);
+    Date startDate = FastTestDataset.DEFAULT_OVER_TIME_DATE;
+    Date endDate = FastTestDataset.DEFAULT_END_TIME_DATE;
     
     /*
      * Remove Child

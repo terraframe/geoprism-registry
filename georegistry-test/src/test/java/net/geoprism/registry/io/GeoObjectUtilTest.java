@@ -32,11 +32,11 @@ import org.junit.Test;
 
 import com.runwaysdk.session.Request;
 
-import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.test.USATestData;
 
 public class GeoObjectUtilTest

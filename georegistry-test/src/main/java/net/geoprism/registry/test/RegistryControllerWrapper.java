@@ -4,21 +4,20 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.test;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,32 +30,55 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.springframework.http.ResponseEntity;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
 
-import net.geoprism.registry.controller.RegistryController;
+import net.geoprism.registry.controller.GenericRestController;
+import net.geoprism.registry.controller.GeoObjectController;
+import net.geoprism.registry.controller.GeoObjectController.GeoObjectBody;
+import net.geoprism.registry.controller.GeoObjectController.RelationshipBody;
+import net.geoprism.registry.controller.GeoObjectOverTimeController;
+import net.geoprism.registry.controller.GeoObjectOverTimeController.GeoObjectOverTimeBody;
+import net.geoprism.registry.controller.GeoObjectTypeController;
+import net.geoprism.registry.controller.GeoObjectTypeController.AttributeBody;
+import net.geoprism.registry.controller.GeoObjectTypeController.DeleteTermBody;
+import net.geoprism.registry.controller.GeoObjectTypeController.GeoObjectTypeBody;
+import net.geoprism.registry.controller.GeoObjectTypeController.TermBody;
+import net.geoprism.registry.controller.HierarchyTypeController;
+import net.geoprism.registry.controller.HierarchyTypeController.HierarchyTypeNodeBody;
 import net.geoprism.registry.controller.SynchronizationConfigController;
 import net.geoprism.registry.permission.PermissionContext;
 
 public class RegistryControllerWrapper extends TestControllerWrapper
 {
+  private GenericRestController       restController;
 
-  private RegistryController controller = new RegistryController();
-  
+  private GeoObjectController         geoObjectController;
+
+  private GeoObjectTypeController     geoObjectTypeController;
+
+  private GeoObjectOverTimeController geoObjectTimeController;
+
+  private HierarchyTypeController     hierarchyController;
+
   public RegistryControllerWrapper(TestRegistryAdapterClient adapter, ClientRequestIF clientRequest)
   {
     super(adapter, clientRequest);
+
+    this.restController = new GenericRestController();
+    this.restController.setClientRequest(clientRequest);
+
+    this.geoObjectController = new GeoObjectController();
+    this.geoObjectController.setClientRequest(clientRequest);
   }
-  
+
   public Set<String> getUIDs(int amount)
   {
-    ResponseIF response = this.controller.getUIDs(this.clientRequest, amount);
+    ResponseEntity<String> response = this.geoObjectController.getUIDs(amount);
 
     String sResp = responseToString(response);
 
@@ -70,99 +92,127 @@ public class RegistryControllerWrapper extends TestControllerWrapper
 
     return set;
   }
-  
+
   public JsonArray getGeoObjectSuggestions(String text, String type, String parent, Date startDate, Date endDate, String parentTypeCode, String hierarchy)
   {
-    return JsonParser.parseString(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, parentTypeCode, hierarchy, stringifyDate(startDate), stringifyDate(endDate)))).getAsJsonArray();
+    return JsonParser.parseString(responseToString(this.geoObjectController.getGeoObjectSuggestions(text, type, parent, parentTypeCode, hierarchy, startDate, endDate))).getAsJsonArray();
   }
 
   public AttributeType createAttributeType(String geoObjectTypeCode, String attributeTypeJSON)
   {
-    return responseToAttributeType(this.controller.createAttributeType(clientRequest, geoObjectTypeCode, attributeTypeJSON));
+    AttributeBody body = new AttributeBody();
+    body.setGeoObjTypeCode(geoObjectTypeCode);
+    body.setAttributeType(JsonParser.parseString(attributeTypeJSON).getAsJsonObject());
+
+    return responseToAttributeType(this.geoObjectTypeController.createAttributeType(body));
   }
 
   public AttributeType updateAttributeType(String geoObjectTypeCode, String attributeTypeJSON)
   {
-    return responseToAttributeType(this.controller.updateAttributeType(clientRequest, geoObjectTypeCode, attributeTypeJSON));
+    AttributeBody body = new AttributeBody();
+    body.setGeoObjTypeCode(geoObjectTypeCode);
+    body.setAttributeType(JsonParser.parseString(attributeTypeJSON).getAsJsonObject());
+
+    return responseToAttributeType(this.geoObjectTypeController.updateAttributeType(body));
   }
 
   public Term createTerm(String parentTermCode, String termJSON)
   {
-    return responseToTerm(this.controller.createTerm(clientRequest, parentTermCode, termJSON));
+    TermBody body = new TermBody();
+    body.setParentTermCode(parentTermCode);
+    body.setTermJSON(JsonParser.parseString(termJSON).getAsJsonObject());
+
+    return responseToTerm(this.geoObjectTypeController.createTerm(body));
   }
 
   public Term updateTerm(String parentTermCode, String termJSON)
   {
-    return responseToTerm(this.controller.updateTerm(clientRequest, parentTermCode, termJSON));
+    TermBody body = new TermBody();
+    body.setParentTermCode(parentTermCode);
+    body.setTermJSON(JsonParser.parseString(termJSON).getAsJsonObject());
+
+    return responseToTerm(this.geoObjectTypeController.updateTerm(body));
   }
 
   public void deleteTerm(String parentTermCode, String termCode)
   {
-    this.controller.deleteTerm(clientRequest, parentTermCode, termCode);
+    DeleteTermBody body = new DeleteTermBody();
+    body.setParentTermCode(parentTermCode);
+    body.setTermCode(termCode);
+
+    this.geoObjectTypeController.deleteTerm(body);
   }
 
   public GeoObjectType createGeoObjectType(String gtJSON)
   {
-    return responseToGeoObjectType(this.controller.createGeoObjectType(this.clientRequest, gtJSON));
+    GeoObjectTypeBody body = new GeoObjectTypeBody();
+    body.setGtJSON(JsonParser.parseString(gtJSON).getAsJsonObject());
+
+    return responseToGeoObjectType(this.geoObjectTypeController.createGeoObjectType(body));
   }
 
   public GeoObjectType updateGeoObjectType(String gtJSON)
   {
-    return responseToGeoObjectType(this.controller.updateGeoObjectType(clientRequest, gtJSON));
+    GeoObjectTypeBody body = new GeoObjectTypeBody();
+    body.setGtJSON(JsonParser.parseString(gtJSON).getAsJsonObject());
+
+    return responseToGeoObjectType(this.geoObjectTypeController.updateGeoObjectType(body));
   }
 
   public GeoObject getGeoObject(String registryId, String code, Date date)
   {
-    return responseToGeoObject(this.controller.getGeoObject(this.clientRequest, registryId, code, stringifyDate(date)));
+    return responseToGeoObject(this.geoObjectController.getGeoObject(registryId, code, date));
   }
 
   public GeoObjectOverTime getGeoObjectOverTime(String registryId, String typeCode)
   {
-    return responseToGeoObjectOverTime(this.controller.getGeoObjectOverTime(clientRequest, registryId, typeCode));
+    return responseToGeoObjectOverTime(this.geoObjectTimeController.getGeoObjectOverTime(registryId, typeCode));
   }
 
   public GeoObject getGeoObjectByCode(String code, String typeCode, Date date)
   {
-    return responseToGeoObject(this.controller.getGeoObjectByCode(this.clientRequest, code, typeCode, stringifyDate(date)));
+    return responseToGeoObject(this.geoObjectController.getGeoObjectByCode(code, typeCode, date));
   }
 
   public GeoObjectOverTime getGeoObjectOverTimeByCode(String code, String typeCode)
   {
-    return responseToGeoObjectOverTime(this.controller.getGeoObjectOverTimeByCode(clientRequest, code, typeCode));
+    return responseToGeoObjectOverTime(this.geoObjectTimeController.getGeoObjectOverTimeByCode(code, typeCode));
   }
 
   public GeoObject createGeoObject(String jGeoObj, Date startDate, Date endDate)
   {
-    try
-    {
-      return responseToGeoObject(this.controller.createGeoObject(this.clientRequest, jGeoObj, stringifyDate(startDate), stringifyDate(endDate)));
-    }
-    catch (ParseException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
+    GeoObjectBody body = new GeoObjectBody();
+    body.setGeoObject(JsonParser.parseString(jGeoObj).getAsJsonObject());
+    body.setStartDate(startDate);
+    body.setEndDate(endDate);
+
+    return responseToGeoObject(this.geoObjectController.createGeoObject(body));
   }
 
   public GeoObjectOverTime createGeoObjectOverTime(String jGeoObj)
   {
-    return responseToGeoObjectOverTime(this.controller.createGeoObjectOverTime(this.clientRequest, jGeoObj));
+    GeoObjectOverTimeBody body = new GeoObjectOverTimeBody();
+    body.setGeoObject(JsonParser.parseString(jGeoObj).getAsJsonObject());
+
+    return responseToGeoObjectOverTime(this.geoObjectTimeController.createGeoObjectOverTime(body));
   }
 
   public GeoObject updateGeoObject(String jGeoObj, Date startDate, Date endDate)
   {
-    try
-    {
-      return responseToGeoObject(this.controller.updateGeoObject(this.clientRequest, jGeoObj, stringifyDate(startDate), stringifyDate(endDate)));
-    }
-    catch (ParseException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
+    GeoObjectBody body = new GeoObjectBody();
+    body.setGeoObject(JsonParser.parseString(jGeoObj).getAsJsonObject());
+    body.setStartDate(startDate);
+    body.setEndDate(endDate);
+
+    return responseToGeoObject(this.geoObjectController.updateGeoObject(body));
   }
 
   public GeoObjectOverTime updateGeoObjectOverTime(String jGeoObj)
   {
-    return responseToGeoObjectOverTime(this.controller.updateGeoObjectOverTime(this.clientRequest, jGeoObj));
+    GeoObjectOverTimeBody body = new GeoObjectOverTimeBody();
+    body.setGeoObject(JsonParser.parseString(jGeoObj).getAsJsonObject());
+
+    return responseToGeoObjectOverTime(this.geoObjectTimeController.updateGeoObjectOverTime(body));
   }
 
   public GeoObjectType[] getGeoObjectTypes(String[] codes, String[] hierarchies, PermissionContext pc)
@@ -175,71 +225,88 @@ public class RegistryControllerWrapper extends TestControllerWrapper
       pc = PermissionContext.READ;
     }
 
-    return responseToGeoObjectTypes(this.controller.getGeoObjectTypes(this.clientRequest, saCodes, saHierarchies, pc.name()));
+    return responseToGeoObjectTypes(this.geoObjectTypeController.getGeoObjectTypes(saCodes, saHierarchies, pc.name()));
   }
 
   public HierarchyType[] getHierarchyTypes(String[] codes)
   {
     String saCodes = this.serialize(codes);
 
-    return responseToHierarchyTypes(this.controller.getHierarchyTypes(this.clientRequest, saCodes, PermissionContext.READ.name()));
+    return responseToHierarchyTypes(this.hierarchyController.getHierarchyTypes(saCodes, PermissionContext.READ.name()));
   }
 
   public JsonObject hierarchyManagerInit()
   {
-    return JsonParser.parseString(responseToString(this.controller.init(this.clientRequest))).getAsJsonObject();
+    return JsonParser.parseString(responseToString(this.restController.init())).getAsJsonObject();
   }
 
   public JsonArray getHierarchiesForGeoObjectOverTime(String code, String typeCode)
   {
-    return JsonParser.parseString(responseToString(this.controller.getHierarchiesForGeoObjectOverTime(this.clientRequest, code, typeCode))).getAsJsonArray();
+    return JsonParser.parseString(responseToString(this.geoObjectController.getHierarchiesForGeoObjectOverTime(code, typeCode))).getAsJsonArray();
   }
 
   public JsonArray listGeoObjectTypes()
   {
-    RestBodyResponse response = (RestBodyResponse) this.controller.listGeoObjectTypes(this.clientRequest, true);
-    return (JsonArray) response.serialize();
+    ResponseEntity<String> response = this.geoObjectTypeController.listGeoObjectTypes(true);
+
+    return JsonParser.parseString(response.getBody()).getAsJsonArray();
   }
 
   public ChildTreeNode getChildGeoObjects(String parentId, String parentTypeCode, Date date, String[] childrenTypes, boolean recursive)
   {
     String saChildrenTypes = this.serialize(childrenTypes);
 
-    return responseToChildTreeNode(this.controller.getChildGeoObjects(this.clientRequest, parentId, parentTypeCode, stringifyDate(date), saChildrenTypes, recursive));
+    return responseToChildTreeNode(this.geoObjectController.getChildGeoObjects(parentId, parentTypeCode, date, saChildrenTypes, recursive));
   }
 
   public ParentTreeNode getParentGeoObjects(String childId, String childTypeCode, Date date, String[] parentTypes, boolean recursive)
   {
     String saParentTypes = this.serialize(parentTypes);
 
-    try
-    {
-      return responseToParentTreeNode(this.controller.getParentGeoObjects(this.clientRequest, childId, childTypeCode, stringifyDate(date), saParentTypes, recursive));
-    }
-    catch (ParseException e)
-    {
-      throw new RuntimeException(e);
-    }
+    return responseToParentTreeNode(this.geoObjectController.getParentGeoObjects(childId, childTypeCode, date, saParentTypes, recursive));
   }
 
   public JsonObject getConfigForExternalSystem(String externalSystemId, String hierarchyTypeCode)
   {
-    return JsonParser.parseString(responseToString(new SynchronizationConfigController().getConfigForExternalSystem(this.clientRequest, externalSystemId, hierarchyTypeCode))).getAsJsonObject();
+    return JsonParser.parseString(responseToString(new SynchronizationConfigController().getConfigForExternalSystem(externalSystemId, hierarchyTypeCode))).getAsJsonObject();
   }
 
   public HierarchyType addToHierarchy(String hierarchyCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
-    return responseToHierarchyType(this.controller.addToHierarchy(this.clientRequest, hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode));
+    HierarchyTypeNodeBody body = new HierarchyTypeNodeBody();
+    body.setHierarchyCode(hierarchyCode);    
+    body.setChildGeoObjectTypeCode(childGeoObjectTypeCode);
+    body.setParentGeoObjectTypeCode(parentGeoObjectTypeCode);
+    
+    return responseToHierarchyType(this.hierarchyController.addToHierarchy(body));
   }
 
-  public ParentTreeNode addChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef, String startDate, String endDate)
+  public ParentTreeNode addChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef, Date startDate, Date endDate)
   {
-    return responseToParentTreeNode(this.controller.addChild(this.clientRequest, parentId, parentTypeCode, childId, childTypeCode, hierarchyRef, startDate, endDate));
+    RelationshipBody body = new RelationshipBody();
+    body.setParentCode(parentId);
+    body.setParentTypeCode(parentTypeCode);
+    body.setChildCode(childId);
+    body.setChildTypeCode(childTypeCode);
+    body.setHierarchyCode(hierarchyRef);
+    body.setStartDate(startDate);
+    body.setEndDate(endDate);
+    
+    return responseToParentTreeNode(this.geoObjectController.addChild(body));
   }
 
-  public void removeChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef, String startDate, String endDate)
+  public void removeChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef, Date startDate, Date endDate)
   {
-    this.controller.removeChild(this.clientRequest, parentId, parentTypeCode, childId, childTypeCode, hierarchyRef, startDate, endDate);
+    RelationshipBody body = new RelationshipBody();
+    body.setParentCode(parentId);
+    body.setParentTypeCode(parentTypeCode);
+    body.setChildCode(childId);
+    body.setChildTypeCode(childTypeCode);
+    body.setHierarchyCode(hierarchyRef);
+    body.setStartDate(startDate);
+    body.setEndDate(endDate);
+    
+    this.geoObjectController.removeChild(body);
   }
 
 }

@@ -37,12 +37,12 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
-import net.geoprism.registry.etl.ETLService;
 import net.geoprism.registry.etl.ImportError;
 import net.geoprism.registry.etl.ImportErrorQuery;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ValidationProblem;
 import net.geoprism.registry.etl.ValidationProblemQuery;
+import net.geoprism.registry.service.ETLService;
 
 public class SchedulerTestUtils
 {

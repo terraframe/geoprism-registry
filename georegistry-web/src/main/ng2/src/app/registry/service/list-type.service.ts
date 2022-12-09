@@ -309,7 +309,7 @@ export class ListTypeService implements GenericTableService {
         params = params.set("pageSize", pageSize.toString());
         params = params.set("pageNumber", pageNumber.toString());
 
-        return this.http.get<CurationJob>(registry.contextPath + "/curation/details", { params: params })
+        return this.http.get<CurationJob>(registry.contextPath + "/api/curation/details", { params: params })
             .toPromise();
     }
 
@@ -322,7 +322,7 @@ export class ListTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http.get<PageResult<any>>(registry.contextPath + "/curation/page", { params: params })
+        return this.http.get<PageResult<any>>(registry.contextPath + "/api/curation/page", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -337,7 +337,7 @@ export class ListTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<CurationJob>(registry.contextPath + "/curation/curate", JSON.stringify({ listTypeVersionId: version.oid }), { headers: headers })
+            .post<CurationJob>(registry.contextPath + "/api/curation/curate", JSON.stringify({ listTypeVersionId: version.oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -352,7 +352,7 @@ export class ListTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/curation/problem-resolve", JSON.stringify({ config: config }), { headers: headers })
+            .post<void>(registry.contextPath + "/api/curation/problem-resolve", JSON.stringify({ config: config }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -373,7 +373,7 @@ export class ListTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/curation/set-resolution", JSON.stringify(params), { headers: headers })
+            .post<void>(registry.contextPath + "/api/curation/set-resolution", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

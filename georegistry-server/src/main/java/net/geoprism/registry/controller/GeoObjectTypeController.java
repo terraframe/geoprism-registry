@@ -181,8 +181,7 @@ public class GeoObjectTypeController extends RunwaySpringController
   private RegistryService    service;
 
   @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE)
-  public ResponseEntity<String> createAttributeType(@Valid
-  @RequestBody AttributeBody body)
+  public ResponseEntity<String> createAttributeType(@Valid @RequestBody AttributeBody body)
   {
     AttributeType attrType = this.service.createAttributeType(this.getSessionId(), body.geoObjTypeCode, body.attributeType.toString());
 
@@ -210,8 +209,7 @@ public class GeoObjectTypeController extends RunwaySpringController
   }
 
   @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_ADD_TERM)
-  public ResponseEntity<String> createTerm(@Valid
-  @RequestBody TermBody body)
+  public ResponseEntity<String> createTerm(@Valid @RequestBody TermBody body)
   {
     Term term = this.service.createTerm(this.getSessionId(), body.parentTermCode, body.termJSON.toString());
 
@@ -230,8 +228,7 @@ public class GeoObjectTypeController extends RunwaySpringController
   }
 
   @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_DELETE_TERM)
-  public ResponseEntity<Void> deleteTerm(@Valid
-  @RequestBody DeleteTermBody body)
+  public ResponseEntity<Void> deleteTerm(@Valid @RequestBody DeleteTermBody body)
   {
     this.service.deleteTerm(this.getSessionId(), body.parentTermCode, body.termCode);
 

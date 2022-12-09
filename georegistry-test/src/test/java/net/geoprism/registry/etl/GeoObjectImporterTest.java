@@ -39,7 +39,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.runwaysdk.business.SmartExceptionDTO;
@@ -67,6 +66,7 @@ import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.service.ETLService;
 import net.geoprism.registry.service.ExcelService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.SchedulerTestUtils;

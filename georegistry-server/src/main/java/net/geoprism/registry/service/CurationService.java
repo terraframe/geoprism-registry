@@ -16,10 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.curation;
+package net.geoprism.registry.service;
 
 import java.util.LinkedList;
 import java.util.List;
+
+import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -37,13 +39,16 @@ import net.geoprism.GeoprismUser;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
+import net.geoprism.registry.curation.CurationProblem;
+import net.geoprism.registry.curation.CurationProblemQuery;
+import net.geoprism.registry.curation.ListCurationHistory;
+import net.geoprism.registry.curation.ListCurationJob;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
-import net.geoprism.registry.service.ServerGeoObjectService;
-import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.Page;
 
+@Component
 public class CurationService
 {
   public JsonObject getListCurationInfo(ListTypeVersion version)

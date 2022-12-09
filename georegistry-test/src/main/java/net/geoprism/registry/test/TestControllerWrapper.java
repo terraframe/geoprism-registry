@@ -29,14 +29,12 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.springframework.http.ResponseEntity;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.mvc.AbstractResponseSerializer;
-import com.runwaysdk.mvc.AbstractRestResponse;
-import com.runwaysdk.mvc.ResponseIF;
 
 import net.geoprism.registry.GeoRegistryUtil;
 
@@ -69,11 +67,9 @@ public class TestControllerWrapper
     this.adapter = adpater;
   }
 
-  public String responseToString(ResponseIF resp)
+  public String responseToString(ResponseEntity<String> resp)
   {
-    Object obj = AbstractResponseSerializer.serialize((AbstractRestResponse) resp);
-
-    return obj.toString();
+    return resp.getBody();
   }
 
   protected String dateToString(Date date)
@@ -85,54 +81,54 @@ public class TestControllerWrapper
     return sDate;
   }
 
-  protected HierarchyType responseToHierarchyType(ResponseIF resp)
+  protected HierarchyType responseToHierarchyType(ResponseEntity<String> resp)
   {
     return HierarchyType.fromJSON(responseToString(resp), this.adapter);
   }
 
-  protected GeoObjectOverTime responseToGeoObjectOverTime(ResponseIF resp)
+  protected GeoObjectOverTime responseToGeoObjectOverTime(ResponseEntity<String> resp)
   {
     return GeoObjectOverTime.fromJSON(this.adapter, responseToString(resp));
   }
 
-  protected GeoObject responseToGeoObject(ResponseIF resp)
+  protected GeoObject responseToGeoObject(ResponseEntity<String> resp)
   {
     return GeoObject.fromJSON(this.adapter, responseToString(resp));
   }
 
-  protected GeoObjectType responseToGeoObjectType(ResponseIF resp)
+  protected GeoObjectType responseToGeoObjectType(ResponseEntity<String> resp)
   {
     return GeoObjectType.fromJSON( ( responseToString(resp) ), this.adapter);
   }
 
-  protected GeoObjectType[] responseToGeoObjectTypes(ResponseIF resp)
+  protected GeoObjectType[] responseToGeoObjectTypes(ResponseEntity<String> resp)
   {
     return GeoObjectType.fromJSONArray( ( responseToString(resp) ), this.adapter);
   }
 
-  protected ChildTreeNode responseToChildTreeNode(ResponseIF resp)
+  protected ChildTreeNode responseToChildTreeNode(ResponseEntity<String> resp)
   {
     return ChildTreeNode.fromJSON( ( responseToString(resp) ), this.adapter);
   }
 
-  protected ParentTreeNode responseToParentTreeNode(ResponseIF resp)
+  protected ParentTreeNode responseToParentTreeNode(ResponseEntity<String> resp)
   {
     return ParentTreeNode.fromJSON( ( responseToString(resp) ), this.adapter);
   }
 
-  protected HierarchyType[] responseToHierarchyTypes(ResponseIF resp)
+  protected HierarchyType[] responseToHierarchyTypes(ResponseEntity<String> resp)
   {
     return HierarchyType.fromJSONArray( ( responseToString(resp) ), this.adapter);
   }
 
-  protected AttributeType responseToAttributeType(ResponseIF resp)
+  protected AttributeType responseToAttributeType(ResponseEntity<String> resp)
   {
     JsonObject attrObj = JsonParser.parseString(responseToString(resp)).getAsJsonObject();
 
     return AttributeType.parse(attrObj);
   }
 
-  protected Term responseToTerm(ResponseIF resp)
+  protected Term responseToTerm(ResponseEntity<String> resp)
   {
     JsonObject termObj = JsonParser.parseString(responseToString(resp)).getAsJsonObject();
 
@@ -153,7 +149,7 @@ public class TestControllerWrapper
     return sDate;
   }
 
-  protected String[] responseToStringArray(ResponseIF resp)
+  protected String[] responseToStringArray(ResponseEntity<String> resp)
   {
     String sResp = responseToString(resp);
 

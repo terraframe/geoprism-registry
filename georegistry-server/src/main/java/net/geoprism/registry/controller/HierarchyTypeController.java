@@ -243,8 +243,7 @@ public class HierarchyTypeController extends RunwaySpringController
    * @return
    */
   @PostMapping(API_PATH + "/add")
-  public ResponseEntity<String> addToHierarchy(@Valid
-  @RequestBody HierarchyTypeNodeBody body)
+  public ResponseEntity<String> addToHierarchy(@Valid @RequestBody HierarchyTypeNodeBody body)
   {
     HierarchyType ht = ServiceFactory.getHierarchyService().addToHierarchy(this.getSessionId(), body.hierarchyCode, body.parentGeoObjectTypeCode, body.childGeoObjectTypeCode);
     CustomSerializer serializer = this.registryService.serializer(this.getSessionId());

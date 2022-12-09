@@ -1153,7 +1153,7 @@ public class DHIS2ServiceTest
     JsonObject json = config.toJSON();
     json.remove("oid");
 
-    JsonObject configToJson = service.apply(testData.clientSession.getSessionId(), json.toString());
+    JsonObject configToJson = service.apply(testData.clientSession.getSessionId(), json);
 
     String oid = configToJson.get(SynchronizationConfig.OID).getAsString();
 

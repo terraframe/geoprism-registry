@@ -12,6 +12,8 @@ public abstract class RunwaySpringController
   @Autowired
   private HttpServletRequest request;
 
+  private ClientRequestIF    clientRequest;
+
   protected HttpServletRequest getRequest()
   {
     return request;
@@ -21,9 +23,19 @@ public abstract class RunwaySpringController
   {
     return getClientRequest().getSessionId();
   }
+  
+  public void setClientRequest(ClientRequestIF clientRequest)
+  {
+    this.clientRequest = clientRequest;
+  }
 
   public ClientRequestIF getClientRequest()
   {
-    return (ClientRequestIF) request.getAttribute(ClientConstants.CLIENTREQUEST);
+    if (clientRequest == null)
+    {
+      this.clientRequest = (ClientRequestIF) request.getAttribute(ClientConstants.CLIENTREQUEST);
+    }
+
+    return this.clientRequest;
   }
 }

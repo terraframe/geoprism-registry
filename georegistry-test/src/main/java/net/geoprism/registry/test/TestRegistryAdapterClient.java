@@ -223,12 +223,12 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return this.controller.addToHierarchy(hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
   }
 
-  public ParentTreeNode addChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef, String startDate, String endDate)
+  public ParentTreeNode addChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef, Date startDate, Date endDate)
   {
     return this.controller.addChild(parentId, parentTypeCode, childId, childTypeCode, hierarchyRef, startDate, endDate);
   }
 
-  public void removeChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef, String startDate, String endDate)
+  public void removeChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef, Date startDate, Date endDate)
   {
     this.controller.removeChild(parentId, parentTypeCode, childId, childTypeCode, hierarchyRef, startDate, endDate);
   }
