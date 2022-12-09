@@ -4,23 +4,25 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.task;
+package net.geoprism.registry.service;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.rbac.RoleDAOIF;
@@ -39,20 +41,23 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.RolesQuery;
 
 import net.geoprism.DefaultConfiguration;
-import net.geoprism.registry.service.ETLService;
+import net.geoprism.registry.task.Task;
+import net.geoprism.registry.task.TaskHasRoleQuery;
+import net.geoprism.registry.task.TaskQuery;
 import net.geoprism.registry.task.Task.TaskStatus;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 
+@Component
 public class TaskService
 {
-  public static JsonObject getTasksForCurrentUser(String sessionId)
+  public JsonObject getTasksForCurrentUser(String sessionId)
   {
-    return TaskService.getTasksForCurrentUser(sessionId, "createDate", 1, Integer.MAX_VALUE, null);
+    return this.getTasksForCurrentUser(sessionId, "createDate", 1, Integer.MAX_VALUE, null);
   }
 
   @Request(RequestType.SESSION)
-  public static JsonObject getTasksForCurrentUser(String sessionId, String orderBy, int pageNum, int pageSize, String whereStatus)
+  public JsonObject getTasksForCurrentUser(String sessionId, String orderBy, int pageNum, int pageSize, String whereStatus)
   {
     QueryFactory qf = new QueryFactory();
 
@@ -114,7 +119,6 @@ public class TaskService
     vq.ORDER_BY(tq.get(orderBy), SortOrder.DESC);
     vq.restrictRows(pageSize, pageNum);
 
-
     try (OIterator<ValueObject> it = vq.getIterator())
     {
       List<JsonWrapper> results = it.getAll().stream().map(vo -> {
@@ -135,14 +139,14 @@ public class TaskService
   }
 
   @Request(RequestType.SESSION)
-  public static void deleteTask(String sessionId, String taskId)
+  public void deleteTask(String sessionId, String taskId)
   {
     Task t = Task.get(taskId);
     t.delete();
   }
 
   @Request(RequestType.SESSION)
-  public static void completeTask(String sessionId, String id)
+  public void completeTask(String sessionId, String id)
   {
     Task t = Task.get(id);
     t.appLock();
@@ -151,7 +155,7 @@ public class TaskService
   }
 
   @Request(RequestType.SESSION)
-  public static void setTaskStatus(String sessionId, String id, String status)
+  public void setTaskStatus(String sessionId, String id, String status)
   {
     if (! ( status.equals(TaskStatus.RESOLVED.name()) || status.equals(TaskStatus.UNRESOLVED.name()) ))
     {

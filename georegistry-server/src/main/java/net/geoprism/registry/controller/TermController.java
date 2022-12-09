@@ -4,71 +4,122 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
+import org.hibernate.validator.constraints.NotEmpty;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.runwaysdk.business.ValueObjectDTO;
 import com.runwaysdk.business.ValueQueryDTO;
-import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
 
 import net.geoprism.DataUploaderDTO;
 import net.geoprism.ontology.ClassifierDTO;
 
-public class TermController
+@RestController
+@Validated
+public class TermController extends RunwaySpringController
 {
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF createClassifierSynonym(ClientRequestIF request, 
-      @RequestParamter(name = "classifierId", required = true) String classifierId, 
-      @RequestParamter(name = "label", required = true) String label) throws JSONException
+  public static class SynonymBody
   {
-    String response = DataUploaderDTO.createClassifierSynonym(request, classifierId, label);
+    @NotEmpty
+    private String synonymId;
+    
+    public String getSynonymId()
+    {
+      return synonymId;
+    }
+    
+    public void setSynonymId(String synonymId)
+    {
+      this.synonymId = synonymId;
+    }
+  }
+
+  public static class ClassifierSynonymBody
+  {
+    @NotEmpty
+    private String classifierId;
+
+    @NotEmpty
+    private String label;
+
+    public String getClassifierId()
+    {
+      return classifierId;
+    }
+
+    public void setClassifierId(String classifierId)
+    {
+      this.classifierId = classifierId;
+    }
+
+    public String getLabel()
+    {
+      return label;
+    }
+
+    public void setLabel(String label)
+    {
+      this.label = label;
+    }
+  }
+
+  public static final String API_PATH = "term";
+
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseEntity<String> createClassifierSynonym(@Valid @RequestBody ClassifierSynonymBody body)
+  {
+    String response = DataUploaderDTO.createClassifierSynonym(this.getClientRequest(), body.getClassifierId(), body.getLabel());
 
     JSONObject object = new JSONObject(response);
 
-    return new RestBodyResponse(object);
+    return new ResponseEntity<String>(object.toString(), HttpStatus.OK);
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF deleteClassifierSynonym(ClientRequestIF request, 
-      @RequestParamter(name = "synonymId", required = true) String synonymId)
+  public ResponseEntity<Void> deleteClassifierSynonym(@Valid @RequestBody SynonymBody body)
   {
-    DataUploaderDTO.deleteClassifierSynonym(request, synonymId);
+    DataUploaderDTO.deleteClassifierSynonym(this.getClientRequest(), body.getSynonymId());
 
-    return new RestBodyResponse("");
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF getClassifierSuggestions(ClientRequestIF request, 
-      @RequestParamter(name = "mdAttributeId", required = true) String mdAttributeId, 
-      @RequestParamter(name = "text") String text, 
-      @RequestParamter(name = "limit") Integer limit) throws JSONException
+  @GetMapping(API_PATH + "/getClassifierSuggestions")
+  public ResponseEntity<String> getClassifierSuggestions(
+      @NotEmpty @RequestParam String mdAttributeId, 
+      @RequestParam(required = false) String text,
+      @RequestParam(required = false) Integer limit) 
   {
     JSONArray response = new JSONArray();
 
-    ValueQueryDTO query = ClassifierDTO.getClassifierSuggestions(request, mdAttributeId, text, limit);
+    ValueQueryDTO query = ClassifierDTO.getClassifierSuggestions(this.getClientRequest(), mdAttributeId, text, limit);
     List<ValueObjectDTO> results = query.getResultSet();
 
     for (ValueObjectDTO result : results)
@@ -80,16 +131,16 @@ public class TermController
       response.put(object);
     }
 
-    return new RestBodyResponse(response);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF validateCategoryName(ClientRequestIF request, 
-      @RequestParamter(name = "name", required = true) String name, 
-      @RequestParamter(name = "oid", required = true) String oid)
+  @GetMapping(API_PATH + "/validateCategoryName")
+  public ResponseEntity<Void> validateCategoryName(
+      @NotEmpty @RequestParam String name, 
+      @NotEmpty @RequestParam String oid)
   {
-    ClassifierDTO.validateCategoryName(request, name, oid);
+    ClassifierDTO.validateCategoryName(this.getClientRequest(), name, oid);
 
-    return new RestBodyResponse("");
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
 }

@@ -18,68 +18,98 @@
  */
 package net.geoprism.registry.controller;
 
-import org.json.JSONException;
+import javax.validation.Valid;
+
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonObject;
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.mvc.RestResponse;
 
-import net.geoprism.registry.task.TaskService;
+import net.geoprism.registry.service.TaskService;
 
-@Controller(url = "tasks")
-public class TaskController
+@RestController
+@Validated
+public class TaskController extends RunwaySpringController
 {
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "orderBy") String orderBy, @RequestParamter(name = "pageNum") Integer pageNum, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "whereStatus") String whereStatus) throws JSONException
+  public static final String  API_PATH = "tasks";
+  
+  public class IdBody 
   {
-    if (orderBy == null || orderBy.length() == 0)
+    @NotEmpty 
+    private String id;
+    
+    public String getId()
     {
-      orderBy = "createDate";
+      return id;
     }
-    if (pageNum == null || pageNum == 0)
+    
+    public void setId(String id)
     {
-      pageNum = 1;
+      this.id = id;
     }
-    if (pageSize == null || pageSize == 0)
-    {
-      pageSize = Integer.MAX_VALUE;
-    }
-
-    JsonObject jo = TaskService.getTasksForCurrentUser(request.getSessionId(), orderBy, pageNum, pageSize, whereStatus);
-
-    return new RestBodyResponse(jo.toString());
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF delete(ClientRequestIF request, @RequestParamter(name = "id", required = true) String id) throws JSONException
+  public class TaskStatusBody extends IdBody
   {
-    TaskService.deleteTask(request.getSessionId(), id);
+    @NotEmpty
+    private String status;
+    
+    public String getStatus()
+    {
+      return status;
+    }
+    
+    public void setStatus(String status)
+    {
+      this.status = status;
+    }
+  }
+  
+  @Autowired
+  private TaskService service;
+  
+  
+  @GetMapping(API_PATH + "/get")
+  public ResponseEntity<String> get(
+      @RequestParam(required = false, defaultValue = "createDate") String orderBy, 
+      @RequestParam(required = false, defaultValue = "1") Integer pageNum, 
+      @RequestParam(required = false, defaultValue = "1000") Integer pageSize, 
+      @RequestParam(required = false) String whereStatus)
+  {
+    JsonObject jo = service.getTasksForCurrentUser(this.getSessionId(), orderBy, pageNum, pageSize, whereStatus);
 
-    return new RestResponse();
+    return new ResponseEntity<String>(jo.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF complete(ClientRequestIF request, @RequestParamter(name = "id", required = true) String id) throws JSONException
+  @PostMapping(API_PATH + "/delete")  
+  public ResponseEntity<Void> delete(@Valid @RequestBody IdBody body)
   {
-    TaskService.completeTask(request.getSessionId(), id);
+    service.deleteTask(this.getSessionId(), body.getId());
 
-    return new RestResponse();
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF setTaskStatus(ClientRequestIF request, 
-      @RequestParamter(name = "id", required = true) String id, 
-      @RequestParamter(name = "status", required = true) String status) throws JSONException
+  @PostMapping(API_PATH + "/complete")  
+  public ResponseEntity<Void> complete(@Valid @RequestBody IdBody body)
   {
-    TaskService.setTaskStatus(request.getSessionId(), id, status);
+    service.completeTask(this.getSessionId(), body.getId());
 
-    return new RestResponse();
+    return new ResponseEntity<Void>(HttpStatus.OK);
+  }
+
+  @PostMapping(API_PATH + "/setTaskStatus")  
+  public ResponseEntity<Void> setTaskStatus(@Valid @RequestBody TaskStatusBody body)
+  {
+    service.setTaskStatus(this.getSessionId(), body.getId(), body.getStatus());
+
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
 }

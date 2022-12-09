@@ -92,7 +92,7 @@ export class HistoricalReportComponent {
         params = params.set("startDate", this.data.startDate.toString());
         params = params.set("endDate", this.data.endDate.toString());
 
-        window.location.href = registry.contextPath + "/transition-event/export-excel?" + params.toString();
+        window.location.href = registry.contextPath + "/api/transition-event/export-excel?" + params.toString();
     }
 
     checkDates(): any {

@@ -16,14 +16,15 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.transition;
+package net.geoprism.registry.service;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 
+import org.springframework.stereotype.Component;
+
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
@@ -32,6 +33,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.view.HistoricalRow;
 
+@Component
 public class TransitionEventService
 {
   @Request(RequestType.SESSION)
@@ -47,9 +49,9 @@ public class TransitionEventService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject apply(String sessionId, String json)
+  public JsonObject apply(String sessionId, JsonObject json)
   {
-    return TransitionEvent.apply(JsonParser.parseString(json).getAsJsonObject());
+    return TransitionEvent.apply(json);
   }
 
   @Request(RequestType.SESSION)

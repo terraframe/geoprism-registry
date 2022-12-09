@@ -19,93 +19,132 @@
 package net.geoprism.registry.controller;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
-import com.runwaysdk.mvc.InputStreamResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.gson.JsonObject;
 import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.mvc.RestResponse;
 
-import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.transition.TransitionEventService;
+import net.geoprism.registry.service.TransitionEventService;
+import net.geoprism.registry.spring.JsonObjectDeserializer;
 
-@Controller(url = "transition-event")
-public class TransitionEventController
+@RestController
+@Validated
+public class TransitionEventController extends RunwaySpringController
 {
+  public static class EventIdBody 
+  {
+    @NotEmpty
+    private String eventId;
+    
+    public String getEventId()
+    {
+      return eventId;
+    }
+    
+    public void setEventId(String eventId)
+    {
+      this.eventId = eventId;
+    }
+  }
+  
+  public static class EventBody 
+  {
+    @NotNull
+    @JsonDeserialize(using = JsonObjectDeserializer.class)
+    JsonObject event;
+    
+    public JsonObject getEvent()
+    {
+      return event;
+    }
+    
+    public void setEvent(JsonObject event)
+    {
+      this.event = event;
+    }
+  }
+  
+  public static final String  API_PATH = "transition-event";
+
+  @Autowired
   private TransitionEventService service;
 
-  public TransitionEventController()
+  @GetMapping(API_PATH + "/page")
+  public ResponseEntity<String> page( 
+      @RequestParam Integer pageSize,
+      @RequestParam Integer pageNumber, 
+      @RequestParam(required = false) String attrConditions)
   {
-    this.service = new TransitionEventService();
+    JsonObject response = service.page(this.getSessionId(), pageSize, pageNumber, attrConditions);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "page")
-  public ResponseIF page(ClientRequestIF request, 
-      @RequestParamter(name = "pageSize", required = true) Integer pageSize,
-      @RequestParamter(name = "pageNumber", required = true) Integer pageNumber, 
-      @RequestParamter(name = "attrConditions") String attrConditions)
+  @GetMapping(API_PATH + "/get-details")  
+  public ResponseEntity<String> getDetails( @NotEmpty @RequestParam String oid)
   {
-    return new RestBodyResponse(service.page(request.getSessionId(), pageSize, pageNumber, attrConditions));
+    JsonObject response = service.getDetails(this.getSessionId(), oid);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-details")
-  public ResponseIF getDetails(ClientRequestIF request, @RequestParamter(name = "oid", required = true) String oid)
+  @PostMapping(API_PATH + "/apply")    
+  public ResponseEntity<String> apply( @Valid @RequestBody EventBody body)
   {
-    return new RestBodyResponse(service.getDetails(request.getSessionId(), oid));
+    JsonObject response = this.service.apply(this.getSessionId(), body.event);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "event", required = true) String eventJSON)
+  @PostMapping(API_PATH + "/delete")      
+  public ResponseEntity<Void> delete( @Valid @RequestBody EventIdBody body)
   {
-    return new RestBodyResponse(this.service.apply(request.getSessionId(), eventJSON));
+    this.service.delete(this.getSessionId(), body.getEventId());
+
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "delete")
-  public ResponseIF delete(ClientRequestIF request, @RequestParamter(name = "eventId", required = true) String eventId)
+  @GetMapping(API_PATH + "/historical-report")    
+  public ResponseEntity<String> getHistoricalReport( 
+      @NotEmpty @RequestParam String typeCode, 
+      @RequestParam(required = false) Date startDate, 
+      @RequestParam(required = false) Date endDate, 
+      @RequestParam(required = false) Integer pageSize, 
+      @RequestParam(required = false) Integer pageNumber) 
   {
-    this.service.delete(request.getSessionId(), eventId);
-
-    return new RestResponse();
+    JsonObject response = service.getHistoricalReport(this.getSessionId(), typeCode, startDate, endDate, pageSize, pageNumber);
+    
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "historical-report")
-  public ResponseIF getHistoricalReport(ClientRequestIF request, 
-      @RequestParamter(name = "typeCode", required = true) String typeCode, 
-      @RequestParamter(name = "startDate") String startDate, 
-      @RequestParamter(name = "endDate") String endDate, 
-      @RequestParamter(name = "pageSize") Integer pageSize, 
-      @RequestParamter(name = "pageNumber") Integer pageNumber) throws ParseException
+  @GetMapping(API_PATH + "/export-excel")      
+  public ResponseEntity<InputStreamResource> exportExcel( 
+      @NotEmpty @RequestParam String typeCode, 
+      @RequestParam(required = false) Date startDate, 
+      @RequestParam(required = false) Date endDate) throws IOException
   {
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+    headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=historical-report.xlsx");
 
-    Date sDate = startDate != null ? format.parse(startDate) : new Date();
-    Date eDate = endDate != null ? format.parse(endDate) : new Date();
+    InputStreamResource isr = new InputStreamResource(service.exportExcel(this.getSessionId(), typeCode, startDate, endDate));
+    return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);
 
-    return new RestBodyResponse(service.getHistoricalReport(request.getSessionId(), typeCode, sDate, eDate, pageSize, pageNumber));
-  }
-
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "export-excel")
-  public ResponseIF exportExcel(ClientRequestIF request, 
-      @RequestParamter(name = "typeCode", required = true) String typeCode, 
-      @RequestParamter(name = "startDate") String startDate, 
-      @RequestParamter(name = "endDate") String endDate) throws ParseException, IOException
-  {
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-    Date sDate = startDate != null ? format.parse(startDate) : new Date();
-    Date eDate = endDate != null ? format.parse(endDate) : new Date();
-
-    return new InputStreamResponse(service.exportExcel(request.getSessionId(), typeCode, sDate, eDate), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "historical-report.xlsx");
   }
 
 }

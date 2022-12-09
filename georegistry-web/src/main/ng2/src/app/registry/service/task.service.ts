@@ -41,7 +41,7 @@ export class TaskService {
         params = params.set("whereStatus", whereStatus);
 
         return this.http
-            .get<PageResult<any>>(registry.contextPath + "/tasks/get", { params: params })
+            .get<PageResult<any>>(registry.contextPath + "/api/tasks/get", { params: params })
             .toPromise();
     }
 
@@ -53,7 +53,7 @@ export class TaskService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/tasks/complete", JSON.stringify({ id: taskId }), { headers: headers })
+            .post<any>(registry.contextPath + "/api/tasks/complete", JSON.stringify({ id: taskId }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -68,7 +68,7 @@ export class TaskService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/tasks/setTaskStatus", JSON.stringify({ id: taskId, status: status }), { headers: headers })
+            .post<any>(registry.contextPath + "/api/tasks/setTaskStatus", JSON.stringify({ id: taskId, status: status }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
