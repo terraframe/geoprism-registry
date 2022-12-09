@@ -17,92 +17,90 @@
 /// License along with Runway SDK(tm).  If not, see <ehttp://www.gnu.org/licenses/>.
 ///
 
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
-import { finalize } from 'rxjs/operators';
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { finalize } from "rxjs/operators";
 
-import { EventService } from '@shared/service';
+import { EventService } from "@shared/service";
 
-import { LocaleView } from '@shared/model/core';
+import { LocaleView } from "@shared/model/core";
 
-import { AllLocaleInfo } from '@admin/model/localization-manager';
+import { AllLocaleInfo } from "@admin/model/localization-manager";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/registry";
+declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class LocalizationManagerService {
 
+    constructor(private http: HttpClient, private eventService: EventService) { }
 
-	constructor(private http: HttpClient, private eventService: EventService) { }
+    getNewLocaleInfo(): Promise<AllLocaleInfo> {
+        this.eventService.start();
 
+        return this.http
+            .get<AllLocaleInfo>(registry.contextPath + "/api/localization/getNewLocaleInformation")
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-	getNewLocaleInfo(): Promise<AllLocaleInfo> {
+    editLocale(locale: LocaleView): Promise<LocaleView> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
-		this.eventService.start();
+        this.eventService.start();
 
-		return this.http
-			.get<AllLocaleInfo>(registry.contextPath + '/localization/getNewLocaleInformation')
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-			.toPromise();
-	}
-	
-	editLocale(locale: LocaleView): Promise<LocaleView> {
-    let params: HttpParams = new HttpParams();
+        return this.http
+            .post<LocaleView>(registry.contextPath + "/api/localization/editLocale", JSON.stringify({ json: locale }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-    params = params.set('json', JSON.stringify(locale));
+    installLocale(locale: LocaleView): Promise<LocaleView> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
-    this.eventService.start();
+        this.eventService.start();
 
-    return this.http
-      .get<LocaleView>(registry.contextPath + '/localization/editLocale', { params: params })
-      .pipe(finalize(() => {
-        this.eventService.complete();
-      }))
-      .toPromise();
-  }
+        return this.http
+            .post<LocaleView>(registry.contextPath + "/api/localization/installLocale", JSON.stringify({ json: locale }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-	installLocale(locale: LocaleView): Promise<LocaleView> {
-		let params: HttpParams = new HttpParams();
+    uninstallLocale(locale: LocaleView) {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
-	  params = params.set('json', JSON.stringify(locale));
+        this.eventService.start();
 
-		this.eventService.start();
+        return this.http
+            .post<{ locale: string }>(registry.contextPath + "/api/localization/uninstallLocale", JSON.stringify({ json: locale }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-		return this.http
-			.get<LocaleView>(registry.contextPath + '/localization/installLocale', { params: params })
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-			.toPromise();
-	}
-	
-	uninstallLocale(locale: LocaleView) {
-    let params: HttpParams = new HttpParams();
+    installFile(formData: FormData): Promise<void> {
+        let headers = new HttpHeaders();
 
-    params = params.set('json', JSON.stringify(locale));
+        this.eventService.start();
 
-    this.eventService.start();
-
-    return this.http
-      .get<{ locale: string }>(registry.contextPath + '/localization/uninstallLocale', { params: params })
-      .pipe(finalize(() => {
-        this.eventService.complete();
-      }))
-      .toPromise();
-  }
-
-	installFile(formData: FormData): Promise<void> {
-		let headers = new HttpHeaders();
-
-		this.eventService.start();
-
-		return this.http.post<void>(registry.contextPath + "/localization/importSpreadsheet", formData, { headers: headers })
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-			.toPromise();
-	}
+        return this.http.post<void>(registry.contextPath + "/api/localization/importSpreadsheet", formData, { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
 }

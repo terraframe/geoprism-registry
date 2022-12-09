@@ -30,7 +30,7 @@ export class ImportLocalizationModalComponent {
         let options: FileUploaderOptions = {
             queueLimit: 1,
             removeAfterUpload: true,
-            url: registry.contextPath + "/localization/importSpreadsheet"
+            url: registry.contextPath + "/api/localization/importSpreadsheet"
         };
 
         this.uploader = new FileUploader(options);

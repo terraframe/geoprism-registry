@@ -45,7 +45,7 @@ export class ProfileService {
         });
 
         return this.http
-            .post<any>(registry.contextPath + "/localization/set-locale", JSON.stringify({ locale: locale }), { headers: headers })
+            .post<any>(registry.contextPath + "/api/localization/set-locale", JSON.stringify({ locale: locale }), { headers: headers })
             .toPromise();
     }
 

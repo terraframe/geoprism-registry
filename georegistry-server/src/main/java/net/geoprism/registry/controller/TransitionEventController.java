@@ -40,7 +40,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
-import com.runwaysdk.mvc.RequestParamter;
 
 import net.geoprism.registry.service.TransitionEventService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
@@ -144,7 +143,6 @@ public class TransitionEventController extends RunwaySpringController
 
     InputStreamResource isr = new InputStreamResource(service.exportExcel(this.getSessionId(), typeCode, startDate, endDate));
     return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);
-
   }
 
 }

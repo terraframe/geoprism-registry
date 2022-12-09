@@ -121,7 +121,7 @@ export class SettingsComponent implements OnInit {
 
 	exportLocalization() {
 		//this.localizationManagerService.exportLocalization();
-		window.location.href = registry.contextPath + "/localization/exportSpreadsheet";
+		window.location.href = registry.contextPath + "/api/localization/exportSpreadsheet";
 	}
 
 	public importLocalization(): void {

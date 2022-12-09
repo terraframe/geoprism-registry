@@ -470,7 +470,7 @@ export class RegistryService implements AttributeTypeService {
         let params: HttpParams = new HttpParams();
 
         return this.http
-            .get<LocaleView[]>(registry.contextPath + "/localization/get-locales", { params: params })
+            .get<LocaleView[]>(registry.contextPath + "/api/localization/get-locales", { params: params })
             .toPromise();
     }
 

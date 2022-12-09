@@ -35,7 +35,7 @@ export class LocalizationManagerService {
 
     getNewLocaleInfo(): Promise<AllLocaleInfo> {
         return this.http
-            .get<AllLocaleInfo>(registry.contextPath + "/localization/getNewLocaleInformation")
+            .get<AllLocaleInfo>(registry.contextPath + "/api/localization/getNewLocaleInformation")
             .toPromise();
     }
 
@@ -55,7 +55,7 @@ export class LocalizationManagerService {
         }
 
         return this.http
-            .get<void>(registry.contextPath + "/localization/installLocale", { params: params })
+            .get<void>(registry.contextPath + "/api/localization/installLocale", { params: params })
             .toPromise();
     }
 

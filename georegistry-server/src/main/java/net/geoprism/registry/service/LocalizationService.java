@@ -22,6 +22,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -30,13 +31,14 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.LocaleUtils;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.runwaysdk.MessageExceptionDTO;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdLocalizableInfo;
-import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationExcelExporter;
 import com.runwaysdk.localization.LocalizationExcelImporter;
@@ -47,10 +49,8 @@ import com.runwaysdk.localization.configuration.AttributeLocalQueryCriteria;
 import com.runwaysdk.localization.configuration.AttributeLocalTabConfiguration;
 import com.runwaysdk.localization.configuration.ConfigurationBuilder;
 import com.runwaysdk.localization.configuration.SpreadsheetConfiguration;
-import com.runwaysdk.mvc.InputStreamResponse;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
-import com.runwaysdk.session.LocaleManager;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
@@ -68,10 +68,11 @@ import net.geoprism.registry.localization.DefaultLocaleView;
 import net.geoprism.registry.localization.LocaleView;
 import net.geoprism.registry.localization.LocalizationImportMessagesException;
 
+@Component
 public class LocalizationService
 {
 
-  public void importSpreadsheet(String sessionId, MultipartFileParameter file)
+  public void importSpreadsheet(String sessionId, MultipartFile file)
   {
     try
     {
@@ -92,15 +93,14 @@ public class LocalizationService
   }
   
   @Request(RequestType.SESSION)
-  public void importSpreadsheetInRequest(String sessionId, MultipartFileParameter file)
+  public void importSpreadsheetInRequest(String sessionId, MultipartFile file)
   {
     ServiceFactory.getRolePermissionService().enforceSRA();
 
-    try
+    try(InputStream istream = file.getInputStream())
     {
-      LocalizationExcelImporter importer = new LocalizationExcelImporter(buildConfig(), file.getInputStream());
-      importer.doImport();
-      
+      LocalizationExcelImporter importer = new LocalizationExcelImporter(buildConfig(), istream);
+      importer.doImport();      
     }
     catch (IOException e)
     {
@@ -216,7 +216,7 @@ public class LocalizationService
   }
 
   @Request(RequestType.SESSION)
-  public InputStreamResponse exportSpreadsheetInRequest(String sessionId)
+  public InputStream exportSpreadsheet(String sessionId)
   {
     ServiceFactory.getRolePermissionService().enforceSRA();
 
@@ -226,9 +226,7 @@ public class LocalizationService
     LocalizationExcelExporter exporter = new LocalizationExcelExporter(buildConfig(), buffer);
     exporter.export();
 
-    ByteArrayInputStream is = new ByteArrayInputStream(bytes.toByteArray());
-
-    return new InputStreamResponse(is, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "localization.xlsx");
+    return new ByteArrayInputStream(bytes.toByteArray());
   }
 
   @Request(RequestType.SESSION)
