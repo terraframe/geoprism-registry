@@ -117,7 +117,7 @@ public class ListTypeInheritedHierarchyTest
   @Request
   public void testPublishVersion()
   {
-    TestDataSet.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
+    TestDataSet.runAsUser(USATestData.USER_ADMIN, (request) -> {
 
       JsonObject json = ListTypeTest.getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
 

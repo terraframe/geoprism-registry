@@ -244,7 +244,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testGetAllCR(request, true);
         });
       }
@@ -261,7 +261,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testGetAllCR(request, false);
         });
       }
@@ -331,7 +331,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testSetActionStatus(request, serializedCR);
         });
       }
@@ -348,7 +348,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testSetActionStatus(request, serializedCR);
           
           Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
@@ -397,7 +397,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testImplementDecisions(request, createTestChangeRequest(UpdateAttributeAction.CLASS));
         });
       }
@@ -414,7 +414,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testImplementDecisions(request, createTestChangeRequest(UpdateAttributeAction.CLASS));
           
           Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
@@ -480,7 +480,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testImplementParentDecisions(request, createTestChangeRequest(UpdateAttributeViewJsonAdapters.PARENT_ATTR_NAME));
         });
       }
@@ -500,7 +500,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testImplementParentDecisions(request, createTestChangeRequest(UpdateAttributeViewJsonAdapters.PARENT_ATTR_NAME));
           
           Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
@@ -571,7 +571,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testCreateGeoObjectCR(json, request);
         });
       }
@@ -591,7 +591,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testCreateGeoObjectCR(json, request);
           
           Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
@@ -672,7 +672,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testUpdateGeoObjectCR(json, request);
         });
       }
@@ -692,7 +692,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testUpdateGeoObjectCR(json, request);
           
           Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
@@ -768,7 +768,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testComplexUpdateGeoObjectCR(data, request);
         });
       }
@@ -907,7 +907,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testUpdateGeoObjectGeometryCR(data, request);
         });
       }
@@ -1040,7 +1040,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testUpdateGeoObjectLocalizedValueCR(data, request);
         });
       }
@@ -1170,7 +1170,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testUpdateGeoObjectTermCR(data, request);
         });
       }
@@ -1301,7 +1301,7 @@ public class ChangeRequestServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testUpdateGeoObjectDateCR(data, request);
         });
       }

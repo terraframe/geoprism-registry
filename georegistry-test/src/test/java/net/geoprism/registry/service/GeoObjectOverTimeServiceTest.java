@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -26,23 +26,33 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.registry.GeometryTypeException;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
-import net.geoprism.registry.test.TestRegistryAdapterClient;
+import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { TestConfig.class })
 public class GeoObjectOverTimeServiceTest
 {
   protected static FastTestDataset      testData;
 
   public static final TestGeoObjectInfo TEST_GO = new TestGeoObjectInfo("GOSERV_TEST_GO", FastTestDataset.COUNTRY);
+
+  @Autowired
+  private TestRegistryClient            client;
 
   @BeforeClass
   public static void setUpClass()
@@ -66,7 +76,7 @@ public class GeoObjectOverTimeServiceTest
 
     testData.logIn(FastTestDataset.USER_CGOV_RA);
 
-    TestDataSet.populateAdapterIds(null, testData.adapter);
+    // TestDataSet.populateAdapterIds(null, testData.adapter);
   }
 
   @After
@@ -85,8 +95,8 @@ public class GeoObjectOverTimeServiceTest
 
     for (TestUserInfo user : allowedUsers)
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
-        GeoObjectOverTime geoObj = adapter.getGeoObjectOverTime(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
+      FastTestDataset.runAsUser(user, (request) -> {
+        GeoObjectOverTime geoObj = client.getGeoObjectOverTime(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
 
         FastTestDataset.CAMBODIA.assertEquals(geoObj);
       });
@@ -101,10 +111,10 @@ public class GeoObjectOverTimeServiceTest
 
     for (TestUserInfo user : allowedUsers)
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
-        GeoObjectOverTime geoObj = adapter.getGeoObjectOverTimeByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
+      FastTestDataset.runAsUser(user, (request) -> {
+        GeoObjectOverTime geoObj = client.getGeoObjectOverTimeByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
 
-        Assert.assertEquals(geoObj.toJSON().toString(), GeoObjectOverTime.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
+        Assert.assertEquals(geoObj.toJSON().toString(), GeoObjectOverTime.fromJSON(client.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
         Assert.assertEquals(true, geoObj.getExists(TestDataSet.DEFAULT_OVER_TIME_DATE));
       });
     }
@@ -116,13 +126,13 @@ public class GeoObjectOverTimeServiceTest
     GeometryBuilder builder = new GeometryBuilder(new GeometryFactory());
     Point point = builder.point(48.44, -123.37);
 
-    GeoObjectOverTime geoObj = TEST_GO.newGeoObjectOverTime(testData.adapter);
+    GeoObjectOverTime geoObj = TEST_GO.newGeoObjectOverTime(client.getAdapter());
 
     geoObj.setGeometry(point, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     try
     {
-      testData.adapter.createGeoObjectOverTime(geoObj.toJSON().toString());
+      client.createGeoObjectOverTime(geoObj.toJSON().toString());
 
       Assert.fail("Able to create a GeoObject with a wrong geometry type");
     }
@@ -140,10 +150,10 @@ public class GeoObjectOverTimeServiceTest
 
     for (TestUserInfo user : allowedUsers)
     {
-      TestDataSet.runAsUser(user, (request, adapter) -> {
-        TestDataSet.populateAdapterIds(user, adapter);
+      TestDataSet.runAsUser(user, (request) -> {
+        TestDataSet.populateAdapterIds(user, client.getAdapter());
 
-        TEST_GO.assertEquals(adapter.createGeoObjectOverTime(TEST_GO.newGeoObjectOverTime(adapter).toJSON().toString()));
+        TEST_GO.assertEquals(client.createGeoObjectOverTime(TEST_GO.newGeoObjectOverTime(client.getAdapter()).toJSON().toString()));
         TEST_GO.assertApplied();
         TEST_GO.delete();
       });
@@ -153,12 +163,12 @@ public class GeoObjectOverTimeServiceTest
 
     for (TestUserInfo user : disallowedUsers)
     {
-      TestDataSet.runAsUser(user, (request, adapter) -> {
-        TestDataSet.populateAdapterIds(user, adapter);
+      TestDataSet.runAsUser(user, (request) -> {
+        TestDataSet.populateAdapterIds(user, client.getAdapter());
 
         try
         {
-          adapter.createGeoObjectOverTime(TEST_GO.newGeoObjectOverTime(ServiceFactory.getAdapter()).toJSON().toString());
+          client.createGeoObjectOverTime(TEST_GO.newGeoObjectOverTime(ServiceFactory.getAdapter()).toJSON().toString());
 
           Assert.fail();
         }
@@ -170,7 +180,7 @@ public class GeoObjectOverTimeServiceTest
     }
   }
 
-  private void updateGO(TestRegistryAdapterClient adapter, TestGeoObjectInfo go)
+  private void updateGO(TestGeoObjectInfo go)
   {
     go.setWkt(TestDataSet.WKT_POLYGON_2);
     go.setDisplayLabel("Some new value");
@@ -178,7 +188,7 @@ public class GeoObjectOverTimeServiceTest
     GeoObjectOverTime update = go.fetchGeoObjectOverTime();
     go.populate(update);
 
-    GeoObjectOverTime returnedUpdate = adapter.updateGeoObjectOverTime(update.toJSON().toString());
+    GeoObjectOverTime returnedUpdate = client.updateGeoObjectOverTime(update.toJSON().toString());
 
     go.assertEquals(returnedUpdate);
 
@@ -196,8 +206,8 @@ public class GeoObjectOverTimeServiceTest
       TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY);
       go.apply();
 
-      TestDataSet.runAsUser(user, (request, adapter) -> {
-        updateGO(adapter, go);
+      TestDataSet.runAsUser(user, (request) -> {
+        updateGO(go);
       });
 
       go.delete();
@@ -211,10 +221,10 @@ public class GeoObjectOverTimeServiceTest
       TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY);
       go.apply();
 
-      TestDataSet.runAsUser(user, (request, adapter) -> {
+      TestDataSet.runAsUser(user, (request) -> {
         try
         {
-          updateGO(adapter, go);
+          updateGO(go);
 
           Assert.fail();
         }
@@ -225,5 +235,5 @@ public class GeoObjectOverTimeServiceTest
       });
     }
   }
-  
+
 }

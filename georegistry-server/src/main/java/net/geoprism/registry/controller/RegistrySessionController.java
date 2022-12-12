@@ -132,14 +132,14 @@ public class RegistrySessionController extends RunwaySpringController
 
   
   @PostMapping(API_PATH + "/login")
-  public ResponseEntity<String> login(HttpServletResponse response, HttpServletRequest req, @Valid @RequestBody LoginBody body) throws UnsupportedEncodingException 
+  public ResponseEntity<String> login(@Valid @RequestBody LoginBody body) throws UnsupportedEncodingException 
   {
     if (body.username != null)
     {
       body.username = body.username.trim();
     }
 
-    Locale[] locales = this.getLocales(req);
+    Locale[] locales = this.getLocales(this.getRequest());
     
 //    Locale sessionLocale = req.getLocale();
 //
@@ -156,7 +156,7 @@ public class RegistrySessionController extends RunwaySpringController
 //      installedLocalesArr.put(locObj);
 //    }
     
-    ClientRequestIF clientRequest = loginWithLocales(req, body.username, body.password, locales);
+    ClientRequestIF clientRequest = loginWithLocales(body.username, body.password, locales);
     
     JSONArray jaLocales = new JSONArray(ServiceFactory.getRegistryService().getLocales(clientRequest.getSessionId()).toString());
 
@@ -171,7 +171,7 @@ public class RegistrySessionController extends RunwaySpringController
     cookieValue.addProperty("userName", body.username);
     cookieValue.addProperty("version", ClientConfigurationService.getServerVersion());
     
-    this.addCookie(response, req, cookieValue);
+    this.addCookie(this.getResponse(), this.getRequest(), cookieValue);
 
     JSONObject object = new JSONObject();
     object.put("installedLocales", jaLocales);
@@ -179,16 +179,16 @@ public class RegistrySessionController extends RunwaySpringController
     return new ResponseEntity<String>(object.toString(), HttpStatus.OK);
   }
 
-  public ClientRequestIF loginWithLocales(HttpServletRequest req, String username, String password, Locale[] locales)
+  public ClientRequestIF loginWithLocales(String username, String password, Locale[] locales)
   {
     try
     {
       WebClientSession clientSession = WebClientSession.createUserSession(username, password, locales);
       ClientRequestIF clientRequest = clientSession.getRequest();
 
-      req.getSession().setMaxInactiveInterval(CommonProperties.getSessionTime());
-      req.getSession().setAttribute(ClientConstants.CLIENTSESSION, clientSession);
-      req.setAttribute(ClientConstants.CLIENTREQUEST, clientRequest);
+      this.getRequest().getSession().setMaxInactiveInterval(CommonProperties.getSessionTime());
+      this.getRequest().getSession().setAttribute(ClientConstants.CLIENTSESSION, clientSession);
+      this.getRequest().setAttribute(ClientConstants.CLIENTREQUEST, clientRequest);
 
       ClientConfigurationService.handleSessionEvent(new SessionEvent(EventType.LOGIN_SUCCESS, clientRequest, username));
 
@@ -203,9 +203,9 @@ public class RegistrySessionController extends RunwaySpringController
   }
 
   @PostMapping(API_PATH + "/ologin")  
-  public String ologin(HttpServletResponse response, HttpServletRequest request, @Valid @RequestBody OauthLoginBody body) 
+  public String ologin(@Valid @RequestBody OauthLoginBody body) 
   {
-    RequestDecorator req = new RequestDecorator(request);
+    RequestDecorator req = new RequestDecorator(this.getRequest());
     
     final SessionController geoprism = new SessionController();
     
@@ -245,7 +245,7 @@ public class RegistrySessionController extends RunwaySpringController
       cookieJson.addProperty("version", ClientConfigurationService.getServerVersion());
       cookieJson.add("installedLocales", jaLocales);
             
-      this.addCookie(response, request, cookieJson);
+      this.addCookie(this.getResponse(), this.getRequest(), cookieJson);
       
       return "redirect:/";
     }

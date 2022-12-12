@@ -679,7 +679,7 @@ public class TransitionEventTest
       TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
       for (TestUserInfo user : allowedUsers)
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testPagePermissions(request.getSessionId(), event);
         });
       }

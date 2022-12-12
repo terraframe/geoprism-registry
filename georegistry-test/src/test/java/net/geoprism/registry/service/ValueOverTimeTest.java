@@ -67,7 +67,7 @@ public class ValueOverTimeTest
 
     testData.logIn(FastTestDataset.USER_CGOV_RA);
 
-    TestDataSet.populateAdapterIds(null, testData.adapter);
+//    TestDataSet.populateAdapterIds(null, testData.adapter);
     
     TEST_GO.apply();
 //    ServerGeoObjectIF go = TEST_GO.getServerObject();

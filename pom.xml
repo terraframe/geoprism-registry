@@ -34,6 +34,9 @@
     <module>dhis2adapter</module>
     <module>georegistry-server</module>
     <module>georegistry-web</module>
+    <module>georegistry-test</module>    
+<!-- 
+-->    
   </modules>
 
   <properties>

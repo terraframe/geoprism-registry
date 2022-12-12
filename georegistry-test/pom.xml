@@ -41,7 +41,13 @@
     <geoserver.version>2.5.0.1</geoserver.version>
   </properties>
 
-  <dependencies>
+  <dependencies>    
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>5.3.24</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>net.geoprism</groupId>
       <artifactId>georegistry-server</artifactId>

@@ -60,6 +60,8 @@ import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.runwaysdk.Pair;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
@@ -81,6 +83,7 @@ import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdGraphClassDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.localization.LocalizationFacade;
@@ -140,11 +143,13 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.query.graph.AbstractVertexRestriction;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.SearchService;
+import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class VertexServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF, LocationInfo, VertexComponent
@@ -2773,5 +2778,131 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return results;
   }
+  
+  public static JsonArray getGeoObjectSuggestions(String text, String typeCode, String parentCode, String parentTypeCode, String hierarchyCode, Date startDate, Date endDate)
+  {
+    final ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+
+    ServerHierarchyType ht = hierarchyCode != null ? ServerHierarchyType.get(hierarchyCode) : null;
+
+    final ServerGeoObjectType parentType = ServerGeoObjectType.get(parentTypeCode);
+
+    List<String> conditions = new ArrayList<String>();
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("select $filteredLabel,@class as clazz,* from " + type.getMdVertex().getDBClassName() + " ");
+
+    statement.append("let $dateLabel = first(displayLabel_cot");
+    if (startDate != null && endDate != null)
+    {
+      statement.append("[(:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate)]");
+    }
+    statement.append("), ");
+    statement.append("$filteredLabel = " + AbstractVertexRestriction.localize("$dateLabel.value") + " ");
+
+    statement.append("where ");
+
+    // Must be a child of parent type
+    if (parentTypeCode != null && parentTypeCode.length() > 0)
+    {
+      StringBuilder parentCondition = new StringBuilder();
+
+      parentCondition.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')");
+
+      if (startDate != null && endDate != null)
+      {
+        parentCondition.append("[(:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate)]");
+      }
+
+      parentCondition.append(".inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
+
+      conditions.add(parentCondition.toString());
+    }
+
+    // Must have display label we expect
+    if (text != null && text.length() > 0)
+    {
+      StringBuilder textCondition = new StringBuilder();
+
+      textCondition.append("(displayLabel_cot CONTAINS (");
+
+      if (startDate != null && endDate != null)
+      {
+        textCondition.append("  (:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate) AND ");
+      }
+
+      textCondition.append(AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
+      textCondition.append(")");
+
+      textCondition.append(" OR code.toLowerCase() LIKE '%' + :text + '%')");
+
+      conditions.add(textCondition.toString());
+    }
+
+    // Must not be invalid
+    conditions.add("invalid=false");
+
+    // Must exist at date
+    {
+      StringBuilder existCondition = new StringBuilder();
+
+      existCondition.append("(exists_cot CONTAINS (");
+
+      if (startDate != null && endDate != null)
+      {
+        existCondition.append("  (:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate) AND ");
+      }
+
+      existCondition.append("value=true");
+      existCondition.append("))");
+
+      conditions.add(existCondition.toString());
+    }
+
+    statement.append(StringUtils.join(conditions, " AND "));
+
+    statement.append(" ORDER BY $filteredLabel ASC LIMIT 10");
+
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+
+    if (startDate != null && endDate != null)
+    {
+      query.setParameter("startDate", startDate);
+      query.setParameter("endDate", endDate);
+    }
+
+    if (text != null)
+    {
+      query.setParameter("text", text.toLowerCase().trim());
+    }
+    else
+    {
+      query.setParameter("text", null);
+    }
+
+    @SuppressWarnings("unchecked") List<HashMap<String, Object>> results = (List<HashMap<String, Object>>) ( (Object) query.getResults() );
+
+    JsonArray array = new JsonArray();
+
+    for (HashMap<String, Object> row : results)
+    {
+      ServerGeoObjectType rowType = ServerGeoObjectType.get((MdVertexDAOIF) MdGraphClassDAO.getMdGraphClassByTableName((String) row.get("clazz")));
+
+      if (ServiceFactory.getGeoObjectPermissionService().canRead(rowType.getOrganization().getCode(), rowType))
+      {
+        JsonObject result = new JsonObject();
+        result.addProperty("id", (String) row.get("oid"));
+        result.addProperty("name", (String) row.get("$filteredLabel"));
+        result.addProperty(GeoObject.CODE, (String) row.get("code"));
+        result.addProperty(GeoObject.UID, (String) row.get("uuid"));
+        result.addProperty("typeCode", rowType.getCode());
+
+        array.add(result);
+      }
+    }
+
+    return array;
+  }
+
 
 }

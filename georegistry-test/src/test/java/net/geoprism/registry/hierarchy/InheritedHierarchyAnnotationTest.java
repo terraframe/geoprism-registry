@@ -438,7 +438,7 @@ public class InheritedHierarchyAnnotationTest
   @Test
   public void testSetInheritedHierarchy()
   {
-    FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request, adapter) -> {
+    FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request) -> {
 
       HierarchyService service = new HierarchyService();
 

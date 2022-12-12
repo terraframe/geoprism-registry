@@ -19,16 +19,13 @@
 package net.geoprism.registry.service;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest.AuthenticationRequestBuilder;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
@@ -59,14 +56,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.business.graph.GraphQuery;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdClassDAO;
-import com.runwaysdk.dataaccess.metadata.graph.MdGraphClassDAO;
 import com.runwaysdk.json.RunwayJsonAdapters;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.SupportedLocaleIF;
@@ -105,12 +98,12 @@ import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.permission.UserPermissionService.CGRPermissionAction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
-import net.geoprism.registry.query.graph.AbstractVertexRestriction;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
@@ -984,127 +977,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String parentTypeCode, String hierarchyCode, Date startDate, Date endDate)
   {
-    final ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
-
-    ServerHierarchyType ht = hierarchyCode != null ? ServerHierarchyType.get(hierarchyCode) : null;
-
-    final ServerGeoObjectType parentType = ServerGeoObjectType.get(parentTypeCode);
-
-    List<String> conditions = new ArrayList<String>();
-
-    StringBuilder statement = new StringBuilder();
-    statement.append("select $filteredLabel,@class as clazz,* from " + type.getMdVertex().getDBClassName() + " ");
-
-    statement.append("let $dateLabel = first(displayLabel_cot");
-    if (startDate != null && endDate != null)
-    {
-      statement.append("[(:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate)]");
-    }
-    statement.append("), ");
-    statement.append("$filteredLabel = " + AbstractVertexRestriction.localize("$dateLabel.value") + " ");
-
-    statement.append("where ");
-
-    // Must be a child of parent type
-    if (parentTypeCode != null && parentTypeCode.length() > 0)
-    {
-      StringBuilder parentCondition = new StringBuilder();
-
-      parentCondition.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')");
-
-      if (startDate != null && endDate != null)
-      {
-        parentCondition.append("[(:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate)]");
-      }
-
-      parentCondition.append(".inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
-
-      conditions.add(parentCondition.toString());
-    }
-
-    // Must have display label we expect
-    if (text != null && text.length() > 0)
-    {
-      StringBuilder textCondition = new StringBuilder();
-
-      textCondition.append("(displayLabel_cot CONTAINS (");
-
-      if (startDate != null && endDate != null)
-      {
-        textCondition.append("  (:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate) AND ");
-      }
-
-      textCondition.append(AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
-      textCondition.append(")");
-
-      textCondition.append(" OR code.toLowerCase() LIKE '%' + :text + '%')");
-
-      conditions.add(textCondition.toString());
-    }
-
-    // Must not be invalid
-    conditions.add("invalid=false");
-
-    // Must exist at date
-    {
-      StringBuilder existCondition = new StringBuilder();
-
-      existCondition.append("(exists_cot CONTAINS (");
-
-      if (startDate != null && endDate != null)
-      {
-        existCondition.append("  (:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate) AND ");
-      }
-
-      existCondition.append("value=true");
-      existCondition.append("))");
-
-      conditions.add(existCondition.toString());
-    }
-
-    statement.append(StringUtils.join(conditions, " AND "));
-
-    statement.append(" ORDER BY $filteredLabel ASC LIMIT 10");
-
-    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
-
-    if (startDate != null && endDate != null)
-    {
-      query.setParameter("startDate", startDate);
-      query.setParameter("endDate", endDate);
-    }
-
-    if (text != null)
-    {
-      query.setParameter("text", text.toLowerCase().trim());
-    }
-    else
-    {
-      query.setParameter("text", null);
-    }
-
-    @SuppressWarnings("unchecked") List<HashMap<String, Object>> results = (List<HashMap<String, Object>>) ( (Object) query.getResults() );
-
-    JsonArray array = new JsonArray();
-
-    for (HashMap<String, Object> row : results)
-    {
-      ServerGeoObjectType rowType = ServerGeoObjectType.get((MdVertexDAOIF) MdGraphClassDAO.getMdGraphClassByTableName((String) row.get("clazz")));
-
-      if (ServiceFactory.getGeoObjectPermissionService().canRead(rowType.getOrganization().getCode(), rowType))
-      {
-        JsonObject result = new JsonObject();
-        result.addProperty("id", (String) row.get("oid"));
-        result.addProperty("name", (String) row.get("$filteredLabel"));
-        result.addProperty(GeoObject.CODE, (String) row.get("code"));
-        result.addProperty(GeoObject.UID, (String) row.get("uuid"));
-        result.addProperty("typeCode", rowType.getCode());
-
-        array.add(result);
-      }
-    }
-
-    return array;
+    return VertexServerGeoObject.getGeoObjectSuggestions(text, typeCode, parentCode, parentTypeCode, hierarchyCode, startDate, endDate);
   }
 
   @Request(RequestType.SESSION)

@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.mvc.RestBodyResponse;
 
 import net.geoprism.registry.service.BusinessObjectService;
 

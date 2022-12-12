@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
@@ -31,12 +31,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.SmartExceptionDTO;
-import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -51,6 +54,7 @@ import com.runwaysdk.system.metadata.MdBusiness;
 
 import net.geoprism.registry.GeoObjectTypeAssignmentException;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.PermissionContext;
@@ -60,9 +64,11 @@ import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
-import net.geoprism.registry.test.TestRegistryAdapterClient;
+import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { TestConfig.class })
 public class GeoObjectTypeServiceTest
 {
   public static TestGeoObjectTypeInfo TEST_GOT            = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
@@ -76,6 +82,9 @@ public class GeoObjectTypeServiceTest
   public static final TestUserInfo    USER_PRIVATE_GOT_AC = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "gottestacprivate", "gottestacprivate", FastTestDataset.TEST_DATA_KEY + "gottestacprivate@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), TEST_PRIVATE_GOT.getCode()) });
 
   protected static FastTestDataset    testData;
+
+  @Autowired
+  private TestRegistryClient   client;
 
   @BeforeClass
   public static void setUpClass()
@@ -143,13 +152,13 @@ public class GeoObjectTypeServiceTest
     cleanUpExtras();
   }
 
-  private void createGot(ClientRequestIF request, TestRegistryAdapterClient adapter)
+  private void createGot()
   {
-    GeoObjectType testGot = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), TEST_GOT.getGeometryType(), TEST_GOT.getDisplayLabel(), TEST_GOT.getDescription(), true, TEST_GOT.getOrganization().getCode(), adapter);
+    GeoObjectType testGot = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), TEST_GOT.getGeometryType(), TEST_GOT.getDisplayLabel(), TEST_GOT.getDescription(), true, TEST_GOT.getOrganization().getCode(), client.getAdapter());
 
     String gtJSON = testGot.toJSON().toString();
 
-    GeoObjectType returned = adapter.createGeoObjectType(gtJSON);
+    GeoObjectType returned = client.createGeoObjectType(gtJSON);
 
     checkMdBusinessAttributes(TEST_GOT.getCode());
     checkMdGraphAttributes(TEST_GOT.getCode());
@@ -164,8 +173,8 @@ public class GeoObjectTypeServiceTest
     // Allowed users
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA })
     {
-      TestDataSet.runAsUser(user, (request, adapter) -> {
-        createGot(request, adapter);
+      TestDataSet.runAsUser(user, (request) -> {
+        createGot();
       });
 
       TEST_GOT.delete();
@@ -176,9 +185,9 @@ public class GeoObjectTypeServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
 
-          createGot(request, adapter);
+          createGot();
 
           Assert.fail("Able to create a geo object type as a user with bad roles");
         });
@@ -190,7 +199,7 @@ public class GeoObjectTypeServiceTest
     }
   }
 
-  private void updateGot(ClientRequestIF request, TestRegistryAdapterClient adapter, TestGeoObjectTypeInfo testGot)
+  private void updateGot(TestGeoObjectTypeInfo testGot)
   {
     GeoObjectType got = testGot.fetchDTO();
 
@@ -201,7 +210,7 @@ public class GeoObjectTypeServiceTest
     got.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, newDesc);
 
     String gtJSON = got.toJSON().toString();
-    GeoObjectType returned = adapter.updateGeoObjectType(gtJSON);
+    GeoObjectType returned = client.updateGeoObjectType(gtJSON);
 
     Assert.assertEquals(newLabel, returned.getLabel().getValue());
     Assert.assertEquals(newDesc, returned.getDescription().getValue());
@@ -216,8 +225,8 @@ public class GeoObjectTypeServiceTest
 
     for (TestUserInfo user : users)
     {
-      TestDataSet.runAsUser(user, (request, adapter) -> {
-        updateGot(request, adapter, TEST_GOT);
+      TestDataSet.runAsUser(user, (request) -> {
+        updateGot(TEST_GOT);
 
         TEST_GOT.delete();
         TEST_GOT.apply();
@@ -236,8 +245,8 @@ public class GeoObjectTypeServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
-          updateGot(request, adapter, TEST_GOT);
+        FastTestDataset.runAsUser(user, (request) -> {
+          updateGot(TEST_GOT);
 
           Assert.fail("Able to update a geo object type as a user with bad roles");
         });
@@ -257,8 +266,8 @@ public class GeoObjectTypeServiceTest
     // Allowed users
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_CGOV_RA })
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
-        updateGot(request, adapter, TEST_PRIVATE_GOT);
+      FastTestDataset.runAsUser(user, (request) -> {
+        updateGot(TEST_PRIVATE_GOT);
 
         cleanupPrivateTestGot();
         createPrivateTestGot();
@@ -268,10 +277,10 @@ public class GeoObjectTypeServiceTest
     // Disallowed users
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, USER_PRIVATE_GOT_RM, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, USER_PRIVATE_GOT_RC, USER_PRIVATE_GOT_AC })
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
+      FastTestDataset.runAsUser(user, (request) -> {
         try
         {
-          updateGot(request, adapter, TEST_PRIVATE_GOT);
+          updateGot(TEST_PRIVATE_GOT);
         }
         catch (SmartExceptionDTO e)
         {
@@ -292,7 +301,7 @@ public class GeoObjectTypeServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
 
           ServiceFactory.getRegistryService().deleteGeoObjectType(request.getSessionId(), TEST_GOT.getCode());
 
@@ -311,8 +320,8 @@ public class GeoObjectTypeServiceTest
   {
     TEST_GOT.apply();
 
-    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
-      GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.WRITE);
+    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request) -> {
+      GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.WRITE);
 
       Assert.assertEquals(0, response.length);
     });
@@ -323,8 +332,8 @@ public class GeoObjectTypeServiceTest
   {
     TEST_GOT.apply();
 
-    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
-      GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ);
+    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request) -> {
+      GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ);
 
       Assert.assertEquals(1, response.length);
     });
@@ -338,8 +347,8 @@ public class GeoObjectTypeServiceTest
     // Allowed users with read context
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, USER_PRIVATE_GOT_RM, FastTestDataset.USER_CGOV_RM, USER_PRIVATE_GOT_RC, USER_PRIVATE_GOT_AC, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC })
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
-        GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.READ);
+      FastTestDataset.runAsUser(user, (request) -> {
+        GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.READ);
 
         Assert.assertEquals(1, response.length);
       });
@@ -348,8 +357,8 @@ public class GeoObjectTypeServiceTest
     // Disallowed users with read context
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC })
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
-        GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.READ);
+      FastTestDataset.runAsUser(user, (request) -> {
+        GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.READ);
 
         Assert.assertEquals("User: " + user.getUsername(), 0, response.length);
       });
@@ -358,8 +367,8 @@ public class GeoObjectTypeServiceTest
     // Allowed users with write context
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_CGOV_RA })
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
-        GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.WRITE);
+      FastTestDataset.runAsUser(user, (request) -> {
+        GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.WRITE);
 
         Assert.assertEquals(1, response.length);
       });
@@ -368,8 +377,8 @@ public class GeoObjectTypeServiceTest
     // Disallowed users with write context
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, USER_PRIVATE_GOT_RM, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, USER_PRIVATE_GOT_RC, USER_PRIVATE_GOT_AC })
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
-        GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.WRITE);
+      FastTestDataset.runAsUser(user, (request) -> {
+        GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.WRITE);
 
         Assert.assertEquals(0, response.length);
       });
@@ -379,26 +388,26 @@ public class GeoObjectTypeServiceTest
   @Test
   public void testGetGeoObjectTypes()
   {
-    FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request, adapter) -> {
+    FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request) -> {
       String[] codes = new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() };
 
-      GeoObjectType[] gots = adapter.getGeoObjectTypes(codes, null, PermissionContext.READ);
+      GeoObjectType[] gots = client.getGeoObjectTypes(codes, null, PermissionContext.READ);
 
       Assert.assertEquals(codes.length, gots.length);
 
       GeoObjectType state = gots[0];
-      Assert.assertEquals(state.toJSON().toString(), GeoObjectType.fromJSON(state.toJSON().toString(), adapter).toJSON().toString());
+      Assert.assertEquals(state.toJSON().toString(), GeoObjectType.fromJSON(state.toJSON().toString(), client.getAdapter()).toJSON().toString());
       FastTestDataset.COUNTRY.assertEquals(state);
 
       GeoObjectType district = gots[1];
-      Assert.assertEquals(district.toJSON().toString(), GeoObjectType.fromJSON(district.toJSON().toString(), adapter).toJSON().toString());
+      Assert.assertEquals(district.toJSON().toString(), GeoObjectType.fromJSON(district.toJSON().toString(), client.getAdapter()).toJSON().toString());
       FastTestDataset.PROVINCE.assertEquals(district);
 
       // Test to make sure we can provide none
-      GeoObjectType[] gots2 = adapter.getGeoObjectTypes(new String[] {}, null, PermissionContext.READ);
+      GeoObjectType[] gots2 = client.getGeoObjectTypes(new String[] {}, null, PermissionContext.READ);
       Assert.assertTrue(gots2.length > 0);
 
-      GeoObjectType[] gots3 = adapter.getGeoObjectTypes(null, null, PermissionContext.READ);
+      GeoObjectType[] gots3 = client.getGeoObjectTypes(null, null, PermissionContext.READ);
       Assert.assertTrue(gots3.length > 0);
     });
   }
@@ -406,8 +415,8 @@ public class GeoObjectTypeServiceTest
   @Test
   public void testListGeoObjectTypes()
   {
-    FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request, adapter) -> {
-      JsonArray types = adapter.listGeoObjectTypes();
+    FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request) -> {
+      JsonArray types = client.listGeoObjectTypes();
 
       ArrayList<TestGeoObjectTypeInfo> expectedGots = testData.getManagedGeoObjectTypes();
       for (TestGeoObjectTypeInfo got : expectedGots)

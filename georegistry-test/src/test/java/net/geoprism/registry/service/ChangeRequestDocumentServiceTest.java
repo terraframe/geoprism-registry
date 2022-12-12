@@ -124,7 +124,7 @@ public class ChangeRequestDocumentServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testDeleteDocumentAsUser(request);
         });
       }
@@ -141,7 +141,7 @@ public class ChangeRequestDocumentServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testDeleteDocumentAsUser(request);
           
           Assert.fail("Expected a permission exception.");
@@ -197,7 +197,7 @@ public class ChangeRequestDocumentServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testListDocumentsAsUser(request);
         });
       }
@@ -214,7 +214,7 @@ public class ChangeRequestDocumentServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           testListDocumentsAsUser(request);
           
           Assert.fail("Expected a permission exception.");
@@ -274,7 +274,7 @@ public class ChangeRequestDocumentServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           new ChangeRequestService().uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
           
           TestDataSet.deleteAllVaultFiles();
@@ -293,7 +293,7 @@ public class ChangeRequestDocumentServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           new ChangeRequestService().uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
           
           Assert.fail("Expected a permission exception.");
@@ -320,7 +320,7 @@ public class ChangeRequestDocumentServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           downloadDocumentAsUser(request, vfOid);
         });
       }
@@ -337,7 +337,7 @@ public class ChangeRequestDocumentServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
           downloadDocumentAsUser(request, vfOid);
           
           Assert.fail("Expected a permission exception.");

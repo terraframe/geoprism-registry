@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
@@ -29,6 +29,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -39,14 +43,18 @@ import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
+import net.geoprism.registry.test.TestRegistryAdapter;
 import net.geoprism.registry.test.TestUserInfo;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { TestConfig.class })
 public class HierarchyServiceTest
 {
 
@@ -57,6 +65,9 @@ public class HierarchyServiceTest
   protected static FastTestDataset          testData;
 
   protected HierarchyService                service  = new HierarchyService();
+
+  @Autowired
+  private TestRegistryAdapter               adapter;
 
   @BeforeClass
   public static void setUpClass()
@@ -104,7 +115,7 @@ public class HierarchyServiceTest
   {
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM })
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
+      FastTestDataset.runAsUser(user, (request) -> {
         JsonArray ja = service.getHierarchyGroupedTypes(request.getSessionId());
 
         ArrayList<String> hierarchyLabels = new ArrayList<String>();
@@ -131,7 +142,7 @@ public class HierarchyServiceTest
 
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM })
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
+      FastTestDataset.runAsUser(user, (request) -> {
         JsonArray ja = service.getHierarchyGroupedTypes(request.getSessionId());
 
         ArrayList<String> hierarchyLabels = new ArrayList<String>();
@@ -158,7 +169,7 @@ public class HierarchyServiceTest
 
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_ADMIN })
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
+      FastTestDataset.runAsUser(user, (request) -> {
         JsonArray ja = service.getHierarchyGroupedTypes(request.getSessionId());
 
         ArrayList<String> hierarchyLabels = new ArrayList<String>();
@@ -189,7 +200,7 @@ public class HierarchyServiceTest
   {
     String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
-    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, testData.adapter);
+    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, adapter);
     reportingDivision.setAbstractDescription("Test Abstract");
     reportingDivision.setAcknowledgement("Test Acknowledgement");
     reportingDivision.setDisclaimer("Test disclaimer");
@@ -240,7 +251,7 @@ public class HierarchyServiceTest
 
     String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
-    reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, testData.adapter);
+    reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, adapter);
     String gtJSON = reportingDivision.toJSON().toString();
 
     ServiceFactory.getHierarchyService().createHierarchyType(testData.clientSession.getSessionId(), gtJSON);
@@ -272,7 +283,7 @@ public class HierarchyServiceTest
   {
     String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
-    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, testData.adapter);
+    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, adapter);
     String gtJSON = reportingDivision.toJSON().toString();
 
     TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RM };
@@ -281,7 +292,7 @@ public class HierarchyServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
 
           ServiceFactory.getHierarchyService().createHierarchyType(request.getSessionId(), gtJSON);
         });
@@ -340,7 +351,7 @@ public class HierarchyServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
 
           ServiceFactory.getHierarchyService().updateHierarchyType(request.getSessionId(), updateJSON);
         });
@@ -359,7 +370,7 @@ public class HierarchyServiceTest
   {
     String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
-    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, testData.adapter);
+    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, adapter);
     String gtJSON = reportingDivision.toJSON().toString();
 
     ServiceFactory.getHierarchyService().createHierarchyType(testData.clientSession.getSessionId(), gtJSON);
@@ -370,7 +381,7 @@ public class HierarchyServiceTest
     {
       try
       {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
+        FastTestDataset.runAsUser(user, (request) -> {
 
           ServiceFactory.getHierarchyService().deleteHierarchyType(request.getSessionId(), TEST_HT.getCode());
         });
@@ -387,7 +398,7 @@ public class HierarchyServiceTest
   @Test
   public void testGetHierarchyTypeAsDifferentOrgWithWriteContext()
   {
-    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
+    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request) -> {
       HierarchyType[] hierarchyTypes = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null, PermissionContext.WRITE);
 
       Assert.assertEquals(1, hierarchyTypes.length);
@@ -397,7 +408,7 @@ public class HierarchyServiceTest
   @Test
   public void testGetHierarchyTypeAsDifferentOrgWithReadContext()
   {
-    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
+    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request) -> {
       HierarchyType[] hierarchyTypes = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null, PermissionContext.READ);
 
       Assert.assertEquals(testData.getManagedHierarchyTypes().size(), hierarchyTypes.length);

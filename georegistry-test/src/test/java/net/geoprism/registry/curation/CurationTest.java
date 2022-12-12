@@ -26,6 +26,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -42,6 +46,7 @@ import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.OrganizationRAException;
 import net.geoprism.registry.OrganizationRMException;
 import net.geoprism.registry.SingleListType;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.curation.CurationProblem.CurationResolution;
 import net.geoprism.registry.curation.GeoObjectProblem.GeoObjectProblemType;
 import net.geoprism.registry.service.ListTypeTest;
@@ -52,9 +57,14 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.test.curation.CurationControllerWrapper;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { TestConfig.class })
 public class CurationTest
 {
   protected static FastTestDataset testData;
+  
+  @Autowired
+  private CurationControllerWrapper         controller;  
 
   private ListCurationHistory      history;
 
@@ -181,9 +191,7 @@ public class CurationTest
 
     for (TestUserInfo user : allowedUsers)
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
-        CurationControllerWrapper controller = new CurationControllerWrapper(adapter, request);
-
+      FastTestDataset.runAsUser(user, (request) -> {
         JsonObject details = controller.details(history.getOid(), false, 10, 1);
 
         Assert.assertTrue(details.has("page"));
@@ -207,9 +215,7 @@ public class CurationTest
 
     for (TestUserInfo user : disallowedUsers)
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
-        CurationControllerWrapper controller = new CurationControllerWrapper(adapter, request);
-
+      FastTestDataset.runAsUser(user, (request) -> {
         try
         {
           controller.details(history.getOid(), false, 10, 1);
@@ -232,9 +238,7 @@ public class CurationTest
 
     for (TestUserInfo user : allowedUsers)
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
-        CurationControllerWrapper controller = new CurationControllerWrapper(adapter, request);
-
+      FastTestDataset.runAsUser(user, (request) -> {
         JsonObject page = controller.page(history.getOid(), false, 10, 1);
 
         Assert.assertEquals(1, page.get("pageNumber").getAsInt());
@@ -263,9 +267,7 @@ public class CurationTest
 
     for (TestUserInfo user : disallowedUsers)
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
-        CurationControllerWrapper controller = new CurationControllerWrapper(adapter, request);
-
+      FastTestDataset.runAsUser(user, (request) -> {
         try
         {
           controller.details(history.getOid(), false, 10, 1);
@@ -339,9 +341,7 @@ public class CurationTest
 
     for (TestUserInfo user : allowedUsers)
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
-
-        final CurationControllerWrapper controller = new CurationControllerWrapper(adapter, request);
+      FastTestDataset.runAsUser(user, (request) -> {
 
         JsonObject joHistory = controller.curate(listTypeVersionId);
 
@@ -380,9 +380,7 @@ public class CurationTest
 
     for (TestUserInfo user : disallowedUsers)
     {
-      FastTestDataset.runAsUser(user, (request, adapter) -> {
-
-        final CurationControllerWrapper controller = new CurationControllerWrapper(adapter, request);
+      FastTestDataset.runAsUser(user, (request) -> {
 
         try
         {

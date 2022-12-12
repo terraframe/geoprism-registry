@@ -18,26 +18,21 @@
  */
 package net.geoprism.registry.test.curation;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.constants.ClientRequestIF;
 
 import net.geoprism.registry.controller.CurationController;
 import net.geoprism.registry.controller.CurationController.VersionIdBody;
-import net.geoprism.registry.test.TestControllerWrapper;
-import net.geoprism.registry.test.TestRegistryAdapterClient;
+import net.geoprism.registry.test.AbstractTestClient;
 
-public class CurationControllerWrapper extends TestControllerWrapper
+@Component
+public class CurationControllerWrapper extends AbstractTestClient
 {
+  @Autowired
   private CurationController controller;
-
-  public CurationControllerWrapper(TestRegistryAdapterClient adapter, ClientRequestIF clientRequest)
-  {
-    super(adapter, clientRequest);
-
-    this.controller = new CurationController();
-    this.controller.setClientRequest(clientRequest);
-  }
 
   public JsonObject details(String historyId, Boolean onlyUnresolved, Integer pageSize, Integer pageNumber)
   {
@@ -53,7 +48,7 @@ public class CurationControllerWrapper extends TestControllerWrapper
   {
     VersionIdBody body = new VersionIdBody();
     body.setListTypeVersionId(listTypeVersionId);
-    
+
     return JsonParser.parseString(responseToString(this.controller.curate(body))).getAsJsonObject();
   }
 

@@ -111,7 +111,7 @@ abstract public class TestDataSet
 {
   public static interface RequestExecutor
   {
-    public void execute(ClientRequestIF request, TestRegistryAdapterClient adapter) throws Exception;
+    public void execute(ClientRequestIF request) throws Exception;
   }
 
   public static final String                 ADMIN_USER_NAME                 = "admin";
@@ -147,8 +147,6 @@ abstract public class TestDataSet
   protected ArrayList<TestHierarchyTypeInfo> managedHierarchyTypeInfosExtras = new ArrayList<TestHierarchyTypeInfo>();
 
   protected ArrayList<TestUserInfo>          managedUsers                    = new ArrayList<TestUserInfo>();
-
-  public TestRegistryAdapterClient           adapter                         = new TestRegistryAdapterClient();
 
   public ClientSession                       clientSession                   = null;
 
@@ -275,24 +273,29 @@ abstract public class TestDataSet
     {
       this.clientSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
       this.clientRequest = clientSession.getRequest();
-      this.adapter.setClientRequest(this.clientRequest);
+      
+//      this.adapter.setClientRequest(this.clientRequest);
     }
     else
     {
       this.clientSession = ClientSession.createUserSession(user.getUsername(), user.getPassword(), new Locale[] { CommonProperties.getDefaultLocale() });
       this.clientRequest = clientSession.getRequest();
-      this.adapter.setClientRequest(this.clientRequest);
+//      this.adapter.setClientRequest(this.clientRequest);
     }
+    
+    MockHttpServletRequest.setClientRequest(clientRequest);
 
-    adapter.refreshMetadataCache();
+//    adapter.refreshMetadataCache();
 
-    TestDataSet.populateAdapterIds(user, adapter);
+//    TestDataSet.populateAdapterIds(user, null);
   }
 
   public void logOut()
   {
     if (clientSession != null && clientRequest != null && clientRequest.isLoggedIn())
     {
+      MockHttpServletRequest.setClientRequest(null);
+      
       clientSession.logout();
     }
   }
@@ -1109,21 +1112,23 @@ abstract public class TestDataSet
   public static void runAsUser(TestUserInfo user, RequestExecutor executor)
   {
     ClientSession session = null;
+    
+    ClientRequestIF original = MockHttpServletRequest.getClientRequest();
 
     try
     {
       session = ClientSession.createUserSession(user.getUsername(), user.getPassword(), new Locale[] { CommonProperties.getDefaultLocale() });
 
       ClientRequestIF request = session.getRequest();
+      
+      MockHttpServletRequest.setClientRequest(request);
 
-      TestRegistryAdapterClient adapter = new TestRegistryAdapterClient();
-      adapter.setClientRequest(request);
-
-      adapter.refreshMetadataCache();
+//      TestRegistryAdapter adapter = new TestRegistryAdapter();
+//      adapter.refreshMetadataCache();
 
       try
       {
-        executor.execute(request, adapter);
+        executor.execute(request);
       }
       catch (RuntimeException e)
       {
@@ -1140,10 +1145,12 @@ abstract public class TestDataSet
       {
         session.logout();
       }
+      
+      MockHttpServletRequest.setClientRequest(original);
     }
   }
 
-  public static boolean populateAdapterIds(TestUserInfo user, TestRegistryAdapterClient adapter)
+  public static boolean populateAdapterIds(TestUserInfo user, TestRegistryAdapter adapter)
   {
     boolean isRAorRM = false;
 

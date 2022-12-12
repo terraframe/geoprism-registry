@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
@@ -38,6 +38,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
@@ -55,6 +59,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.Classification;
@@ -64,7 +69,10 @@ import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
+import net.geoprism.registry.test.TestRegistryClient;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { TestConfig.class })
 public class AttributeTypeServiceTest
 {
   public static final TestGeoObjectTypeInfo TEST_GOT  = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
@@ -76,6 +84,9 @@ public class AttributeTypeServiceTest
   protected static String                   TYPE_CODE = null;
 
   protected static String                   CODE      = "Classification-ROOT";
+
+  @Autowired
+  private TestRegistryClient         client;
 
   @BeforeClass
   public static void setUpClass()
@@ -156,7 +167,7 @@ public class AttributeTypeServiceTest
   {
     String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, client.getAdapter());
 
     String geoObjectTypeCode = province.getCode();
 
@@ -164,9 +175,10 @@ public class AttributeTypeServiceTest
 
     AttributeType testChar = AttributeType.factory("testChar", new LocalizedValue("testCharLocalName"), new LocalizedValue("testCharLocalDescrip"), AttributeCharacterType.TYPE, false, false, false);
 
-    testData.adapter.createGeoObjectType(gtJSON);
+    this.client.createGeoObjectType(gtJSON);
+
     String attributeTypeJSON = testChar.toJSON().toString();
-    testChar = testData.adapter.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
+    testChar = this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
     MdAttributeDAOIF mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testChar.getName());
 
@@ -176,7 +188,7 @@ public class AttributeTypeServiceTest
     testChar.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "testCharLocalName-Update");
     testChar.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, "testCharLocalDescrip-Update");
     attributeTypeJSON = testChar.toJSON().toString();
-    testChar = testData.adapter.updateAttributeType(geoObjectTypeCode, attributeTypeJSON);
+    testChar = this.client.updateAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
     Assert.assertEquals("testCharLocalName-Update", testChar.getLabel().getValue());
     Assert.assertEquals("testCharLocalDescrip-Update", testChar.getDescription().getValue());
@@ -187,17 +199,17 @@ public class AttributeTypeServiceTest
   {
     String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, client.getAdapter());
 
     String gtJSON = province.toJSON().toString();
 
     AttributeType testDate = AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false, false);
 
-    testData.adapter.createGeoObjectType(gtJSON);
+    this.client.createGeoObjectType(gtJSON);
 
     String geoObjectTypeCode = province.getCode();
     String attributeTypeJSON = testDate.toJSON().toString();
-    testDate = testData.adapter.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
+    testDate = this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
     MdAttributeDAOIF mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testDate.getName());
 
@@ -210,17 +222,17 @@ public class AttributeTypeServiceTest
   {
     String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, client.getAdapter());
 
     String gtJSON = province.toJSON().toString();
 
     AttributeType testInteger = AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
 
-    testData.adapter.createGeoObjectType(gtJSON);
+    this.client.createGeoObjectType(gtJSON);
 
     String geoObjectTypeCode = province.getCode();
     String attributeTypeJSON = testInteger.toJSON().toString();
-    testInteger = testData.adapter.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
+    testInteger = this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
     MdAttributeDAOIF mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testInteger.getName());
 
@@ -233,17 +245,17 @@ public class AttributeTypeServiceTest
   {
     String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, client.getAdapter());
 
     String gtJSON = province.toJSON().toString();
 
     AttributeType testBoolean = AttributeType.factory("testBoolean", new LocalizedValue("testBooleanName"), new LocalizedValue("testBooleanDescrip"), AttributeBooleanType.TYPE, false, false, false);
 
-    testData.adapter.createGeoObjectType(gtJSON);
+    this.client.createGeoObjectType(gtJSON);
 
     String geoObjectTypeCode = province.getCode();
     String attributeTypeJSON = testBoolean.toJSON().toString();
-    testBoolean = testData.adapter.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
+    testBoolean = this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
     MdAttributeDAOIF mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testBoolean.getName());
 
@@ -256,7 +268,7 @@ public class AttributeTypeServiceTest
   {
     String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, client.getAdapter());
 
     String geoObjectTypeCode = province.getCode();
 
@@ -268,10 +280,10 @@ public class AttributeTypeServiceTest
 
     String gtJSON = province.toJSON().toString();
 
-    testData.adapter.createGeoObjectType(gtJSON);
+    this.client.createGeoObjectType(gtJSON);
 
     String attributeTypeJSON = attributeTermType.toJSON().toString();
-    attributeTermType = (AttributeTermType) testData.adapter.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
+    attributeTermType = (AttributeTermType) this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
     MdAttributeDAOIF mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), attributeTermType.getName());
 
@@ -283,10 +295,10 @@ public class AttributeTypeServiceTest
     Term childTerm1 = new Term("termValue1", new LocalizedValue("Term Value 1"), new LocalizedValue(""));
     Term childTerm2 = new Term("termValue2", new LocalizedValue("Term Value 2"), new LocalizedValue(""));
 
-    testData.adapter.createTerm(rootTerm.getCode(), childTerm1.toJSON().toString());
-    testData.adapter.createTerm(rootTerm.getCode(), childTerm2.toJSON().toString());
+    this.client.createTerm(rootTerm.getCode(), childTerm1.toJSON().toString());
+    this.client.createTerm(rootTerm.getCode(), childTerm2.toJSON().toString());
 
-    province = testData.adapter.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ)[0];
+    province = this.client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ)[0];
     AttributeTermType attributeTermType2 = (AttributeTermType) province.getAttribute("testTerm").get();
 
     // Check to see if the cache was updated.
@@ -295,7 +307,7 @@ public class AttributeTypeServiceTest
     attributeTermType.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Term Name Update");
     attributeTermType.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Term Description Update");
 
-    attributeTermType = (AttributeTermType) testData.adapter.updateAttributeType(geoObjectTypeCode, attributeTermType.toJSON().toString());
+    attributeTermType = (AttributeTermType) this.client.updateAttributeType(geoObjectTypeCode, attributeTermType.toJSON().toString());
 
     Assert.assertEquals(attributeTermType.getLabel().getValue(), "Test Term Name Update");
     Assert.assertEquals(attributeTermType.getDescription().getValue(), "Test Term Description Update");
@@ -305,16 +317,16 @@ public class AttributeTypeServiceTest
     // Test updating the term
     childTerm2 = new Term("termValue2", new LocalizedValue("Term Value 2a"), new LocalizedValue(""));
 
-    testData.adapter.updateTerm(rootTerm.getCode(), childTerm2.toJSON().toString());
+    this.client.updateTerm(rootTerm.getCode(), childTerm2.toJSON().toString());
 
-    province = testData.adapter.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ)[0];
+    province = this.client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ)[0];
     AttributeTermType attributeTermType3 = (AttributeTermType) province.getAttribute("testTerm").get();
 
     checkTermsUpdate(attributeTermType3);
 
-    testData.adapter.deleteTerm(rootTerm.getCode(), "termValue2");
+    this.client.deleteTerm(rootTerm.getCode(), "termValue2");
 
-    province = testData.adapter.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ)[0];
+    province = this.client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ)[0];
     attributeTermType3 = (AttributeTermType) province.getAttribute("testTerm").get();
 
     System.out.println(attributeTermType3.getRootTerm().toString());
@@ -355,17 +367,17 @@ public class AttributeTypeServiceTest
     attributeClassificationType.setClassificationType(TYPE_CODE);
     attributeClassificationType.setRootTerm(new Term(CODE, new LocalizedValue("Test Term Name"), new LocalizedValue("Test Term Description")));
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
+    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, client.getAdapter());
     province.addAttribute(attributeClassificationType);
 
     String geoObjectTypeCode = province.getCode();
 
     String gtJSON = province.toJSON().toString();
 
-    testData.adapter.createGeoObjectType(gtJSON);
+    this.client.createGeoObjectType(gtJSON);
 
     String attributeTypeJSON = attributeClassificationType.toJSON().toString();
-    attributeClassificationType = (AttributeClassificationType) testData.adapter.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
+    attributeClassificationType = (AttributeClassificationType) this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
     MdAttributeDAOIF mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), attributeClassificationType.getName());
 

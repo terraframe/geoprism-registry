@@ -355,7 +355,7 @@ public class ListTypeTest
 
     try
     {
-      USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
+      USATestData.runAsUser(USATestData.USER_PPP_RA, (request) -> {
 
         JsonObject org = service.listForType(testData.clientRequest.getSessionId(), USATestData.STATE.getCode());
 
@@ -418,7 +418,7 @@ public class ListTypeTest
   @Request
   public void testPublishVersion()
   {
-    USATestData.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
+    USATestData.runAsUser(USATestData.USER_ADMIN, (request) -> {
 
       JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
 
@@ -478,7 +478,7 @@ public class ListTypeTest
   {
     GeoJSONReader reader = new GeoJSONReader();
 
-    TestDataSet.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
+    TestDataSet.runAsUser(USATestData.USER_ADMIN, (request) -> {
 
       ListTypeBuilder.Hierarchy hierarchy = new ListTypeBuilder.Hierarchy();
       hierarchy.setType(USATestData.HIER_ADMIN);
@@ -626,7 +626,7 @@ public class ListTypeTest
 
     for (TestUserInfo user : users)
     {
-      USATestData.runAsUser(user, (request, adapter) -> {
+      USATestData.runAsUser(user, (request) -> {
 
         ListTypeService service = new ListTypeService();
 
@@ -662,7 +662,7 @@ public class ListTypeTest
 
       for (TestUserInfo user : users)
       {
-        USATestData.runAsUser(user, (request, adapter) -> {
+        USATestData.runAsUser(user, (request) -> {
 
           try
           {

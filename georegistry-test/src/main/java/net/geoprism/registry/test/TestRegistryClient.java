@@ -30,12 +30,13 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.constants.ClientRequestIF;
 
 import net.geoprism.registry.controller.GenericRestController;
 import net.geoprism.registry.controller.GeoObjectController;
@@ -53,28 +54,23 @@ import net.geoprism.registry.controller.HierarchyTypeController.HierarchyTypeNod
 import net.geoprism.registry.controller.SynchronizationConfigController;
 import net.geoprism.registry.permission.PermissionContext;
 
-public class RegistryControllerWrapper extends TestControllerWrapper
+@Component
+public class TestRegistryClient extends AbstractTestClient
 {
+  @Autowired
   private GenericRestController       restController;
 
+  @Autowired
   private GeoObjectController         geoObjectController;
 
+  @Autowired
   private GeoObjectTypeController     geoObjectTypeController;
 
+  @Autowired
   private GeoObjectOverTimeController geoObjectTimeController;
 
+  @Autowired
   private HierarchyTypeController     hierarchyController;
-
-  public RegistryControllerWrapper(TestRegistryAdapterClient adapter, ClientRequestIF clientRequest)
-  {
-    super(adapter, clientRequest);
-
-    this.restController = new GenericRestController();
-    this.restController.setClientRequest(clientRequest);
-
-    this.geoObjectController = new GeoObjectController();
-    this.geoObjectController.setClientRequest(clientRequest);
-  }
 
   public Set<String> getUIDs(int amount)
   {
@@ -274,10 +270,10 @@ public class RegistryControllerWrapper extends TestControllerWrapper
   public HierarchyType addToHierarchy(String hierarchyCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
     HierarchyTypeNodeBody body = new HierarchyTypeNodeBody();
-    body.setHierarchyCode(hierarchyCode);    
+    body.setHierarchyCode(hierarchyCode);
     body.setChildGeoObjectTypeCode(childGeoObjectTypeCode);
     body.setParentGeoObjectTypeCode(parentGeoObjectTypeCode);
-    
+
     return responseToHierarchyType(this.hierarchyController.addToHierarchy(body));
   }
 
@@ -291,7 +287,7 @@ public class RegistryControllerWrapper extends TestControllerWrapper
     body.setHierarchyCode(hierarchyRef);
     body.setStartDate(startDate);
     body.setEndDate(endDate);
-    
+
     return responseToParentTreeNode(this.geoObjectController.addChild(body));
   }
 
@@ -305,8 +301,12 @@ public class RegistryControllerWrapper extends TestControllerWrapper
     body.setHierarchyCode(hierarchyRef);
     body.setStartDate(startDate);
     body.setEndDate(endDate);
-    
+
     this.geoObjectController.removeChild(body);
   }
 
+  public GeoObject newGeoObjectInstance(String code)
+  {
+    return this.getAdapter().newGeoObjectInstance(code);
+  }
 }
