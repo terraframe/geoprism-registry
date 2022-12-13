@@ -166,7 +166,9 @@ export class ListTypePublishModalComponent implements OnInit {
 
     onSubmit(): void {
         this.service.apply(this.list).then(response => {
-            this.onListTypeChange.next(response);
+            if (this.onListTypeChange != null) {
+                this.onListTypeChange.next(response);
+            }
             this.bsModalRef.hide();
         }).catch((err: HttpErrorResponse) => {
             this.error(err);

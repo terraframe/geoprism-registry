@@ -1,5 +1,5 @@
 <div (click)="toggle()" class="check-block" [ngClass]="{'dizabled': disable}">
-  <div [ngClass]="{'chk-checked' : value}" ng-style="chkstyle" class="chk-area">
+  <div [ngClass]="{'chk-checked' : value, 'disabled': disable}" ng-style="chkstyle" class="chk-area">
     <span></span>
   </div>
   
