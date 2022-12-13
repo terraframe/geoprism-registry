@@ -427,12 +427,14 @@
                     </div>
                 </div>
 
+                <!--
                 <div class="row-holder" *ngIf="list.hierarchies.length > 0">
                     <div class="label-holder"></div>
                     <div class="holder">
                         <h4><localize key="masterlist.parents"></localize></h4>
                     </div>
                 </div>
+                -->
 
                 <div *ngFor="let hierarchy of list.hierarchies">
                     <ng-container *ngIf="hierarchy.parents.length > 0">
