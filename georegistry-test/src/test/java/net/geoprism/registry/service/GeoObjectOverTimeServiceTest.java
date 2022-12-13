@@ -75,8 +75,6 @@ public class GeoObjectOverTimeServiceTest
     TEST_GO.delete();
 
     testData.logIn(FastTestDataset.USER_CGOV_RA);
-
-    // TestDataSet.populateAdapterIds(null, testData.adapter);
   }
 
   @After
