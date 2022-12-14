@@ -88,8 +88,11 @@ public class ETLController extends RunwaySpringController
     }
   }
   
-  public static class ReImportConfigBody extends ConfigBody
+  public static class ReImportConfigBody
   {
+    @NotEmpty
+    String config;
+    
     private MultipartFile file;
     
     public MultipartFile getFile()
@@ -100,6 +103,16 @@ public class ETLController extends RunwaySpringController
     public void setFile(MultipartFile file)
     {
       this.file = file;
+    }
+    
+    public String getConfig()
+    {
+      return config;
+    }
+    
+    public void setConfig(String config)
+    {
+      this.config = config;
     }
   }
   
@@ -131,7 +144,7 @@ public class ETLController extends RunwaySpringController
   @PostMapping(API_PATH + "/reimport")
   public ResponseEntity<String> doReImport( @Valid @ModelAttribute ReImportConfigBody body)
   {
-    JsonObject config = this.service.reImport(this.getSessionId(), body.file, body.config.toString());
+    JsonObject config = this.service.reImport(this.getSessionId(), body.file, body.config);
     
     return new ResponseEntity<String>(config.toString(), HttpStatus.OK);
   }

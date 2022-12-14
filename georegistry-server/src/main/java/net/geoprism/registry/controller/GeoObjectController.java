@@ -48,7 +48,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.RegistryComponentService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 import net.geoprism.registry.spring.NullableDateDeserializer;
@@ -216,7 +216,7 @@ public class GeoObjectController extends RunwaySpringController
 
   
   @Autowired
-  private RegistryService service;
+  private RegistryComponentService service;
 
 
   /**

@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +28,7 @@ import com.google.gson.JsonParser;
 import net.geoprism.registry.service.AccountService;
 import net.geoprism.registry.service.ExternalSystemService;
 import net.geoprism.registry.service.OrganizationService;
+import net.geoprism.registry.service.RegistryComponentService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -64,7 +66,7 @@ public class GenericRestController extends RunwaySpringController
   }
 
   @Autowired
-  private RegistryService    service;
+  private RegistryComponentService    service;
 
   /**
    * Create the {@link HierarchyType} from the given JSON.
@@ -75,7 +77,7 @@ public class GenericRestController extends RunwaySpringController
    * @throws IOException
    */
   @PostMapping("cgr/import-types")
-  public ResponseEntity<Void> importTypes(@Valid @RequestBody ImportTypeBody body) throws IOException
+  public ResponseEntity<Void> importTypes(@Valid @ModelAttribute ImportTypeBody body) throws IOException
   {
     try (InputStream istream = body.file.getInputStream())
     {

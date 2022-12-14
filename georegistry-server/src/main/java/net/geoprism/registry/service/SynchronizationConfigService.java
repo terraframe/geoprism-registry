@@ -77,7 +77,7 @@ import net.geoprism.registry.view.Page;
 public class SynchronizationConfigService
 {
   @Autowired
-  private RegistryService service;
+  private RegistryComponentService service;
   
   @Request(RequestType.SESSION)
   public JsonObject page(String sessionId, Integer pageNumber, Integer pageSize) throws JSONException

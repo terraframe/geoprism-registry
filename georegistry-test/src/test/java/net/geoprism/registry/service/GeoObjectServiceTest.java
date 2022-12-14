@@ -342,20 +342,6 @@ public class GeoObjectServiceTest
 
       TestDataSet.runAsUser(user, (request) -> {
 
-        if (TestDataSet.populateAdapterIds(user, client.getAdapter()))
-        {
-          try
-          {
-            client.getAdapter().newGeoObjectInstance(FastTestDataset.PROVINCE_PRIVATE.getCode());
-
-            Assert.fail("Expected an error: " + user.getUsername());
-          }
-          catch (GeoObjectTypeNotFoundException ex)
-          {
-            // Expected
-          }
-        }
-
         try
         {
           client.createGeoObject(TEST_GO_PRIVATE.newGeoObject(ServiceFactory.getAdapter()).toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);

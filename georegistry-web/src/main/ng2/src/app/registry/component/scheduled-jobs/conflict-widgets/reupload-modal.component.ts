@@ -60,7 +60,7 @@ export class ReuploadModalComponent {
 
       this.uploader = new FileUploader(options);
       this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
-          form.append("json", JSON.stringify(this.job.configuration));
+          form.append("config", JSON.stringify(this.job.configuration));
       };
       this.uploader.onBeforeUploadItem = (fileItem: any) => {
           this.eventService.start();

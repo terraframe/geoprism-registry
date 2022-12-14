@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.controller.GeoObjectController.TypeCodeBody;
-import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.RegistryComponentService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController
@@ -51,7 +51,7 @@ public class GeoObjectOverTimeController extends RunwaySpringController
   public static final String API_PATH = "geoobject-time";
   
   @Autowired
-  private RegistryService service;  
+  private RegistryComponentService service;  
   
   @GetMapping(RegistryUrls.GEO_OBJECT_TIME_GET)  
   public ResponseEntity<String> getGeoObjectOverTime(

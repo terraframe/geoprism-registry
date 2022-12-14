@@ -22,8 +22,6 @@ import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.metadata.MetadataCache;
 import org.springframework.stereotype.Component;
 
-import com.runwaysdk.session.Request;
-
 import net.geoprism.registry.service.ServiceFactory;
 
 @Component
@@ -36,12 +34,11 @@ public class TestRegistryAdapter extends RegistryAdapter
     super(new TestRegistryIdService());
   }
   
-//  @Override
-//  @Request
-//  public MetadataCache getMetadataCache()
-//  {
-//    return ServiceFactory.getAdapter().getMetadataCache();
-//  }
+  @Override
+  public MetadataCache getMetadataCache()
+  {
+    return ServiceFactory.getAdapter().getMetadataCache();
+  }
   
   
 }

@@ -38,7 +38,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.service.LocationService;
-import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.RegistryComponentService;
 
 /**
  * This controller is used by the location manager widget.
@@ -56,7 +56,7 @@ public class RegistryLocationController extends RunwaySpringController
   private LocationService    service;
 
   @Autowired
-  private RegistryService    registryService;
+  private RegistryComponentService    registryService;
   
   /**
    * @param request

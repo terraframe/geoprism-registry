@@ -48,7 +48,7 @@ import net.geoprism.registry.view.LocationInformation;
 public class LocationService
 {
   @Autowired
-  private RegistryService service;
+  private RegistryComponentService service;
   
   @Request(RequestType.SESSION)
   public List<GeoObject> search(String sessionId, String text, Date date)

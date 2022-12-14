@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.RegistryComponentService;
 
 @RestController
 @Validated
@@ -18,7 +18,7 @@ public class OauthController extends RunwaySpringController
   public static final String API_PATH = "oauth";
 
   @Autowired
-  private RegistryService    service;
+  private RegistryComponentService    service;
 
   /**
    * Returns an OauthServer configuration with the specified id. If an id is not

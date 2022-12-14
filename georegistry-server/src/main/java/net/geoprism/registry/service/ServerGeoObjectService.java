@@ -29,7 +29,6 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonArray;
@@ -78,9 +77,6 @@ import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 @Component
 public class ServerGeoObjectService extends LocalizedValueConverter
 {
-  @Autowired
-  private RegistryService              registryService;
-
   private GeoObjectPermissionServiceIF permissionService;
 
   public ServerGeoObjectService()
@@ -377,6 +373,8 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   @Transaction
   public JsonObject createGeoObjectInTrans(String sPtn, String sTimeGo, String masterListId, String notes)
   {
+    LocaleSerializer serializer = new LocaleSerializer(Session.getCurrentLocale());
+
     GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sTimeGo);
 
     ServerGeoObjectType serverGOT = ServerGeoObjectType.get(timeGO.getType());
@@ -408,7 +406,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       JsonObject resp = new JsonObject();
 
       resp.addProperty("isChangeRequest", false);
-      resp.add("geoObject", serverGO.toGeoObjectOverTime().toJSON(registryService.serializer(Session.getCurrentSession().getOid())));
+      resp.add("geoObject", serverGO.toGeoObjectOverTime().toJSON(serializer));
 
       return resp;
     }
@@ -458,6 +456,8 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   @Transaction
   public JsonObject updateGeoObjectInTrans(String geoObjectCode, String geoObjectTypeCode, String actions, String masterListId, String notes)
   {
+    LocaleSerializer serializer = new LocaleSerializer(Session.getCurrentLocale());
+
     final RolePermissionService perms = ServiceFactory.getRolePermissionService();
     final ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectTypeCode);
     final String orgCode = type.getOrganization().getCode();
@@ -477,7 +477,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       JsonObject resp = new JsonObject();
 
       resp.addProperty("isChangeRequest", false);
-      resp.add("geoObject", go.toGeoObjectOverTime().toJSON(registryService.serializer(Session.getCurrentSession().getOid())));
+      resp.add("geoObject", go.toGeoObjectOverTime().toJSON(serializer));
 
       return resp;
     }

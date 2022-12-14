@@ -34,8 +34,8 @@ public class MockHttpServletRequest implements HttpServletRequest
   {
     clientRequest = cr;
   }
-  
-  public static ClientRequestIF getClientRequest()
+
+  public static synchronized ClientRequestIF getClientRequest()
   {
     return clientRequest;
   }
