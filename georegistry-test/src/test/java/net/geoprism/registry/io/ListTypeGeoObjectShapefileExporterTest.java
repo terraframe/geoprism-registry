@@ -85,12 +85,11 @@ public class ListTypeGeoObjectShapefileExporterTest
     classSetupInRequest();
   }
 
-  @Request
   private static void classSetupInRequest()
   {
     JsonObject json = ListTypeTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, FastTestDataset.COUNTRY);
 
-    TestDataSet.runAsUser(USATestData.USER_ADMIN, (request) -> {
+    TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
       masterlist = ListType.apply(json);
       version = masterlist.createEntry(FastTestDataset.DEFAULT_OVER_TIME_DATE).getWorking();
@@ -125,14 +124,13 @@ public class ListTypeGeoObjectShapefileExporterTest
   }
 
   @Before
-  @Request
   public void setUp()
   {
     if (testData != null)
     {
       testData.setUpInstanceData();
 
-      TestDataSet.runAsUser(USATestData.USER_ADMIN, (request) -> {
+      TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
         version.publish();
       });
     }

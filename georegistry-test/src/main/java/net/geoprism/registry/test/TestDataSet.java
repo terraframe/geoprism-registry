@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -53,6 +54,7 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ValueObject;
+import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -61,6 +63,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.resource.ClasspathResource;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.Roles;
@@ -106,14 +109,20 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.SerializedListTypeCache;
+import net.geoprism.registry.test.TestDataSet.ClientRequestExecutor;
 
 abstract public class TestDataSet
 {
-  public static interface RequestExecutor
+  public static interface ClientRequestExecutor
   {
     public void execute(ClientRequestIF request) throws Exception;
   }
 
+  public static interface RequestExecutor
+  {
+    public void execute() throws Exception;
+  }
+  
   public static final String                 ADMIN_USER_NAME                 = "admin";
 
   public static final String                 ADMIN_PASSWORD                  = "_nm8P4gfdWxGqNRQ#8";
@@ -1109,7 +1118,7 @@ abstract public class TestDataSet
     return new TermConverter(classifier.getKeyName()).build();
   }
 
-  public static void runAsUser(TestUserInfo user, RequestExecutor executor)
+  public static void runAsUser(TestUserInfo user, ClientRequestExecutor executor)
   {
     ClientSession session = null;
     
@@ -1150,6 +1159,24 @@ abstract public class TestDataSet
     }
   }
 
+  public static void executeRequestAsUser(TestUserInfo user, RequestExecutor executor)
+  {
+    runAsUser(user, new ClientRequestExecutor()
+    {
+      @Override
+      public void execute(ClientRequestIF request) throws Exception
+      {
+        execute(request.getSessionId());
+      }
+
+      @Request(RequestType.SESSION)
+      public void execute(String sessionId) throws Exception
+      {
+        executor.execute();
+      }
+    });
+  }
+  
   public static boolean populateAdapterIds(TestUserInfo user, TestRegistryAdapter adapter)
   {
     boolean isRAorRM = false;

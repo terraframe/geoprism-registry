@@ -415,10 +415,9 @@ public class ListTypeTest
   //
 
   @Test
-  @Request
   public void testPublishVersion()
   {
-    USATestData.runAsUser(USATestData.USER_ADMIN, (request) -> {
+    USATestData.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
       JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
 
@@ -461,14 +460,12 @@ public class ListTypeTest
   }
 
   @Test
-  @Request
   public void testPublishVersionOfAbstract()
   {
     dataTest(null);
   }
 
   @Test
-  @Request
   public void testFetchDataWithGeometries()
   {
     dataTest(true);
@@ -478,7 +475,7 @@ public class ListTypeTest
   {
     GeoJSONReader reader = new GeoJSONReader();
 
-    TestDataSet.runAsUser(USATestData.USER_ADMIN, (request) -> {
+    TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
       ListTypeBuilder.Hierarchy hierarchy = new ListTypeBuilder.Hierarchy();
       hierarchy.setType(USATestData.HIER_ADMIN);
