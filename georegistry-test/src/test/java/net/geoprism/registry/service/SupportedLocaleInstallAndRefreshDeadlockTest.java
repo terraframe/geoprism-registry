@@ -7,19 +7,28 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.localization.LocaleView;
-import net.geoprism.registry.localization.LocalizationService;
 import net.geoprism.registry.test.FastTestDataset;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { TestConfig.class })
 public class SupportedLocaleInstallAndRefreshDeadlockTest
 {
   protected static FastTestDataset testData;
   
   protected static final Locale testLocale = Locale.SIMPLIFIED_CHINESE;
+  
+  @Autowired
+  private LocalizationService                 service;
   
   @BeforeClass
   public static void setUpClass()
@@ -62,7 +71,7 @@ public class SupportedLocaleInstallAndRefreshDeadlockTest
     refresher.join();
   }
   
-  public static class InstallLocaleThread implements Runnable
+  public class InstallLocaleThread implements Runnable
   {
     @Override
     public void run()
@@ -79,8 +88,8 @@ public class SupportedLocaleInstallAndRefreshDeadlockTest
       
       String json = lv.toJson().toString();
       
-      FastTestDataset.runAsUser(FastTestDataset.USER_ADMIN, (request, adapter) -> {
-        new LocalizationService().installLocaleInRequest(request.getSessionId(), json);
+      FastTestDataset.runAsUser(FastTestDataset.USER_ADMIN, (request) -> {
+        service.installLocaleInRequest(request.getSessionId(), json);
       });
     }
   }
