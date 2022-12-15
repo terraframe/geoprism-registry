@@ -97,15 +97,31 @@ public class LocalizationService
   {
     ServiceFactory.getRolePermissionService().enforceSRA();
 
-    try(InputStream istream = file.getInputStream())
+    try
     {
-      LocalizationExcelImporter importer = new LocalizationExcelImporter(buildConfig(), istream);
-      importer.doImport();      
+      LocalizationExcelImporter importer = new LocalizationExcelImporter(buildConfig(), file.getInputStream());
+      importer.doImport();
+      
     }
     catch (IOException e)
     {
       throw new RuntimeException(e);
     }
+  }
+  
+  private void refreshCaches(boolean refreshWMS)
+  {
+    if (refreshWMS)
+    {
+      new WMSService().createAllWMSLayers(true);
+    }
+    
+    // Refresh the users session
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
+    // Refresh the entire metadata cache
+    ServiceFactory.getRegistryService().refreshMetadataCache();
+    SerializedListTypeCache.getInstance().clear();
   }
   
   @Request(RequestType.SESSION)
@@ -115,41 +131,53 @@ public class LocalizationService
     
     LocaleView view = LocaleView.fromJson(json);
 
-    return editLocaleInTransaction(view);
-  }
-
-  @Transaction
-  private LocaleView editLocaleInTransaction(LocaleView view)
-  {
     if (view.isDefaultLocale())
     {
-      LocalizedValueStore lvs = LocalizedValueStore.getByKey(DefaultLocaleView.LABEL);
+      LocaleView lv = editDefaultLocaleInTransaction(view);
       
-      lvs.lock();
-      lvs.getStoreValue().setLocaleMap(view.getLabel().getLocaleMap());
-      lvs.apply();
+      refreshCaches(false);
       
-      view.getLabel().setValue(lvs.getStoreValue().getValue());
-      
-      return view;
+      return lv;
     }
     else
     {
-      SupportedLocaleIF supportedLocale = (SupportedLocale) com.runwaysdk.localization.LocalizationFacade.getSupportedLocale(view.getLocale());
+      SupportedLocaleIF supportedLocale = editLocaleInTransaction(view);
       
-      supportedLocale.appLock();
-      view.populate(supportedLocale);
-      supportedLocale.apply();
-  
-      // Refresh the users session
-      ( (Session) Session.getCurrentSession() ).reloadPermissions();
-  
-      // Refresh the entire metadata cache
-      ServiceFactory.getRegistryService().refreshMetadataCache();
-      SerializedListTypeCache.getInstance().clear();
+      refreshCaches(false);
       
       return LocaleView.fromSupportedLocale(supportedLocale);
     }
+  }
+
+  @Transaction
+  private LocaleView editDefaultLocaleInTransaction(LocaleView view)
+  {
+    LocalizedValueStore lvs = LocalizedValueStore.getByKey(DefaultLocaleView.LABEL);
+    
+    lvs.lock();
+    lvs.getStoreValue().setLocaleMap(view.getLabel().getLocaleMap());
+    lvs.apply();
+    
+    view.getLabel().setValue(lvs.getStoreValue().getValue());
+    
+    return view;
+  }
+  
+  @Transaction
+  private SupportedLocaleIF editLocaleInTransaction(LocaleView view)
+  {
+    SupportedLocaleIF supportedLocale = (SupportedLocale) com.runwaysdk.localization.LocalizationFacade.getSupportedLocale(view.getLocale());
+    
+    supportedLocale.appLock();
+    view.populate(supportedLocale);
+    supportedLocale.apply();
+    
+    // Be careful what you put here. We definitely don't want to refresh any caches until after the transaction is over, especially given that we are holding onto a lot of database locks and such right now.
+  
+    // Don't build the view inside the transaction either. Unless you like deadlocks
+//      return LocaleView.fromSupportedLocale(supportedLocale);
+      
+    return supportedLocale;
   }
 
   @Request(RequestType.SESSION)
@@ -164,29 +192,28 @@ public class LocalizationService
       return view;
     }
 
-    return installLocaleInTransaction(view);
+    SupportedLocaleIF supportedLocale = installLocaleInTransaction(view);
+    
+    refreshCaches(true);
+    
+    return LocaleView.fromSupportedLocale(supportedLocale);
   }
 
   @Transaction
-  private LocaleView installLocaleInTransaction(LocaleView view)
+  private SupportedLocaleIF installLocaleInTransaction(LocaleView view)
   {
     SupportedLocaleIF supportedLocale = (SupportedLocale) com.runwaysdk.localization.LocalizationFacade.install(view.getLocale());
     
     supportedLocale.appLock();
     view.populate(supportedLocale);
     supportedLocale.apply();
-
-    new WMSService().createAllWMSLayers(true);
-
-    // Refresh the users session
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
-
-    // Refresh the entire metadata cache
-    ServiceFactory.getRegistryService().refreshMetadataCache();
     
-    SerializedListTypeCache.getInstance().clear();
+    // Be careful what you put here. We definitely don't want to refresh any caches until after the transaction is over, especially given that we are holding onto a lot of database locks and such right now.
+
+    // Don't build the view inside the transaction either. Unless you like deadlocks
+//    return LocaleView.fromSupportedLocale(supportedLocale);
     
-    return LocaleView.fromSupportedLocale(supportedLocale);
+    return supportedLocale;
   }
   
   @Request(RequestType.SESSION)
@@ -197,22 +224,16 @@ public class LocalizationService
     LocaleView view = LocaleView.fromJson(json);
 
     uninstallLocaleInTransaction(view);
+    
+    refreshCaches(true);
   }
   
   @Transaction
   private void uninstallLocaleInTransaction(LocaleView view)
   {
     com.runwaysdk.localization.LocalizationFacade.uninstall(view.getLocale());
-
-    new WMSService().createAllWMSLayers(true);
-
-    // Refresh the users session
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
-
-    // Refresh the entire metadata cache
-    ServiceFactory.getRegistryService().refreshMetadataCache();
     
-    SerializedListTypeCache.getInstance().clear();
+    // Be careful what you put here. We definitely don't want to refresh any caches until after the transaction is over, especially given that we are holding onto a lot of database locks and such right now.
   }
 
   @Request(RequestType.SESSION)
