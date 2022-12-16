@@ -397,11 +397,10 @@ public class ServerGeoObjectService extends LocalizedValueConverter
         serverGO.setParents(ptnOt);
       }
 
-      // Update the master list record
-      if (masterListId != null)
-      {
-        ListTypeVersion.get(masterListId).publishRecord(serverGO);
-      }
+      // Update all of the working lists which have this record
+      ListType.getForType(type).forEach(listType -> {
+        listType.getWorkingVersions().forEach(version -> version.publishOrUpdateRecord(serverGO));
+      });
 
       JsonObject resp = new JsonObject();
 

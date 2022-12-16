@@ -162,7 +162,7 @@
                         </button>
                     </div>
 
-                    <ng-container *ngIf="entry.versions.length > 1">
+                    <ng-container *ngIf="entry.versions.length > 0 && !entry.versions[0].working">
                         <ng-container *ngFor="let version of entry.versions; let j = index;">
                             <ng-container *ngIf="j === 0 || (entry.showAll && j !== (entry.versions.length -1))"
                                 [ngTemplateOutlet]="versionDetail"
@@ -180,7 +180,7 @@
                         <!--                         </div> -->
                     </ng-container>
 
-                    <div class="row" *ngIf="entry.versions.length === 1">
+                    <div class="row" *ngIf="entry.versions.length === 0 || entry.versions[0].working">
                         <div class="col-md-12">
                             <localize key="list.type.no.versions" style="color:grey;font-style:italic;"></localize>
                         </div>

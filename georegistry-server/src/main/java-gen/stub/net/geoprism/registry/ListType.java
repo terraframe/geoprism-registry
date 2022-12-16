@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -229,6 +229,19 @@ public abstract class ListType extends ListTypeBase
     }
   }
 
+  public List<ListTypeVersion> getWorkingVersions()
+  {
+    ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
+    query.WHERE(query.getListType().EQ(this));
+    query.WHERE(query.getWorking().EQ(true));
+    query.ORDER_BY_DESC(query.getForDate());
+    
+    try (OIterator<? extends ListTypeVersion> it = query.getIterator())
+    {
+      return new LinkedList<ListTypeVersion>(it.getAll());
+    }
+  }
+  
   public List<ListTypeJob> getJobs()
   {
     ListTypeJobQuery query = new ListTypeJobQuery(new QueryFactory());
@@ -1033,6 +1046,17 @@ public abstract class ListType extends ListTypeBase
     }
 
     SerializedListTypeCache.getInstance().clear();
+  }
+
+  public static List<ListType> getForType(ServerGeoObjectType type)
+  {
+    ListTypeQuery query = new ListTypeQuery(new QueryFactory());
+    query.WHERE(query.getUniversal().EQ(type.getUniversal()));
+
+    try (OIterator<? extends ListType> it = query.getIterator())
+    {
+      return new LinkedList<ListType>(it.getAll());
+    }
   }
 
   public static void createMdAttribute(ServerGeoObjectType type, AttributeType attributeType)
