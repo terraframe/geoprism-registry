@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -42,6 +42,7 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.action.AllGovernanceStatus;
@@ -58,11 +59,7 @@ import net.geoprism.registry.service.ServiceFactory;
 public class GeoObjectEditorControllerNoOverTime
 {
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF apply(ClientRequestIF request, 
-      @RequestParamter(name = "parentTreeNode", required = true) String parentTreeNode, 
-      @RequestParamter(name = "geoObject", required = true) String geoObject, 
-      @RequestParamter(name = "isNew", required = true) Boolean isNew, 
-      @RequestParamter(name = "masterListId") String masterListId) throws JSONException
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode", required = true) String parentTreeNode, @RequestParamter(name = "geoObject", required = true) String geoObject, @RequestParamter(name = "isNew", required = true) Boolean isNew, @RequestParamter(name = "masterListId") String masterListId) throws JSONException
   {
     applyInReq(request.getSessionId(), parentTreeNode, geoObject, isNew, masterListId);
 
@@ -80,7 +77,7 @@ public class GeoObjectEditorControllerNoOverTime
   {
     final Date startDate = new Date();
     final Date endDate = ValueOverTime.INFINITY_END_DATE;
-    
+
     GeoObject go;
 
     Map<String, String> roles = Session.getCurrentSession().getUserRoles();
@@ -136,21 +133,13 @@ public class GeoObjectEditorControllerNoOverTime
 
       applyPtn(sessionId, ptn, startDate, endDate);
 
-      // Update the master list record
-      if (masterListId != null)
-      {
-        ServerGeoObjectService service = new ServerGeoObjectService();
-        ServerGeoObjectIF geoObject = service.getGeoObject(go);
-
-        if (!isNew)
-        {
-          ListTypeVersion.get(masterListId).updateRecord(geoObject);
-        }
-        else
-        {
-          ListTypeVersion.get(masterListId).publishRecord(geoObject);
-        }
-      }
+      // Update all of the working lists which have this record
+      ServerGeoObjectService service = new ServerGeoObjectService();
+      ServerGeoObjectIF geoObject = service.getGeoObject(go);
+      
+      ListType.getForType(geoObject.getType()).forEach(listType -> {
+        listType.getWorkingVersions().forEach(version -> version.publishOrUpdateRecord(geoObject));
+      });
 
       return go;
     }

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -1259,6 +1259,57 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         {
           record.unlock();
         }
+      }
+    }
+  }
+
+  @Transaction
+  public void publishOrUpdateRecord(ServerGeoObjectIF object)
+  {
+    // Only working lists can be updated from changes to the graph objects
+    if (this.getWorking())
+    {
+      object.setDate(this.getForDate());
+
+      // Delete tile cache
+      ListTileCache.deleteTiles(this);
+
+      ListType masterlist = this.getListType();
+      MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
+      Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
+
+      // Add the type ancestor fields
+      ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
+      Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
+      Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
+      Collection<AttributeType> attributes = type.getAttributeMap().values();
+
+      BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
+      query.WHERE(query.aCharacter(DefaultAttribute.CODE.getName()).EQ(object.getCode()));
+
+      List<Business> records = query.getIterator().getAll();
+
+      if (records.size() > 0)
+      {
+        for (Business record : records)
+        {
+          try
+          {
+            record.appLock();
+
+            this.publish(masterlist, type, object, record, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
+          }
+          finally
+          {
+            record.unlock();
+          }
+        }
+      }
+      else
+      {
+        Business business = new Business(mdBusiness.definesType());
+
+        this.publish(masterlist, type, object, business, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
       }
     }
   }

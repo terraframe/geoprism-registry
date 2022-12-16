@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.geoobject;
 
@@ -45,6 +45,7 @@ import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.InvalidRegistryIdException;
+import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
@@ -394,11 +395,10 @@ public class ServerGeoObjectService extends LocalizedValueConverter
         serverGO.setParents(ptnOt);
       }
 
-      // Update the master list record
-      if (masterListId != null)
-      {
-        ListTypeVersion.get(masterListId).publishRecord(serverGO);
-      }
+      // Update all of the working lists which have this record
+      ListType.getForType(type).forEach(listType -> {
+        listType.getWorkingVersions().forEach(version -> version.publishOrUpdateRecord(serverGO));
+      });
 
       JsonObject resp = new JsonObject();
 
@@ -464,10 +464,10 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     {
       this.executeActions(type, go, jaActions);
 
-      if (masterListId != null)
-      {
-        ListTypeVersion.get(masterListId).updateRecord(go);
-      }
+      // Update all of the working lists which have this record
+      ListType.getForType(type).forEach(listType -> {
+        listType.getWorkingVersions().forEach(version -> version.publishOrUpdateRecord(go));
+      });
 
       JsonObject resp = new JsonObject();
 
