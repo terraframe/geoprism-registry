@@ -46,6 +46,7 @@ import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.InvalidRegistryIdException;
+import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
