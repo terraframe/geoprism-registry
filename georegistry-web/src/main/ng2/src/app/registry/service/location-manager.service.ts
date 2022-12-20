@@ -32,6 +32,8 @@ export class LocationManagerStateService {
 
             this.geomService.zoomOnReady(layer.getId());
 
+            this.addLayerForList(version, null, state);
+
             state.type = geo.properties.type;
             state.code = geo.properties.code;
             state.objectType = "GEOOBJECT";
