@@ -25,7 +25,7 @@ export class DateFieldComponent {
     @Input() label: string = ""; // raw string input
     @Input() disable: boolean = false;
     @Input() required: boolean = false;
-    @Input() placement: string = "bottom";
+    @Input() placement: string = "right top";
     @Input() oldDate: string = null;
     @Input() title: string = "";
     @Input() placeholder: string = "YYYY-MM-DD";
