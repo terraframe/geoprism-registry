@@ -13,14 +13,11 @@ import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
@@ -29,15 +26,6 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 @ComponentScan(basePackages = { "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.spring" })
 public class SpringAppConfig extends WebMvcConfigurationSupport
 {
-
-  @Bean
-  public InternalResourceViewResolver getInternalResourceViewResolver()
-  {
-    InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-    resolver.setPrefix("/"); // TODO : Security hole??
-    resolver.setSuffix(".jsp");
-    return resolver;
-  }
 
   @Bean(name = "multipartResolver")
   public CommonsMultipartResolver multipartResolver()
@@ -74,9 +62,24 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
   @Override
   public void configureMessageConverters(List<HttpMessageConverter<?>> converters)
   {
-//    GsonHttpMessageConverter msgConverter = new GsonHttpMessageConverter();
-//    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-//    msgConverter.setGson(gson);
-//    converters.add(msgConverter);
+    // GsonHttpMessageConverter msgConverter = new GsonHttpMessageConverter();
+    // Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    // msgConverter.setGson(gson);
+    // converters.add(msgConverter);
+  }
+
+  @Override
+  public void addResourceHandlers(ResourceHandlerRegistry registry)
+  {
+    registry.addResourceHandler("index.html").addResourceLocations("/index.html    ");
+    registry.addResourceHandler("/index.html").addResourceLocations("/index.html    ");
+  }
+
+  @Bean
+  public InternalResourceViewResolver viewResolver()
+  {
+    InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+    viewResolver.setSuffix(".html");
+    return viewResolver;
   }
 }

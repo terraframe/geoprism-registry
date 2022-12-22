@@ -17,7 +17,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,8 +28,6 @@ import net.geoprism.registry.service.AccountService;
 import net.geoprism.registry.service.ExternalSystemService;
 import net.geoprism.registry.service.OrganizationService;
 import net.geoprism.registry.service.RegistryComponentService;
-import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.ServiceFactory;
 
 @RestController
 @Validated
@@ -129,5 +126,29 @@ public class GenericRestController extends RunwaySpringController
     return new ResponseEntity<String>(settingsView.toString(), HttpStatus.OK);
   }
 
+  @GetMapping("cgr/current-locale")    
+  public ResponseEntity<String> getCurrentLocale()
+  {
+    String response = this.service.getCurrentLocale(this.getSessionId());
+    
+    return new ResponseEntity<String>(response, HttpStatus.OK);
+  }
+  
+  @GetMapping("cgr/locales")    
+  public ResponseEntity<String> getLocales()
+  {
+    JsonArray response = this.service.getLocales(this.getSessionId());
+    
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+  
+  @GetMapping("cgr/localization-map")    
+  public ResponseEntity<String> localizationMap()
+  {
+    String response = this.service.getLocalizationMap(this.getSessionId());
+    
+    return new ResponseEntity<String>(response, HttpStatus.OK);
+  }
+  
 
 }

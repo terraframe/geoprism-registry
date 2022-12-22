@@ -36,7 +36,7 @@ import net.geoprism.registry.service.BusinessObjectService;
 @Validated
 public class BusinessObjectController extends RunwaySpringController
 {
-  public static final String  API_PATH = "business-object";
+  public static final String API_PATH = "business-object";
 
   @Autowired
   private BusinessObjectService service;

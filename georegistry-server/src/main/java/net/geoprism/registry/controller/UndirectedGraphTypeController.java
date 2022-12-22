@@ -76,7 +76,7 @@ public class UndirectedGraphTypeController extends RunwaySpringController
     }
   }
 
-  public static final String         API_PATH = "undirected-graph-type";
+  public static final String API_PATH = "undirected-graph-type";
 
   @Autowired
   private UndirectedGraphTypeService service;

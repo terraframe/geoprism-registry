@@ -169,7 +169,7 @@ public class ClassificationController extends RunwaySpringController
     }
   }
 
-  public static final String    API_PATH = "classification";
+  public static final String API_PATH = "classification";
 
   @Autowired
   private ClassificationService service;

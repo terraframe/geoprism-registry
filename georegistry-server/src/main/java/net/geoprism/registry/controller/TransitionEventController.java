@@ -81,7 +81,7 @@ public class TransitionEventController extends RunwaySpringController
     }
   }
   
-  public static final String  API_PATH = "transition-event";
+  public static final String API_PATH = "transition-event";
 
   @Autowired
   private TransitionEventService service;

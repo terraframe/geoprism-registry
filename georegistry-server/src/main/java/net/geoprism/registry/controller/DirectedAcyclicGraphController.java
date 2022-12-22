@@ -141,7 +141,7 @@ public class DirectedAcyclicGraphController extends RunwaySpringController
     }
   }
 
-  public static final String          API_PATH = "dag";
+  public static final String API_PATH = "dag";
 
   @Autowired
   private DirectedAcyclicGraphService service;

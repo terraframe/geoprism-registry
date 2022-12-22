@@ -39,7 +39,7 @@ import net.geoprism.registry.service.TaskService;
 @Validated
 public class TaskController extends RunwaySpringController
 {
-  public static final String  API_PATH = "tasks";
+  public static final String API_PATH = "tasks";
   
   public static class IdBody 
   {

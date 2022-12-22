@@ -1196,7 +1196,13 @@ public class RegistryService
 
     return objects;
   }
-  
+
+  @Request(RequestType.SESSION)
+  public String getLocalizationMap(String sessionId)
+  {
+    return net.geoprism.localization.LocalizationFacade.getJSON();
+  }
+
   public static RegistryService getInstance()
   {
     return ServiceFactory.getRegistryService();

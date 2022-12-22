@@ -262,4 +262,9 @@ public class RegistryComponentService
   {
     return service.search(sessionId, typeCode, text, date);
   }
+
+  public String getLocalizationMap(String sessionId)
+  {
+    return service.getLocalizationMap(sessionId);
+  }
 }

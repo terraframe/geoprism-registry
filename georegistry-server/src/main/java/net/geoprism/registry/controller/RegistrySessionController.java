@@ -269,7 +269,7 @@ public class RegistrySessionController extends RunwaySpringController
         throw new ProgrammingErrorException(t2);
       }
       
-      return "redirect:/cgr/manage#/login/" + errorMessage;
+      return "redirect:/" + errorMessage;
 
     }
     finally

@@ -53,7 +53,7 @@ import net.geoprism.registry.spring.NullableDateDeserializer;
 @Validated
 public class ETLController extends RunwaySpringController
 {
-  public static final String  API_PATH = "etl";
+  public static final String API_PATH = "etl";
   
   public static class HistoryIdBody 
   {

@@ -140,7 +140,7 @@ public class UndirectedGraphController extends RunwaySpringController
     }
   }
 
-  public static final String     API_PATH = "undirected";
+  public static final String API_PATH = "undirected";
 
   @Autowired
   private UndirectedGraphService service;

@@ -120,7 +120,7 @@ public class BusinessTypeController extends RunwaySpringController
     }
   }
 
-  public static final String  API_PATH = "business-type";
+  public static final String API_PATH = "business-type";
 
   @Autowired
   private BusinessTypeService service;

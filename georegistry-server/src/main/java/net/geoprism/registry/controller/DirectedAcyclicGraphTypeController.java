@@ -77,7 +77,7 @@ public class DirectedAcyclicGraphTypeController extends RunwaySpringController
     }
   }
 
-  public static final String              API_PATH = "directed-graph-type";
+  public static final String API_PATH = "directed-graph-type";
 
   @Autowired
   private DirectedAcyclicGraphTypeService service;

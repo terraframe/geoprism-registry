@@ -153,7 +153,7 @@ public class ChangeRequestController extends RunwaySpringController
 
   }
 
-  public static final String   API_PATH = "changerequest";
+  public static final String API_PATH = "changerequest";
 
   @Autowired
   private ChangeRequestService service;
