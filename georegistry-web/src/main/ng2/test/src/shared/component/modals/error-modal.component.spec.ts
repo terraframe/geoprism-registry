@@ -4,7 +4,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ModalModule, BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
 import { ErrorModalComponent } from "@shared/component/modals/error-modal.component";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 
 describe("ErrorModalComponent", () => {
 	let component: ErrorModalComponent;

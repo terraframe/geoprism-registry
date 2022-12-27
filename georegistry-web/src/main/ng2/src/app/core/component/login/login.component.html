@@ -72,7 +72,7 @@
                           </span>
                         </button>
                         <div *ngIf="viewOauthServers" style="margin-top: 20px;">
-                          <select (change)="onClickDhis2($event.target.value)" name=externalSystemOid>
+                          <select (change)="onClickDhis2($event.target)" name=externalSystemOid>
                             <option></option>
                             <option *ngFor="let server of oauthServers" [value]="server.url">
                               {{server.label.localizedValue}}

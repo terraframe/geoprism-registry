@@ -4,11 +4,11 @@ import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
 
-import { GeoRegistryConfiguration } from "@core/model/registry";
+import { GeoRegistryConfiguration } from "@core/model/core";
 import { Classification, ClassificationNode } from "@registry/model/classification-type";
 import { PageResult } from "@shared/model/core";
 
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class ClassificationService {
@@ -34,7 +34,7 @@ export class ClassificationService {
         this.eventService.start();
 
         return this.http
-            .post<Classification>(registry.contextPath + "/api/classification/apply", JSON.stringify(params), { headers: headers })
+            .post<Classification>(environment.apiUrl + "/api/classification/apply", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -54,7 +54,7 @@ export class ClassificationService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/api/classification/remove", JSON.stringify(params), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/classification/remove", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -75,7 +75,7 @@ export class ClassificationService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/api/classification/move", JSON.stringify(params), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/classification/move", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -92,7 +92,7 @@ export class ClassificationService {
             params = params.set("code", code);
         }
 
-        return this.http.get<PageResult<Classification>>(registry.contextPath + "/api/classification/get-children", { params: params })
+        return this.http.get<PageResult<Classification>>(environment.apiUrl + "/api/classification/get-children", { params: params })
             .toPromise();
     }
 
@@ -106,7 +106,7 @@ export class ClassificationService {
             params = params.set("rootCode", rootCode);
         }
 
-        return this.http.get<ClassificationNode>(registry.contextPath + "/api/classification/get-ancestor-tree", { params: params })
+        return this.http.get<ClassificationNode>(environment.apiUrl + "/api/classification/get-ancestor-tree", { params: params })
             .toPromise();
     }
 
@@ -122,7 +122,7 @@ export class ClassificationService {
             params = params.set("text", text);
         }
 
-        return this.http.get<Classification[]>(registry.contextPath + "/api/classification/search", { params: params })
+        return this.http.get<Classification[]>(environment.apiUrl + "/api/classification/search", { params: params })
             .toPromise();
     }
 
@@ -131,7 +131,7 @@ export class ClassificationService {
         params = params.set("classificationCode", classificationCode);
         params = params.set("code", code);
 
-        return this.http.get<Classification>(registry.contextPath + "/api/classification/get", { params: params })
+        return this.http.get<Classification>(environment.apiUrl + "/api/classification/get", { params: params })
             .toPromise();
     }
 

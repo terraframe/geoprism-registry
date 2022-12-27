@@ -18,17 +18,18 @@
 ///
 
 import { Injectable } from "@angular/core";
-import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 
 import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
 
-import { PageResult, Organization, ExternalSystem, LocaleView } from "@shared/model/core";
+import { PageResult, Organization, ExternalSystem } from "@shared/model/core";
 
 import { User } from "@admin/model/account";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
+import { LocaleView } from "@core/model/core";
 
 export class SettingsInitView {
 
@@ -48,7 +49,7 @@ export class SettingsService {
         this.eventService.start();
 
         return this.http
-            .get<SettingsInitView>(registry.contextPath + "/api/cgr/init-settings")
+            .get<SettingsInitView>(environment.apiUrl + "/api/cgr/init-settings")
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

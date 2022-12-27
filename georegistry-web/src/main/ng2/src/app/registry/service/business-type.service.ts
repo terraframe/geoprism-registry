@@ -5,11 +5,11 @@ import { finalize } from "rxjs/operators";
 import { EventService } from "@shared/service";
 import { BusinessType, BusinessTypeByOrg } from "@registry/model/business-type";
 import { AttributeType } from "@registry/model/registry";
-import { GeoRegistryConfiguration } from "@core/model/registry";
+import { GeoRegistryConfiguration } from "@core/model/core";
 import { GenericTableService } from "@shared/model/generic-table";
 import { PageResult } from "@shared/model/core";
 
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class BusinessTypeService implements GenericTableService {
@@ -22,7 +22,7 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http.get<BusinessTypeByOrg[]>(registry.contextPath + "/api/business-type/get-by-org", { params: params })
+        return this.http.get<BusinessTypeByOrg[]>(environment.apiUrl + "/api/business-type/get-by-org", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -34,7 +34,7 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http.get<BusinessType[]>(registry.contextPath + "/api/business-type/get-all", { params: params })
+        return this.http.get<BusinessType[]>(environment.apiUrl + "/api/business-type/get-all", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -47,7 +47,7 @@ export class BusinessTypeService implements GenericTableService {
 
         this.eventService.start();
 
-        return this.http.get<BusinessType>(registry.contextPath + "/api/business-type/get", { params: params })
+        return this.http.get<BusinessType>(environment.apiUrl + "/api/business-type/get", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -62,7 +62,7 @@ export class BusinessTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<BusinessType>(registry.contextPath + "/api/business-type/apply", JSON.stringify({ type: type }), { headers: headers })
+            .post<BusinessType>(environment.apiUrl + "/api/business-type/apply", JSON.stringify({ type: type }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -77,7 +77,7 @@ export class BusinessTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<BusinessType>(registry.contextPath + "/api/business-type/remove", JSON.stringify({ oid: type.oid }), { headers: headers })
+            .post<BusinessType>(environment.apiUrl + "/api/business-type/remove", JSON.stringify({ oid: type.oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -92,7 +92,7 @@ export class BusinessTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<BusinessType>(registry.contextPath + "/api/business-type/edit", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<BusinessType>(environment.apiUrl + "/api/business-type/edit", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -107,7 +107,7 @@ export class BusinessTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<BusinessType>(registry.contextPath + "/api/business-type/unlock", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<BusinessType>(environment.apiUrl + "/api/business-type/unlock", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -122,7 +122,7 @@ export class BusinessTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<AttributeType>(registry.contextPath + "/api/business-type/add-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
+            .post<AttributeType>(environment.apiUrl + "/api/business-type/add-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -137,7 +137,7 @@ export class BusinessTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<AttributeType>(registry.contextPath + "/api/business-type/update-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
+            .post<AttributeType>(environment.apiUrl + "/api/business-type/update-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -152,7 +152,7 @@ export class BusinessTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<boolean>(registry.contextPath + "/api/business-type/remove-attribute", JSON.stringify({ typeCode: typeCode, attributeName: attributeName }), { headers: headers })
+            .post<boolean>(environment.apiUrl + "/api/business-type/remove-attribute", JSON.stringify({ typeCode: typeCode, attributeName: attributeName }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -165,7 +165,7 @@ export class BusinessTypeService implements GenericTableService {
         params = params.set("typeCode", pageConfig.typeCode);
 
         return this.http
-            .get<PageResult<Object>>(registry.contextPath + "/api/business-type/data", { params: params })
+            .get<PageResult<Object>>(environment.apiUrl + "/api/business-type/data", { params: params })
             .toPromise();
     }
 

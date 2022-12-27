@@ -22,7 +22,8 @@ import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
 
 import { Application } from "@shared/model/application";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
+import { firstValueFrom } from "rxjs";
 
 @Injectable()
 export class HubService {
@@ -30,13 +31,8 @@ export class HubService {
     constructor(private http: HttpClient) { }
 
     applications(): Promise<Application[]> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        return this.http
-            .post<Application[]>(registry.contextPath + "/menu/applications", { headers: headers })
-            .toPromise();
+        return firstValueFrom(this.http
+            .get<Application[]>(environment.apiUrl + "/api/cgr/applications"));
     }
 
     oauthGetPublic(id: string): Promise<any[]> {
@@ -46,9 +42,8 @@ export class HubService {
             params = params.set("id", id);
         }
 
-        return this.http
-            .get<any[]>(registry.contextPath + "/api/oauth/get-public", { params: params })
-            .toPromise();
+        return firstValueFrom(this.http
+            .get<any[]>(environment.apiUrl + "/api/oauth/get-public", { params: params }));
     }
 
 }

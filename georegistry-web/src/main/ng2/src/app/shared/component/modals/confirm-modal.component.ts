@@ -1,7 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 import { ModalTypes } from "@shared/model/modal";
 
 @Component({

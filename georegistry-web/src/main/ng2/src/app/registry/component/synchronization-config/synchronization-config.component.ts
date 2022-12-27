@@ -4,7 +4,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
 import { PageResult } from "@shared/model/core";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 
 import { SynchronizationConfig, ExportScheduledJob } from "@registry/model/registry";
 import { SynchronizationConfigService } from "@registry/service";
@@ -12,7 +12,7 @@ import { ErrorHandler } from "@shared/component/error-handler/error-handler";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 import { Subscription } from "rxjs";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: "synchronization-config",
@@ -77,7 +77,7 @@ export class SynchronizationConfigComponent implements OnInit {
   }
 
   onGenerateFile(): void {
-      window.open(registry.contextPath + "/api/synchronization-config/generate-file?oid=" + encodeURIComponent(this.config.oid));
+      window.open(environment.apiUrl + "/api/synchronization-config/generate-file?oid=" + encodeURIComponent(this.config.oid));
   }
 
   onPageChange(pageNumber: number): void {

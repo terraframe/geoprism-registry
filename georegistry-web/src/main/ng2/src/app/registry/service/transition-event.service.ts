@@ -7,7 +7,7 @@ import { PageResult } from "@shared/model/core";
 
 import { HistoricalRow, TransitionEvent } from "@registry/model/transition-event";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class TransitionEventService {
@@ -23,7 +23,7 @@ export class TransitionEventService {
 
         this.eventService.start();
 
-        return this.http.get<PageResult<TransitionEvent>>(registry.contextPath + "/api/transition-event/page", { params: params })
+        return this.http.get<PageResult<TransitionEvent>>(environment.apiUrl + "/api/transition-event/page", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -36,7 +36,7 @@ export class TransitionEventService {
 
         this.eventService.start();
 
-        return this.http.get<TransitionEvent>(registry.contextPath + "/api/transition-event/get-details", { params: params })
+        return this.http.get<TransitionEvent>(environment.apiUrl + "/api/transition-event/get-details", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -51,7 +51,7 @@ export class TransitionEventService {
         this.eventService.start();
 
         return this.http
-            .post<TransitionEvent>(registry.contextPath + "/api/transition-event/apply", JSON.stringify({ event: event }), { headers: headers })
+            .post<TransitionEvent>(environment.apiUrl + "/api/transition-event/apply", JSON.stringify({ event: event }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -66,7 +66,7 @@ export class TransitionEventService {
         this.eventService.start();
 
         return this.http
-            .post<TransitionEvent>(registry.contextPath + "/api/transition-event/delete", JSON.stringify({ eventId: event.oid }), { headers: headers })
+            .post<TransitionEvent>(environment.apiUrl + "/api/transition-event/delete", JSON.stringify({ eventId: event.oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -83,7 +83,7 @@ export class TransitionEventService {
 
         this.eventService.start();
 
-        return this.http.get<PageResult<HistoricalRow>>(registry.contextPath + "/api/transition-event/historical-report", { params: params })
+        return this.http.get<PageResult<HistoricalRow>>(environment.apiUrl + "/api/transition-event/historical-report", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

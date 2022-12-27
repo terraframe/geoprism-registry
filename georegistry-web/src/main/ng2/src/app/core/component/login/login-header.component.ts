@@ -21,9 +21,7 @@ import { Component } from '@angular/core';
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorHandler } from '@shared/component';
-import { HubService } from '@core/service/hub.service';
-
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'login-header',
@@ -31,12 +29,17 @@ import { GeoRegistryConfiguration } from "@core/model/registry"; declare let reg
   styleUrls: []
 })
 export class LoginHeaderComponent {
-  context:string;
-  
-  constructor(private hubService: HubService) {
-    this.context = registry.contextPath;
+  context: string;
+
+  constructor() {
+    this.context = environment.apiUrl;
   }
-  
+
+  handleLogoError(event: any): void {
+    event.target.src = '../../../../assets/splash_logo_icon.png';
+  }
+
+
   public error(err: HttpErrorResponse): void {
     let msg = ErrorHandler.getMessageFromError(err);
     console.log(msg, err);

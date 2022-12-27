@@ -14,11 +14,12 @@ import {
     animate,
     transition
 } from "@angular/animations";
-import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime, PRESENT } from "@registry/model/registry";
-import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
-import { LocalizationService } from "@shared/service";
+import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime } from "@registry/model/registry";
 import { DateService } from "@shared/service/date.service";
 import * as moment from "moment";
+import { VotService } from "@registry/service/vot.service";
+import { PRESENT } from "@shared/model/date";
+import { DateFieldComponent } from "@shared/component";
 
 @Component({
     selector: "geometry-panel",
@@ -89,7 +90,7 @@ export class GeometryPanelComponent implements OnInit {
     hasDuplicateDate: boolean = false;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService) { }
+    constructor(public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private votService: VotService) { }
 
     ngOnInit(): void {
     }
@@ -114,7 +115,7 @@ export class GeometryPanelComponent implements OnInit {
 
         let vAttributes = this.geoObjectOverTime.attributes["geometry"].values;
 
-        this.hasConflict = this.dateService.checkRanges(null, vAttributes);
+        this.hasConflict = this.votService.checkRanges(null, vAttributes);
     }
 
     edit(vot: ValueOverTime, isVersionForHighlight: number): void {

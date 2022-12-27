@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { CookieService } from "ngx-cookie-service";
 import { User } from "@shared/model/user";
-import { RoleBuilder, RegistryRole, RegistryRoleType, LocaleView } from "@shared/model/core";
+import { RoleBuilder, RegistryRole, RegistryRoleType } from "@shared/model/core";
 
 @Injectable()
 export class AuthService {
@@ -24,8 +24,6 @@ export class AuthService {
 
             this.buildFromCookieJson(cookieDataJSON);
         }
-
-        this.loadLocales();
     }
 
     buildFromCookieJson(cookieDataJSON: any) {
@@ -59,8 +57,6 @@ export class AuthService {
 
         this.buildFromCookieJson(JSON.parse(this.service.get("user")));
 
-        this.setLocales(logInResponse.installedLocales);
-        this.user.installedLocales = logInResponse.installedLocales;
     }
 
     afterLogOut(): void {
@@ -69,17 +65,6 @@ export class AuthService {
         localStorage.clear();
     }
 
-    loadLocales() {
-        let storageLocales = window.sessionStorage.getItem("locales");
-
-        if (storageLocales != null) {
-            this.user.installedLocales = JSON.parse(storageLocales);
-        }
-    }
-
-    setLocales(locales: LocaleView[]) {
-        window.sessionStorage.setItem("locales", JSON.stringify(locales));
-    }
 
     removeUser(): void {
         this.user = {
@@ -312,38 +297,5 @@ export class AuthService {
         return this.user.version;
     }
 
-    getLocales(): LocaleView[] {
-        return this.user.installedLocales;
-    }
-
-    addLocale(locale: LocaleView): void {
-        let exists: boolean = false;
-
-        for (let i = 0; i < this.user.installedLocales.length; ++i) {
-            if (this.user.installedLocales[i].tag === locale.tag) {
-                exists = true;
-                this.user.installedLocales[i] = locale;
-            }
-        }
-
-        if (!exists) {
-            this.user.installedLocales.push(locale);
-        }
-
-        this.setLocales(this.user.installedLocales);
-    }
-
-    removeLocale(locale: LocaleView): void {
-        for (let i = 0; i < this.user.installedLocales.length; ++i) {
-            if (this.user.installedLocales[i].tag === locale.tag) {
-                this.user.installedLocales.splice(i, 1);
-                this.setLocales(this.user.installedLocales);
-                return;
-            }
-        }
-
-        // eslint-disable-next-line no-console
-        console.log("Could not remove locale from array because we could not find it.", locale, this.user.installedLocales);
-    }
 
 }

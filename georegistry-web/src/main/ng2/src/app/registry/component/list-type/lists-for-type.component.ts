@@ -3,7 +3,7 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ConfirmModalComponent } from "@shared/component";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 import { ListType, ListTypeByType } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ListTypePublishModalComponent } from "./publish-modal.component";

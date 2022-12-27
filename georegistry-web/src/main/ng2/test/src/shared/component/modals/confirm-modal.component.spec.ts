@@ -4,7 +4,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ModalModule, BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
 import { ConfirmModalComponent } from "@shared/component/modals/confirm-modal.component";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 import { ModalTypes } from '@shared/model/modal';
 
 

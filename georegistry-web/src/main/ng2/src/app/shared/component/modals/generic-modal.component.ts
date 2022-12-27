@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 
 export class GenericButton {
 

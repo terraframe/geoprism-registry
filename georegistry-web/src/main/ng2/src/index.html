@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset='utf-8' />
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+  <title>
+    Georegistry
+  </title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <style>
+    body {
+      background-color: #efe9e1
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+</head>
+
+
+
+<body>
+  <app-root>
+    <style type="text/css">
+      cgr-app {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+
+        color: #7C868D;
+        font-family: -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Oxygen-Sans,
+          Ubuntu,
+          Cantarell,
+          Helvetica,
+          sans-serif;
+        font-size: 5em;
+        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      body {
+        background: white;
+        margin: 0;
+        padding: 0;
+      }
+
+      @keyframes dots {
+        50% {
+          transform: translateY(-.4rem);
+        }
+
+        100% {
+          transform: translateY(0);
+        }
+      }
+
+      .d {
+        animation: dots 1.5s ease-out infinite;
+      }
+
+      .d-2 {
+        animation-delay: .5s;
+      }
+
+      .d-3 {
+        animation-delay: 1s;
+      }
+    </style>
+    <span class="d">.</span><span class="d d-2">.</span><span class="d d-3">.</span>
+
+  </app-root>
+</body>
+
+</html>

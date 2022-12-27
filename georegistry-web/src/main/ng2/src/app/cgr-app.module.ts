@@ -1,4 +1,4 @@
-import { NgModule } from "@angular/core";
+import { APP_INITIALIZER, NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
@@ -31,8 +31,7 @@ import { PasswordStrengthBarComponent } from "@shared/component/password-strengt
 import { HubService } from "@core/service/hub.service";
 
 import { SharedModule } from "@shared/shared.module";
-
-import "./rxjs-extensions";
+import { ConfigurationService } from "@core/service/configuration.service";
 
 @NgModule({
     imports: [
@@ -75,7 +74,18 @@ import "./rxjs-extensions";
         },
         ForgotPasswordService,
         PasswordStrengthBarComponent,
-        HubService
+        HubService,
+        ConfigurationService,
+        {
+            'provide': APP_INITIALIZER,
+            'useFactory': (service: ConfigurationService) => {
+                // Do initing of services that is required before app loads
+                // NOTE: this factory needs to return a function (that then returns a promise)
+                return () => service.load()  // + any other services...
+              },
+                'deps': [ConfigurationService, HttpClientModule],
+            'multi': true,
+          },  
     ],
     exports: [
         CgrAppComponent

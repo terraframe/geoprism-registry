@@ -1,7 +1,7 @@
 
-import { GeoRegistryConfiguration } from "@core/model/registry";
+import { GeoRegistryConfiguration } from "@core/model/core";
 
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 export class WebSockets {
 
@@ -14,7 +14,7 @@ export class WebSockets {
             protocol = "ws";
         }
 
-        let baseUrl = protocol + "://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + registry.contextPath;
+        let baseUrl = protocol + "://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + environment.apiUrl;
 
         return baseUrl;
     }

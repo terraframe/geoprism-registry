@@ -15,11 +15,11 @@ import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService, AuthService } from "@shared/service";
 import { ModalTypes } from "@shared/model/modal";
 
-import { GeoRegistryConfiguration } from "@core/model/registry";
+import { GeoRegistryConfiguration } from "@core/model/core";
 import { PageResult } from "@shared/model/core";
 import { Subscription } from "rxjs";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: "job",

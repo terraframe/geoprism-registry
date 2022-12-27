@@ -18,13 +18,13 @@ import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
 import { LngLatBounds } from "mapbox-gl";
 
-import { GeoRegistryConfiguration } from "@core/model/registry";
+import { GeoRegistryConfiguration } from "@core/model/core";
 import { GeometryService } from "@registry/service/geometry.service";
 import { LocationManagerStateService } from "@registry/service/location-manager.service";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { LocationManagerState } from "../location-manager/location-manager.component";
 import Utils from "@registry/utility/Utils";
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: "list",
@@ -267,7 +267,7 @@ export class ListComponent implements OnInit, OnDestroy {
         this.bsModalRef.content.init(this.list);
         this.bsModalRef.content.onFormat.subscribe(data => {
             if (data.format === "SHAPEFILE") {
-                let url = registry.contextPath + "/api/list-type/export-shapefile?oid=" + this.list.oid;
+                let url = environment.apiUrl + "/api/list-type/export-shapefile?oid=" + this.list.oid;
                 url += "&criteria=" + encodeURIComponent(JSON.stringify(criteria));
 
                 if (data.actualGeometryType != null && data.actualGeometryType.length > 0) {
@@ -276,7 +276,7 @@ export class ListComponent implements OnInit, OnDestroy {
 
                 window.location.href = url;
             } else if (data.format === "EXCEL") {
-                window.location.href = registry.contextPath + "/api/list-type/export-spreadsheet?oid=" + this.list.oid + "&criteria=" + encodeURIComponent(JSON.stringify(criteria));
+                window.location.href = environment.apiUrl + "/api/list-type/export-spreadsheet?oid=" + this.list.oid + "&criteria=" + encodeURIComponent(JSON.stringify(criteria));
             }
         });
     }

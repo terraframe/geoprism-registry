@@ -6,7 +6,7 @@ import { Organization } from "@shared/model/core";
 import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
 import { EventService, LocalizationService } from "@shared/service";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Component({
     selector: "import-types-modal",
@@ -43,7 +43,7 @@ export class ImportTypesModalComponent implements OnInit {
       let options: FileUploaderOptions = {
           queueLimit: 1,
           removeAfterUpload: true,
-          url: registry.contextPath + "/api/cgr/import-types"
+          url: environment.apiUrl + "/api/cgr/import-types"
       };
 
       this.uploader = new FileUploader(options);

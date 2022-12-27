@@ -1,4 +1,4 @@
-import { LocalizedValue } from "@shared/model/core";
+import { LocalizedValue } from "@core/model/core";
 import { AttributeDecimalType, AttributedType, AttributeTermType, AttributeType } from "./registry";
 
 export class BusinessType implements AttributedType {
@@ -20,6 +20,7 @@ export class BusinessTypeByOrg {
     code: string;
     label: string;
     types: BusinessType[];
+    write: boolean;
 
 }
 

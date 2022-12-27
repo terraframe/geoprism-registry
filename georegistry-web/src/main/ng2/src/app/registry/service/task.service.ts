@@ -23,8 +23,8 @@ import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
 
-import { GeoRegistryConfiguration } from "@core/model/registry";import { PageResult } from "@shared/model/core";
- declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core";import { PageResult } from "@shared/model/core";
+ import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class TaskService {
@@ -41,7 +41,7 @@ export class TaskService {
         params = params.set("whereStatus", whereStatus);
 
         return this.http
-            .get<PageResult<any>>(registry.contextPath + "/api/tasks/get", { params: params })
+            .get<PageResult<any>>(environment.apiUrl + "/api/tasks/get", { params: params })
             .toPromise();
     }
 
@@ -53,7 +53,7 @@ export class TaskService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/api/tasks/complete", JSON.stringify({ id: taskId }), { headers: headers })
+            .post<any>(environment.apiUrl + "/api/tasks/complete", JSON.stringify({ id: taskId }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -68,7 +68,7 @@ export class TaskService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/api/tasks/setTaskStatus", JSON.stringify({ id: taskId, status: status }), { headers: headers })
+            .post<any>(environment.apiUrl + "/api/tasks/setTaskStatus", JSON.stringify({ id: taskId, status: status }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

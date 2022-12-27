@@ -2,7 +2,7 @@ import { Component } from "@angular/core";
 
 @Component({
 
-    selector: "cgr-app",
+    selector: "app-root",
     templateUrl: "./cgr-app.component.html",
     styleUrls: []
 })

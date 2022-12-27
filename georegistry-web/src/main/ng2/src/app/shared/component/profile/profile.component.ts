@@ -2,7 +2,6 @@ import { Component, Input } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Profile } from "@shared/model/profile";
 import { AuthService, ProfileService } from "@shared/service";
-import { Role } from "../../../admin/model/account";
 
 @Component({
     selector: "profile",
@@ -28,7 +27,7 @@ export class ProfileComponent {
         this.getRoles();
     }
 
-    roles: Role[] = [];
+    roles: any[] = [];
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private service: ProfileService, public bsModalRef: BsModalRef, private authService: AuthService) { }

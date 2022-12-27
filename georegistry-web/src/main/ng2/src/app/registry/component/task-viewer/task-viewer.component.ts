@@ -5,7 +5,7 @@ import { TaskService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 import { GeoObjectType } from "@registry/model/registry";
 
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 import { PageResult } from "@shared/model/core";
 
 @Component({

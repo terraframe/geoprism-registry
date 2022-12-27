@@ -2,9 +2,8 @@ import { Component, OnInit, Input, ViewChild, ViewChildren, ElementRef, QueryLis
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
 import { HttpErrorResponse } from "@angular/common/http";
-import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
 
-import { ErrorHandler } from "@shared/component";
+import { DateFieldComponent, ErrorHandler } from "@shared/component";
 import { LocalizationService, AuthService, EventService, ExternalSystemService } from "@shared/service";
 import { HierarchyService, IOService } from "@registry/service";
 import { ExternalSystem } from "@shared/model/core";
@@ -14,7 +13,7 @@ import { ShapefileModalComponent } from "./modals/shapefile-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
 import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Component({
 
@@ -191,9 +190,9 @@ export class DataImporterComponent implements OnInit {
             this.error(err);
         });
 
-        let getUrl = registry.contextPath + "/api/excel/get-configuration";
+        let getUrl = environment.apiUrl + "/api/excel/get-configuration";
         if (this.format === "SHAPEFILE") {
-            getUrl = registry.contextPath + "/api/shapefile/get-shapefile-configuration";
+            getUrl = environment.apiUrl + "/api/shapefile/get-shapefile-configuration";
 
             // this.showImportConfig = true; // show the upload widget if shapefile because external system from shapefile isn't supported
         }

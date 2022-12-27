@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable padded-blocks */
-import { GeoObjectOverTime, HierarchyOverTime, GeoObjectType, AttributeType } from "./registry";
+import { GeoObjectOverTime, HierarchyOverTime, GeoObjectType, AttributeType, GeoObject } from "./registry";
 import { ActionTypes } from "./constants";
 import { ValueOverTimeCREditor } from "@registry/component/geoobject-shared-attribute-editor/ValueOverTimeCREditor";
 
@@ -121,6 +121,10 @@ export class ChangeRequest {
     email?: string;
     permissions?: string[];
     isNew?: boolean;
+    geoObject?: {
+        code: string,
+        label: string
+    };
 
     constructor() {
         this.isNew = true;
@@ -139,7 +143,7 @@ export class ChangeRequest {
                     let updateAttrAction = action as UpdateAttributeOverTimeAction;
 
                     if (updateAttrAction.attributeName === attributeName &&
-                      (attributeName !== "_PARENT_" || updateAttrAction.attributeDiff.hierarchyCode === hierarchyCode)) {
+                        (attributeName !== "_PARENT_" || updateAttrAction.attributeDiff.hierarchyCode === hierarchyCode)) {
                         newActions.push(cr.actions[i]);
                     }
                 }

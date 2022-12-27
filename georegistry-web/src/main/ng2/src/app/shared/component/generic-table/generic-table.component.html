@@ -42,11 +42,11 @@
 				<th *ngFor="let col of columns" [ngSwitch]="col.type">
 					<ng-container *ngIf="col.filter !== false">
 						<input *ngSwitchCase="'URL'" pInputText type="text"
-							(input)="dt.filter($event.target.value, col.field, 'contains')">
+							(input)="handleInput(dt, $event.target, col, 'contains')">
 						<input *ngSwitchCase="'TEXT'" pInputText type="text"
-							(input)="dt.filter($event.target.value, col.field, 'contains')">
+							(input)="handleInput(dt, $event.target, col, 'contains')">
 						<input *ngSwitchCase="'NUMBER'" pInputNumber type="number" step="any"
-							(input)="dt.filter($event.target.value, col.field, 'equals')">
+							(input)="handleInput(dt, $event.target, col, 'equals')">
 						<ng-container *ngSwitchCase="'DATE'">
 							<date-field [(value)]="col.startDate" [classNames]="'search-input'"
 								(change)="dt.filter({startDate:col.startDate, endDate:col.endDate}, col.field, 'between')"
@@ -58,7 +58,6 @@
 								[allowInfinity]="false" [placement]="'bottom'" customStyles="font-size: 10px;"
 								[placeholder]="'generic.table.from.date' | localize">
 							</date-field>
-
 						</ng-container>
 						<p-autoComplete *ngSwitchCase="'AUTOCOMPLETE'" appendTo="body" [(ngModel)]="col.text"
 							[suggestions]="col.results" (completeMethod)="onComplete(col, $event)"

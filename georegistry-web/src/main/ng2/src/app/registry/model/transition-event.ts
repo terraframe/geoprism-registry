@@ -1,4 +1,4 @@
-import { LocalizedValue } from "@shared/model/core";
+import { LocalizedValue } from "@core/model/core";
 
 export class Transition {
 

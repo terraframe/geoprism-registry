@@ -11,9 +11,9 @@ import { GeometryService } from "./geometry.service";
 import { ValueOverTimeCREditor } from "@registry/component/geoobject-shared-attribute-editor/ValueOverTimeCREditor";
 import { MapService } from "./map.service";
 
-import { GeoRegistryConfiguration } from "@core/model/registry";
+import { GeoRegistryConfiguration } from "@core/model/core";
 import { ObjectReference } from "@registry/model/graph";
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 export abstract class LayerDataSource {
 
@@ -219,7 +219,7 @@ export class GeoObjectLayerDataSource extends LayerDataSource {
             params = params.set("date", this.date);
         }
 
-        let url = registry.contextPath + "/api/geoobject/get-code" + "?" + params.toString();
+        let url = environment.apiUrl + "/api/geoobject/get-code" + "?" + params.toString();
 
         return {
             type: "geojson",
@@ -277,7 +277,7 @@ export class ListVectorLayerDataSource extends LayerDataSource {
 
         return {
             type: "vector",
-            tiles: [protocol + "//" + host + registry.contextPath + "/api/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: this.versionId }))],
+            tiles: [protocol + "//" + host + environment.apiUrl + "/api/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: this.versionId }))],
             promoteId: "uid"
         };
     }

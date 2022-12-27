@@ -7,7 +7,7 @@ import { EventService } from "@shared/service";
 
 import { Organization } from "@shared/model/core";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class OrganizationService {
@@ -19,7 +19,7 @@ export class OrganizationService {
         this.eventService.start();
 
         return this.http
-            .get<Organization[]>(registry.contextPath + "/api/organization/get-all")
+            .get<Organization[]>(environment.apiUrl + "/api/organization/get-all")
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -34,7 +34,7 @@ export class OrganizationService {
         this.eventService.start();
 
         return this.http
-            .post<Organization>(registry.contextPath + "/api/organization/update", JSON.stringify(json), { headers: headers })
+            .post<Organization>(environment.apiUrl + "/api/organization/update", JSON.stringify(json), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -49,7 +49,7 @@ export class OrganizationService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/api/organization/create", JSON.stringify(json), { headers: headers })
+            .post<any>(environment.apiUrl + "/api/organization/create", JSON.stringify(json), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -64,7 +64,7 @@ export class OrganizationService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/api/organization/delete", code, { headers: headers })
+            .post<any>(environment.apiUrl + "/api/organization/delete", code, { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

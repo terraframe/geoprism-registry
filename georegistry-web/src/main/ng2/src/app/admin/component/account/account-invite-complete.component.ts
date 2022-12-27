@@ -27,7 +27,7 @@ import { AccountService } from '@admin/service/account.service';
 
 import { ErrorHandler } from '@shared/component';
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Component({
 	selector: 'account-invite-complete',
@@ -62,12 +62,12 @@ export class AccountInviteCompleteComponent implements OnInit, OnDestroy {
 	}
 
 	cancel(): void {
-		window.location.href = registry.contextPath;
+		window.location.href = environment.apiUrl;
 	}
 
 	onSubmit(): void {
 		this.service.inviteComplete(this.user, this.token).then(response => {
-			window.location.href = registry.contextPath;
+			window.location.href = environment.apiUrl;
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});

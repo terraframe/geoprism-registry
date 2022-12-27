@@ -1,6 +1,6 @@
 import { ListColumn, ListTypeVersion } from "@registry/model/list-type";
 import { AttributeType, GeoObject } from "@registry/model/registry";
-import { LocalizedValue } from "@shared/model/core";
+import { LocalizedValue } from "@core/model/core";
 import { GenericTableColumn, TableColumnSetup } from "@shared/model/generic-table";
 // eslint-disable-next-line camelcase
 import turf_booleanequal from "@turf/boolean-equal";

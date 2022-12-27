@@ -26,7 +26,7 @@ import { EventService } from '@shared/service'
 
 import { SystemLogo } from '@admin/model/system-logo';
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class SystemLogoService {
@@ -37,7 +37,7 @@ export class SystemLogoService {
 		this.eventService.start();
 
 		return this.http
-			.get<{ icons: SystemLogo[] }>(registry.contextPath + '/logo/getAll')
+			.get<{ icons: SystemLogo[] }>(environment.apiUrl + '/api/asset/get-all')
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
@@ -53,7 +53,7 @@ export class SystemLogoService {
 		this.eventService.start();
 
 		return this.http
-			.post<void>(registry.contextPath + '/logo/remove', JSON.stringify({ oid: oid }), { headers: headers })
+			.post<void>(environment.apiUrl + '/api/asset/get-all', JSON.stringify({ oid: oid }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))

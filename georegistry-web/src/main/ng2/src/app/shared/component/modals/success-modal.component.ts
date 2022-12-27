@@ -1,14 +1,14 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 
 @Component({
     selector: "success-modal",
     templateUrl: "./success-modal.component.html",
     styleUrls: ["./success-modal.css"]
 })
-export class SuccessModalComponent implements OnInit {
+export class SuccessModalComponent implements OnInit, OnDestroy {
 
     /*
      * Message
@@ -27,9 +27,13 @@ export class SuccessModalComponent implements OnInit {
         this.onConfirm = new Subject();
     }
 
+    ngOnDestroy(): void {
+        this.onConfirm.unsubscribe();
+    }
+
     confirm(): void {
         this.bsModalRef.hide();
-        this.onConfirm.next();
+        this.onConfirm.next(null);
     }
 
 }

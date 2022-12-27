@@ -19,7 +19,7 @@
       <label for="startDateFilter">
         <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
       </label>
-      <date-field [(value)]="dateCondition.startDate" [classNames]="['form-control']" label="" (change)="filterChange()"
+      <date-field [(value)]="dateCondition.startDate" [classNames]="'form-control'" label="" (change)="filterChange()"
         [inputName]="'startDateFilter'" [allowFutureDates]="false" name="startDateFilter" [required]="false" customStyles="width:100%; height:40px;">
       </date-field>
     </span>
@@ -27,7 +27,7 @@
       <label for="endDateFilter">
         <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
       </label>
-      <date-field [(value)]="dateCondition.endDate" [classNames]="['form-control']" label="" (change)="filterChange()"
+      <date-field [(value)]="dateCondition.endDate" [classNames]="'form-control'" label="" (change)="filterChange()"
         [inputName]="'endDateFilter'" [allowFutureDates]="false" name="endDateFilter" [required]="false" customStyles="width:100%; height:40px;"></date-field>
     </span>
   </div>

@@ -7,7 +7,7 @@ import {
 } from "@angular/animations";
 
 import { TimeRangeEntry } from "@registry/model/registry";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 import { DateService } from "@shared/service/date.service";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { ChangeRequestEditor } from "./change-request-editor";
@@ -17,6 +17,7 @@ import { ChangeType } from "@registry/model/constants";
 import { Subscription } from "rxjs";
 import { LocationManagerState } from "../location-manager/location-manager.component";
 import { GeometryService } from "@registry/service";
+import { VotService } from "@registry/service/vot.service";
 
 export interface DateBoundary { date: string; isStart: boolean; isEnd: boolean }
 
@@ -88,7 +89,7 @@ export class StabilityPeriodComponent implements OnInit, OnDestroy {
     }
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private lService: LocalizationService, public dateService: DateService, private geomService: GeometryService) {}
+    constructor(public dateService: DateService, public votService: VotService, private geomService: GeometryService) {}
 
     ngOnInit(): void {
         this.generate();
@@ -340,7 +341,7 @@ export class StabilityPeriodComponent implements OnInit, OnDestroy {
             }
         }
 
-        this.dateService.sort(this.periods);
+        this.votService.sort(this.periods);
     }
 
     formatDate(date: string): string {

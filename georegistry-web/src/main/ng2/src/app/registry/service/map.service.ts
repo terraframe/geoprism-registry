@@ -7,14 +7,14 @@ import { LocationInformation } from "@registry/model/location-manager";
 import { EventService } from "@shared/service";
 import { GeoObject } from "@registry/model/registry";
 
-import { GeoRegistryConfiguration } from "@core/model/registry";
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
+import { ConfigurationService } from "@core/service/configuration.service";
 
 @Injectable()
 export class MapService {
 
-    constructor(private http: HttpClient, private eventService: EventService) {
-        (mapboxgl as any).accessToken = registry.mapboxAccessToken;
+    constructor(private configuration: ConfigurationService, private http: HttpClient, private eventService: EventService) {
+        (mapboxgl as any).accessToken = configuration.getMapboxAccessToken();
     }
 
     roots(typeCode: string, hierarchyCode: string, date: string): Promise<LocationInformation> {
@@ -35,7 +35,7 @@ export class MapService {
         this.eventService.start();
 
         return this.http
-            .get<LocationInformation>(registry.contextPath + "/api/registrylocation/roots", { params: params })
+            .get<LocationInformation>(environment.apiUrl + "/api/registrylocation/roots", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -55,7 +55,7 @@ export class MapService {
         }
 
         return this.http
-            .get<{ type: string, features: GeoObject[] }>(registry.contextPath + "/api/registrylocation/search", { params: params })
+            .get<{ type: string, features: GeoObject[] }>(environment.apiUrl + "/api/registrylocation/search", { params: params })
             .pipe(finalize(() => {
                 if (showOverlay) {
                     this.eventService.complete();

@@ -7,7 +7,7 @@ import { ContextMenuComponent, ContextMenuService } from "ngx-contextmenu";
 
 import { ConfirmModalComponent, ErrorHandler } from "@shared/component";
 import { Classification, ClassificationType } from "@registry/model/classification-type";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 import { ClassificationService } from "@registry/service/classification.service";
 import { ClassificationPublishModalComponent } from "./classification-publish-modal.component";
 import { PageResult } from "@shared/model/core";

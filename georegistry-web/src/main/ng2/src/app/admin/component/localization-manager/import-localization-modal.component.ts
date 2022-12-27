@@ -7,7 +7,7 @@ import { LocalizationService, EventService } from "@shared/service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { LocalizationFeedbackModalComponent } from "./localization-feedback-modal.component";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Component({
     selector: "import-localization-modal",
@@ -30,7 +30,7 @@ export class ImportLocalizationModalComponent {
         let options: FileUploaderOptions = {
             queueLimit: 1,
             removeAfterUpload: true,
-            url: registry.contextPath + "/api/localization/importSpreadsheet"
+            url: environment.apiUrl + "/api/localization/importSpreadsheet"
         };
 
         this.uploader = new FileUploader(options);

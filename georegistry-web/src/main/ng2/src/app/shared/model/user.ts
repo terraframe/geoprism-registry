@@ -1,5 +1,6 @@
 /* eslint-disable padded-blocks */
-import { RegistryRole, LocaleView } from "./core";
+import { LocaleView } from "@core/model/core";
+import { RegistryRole } from "./core";
 
 export class User {
     userName: string;

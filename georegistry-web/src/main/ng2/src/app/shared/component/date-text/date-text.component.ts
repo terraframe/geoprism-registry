@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from "@angular/core";
-import { DateService } from "@shared/service";
+import { DateService } from "../../service";
 
 @Component({
     selector: "date-text",
@@ -8,15 +8,18 @@ import { DateService } from "@shared/service";
 })
 export class DateTextComponent implements OnChanges {
 
-    @Input() date: string = null;
-    formattedDate: string = null;
+    @Input() date: string = '';
+
+    formattedDate: string = '';
 
     constructor(private service: DateService) {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.date != null) {
-            this.formattedDate = this.service.formatDateForDisplay(changes.date.currentValue);
+        if (changes['date'] != null) {
+            (async () => {
+                this.formattedDate = await this.service.formatDateForDisplay(changes['date'].currentValue);
+            })();
         }
     }
 

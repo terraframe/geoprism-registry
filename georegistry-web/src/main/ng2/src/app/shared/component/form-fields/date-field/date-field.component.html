@@ -8,7 +8,7 @@
   <span class="wrapper">
       <input [class]="classNames ? classNames + ' ' + 'date-input-element' : 'date-input-element'" 
            [style]="customStyles ? customStyles : ''"
-           name="{{inputName}}"
+           [attr.name]="inputName"
            type="text"
            [placeholder]="placeholder"
            [bsValue]="_value"
@@ -21,7 +21,7 @@
               adaptivePosition: true
               }"
            [outsideClick]="true"
-           placement="{{placement}}"
+           [attr.placement]="placement"
            [maxDate]="allowFutureDates ? null : today"
            [isDisabled]="disable"
            [disabled]="disable"

@@ -118,11 +118,11 @@
   </ng-container>
 
   <define-attribute-modal-content *ngIf="modalState.state === 'DEFINE-ATTRIBUTE'" [geoObjectType]="type"
-    [service]="service" (geoObjectTypeChange)="onTypeChange($event)" (stateChange)="onModalStateChange($event)">
+    [service]="service" (geoObjectTypeChange)="onTypeChange()" (stateChange)="onModalStateChange($event)">
   </define-attribute-modal-content>
 
   <edit-attribute-modal-content *ngIf="modalState.state === 'EDIT-ATTRIBUTE'" [geoObjectType]="type"
-    [attribute]="modalState.attribute" [service]="service" (geoObjectTypeChange)="onTypeChange($event)"
+    [attribute]="modalState.attribute" [service]="service" (geoObjectTypeChange)="onTypeChange()"
     (stateChange)="onModalStateChange($event)">
   </edit-attribute-modal-content>
 

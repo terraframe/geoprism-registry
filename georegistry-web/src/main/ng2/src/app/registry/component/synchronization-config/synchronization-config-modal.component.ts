@@ -3,7 +3,7 @@ import { BsModalRef } from "ngx-bootstrap/modal";
 import { Subject } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 import { ErrorHandler } from "@shared/component";
 
 import { SynchronizationConfig, OrgSyncInfo } from "@registry/model/registry";

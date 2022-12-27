@@ -2,7 +2,7 @@
 import { ManageVersionsComponent } from "./manage-versions.component";
 import { SummaryKey } from "@registry/model/crtable";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
-import { LocalizedValue } from "@shared/model/core";
+import { LocalizedValue } from "@core/model/core";
 import { AttributeTermType, Term } from "@registry/model/registry";
 import { GeoJsonLayer, Layer } from "@registry/service/layer-data-source";
 

@@ -33,14 +33,16 @@ import { Settings } from '@admin/model/settings';
 import { User } from '@admin/model/account';
 import { AccountService } from '@admin/service/account.service';
 
-import { PageResult, Organization, ExternalSystem, LocaleView } from '@shared/model/core';
+import { PageResult, Organization, ExternalSystem } from '@shared/model/core';
 import { ModalTypes } from '@shared/model/modal';
 import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
 import { LocalizationService, AuthService, ExternalSystemService, OrganizationService } from '@shared/service';
 import { SettingsService, SettingsInitView } from '@admin/service/settings.service';
 import { LocalizationManagerService } from '@admin/service/localization-manager.service';
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
+import { LocaleView } from '@core/model/core';
+import { ConfigurationService } from '@core/service/configuration.service';
 
 @Component({
 	selector: 'settings',
@@ -74,6 +76,7 @@ export class SettingsComponent implements OnInit {
 	};
 
 	constructor(
+		private configuration: ConfigurationService,
 		private modalService: BsModalService,
 		private localizeService: LocalizationService,
 		private authService: AuthService,
@@ -116,12 +119,12 @@ export class SettingsComponent implements OnInit {
 	}
 
 	public getLocales(): LocaleView[] {
-		return this.authService.getLocales();
+		return this.configuration.getLocales();
 	}
 
 	exportLocalization() {
 		//this.localizationManagerService.exportLocalization();
-		window.location.href = registry.contextPath + "/api/localization/exportSpreadsheet";
+		window.location.href = environment.apiUrl + "/api/localization/exportSpreadsheet";
 	}
 
 	public importLocalization(): void {
@@ -218,7 +221,6 @@ export class SettingsComponent implements OnInit {
       }
       
       this.localizeService.addLocale(locale);
-      this.authService.addLocale(locale);
     });
 	}
 	
@@ -235,7 +237,6 @@ export class SettingsComponent implements OnInit {
     this.bsModalRef.content.onConfirm.subscribe(data => {
       this.localizationManagerService.uninstallLocale(locale).then(response => {
         this.localizeService.remove(locale);
-        this.authService.removeLocale(locale);
         
         let removeIndex = -1;
         let len = this.installedLocales.length;
@@ -270,7 +271,6 @@ export class SettingsComponent implements OnInit {
 		bsModalRef.content.onSuccess.subscribe((locale: LocaleView) => {
 			this.localizeService.addLocale(locale);
 			this.installedLocales.push(locale);
-			this.authService.addLocale(locale);
 		});
 	}
 

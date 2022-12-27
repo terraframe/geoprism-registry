@@ -199,6 +199,10 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     endpoints.add("api/cgrsession/ologin");
     endpoints.add("api/cgrsession/login");
     endpoints.add("api/cgr/localization-map");
+    endpoints.add("api/cgr/current-locale");
+    endpoints.add("api/cgr/locales");
+    endpoints.add("api/cgr/configuration");
+    endpoints.add("api/asset/view");
     endpoints.add("api/oauth/get-public");
     endpoints.add("api/registryaccount/inviteComplete");
     endpoints.add("api/registryaccount/newUserInstance");

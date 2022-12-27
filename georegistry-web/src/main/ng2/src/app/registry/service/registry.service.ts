@@ -30,10 +30,11 @@ import {
 import { HierarchyType } from "@registry/model/hierarchy";
 import { Progress } from "@shared/model/progress";
 
-import { Organization, LocaleView, PageResult } from "@shared/model/core";
+import { Organization, PageResult } from "@shared/model/core";
 import { EventService } from "@shared/service";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
+import { LocaleView } from "@core/model/core";
 
 export interface AttributeTypeService {
     addAttributeType(geoObjTypeId: string, attribute: AttributeType): Promise<AttributeType>;
@@ -50,7 +51,7 @@ export class RegistryService implements AttributeTypeService {
     constructor(private http: HttpClient, private eventService: EventService) { }
 
     init(): Promise<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }> {
-        return this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }>(registry.contextPath + "/api/cgr/init")
+        return this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }>(environment.apiUrl + "/api/cgr/init")
             .toPromise();
     }
 
@@ -67,7 +68,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .get<GeoObjectType[]>(registry.contextPath + "/api/geoobjecttype/get-all", { params: params })
+            .get<GeoObjectType[]>(environment.apiUrl + "/api/geoobjecttype/get-all", { params: params })
             .toPromise();
     }
 
@@ -84,7 +85,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .get<ParentTreeNode>(registry.contextPath + "/api/geoobject/get-parent-geoobjects", { params: params })
+            .get<ParentTreeNode>(environment.apiUrl + "/api/geoobject/get-parent-geoobjects", { params: params })
             .toPromise();
     }
 
@@ -97,7 +98,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("recursive", JSON.stringify(recursive));
 
         return this.http
-            .get<ChildTreeNode>(registry.contextPath + "/api/geoobject/getchildren", { params: params })
+            .get<ChildTreeNode>(environment.apiUrl + "/api/geoobject/getchildren", { params: params })
             .toPromise();
     }
 
@@ -110,7 +111,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("code", code);
 
         return this.http
-            .get<{ exists: boolean, invalid: boolean }>(registry.contextPath + "/api/geoobject/exists-at-range", { params: params })
+            .get<{ exists: boolean, invalid: boolean }>(environment.apiUrl + "/api/geoobject/exists-at-range", { params: params })
             .toPromise();
     }
 
@@ -122,7 +123,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/api/geoobject/newGeoObjectInstance", JSON.stringify({ typeCode: typeCode }), { headers: headers })
+            .post<any>(environment.apiUrl + "/api/geoobject/newGeoObjectInstance", JSON.stringify({ typeCode: typeCode }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -137,7 +138,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<GeoObjectType>(registry.contextPath + "/api/geoobjecttype/create", JSON.stringify({ gtJSON: gtJSON }), { headers: headers })
+            .post<GeoObjectType>(environment.apiUrl + "/api/geoobjecttype/create", JSON.stringify({ gtJSON: gtJSON }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -152,7 +153,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<GeoObjectType>(registry.contextPath + "/api/geoobjecttype/update", JSON.stringify({ gtJSON: gtJSON }), { headers: headers })
+            .post<GeoObjectType>(environment.apiUrl + "/api/geoobjecttype/update", JSON.stringify({ gtJSON: gtJSON }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -167,7 +168,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/api/geoobjecttype/delete", JSON.stringify({ code: code }), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/geoobjecttype/delete", JSON.stringify({ code: code }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -182,7 +183,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<AttributeType>(registry.contextPath + "/api/geoobjecttype/addattribute", JSON.stringify({ geoObjTypeCode: geoObjTypeCode, attributeType: attribute }), { headers: headers })
+            .post<AttributeType>(environment.apiUrl + "/api/geoobjecttype/addattribute", JSON.stringify({ geoObjTypeCode: geoObjTypeCode, attributeType: attribute }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -197,7 +198,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<AttributeType>(registry.contextPath + "/api/geoobjecttype/updateattribute", JSON.stringify({ geoObjTypeCode: geoObjTypeCode, attributeType: attribute }), { headers: headers })
+            .post<AttributeType>(environment.apiUrl + "/api/geoobjecttype/updateattribute", JSON.stringify({ geoObjTypeCode: geoObjTypeCode, attributeType: attribute }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -212,7 +213,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<boolean>(registry.contextPath + "/api/geoobjecttype/deleteattribute", JSON.stringify({ geoObjTypeId: geoObjTypeId, attributeName: attributeName }), { headers: headers })
+            .post<boolean>(environment.apiUrl + "/api/geoobjecttype/deleteattribute", JSON.stringify({ geoObjTypeId: geoObjTypeId, attributeName: attributeName }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -227,7 +228,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<Term>(registry.contextPath + "/api/geoobjecttype/addterm", JSON.stringify({ parentTermCode: parentTermCode, termJSON: term }), { headers: headers })
+            .post<Term>(environment.apiUrl + "/api/geoobjecttype/addterm", JSON.stringify({ parentTermCode: parentTermCode, termJSON: term }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -242,7 +243,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<Term>(registry.contextPath + "/api/geoobjecttype/updateterm", JSON.stringify({ parentTermCode: parentTermCode, termJSON: termJSON }), { headers: headers })
+            .post<Term>(environment.apiUrl + "/api/geoobjecttype/updateterm", JSON.stringify({ parentTermCode: parentTermCode, termJSON: termJSON }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -257,7 +258,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<AttributeType>(registry.contextPath + "/api/geoobjecttype/deleteterm", JSON.stringify({ parentTermCode: parentTermCode, termCode: termCode }), { headers: headers })
+            .post<AttributeType>(environment.apiUrl + "/api/geoobjecttype/deleteterm", JSON.stringify({ parentTermCode: parentTermCode, termCode: termCode }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -275,7 +276,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .get<GeoObject>(registry.contextPath + "/api/geoobject/get", { params: params })
+            .get<GeoObject>(environment.apiUrl + "/api/geoobject/get", { params: params })
             .pipe(finalize(() => {
                 if (showOverlay) {
                     this.eventService.complete();
@@ -291,7 +292,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("typeCode", typeCode);
 
         return this.http
-            .get<number[]>(registry.contextPath + "/api/geoobject/get-bounds", { params: params })
+            .get<number[]>(environment.apiUrl + "/api/geoobject/get-bounds", { params: params })
             .toPromise();
     }
 
@@ -306,7 +307,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .get<number[]>(registry.contextPath + "/api/geoobject-time/get-bounds", { params: params })
+            .get<number[]>(environment.apiUrl + "/api/geoobject-time/get-bounds", { params: params })
             .toPromise();
     }
 
@@ -317,7 +318,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("typeCode", typeCode);
 
         return this.http
-            .get<GeoObject>(registry.contextPath + "/api/geoobject/get-code", { params: params })
+            .get<GeoObject>(environment.apiUrl + "/api/geoobject/get-code", { params: params })
             .toPromise();
     }
 
@@ -331,7 +332,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .get<HierarchyOverTime[]>(registry.contextPath + "/api/geoobject/get-hierarchies-over-time", { params: params })
+            .get<HierarchyOverTime[]>(environment.apiUrl + "/api/geoobject/get-hierarchies-over-time", { params: params })
             .pipe(finalize(() => {
                 if (showOverlay) {
                     this.eventService.complete();
@@ -360,7 +361,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .get<{ id: string, code: string, name: string, typeCode: string, uid: string }[]>(registry.contextPath + "/api/geoobject/suggestions", { params: params })
+            .get<{ id: string, code: string, name: string, typeCode: string, uid: string }[]>(environment.apiUrl + "/api/geoobject/suggestions", { params: params })
             .toPromise();
     }
 
@@ -370,7 +371,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("type", type);
 
         return this.http
-            .get<{ id: string, code: string, name: string, typeCode: string, uid: string }[]>(registry.contextPath + "/api/geoobject/suggestions", { params: params })
+            .get<{ id: string, code: string, name: string, typeCode: string, uid: string }[]>(environment.apiUrl + "/api/geoobject/suggestions", { params: params })
             .toPromise();
     }
 
@@ -382,7 +383,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("isAscending", isAscending.toString());
 
         return this.http
-            .get<PageResult<any>>(registry.contextPath + "/api/etl/get-active", { params: params })
+            .get<PageResult<any>>(environment.apiUrl + "/api/etl/get-active", { params: params })
             .toPromise();
     }
 
@@ -394,7 +395,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("isAscending", isAscending.toString());
 
         return this.http
-            .get<PageResult<any>>(registry.contextPath + "/api/etl/get-completed", { params: params })
+            .get<PageResult<any>>(environment.apiUrl + "/api/etl/get-completed", { params: params })
             .toPromise();
     }
 
@@ -406,7 +407,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("onlyUnresolved", onlyUnresolved.toString());
 
         return this.http
-            .get<ScheduledJob>(registry.contextPath + "/api/etl/get-import-details", { params: params })
+            .get<ScheduledJob>(environment.apiUrl + "/api/etl/get-import-details", { params: params })
             .toPromise();
     }
 
@@ -417,7 +418,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("pageNumber", pageNumber.toString());
 
         return this.http
-            .get<ScheduledJob>(registry.contextPath + "/api/etl/get-export-details", { params: params })
+            .get<ScheduledJob>(environment.apiUrl + "/api/etl/get-export-details", { params: params })
             .toPromise();
     }
 
@@ -429,7 +430,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/api/etl/import-resolve", JSON.stringify({ historyId: historyId }), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/etl/import-resolve", JSON.stringify({ historyId: historyId }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -444,7 +445,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/api/etl/validation-resolve", JSON.stringify({ config: config }), { headers: headers })
+            .post<any>(environment.apiUrl + "/api/etl/validation-resolve", JSON.stringify({ config: config }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -459,7 +460,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/api/etl/error-resolve", JSON.stringify({ config: config }), { headers: headers })
+            .post<any>(environment.apiUrl + "/api/etl/error-resolve", JSON.stringify({ config: config }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -470,7 +471,7 @@ export class RegistryService implements AttributeTypeService {
         let params: HttpParams = new HttpParams();
 
         return this.http
-            .get<LocaleView[]>(registry.contextPath + "/api/localization/get-locales", { params: params })
+            .get<LocaleView[]>(environment.apiUrl + "/api/localization/get-locales", { params: params })
             .toPromise();
     }
 
@@ -480,7 +481,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("typeCode", geoObjectTypeCode);
 
         return this.http
-            .get<GeoObjectOverTime>(registry.contextPath + "/api/geoobject-time/get-code", { params: params })
+            .get<GeoObjectOverTime>(environment.apiUrl + "/api/geoobject-time/get-code", { params: params })
             .toPromise();
     }
 
@@ -494,7 +495,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .post<any>(registry.contextPath + "/api/geoobject-time/newGeoObjectInstance", JSON.stringify({ typeCode: typeCode }), { headers: headers })
+            .post<any>(environment.apiUrl + "/api/geoobject-time/newGeoObjectInstance", JSON.stringify({ typeCode: typeCode }), { headers: headers })
             .pipe(finalize(() => {
                 if (showOverlay) {
                     this.eventService.complete();
@@ -537,7 +538,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .post<void>(registry.contextPath + "/api/geoobject-editor/update-geo-object", JSON.stringify(params), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/geoobject-editor/update-geo-object", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
                 if (showOverlay) {
                     this.eventService.complete();
@@ -579,7 +580,7 @@ export class RegistryService implements AttributeTypeService {
         }
 
         return this.http
-            .post<void>(registry.contextPath + "/api/geoobject-editor/create-geo-object", JSON.stringify(params), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/geoobject-editor/create-geo-object", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
                 if (showOverlay) {
                     this.eventService.complete();
@@ -593,7 +594,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("oid", oid);
 
         return this.http
-            .get<Progress>(registry.contextPath + "/master-list/progress", { params: params })
+            .get<Progress>(environment.apiUrl + "/master-list/progress", { params: params })
             .toPromise();
     }
 
@@ -602,7 +603,7 @@ export class RegistryService implements AttributeTypeService {
         params = params.set("oid", oid);
 
         return this.http
-            .get<number[]>(registry.contextPath + "/master-list/bounds", { params: params })
+            .get<number[]>(environment.apiUrl + "/master-list/bounds", { params: params })
             .toPromise();
     }
 
@@ -610,7 +611,7 @@ export class RegistryService implements AttributeTypeService {
         this.eventService.start();
 
         return this.http
-            .get<Organization[]>(registry.contextPath + "/api/organization/get-all")
+            .get<Organization[]>(environment.apiUrl + "/api/organization/get-all")
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

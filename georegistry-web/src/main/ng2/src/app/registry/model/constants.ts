@@ -25,12 +25,6 @@ export enum ImportStrategy {
     "UPDATE_ONLY" = "UPDATE_ONLY"
 }
 
-export enum ConflictType {
-    MISSING_REFERENCE = "MISSING_REFERENCE",
-    TIME_RANGE = "TIME_RANGE",
-    OUTSIDE_EXISTS = "OUTSIDE_EXISTS"
-}
-
 export enum ChangeType {
     END_DATE = "endDate",
     START_DATE = "startDate",

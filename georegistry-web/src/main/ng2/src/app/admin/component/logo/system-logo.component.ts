@@ -17,30 +17,23 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ViewChild, ElementRef, Inject, Input } from '@angular/core';
-import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-import { Location } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { ErrorHandler } from '@shared/component';
-import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
-
-import { Observable } from 'rxjs';
-
+import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 
 import { EventService } from '@shared/service';
-import { SystemLogoService } from '@admin/service/system-logo.service';
 import { SystemLogo } from '@admin/model/system-logo';
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
-@Component( {
+@Component({
 
     selector: 'system-logo',
     templateUrl: './system-logo.component.html',
     styles: []
-} )
+})
 export class SystemLogoComponent implements OnInit {
     message: string = null;
     icon: SystemLogo;
@@ -51,18 +44,17 @@ export class SystemLogoComponent implements OnInit {
     file: any;
     context: string;
 
-    @ViewChild( 'uploadEl' )
+    @ViewChild('uploadEl')
     private uploadElRef: ElementRef;
 
     public onSuccess: Subject<any>;
 
 
-    constructor( private route: ActivatedRoute,
+    constructor(
         private eventService: EventService,
-        public bsModalRef: BsModalRef )
-        {
-            this.context = registry.contextPath;
-        }
+        public bsModalRef: BsModalRef) {
+        this.context = environment.apiUrl;
+    }
 
     ngOnInit(): void {
 
@@ -72,44 +64,44 @@ export class SystemLogoComponent implements OnInit {
             autoUpload: false,
             queueLimit: 1,
             removeAfterUpload: true,
-            url: registry.contextPath + '/logo/apply'
+            url: environment.apiUrl + '/api/asset/apply'
         };
 
-        this.uploader = new FileUploader( options );
+        this.uploader = new FileUploader(options);
 
-        this.uploader.onBeforeUploadItem = ( fileItem: any ) => {
+        this.uploader.onBeforeUploadItem = (fileItem: any) => {
             this.eventService.start();
         };
-        this.uploader.onCompleteItem = ( item: any, response: any, status: any, headers: any ) => {
+        this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
             this.eventService.complete();
         };
-        this.uploader.onSuccessItem = ( item: any, response: string, status: number, headers: any ) => {
-            this.onSuccess.next( item );
+        this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
+            this.onSuccess.next(item);
             this.bsModalRef.hide();
         };
-        this.uploader.onErrorItem = ( item: any, response: string, status: number, headers: any ) => {
-            this.error( response );
+        this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
+            this.error(response);
         };
-        this.uploader.onBuildItemForm = ( fileItem: any, form: any ) => {
-            form.append( 'oid', this.icon.oid );
+        this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
+            form.append('oid', this.icon.oid);
         };
     }
 
     ngAfterViewInit() {
         let that = this;
 
-        this.uploader.onAfterAddingFile = ( item => {
+        this.uploader.onAfterAddingFile = (item => {
             this.uploadElRef.nativeElement.value = '';
 
             let reader = new FileReader();
-            reader.onload = function( e: any ) {
+            reader.onload = function (e: any) {
                 that.file = reader.result;
             };
-            reader.readAsDataURL( item._file );
-        } );
+            reader.readAsDataURL(item._file);
+        });
     }
 
-    fileOver( e: any ): void {
+    fileOver(e: any): void {
         this.dropActive = e;
     }
 
@@ -118,7 +110,7 @@ export class SystemLogoComponent implements OnInit {
     }
 
     onSubmit(): void {
-        if( this.file == null ) {
+        if (this.file == null) {
             this.bsModalRef.hide();
         }
         else {
@@ -132,7 +124,13 @@ export class SystemLogoComponent implements OnInit {
         this.uploader.clearQueue()
     }
 
-    error( err: any ): void {
-            this.message = ErrorHandler.getMessageFromError(err);
+    handleImageError(event: any, icon: SystemLogo): void {
+        if (icon.oid === 'logo') {
+            event.target.src = '../../../../assets/splash_logo_icon.png';
+        }
+    }
+
+    error(err: any): void {
+        this.message = ErrorHandler.getMessageFromError(err);
     }
 }

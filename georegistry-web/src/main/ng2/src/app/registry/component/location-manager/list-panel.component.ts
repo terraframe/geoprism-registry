@@ -10,12 +10,12 @@ import { Subject, Subscription } from "rxjs";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 import { ExportFormatModalComponent } from "../list-type/export-format-modal.component";
-import { GeoRegistryConfiguration } from "@core/model/registry";
+import { GeoRegistryConfiguration } from "@core/model/core";
 import { OverlayerIdentifier } from "@registry/model/constants";
 import { NgxSpinnerService } from "ngx-spinner";
 import Utils from "@registry/utility/Utils";
 
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: "list-panel",
@@ -236,7 +236,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
         modal.content.init(this.list);
         modal.content.onFormat.subscribe(data => {
             if (data.format === "SHAPEFILE") {
-                let url = registry.contextPath + "/api/list-type/export-shapefile?oid=" + this.list.oid;
+                let url = environment.apiUrl + "/api/list-type/export-shapefile?oid=" + this.list.oid;
                 url += "&criteria=" + encodeURIComponent(JSON.stringify(criteria));
 
                 if (data.actualGeometryType != null && data.actualGeometryType.length > 0) {
@@ -245,7 +245,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
 
                 window.open(url, "_blank");
             } else if (data.format === "EXCEL") {
-                window.open(registry.contextPath + "/api/list-type/export-spreadsheet?oid=" + this.list.oid + "&criteria=" + encodeURIComponent(JSON.stringify(criteria)), "_blank");
+                window.open(environment.apiUrl + "/api/list-type/export-spreadsheet?oid=" + this.list.oid + "&criteria=" + encodeURIComponent(JSON.stringify(criteria)), "_blank");
             }
         });
     }

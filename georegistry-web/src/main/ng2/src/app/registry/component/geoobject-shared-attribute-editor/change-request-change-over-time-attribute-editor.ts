@@ -111,13 +111,13 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
 
     validate(skipExists: boolean = false): boolean {
         let validEditors = this.validateEditors();
-        let hasTimeConflict = this.changeRequestEditor.dateService.checkRanges(this.attribute, this.editors);
+        let hasTimeConflict = this.changeRequestEditor.votService.checkRanges(this.attribute, this.editors);
 
         let hasExistConflict = false;
         if (this.attribute.code !== "exists") {
             let existsAttribute: AttributeType = GeoObjectType.getAttribute(this.changeRequestEditor.geoObjectType, "exists");
             let existEditors = (this.changeRequestEditor.getEditorForAttribute(existsAttribute) as ChangeRequestChangeOverTimeAttributeEditor).getEditors();
-            hasExistConflict = this.changeRequestEditor.dateService.checkExistRanges(this.editors, existEditors);
+            hasExistConflict = this.changeRequestEditor.votService.checkExistRanges(this.editors, existEditors);
         } else if (!skipExists) {
             this.changeRequestEditor.validate(true); // If the exists attribute has changed we must revalidate all other attributes
         }

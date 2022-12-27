@@ -29,7 +29,7 @@ import { Account, User, UserInvite } from "@admin/model/account";
 
 import { PageResult } from "@shared/model/core";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class AccountService {
@@ -44,7 +44,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .get<PageResult<User>>(registry.contextPath + "/api/registryaccount/page", { params: params })
+            .get<PageResult<User>>(environment.apiUrl + "/api/registryaccount/page", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -59,7 +59,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .get<PageResult<User>>(registry.contextPath + "/api/registryaccount/get-sras", { params: params })
+            .get<PageResult<User>>(environment.apiUrl + "/api/registryaccount/get-sras", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -74,7 +74,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<Account>(registry.contextPath + "/api/registryaccount/edit", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<Account>(environment.apiUrl + "/api/registryaccount/edit", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -89,7 +89,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<Account>(registry.contextPath + "/api/registryaccount/newInstance", JSON.stringify({ organizationCodes: organizationCodes }), { headers: headers })
+            .post<Account>(environment.apiUrl + "/api/registryaccount/newInstance", JSON.stringify({ organizationCodes: organizationCodes }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -104,7 +104,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<User>(registry.contextPath + "/api/registryaccount/newUserInstance", JSON.stringify({}), { headers: headers })
+            .post<User>(environment.apiUrl + "/api/registryaccount/newUserInstance", JSON.stringify({}), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -119,7 +119,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<Account>(registry.contextPath + "/api/registryaccount/newInvite", JSON.stringify({ organizationCodes: organizationCodes }), { headers: headers })
+            .post<Account>(environment.apiUrl + "/api/registryaccount/newInvite", JSON.stringify({ organizationCodes: organizationCodes }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -134,7 +134,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/api/registryaccount/remove", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/registryaccount/remove", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -149,7 +149,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<Account>(registry.contextPath + "/api/registryaccount/apply", JSON.stringify({ account: user, roleNames: roleNames }), { headers: headers })
+            .post<Account>(environment.apiUrl + "/api/registryaccount/apply", JSON.stringify({ account: user, roleNames: roleNames }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -164,7 +164,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/api/registryaccount/unlock", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/registryaccount/unlock", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -181,7 +181,7 @@ export class AccountService {
         //        console.log( "Submitting to inviteUser : ", JSON.stringify( { invite: invite, roleIds: roleIds } ) );
 
         return this.http
-            .post<void>(registry.contextPath + "/api/registryaccount/inviteUser", JSON.stringify({ invite: invite, roleIds: roleIds }), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/registryaccount/inviteUser", JSON.stringify({ invite: invite, roleIds: roleIds }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -196,7 +196,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/api/registryaccount/inviteComplete", JSON.stringify({ user: user, token: token }), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/registryaccount/inviteComplete", JSON.stringify({ user: user, token: token }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -210,7 +210,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .get<any>(registry.contextPath + "/cgr/account/get-roles-for-user", { params: params })
+            .get<any>(environment.apiUrl + "/cgr/account/get-roles-for-user", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

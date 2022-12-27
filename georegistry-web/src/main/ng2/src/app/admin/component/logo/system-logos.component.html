@@ -25,7 +25,10 @@
           </td>
           <td class="label-column">{{ icon.label }}</td>
           <td class="icon-thumbnail-column">
-            <img style="width:42px;height:42px;" class="thumb" [src]="context + '/logo/view?oid=' + icon.oid + '&random=' + random" alt="Icon">
+            <img style="width:42px;height:42px;" class="thumb" 
+            [src]="context + '/api/asset/view?oid=' + icon.oid + '&random=' + random" 
+            (error)="handleImageError($event, icon)"
+            alt="Icon">
           </td>
         </tr>      
       </tbody>    

@@ -9,7 +9,7 @@ import { GeoObjectEditorComponent } from "../../geoobject-editor/geoobject-edito
 import { RegistryService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 import { ErrorHandler } from "@shared/component";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 
 @Component({
     selector: "import-problem-widget",

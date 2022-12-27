@@ -1,13 +1,12 @@
 /* eslint-disable no-use-before-define */
 /* eslint-disable padded-blocks */
-import { LocalizedValue, PageResult } from "@shared/model/core";
-import { LocalizationService } from "@shared/service";
+import { PageResult } from "@shared/model/core";
+import { LocalizationService } from "@shared/service/localization.service";
 import { ImportConfiguration } from "./io";
-import { GovernanceStatus, ConflictType } from "./constants";
+import { GovernanceStatus } from "./constants";
 import Utils from "@registry/utility/Utils";
 import { RegistryService } from "@registry/service";
-
-export const PRESENT: string = "5000-12-31";
+import { LocalizedValue } from "@core/model/core";
 
 /**
  * Provides a reusable TypeCache which can be used across the app. Types will be automatically fetched
@@ -240,12 +239,6 @@ export class GeoObjectOverTime {
     }
 }
 
-export class ConflictMessage {
-    message: string;
-    severity: string;
-    type: ConflictType;
-}
-
 export interface TimeRangeEntry {
     startDate: string;
     endDate: string;
@@ -357,6 +350,10 @@ export class AbstractScheduledJob {
     workTotal: number;
     startDate: string;
     endDate: string;
+    exception?: {
+        message: string,
+        type: string
+    }
 }
 
 export class ScheduledJob extends AbstractScheduledJob {
@@ -464,4 +461,5 @@ export class OrgSyncInfo {
 
 export class ExportScheduledJob extends AbstractScheduledJob {
     stepConfig?: StepConfig;
+    fileName: string;
 }

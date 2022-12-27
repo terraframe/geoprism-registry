@@ -25,7 +25,7 @@ import { EventService } from "@shared/service";
 
 import { AllLocaleInfo } from "@registry/model/localization-manager";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class LocalizationManagerService {
@@ -35,7 +35,7 @@ export class LocalizationManagerService {
 
     getNewLocaleInfo(): Promise<AllLocaleInfo> {
         return this.http
-            .get<AllLocaleInfo>(registry.contextPath + "/api/localization/getNewLocaleInformation")
+            .get<AllLocaleInfo>(environment.apiUrl + "/api/localization/getNewLocaleInformation")
             .toPromise();
     }
 
@@ -55,7 +55,7 @@ export class LocalizationManagerService {
         }
 
         return this.http
-            .get<void>(registry.contextPath + "/api/localization/installLocale", { params: params })
+            .get<void>(environment.apiUrl + "/api/localization/installLocale", { params: params })
             .toPromise();
     }
 

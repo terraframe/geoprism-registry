@@ -694,13 +694,13 @@ div.row-holder .rad-area {
 }
 .chk-checked{
     border-color:#598a37;
-    background: #6BA542 url(../images/sprite-green.png) no-repeat -43px -20px; /* IE fallback */
-	background: var(--theme-submit-button-color-hover) url(../images/sprite-green.png) no-repeat -43px -20px;
+    background: #6BA542 url(../assets/sprite-green.png) no-repeat -43px -20px; /* IE fallback */
+	background: var(--theme-submit-button-color-hover) url(../assets/sprite-green.png) no-repeat -43px -20px;
 }
 .chk-checked.disabled{
     border-color:#888a85;
-    background: #cccccc url(../images/sprite-green.png) no-repeat -65px -20px; /* IE fallback */
-	background: var(--theme-submit-button-color-hover) url(../images/sprite-green.png) no-repeat -65px -20px;
+    background: #cccccc url(../assets/sprite-green.png) no-repeat -65px -20px; /* IE fallback */
+	background: var(--theme-submit-button-color-hover) url(../assets/sprite-green.png) no-repeat -65px -20px;
 }
 .chk-focus{border-color:#6BA542;}
 .chk-focus.chk-checked{border-color:#02789e;}
@@ -710,7 +710,7 @@ div.row-holder .rad-area {
 }
 .chk-checked.chk-disabled{
 	border:1px solid #888a85;
-	background:#cccccc url(../images/sprite-green.png) no-repeat -65px -20px;
+	background:#cccccc url(../assets/sprite-green.png) no-repeat -65px -20px;
 }
 
 .checkbox-label {

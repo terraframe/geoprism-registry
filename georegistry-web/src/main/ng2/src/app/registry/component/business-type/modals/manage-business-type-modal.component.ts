@@ -14,7 +14,7 @@ import { AttributeType, ManageGeoObjectTypeModalState } from "@registry/model/re
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { ModalTypes } from "@shared/model/modal";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 
 @Component({
     selector: "manage-business-type-modal",
@@ -49,7 +49,7 @@ export class ManageBusinessTypeModalComponent implements OnInit {
     public onBusinessTypeChange: Subject<BusinessType>;
     readOnly: boolean = false;
 
-    constructor(private service: BusinessTypeService, private localizationService: LocalizationService, private modalService: BsModalService, public bsModalRef: BsModalRef) {
+    constructor(public service: BusinessTypeService, private localizationService: LocalizationService, private modalService: BsModalService, public bsModalRef: BsModalRef) {
     }
 
     ngOnInit(): void {
@@ -95,8 +95,8 @@ export class ManageBusinessTypeModalComponent implements OnInit {
         this.modalState = state;
     }
 
-    onTypeChange(data: BusinessType): void {
-        this.onBusinessTypeChange.next(data);
+    onTypeChange(): void {
+        this.onBusinessTypeChange.next(this.type);
     }
 
     update(): void {

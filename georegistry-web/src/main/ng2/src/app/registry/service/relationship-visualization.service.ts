@@ -24,11 +24,11 @@ import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
 
-import { GeoRegistryConfiguration } from "@core/model/registry";
+import { GeoRegistryConfiguration } from "@core/model/core";
 
 import { ActivatedRoute } from "@angular/router";
 import { ObjectReference, Relationship, TreeData } from "@registry/model/graph";
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class RelationshipVisualizationService {
@@ -59,7 +59,7 @@ export class RelationshipVisualizationService {
         // this.eventService.start();
 
         return this.http
-            .get<TreeData>(registry.contextPath + "/relationship-visualization/tree", { params: params })
+            .get<TreeData>(environment.apiUrl + "/relationship-visualization/tree", { params: params })
             .pipe(finalize(() => {
                 // this.eventService.complete();
             }))
@@ -86,7 +86,7 @@ export class RelationshipVisualizationService {
         // this.eventService.start();
 
         return this.http
-            .get<any>(registry.contextPath + "/relationship-visualization/treeAsGeoJson", { params: params })
+            .get<any>(environment.apiUrl + "/relationship-visualization/treeAsGeoJson", { params: params })
             .pipe(finalize(() => {
                 // this.eventService.complete();
             }))
@@ -101,7 +101,7 @@ export class RelationshipVisualizationService {
         // this.eventService.start();
 
         return this.http
-            .get<any>(registry.contextPath + "/relationship-visualization/relationships", { params: params })
+            .get<any>(environment.apiUrl + "/relationship-visualization/relationships", { params: params })
             .pipe(finalize(() => {
                 // this.eventService.complete();
             }))

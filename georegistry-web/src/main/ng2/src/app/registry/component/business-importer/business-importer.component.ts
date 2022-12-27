@@ -12,9 +12,8 @@ import { ImportStrategy } from "@registry/model/constants";
 import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
 import { BusinessType } from "@registry/model/business-type";
 import { BusinessTypeService } from "@registry/service/business-type.service";
-import { GeoRegistryConfiguration } from "@core/model/registry";
 
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Component({
 
@@ -74,7 +73,7 @@ export class BusinessImporterComponent implements OnInit {
     /*
      * Date
      */
-    date: Date = null;
+    date: string = null;
 
     /*
      * Reference to the modal current showing
@@ -174,7 +173,7 @@ export class BusinessImporterComponent implements OnInit {
             this.error(err);
         });
 
-        let getUrl = registry.contextPath + "/api/excel/get-business-config";
+        let getUrl = environment.apiUrl + "/api/excel/get-business-config";
 
         let options: FileUploaderOptions = {
             queueLimit: 1,
@@ -263,14 +262,6 @@ export class BusinessImporterComponent implements OnInit {
                 error: {}
             });
         }
-    }
-
-    onNext(): void {
-        this.showImportConfig = true;
-    }
-
-    onBack(): void {
-        this.showImportConfig = false;
     }
 
     public error(err: any): void {

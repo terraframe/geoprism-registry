@@ -1,7 +1,7 @@
 <div class="modal-body">
   <div class="row">
     <div class="col-md-12">
-    
+
       <message></message>
       <loading-bar></loading-bar>
 
@@ -12,13 +12,15 @@
         <fieldset>
           <div>
             <!-- For display only when editing an icon-->
-            <img *ngIf="!file && icon" style="max-width: 300px; max-height: 300px;" [src]="context + '/logo/view?oid=' + icon.oid" class="thumb">
+            <img *ngIf="!file && icon" style="max-width: 300px; max-height: 300px;"
+              [src]="context + 'api/asset/view?oid=' + icon.oid" (error)="handleImageError($event, icon)" class="thumb">
 
             <!-- Actual uploaded file preview -->
             <img *ngIf="file" style="max-width: 300px; max-height: 300px;" [src]="file" class="thumb">
           </div>
 
-          <div class="drop-box-container" ng2FileDrop [ngClass]="{'drop-active': dropActive}" (fileOver)="fileOver($event)" [uploader]="uploader" (click)=fileInput.click()>
+          <div class="drop-box-container" ng2FileDrop [ngClass]="{'drop-active': dropActive}"
+            (fileOver)="fileOver($event)" [uploader]="uploader" (click)=fileInput.click()>
             <div class="drop-box">
               <div class="inner-drop-box">
                 <i class="fa fa-cloud-upload">
@@ -28,19 +30,22 @@
                 </i>
               </div>
             </div>
-            <input type="file" #uploadEl ng2FileSelect #fileInput [uploader]="uploader" id="uploader-input" style="display: none" />
+            <input type="file" #uploadEl ng2FileSelect #fileInput [uploader]="uploader" id="uploader-input"
+              style="display: none" />
           </div>
-          
+
           <div class="row">
-				    <div class="col-md-12">
-				      <div class="button-holder text-right" style="margin-top: 20px;">
-				        <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" /> <input type="submit" [value]="'category.icon.ok' | localize" class="btn btn-primary" (disabled)="form.invalid" />
-				      </div>
-				    </div>
-				  </div>
+            <div class="col-md-12">
+              <div class="button-holder text-right" style="margin-top: 20px;">
+                <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />
+                <input type="submit" [value]="'category.icon.ok' | localize" class="btn btn-primary"
+                  (disabled)="form.invalid" />
+              </div>
+            </div>
+          </div>
         </fieldset>
       </form>
     </div>
   </div>
-  
+
 </div>

@@ -17,8 +17,7 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
-import { Title } from '@angular/platform-browser';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -35,10 +34,10 @@ import { SystemLogoService } from '@admin/service/system-logo.service';
 
 import { ErrorHandler } from '@shared/component';
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Component({
-  
+
   selector: 'system-logos',
   templateUrl: './system-logos.component.html',
   styleUrls: []
@@ -56,75 +55,81 @@ export class SystemLogosComponent implements OnInit {
     private modalService: BsModalService,
     private localizeService: LocalizationService,
     private changeDetectorRef: ChangeDetectorRef
-    ) {
+  ) {
 
-    this.context = registry.contextPath;
+    this.context = environment.apiUrl;
   }
 
   ngOnInit(): void {
     this.getIcons();
   }
 
-  onClickRemove(icon) : void {
-    this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
-        animated: true,
-        backdrop: true,
-        ignoreBackdropClick: true,
-    } );
-    this.bsModalRef.content.message = this.localizeService.decode( "system.image.removeContent" );
-    this.bsModalRef.content.submitText = this.localizeService.decode( "modal.button.delete" );
+  onClickRemove(icon): void {
+    this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: true,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.message = this.localizeService.decode("system.image.removeContent");
+    this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
 
-    this.bsModalRef.content.onConfirm.subscribe( data => {
+    this.bsModalRef.content.onConfirm.subscribe(data => {
       this.remove(icon);
-    } );
+    });
   }
 
   getIcons(): void {
     this.service.getIcons().then(resp => {
-      var filtered = resp.icons.filter(function(el) { return el.oid != "banner"; }); 
+      var filtered = resp.icons.filter(function (el) { return el.oid != "banner"; });
       this.icons = filtered;
     })
-    .catch(( err: HttpErrorResponse ) => {
-      this.error( err );
-    } );
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
   }
 
   edit(icon: SystemLogo): void {
     // this.router.navigate(['/admin/logo', icon.oid]);
 
-    let bsModalRef = this.modalService.show( SystemLogoComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-        } );
+    let bsModalRef = this.modalService.show(SystemLogoComponent, {
+      animated: true,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
 
-        bsModalRef.content.icon = icon;
+    bsModalRef.content.icon = icon;
 
-        bsModalRef.content.onSuccess.subscribe( data => {
+    bsModalRef.content.onSuccess.subscribe(data => {
 
-          this.icons.forEach(ico => {
+      this.icons.forEach(ico => {
 
-            // Setting a random number at the end of the url is a hack to change 
-            // the image url to force Angular to rerender the image.
-            this.random = Math.random();
+        // Setting a random number at the end of the url is a hack to change 
+        // the image url to force Angular to rerender the image.
+        this.random = Math.random();
 
-            ico.oid = ico.oid
-          })
+        ico.oid = ico.oid
+      })
 
-          this.changeDetectorRef.detectChanges();
-        })
+      this.changeDetectorRef.detectChanges();
+    })
   }
 
   remove(icon: SystemLogo): void {
     this.service.remove(icon.oid).then(response => {
       icon.custom = false;
     })
-    .catch(( err: HttpErrorResponse ) => {
-      this.error( err );
-    } );
+      .catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
   }
 
-  error( err: HttpErrorResponse ): void {
-      this.message = ErrorHandler.getMessageFromError(err);
+  handleImageError(event: any, icon: SystemLogo): void {
+    if (icon.oid === 'logo') {
+      event.target.src = '../../../../assets/splash_logo_icon.png';
+    }
+  }
+
+  error(err: HttpErrorResponse): void {
+    this.message = ErrorHandler.getMessageFromError(err);
   }
 }

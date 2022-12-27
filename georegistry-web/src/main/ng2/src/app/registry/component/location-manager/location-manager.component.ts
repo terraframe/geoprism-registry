@@ -20,7 +20,7 @@ import { timeout } from "d3-timer";
 import { Observable, Subscription } from "rxjs";
 import { SelectTypeModalComponent } from "./select-type-modal.component";
 
-import { GeoRegistryConfiguration } from "@core/model/registry";
+import { GeoRegistryConfiguration, LocalizedValue } from "@core/model/core";
 import { OverlayerIdentifier } from "@registry/model/constants";
 import { NgxSpinnerService } from "ngx-spinner";
 import { ModalTypes } from "@shared/model/modal";
@@ -30,11 +30,11 @@ import { GEO_OBJECT_DATA_SOURCE_TYPE, Layer, ListVectorLayerDataSource, SearchLa
 import { BusinessObject, BusinessType } from "@registry/model/business-type";
 import { BusinessObjectService } from "@registry/service/business-object.service";
 import { Vertex } from "@registry/model/graph";
-import { LocalizedValue } from "@shared/model/core";
 import { LocationManagerStateService } from "@registry/service/location-manager.service";
 import { ListTypeVersion } from "@registry/model/list-type";
 
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
+import { ConfigurationService } from "@core/service/configuration.service";
 
 class SelectedObject {
 
@@ -198,24 +198,19 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
-        private route: ActivatedRoute,
+        private configuration: ConfigurationService,
         private router: Router,
         private modalService: BsModalService,
         private spinner: NgxSpinnerService,
-        private service: RegistryService,
         private cacheService: RegistryCacheService,
         private listService: ListTypeService,
         private mapService: MapService,
         private geomService: GeometryService,
         private lService: LocalizationService,
         private authService: AuthService,
-        private dateService: DateService,
         private locationManagerService: LocationManagerStateService,
         private businessObjectService: BusinessObjectService,
         private location: Location,
-        private componentFactoryResolver: ComponentFactoryResolver,
-        private appRef: ApplicationRef,
-        private injector: Injector
     ) {
         this.location = location;
     }
@@ -227,8 +222,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         // this.subscription = this.route.queryParams.subscribe(state => { this.handleStateChange(state); });
         this.subscription = this.geomService.stateChange$.subscribe(state => this.handleStateChange(state));
 
-        this.searchEnabled = registry.searchEnabled && (this.authService.isRC(false) || this.authService.isRM() || this.authService.isRA());
-        this.graphVisualizerEnabled = registry.graphVisualizerEnabled || false;
+        this.searchEnabled = this.configuration.isSearchEnabled() && (this.authService.isRC(false) || this.authService.isRM() || this.authService.isRA());
+        this.graphVisualizerEnabled = this.configuration.isGraphVisualizerEnabled() || false;
 
         this.typeCache = this.cacheService.getTypeCache();
 
@@ -275,7 +270,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     }
                 },
                 sprite: layer.sprite,
-                glyphs: window.location.protocol + "//" + window.location.host + registry.contextPath + "/glyphs/{fontstack}/{range}.pbf",
+                glyphs: window.location.protocol + "//" + window.location.host + environment.apiUrl + "/glyphs/{fontstack}/{range}.pbf",
                 layers: [
                     {
                         id: layer.id,
@@ -286,7 +281,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 ]
             },
             attributionControl: false,
-            bounds: registry.defaultMapBounds
+            bounds: this.configuration.getDefaultMapBounds()
         };
 
         if (this.state.bounds != null && this.state.bounds.length > 0) {
@@ -683,7 +678,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
             },
             sprite: layer.sprite,
-            glyphs: window.location.protocol + "//" + window.location.host + registry.contextPath + "/glyphs/{fontstack}/{range}.pbf",
+            glyphs: window.location.protocol + "//" + window.location.host + environment.apiUrl + "/glyphs/{fontstack}/{range}.pbf",
             layers: [
                 {
                     id: layer.id,

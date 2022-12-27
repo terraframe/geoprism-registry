@@ -29,7 +29,7 @@ import { LocalizationService, AuthService, ExternalSystemService } from "@shared
 
 import { ErrorHandler } from "@shared/component";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Component({
     selector: "external-system-modal",
@@ -67,7 +67,7 @@ export class ExternalSystemModalComponent implements OnInit {
   public onSuccess: Subject<ExternalSystem>;
 
   constructor(private systemService: ExternalSystemService, private authService: AuthService, public bsModalRef: BsModalRef, private lService: LocalizationService) {
-      this.context = registry.contextPath;
+      this.context = environment.apiUrl;
   }
 
   ngOnInit(): void {

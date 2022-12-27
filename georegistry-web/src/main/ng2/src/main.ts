@@ -1,12 +1,12 @@
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { enableProdMode } from '@angular/core';
-import { CgrAppModule } from './app/cgr-app.module';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
-if (process.env.ENV === 'production') {
+import { CgrAppModule } from './app/cgr-app.module';
+import { environment } from './environments/environment';
+
+if (environment.production) {
   enableProdMode();
 }
 
 platformBrowserDynamic().bootstrapModule(CgrAppModule)
-  .then(success => console.log('Bootstrap success'))
-  .catch(error => console.log(error));
-
+  .catch(err => console.error(err));

@@ -3,12 +3,13 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import { ProfileComponent } from "../profile/profile.component";
 
-import { AuthService, ProfileService, LocalizationService } from "@shared/service";
+import { AuthService, ProfileService } from "@shared/service";
 
-import { RegistryRoleType, LocaleView } from "@shared/model/core";
+import { RegistryRoleType} from "@shared/model/core";
 
-import { GeoRegistryConfiguration } from "@core/model/registry";
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
+import { ConfigurationService } from "@core/service/configuration.service";
+import { LocaleView } from "@core/model/core";
 
 @Component({
 
@@ -36,23 +37,20 @@ export class CgrHeaderComponent {
         private modalService: BsModalService,
         private profileService: ProfileService,
         private service: AuthService,
-        localizationService: LocalizationService
+        private configuration: ConfigurationService,
     ) {
-        this.context = registry.contextPath;
+        this.context = environment.apiUrl;
         this.isAdmin = service.isAdmin();
         this.isMaintainer = this.isAdmin || service.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
 
-        this.enableBusinessData = registry.enableBusinessData || false;
+        this.enableBusinessData = configuration.isEnableBusinessData() || false;
 
-        if (localizationService.getLocales()) {
-            this.locales = localizationService.getLocales().filter(locale => locale.toString !== "defaultLocale");
-            this.defaultLocaleView = localizationService.getLocales().filter(locale => locale.toString === "defaultLocale")[0];
-        } else {
-            this.locales = [];
-            this.defaultLocaleView = null;
-        }
-        this.locale = localizationService.getLocale();
+        const locales = configuration.getLocales();
+        this.locale = configuration.getLocale();
+
+        this.locales = locales.filter((l: LocaleView) => l.toString !== "defaultLocale");
+        this.defaultLocaleView = locales.filter((l: LocaleView) => l.toString === "defaultLocale")[0];
 
         let found: boolean = false;
 
@@ -65,6 +63,13 @@ export class CgrHeaderComponent {
         if (!found) {
             this.locale = "";
         }
+
+
+
+        // } else {
+        //     this.locales = [];
+        //     this.defaultLocaleView = null;
+        // }
     }
 
     shouldShowMenuItem(item: string): boolean {
@@ -74,7 +79,7 @@ export class CgrHeaderComponent {
             // return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC) || this.service.hasExactRole(RegistryRoleType.AC);
             return true;
         } else if (item === "BUSINESS-TYPES") {
-            if (registry.enableBusinessData) {
+            if (this.configuration.isEnableBusinessData()) {
                 return true;
             } else {
                 return false;
@@ -106,7 +111,7 @@ export class CgrHeaderComponent {
     logout(): void {
         sessionStorage.removeItem("locales");
 
-        window.location.href = registry.contextPath + "/session/logout";
+        window.location.href = environment.apiUrl + "/session/logout";
 
         //        this.sessionService.logout().then( response => {
         //            this.router.navigate( ['/login'] );
@@ -131,6 +136,10 @@ export class CgrHeaderComponent {
             this.bsModalRef = this.modalService.show(ProfileComponent, { backdrop: "static", class: "gray modal-lg" });
             this.bsModalRef.content.profile = profile;
         });
+    }
+
+    handleLogoError(event: any): void {
+        event.target.src = '../../../../assets/splash_logo_icon.png';
     }
 
 }

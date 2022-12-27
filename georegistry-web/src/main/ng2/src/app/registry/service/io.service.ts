@@ -5,7 +5,7 @@ import { finalize } from "rxjs/operators";
 import { ImportConfiguration, Synonym, Location, Term } from "@registry/model/io";
 import { EventService } from "@shared/service";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class IOService {
@@ -20,7 +20,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<ImportConfiguration>(registry.contextPath + "/api/etl/import", JSON.stringify({ config: configuration }), { headers: headers })
+            .post<ImportConfiguration>(environment.apiUrl + "/api/etl/import", JSON.stringify({ config: configuration }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -35,7 +35,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/api/etl/cancel-import", JSON.stringify({ config: configuration }), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/etl/cancel-import", JSON.stringify({ config: configuration }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -50,7 +50,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<ImportConfiguration>(registry.contextPath + "/api/etl/import", JSON.stringify({ config: configuration }), { headers: headers })
+            .post<ImportConfiguration>(environment.apiUrl + "/api/etl/import", JSON.stringify({ config: configuration }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -62,7 +62,7 @@ export class IOService {
         params = params.set("includeAbstractTypes", includeAbstractTypes.toString());
 
         return this.http
-            .get<{ label: string, code: string, orgCode: string }[]>(registry.contextPath + "/api/geoobjecttype/list-types", { params: params })
+            .get<{ label: string, code: string, orgCode: string }[]>(environment.apiUrl + "/api/geoobjecttype/list-types", { params: params })
             .toPromise();
     }
 
@@ -74,7 +74,7 @@ export class IOService {
         params = params.set("includeChild", includeChild.toString());
 
         return this.http
-            .get<Location[]>(registry.contextPath + "/api/geoobjecttype/get-ancestors", { params: params })
+            .get<Location[]>(environment.apiUrl + "/api/geoobjecttype/get-ancestors", { params: params })
             .toPromise();
     }
 
@@ -86,7 +86,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>(registry.contextPath + "/api/geoobjecttype/get-hierarchies", { params: params })
+            .get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>(environment.apiUrl + "/api/geoobjecttype/get-hierarchies", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -101,7 +101,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>(registry.contextPath + "/api/geoobjecttype/get-subtype-hierarchies", { params: params })
+            .get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>(environment.apiUrl + "/api/geoobjecttype/get-subtype-hierarchies", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -119,7 +119,7 @@ export class IOService {
         }
 
         return this.http
-            .get<any>(registry.contextPath + "/api/geoobject/suggestions", { params: params })
+            .get<any>(environment.apiUrl + "/api/geoobject/suggestions", { params: params })
             .toPromise();
     }
 
@@ -131,7 +131,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<Synonym>(registry.contextPath + "/geo-synonym/create-geo-entity-synonym", JSON.stringify({ entityId: entityId, label: label }), { headers: headers })
+            .post<Synonym>(environment.apiUrl + "/geo-synonym/create-geo-entity-synonym", JSON.stringify({ entityId: entityId, label: label }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -146,7 +146,7 @@ export class IOService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/geo-synonym/create-geo-entity-synonym", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<void>(environment.apiUrl + "/geo-synonym/create-geo-entity-synonym", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -160,7 +160,7 @@ export class IOService {
         params = params.set("limit", limit);
 
         return this.http
-            .get<{ text: string, data: any }[]>(registry.contextPath + "/uploader/getClassifierSuggestions", { params: params })
+            .get<{ text: string, data: any }[]>(environment.apiUrl + "/uploader/getClassifierSuggestions", { params: params })
             .toPromise();
     }
 
@@ -172,7 +172,7 @@ export class IOService {
         let data = JSON.stringify({ classifierId: classifierId, label: label });
 
         return this.http
-            .post<Synonym>(registry.contextPath + "/uploader/createClassifierSynonym", data, { headers: headers })
+            .post<Synonym>(environment.apiUrl + "/uploader/createClassifierSynonym", data, { headers: headers })
             .toPromise();
     }
 
@@ -184,7 +184,7 @@ export class IOService {
         let data = JSON.stringify({ synonymId: synonymId });
 
         return this.http
-            .post<void>(registry.contextPath + "/uploader/deleteClassifierSynonym", data, { headers: headers })
+            .post<void>(environment.apiUrl + "/uploader/deleteClassifierSynonym", data, { headers: headers })
             .toPromise();
     }
 
@@ -196,7 +196,7 @@ export class IOService {
         let params = { parentTermCode: parentTermCode, termJSON: { label: label, code: code } };
 
         return this.http
-            .post<Term>(registry.contextPath + "/api/geoobjecttype/addterm", JSON.stringify(params), { headers: headers })
+            .post<Term>(environment.apiUrl + "/api/geoobjecttype/addterm", JSON.stringify(params), { headers: headers })
             .toPromise();
     }
 
@@ -206,7 +206,7 @@ export class IOService {
         });
 
         return this.http
-            .post<void>(registry.contextPath + "/api/geoobjecttype/deleteterm", JSON.stringify({ parentTermCode: parentTermCode, termCode: termCode }), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/geoobjecttype/deleteterm", JSON.stringify({ parentTermCode: parentTermCode, termCode: termCode }), { headers: headers })
             .toPromise();
     }
 

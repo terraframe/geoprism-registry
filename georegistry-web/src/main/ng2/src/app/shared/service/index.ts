@@ -1,4 +1,5 @@
 import { AuthService } from "./auth.service";
+import { DateService } from "./date.service";
 import { EventService } from "./event.service";
 import { ExternalSystemService } from "./external-system.service";
 import { AdminGuard, AuthGuard, ContributerGuard, MaintainerGuard } from "./guard.service";
@@ -9,7 +10,6 @@ import { PendingChangesGuard } from "./pending-changes-guard";
 import { ProfileService } from "./profile.service";
 import { ProgressService } from "./progress.service";
 import { SessionService } from "./session.service";
-import { DateService } from "./date.service";
 
 export const services: any[] = [
     AuthService,
@@ -19,14 +19,14 @@ export const services: any[] = [
     AuthGuard,
     ContributerGuard,
     MaintainerGuard,
-    LocalizationService,
     ModalStepIndicatorService,
     OrganizationService,
     PendingChangesGuard,
     ProfileService,
     ProgressService,
     SessionService,
-    DateService
+    DateService,
+    LocalizationService
 ];
 
 export * from "./auth.service";
@@ -41,3 +41,4 @@ export * from "./profile.service";
 export * from "./progress.service";
 export * from "./session.service";
 export * from "./date.service";
+export * from "./localization.service";

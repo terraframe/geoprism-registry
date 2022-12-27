@@ -1,10 +1,10 @@
-import { ValueOverTime, AttributeType, TimeRangeEntry, ConflictMessage } from "@registry/model/registry";
+import { ValueOverTime, AttributeType, TimeRangeEntry } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeOverTimeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { v4 as uuid } from "uuid";
 // eslint-disable-next-line camelcase
 import turf_booleanequal from "@turf/boolean-equal";
 import bbox from "@turf/bbox";
-import { LocalizedValue } from "@shared/model/core";
+import { LocalizedValue } from "@core/model/core";
 import { GeometryService, RegistryService } from "@registry/service";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { Subject } from "rxjs";
@@ -12,6 +12,7 @@ import { ChangeType } from "@registry/model/constants";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { LngLatBoundsLike } from "mapbox-gl";
 import { GeoJsonLayer, Layer } from "@registry/service/layer-data-source";
+import { ConflictMessage } from "@shared/model/message";
 
 export class ValueOverTimeCREditor implements TimeRangeEntry {
 

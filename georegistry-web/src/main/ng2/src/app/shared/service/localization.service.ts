@@ -1,51 +1,46 @@
 import { Injectable } from "@angular/core";
-import { GeoRegistryConfiguration } from "@core/model/registry";
-import { LocalizedValue, LocaleView } from "@shared/model/core";
-
-declare let registry: GeoRegistryConfiguration;
+import { LocaleView, LocalizedValue } from "@core/model/core";
+import { ConfigurationService } from "@core/service/configuration.service";
 
 @Injectable()
 export class LocalizationService {
 
-    locales: LocaleView[] = [];
-    locale: string;
-
-    constructor() {
-        this.locales = registry.locales;
-        this.locale = registry.locale;
+    constructor(private config : ConfigurationService) {
     }
 
     addLocale(locale: LocaleView): void {
+        const config = this.config.getConfiguration();
+
         let exists: boolean = false;
 
-        for (let i = 0; i < this.locales.length; ++i) {
-            if (this.locales[i].tag === locale.tag) {
+        for (let i = 0; i < config.locales.length; ++i) {
+            if (config.locales[i].tag === locale.tag) {
                 exists = true;
-                this.locales[i] = locale;
+                config.locales[i] = locale;
             }
         }
 
         if (!exists) {
-            this.locales.push(locale);
+            config.locales.push(locale);
         }
     }
 
     setLocales(locales: LocaleView[]): void {
-        this.locales = locales;
+        this.config.getConfiguration().locales = locales;
     }
 
     getLocale(): string {
-        return this.locale;
+        return this.config.getConfiguration().locale;
     }
 
     getLocales(): LocaleView[] {
-        return this.locales;
+        return this.config.getConfiguration().locales;
     }
 
     create(): LocalizedValue {
         const value = { localizedValue: "", localeValues: [] } as LocalizedValue;
 
-        this.locales.forEach(locale => {
+        this.config.getConfiguration().locales.forEach(locale => {
             // if (!locale.isDefaultLocale)
             // {
             value.localeValues.push({ locale: locale.toString, value: "" });
@@ -56,20 +51,24 @@ export class LocalizationService {
     }
 
     remove(locale: LocaleView): void {
-        for (let i = 0; i < this.locales.length; ++i) {
-            if (this.locales[i].tag === locale.tag) {
-                this.locales.splice(i, 1);
+        const config = this.config.getConfiguration();
+
+        for (let i = 0; i < config.locales.length; ++i) {
+            if (config.locales[i].tag === locale.tag) {
+                config.locales.splice(i, 1);
                 return;
             }
         }
 
         // eslint-disable-next-line no-console
-        console.log("Could not remove locale from array because we could not find it.", locale, this.locales);
+        console.log("Could not remove locale from array because we could not find it.", locale, config.locales);
     }
 
     public localize(bundle: string, key: string): string {
-        if (registry.localization[bundle] != null) {
-            const b = registry.localization[bundle];
+        const config = this.config.getConfiguration();
+
+        if (config.localization[bundle] != null) {
+            const b = config.localization[bundle];
 
             if (b[key] != null) {
                 return b[key];
@@ -80,8 +79,10 @@ export class LocalizationService {
     }
 
     public get(key: string): string {
-        if (registry.localization[key] != null) {
-            return registry.localization[key];
+        const config = this.config.getConfiguration();
+
+        if (config.localization[key] != null) {
+            return config.localization[key];
         }
 
         return "??" + key + "??";

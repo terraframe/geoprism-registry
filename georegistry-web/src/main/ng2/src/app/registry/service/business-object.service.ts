@@ -4,9 +4,9 @@ import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
 import { BusinessObject, BusinessType } from "@registry/model/business-type";
-import { GeoRegistryConfiguration } from "@core/model/registry";
+import { GeoRegistryConfiguration } from "@core/model/core";
 
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class BusinessObjectService {
@@ -21,7 +21,7 @@ export class BusinessObjectService {
 
         this.eventService.start();
 
-        return this.http.get<BusinessObject>(registry.contextPath + "/api/business-object/get", { params: params })
+        return this.http.get<BusinessObject>(environment.apiUrl + "/api/business-object/get", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -35,7 +35,7 @@ export class BusinessObjectService {
 
         this.eventService.start();
 
-        return this.http.get<{type:BusinessType, object: BusinessObject}>(registry.contextPath + "/api/business-object/get-type-and-object", { params: params })
+        return this.http.get<{type:BusinessType, object: BusinessObject}>(environment.apiUrl + "/api/business-object/get-type-and-object", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

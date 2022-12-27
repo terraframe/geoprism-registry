@@ -4,7 +4,7 @@ import { Subject } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from "@shared/component";
 
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 import { Organization } from "@shared/model/core";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { BusinessType } from "@registry/model/business-type";

@@ -28,7 +28,7 @@ import { AuthService } from '@shared/service';
 
 import { HubService } from '@core/service/hub.service';
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Component( {
     selector: 'hub',
@@ -51,7 +51,7 @@ export class HubComponent implements OnInit {
         private router: Router,
         private route: ActivatedRoute,
     ) {
-        this.context = registry.contextPath;
+        this.context = environment.apiUrl;
     }
 
     ngOnInit(): void {

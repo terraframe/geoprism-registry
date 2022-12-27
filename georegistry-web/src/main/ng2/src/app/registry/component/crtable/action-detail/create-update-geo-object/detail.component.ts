@@ -13,7 +13,7 @@ import { ErrorHandler } from "@shared/component";
 
 import { ActionDetailComponent } from "../action-detail-modal.component";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 declare var $: any;
 
 @Component({
@@ -234,7 +234,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ActionDetailCompone
     unlockActionSync() {
 
         $.ajax({
-            url: registry.contextPath + "/api/changerequest/unlockAction",
+            url: environment.apiUrl + "/api/changerequest/unlockAction",
             method: "POST",
             data: { actionId: this.action.oid },
             success: function(a) {

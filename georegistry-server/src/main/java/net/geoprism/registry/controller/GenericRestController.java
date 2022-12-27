@@ -2,7 +2,11 @@ package net.geoprism.registry.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -10,6 +14,8 @@ import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.hibernate.validator.constraints.NotEmpty;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +30,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import net.geoprism.ClientConfigurationService;
+import net.geoprism.GeoprismApplication;
+import net.geoprism.RoleViewDTO;
 import net.geoprism.registry.service.AccountService;
 import net.geoprism.registry.service.ExternalSystemService;
 import net.geoprism.registry.service.OrganizationService;
@@ -63,7 +72,7 @@ public class GenericRestController extends RunwaySpringController
   }
 
   @Autowired
-  private RegistryComponentService    service;
+  private RegistryComponentService service;
 
   /**
    * Create the {@link HierarchyType} from the given JSON.
@@ -74,7 +83,8 @@ public class GenericRestController extends RunwaySpringController
    * @throws IOException
    */
   @PostMapping("cgr/import-types")
-  public ResponseEntity<Void> importTypes(@Valid @ModelAttribute ImportTypeBody body) throws IOException
+  public ResponseEntity<Void> importTypes(@Valid
+  @ModelAttribute ImportTypeBody body) throws IOException
   {
     try (InputStream istream = body.file.getInputStream())
     {
@@ -92,17 +102,22 @@ public class GenericRestController extends RunwaySpringController
    * @param request
    * @return
    */
-  @GetMapping("cgr/init")  
+  @GetMapping("cgr/init")
   public ResponseEntity<String> init()
   {
     JsonObject response = this.service.initHierarchyManager(this.getSessionId());
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping("cgr/init-settings")    
+  @GetMapping("cgr/init-settings")
   public ResponseEntity<String> initSettings()
   {
-    OrganizationDTO[] orgs = new OrganizationService().getOrganizations(this.getSessionId(), null); // TODO : This violates autowiring principles
+    OrganizationDTO[] orgs = new OrganizationService().getOrganizations(this.getSessionId(), null); // TODO
+                                                                                                    // :
+                                                                                                    // This
+                                                                                                    // violates
+                                                                                                    // autowiring
+                                                                                                    // principles
     JsonArray jaLocales = this.service.getLocales(this.getSessionId());
     JsonObject esPage = new ExternalSystemService().page(this.getSessionId(), 1, 10);
     JsonObject sraPage = JsonParser.parseString(AccountService.getInstance().getSRAs(this.getSessionId(), 1, 10)).getAsJsonObject();
@@ -126,29 +141,81 @@ public class GenericRestController extends RunwaySpringController
     return new ResponseEntity<String>(settingsView.toString(), HttpStatus.OK);
   }
 
-  @GetMapping("cgr/current-locale")    
+  @GetMapping("cgr/current-locale")
   public ResponseEntity<String> getCurrentLocale()
   {
-    String response = this.service.getCurrentLocale(this.getSessionId());
-    
-    return new ResponseEntity<String>(response, HttpStatus.OK);
+    String locale = this.service.getCurrentLocale(this.getSessionId());
+
+    JsonArray response = new JsonArray();
+    response.add(locale);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
-  
-  @GetMapping("cgr/locales")    
+
+  @GetMapping("cgr/locales")
   public ResponseEntity<String> getLocales()
   {
     JsonArray response = this.service.getLocales(this.getSessionId());
-    
+
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
-  
-  @GetMapping("cgr/localization-map")    
+
+  @GetMapping("cgr/localization-map")
   public ResponseEntity<String> localizationMap()
   {
     String response = this.service.getLocalizationMap(this.getSessionId());
-    
+
     return new ResponseEntity<String>(response, HttpStatus.OK);
   }
-  
+
+  @GetMapping("cgr/configuration")
+  public ResponseEntity<String> getConfiguration(HttpServletRequest request)
+  {
+    JsonObject response = this.service.configuration(this.getSessionId(), request.getContextPath());
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping("cgr/applications")
+  public ResponseEntity<String> applications()
+  {
+    Set<String> roleNames = this.getAssignedRoleNames();
+
+    List<GeoprismApplication> allApplications = ClientConfigurationService.getApplications(this.getClientRequest());
+
+    JSONArray response = new JSONArray();
+
+    for (GeoprismApplication application : allApplications)
+    {
+      if (application.isValid(roleNames))
+      {
+        response.put(application.toJSON());
+      }
+    }
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+
+  private Set<String> getAssignedRoleNames()
+  {
+    try
+    {
+      Set<String> roleNames = new TreeSet<String>();
+
+      JSONArray jaUserRoles = new JSONArray(RoleViewDTO.getCurrentRoles(this.getClientRequest()));
+      for (int i = 0; i < jaUserRoles.length(); ++i)
+      {
+        String roleName = jaUserRoles.getString(i);
+
+        roleNames.add(roleName);
+      }
+
+      return roleNames;
+    }
+    catch (JSONException e)
+    {
+      throw new RuntimeException(e);
+    }
+  }
 
 }

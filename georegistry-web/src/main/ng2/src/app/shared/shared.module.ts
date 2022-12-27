@@ -29,7 +29,6 @@ import { GenericModalComponent } from "./component/modals/generic-modal.componen
 import { ErrorMessageComponent } from "./component/message/error-message.component";
 import { MessageComponent } from "./component/message/message.component";
 import { BooleanFieldComponent } from "./component/form-fields/boolean-field/boolean-field.component";
-import { DateFieldComponent } from "./component/form-fields/date-field/date-field.component";
 import { LoadingBarComponent } from "./component/loading-bar/loading-bar.component";
 import { PasswordStrengthBarComponent } from "./component/password-strength-bar/password-strength-bar.component";
 
@@ -40,12 +39,10 @@ import { AuthService } from "./service/auth.service";
 import { ProfileService } from "./service/profile.service";
 import { OrganizationService } from "./service/organization.service";
 import { ExternalSystemService } from "./service/external-system.service";
-import { LocalizationService } from "./service/localization.service";
 import { ProgressService } from "./service/progress.service";
 import { EventService } from "./service/event.service";
 import { ModalStepIndicatorService } from "./service/modal-step-indicator.service";
 import { SessionService } from "./service/session.service";
-import { DateService } from "./service/date.service";
 
 import { LocalizePipe } from "./pipe/localize.pipe";
 import { PhonePipe } from "./pipe/phone.pipe";
@@ -61,8 +58,9 @@ import { ModalStepIndicatorComponent } from "./component/modals/modal-step-indic
 import { ProfileComponent } from "./component/profile/profile.component";
 import { GenericTableComponent } from "./component/generic-table/generic-table.component";
 import { DateTextComponent } from "./component/date-text/date-text.component";
-
-import "../rxjs-extensions";
+import { DateService } from "./service/date.service";
+import { DateFieldComponent } from "./component/form-fields/date-field/date-field.component";
+import { LocalizationService } from "./service";
 
 @NgModule({
     imports: [
@@ -81,7 +79,6 @@ import "../rxjs-extensions";
         CollapseModule,
         NgxPaginationModule,
         BsDatepickerModule.forRoot(),
-
         TableModule,
         SliderModule,
         DropdownModule,
@@ -93,7 +90,6 @@ import "../rxjs-extensions";
         LocalizeComponent,
         ConvertKeyLabel,
         BooleanFieldComponent,
-        DateFieldComponent,
         LoadingBarComponent,
         ErrorMessageComponent,
         MessageComponent,
@@ -111,13 +107,13 @@ import "../rxjs-extensions";
         LocalizePipe,
         PhonePipe,
         GenericTableComponent,
+        DateFieldComponent,
         DateTextComponent
     ],
     exports: [
         LocalizeComponent,
         ConvertKeyLabel,
         BooleanFieldComponent,
-        DateFieldComponent,
         LoadingBarComponent,
         ErrorMessageComponent,
         MessageComponent,
@@ -138,6 +134,7 @@ import "../rxjs-extensions";
         FormsModule,
         ReactiveFormsModule,
         GenericTableComponent,
+        DateFieldComponent,
         DateTextComponent
     ],
     entryComponents: [
@@ -157,14 +154,13 @@ export class SharedModule {
         return {
             ngModule: SharedModule,
             providers: [
+                LocalizationService,
                 CookieService,
                 AuthService,
                 SessionService,
                 ProfileService,
                 OrganizationService,
                 ExternalSystemService,
-                LocalizationService,
-                DateService,
                 ModalStepIndicatorService,
                 EventService,
                 ProgressService,
@@ -172,7 +168,8 @@ export class SharedModule {
                 MaintainerGuard,
                 ContributerGuard,
                 AuthGuard,
-                PendingChangesGuard
+                PendingChangesGuard,
+                DateService
             ]
         };
     }

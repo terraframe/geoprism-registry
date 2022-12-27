@@ -26,7 +26,7 @@ import { RegistryService } from "@registry/service";
 import { ChangeRequestService } from "@registry/service/change-request.service";
 import { DateService } from "@shared/service/date.service";
 
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 
 import { ControlContainer, NgForm } from "@angular/forms";
 import { StandardAttributeCRModel } from "./StandardAttributeCRModel";

@@ -5,7 +5,7 @@ import { Table } from "primeng/table";
 import { Subject } from "rxjs";
 import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
 import { PageResult } from "@shared/model/core";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 
 @Component({
     selector: "generic-table",
@@ -177,6 +177,10 @@ export class GenericTableComponent implements OnInit, OnDestroy, AfterViewInit, 
 
     handleFilter(event: LazyLoadEvent): void {
         this.onLoadEvent.emit(event);
+    }
+
+    handleInput(dt: any, target: EventTarget, col: GenericTableColumn, operation: string): void {
+        dt.filter(((<HTMLTextAreaElement>target)).value, col.field, operation)
     }
 
 }

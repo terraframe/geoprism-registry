@@ -5,36 +5,36 @@ import {
     HttpHandler,
     HttpRequest,
     HttpResponse,
-    HttpResponseBase,    
+    HttpResponseBase,
     HttpErrorResponse
 } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class HttpErrorInterceptor implements HttpInterceptor {
 
-    intercept( request: HttpRequest<any>, next: HttpHandler ): Observable<HttpEvent<any>> {
+    intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
-        return next.handle( request ).pipe(tap(( event: HttpEvent<any> ) => {
-            if ( event instanceof HttpResponseBase ) {
+        return next.handle(request).pipe(tap((event: HttpEvent<any>) => {
+            if (event instanceof HttpResponseBase) {
                 const response = event as HttpResponseBase;
-                if ( response.status === 302 ) {
-                    window.location.href = registry.contextPath + '/cgr/manage#/login';
+                if (response.status === 302) {
+                    window.location.href = environment.apiUrl + environment.loginUrl;
                     return;
                 }
             }
-        }, ( err: any ) => {
-            if ( err instanceof HttpErrorResponse ) {
-                if ( err.status === 401 || err.status === 403 ) {
+        }, (err: any) => {
+            if (err instanceof HttpErrorResponse) {
+                if (err.status === 401 || err.status === 403) {
                     // redirect to the login route
                     // or show a modal
-                    window.location.href = registry.contextPath + '/cgr/manage#/login';
+                    window.location.href = environment.apiUrl + environment.loginUrl;
                 }
             }
-        } ));
+        }));
     }
 }

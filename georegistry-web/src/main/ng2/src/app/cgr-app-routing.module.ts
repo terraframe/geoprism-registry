@@ -48,12 +48,17 @@ const routes: Routes = [
     },
     {
         path: "admin",
-        loadChildren: "./admin/admin.module#AdminModule"
+        loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule)
     },
     {
         path: "registry",
-        loadChildren: "./registry/registry.module#RegistryModule"
-    }
+        loadChildren: () => import('./registry/registry.module').then(m => m.RegistryModule)
+    },
+    {
+        path: "**",
+        redirectTo: "/menu"
+    },
+
 ];
 
 @NgModule({

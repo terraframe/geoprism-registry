@@ -4,7 +4,7 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { BusinessType, BusinessTypeByOrg } from "@registry/model/business-type";
 import { CreateBusinessTypeModalComponent } from "./modals/create-business-type-modal.component";

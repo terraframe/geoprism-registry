@@ -1,5 +1,6 @@
+import { LocalizedValue } from "@core/model/core";
 import { Layer } from "@registry/service/layer-data-source";
-import { LocalizedValue, PageResult } from "@shared/model/core";
+import { PageResult } from "@shared/model/core";
 import { LazyLoadEvent } from "primeng/api";
 import { GeoObject, GeoObjectType } from "./registry";
 

@@ -6,7 +6,7 @@ import { RegistryService, MapService, GeometryService } from "@registry/service"
 import { Map, NavigationControl } from "mapbox-gl";
 
 // eslint-disable-next-line no-unused-vars
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Component({
     selector: "geoobject-editor-map[geometryType]",

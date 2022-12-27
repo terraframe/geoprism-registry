@@ -1,17 +1,16 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectorRef, ViewChild } from "@angular/core";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 import { DateService } from "@shared/service/date.service";
+import { PRESENT } from "@shared/model/date";
 
 import { BsDatepickerConfig, BsDatepickerDirective } from "ngx-bootstrap/datepicker";
 
-import { PRESENT } from "@registry/model/registry";
 
 @Component({
     selector: "date-field",
     templateUrl: "./date-field.component.html",
     styleUrls: ["./date-field.css"]
 })
-
 export class DateFieldComponent {
 
     @ViewChild(BsDatepickerDirective, { static: false }) datepicker: BsDatepickerDirective;

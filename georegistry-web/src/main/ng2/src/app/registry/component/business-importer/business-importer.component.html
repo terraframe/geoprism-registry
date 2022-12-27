@@ -24,34 +24,6 @@
                 </div>
 
                 <div class="inner-col-content-wrapper" style="padding-top: 30px;margin-top: 10px;">
-                    <div *ngIf="!showImportConfig">
-                        <div>
-                            <div class="row">
-
-                                <div class="col-xs-1"></div>
-                                <div class="col-xs-9 radio-btn-wrapper">
-
-                                    <label class="radio">
-                                        <input type="checkbox" [value]="true" [checked]="true"
-                                            (change)="setImportSource($event, 'FILE')" name="import-source">
-                                        <span [ngClass]="{'active' : true}">
-                                            <localize key="importer.import.from-file.label"></localize>
-                                        </span>
-                                        <p class="radio-label-description">
-                                            <localize key="importer.import.from-file.description"></localize>
-                                        </p>
-                                    </label>
-
-                                    <div class="button-holder">
-                                        <button type="submit" class="btn btn-primary" (click)="onNext()">
-                                            <localize key="io.next"></localize>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="col-xs-2"></div>
-                            </div>
-                        </div>
-                    </div>
 
                     <div *ngIf="showImportConfig">
                         <div>

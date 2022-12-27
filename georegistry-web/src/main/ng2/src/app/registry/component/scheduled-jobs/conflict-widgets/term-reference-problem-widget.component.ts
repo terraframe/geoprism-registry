@@ -8,7 +8,7 @@ import { ScheduledJob } from "@registry/model/registry";
 import { RegistryService, IOService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 import { ErrorHandler } from "@shared/component";
 
 @Component({

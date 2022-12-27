@@ -6,7 +6,7 @@ import { ClassificationTypeService } from "@registry/service/classification-type
 import { ClassificationType } from "@registry/model/classification-type";
 import { PageResult } from "@shared/model/core";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 import { Subscription } from "rxjs";
 import { ClassificationTypePublishModalComponent } from "./classification-type-publish-modal.component";
 import { ActivatedRoute, Params, Router } from "@angular/router";

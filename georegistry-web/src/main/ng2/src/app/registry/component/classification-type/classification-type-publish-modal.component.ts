@@ -4,7 +4,7 @@ import { Observer, Subject, Subscription } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorHandler } from "@shared/component";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 import { ClassificationType } from "@registry/model/classification-type";
 import { ClassificationTypeService } from "@registry/service/classification-type.service";
 

@@ -4,7 +4,7 @@ import { ActivatedRoute } from "@angular/router";
 import { GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
 import { BusinessTypeService } from "@registry/service/business-type.service";
 import { BusinessType } from "@registry/model/business-type";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 
 @Component({
     selector: "business-table",

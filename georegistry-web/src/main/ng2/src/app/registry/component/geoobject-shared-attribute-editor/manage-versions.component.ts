@@ -20,19 +20,18 @@ import {
 import { HttpErrorResponse } from "@angular/common/http";
 import { GeoObjectType, AttributeType, HierarchyOverTime } from "@registry/model/registry";
 import { SummaryKey } from "@registry/model/crtable";
-import { LocalizedValue } from "@shared/model/core";
+import { LocalizedValue } from "@core/model/core";
 import { GovernanceStatus } from "@registry/model/constants";
 import { AuthService } from "@shared/service/auth.service";
 
-import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
-import { ErrorHandler } from "@shared/component";
+import { DateFieldComponent, ErrorHandler } from "@shared/component";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import { RegistryService, GeometryService, OLD_LAYER_COLOR } from "@registry/service";
 import { ChangeRequestService } from "@registry/service/change-request.service";
 import { DateService } from "@shared/service/date.service";
 
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 
 import { VersionDiffView } from "./manage-versions-model";
 import { ControlContainer, NgForm } from "@angular/forms";

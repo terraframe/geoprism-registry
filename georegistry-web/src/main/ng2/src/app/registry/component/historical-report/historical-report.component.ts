@@ -9,7 +9,7 @@ import { HistoricalRow } from "@registry/model/transition-event";
 import { AuthService, DateService } from "@shared/service";
 import { IOService } from "@registry/service";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Component({
 
@@ -92,7 +92,7 @@ export class HistoricalReportComponent {
         params = params.set("startDate", this.data.startDate.toString());
         params = params.set("endDate", this.data.endDate.toString());
 
-        window.location.href = registry.contextPath + "/api/transition-event/export-excel?" + params.toString();
+        window.location.href = environment.apiUrl + "/api/transition-event/export-excel?" + params.toString();
     }
 
     checkDates(): any {

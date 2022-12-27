@@ -8,7 +8,7 @@ import { ErrorHandler, ErrorModalComponent } from "@shared/component";
 import { IOService } from "@registry/service";
 import { AuthService } from "@shared/service";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Component({
 
@@ -83,9 +83,9 @@ export class DataExportComponent implements OnInit {
 
     onExport(): void {
         if (this.format === "SHAPEFILE") {
-            window.location.href = registry.contextPath + "/shapefile/export-shapefile?type=" + this.code + "&hierarchyType=" + this.hierarchy;
+            window.location.href = environment.apiUrl + "/shapefile/export-shapefile?type=" + this.code + "&hierarchyType=" + this.hierarchy;
         } else if (this.format === "EXCEL") {
-            window.location.href = registry.contextPath + "/api/excel/export-spreadsheet?type=" + this.code + "&hierarchyType=" + this.hierarchy;
+            window.location.href = environment.apiUrl + "/api/excel/export-spreadsheet?type=" + this.code + "&hierarchyType=" + this.hierarchy;
         }
     }
 

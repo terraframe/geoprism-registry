@@ -5,7 +5,7 @@ import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
 
 import { Profile } from "@shared/model/profile";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class ProfileService {
@@ -15,7 +15,7 @@ export class ProfileService {
 
     get(): Promise<Profile> {
         return this.http
-            .get<Profile>(registry.contextPath + "/api/registryaccount/get")
+            .get<Profile>(environment.apiUrl + "/api/registryaccount/get")
             .toPromise();
     }
 
@@ -25,7 +25,7 @@ export class ProfileService {
         });
 
         return this.http
-            .post<Profile>(registry.contextPath + "/api/registryaccount/apply", JSON.stringify({ account: profile }), { headers: headers })
+            .post<Profile>(environment.apiUrl + "/api/registryaccount/apply", JSON.stringify({ account: profile }), { headers: headers })
             .toPromise();
     }
 
@@ -35,7 +35,7 @@ export class ProfileService {
         });
 
         return this.http
-            .post<void>(registry.contextPath + "/api/registryaccount/unlock", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/registryaccount/unlock", JSON.stringify({ oid: oid }), { headers: headers })
             .toPromise();
     }
 
@@ -45,7 +45,7 @@ export class ProfileService {
         });
 
         return this.http
-            .post<any>(registry.contextPath + "/api/localization/set-locale", JSON.stringify({ locale: locale }), { headers: headers })
+            .post<any>(environment.apiUrl + "/api/localization/set-locale", JSON.stringify({ locale: locale }), { headers: headers })
             .toPromise();
     }
 
@@ -54,7 +54,7 @@ export class ProfileService {
         params = params.set("userOID", userOID);
 
         return this.http
-            .get<Profile>(registry.contextPath + "/api/registryaccount/getRolesForUser", { params: params })
+            .get<Profile>(environment.apiUrl + "/api/registryaccount/getRolesForUser", { params: params })
             .toPromise();
     }
 

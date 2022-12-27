@@ -8,7 +8,7 @@ import {
     state
 } from "@angular/animations";
 
-import { LocalizedValue } from "@shared/model/core";
+import { LocalizedValue } from "@core/model/core";
 import { LocalizationService, AuthService } from "@shared/service";
 import { GeometryService, RegistryService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
@@ -21,6 +21,7 @@ import { ManageVersionsComponent } from "./manage-versions.component";
 import { v4 as uuid } from "uuid";
 import { Subscription } from "rxjs";
 import { LocationManagerState } from "../location-manager/location-manager.component";
+import { VotService } from "@registry/service/vot.service";
 
 @Component({
     selector: "geoobject-shared-attribute-editor",
@@ -113,7 +114,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnDestro
     private subscription: Subscription;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService, private registryService: RegistryService) {
+    constructor(private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService, private registryService: RegistryService, private votService: VotService) {
 
     }
 
@@ -147,7 +148,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnDestro
             }
         }
 
-        this.changeRequestEditor = new ChangeRequestEditor(this.changeRequest, this.postGeoObject, this.geoObjectType, this.hierarchies, this.geometryAttributeType, this.parentAttributeType, this.lService, this.dateService, this.registryService, this.geomService);
+        this.changeRequestEditor = new ChangeRequestEditor(this.changeRequest, this.postGeoObject, this.geoObjectType, this.hierarchies, this.geometryAttributeType, this.parentAttributeType, this.lService, this.dateService, this.registryService, this.geomService, this.votService);
 
         if (this.shouldForceSetExist()) {
             this.changePage(3);

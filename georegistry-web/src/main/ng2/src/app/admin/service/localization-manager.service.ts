@@ -23,12 +23,10 @@ import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
 
-import { LocaleView } from "@shared/model/core";
-
 import { AllLocaleInfo } from "@admin/model/localization-manager";
 
-import { GeoRegistryConfiguration } from "@core/model/registry";
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
+import { LocaleView } from "@core/model/core";
 
 @Injectable()
 export class LocalizationManagerService {
@@ -39,7 +37,7 @@ export class LocalizationManagerService {
         this.eventService.start();
 
         return this.http
-            .get<AllLocaleInfo>(registry.contextPath + "/api/localization/getNewLocaleInformation")
+            .get<AllLocaleInfo>(environment.apiUrl + "/api/localization/getNewLocaleInformation")
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -54,7 +52,7 @@ export class LocalizationManagerService {
         this.eventService.start();
 
         return this.http
-            .post<LocaleView>(registry.contextPath + "/api/localization/editLocale", JSON.stringify({ json: locale }), { headers: headers })
+            .post<LocaleView>(environment.apiUrl + "/api/localization/editLocale", JSON.stringify({ json: locale }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -69,7 +67,7 @@ export class LocalizationManagerService {
         this.eventService.start();
 
         return this.http
-            .post<LocaleView>(registry.contextPath + "/api/localization/installLocale", JSON.stringify({ json: locale }), { headers: headers })
+            .post<LocaleView>(environment.apiUrl + "/api/localization/installLocale", JSON.stringify({ json: locale }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -84,7 +82,7 @@ export class LocalizationManagerService {
         this.eventService.start();
 
         return this.http
-            .post<{ locale: string }>(registry.contextPath + "/api/localization/uninstallLocale", JSON.stringify({ json: locale }), { headers: headers })
+            .post<{ locale: string }>(environment.apiUrl + "/api/localization/uninstallLocale", JSON.stringify({ json: locale }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -96,7 +94,7 @@ export class LocalizationManagerService {
 
         this.eventService.start();
 
-        return this.http.post<void>(registry.contextPath + "/api/localization/importSpreadsheet", formData, { headers: headers })
+        return this.http.post<void>(environment.apiUrl + "/api/localization/importSpreadsheet", formData, { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

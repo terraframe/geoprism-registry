@@ -26,7 +26,7 @@ import { HierarchyType, HierarchyGroupedTypeView } from "@registry/model/hierarc
 import { TreeEntity } from "@registry/model/registry";
 import { EventService } from "@shared/service";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class HierarchyService {
@@ -39,7 +39,7 @@ export class HierarchyService {
         params = params.set("types", JSON.stringify(types));
 
         return this.http
-            .get<HierarchyType[]>(registry.contextPath + "/api/hierarchytype/get-all", { params: params })
+            .get<HierarchyType[]>(environment.apiUrl + "/api/hierarchytype/get-all", { params: params })
             .toPromise();
     }
 
@@ -47,7 +47,7 @@ export class HierarchyService {
         let params: HttpParams = new HttpParams();
 
         return this.http
-            .get<HierarchyGroupedTypeView[]>(registry.contextPath + "/api/hierarchytype/groupedTypes", { params: params })
+            .get<HierarchyGroupedTypeView[]>(environment.apiUrl + "/api/hierarchytype/groupedTypes", { params: params })
             .toPromise();
     }
 
@@ -59,7 +59,7 @@ export class HierarchyService {
         this.eventService.start();
 
         return this.http
-            .post<HierarchyType>(registry.contextPath + "/api/hierarchytype/add", JSON.stringify({ hierarchyCode: hierarchyCode, parentGeoObjectTypeCode: parentGeoObjectTypeCode, childGeoObjectTypeCode: childGeoObjectTypeCode }), { headers: headers })
+            .post<HierarchyType>(environment.apiUrl + "/api/hierarchytype/add", JSON.stringify({ hierarchyCode: hierarchyCode, parentGeoObjectTypeCode: parentGeoObjectTypeCode, childGeoObjectTypeCode: childGeoObjectTypeCode }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -74,7 +74,7 @@ export class HierarchyService {
         this.eventService.start();
 
         return this.http
-            .post<HierarchyType>(registry.contextPath + "/api/hierarchytype/insertBetweenTypes", JSON.stringify({ hierarchyCode: hierarchyCode, parentGeoObjectTypeCode: parentGeoObjectTypeCode, middleGeoObjectTypeCode: middleGeoObjectTypeCode, youngestGeoObjectTypeCode: youngestGeoObjectTypeCode }), { headers: headers })
+            .post<HierarchyType>(environment.apiUrl + "/api/hierarchytype/insertBetweenTypes", JSON.stringify({ hierarchyCode: hierarchyCode, parentGeoObjectTypeCode: parentGeoObjectTypeCode, middleGeoObjectTypeCode: middleGeoObjectTypeCode, youngestGeoObjectTypeCode: youngestGeoObjectTypeCode }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -89,7 +89,7 @@ export class HierarchyService {
         this.eventService.start();
 
         return this.http
-            .post<HierarchyType>(registry.contextPath + "/api/hierarchytype/remove", JSON.stringify({ hierarchyCode: hierarchyCode, parentGeoObjectTypeCode: parentGeoObjectTypeCode, childGeoObjectTypeCode: childGeoObjectTypeCode }), { headers: headers })
+            .post<HierarchyType>(environment.apiUrl + "/api/hierarchytype/remove", JSON.stringify({ hierarchyCode: hierarchyCode, parentGeoObjectTypeCode: parentGeoObjectTypeCode, childGeoObjectTypeCode: childGeoObjectTypeCode }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -104,7 +104,7 @@ export class HierarchyService {
         this.eventService.start();
 
         return this.http
-            .post<HierarchyType>(registry.contextPath + "/api/hierarchytype/create", JSON.stringify({ hierarchyType: hierarchyType }), { headers: headers })
+            .post<HierarchyType>(environment.apiUrl + "/api/hierarchytype/create", JSON.stringify({ hierarchyType: hierarchyType }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -119,7 +119,7 @@ export class HierarchyService {
         this.eventService.start();
 
         return this.http
-            .post<HierarchyType>(registry.contextPath + "/api/hierarchytype/update", JSON.stringify({ hierarchyType: hierarchyType }), { headers: headers })
+            .post<HierarchyType>(environment.apiUrl + "/api/hierarchytype/update", JSON.stringify({ hierarchyType: hierarchyType }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -134,7 +134,7 @@ export class HierarchyService {
         this.eventService.start();
 
         return this.http
-            .post<TreeEntity>(registry.contextPath + "/api/hierarchytype/delete", { code: code }, { headers: headers })
+            .post<TreeEntity>(environment.apiUrl + "/api/hierarchytype/delete", { code: code }, { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -149,7 +149,7 @@ export class HierarchyService {
         this.eventService.start();
 
         return this.http
-            .post<HierarchyType>(registry.contextPath + "/api/hierarchytype/setInherited", JSON.stringify({ hierarchyTypeCode: hierarchyTypeCode, inheritedHierarchyTypeCode: inheritedHierarchyTypeCode, geoObjectTypeCode: geoObjectTypeCode }), { headers: headers })
+            .post<HierarchyType>(environment.apiUrl + "/api/hierarchytype/setInherited", JSON.stringify({ hierarchyTypeCode: hierarchyTypeCode, inheritedHierarchyTypeCode: inheritedHierarchyTypeCode, geoObjectTypeCode: geoObjectTypeCode }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -164,7 +164,7 @@ export class HierarchyService {
         this.eventService.start();
 
         return this.http
-            .post<HierarchyType>(registry.contextPath + "/api/hierarchytype/removeInherited", JSON.stringify({ hierarchyTypeCode: hierarchyTypeCode, geoObjectTypeCode: geoObjectTypeCode }), { headers: headers })
+            .post<HierarchyType>(environment.apiUrl + "/api/hierarchytype/removeInherited", JSON.stringify({ hierarchyTypeCode: hierarchyTypeCode, geoObjectTypeCode: geoObjectTypeCode }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

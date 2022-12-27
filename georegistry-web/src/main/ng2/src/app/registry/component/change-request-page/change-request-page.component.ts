@@ -7,7 +7,7 @@ import { LocalizationService, AuthService } from "@shared/service";
 
 import { ErrorHandler, ErrorModalComponent } from "@shared/component";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Component({
 

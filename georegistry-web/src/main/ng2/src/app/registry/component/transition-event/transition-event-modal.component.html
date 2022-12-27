@@ -19,7 +19,7 @@
 		                    <span *ngIf="readonly" style="line-height: 40px;" class="date-string-display">
                             <date-text [date]="event.eventDate"></date-text>                            
 		                    </span>
-		                    <date-field *ngIf="!readonly" [(value)]="event.eventDate" [classNames]="['form-control']" label=""
+		                    <date-field *ngIf="!readonly" [(value)]="event.eventDate" [classNames]="'form-control'" label=""
 		                        [inputName]="'eventDate'" [allowFutureDates]="false" name="eventDate" [required]="true" (validChange)="validChange($event)"
 		                        [disable]="readonly || event.transitions.length > 0"></date-field>
 		                </div>

@@ -12,6 +12,8 @@ import { PasswordStrengthBarComponent } from "./password-strength-bar/password-s
 import { ProfileComponent } from "./profile/profile.component";
 import { ProgressBarComponent } from "./progress-bar/progress-bar.component";
 import { GenericModalComponent } from "./modals/generic-modal.component";
+import { DateFieldComponent } from "./form-fields/date-field/date-field.component";
+import { DateTextComponent } from "./date-text/date-text.component";
 
 export const components: any[] = [
     ErrorHandler,
@@ -27,7 +29,9 @@ export const components: any[] = [
     SuccessModalComponent,
     PasswordStrengthBarComponent,
     ProfileComponent,
-    ProgressBarComponent
+    ProgressBarComponent,
+    DateFieldComponent,
+    DateTextComponent
 ];
 
 export * from "./error-handler/error-handler";
@@ -44,3 +48,5 @@ export * from "./modals/success-modal.component";
 export * from "./password-strength-bar/password-strength-bar.component";
 export * from "./profile/profile.component";
 export * from "./progress-bar/progress-bar.component";
+export * from "./form-fields/date-field/date-field.component";
+export * from "./date-text/date-text.component";

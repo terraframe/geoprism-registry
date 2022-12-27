@@ -4,7 +4,7 @@ import { finalize } from "rxjs/operators";
 import { EventService } from "@shared/service";
 import { ExternalSystem, PageResult, SystemCapabilities } from "@shared/model/core";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class ExternalSystemService {
@@ -20,7 +20,7 @@ export class ExternalSystemService {
         this.eventService.start();
 
         return this.http
-            .get<PageResult<ExternalSystem>>(registry.contextPath + "/api/external-system/get-all", { params: params })
+            .get<PageResult<ExternalSystem>>(environment.apiUrl + "/api/external-system/get-all", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -34,7 +34,7 @@ export class ExternalSystemService {
         this.eventService.start();
 
         return this.http
-            .get<ExternalSystem>(registry.contextPath + "/api/external-system/get", { params: params })
+            .get<ExternalSystem>(environment.apiUrl + "/api/external-system/get", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -49,7 +49,7 @@ export class ExternalSystemService {
         this.eventService.start();
 
         return this.http
-            .post<ExternalSystem>(registry.contextPath + "/api/external-system/apply", JSON.stringify({ system: system }), { headers: headers })
+            .post<ExternalSystem>(environment.apiUrl + "/api/external-system/apply", JSON.stringify({ system: system }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -64,7 +64,7 @@ export class ExternalSystemService {
         this.eventService.start();
 
         return this.http
-            .post<SystemCapabilities>(registry.contextPath + "/api/external-system/system-capabilities", JSON.stringify({ system: system }), { headers: headers })
+            .post<SystemCapabilities>(environment.apiUrl + "/api/external-system/system-capabilities", JSON.stringify({ system: system }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -79,7 +79,7 @@ export class ExternalSystemService {
         this.eventService.start();
 
         return this.http
-            .post<any>(registry.contextPath + "/api/external-system/remove", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<any>(environment.apiUrl + "/api/external-system/remove", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

@@ -8,8 +8,8 @@ import { PageResult } from "@shared/model/core";
 
 import { ImportConfiguration } from "@registry/model/io";
 
-import { GeoRegistryConfiguration } from "@core/model/registry";
-declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/core";
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class ChangeRequestService {
@@ -25,7 +25,7 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http
-            .post<ChangeRequest>(registry.contextPath + "/api/changerequest/implement-decisions", JSON.stringify({ request: request }), { headers: headers })
+            .post<ChangeRequest>(environment.apiUrl + "/api/changerequest/implement-decisions", JSON.stringify({ request: request }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -40,7 +40,7 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http
-            .post<ChangeRequest>(registry.contextPath + "/api/changerequest/update", JSON.stringify({ request: request }), { headers: headers })
+            .post<ChangeRequest>(environment.apiUrl + "/api/changerequest/update", JSON.stringify({ request: request }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -55,7 +55,7 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http
-            .post<void>(registry.contextPath + "/api/changerequest/set-action-status", JSON.stringify({ actionOid: actionOid, status: status }), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/changerequest/set-action-status", JSON.stringify({ actionOid: actionOid, status: status }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -75,7 +75,7 @@ export class ChangeRequestService {
 
         this.eventService.start();
 
-        return this.http.get<PageResult<ChangeRequest>>(registry.contextPath + "/api/changerequest/get-all-requests", { params: params })
+        return this.http.get<PageResult<ChangeRequest>>(environment.apiUrl + "/api/changerequest/get-all-requests", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -89,7 +89,7 @@ export class ChangeRequestService {
 
         this.eventService.start();
 
-        return this.http.post<void>(registry.contextPath + "/api/changerequest/reject", JSON.stringify({ request: request }), { headers: headers })
+        return this.http.post<void>(environment.apiUrl + "/api/changerequest/reject", JSON.stringify({ request: request }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -103,7 +103,7 @@ export class ChangeRequestService {
 
         this.eventService.start();
 
-        return this.http.post<string>(registry.contextPath + "/api/changerequest/delete", JSON.stringify({ requestId: requestId }), { headers: headers })
+        return this.http.post<string>(environment.apiUrl + "/api/changerequest/delete", JSON.stringify({ requestId: requestId }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -118,7 +118,7 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http
-            .post<ImportConfiguration>(registry.contextPath + "/api/changerequest/delete-file-cr", JSON.stringify({ requestId: requestId, fileId: fileId }), { headers: headers })
+            .post<ImportConfiguration>(environment.apiUrl + "/api/changerequest/delete-file-cr", JSON.stringify({ requestId: requestId, fileId: fileId }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

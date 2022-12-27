@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -74,6 +74,7 @@ import com.runwaysdk.system.metadata.MdAttributeTerm;
 
 import net.geoprism.account.OauthServer;
 import net.geoprism.account.OauthServerIF;
+import net.geoprism.gis.geoserver.GeoserverProperties;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeoregistryProperties;
@@ -1071,6 +1072,11 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public JsonArray getLocales(String sessionId)
   {
+    return getLocales();
+  }
+
+  private JsonArray getLocales()
+  {
     Set<SupportedLocaleIF> locales = LocalizationFacade.getSupportedLocales();
 
     JsonArray array = new JsonArray();
@@ -1201,6 +1207,26 @@ public class RegistryService
   public String getLocalizationMap(String sessionId)
   {
     return net.geoprism.localization.LocalizationFacade.getJSON();
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonObject configuration(String sessionId, String contextPath)
+  {
+    Locale locale = Session.getCurrentLocale();
+
+    JsonObject config = new JsonObject();
+    config.addProperty("contextPath", contextPath);
+    config.addProperty("locale", locale.toString());
+    config.add("locales", this.getLocales());
+    config.addProperty("searchEnabled", GeoregistryProperties.isSearchEnabled());
+    config.addProperty("graphVisualizerEnabled", GeoregistryProperties.isGraphVisualizerEnabled());
+    config.addProperty("enableBusinessData", GeoregistryProperties.isBusinessDataEnabled());
+    config.addProperty("mapboxAccessToken", GeoserverProperties.getMapboxglAccessToken());
+    config.add("defaultMapBounds", JsonParser.parseString(GeoregistryProperties.getDefaultMapBounds()));
+    config.add("localization", JsonParser.parseString(net.geoprism.localization.LocalizationFacade.getJSON()));
+    config.addProperty("googleanalyticstoken", GeoregistryProperties.getGoogleAnalyticsToken());
+
+    return config;
   }
 
   public static RegistryService getInstance()

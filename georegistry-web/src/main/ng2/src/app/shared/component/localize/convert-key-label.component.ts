@@ -1,7 +1,8 @@
 import { Input, Component, OnInit } from "@angular/core";
+import { LocaleView, LocalizedValue } from "@core/model/core";
+import { ConfigurationService } from "@core/service/configuration.service";
 
-import { LocalizationService, AuthService } from "@shared/service";
-import { LocaleView, LocalizedValue } from "@shared/model/core";
+import { LocalizationService } from "@shared/service";
 
 @Component({
 
@@ -15,7 +16,7 @@ export class ConvertKeyLabel implements OnInit {
     text: string;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private service: LocalizationService, private authService: AuthService) { }
+    constructor(private service: LocalizationService, private configuration: ConfigurationService) { }
 
     ngOnInit(): void {
         if (this.key != null && this.key.label != null && this.key.label.localizedValue != null) {
@@ -23,7 +24,7 @@ export class ConvertKeyLabel implements OnInit {
             return;
         }
 
-        let locales: LocaleView[] = this.authService.getLocales();
+        let locales: LocaleView[] = this.configuration.getLocales();
 
         let len = locales.length;
         for (let i = 0; i < len; ++i) {

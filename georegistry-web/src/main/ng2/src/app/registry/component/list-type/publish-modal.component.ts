@@ -8,12 +8,13 @@ import { IOService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 
 import { ErrorHandler } from "@shared/component";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 import { ListType, ListTypeByType } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
-import { AttributeType, GeoObjectType, PRESENT } from "@registry/model/registry";
+import { AttributeType, GeoObjectType } from "@registry/model/registry";
 import Utils from "@registry/utility/Utils";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
+import { PRESENT } from "@shared/model/date";
 
 @Component({
     selector: "list-type-publish-modal",

@@ -10,14 +10,14 @@ import { DateService } from "@shared/service/date.service";
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService, AuthService } from "@shared/service";
 
-import { GeoRegistryConfiguration } from "@core/model/registry";
+import { GeoRegistryConfiguration } from "@core/model/core";
 import { PageResult } from "@shared/model/core";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { CurationJob, CurationProblem, ListTypeVersion } from "@registry/model/list-type";
 import { Subscription } from "rxjs";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 
-declare let registry: GeoRegistryConfiguration;
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: "curation-job",

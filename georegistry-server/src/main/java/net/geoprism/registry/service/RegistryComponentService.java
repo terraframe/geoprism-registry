@@ -267,4 +267,10 @@ public class RegistryComponentService
   {
     return service.getLocalizationMap(sessionId);
   }
+
+  public JsonObject configuration(String sessionId, String contextPath)
+  {
+    return service.configuration(sessionId, contextPath);
+  }
+
 }

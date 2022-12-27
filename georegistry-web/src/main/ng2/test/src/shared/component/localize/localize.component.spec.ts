@@ -3,7 +3,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { NO_ERRORS_SCHEMA, DebugElement } from "@angular/core";
 
 import { LocalizeComponent } from "@shared/component/localize/localize.component";
-import { LocalizationService } from "@shared/service";
+import { LocalizationService } from "@shared/service/localization.service";
 
 describe("LocalizeComponent", () => {
 	let component: LocalizeComponent;

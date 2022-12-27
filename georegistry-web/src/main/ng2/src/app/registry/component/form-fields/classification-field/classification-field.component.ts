@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from "@angular/core";
 import { Classification } from "@registry/model/classification-type";
 import { ClassificationService } from "@registry/service/classification.service";
-import { LocalizedValue } from "@shared/model/core";
+import { LocalizedValue } from "@core/model/core";
 import { BsModalService } from "ngx-bootstrap/modal";
 import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 import { Observable, Observer, Subscription } from "rxjs";

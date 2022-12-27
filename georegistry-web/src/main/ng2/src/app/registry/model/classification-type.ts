@@ -1,4 +1,5 @@
-import { LocalizedValue, PageResult } from "@shared/model/core";
+import { LocalizedValue } from "@core/model/core";
+import { PageResult } from "@shared/model/core";
 
 export class ClassificationType {
 
