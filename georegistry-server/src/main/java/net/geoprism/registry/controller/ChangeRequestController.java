@@ -166,9 +166,9 @@ public class ChangeRequestController
    * @return Empty response
    */
   @Endpoint(error = ErrorSerialization.JSON, url = "implement-decisions", method = ServletMethod.POST)
-  public ResponseIF implementDecisions(ClientRequestIF request, @RequestParamter(name = "request") String cr)
+  public ResponseIF implementDecisions(ClientRequestIF request, @RequestParamter(name = "request") String cr, @RequestParamter(name = "newCode") String newCode)
   {
-    JsonObject details = service.implementDecisions(request.getSessionId(), cr);
+    JsonObject details = service.implementDecisions(request.getSessionId(), cr, newCode);
 
     return new RestBodyResponse(details);
   }

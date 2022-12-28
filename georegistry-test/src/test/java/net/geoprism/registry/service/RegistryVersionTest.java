@@ -20,14 +20,14 @@ package net.geoprism.registry.service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Set;
+import java.util.Iterator;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.AttributeGeometry;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -35,12 +35,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.session.Request;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.test.FastTestDataset;
@@ -95,12 +93,16 @@ public class RegistryVersionTest
     Assert.assertEquals(Boolean.FALSE, goTime.getExists(dateFormat.parse("1990-03-01")));
     
     ValueOverTimeCollectionDTO allStatus = goTime.getAllValues(DefaultAttribute.EXISTS.getName());
-    Assert.assertEquals("1990-01-01", dateFormat.format(allStatus.get(0).getStartDate()));
-    Assert.assertEquals("1990-01-31", dateFormat.format(allStatus.get(0).getEndDate()));
-    Assert.assertEquals("1990-02-01", dateFormat.format(allStatus.get(1).getStartDate()));
-    Assert.assertEquals("1990-02-28", dateFormat.format(allStatus.get(1).getEndDate()));
-    Assert.assertEquals("1990-03-01", dateFormat.format(allStatus.get(2).getStartDate()));
-    Assert.assertEquals("1990-03-31", dateFormat.format(allStatus.get(2).getEndDate()));
+    Iterator<ValueOverTimeDTO> it = allStatus.iterator();
+    ValueOverTimeDTO first = it.next();
+    ValueOverTimeDTO second = it.next();
+    ValueOverTimeDTO third = it.next();
+    Assert.assertEquals("1990-01-01", dateFormat.format(first.getStartDate()));
+    Assert.assertEquals("1990-01-31", dateFormat.format(first.getEndDate()));
+    Assert.assertEquals("1990-02-01", dateFormat.format(second.getStartDate()));
+    Assert.assertEquals("1990-02-28", dateFormat.format(second.getEndDate()));
+    Assert.assertEquals("1990-03-01", dateFormat.format(third.getStartDate()));
+    Assert.assertEquals("1990-03-31", dateFormat.format(third.getEndDate()));
     
     Geometry expectedGeom = FastTestDataset.PROV_CENTRAL.fetchGeoObject().getGeometry();
     Geometry actualGeom = ( (AttributeGeometry) goTime.getAttributeOnDate(DefaultAttribute.GEOMETRY.getName(), FastTestDataset.DEFAULT_OVER_TIME_DATE) ).getValue();
@@ -136,12 +138,16 @@ public class RegistryVersionTest
     Assert.assertEquals(Boolean.FALSE, goTime.getExists(dateFormat.parse("1990-03-01")));
     
     ValueOverTimeCollectionDTO allStatus = goTime.getAllValues(DefaultAttribute.EXISTS.getName());
-    Assert.assertEquals("1990-01-01", dateFormat.format(allStatus.get(0).getStartDate()));
-    Assert.assertEquals("1990-01-31", dateFormat.format(allStatus.get(0).getEndDate()));
-    Assert.assertEquals("1990-02-01", dateFormat.format(allStatus.get(1).getStartDate()));
-    Assert.assertEquals("1990-02-28", dateFormat.format(allStatus.get(1).getEndDate()));
-    Assert.assertEquals("1990-03-01", dateFormat.format(allStatus.get(2).getStartDate()));
-    Assert.assertEquals("1990-03-31", dateFormat.format(allStatus.get(2).getEndDate()));
+    Iterator<ValueOverTimeDTO> it = allStatus.iterator();
+    ValueOverTimeDTO first = it.next();
+    ValueOverTimeDTO second = it.next();
+    ValueOverTimeDTO third = it.next();
+    Assert.assertEquals("1990-01-01", dateFormat.format(first.getStartDate()));
+    Assert.assertEquals("1990-01-31", dateFormat.format(first.getEndDate()));
+    Assert.assertEquals("1990-02-01", dateFormat.format(second.getStartDate()));
+    Assert.assertEquals("1990-02-28", dateFormat.format(second.getEndDate()));
+    Assert.assertEquals("1990-03-01", dateFormat.format(third.getStartDate()));
+    Assert.assertEquals("1990-03-31", dateFormat.format(third.getEndDate()));
     
     Geometry expectedGeom = FastTestDataset.PROV_CENTRAL.fetchGeoObject().getGeometry();
     Geometry actualGeom = ( (AttributeGeometry) goTime.getAttributeOnDate(DefaultAttribute.GEOMETRY.getName(), FastTestDataset.DEFAULT_OVER_TIME_DATE) ).getValue();
@@ -183,9 +189,11 @@ public class RegistryVersionTest
     Assert.assertEquals(1, goTime.getAllValues(attributeName).size());
     
     ValueOverTimeCollectionDTO all = goTime.getAllValues(attributeName);
-    Assert.assertEquals("1990-01-01", dateFormat.format(all.get(0).getStartDate()));
-    Assert.assertEquals("1990-02-01", dateFormat.format(all.get(0).getEndDate()));
-    Assert.assertTrue(value.equals(all.get(0).getValue()));
+    Iterator<ValueOverTimeDTO> it = all.iterator();
+    ValueOverTimeDTO first = it.next();
+    Assert.assertEquals("1990-01-01", dateFormat.format(first.getStartDate()));
+    Assert.assertEquals("1990-02-01", dateFormat.format(first.getEndDate()));
+    Assert.assertTrue(value.equals(first.getValue()));
   }
   
 //  @Test

@@ -22,9 +22,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
@@ -36,15 +38,12 @@ import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
-import com.runwaysdk.query.AggregateFunction;
 import com.runwaysdk.query.AttributeLocal;
 import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.OrderBy;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.Selectable;
-import com.runwaysdk.query.SelectableSQLDate;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.session.Request;
@@ -57,9 +56,12 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.action.ChangeRequest.ChangeRequestType;
 import net.geoprism.registry.action.ChangeRequestPermissionService;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.ChangeRequestQuery;
+import net.geoprism.registry.action.InvalidChangeRequestException;
+import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.view.Page;
@@ -442,12 +444,44 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject implementDecisions(String sessionId, String request)
+  public JsonObject implementDecisions(String sessionId, String request, String newCode)
   {
     ChangeRequest input = ChangeRequest.fromJSON(request);
     ChangeRequest current = ChangeRequest.get(JsonParser.parseString(request).getAsJsonObject().get("oid").getAsString());
+    
+    Set<ChangeRequestPermissionAction> permissions = this.permService.getPermissions(current);
+    
+    // Allow them to also update the code when they execute the CR (for creating new GeoObjects)
+    if (ChangeRequestType.CreateGeoObject.equals(current.getChangeRequestType()) && StringUtils.isNotEmpty(newCode))
+    {
+      java.util.Optional<? extends AbstractAction> opAction = current.getAllAction().getAll().stream().findFirst();
+      
+      if (!opAction.isPresent() || !(opAction.get() instanceof CreateGeoObjectAction))
+      {
+        throw new InvalidChangeRequestException();
+      }
+      else if (!permissions.contains(ChangeRequestPermissionAction.WRITE_CODE))
+      {
+        throw new CGRPermissionException();
+      }
+      else
+      {
+        CreateGeoObjectAction createAction = (CreateGeoObjectAction) opAction.get();
+        createAction.appLock();
+        
+        JsonObject joGO = JsonParser.parseString(createAction.getGeoObjectJson()).getAsJsonObject();
+        joGO.get("attributes").getAsJsonObject().addProperty("code", newCode);
+        createAction.setGeoObjectJson(joGO.toString());
+        
+        createAction.apply();
+        
+        current.appLock();
+        current.setGeoObjectCode(newCode);
+        current.apply();
+      }
+    }
 
-    if (!this.permService.getPermissions(current).containsAll(Arrays.asList(ChangeRequestPermissionAction.EXECUTE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.WRITE)))
+    if (!permissions.containsAll(Arrays.asList(ChangeRequestPermissionAction.EXECUTE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.WRITE)))
     {
       throw new CGRPermissionException();
     }

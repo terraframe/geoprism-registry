@@ -77,7 +77,7 @@
 
                   <div *ngIf="!attr.isChangeOverTime">
                     <input *ngIf="changeRequestEditor.geoObject && attr.code === 'code'" type="text" [(ngModel)]="changeRequestEditor.getEditorForAttribute(attr).value" id="mod-{{attr.code}}" 
-                        name="mod-{{attr.code}}" [disabled]="readOnly || (attr.code === 'code' && !isNew)" [style]="(readOnly || (attr.code === 'code' && !isNew)) ? '' : 'color:#333'" required>
+                        name="mod-{{attr.code}}" [disabled]="(attr.code === 'code' && !canEditCode()) || (attr.code !== 'code' && readOnly)" [style]="(readOnly || (attr.code === 'code' && !isNew)) ? '' : 'color:#333'" [required]="!(isNew && !isMaintainer)">
 
                     <div *ngIf="attr.code !== 'code'">
                         <standard-attribute-editor [changeRequestEditor]="changeRequestEditor" [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="attr" [geoObject]="changeRequestEditor.geoObject"

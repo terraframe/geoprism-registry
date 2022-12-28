@@ -17,7 +17,7 @@ export class ChangeRequestService {
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    implementDecisions(request: ChangeRequest): Promise<ChangeRequest> {
+    implementDecisions(request: ChangeRequest, newCode: string): Promise<ChangeRequest> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -25,7 +25,7 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http
-            .post<ChangeRequest>(registry.contextPath + "/changerequest/implement-decisions", JSON.stringify({ request: request }), { headers: headers })
+            .post<ChangeRequest>(registry.contextPath + "/changerequest/implement-decisions", JSON.stringify({ request: request, newCode: newCode }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

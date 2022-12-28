@@ -32,7 +32,7 @@ import net.geoprism.registry.service.ServiceFactory;
 public class ChangeRequestPermissionService
 {
   public static enum ChangeRequestPermissionAction {
-    EXECUTE, WRITE_APPROVAL_STATUS, READ_APPROVAL_STATUS, READ_DETAILS, WRITE_DETAILS, READ_DOCUMENTS, WRITE_DOCUMENTS, READ_CONTRIBUTOR_NOTES, WRITE_CONTRIBUTOR_NOTES, READ_MAINTAINER_NOTES, WRITE_MAINTAINER_NOTES, READ, WRITE, SUBMIT, DELETE
+    EXECUTE, WRITE_APPROVAL_STATUS, READ_APPROVAL_STATUS, READ_DETAILS, WRITE_DETAILS, WRITE_CODE, READ_DOCUMENTS, WRITE_DOCUMENTS, READ_CONTRIBUTOR_NOTES, WRITE_CONTRIBUTOR_NOTES, READ_MAINTAINER_NOTES, WRITE_MAINTAINER_NOTES, READ, WRITE, SUBMIT, DELETE
   }
 
   public Set<ChangeRequestPermissionAction> getPermissions(ChangeRequest cr)
@@ -96,7 +96,7 @@ public class ChangeRequestPermissionService
     }
     else if (perms.isRC(orgCode, type) || perms.isAC(orgCode, type))
     {
-      actions.addAll(Arrays.asList(ChangeRequestPermissionAction.READ, ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.READ_APPROVAL_STATUS, ChangeRequestPermissionAction.READ_DETAILS, ChangeRequestPermissionAction.WRITE_DETAILS, ChangeRequestPermissionAction.READ_DOCUMENTS, ChangeRequestPermissionAction.WRITE_DOCUMENTS, ChangeRequestPermissionAction.READ_MAINTAINER_NOTES, ChangeRequestPermissionAction.READ_CONTRIBUTOR_NOTES, ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES, ChangeRequestPermissionAction.SUBMIT, ChangeRequestPermissionAction.DELETE));
+      actions.addAll(Arrays.asList(ChangeRequestPermissionAction.READ, ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.READ_APPROVAL_STATUS, ChangeRequestPermissionAction.READ_DETAILS, ChangeRequestPermissionAction.WRITE_DETAILS, ChangeRequestPermissionAction.READ_DOCUMENTS, ChangeRequestPermissionAction.WRITE_DOCUMENTS, ChangeRequestPermissionAction.READ_MAINTAINER_NOTES, ChangeRequestPermissionAction.READ_CONTRIBUTOR_NOTES, ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES, ChangeRequestPermissionAction.WRITE_CODE, ChangeRequestPermissionAction.SUBMIT, ChangeRequestPermissionAction.DELETE));
 
       SessionIF session = Session.getCurrentSession();
       if (session == null || session.getUser() == null || cr.getCreatedBy() == null || !cr.getCreatedBy().getOid().equals(session.getUser().getOid()))

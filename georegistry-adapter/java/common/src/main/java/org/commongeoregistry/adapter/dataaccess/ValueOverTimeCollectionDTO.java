@@ -20,33 +20,42 @@ package org.commongeoregistry.adapter.dataaccess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
 public class ValueOverTimeCollectionDTO implements Collection<ValueOverTimeDTO>
 {
-  private LinkedList<ValueOverTimeDTO> valuesOverTime;
+  private final class ValueOverTimeDTOComparator implements Comparator<ValueOverTimeDTO>
+  {
+    @Override
+    public int compare(ValueOverTimeDTO o1, ValueOverTimeDTO o2)
+    {
+      Date d1 = o1.getStartDate();
+      Date d2 = o2.getStartDate();
+
+      return d1.compareTo(d2);
+    }
+  }
+  
+  private SortedSet<ValueOverTimeDTO> valuesOverTime;
   
   private AttributeType attributeType;
   
   public ValueOverTimeCollectionDTO(AttributeType attributeType)
   {
-    this.valuesOverTime = new LinkedList<ValueOverTimeDTO>();
+    this.valuesOverTime = new TreeSet<ValueOverTimeDTO>(new ValueOverTimeDTOComparator());
     this.attributeType = attributeType;
   }
   
   public boolean add(ValueOverTimeDTO dto)
   {
     return this.valuesOverTime.add(dto);
-  }
-  
-  public ValueOverTimeDTO get(int i)
-  {
-    return this.valuesOverTime.get(i);
   }
   
   @Override
@@ -156,6 +165,18 @@ public class ValueOverTimeCollectionDTO implements Collection<ValueOverTimeDTO>
   
   public Object getValueOnDate(Date date)
   {
+    if (date == null)
+    {
+      if (this.valuesOverTime.size() > 0)
+      {
+        return this.valuesOverTime.last().getValue();
+      }
+      else
+      {
+        return null;
+      }
+    }
+    
     for (ValueOverTimeDTO vot : this.valuesOverTime)
     {
       if (vot.between(date))

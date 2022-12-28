@@ -436,7 +436,7 @@ public class ChangeRequestServiceTest
     
     testSetActionStatus(request, serializedCR);
     
-    service.implementDecisions(request.getSessionId(), serializedCR);
+    service.implementDecisions(request.getSessionId(), serializedCR, null);
     
     testImplementDecisionsVerify(crOid);
   }
@@ -522,7 +522,7 @@ public class ChangeRequestServiceTest
     
     testSetActionStatus(request, serializedCR);
     
-    service.implementDecisions(request.getSessionId(), serializedCR);
+    service.implementDecisions(request.getSessionId(), serializedCR, null);
     
     testImplementParentDecisionsVerify(crOid);
   }
@@ -783,7 +783,7 @@ public class ChangeRequestServiceTest
   
   private void testComplexUpdateGeoObjectCR(String[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0]);
+    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0], null);
     
     testComplexUpdateGeoObjectCR_Verify(data);
   }
@@ -922,7 +922,7 @@ public class ChangeRequestServiceTest
   
   private void testUpdateGeoObjectGeometryCR(String[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0]);
+    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0], null);
     
     testUpdateGeoObjectGeometryCR_Verify(data);
   }
@@ -1055,7 +1055,7 @@ public class ChangeRequestServiceTest
   
   private void testUpdateGeoObjectLocalizedValueCR(String[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0]);
+    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0], null);
     
     testUpdateGeoObjectLocalizedValueCR_Verify(data);
   }
@@ -1185,7 +1185,7 @@ public class ChangeRequestServiceTest
   
   private void testUpdateGeoObjectTermCR(String[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0]);
+    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0], null);
     
     testUpdateGeoObjectTermCR_Verify(data);
   }
@@ -1316,7 +1316,7 @@ public class ChangeRequestServiceTest
   
   private void testUpdateGeoObjectDateCR(Object[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), (String) data[0]);
+    new ChangeRequestService().implementDecisions(request.getSessionId(), (String) data[0], null);
     
     testUpdateGeoObjectDateCR_Verify(data);
   }
