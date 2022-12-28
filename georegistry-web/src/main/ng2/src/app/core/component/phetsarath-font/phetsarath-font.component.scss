@@ -1,0 +1,14 @@
+@font-face {
+  font-family: 'Phetsarath OT';
+  font-style: normal;
+  font-weight: 400;
+  src: url('https://s3.us-west-2.amazonaws.com/geoprism.net/cdn/Phetsarath+OT.ttf') format('ttf');
+}
+
+:root {
+  --cgr-font: "Phetsarath OT";
+}
+
+* {
+  font-family: 'Phetsarath OT', 'Roboto', sans-serif;
+}

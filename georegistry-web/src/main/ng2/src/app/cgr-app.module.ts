@@ -32,6 +32,8 @@ import { HubService } from "@core/service/hub.service";
 
 import { SharedModule } from "@shared/shared.module";
 import { ConfigurationService } from "@core/service/configuration.service";
+import { APP_BASE_HREF, PlatformLocation } from "@angular/common";
+import { PhetsarathFontComponent } from "@core/component/phetsarath-font/phetsarath-font.component";
 
 @NgModule({
     imports: [
@@ -62,11 +64,17 @@ import { ConfigurationService } from "@core/service/configuration.service";
         HubComponent,
         ForgotPasswordComponent,
         ForgotPasswordCompleteComponent,
+        PhetsarathFontComponent,
 
         // Routing components
         routedComponents
     ],
     providers: [
+        {
+            provide: APP_BASE_HREF,
+            useFactory: (s: PlatformLocation) => s.getBaseHrefFromDOM(),
+            deps: [PlatformLocation]
+        },
         {
             provide: HTTP_INTERCEPTORS,
             useClass: HttpErrorInterceptor,
@@ -82,12 +90,13 @@ import { ConfigurationService } from "@core/service/configuration.service";
                 // Do initing of services that is required before app loads
                 // NOTE: this factory needs to return a function (that then returns a promise)
                 return () => service.load()  // + any other services...
-              },
-                'deps': [ConfigurationService, HttpClientModule],
+            },
+            'deps': [ConfigurationService, HttpClientModule],
             'multi': true,
-          },  
+        },
     ],
     exports: [
+        PhetsarathFontComponent,
         CgrAppComponent
     ],
     bootstrap: [CgrAppComponent],

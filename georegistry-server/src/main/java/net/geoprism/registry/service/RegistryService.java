@@ -1225,6 +1225,7 @@ public class RegistryService
     config.add("defaultMapBounds", JsonParser.parseString(GeoregistryProperties.getDefaultMapBounds()));
     config.add("localization", JsonParser.parseString(net.geoprism.localization.LocalizationFacade.getJSON()));
     config.addProperty("googleanalyticstoken", GeoregistryProperties.getGoogleAnalyticsToken());
+    config.addProperty("customFont", GeoregistryProperties.getCustomFont());
 
     return config;
   }

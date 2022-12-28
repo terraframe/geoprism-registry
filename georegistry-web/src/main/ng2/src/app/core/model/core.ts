@@ -93,5 +93,7 @@ export class GeoRegistryConfiguration {
     defaultMapBounds: [[number]];
     localization: any;
     mapboxAccessToken: string;
+    googleanalyticstoken: string;
+    customFont: string;
 
 }

@@ -16,10 +16,8 @@
 /// You should have received a copy of the GNU Lesser General Public
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
-import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, Inject, OnInit } from '@angular/core';
 
-import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { Application } from '@shared/model/application';
@@ -28,13 +26,14 @@ import { AuthService } from '@shared/service';
 
 import { HubService } from '@core/service/hub.service';
 
-import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment';
+import { APP_BASE_HREF } from '@angular/common';
 
-@Component( {
+@Component({
     selector: 'hub',
     templateUrl: './hub.component.html',
     styleUrls: ['./hub.component.css']
-} )
+})
 export class HubComponent implements OnInit {
     context: string;
     applications: Application[] = [];
@@ -45,24 +44,23 @@ export class HubComponent implements OnInit {
     loading: boolean = true;
 
     constructor(
+        @Inject(APP_BASE_HREF) private baseHref: string,
         private service: HubService,
         public authService: AuthService,
-        private modalService: BsModalService,
-        private router: Router,
-        private route: ActivatedRoute,
+
     ) {
         this.context = environment.apiUrl;
     }
 
     ngOnInit(): void {
-      this.service.applications().then( applications => {
-          this.loading = false;
-          this.applications = applications;
-      } );
-      
-      this.isAdmin = this.authService.isAdmin();
+        this.service.applications().then(applications => {
+            this.loading = false;
+            this.applications = applications;
+        });
+
+        this.isAdmin = this.authService.isAdmin();
     }
-    
+
     //   logout():void {
     //     this.sessionService.logout().then(response => {
     //       this.router.navigate(['/login']);	  
@@ -70,13 +68,19 @@ export class HubComponent implements OnInit {
     //   }
 
 
-    open( application: Application ): void {
-        
+    open(application: Application): void {
+
         if (application.url.includes("location-manager")) {
             application.url = application.url + "?pageContext=EXPLORER";
         }
-        
-        window.location.href = this.context + '/' + application.url;
+
+        let url = this.context;
+
+        if(this.baseHref != null) {
+            url += this.baseHref;
+        }
+
+        window.location.href = url + '/' + application.url;
     }
 
     //   account():void{

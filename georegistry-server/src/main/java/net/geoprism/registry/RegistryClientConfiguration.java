@@ -88,7 +88,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     hierarchies.setId("hierarchies");
     hierarchies.setLabel(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing"));
     hierarchies.setSrc("net/geoprism/images/hierarchy-icon-modified.svg");
-    hierarchies.setUrl("cgr/manage#/registry/hierarchies");
+    hierarchies.setUrl("#/registry/hierarchies");
     hierarchies.setDescription(LocalizationFacadeDTO.getFromBundles(request, "hierarchies.landing.description"));
     hierarchies.addRole(RoleConstants.ADIM_ROLE);
     hierarchies.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
@@ -102,7 +102,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     masterLists.setId("lists");
     masterLists.setLabel(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing"));
     masterLists.setSrc("net/geoprism/images/masterlist-icon-modified.svg");
-    masterLists.setUrl("cgr/manage#/registry/master-lists");
+    masterLists.setUrl("#/registry/master-lists");
     masterLists.setDescription(LocalizationFacadeDTO.getFromBundles(request, "masterlists.landing.description"));
     masterLists.addRole(RoleConstants.ADIM_ROLE);
     masterLists.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
@@ -116,7 +116,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     uploads.setId("uploads");
     uploads.setLabel(LocalizationFacadeDTO.getFromBundles(request, "uploads.landing"));
     uploads.setSrc("net/geoprism/images/dm_icon.svg");
-    uploads.setUrl("cgr/manage#/registry/data");
+    uploads.setUrl("#/registry/data");
     uploads.setDescription(LocalizationFacadeDTO.getFromBundles(request, "uploads.landing.description"));
     uploads.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
@@ -127,7 +127,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     scheduledJobs.setId("scheduledJobs");
     scheduledJobs.setLabel(LocalizationFacadeDTO.getFromBundles(request, "scheduledjobs.menu"));
     scheduledJobs.setSrc("net/geoprism/images/job-scheduler.svg");
-    scheduledJobs.setUrl("cgr/manage#/registry/scheduled-jobs");
+    scheduledJobs.setUrl("#/registry/scheduled-jobs");
     scheduledJobs.setDescription(LocalizationFacadeDTO.getFromBundles(request, "scheduledjobs.menu"));
     scheduledJobs.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     scheduledJobs.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
@@ -138,7 +138,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     management.setId("locations");
     management.setLabel(LocalizationFacadeDTO.getFromBundles(request, "navigator.landing"));
     management.setSrc("net/geoprism/images/map_icon.svg");
-    management.setUrl("cgr/manage#/registry/location-manager");
+    management.setUrl("#/registry/location-manager");
     management.setDescription(LocalizationFacadeDTO.getFromBundles(request, "navigator.landing.description"));
     management.addRole(RoleConstants.ADIM_ROLE);
     management.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
@@ -151,7 +151,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     requests.setId("requests");
     requests.setLabel(LocalizationFacadeDTO.getFromBundles(request, "requests.landing"));
     requests.setSrc("net/geoprism/images/update-icon-modified.svg");
-    requests.setUrl("cgr/manage#/registry/change-requests");
+    requests.setUrl("#/registry/change-requests");
     requests.setDescription(LocalizationFacadeDTO.getFromBundles(request, "requests.landing.description"));
     requests.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
@@ -163,7 +163,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     tasks.setId("tasks");
     tasks.setLabel(LocalizationFacadeDTO.getFromBundles(request, "header.tasks"));
     tasks.setSrc("net/geoprism/images/task.svg");
-    tasks.setUrl("cgr/manage#/registry/tasks");
+    tasks.setUrl("#/registry/tasks");
     tasks.setDescription(LocalizationFacadeDTO.getFromBundles(request, "header.tasks"));
     tasks.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     tasks.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
@@ -174,7 +174,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     historicalEvents.setId("historicalEvents");
     historicalEvents.setLabel(LocalizationFacadeDTO.getFromBundles(request, "historical.events"));
     historicalEvents.setSrc("net/geoprism/images/historical-events.svg");
-    historicalEvents.setUrl("cgr/manage#/registry/historical-events");
+    historicalEvents.setUrl("#/registry/historical-events");
     historicalEvents.setDescription(LocalizationFacadeDTO.getFromBundles(request, "historical.events.description"));
     historicalEvents.addRole(RoleConstants.ADIM_ROLE);
     historicalEvents.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);

@@ -6,7 +6,7 @@ import { finalize } from 'rxjs/operators';
 
 import { EventService } from '@shared/service'
 
-import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class ForgotPasswordService {

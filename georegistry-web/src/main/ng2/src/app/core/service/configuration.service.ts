@@ -48,8 +48,16 @@ export class ConfigurationService {
         return this.getConfiguration().mapboxAccessToken;
     }
 
+    getAnalyticsToken(): string {
+        return this.getConfiguration().googleanalyticstoken;
+    }
+
     getDefaultMapBounds(): [[number]] {
         return this.getConfiguration().defaultMapBounds;
+    }
+
+    getCustomFont(): string {
+        return this.getConfiguration().customFont;
     }
 
 }
