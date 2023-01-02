@@ -57,6 +57,7 @@ export abstract class LayerDataSource {
 
     public abstract getBounds(layer: Layer): Promise<LngLatBoundsLike>;
 
+    public abstract getVersionId();
 }
 
 export abstract class GeoJsonLayerDataSource extends LayerDataSource {
@@ -75,7 +76,7 @@ export abstract class GeoJsonLayerDataSource extends LayerDataSource {
         return this.getLayerData().then(data => {
             try {
                 return bbox(data as any) as LngLatBoundsLike;
-            // eslint-disable-next-line no-console
+                // eslint-disable-next-line no-console
             } catch (e) { console.log(e); }
 
             return null;
@@ -235,6 +236,10 @@ export class GeoObjectLayerDataSource extends LayerDataSource {
                 return null;
             }
         });
+    }
+
+    public getVersionId() {
+        "";
     }
 
 }
@@ -403,6 +408,9 @@ export class ValueOverTimeDataSource extends GeoJsonLayerDataSource {
         });
     }
 
+    public getVersionId() {
+        "";
+    }
 }
 
 export const SEARCH_DATASOURCE_TYPE = "SEARCH";
@@ -464,6 +472,9 @@ export class SearchLayerDataSource extends GeoJsonLayerDataSource {
         return SEARCH_DATASOURCE_TYPE + this.text + (this.date == null ? "" : this.date);
     }
 
+    public getVersionId() {
+        "";
+    }
 }
 
 export const RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE = "RELVIZ";
@@ -572,12 +583,12 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
         let ne = bounds.getNorthEast();
 
         return "POLYGON ((" +
-          se.lng + " " + se.lat + "," +
-          sw.lng + " " + sw.lat + "," +
-          nw.lng + " " + nw.lat + "," +
-          ne.lng + " " + ne.lat + "," +
-          se.lng + " " + se.lat +
-        "))";
+            se.lng + " " + se.lat + "," +
+            sw.lng + " " + sw.lat + "," +
+            nw.lng + " " + nw.lat + "," +
+            ne.lng + " " + ne.lat + "," +
+            se.lng + " " + se.lat +
+            "))";
     }
 
     getGeometryType(): string {
@@ -596,6 +607,9 @@ export class RelationshipVisualizionDataSource extends GeoJsonLayerDataSource {
         });
     }
 
+    public getVersionId() {
+        "";
+    }
 }
 
 export class RelationshipVisualizionLayer extends Layer {
@@ -650,7 +664,7 @@ export class DataSourceFactory {
 
     private listService: ListTypeService;
 
-    private dataSources: { [key: string] : LayerDataSource } = {};
+    private dataSources: { [key: string]: LayerDataSource } = {};
 
     constructor(geomService: GeometryService, registryService: RegistryService, vizService: RelationshipVisualizationService, mapService: MapService, listService: ListTypeService) {
         this.geomService = geomService;

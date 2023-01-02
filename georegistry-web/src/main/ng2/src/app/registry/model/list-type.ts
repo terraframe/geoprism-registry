@@ -87,7 +87,7 @@ export class ListTypeVersion extends ListVersionMetadata {
         type: string,
         value: any
     };
-
+    label?: string;
 }
 
 export class ListTypeEntry {
@@ -156,7 +156,7 @@ export class ListType {
     description: LocalizedValue;
     subtypes?: { label: string, code: string }[];
     subtypeHierarchies?: any[];
-    hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
+    hierarchies: { label: string, code: string, parents: { label: string, code: string, selected?: boolean }[] }[];
     includeLatLong?: boolean;
 
     listMetadata: ListMetadata;

@@ -69,8 +69,8 @@ export class ImportTypesModalComponent implements OnInit {
       };
   }
 
-  onSelect(orgCode: string): void {
-      this.orgCode = orgCode;
+  onSelect(event: Event): void {
+    this.orgCode = (event.target as HTMLInputElement).value;    
   }
 
   onClick(): void {

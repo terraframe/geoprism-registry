@@ -42,6 +42,6 @@ export class HistoricalRow {
     beforeLabel: LocalizedValue;
     afterType: string;
     afterCode: string;
-    afterLabel: string;
+    afterLabel: LocalizedValue;
 }
 

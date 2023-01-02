@@ -176,7 +176,12 @@ export class ListTypePublishModalComponent implements OnInit {
         });
     }
 
-    getAttributeForFilter(filter: { attribute: string, comparator: string, value: any }): AttributeType {
+    getAttributeForFilter(filter: {
+        attribute: string,
+        operation: string,
+        value: any,
+        id: string
+    }): AttributeType {
         if (filter.attribute != null && filter.attribute !== "") {
             const attributeType = this.geoObjectType.attributes.find(attributeType => attributeType.code === filter.attribute);
 

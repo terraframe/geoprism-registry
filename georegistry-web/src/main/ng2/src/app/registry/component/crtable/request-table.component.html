@@ -121,7 +121,7 @@
 	                              [hierarchies]="req.type == 'UpdateGeoObject' ? req.current.hierarchies : req.actions[0].parentJson"
 	                              [isGeometryInlined]="true"
                                 [isNew]="req.type === 'CreateGeoObject'"
-                                (valid)="setValid($event)">
+                           >
 	                         </geoobject-shared-attribute-editor>
 	                         
 	                       </div>

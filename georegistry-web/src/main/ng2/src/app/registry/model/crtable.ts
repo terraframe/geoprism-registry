@@ -60,6 +60,8 @@ export class AbstractAction {
     createdBy: string;
     documents: any[];
     permissions: string[];
+    geoObjectJson?: GeoObjectOverTime;
+    parentJson?: HierarchyOverTime[];
 }
 
 export class CreateGeoObjectAction extends AbstractAction {
@@ -98,11 +100,13 @@ export class UpdateAttributeAction extends AbstractAction {
 
 export class ChangeRequestCurrentObject {
     geoObjectType: GeoObjectType;
+    hierarchies?: any;
 }
 
 export class UpdateChangeRequestCurrentObject {
     geoObjectType: GeoObjectType;
     geoObject: GeoObjectOverTime;
+    hierarchies?: any;
 }
 
 export class ChangeRequest {
@@ -125,7 +129,14 @@ export class ChangeRequest {
         code: string,
         label: string
     };
-
+    geoObjectType?: {
+        code?: string,
+        label: string
+    };
+    contributorNotes: string;
+    maintainerNotes: string;
+    additionalNotes: string;
+    
     constructor() {
         this.isNew = true;
     }

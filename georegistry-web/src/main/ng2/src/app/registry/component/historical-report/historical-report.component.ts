@@ -62,7 +62,7 @@ export class HistoricalReportComponent {
         endDate: ""
     }
 
-    types: { label: string, code: string }[] = [];
+    types: { label: string, code: string, super?: { label?: string, code?: string } }[] = [];
 
     isValid: boolean = false;
 

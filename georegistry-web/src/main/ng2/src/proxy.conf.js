@@ -1,7 +1,7 @@
 const PROXY_CONFIG = [
     {
         context: [
-            "/api", "/net/geoprism/images/", "/glyphs"
+            "/api", "/net/geoprism/images/", "/glyphs", "/session"
         ],
         target: "https://localhost:8443/georegistry/",
         "changeOrigin": true,       // solves CORS Error in F12

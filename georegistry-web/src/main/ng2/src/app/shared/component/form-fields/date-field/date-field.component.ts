@@ -31,7 +31,7 @@ export class DateFieldComponent {
 
     _value: Date;
     // eslint-disable-next-line accessor-pairs
-    @Input() set value(value) {
+    @Input() set value(value: string | number | Date) {
         if (value) {
             this.setValue(value || null);
         }
@@ -54,7 +54,7 @@ export class DateFieldComponent {
         this.bsDatepickerConfig.dateInputFormat = "YYYY-MM-DD";
     }
 
-    private setValue(value: string | number): void {
+    private setValue(value: string | number | Date): void {
         // @ts-ignore
         if (!isNaN(value)) {
             // @ts-ignore

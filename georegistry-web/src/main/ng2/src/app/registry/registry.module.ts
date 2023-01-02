@@ -43,7 +43,6 @@ import { ManageTermOptionsComponent } from "./component/hierarchy/geoobjecttype-
 import { GeoObjectTypeInputComponent } from "./component/hierarchy/geoobjecttype-management/geoobjecttype-input.component";
 import { ManageGeoObjectTypeModalComponent } from "./component/hierarchy/modals/manage-geoobjecttype-modal.component";
 import { RequestTableComponent } from "./component/crtable/request-table.component";
-import { CreateUpdateGeoObjectDetailComponent } from "./component/crtable/action-detail/create-update-geo-object/detail.component";
 import { GeoObjectSharedAttributeEditorComponent } from "./component/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component";
 import { StabilityPeriodComponent } from "./component/geoobject-shared-attribute-editor/stability-period.component";
 import { ManageVersionsComponent } from "./component/geoobject-shared-attribute-editor/manage-versions.component";
@@ -55,7 +54,6 @@ import { GeoObjectEditorMapComponent } from "./component/geoobject-editor-map/ge
 import { SimpleEditControl } from "./component/geoobject-editor-map/simple-edit-control/simple-edit-control.component";
 import { CascadingGeoSelector } from "./component/cascading-geo-selector/cascading-geo-selector";
 import { TreeGeoSelector } from "./component/tree-geo-selector/tree-geo-selector";
-import { ActionDetailModalComponent } from "./component/crtable/action-detail/action-detail-modal.component";
 import { DataImporterComponent } from "./component/importer/dataimporter.component";
 import { DataExportComponent } from "./component/data-export/data-export.component";
 import { ScheduledJobsComponent } from "./component/scheduled-jobs/scheduled-jobs.component";
@@ -175,7 +173,6 @@ import { VotService } from "./service/vot.service";
         HierarchyComponent,
         RelationshipVisualizerComponent,
         RequestTableComponent,
-        CreateUpdateGeoObjectDetailComponent,
         ImportTypesModalComponent,
         FhirExportSynchronizationConfigComponent,
         FhirImportSynchronizationConfigComponent,
@@ -218,7 +215,6 @@ import { VotService } from "./service/vot.service";
         ChangeRequestPageComponent,
         CascadingGeoSelector,
         TreeGeoSelector,
-        ActionDetailModalComponent,
         DataImporterComponent,
         DataExportComponent,
         // Scheduled jobs
@@ -324,7 +320,6 @@ import { VotService } from "./service/vot.service";
         ExportFormatModalComponent,
         DataPageComponent,
         ChangeRequestPageComponent,
-        ActionDetailModalComponent,
         JobConflictModalComponent,
         ReuploadModalComponent,
         StepIndicatorComponent,

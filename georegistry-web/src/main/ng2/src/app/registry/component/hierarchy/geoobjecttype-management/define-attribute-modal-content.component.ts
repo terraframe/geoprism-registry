@@ -6,7 +6,7 @@ import { StepConfig } from "@shared/model/modal";
 
 import { LocalizationService, ModalStepIndicatorService } from "@shared/service";
 
-import { AttributeType, AttributeTermType, AttributeDecimalType, ManageGeoObjectTypeModalState, AttributedType } from "@registry/model/registry";
+import { AttributeType, ManageGeoObjectTypeModalState, AttributedType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { AttributeTypeService } from "@registry/service";
 import { AttributeInputComponent } from "../geoobjecttype-management/attribute-input.component";
@@ -21,7 +21,7 @@ export class DefineAttributeModalContentComponent implements OnInit {
     @Input() geoObjectType: AttributedType;
     @Input() service: AttributeTypeService;
 
-    @Output() stateChange : EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
+    @Output() stateChange: EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
     @Output() geoObjectTypeChange: EventEmitter<AttributedType> = new EventEmitter<AttributedType>();
 
     message: string = null;
@@ -68,12 +68,28 @@ export class DefineAttributeModalContentComponent implements OnInit {
     }
 
     setAttribute(type: string): void {
+        this.newAttribute = {
+            code: "",
+            type: type,
+            label: this.localizeService.create(),
+            description: this.localizeService.create(),
+            isDefault: false,
+            required: false,
+            unique: false,
+            isChangeOverTime: true,
+        }
+
         if (type === "term") {
-            this.newAttribute = new AttributeTermType("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
+            this.newAttribute.rootTerm = {
+                code: null,
+                label: null,
+                description: null
+            };
+            this.newAttribute.termOptions = [];
+
         } else if (type === "float") {
-            this.newAttribute = new AttributeDecimalType("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
-        } else {
-            this.newAttribute = new AttributeType("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
+            this.newAttribute.precision = 32;
+            this.newAttribute.scale = 8;
         }
     }
 

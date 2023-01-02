@@ -131,10 +131,28 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnDestro
 
         this.geometryAttributeType = this.getAttribute("geometry");
         if (this.geometryAttributeType == null) {
-            this.geometryAttributeType = new AttributeType("geometry", "geometry", new LocalizedValue("Geometry", null), new LocalizedValue("Geometry", null), true, false, false, true);
+            this.geometryAttributeType = {
+                code: "geometry",
+                type: "geometry",
+                label: new LocalizedValue("Geometry", null),
+                description: new LocalizedValue("Geometry", null),
+                isDefault: true,
+                required: false,
+                unique: false,
+                isChangeOverTime: true,
+            }
         }
 
-        this.parentAttributeType = new AttributeType("_PARENT_", "_PARENT_", new LocalizedValue("Parents", null), new LocalizedValue("Parents", null), true, false, false, true);
+        this.parentAttributeType = {
+            code: "_PARENT_",
+            type: "_PARENT_",
+            label: new LocalizedValue("Parents", null),
+            description: new LocalizedValue("Parents", null),
+            isDefault: true,
+            required: false,
+            unique: false,
+            isChangeOverTime: true,
+        }
 
         if (this.changeRequest == null) {
             this.changeRequest = this.createNewChangeRequest();

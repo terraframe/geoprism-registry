@@ -20,7 +20,7 @@
                             <date-text [date]="event.eventDate"></date-text>                            
 		                    </span>
 		                    <date-field *ngIf="!readonly" [(value)]="event.eventDate" [classNames]="'form-control'" label=""
-		                        [inputName]="'eventDate'" [allowFutureDates]="false" name="eventDate" [required]="true" (validChange)="validChange($event)"
+		                        [inputName]="'eventDate'" [allowFutureDates]="false" name="eventDate" [required]="true" (validChange)="validChange()"
 		                        [disable]="readonly || event.transitions.length > 0"></date-field>
 		                </div>
 		            </div>
@@ -101,18 +101,19 @@
 	                        </tr>
                         </thead>
                         <tbody class="dndList" id="transition-container"
-                          [dndDropzone]="readonly ? null : true"
-                          [dndEffectAllowed]="readonly ? null : 'copyMove'"
-                          (dndDrop)="readonly ? null : onDrop($event)"
+                          dndDropzone
+                          [dndDisableIf]="readonly"
+                          [dndEffectAllowed]="'copyMove'"
+                          (dndDrop)="onDrop($event)"
                         >
                             <tr *ngIf="!readonly" class="dndPlaceholder" dndPlaceholderRef>
                               <td colspan="7"></td>
                             </tr>
                         
                             <tr *ngFor="let transition of event.transitions; let i = index;" class="transition" style="height: 50px;" [attr.data-transOid]="transition.oid"
-                                [dndDraggable]="readonly ? null : transition"
-                                [dndEffectAllowed]="readonly ? null : draggable.effectAllowed"
-                                [dndDisableIf]="readonly ? null : draggable.disable"
+                                [dndDraggable]="transition"
+                                [dndDisableIf]="readonly"
+                                [dndEffectAllowed]="draggable.effectAllowed"
 													      (dndStart)="readonly ? null : onDragStart($event)"
 													      (dndCopied)="readonly ? null : onDraggableCopied($event)"
 													      (dndLinked)="readonly ? null : onDraggableLinked($event)"

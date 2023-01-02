@@ -30,7 +30,7 @@ export class ClassificationFieldComponent implements OnInit, OnDestroy {
     loading: boolean = false;
     text: string = "";
 
-    typeahead: Observable<Object> = null;
+    typeahead: Observable<any> = null;
     subscription: Subscription = null;
 
     constructor(
@@ -38,7 +38,7 @@ export class ClassificationFieldComponent implements OnInit, OnDestroy {
         private service: ClassificationService) { }
 
     ngOnInit(): void {
-        this.typeahead = new Observable((observer: Observer<Object>) => {
+        this.typeahead = new Observable((observer: Observer<any>) => {
             this.service.search(this.classificationType, this.rootCode, this.text).then(results => {
                 observer.next(results);
             });

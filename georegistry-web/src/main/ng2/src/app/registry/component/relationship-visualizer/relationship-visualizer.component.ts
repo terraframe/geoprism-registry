@@ -230,7 +230,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         }
     }
 
-    private onSelectRelationship() {
+    onSelectRelationship() :void {
         this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
 
         //   this.fetchData();
@@ -240,7 +240,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         this.geomService.setState(newState, false);
     }
 
-    private fetchData(): void {
+    fetchData(): void {
         if (this.relationship != null) {
             this.spinner.show(this.CONSTANTS.OVERLAY);
 

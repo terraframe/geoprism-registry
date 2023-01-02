@@ -13,7 +13,7 @@ import { LocalizationService, AuthService } from "@shared/service";
 import { Transition, TransitionEvent } from "@registry/model/transition-event";
 import { TransitionEventService } from "@registry/service/transition-event.service";
 
-import { DndDropEvent } from "ngx-drag-drop";
+import { DndDropEvent, EffectAllowed } from "ngx-drag-drop";
 import * as uuid from "uuid";
 
 /* D3 Stuffs */
@@ -60,7 +60,12 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
 
     valid: boolean = false;
 
-    draggable = {
+    draggable:{
+        data: any,
+        effectAllowed: EffectAllowed,
+        disable: boolean,
+        handle: boolean
+    } = {
         // note that data is handled with JSON.stringify/JSON.parse
         // only set simple data or POJO's as methods will be lost
         data: "myDragData",

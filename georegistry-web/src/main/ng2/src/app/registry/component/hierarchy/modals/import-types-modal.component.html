@@ -11,7 +11,7 @@
             <label> <localize key="attribute.organization.label"></localize> </label>
           </div>
           <div class="holder">
-            <select (change)="onSelect($event.target.value)">
+            <select (change)="onSelect($event)">
               <option></option>
               <option *ngFor="let organization of organizations" value={{organization.code}}>{{organization.label.localizedValue}}</option>
             </select>

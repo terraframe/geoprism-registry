@@ -26,7 +26,7 @@
     </div>
     <div class="holder">
       <span class="text">
-        <input type="text" [(ngModel)]="attribute.precision" name="precision" OnlyNumber="true" required>
+        <input type="number" step="1" [(ngModel)]="attribute.precision" name="precision" required>
       </span>
     </div>
   </div>
@@ -39,7 +39,7 @@
     </div>
     <div class="holder">
       <span class="text">
-        <input type="text" [(ngModel)]="attribute.scale" name="scale" OnlyNumber="true" required>
+        <input type="number" step="1" [(ngModel)]="attribute.scale" name="scale" required>
       </span>
     </div>
   </div>

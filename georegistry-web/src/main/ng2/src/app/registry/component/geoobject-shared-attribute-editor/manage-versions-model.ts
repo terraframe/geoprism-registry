@@ -3,7 +3,7 @@ import { ManageVersionsComponent } from "./manage-versions.component";
 import { SummaryKey } from "@registry/model/crtable";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 import { LocalizedValue } from "@core/model/core";
-import { AttributeTermType, Term } from "@registry/model/registry";
+import { Term } from "@registry/model/registry";
 import { GeoJsonLayer, Layer } from "@registry/service/layer-data-source";
 
 /*
@@ -169,7 +169,7 @@ export class VersionDiffView {
                 code = val[0];
             }
 
-            let attrOpts = (this.component.attributeType as AttributeTermType).rootTerm.children;
+            let attrOpts = this.component.attributeType.rootTerm.children;
 
             let index = attrOpts.findIndex((term: Term) => term.code === code);
 

@@ -8,7 +8,7 @@ import { DateService } from "../../service";
 })
 export class DateTextComponent implements OnChanges {
 
-    @Input() date: string = '';
+    @Input() date: string | Date | number = '';
 
     formattedDate: string = '';
 
@@ -17,9 +17,7 @@ export class DateTextComponent implements OnChanges {
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['date'] != null) {
-            (async () => {
-                this.formattedDate = await this.service.formatDateForDisplay(changes['date'].currentValue);
-            })();
+            this.formattedDate = this.service.formatDateForDisplay(changes['date'].currentValue);
         }
     }
 

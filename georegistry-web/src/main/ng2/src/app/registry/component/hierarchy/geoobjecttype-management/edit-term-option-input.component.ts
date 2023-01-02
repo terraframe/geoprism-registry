@@ -12,7 +12,7 @@ import { StepConfig } from "@shared/model/modal";
 import { LocalizationService, ModalStepIndicatorService } from "@shared/service";
 import { ErrorHandler } from "@shared/component";
 
-import { GeoObjectType, AttributeTermType, Term, ManageGeoObjectTypeModalState } from "@registry/model/registry";
+import { Term, ManageGeoObjectTypeModalState, AttributeType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { RegistryService } from "@registry/service";
 
@@ -40,7 +40,7 @@ import { RegistryService } from "@registry/service";
 })
 export class EditTermOptionInputComponent implements OnInit {
 
-    @Input() attribute: AttributeTermType = null;
+    @Input() attribute: AttributeType = null;
     @Input() termOption: Term;
 
     @Output() stateChange: EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();

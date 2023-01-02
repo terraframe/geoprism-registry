@@ -76,7 +76,7 @@ export class StabilityPeriodComponent implements OnInit, OnDestroy {
 
     private subscription: Subscription;
 
-    private forDate: string;
+    forDate: string;
 
     _showHint: boolean = false;
     // eslint-disable-next-line accessor-pairs

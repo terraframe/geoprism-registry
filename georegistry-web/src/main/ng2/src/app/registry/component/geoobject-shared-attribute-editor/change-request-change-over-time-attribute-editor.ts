@@ -24,6 +24,8 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
 
     onChangeSubject: Subject<any> = new Subject<any>();
 
+    value: string = '';
+
     constructor(changeRequestEditor: ChangeRequestEditor, attribute: AttributeType, hierarchy: HierarchyOverTime) {
         this.changeRequestEditor = changeRequestEditor;
         this.attribute = attribute;

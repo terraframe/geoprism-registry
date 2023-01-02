@@ -453,7 +453,20 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
       return null;
   }
 
-  mapCgrAttr(info: AttributeConfigInfo, mapping: DHIS2AttributeMapping) {
+  mapCgrAttrEvent(event:Event, levelRow: LevelRow, mapping: DHIS2AttributeMapping) : void {
+    const target =  event.target as HTMLSelectElement;
+  
+    if(target.selectedIndex == 0) {
+        this.mapCgrAttr(null, mapping);
+    } 
+    else {
+        const info: AttributeConfigInfo =  levelRow.attrCfg.attrConfigInfos[target.selectedIndex-1];
+
+        this.mapCgrAttr(info, mapping);
+    }
+  }
+
+  mapCgrAttr(info: AttributeConfigInfo, mapping: DHIS2AttributeMapping) : void {
       if (info == null) {
           mapping.cgrAttrName = null;
           mapping.info = null;

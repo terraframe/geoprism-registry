@@ -84,19 +84,8 @@ export class TreeEntity {
 export class Term {
     code: string;
     label: LocalizedValue;
-    description: LocalizedValue;
-
-    constructor(code: string, label: LocalizedValue, description: LocalizedValue) {
-        this.code = code;
-        this.label = label;
-        this.description = description;
-    }
-
-    children: Term[] = [];
-
-    addChild(term: Term) {
-        this.children.push(term);
-    }
+    description?: LocalizedValue;
+    children?: Term[];
 }
 
 export class GeoObject {
@@ -119,7 +108,7 @@ export class GeoObject {
 
 export interface AttributedType {
     code: string;
-    attributes?: Array<AttributeType | AttributeTermType | AttributeDecimalType>;
+    attributes?: Array<AttributeType>;
 }
 
 export class GeoObjectType implements AttributedType {
@@ -130,7 +119,7 @@ export class GeoObjectType implements AttributedType {
     isLeaf: boolean;
     isGeometryEditable: boolean;
     organizationCode: string;
-    attributes: Array<AttributeType | AttributeTermType | AttributeDecimalType> = [];
+    attributes: Array<AttributeType> = [];
     relatedHierarchies?: string[];
     superTypeCode?: string;
     isAbstract?: boolean;
@@ -156,7 +145,6 @@ export class GeoObjectType implements AttributedType {
             let attr: any = geoObjectType.attributes[i];
 
             if (attr.type === "term" && attr.code === termAttributeCode) {
-                attr = <AttributeTermType>attr;
                 let attrOpts = attr.rootTerm.children;
 
                 // only remove status of the required status type
@@ -268,55 +256,23 @@ export class AttributeType {
     isDefault: boolean;
     required: boolean;
     unique: boolean;
-    governanceStatus: GovernanceStatus;
+    governanceStatus?: GovernanceStatus;
     isChangeOverTime?: boolean;
     precision?: number;
     scale?: number;
     classificationType?: string;
     rootTerm?: Term;
+    termOptions?: Term[];
     isValid?: boolean;
     isValidReason?: { timeConflict: boolean, existConflict: boolean, dateField: boolean };
     isValidReasonHierarchy?: any;
+    locale?: string;
 
-    constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean) {
+    // Used for the import configuration to map types to target columns
+    target?: string;
 
-        this.code = code;
-        this.type = type;
-        this.label = label;
-        this.description = description;
-        this.isDefault = isDefault;
-        this.required = false; // Hardcoded to false because this functionality is disabled until later evaluation.
-        this.unique = unique;
-        this.isChangeOverTime = isChangeOverTime;
-    }
-
-}
-
-export class AttributeTermType extends AttributeType {
-
-    // descendants: Attribute[];
-
-    // eslint-disable-next-line no-useless-constructor
-    constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean) {
-        super(code, type, label, description, isDefault, required, unique, isChange);
-    }
-
-    rootTerm: Term = new Term(null, null, null);
-
-    termOptions: Term[] = [];
-
-    setRootTerm(term: Term) {
-        this.rootTerm = term;
-    }
-}
-
-export class AttributeDecimalType extends AttributeType {
-    constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean) {
-        super(code, type, label, description, isDefault, required, unique, isChange);
-
-        this.precision = 32;
-        this.scale = 8;
-    }
+    // Used for the import configuration to denote base type of the attribute
+    baseType?: string;
 }
 
 export class TreeNode {

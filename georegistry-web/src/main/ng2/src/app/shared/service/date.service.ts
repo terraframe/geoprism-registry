@@ -65,7 +65,7 @@ export class DateService {
         return dt;
     }
 
-    public formatDateForDisplay(date: string | Date): string {
+    public formatDateForDisplay(date: string | Date | number): string {
         if (!date) {
             return "";
         }
@@ -74,10 +74,14 @@ export class DateService {
             return this.localizationService.localize("changeovertime", "present");
         }
 
+        if (date.valueOf() === 'number') {
+            date = new Date(date);
+        }
+
         if (date instanceof Date) {
             return this.getDateString(date);
         } else {
-            return date.split("T")[0];
+            return (date as string).split("T")[0];
         }
     }
 

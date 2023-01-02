@@ -4,11 +4,12 @@ import {
     state,
     style,
     animate,
-    transition
+    transition,
+    AnimationEvent
 } from "@angular/animations";
 import { BsModalRef } from "ngx-bootstrap/modal";
 
-import { AttributeTermType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
+import { AttributeType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 
 @Component({
@@ -46,7 +47,7 @@ import { GeoObjectTypeModalStates } from "@registry/model/constants";
 })
 export class TermOptionWidgetComponent implements OnInit {
 
-    @Input() attribute: AttributeTermType = null;
+    @Input() attribute: AttributeType = null;
 
     @Output() stateChange : EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
 

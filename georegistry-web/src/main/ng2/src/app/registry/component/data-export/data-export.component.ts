@@ -67,7 +67,9 @@ export class DataExportComponent implements OnInit {
         });
     }
 
-    onChange(code: string): void {
+    onChange(event: Event): void {
+        const code = (event.target as HTMLInputElement).value;
+
         if (code != null && code.length > 0) {
             this.service.getHierarchiesForType(code, false).then(hierarchies => {
                 this.hierarchies = hierarchies;

@@ -1,5 +1,5 @@
 import { LocalizedValue } from "@core/model/core";
-import { AttributeDecimalType, AttributedType, AttributeTermType, AttributeType } from "./registry";
+import { AttributedType, AttributeType } from "./registry";
 
 export class BusinessType implements AttributedType {
 
@@ -9,7 +9,7 @@ export class BusinessType implements AttributedType {
     organizationLabel?: string;
     displayLabel: LocalizedValue;
     description: LocalizedValue;
-    attributes?: Array<AttributeType | AttributeTermType | AttributeDecimalType>;
+    attributes?: Array<AttributeType>;
     labelAttribute?: string;
 
 }

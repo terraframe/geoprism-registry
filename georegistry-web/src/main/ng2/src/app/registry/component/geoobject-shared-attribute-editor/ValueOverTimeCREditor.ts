@@ -33,6 +33,10 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
         this.action = action;
     }
 
+    public removeType(type): void {
+        // Balk method needed for HTML template compiling 
+    }
+
     onChange(type: ChangeType) {
         this.changeRequestAttributeEditor.onChange(type);
         this.onChangeSubject.next(type);

@@ -47,7 +47,6 @@ import { SessionService } from "./service/session.service";
 import { LocalizePipe } from "./pipe/localize.pipe";
 import { PhonePipe } from "./pipe/phone.pipe";
 
-import { OnlyNumber } from "./directive/number-only.directive";
 import { MustMatchDirective } from "./directive/must-match.directive";
 
 import { CgrHeaderComponent } from "./component/header/header.component";
@@ -98,7 +97,6 @@ import { LocalizationService } from "./service";
         ErrorModalComponent,
         SuccessModalComponent,
         PasswordStrengthBarComponent,
-        OnlyNumber,
         MustMatchDirective,
         ProgressBarComponent,
         ModalStepIndicatorComponent,
@@ -122,7 +120,6 @@ import { LocalizationService } from "./service";
         ErrorModalComponent,
         SuccessModalComponent,
         PasswordStrengthBarComponent,
-        OnlyNumber,
         MustMatchDirective,
         ProgressBarComponent,
         ModalStepIndicatorComponent,

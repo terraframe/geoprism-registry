@@ -77,7 +77,7 @@
                                    <classification-field
                                     [classificationType]="attributeType.classificationType"
                                     [rootCode]="attributeType.rootTerm != null ? attributeType.rootTerm.code : null"
-                                    [classNames]="{'has-changed': (viewModel.oldValue && !isNew)}"
+                                    [classNames]="(viewModel.oldValue && !isNew) ? 'has-changed': ''"
                                     [name]="'mod-term-' + i + '-' + attributeType.code"
                                     [(value)]="viewModel.value" 
                                     [disabled]="readonly || viewModel.summaryKey === 'DELETE'">
@@ -286,7 +286,7 @@
 
               
                             <!-- Remove button -->
-                            <td *ngIf="!readonly && (!isNew || attributeType.code !== 'exists') && (viewModel.summaryKey === 'UNMODIFIED' && viewModel.summaryKey !== 'NEW')"
+                            <td *ngIf="!readonly && (!isNew || attributeType.code !== 'exists') && (viewModel.summaryKey === 'UNMODIFIED')"
                                 [attr.disabled]="attributeType.code === 'exists' || filterDate != null" 
                                 (click)="remove(viewModel)" class="manage-version-button clickable" 
                                 [title]="(filterDate ? 'changeovertime.manageVersions.date.editing.needs.fullview.message' : 'changeovertime.manageVersions.remove.version') | localize">
@@ -341,7 +341,7 @@
         </div>
         <geoobject-editor-map style="width:55%;display:inline-block;vertical-align:top;margin-top:15px;" *ngIf="isGeometryInlined && geomService.getLayers().length > 0" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
           [mapHeight]="mapRowHeight" [readOnly]="!geoObjectType.isGeometryEditable && readonly"
-          [bboxCode]="this.changeRequestEditor.geoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="geomService.getLayers()[0].startDate">
+          [bboxCode]="this.changeRequestEditor.geoObject.attributes.code" [bboxType]="this.geoObjectType.code">
         </geoobject-editor-map>
       </div>
 

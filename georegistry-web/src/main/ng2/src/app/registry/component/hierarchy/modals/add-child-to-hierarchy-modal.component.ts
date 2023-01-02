@@ -40,7 +40,9 @@ export class AddChildToHierarchyModalComponent implements OnInit {
         this.onNodeChange = new Subject();
     }
 
-    onSelect(value: string): void {
+    onSelect(event: Event): void {
+        const value = (event.target as HTMLInputElement).value;    
+            
         this.allGeoObjectTypes.forEach(gObj => {
             if (gObj.code === value) {
                 this.selectedGeoObjectType = gObj;

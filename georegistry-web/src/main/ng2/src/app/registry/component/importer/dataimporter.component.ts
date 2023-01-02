@@ -12,8 +12,8 @@ import { SpreadsheetModalComponent } from "./modals/spreadsheet-modal.component"
 import { ShapefileModalComponent } from "./modals/shapefile-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
 import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
+import { environment } from "src/environments/environment";
 
-import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
 
 @Component({
 
@@ -65,12 +65,12 @@ export class DataImporterComponent implements OnInit {
     /*
      * Start date
      */
-    startDate: Date = null;
+    startDate: string = null;
 
     /*
      * End date
      */
-    endDate: Date | string = null;
+    endDate: string = null;
 
     /*
      * Reference to the modal current showing

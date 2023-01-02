@@ -21,7 +21,7 @@
                             <localize key="io.geoObjectType"></localize>
                         </label>
                         <div class="col-md-9">
-                            <select id="code" name="code" class="select-area" [(ngModel)]="code" (change)="onChange($event.target.value)"
+                            <select id="code" name="code" class="select-area" [(ngModel)]="code" (change)="onChange($event)"
                                 required>
                                 <option></option>
                                 <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>

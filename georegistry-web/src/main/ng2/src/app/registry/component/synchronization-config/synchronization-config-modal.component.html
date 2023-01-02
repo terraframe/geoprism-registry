@@ -47,7 +47,7 @@
       </div>
 
       <div *ngIf="cSystem != null && cSystem.type === 'DHIS2ExternalSystem'">
-        <dhis2-synchronization-config [(config)]="config" [cOrg]="cOrg" [fieldChange]="fieldChange" (onError)="error($event)"></dhis2-synchronization-config>
+        <dhis2-synchronization-config [config]="config" [cOrg]="cOrg" [fieldChange]="fieldChange" (onError)="error($event)"></dhis2-synchronization-config>
       </div>
       <div *ngIf="cSystem != null && cSystem.type === 'FhirExternalSystem'">
         <div class="row-holder">
@@ -68,8 +68,8 @@
           </div>
         </div>
       
-        <fhir-export-synchronization-config *ngIf="config.isImport !== true" [(config)]="config" [fieldChange]="fieldChange" (onError)="error($event)"></fhir-export-synchronization-config>
-        <fhir-import-synchronization-config *ngIf="config.isImport === true" [(config)]="config" [fieldChange]="fieldChange" (onError)="error($event)"></fhir-import-synchronization-config>
+        <fhir-export-synchronization-config *ngIf="config.isImport !== true" [config]="config" [fieldChange]="fieldChange" (onError)="error($event)"></fhir-export-synchronization-config>
+        <fhir-import-synchronization-config *ngIf="config.isImport === true" [config]="config" [fieldChange]="fieldChange" (onError)="error($event)"></fhir-import-synchronization-config>
       </div>
 
       <div class="row-holder">

@@ -4,7 +4,8 @@ import {
     state,
     style,
     animate,
-    transition
+    transition,
+    AnimationEvent
 } from "@angular/animations";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
@@ -14,7 +15,7 @@ import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService, ModalStepIndicatorService } from "@shared/service";
 
 import { RegistryService } from "@registry/service";
-import { GeoObjectType, AttributeTermType, Term, ManageGeoObjectTypeModalState } from "@registry/model/registry";
+import { Term, ManageGeoObjectTypeModalState, AttributeType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 
 @Component({
@@ -52,9 +53,9 @@ import { GeoObjectTypeModalStates } from "@registry/model/constants";
 })
 export class ManageTermOptionsComponent implements OnInit {
 
-    @Input() attribute: AttributeTermType;
+    @Input() attribute: AttributeType;
 
-    @Output() attributeChange = new EventEmitter<AttributeTermType>();
+    @Output() attributeChange = new EventEmitter<AttributeType>();
     @Output() stateChange: EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
 
     message: string = null;
@@ -77,7 +78,11 @@ export class ManageTermOptionsComponent implements OnInit {
 
     ngOnInit(): void {
         this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
-        this.termOption = new Term("", this.localizeService.create(), this.localizeService.create());
+        this.termOption = {
+            code: "",
+            label: this.localizeService.create(),
+            description: this.localizeService.create()
+        }
     }
 
     ngAfterViewInit() {

@@ -32,7 +32,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
 
     @Input() type: GeoObjectType;
 
-    @Input() forDate: Date = new Date();
+    @Input() forDate: string;
 
     @Output() forDateChange = new EventEmitter<string>();
 

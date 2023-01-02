@@ -46,7 +46,7 @@ export class ManageGeoObjectTypeModalComponent implements OnInit {
     public onGeoObjectTypeSubmitted: Subject<GeoObjectType>;
     readOnly: boolean = false;
 
-    constructor(private service: RegistryService, public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef) {
+    constructor(public service: RegistryService, public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef) {
     }
 
     ngOnInit(): void {

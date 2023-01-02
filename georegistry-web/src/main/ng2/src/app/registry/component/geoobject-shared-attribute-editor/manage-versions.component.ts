@@ -334,7 +334,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
      * Hierarchy Editing
      */
 
-    getTypeAheadObservable(editor: HierarchyCREditor, startDate: string, endDate: string, type: any, entry: any, index: number): Observable<any> {
+    getTypeAheadObservable(editor: ValueOverTimeCREditor, startDate: string, endDate: string, type: any, entry: any, index: number): Observable<any> {
         let geoObjectTypeCode = type.code;
 
         let parentCode = null;
@@ -381,7 +381,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
         });
     }
 
-    typeaheadOnSelect(editor: HierarchyCREditor, e: TypeaheadMatch, type: any, entry: any, date: string): void {
+    typeaheadOnSelect(editor: ValueOverTimeCREditor, e: TypeaheadMatch, type: any, entry: any, date: string): void {
         //        let ptn: ParentTreeNode = parent.ptn;
 
         entry.parents[type.code].text = e.item.name + " : " + e.item.code;
@@ -425,7 +425,9 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
                 }
             }
 
-            editor.setParentValue(type, entry.parents);
+            if (editor instanceof HierarchyCREditor) {
+                editor.setParentValue(type, entry.parents);
+            }
         });
     }
 

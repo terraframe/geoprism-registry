@@ -56,8 +56,8 @@
                     </attribute-input>
 
                     <!-- *ngIf="attribute.type === 'term' && isFormValid()" -->
-                    <term-option-widget *ngIf="attribute.type === 'term' && isFormValid()" [(attribute)]="attribute"
-                        [geoObjectType]="geoObjectType" (stateChange)="onModalStateChange($event)"></term-option-widget>
+                    <term-option-widget *ngIf="attribute.type === 'term' && isFormValid()" [attribute]="attribute"
+                        (stateChange)="onModalStateChange($event)"></term-option-widget>
 
                     <div class="row">
                         <div class="col-md-12">

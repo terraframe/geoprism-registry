@@ -26,7 +26,7 @@
                   <div class="panel-body">
                     <ng-container ng-switch="attributeType.type">
                       <ng-container ng-switch-when="'date'">
-                        <date-text [value]="object.data[attributeType.code]"></date-text>
+                        <date-text [date]="object.data[attributeType.code]"></date-text>
                       </ng-container>
                       <ng-container ng-switch-default>
                         {{ object.data[attributeType.code] }}
