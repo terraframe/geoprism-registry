@@ -22,7 +22,8 @@ import { DateService } from "@shared/service/date.service";
 
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 
-import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
+import { GeoRegistryConfiguration } from "@core/model/registry";import { GeoObjectSharedAttributeEditorComponent } from "../geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component";
+ declare let registry: GeoRegistryConfiguration;
 
 @Component({
 
@@ -59,9 +60,6 @@ import { GeoRegistryConfiguration } from "@core/model/registry"; declare let reg
     ]
 })
 export class RequestTableComponent {
-
-    today: Date = new Date();
-    todayString: string = this.dateService.getDateString(new Date());
 
     objectKeys = Object.keys;
 
@@ -100,6 +98,9 @@ export class RequestTableComponent {
 
     @ViewChild("myFile")
     fileRef: ElementRef;
+
+    @ViewChild("attributeEditor")
+    attributeEditor: GeoObjectSharedAttributeEditorComponent;
 
     isValid: boolean = true;
 
@@ -218,6 +219,10 @@ export class RequestTableComponent {
         }
     }
 
+    isStringEmpty(str: string): boolean {
+        return str == null || str.length === 0;
+    }
+
     onDownloadFile(request: ChangeRequest, fileOid: string): void {
         window.location.href = registry.contextPath + "/api/changerequest/download-file-cr?requestId=" + request.oid + "&" + "fileId=" + fileOid;
     }
@@ -280,7 +285,7 @@ export class RequestTableComponent {
 
     onExecute(changeRequest: ChangeRequest): void {
         if (changeRequest != null) {
-            this.service.implementDecisions(changeRequest).then(request => {
+            this.service.implementDecisions(changeRequest, (this.attributeEditor.getChangeRequestEditor().getEditorForAttributeByCode("code") as any).value).then(request => {
                 changeRequest = request;
 
                 // TODO: Determine if there is a way to update an individual record
@@ -301,7 +306,7 @@ export class RequestTableComponent {
 
                     if (object != null) {
                         this.router.navigate(["/registry/location-manager"], {
-                            queryParams: { text: object.attributes.code, date: this.todayString, type: object.geoObjectType.code, code: object.attributes.code, uid: object.attributes.uid, pageContext: 'DATA' }
+                            queryParams: { text: object.attributes.code, type: object.geoObjectType.code, code: object.attributes.code, uid: object.attributes.uid, pageContext: 'DATA' }
                         });
                         // this.router.navigate(["/registry/location-manager", object.attributes.uid, object.geoObjectType.code, this.todayString, true]);
                     } else {
@@ -310,7 +315,7 @@ export class RequestTableComponent {
 
                         if (object != null && type != null) {
                             this.router.navigate(["/registry/location-manager"], {
-                                queryParams: { text: object.attributes.code, date: this.todayString, type: type.code, code: object.attributes.code, uid: object.attributes.uid, pageContext: 'DATA' }
+                                queryParams: { text: object.attributes.code, type: type.code, code: object.attributes.code, uid: object.attributes.uid, pageContext: 'DATA' }
                             });
 
                             // this.router.navigate(["/registry/location-manager", object.attributes.uid, type.code, this.todayString, true]);

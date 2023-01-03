@@ -140,14 +140,18 @@ export class ChangeRequestEditor {
         }
     }
 
-    public getEditorForAttribute(attribute: AttributeType, hierarchy: HierarchyOverTime = null): ChangeRequestChangeOverTimeAttributeEditor | StandardAttributeCRModel {
-        let indexOf = this.attributeEditors.findIndex(editor => (!editor.attribute.isChangeOverTime || (hierarchy == null && (editor as ChangeRequestChangeOverTimeAttributeEditor).hierarchy == null) || ((editor as ChangeRequestChangeOverTimeAttributeEditor).hierarchy != null && (editor as ChangeRequestChangeOverTimeAttributeEditor).hierarchy.code === hierarchy.code)) && editor.attribute.code === attribute.code);
+    public getEditorForAttributeByCode(attributeCode: string, hierarchyCode: string = null) {
+        let indexOf = this.attributeEditors.findIndex(editor => (!editor.attribute.isChangeOverTime || (hierarchyCode == null && (editor as ChangeRequestChangeOverTimeAttributeEditor).hierarchy == null) || ((editor as ChangeRequestChangeOverTimeAttributeEditor).hierarchy != null && (editor as ChangeRequestChangeOverTimeAttributeEditor).hierarchy.code === hierarchyCode)) && editor.attribute.code === attributeCode);
 
         if (indexOf === -1) {
             return null;
         } else {
             return this.attributeEditors[indexOf];
         }
+    }
+
+    public getEditorForAttribute(attribute: AttributeType, hierarchy: HierarchyOverTime = null): ChangeRequestChangeOverTimeAttributeEditor | StandardAttributeCRModel {
+        return this.getEditorForAttributeByCode(attribute.code, hierarchy == null ? null : hierarchy.code);
     }
 
     public getEditors(): (ChangeRequestChangeOverTimeAttributeEditor | StandardAttributeCRModel)[] {

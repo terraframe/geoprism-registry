@@ -196,7 +196,7 @@
                                         </td>
                                       </tr>
   
-                                      <tr *ngIf="(viewModel.editingLayer && viewModel.editingLayer.rendered) && (geoObjectType.geometryType === 'POINT' || geoObjectType.geometryType === 'MULTIPOINT') && viewModel.value && viewModel.value.coordinates && (viewModel.value.coordinates.length == 1 || viewModel.value.coordinates.length == 0)">
+                                      <tr *ngIf="(geoObjectType.geometryType === 'POINT' || geoObjectType.geometryType === 'MULTIPOINT') && viewModel.value && viewModel.value.coordinates && (viewModel.value.coordinates.length == 1 || viewModel.value.coordinates.length == 0)">
                                         
                                         <td style="width:50%;padding-left:0;padding-right:5px;" >
                                           <h5>
