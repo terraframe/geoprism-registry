@@ -172,7 +172,7 @@
 	  
 	                  <div *ngIf="req.permissions.includes('WRITE_APPROVAL_STATUS') || req.permissions.includes('DELETE')" class="button-holder" style="margin-bottom:20px;min-height:40px;">
 	                    <span *ngIf="req.permissions.includes('WRITE_APPROVAL_STATUS')">
-	                      <button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onExecute(req)" class="btn btn-primary" style="margin:0;" role="button" [title]="'change.request.implement.decisions.btn.hover' | localize">
+	                      <button [disabled]="req.approvalStatus !== 'PENDING' || (attributeEditor != null && isStringEmpty(attributeEditor.getChangeRequestEditor().getEditorForAttributeByCode('code').value))" type="submit" (click)="onExecute(req)" class="btn btn-primary" style="margin:0;" role="button" [title]="'change.request.implement.decisions.btn.hover' | localize">
 	                        <localize [key]="req.type === 'UpdateGeoObject' ? 'change.request.accept.changes.btn' : 'change.request.accept.newGeoObject.btn'"></localize>
 	                      </button>
 	                      <button [disabled]="req.approvalStatus !== 'PENDING'" *ngIf="req.type === 'CreateGeoObject'" type="submit" (click)="onReject(req)" class="btn btn-danger" style="margin:0 10px;" role="button" [title]="'change.request.reject.all.btn.hover' | localize">

@@ -68,6 +68,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnDestro
 
     showAllInstances: boolean = false;
 
+    isMaintainer: boolean;
+
     tabIndex: number = 0;
 
     // The current state of the GeoObject in the GeoRegistry
@@ -185,6 +187,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnDestro
         }
 
         this.showAllInstances = (this.changeRequestEditor.changeRequest.isNew || this.changeRequestEditor.changeRequest.type === "CreateGeoObject");
+        this.isMaintainer = this.authService.isSRA() || this.authService.isOrganizationRA(got.organizationCode) || this.authService.isGeoObjectTypeOrSuperRM(got);
     }
 
     ngOnDestroy(): void {
@@ -197,6 +200,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnDestro
 
     getChangeRequestEditor(): ChangeRequestEditor {
         return this.changeRequestEditor;
+    }
+
+    canEditCode(): boolean {
+        if (this.changeRequest && this.changeRequest.permissions && this.changeRequest.permissions.includes("WRITE_CODE")) {
+            return this.isMaintainer || !this.readOnly;
+        }
+
+        return !(this.readOnly || !this.isNew);
     }
 
     createNewChangeRequest(): ChangeRequest {

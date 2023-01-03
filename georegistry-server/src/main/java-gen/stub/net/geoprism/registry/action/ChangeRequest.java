@@ -142,7 +142,14 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
   public ServerGeoObjectType getGeoObjectType()
   {
-    return ServerGeoObjectType.get(this.getGeoObjectTypeCode(), true);
+    final String typeCode = this.getGeoObjectTypeCode();
+    
+    if (StringUtils.isEmpty(typeCode))
+    {
+      return null;
+    }
+    
+    return ServerGeoObjectType.get(typeCode, true);
   }
 
   /**
@@ -152,13 +159,14 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
   public VertexServerGeoObject getGeoObject()
   {
     ServerGeoObjectType type = this.getGeoObjectType();
+    final String code = this.getGeoObjectCode();
 
-    if (type == null)
+    if (type == null || StringUtils.isEmpty(code))
     {
       return null;
     }
 
-    return (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(this.getGeoObjectCode(), type, false);
+    return (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(code, type, false);
   }
 
   public JsonObject toJSON()
@@ -296,13 +304,15 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
         // Quick little hack to localize a value when it's not in a database or
         // part of a Runway object.
         LocalizedValueStore lvs = new LocalizedValueStore();
-        lvs.getStoreValue().setLocaleMap(goTime.getDisplayLabel(new Date()).getLocaleMap());
-
+        lvs.getStoreValue().setLocaleMap(goTime.getDisplayLabel(null).getLocaleMap());
+        
         return LocalizedValueConverter.convertNoAutoCoalesce(lvs.getStoreValue());
       }
       catch (Exception e)
       {
-        logger.error("Error occurred while getting localized label from GeoObject with code [" + this.getGeoObjectCode() + "].", e);
+        final String code = StringUtils.isEmpty(this.getGeoObjectCode()) ? "" : this.getGeoObjectCode();
+        
+        logger.error("Error occurred while getting localized label from GeoObject with code [" + code + "].", e);
       }
     }
     else

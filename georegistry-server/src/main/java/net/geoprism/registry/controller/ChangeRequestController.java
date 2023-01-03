@@ -63,6 +63,8 @@ public class ChangeRequestController extends RunwaySpringController
     @NotNull
     @JsonDeserialize(using = JsonObjectDeserializer.class)
     private JsonObject request;
+    
+    String newCode;
 
     public JsonObject getRequest()
     {
@@ -72,6 +74,16 @@ public class ChangeRequestController extends RunwaySpringController
     public void setRequest(JsonObject request)
     {
       this.request = request;
+    }
+    
+    public String getNewCode()
+    {
+      return newCode;
+    }
+    
+    public void setNewCode(String newCode)
+    {
+      this.newCode = newCode;
     }
   }
 
@@ -287,7 +299,7 @@ public class ChangeRequestController extends RunwaySpringController
   public ResponseEntity<String> implementDecisions(@Valid
   @RequestBody RequestObjectBody body)
   {
-    JsonObject details = service.implementDecisions(this.getSessionId(), body.request.toString());
+    JsonObject details = service.implementDecisions(this.getSessionId(), body.request.toString(), body.newCode);
 
     return new ResponseEntity<String>(details.toString(), HttpStatus.OK);
   }
