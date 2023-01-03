@@ -13,7 +13,7 @@
           <div>
             <!-- For display only when editing an icon-->
             <img *ngIf="!file && icon" style="max-width: 300px; max-height: 300px;"
-              [src]="context + 'api/asset/view?oid=' + icon.oid" (error)="handleImageError($event, icon)" class="thumb">
+              [src]="context + 'api/asset/view?oid=' + icon.oid" class="thumb">
 
             <!-- Actual uploaded file preview -->
             <img *ngIf="file" style="max-width: 300px; max-height: 300px;" [src]="file" class="thumb">

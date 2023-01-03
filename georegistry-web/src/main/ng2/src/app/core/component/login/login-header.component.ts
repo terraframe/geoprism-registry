@@ -33,12 +33,11 @@ export class LoginHeaderComponent {
 
   constructor() {
     this.context = environment.apiUrl;
-  }
 
-  handleLogoError(event: any): void {
-    event.target.src = '../../../../assets/splash_logo_icon.png';
+    if (this.context == '.') {
+      this.context = "";
+    }
   }
-
 
   public error(err: HttpErrorResponse): void {
     let msg = ErrorHandler.getMessageFromError(err);

@@ -11,11 +11,11 @@ import { GeoObjectEditorComponent } from "../geoobject-editor/geoobject-editor.c
 
 import { ErrorHandler } from "@shared/component";
 import { AuthService, ProgressService } from "@shared/service";
-import { ListColumn, ListData, ListTypeVersion } from "@registry/model/list-type";
+import { ListData, ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
-import { GenericTableColumn, GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
+import { GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
 import { LngLatBounds } from "mapbox-gl";
 
 import { GeoRegistryConfiguration } from "@core/model/core";
@@ -50,6 +50,7 @@ export class ListComponent implements OnInit, OnDestroy {
     refresh: Subject<void>;
 
     tableState: LazyLoadEvent = null;
+    isFiltered: boolean = false;
 
     showInvalid = false;
 
@@ -86,6 +87,10 @@ export class ListComponent implements OnInit, OnDestroy {
             const data: ListData = JSON.parse(localStorage.getItem(oid));
 
             this.tableState = data.event;
+            this.isFiltered = (this.tableState != null && this.tableState.filters != null && Object.keys(this.tableState.filters).length > 0);
+
+            console.log(this.tableState);
+            console.log(this.isFiltered);
         }
 
         this.service.getVersion(oid).then(version => {
@@ -350,6 +355,7 @@ export class ListComponent implements OnInit, OnDestroy {
 
     onLoadEvent(event: LazyLoadEvent): void {
         this.tableState = event;
+        this.isFiltered = (this.tableState != null && this.tableState.filters != null && Object.keys(this.tableState.filters).length > 0);
 
         const data: ListData = {
             event: event,

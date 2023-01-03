@@ -20,7 +20,6 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
 	<parent>
 		<groupId>net.geoprism</groupId>
 		<artifactId>georegistry</artifactId>
@@ -28,9 +27,7 @@
 	</parent>
 	<artifactId>georegistry-web</artifactId>
 	<packaging>war</packaging>
-
 	<name>GeoRegistry Web</name>
-
 	<properties>
 		<geoserver.version>2.20.2-terraframe</geoserver.version>
 		<db.name>georegistry</db.name>
@@ -38,7 +35,6 @@
 		<db.port>5432</db.port>
 		<local.host>$${pageContext.request.contextPath}</local.host>
 	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>net.geoprism</groupId>
@@ -83,7 +79,6 @@
 			<version>1.2</version>
 		</dependency>
 	</dependencies>
-
 	<profiles>
 		<profile>
 			<id>ng2-dev</id>
@@ -124,7 +119,7 @@
 									<cargo.tomcat.connector.keystorePass>2v8hVW2rPFncN6m</cargo.tomcat.connector.keystorePass>
 									<cargo.tomcat.connector.keyAlias>tomcat</cargo.tomcat.connector.keyAlias>
 									<cargo.tomcat.httpSecure>true</cargo.tomcat.httpSecure>
-                  <cargo.tomcat.uriencoding>UTF-8</cargo.tomcat.uriencoding>
+									<cargo.tomcat.uriencoding>UTF-8</cargo.tomcat.uriencoding>
 									<cargo.jvmargs>
 										-Xmx5120M
 										-Xdebug
@@ -174,12 +169,10 @@
 			</build>
 		</profile>
 	</profiles>
-
 	<build>
 		<!-- Just for convenience, this stops us from having to add the version 
 			when we hit our webapp. -->
 		<finalName>georegistry</finalName>
-
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -198,8 +191,31 @@
 				</includes>
 			</resource>
 		</resources>
-
 		<plugins>
+			<!-- Copy over the compiled angular code   -->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.0</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<!-- here the phase you need -->
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/georegistry</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/ng2/dist</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>com.google.code.maven-replacer-plugin</groupId>
 				<artifactId>maven-replacer-plugin</artifactId>
@@ -222,7 +238,6 @@
 					</execution>
 				</executions>
 			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>

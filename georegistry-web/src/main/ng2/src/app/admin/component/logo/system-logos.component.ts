@@ -123,12 +123,6 @@ export class SystemLogosComponent implements OnInit {
       });
   }
 
-  handleImageError(event: any, icon: SystemLogo): void {
-    if (icon.oid === 'logo') {
-      event.target.src = '../../../../assets/splash_logo_icon.png';
-    }
-  }
-
   error(err: HttpErrorResponse): void {
     this.message = ErrorHandler.getMessageFromError(err);
   }

@@ -20,6 +20,11 @@ export class ConfigurationService {
         });
     }
 
+    logout(): Promise<void> {
+        return firstValueFrom(this.http.post<void>(environment.apiUrl + "/session/logout", {}));
+    }
+
+
     getConfiguration(): GeoRegistryConfiguration {
         return this.configuration;
     }

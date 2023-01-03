@@ -18,6 +18,9 @@
  */
 package net.geoprism.registry.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import org.apache.commons.lang.StringUtils;
@@ -26,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.runwaysdk.Pair;
+import com.runwaysdk.constants.DeployProperties;
 import com.runwaysdk.dataaccess.io.FileReadException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -54,49 +58,78 @@ public class AssetService
   @Request(RequestType.SESSION)
   public Pair<String, InputStream> getBannerFileFromCache(String sessionId)
   {
-    SystemLogoSingleton instance = SystemLogoSingleton.getInstance();
-
-    if (instance == null || StringUtils.isEmpty(instance.getBannerVaultId()))
-    {
-      return null;
-    }
-
     try
     {
-      VaultFileDAOIF file = VaultFileDAO.get(instance.getBannerVaultId());
+      SystemLogoSingleton instance = SystemLogoSingleton.getInstance();
 
-      return new Pair<String, InputStream>(file.getExtension() + "." + file.getExtension(), file.getFileStream());
+      if (instance == null || StringUtils.isEmpty(instance.getBannerVaultId()))
+      {
+        File file = new File(DeployProperties.getDeployPath() + "/assets/splash_logo_icon.png");
+
+        return new Pair<String, InputStream>(file.getName(), new FileInputStream(file));
+      }
+
+      try
+      {
+        VaultFileDAOIF file = VaultFileDAO.get(instance.getBannerVaultId());
+
+        return new Pair<String, InputStream>(file.getExtension() + "." + file.getExtension(), file.getFileStream());
+      }
+      catch (FileReadException e)
+      {
+        logger.error("Unable to retrieve banner file", e);
+
+        File file = new File(DeployProperties.getDeployPath() + "/assets/splash_logo_icon.png");
+
+        return new Pair<String, InputStream>(file.getName(), new FileInputStream(file));
+      }
     }
-    catch (FileReadException e)
+    catch (FileNotFoundException e)
     {
       logger.error("Unable to retrieve banner file", e);
 
       return null;
     }
+
   }
 
   @Request(RequestType.SESSION)
   public Pair<String, InputStream> getMiniLogoFileFromCache(String sessionId)
   {
-    SystemLogoSingleton instance = SystemLogoSingleton.getInstance();
-
-    if (instance == null || StringUtils.isEmpty(instance.getMiniLogoVaultId()))
-    {
-      return null;
-    }
-
     try
     {
-      VaultFileDAOIF file = VaultFileDAO.get(instance.getMiniLogoVaultId());
 
-      return new Pair<String, InputStream>(file.getExtension() + "." + file.getExtension(), file.getFileStream());
+      SystemLogoSingleton instance = SystemLogoSingleton.getInstance();
+
+      if (instance == null || StringUtils.isEmpty(instance.getMiniLogoVaultId()))
+      {
+        File file = new File(DeployProperties.getDeployPath() + "/assets/splash_logo_icon.png");
+
+        return new Pair<String, InputStream>(file.getName(), new FileInputStream(file));
+      }
+
+      try
+      {
+        VaultFileDAOIF file = VaultFileDAO.get(instance.getMiniLogoVaultId());
+
+        return new Pair<String, InputStream>(file.getFileName() + "." + file.getExtension(), file.getFileStream());
+      }
+      catch (FileReadException e)
+      {
+        logger.error("Unable to retrieve logo file", e);
+
+        File file = new File(DeployProperties.getDeployPath() + "/assets/splash_logo_icon.png");
+
+        return new Pair<String, InputStream>(file.getName(), new FileInputStream(file));
+      }
     }
-    catch (FileReadException e)
+    catch (FileNotFoundException e)
     {
       logger.error("Unable to retrieve logo file", e);
 
       return null;
     }
+
   }
 
   @Request(RequestType.SESSION)

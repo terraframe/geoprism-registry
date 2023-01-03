@@ -133,8 +133,9 @@
 
                     <button *ngIf="list.listMetadata.visibility === 'PUBLIC' || list.geospatialMetadata.visibility === 'PUBLIC' || isListInOrg() || isSRA"
                      type="submit" (click)="onExport()" class="btn btn-primary" role="button">
-                        <localize key="io.export.filteredrows"></localize>
-                    </button>
+                     <localize *ngIf="!isFiltered" key="io.export.allrows"></localize>
+                     <localize *ngIf="isFiltered" key="io.export.filteredrows"></localize>
+             </button>
                 </div>
             </div>
         </div>

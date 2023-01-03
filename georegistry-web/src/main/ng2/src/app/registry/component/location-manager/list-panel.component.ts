@@ -54,6 +54,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
     showInvalid = false;
 
     tableState: LazyLoadEvent = null;
+    isFiltered = false;
 
     progressNotifier: WebSocketSubject<{ type: string, content: any }>;
     progressSubscription: Subscription = null;
@@ -83,6 +84,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
             const data: ListData = JSON.parse(localStorage.getItem(this.oid));
 
             this.tableState = data.event;
+            this.isFiltered = (this.tableState != null && this.tableState.filters != null && Object.keys(this.tableState.filters).length > 0);    
         }
 
         this.service.getVersion(this.oid).then(version => {
@@ -161,6 +163,7 @@ export class ListPanelComponent implements OnInit, OnDestroy, OnChanges {
 
     onLoadEvent(event: LazyLoadEvent): void {
         this.tableState = event;
+        this.isFiltered = (this.tableState != null && this.tableState.filters != null && Object.keys(this.tableState.filters).length > 0);
 
         const data: ListData = {
             event: event,

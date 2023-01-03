@@ -5,11 +5,12 @@ import { ProfileComponent } from "../profile/profile.component";
 
 import { AuthService, ProfileService } from "@shared/service";
 
-import { RegistryRoleType} from "@shared/model/core";
+import { RegistryRoleType } from "@shared/model/core";
 
 import { environment } from 'src/environments/environment';
 import { ConfigurationService } from "@core/service/configuration.service";
 import { LocaleView } from "@core/model/core";
+import { Router } from "@angular/router";
 
 @Component({
 
@@ -38,8 +39,14 @@ export class CgrHeaderComponent {
         private profileService: ProfileService,
         private service: AuthService,
         private configuration: ConfigurationService,
+        private router: Router
     ) {
         this.context = environment.apiUrl;
+
+        if (this.context == '.') {
+            this.context = "";
+        }
+
         this.isAdmin = service.isAdmin();
         this.isMaintainer = this.isAdmin || service.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
@@ -109,13 +116,24 @@ export class CgrHeaderComponent {
     }
 
     logout(): void {
-        sessionStorage.removeItem("locales");
+        if (environment.production) {
+            sessionStorage.removeItem("locales");
 
-        window.location.href = environment.apiUrl + "/session/logout";
+            window.location.href = environment.apiUrl + "/session/logout";
+        }
+        else {
 
-        //        this.sessionService.logout().then( response => {
-        //            this.router.navigate( ['/login'] );
-        //        } );
+            this.configuration.logout().catch(err => {
+                // Ignore errors
+                sessionStorage.removeItem("locales");
+
+                this.router.navigate(['/login']);
+            }).then(response => {
+                sessionStorage.removeItem("locales");
+
+                this.router.navigate(['/login']);
+            });
+        }
     }
 
     getUsername() {
@@ -137,9 +155,4 @@ export class CgrHeaderComponent {
             this.bsModalRef.content.profile = profile;
         });
     }
-
-    handleLogoError(event: any): void {
-        event.target.src = '../../../../assets/splash_logo_icon.png';
-    }
-
 }
