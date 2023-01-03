@@ -12,7 +12,7 @@
 /*     background-color: #007276; */
 /* } */
 
-:host ::ng-deep body .ui-paginator .ui-paginator-pages .ui-paginator-page.ui-state-active {
+:host ::ng-deep body .p-paginator .p-paginator-pages .p-paginator-page.p-state-active {
   background-color: red;
 }
 
@@ -26,6 +26,6 @@
 /*     width: 200px; */
 /* } */
 
-.ui-table-scrollable-header.ui-widget-header {
+.p-datatable-scrollable-header.ui-widget-header {
         overflow:visible;
     } 
