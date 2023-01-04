@@ -18,57 +18,82 @@
  */
 package net.geoprism.registry.controller;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.controller.ServletMethod;
-import com.runwaysdk.mvc.Controller;
-import com.runwaysdk.mvc.Endpoint;
-import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RequestParamter;
-import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestBodyResponse;
-import com.runwaysdk.mvc.RestResponse;
 
+import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.service.ClassificationTypeService;
+import net.geoprism.registry.spring.JsonObjectDeserializer;
 
-@Controller(url = "classification-type")
-public class ClassificationTypeController
+@RestController
+@Validated
+public class ClassificationTypeController extends RunwaySpringController
 {
+  public static class ClassificationTypeBody
+  {
+    @NotNull
+    @JsonDeserialize(using = JsonObjectDeserializer.class)
+    private JsonObject classificationType;
+    
+    public JsonObject getClassificationType()
+    {
+      return classificationType;
+    }
+    
+    public void setClassificationType(JsonObject classificationType)
+    {
+      this.classificationType = classificationType;
+    }
+  } 
+  
+  public static final String API_PATH = "classification-type";
+
+  @Autowired
   private ClassificationTypeService service;
 
-  public ClassificationTypeController()
+  @GetMapping(API_PATH + "/page")
+  public ResponseEntity<String> page(@RequestParamter(name = "criteria") String criteria)
   {
-    this.service = new ClassificationTypeService();
+    JsonObject response = this.service.page(this.getSessionId(), criteria);
+    
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "page")
-  public ResponseIF page(ClientRequestIF request, @RequestParamter(name = "criteria") String criteria)
+  @PostMapping(API_PATH + "/apply")
+  public ResponseEntity<String> apply(@Valid @RequestBody ClassificationTypeBody body)
   {
-    return new RestBodyResponse(this.service.page(request.getSessionId(), criteria));
+    JsonObject response = this.service.apply(this.getSessionId(), body.classificationType.toString());
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "classificationType") String classificationType)
+  @PostMapping(API_PATH + "/remove")
+  public ResponseEntity<Void> remove(@Valid @RequestBody OidBody body)
   {
-    JsonObject response = this.service.apply(request.getSessionId(), classificationType);
+    this.service.remove(this.getSessionId(), body.getOid());
 
-    return new RestBodyResponse(response);
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "remove")
-  public ResponseIF remove(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  @GetMapping(API_PATH + "/get")
+  public ResponseEntity<String> get(@NotNull @RequestParam String classificationCode)
   {
-    this.service.remove(request.getSessionId(), oid);
+    JsonObject response = this.service.get(this.getSessionId(), classificationCode);
 
-    return new RestResponse();
-  }
-
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get")
-  public ResponseIF get(ClientRequestIF request, @RequestParamter(name = "classificationCode") String classificationCode)
-  {
-    JsonObject response = this.service.get(request.getSessionId(), classificationCode);
-
-    return new RestBodyResponse(response);
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 }

@@ -25,7 +25,7 @@ export class ClassificationTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<ClassificationType>(registry.contextPath + "/classification-type/apply", JSON.stringify({ classificationType: classificationType }), { headers: headers })
+            .post<ClassificationType>(registry.contextPath + "/api/classification-type/apply", JSON.stringify({ classificationType: classificationType }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -33,13 +33,14 @@ export class ClassificationTypeService implements GenericTableService {
     }
 
     remove(type: ClassificationType): Promise<ClassificationType> {
-        const data = new FormData();
-        data.append("oid", type.oid);
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
         this.eventService.start();
 
         return this.http
-            .post<ClassificationType>(registry.contextPath + "/classification-type/remove", data)
+            .post<ClassificationType>(registry.contextPath + "/api/classification-type/remove", JSON.stringify({ oid: type.oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -47,15 +48,10 @@ export class ClassificationTypeService implements GenericTableService {
     }
 
     page(criteria: Object): Promise<PageResult<ClassificationType>> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
+        let params: HttpParams = new HttpParams();
+        params = params.set("criteria", JSON.stringify(criteria));
 
-        let params = {
-            criteria: criteria
-        } as any;
-
-        return this.http.post<PageResult<ClassificationType>>(registry.contextPath + "/classification-type/page", JSON.stringify(params), { headers: headers })
+        return this.http.get<PageResult<ClassificationType>>(registry.contextPath + "/api/classification-type/page", { params: params })
             .toPromise();
     }
 
@@ -63,7 +59,7 @@ export class ClassificationTypeService implements GenericTableService {
         let params: HttpParams = new HttpParams();
         params = params.set("classificationCode", classificationCode);
 
-        return this.http.get<ClassificationType>(registry.contextPath + "/classification-type/get", { params: params })
+        return this.http.get<ClassificationType>(registry.contextPath + "/api/classification-type/get", { params: params })
             .toPromise();
     }
 
