@@ -88,9 +88,6 @@ export class ListComponent implements OnInit, OnDestroy {
 
             this.tableState = data.event;
             this.isFiltered = (this.tableState != null && this.tableState.filters != null && Object.keys(this.tableState.filters).length > 0);
-
-            console.log(this.tableState);
-            console.log(this.isFiltered);
         }
 
         this.service.getVersion(oid).then(version => {

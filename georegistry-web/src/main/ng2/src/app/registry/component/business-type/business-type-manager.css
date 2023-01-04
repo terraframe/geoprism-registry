@@ -13,8 +13,6 @@ li.list-group-item.got-li-item
 	border-radius: 5px;
 }
 
-li.list-group-item.got-li-item.got-group-parent{
-}
 li.list-group-item.got-li-item.got-group-child {
 	margin-left: 40px;
 }
@@ -196,7 +194,7 @@ li.got-li-item.dragging {
   line-height:2.8;
 }
 
-:host /deep/ .panel .panel-heading .accordion-toggle:after {
+:host::ng-deep .panel .panel-heading .accordion-toggle:after {
     /* symbol for "opening" panels */
     font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
     content: "\e080";    /* adjust as needed, taken from bootstrap.css */
@@ -204,7 +202,7 @@ li.got-li-item.dragging {
 /*     color: white;         adjust as needed */
     margin-top: -30px;
 }
-:host /deep/ .panel.panel-open .panel-heading .accordion-toggle:after {
+:host::ng-deep .panel.panel-open .panel-heading .accordion-toggle:after {
     /* symbol for "collapsed" panels */
     content: "\e114";    /* adjust as needed, taken from bootstrap.css */
 }

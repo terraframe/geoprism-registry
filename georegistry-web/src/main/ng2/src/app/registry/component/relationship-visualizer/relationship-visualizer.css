@@ -50,7 +50,7 @@
     line-height: 30px;
 }
 
-:host /deep/ .graph .panning-rect {
+:host::ng-deep .graph .panning-rect {
 	cursor: grab;
 }
 

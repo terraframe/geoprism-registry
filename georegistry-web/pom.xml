@@ -217,28 +217,6 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>com.google.code.maven-replacer-plugin</groupId>
-				<artifactId>maven-replacer-plugin</artifactId>
-				<version>1.4.1</version>
-				<executions>
-					<execution>
-						<id>replace-georegistry-index.jsp</id>
-						<phase>prepare-package</phase>
-						<goals>
-							<goal>replace</goal>
-						</goals>
-						<inherited>false</inherited>
-						<configuration>
-							<file>src/main/webapp/WEB-INF/net/geoprism/registry/index.jsp</file>
-							<outputFile>target/georegistry/WEB-INF/net/geoprism/registry/index.jsp</outputFile>
-							<regex>false</regex>
-							<token>$local.host$</token>
-							<value>${local.host}</value>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>3.3.0</version>
@@ -283,7 +261,7 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<version>3.3.2</version>
 				<configuration>
-					<warSourceExcludes>**/prism.jsp,**/admin.jsp,**/index.jsp</warSourceExcludes>
+					<warSourceExcludes>*.jsp</warSourceExcludes>
 					<packagingExcludes>
 						<!-- Exclude all jars provided by tomcat -->
 						**/catalina*.jar,

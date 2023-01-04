@@ -142,7 +142,7 @@
     -webkit-box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%), 0 0 8px rgb(107 165 66 / 60%);
     box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%), 0 0 8px rgb(107 165 66 / 60%);
 }
-:host /deep/ .panel-toggle input.date-input-element {
+:host::ng-deep .panel-toggle input.date-input-element {
 	border-radius: 5px;
 	border-bottom-right-radius: 0;
     border-top-right-radius: 0;

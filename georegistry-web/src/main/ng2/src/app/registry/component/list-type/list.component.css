@@ -20,7 +20,7 @@
     border-color: var(--theme-input-text-border);
 }
 
-:host::ng-deep .p-inputtext:enabled:focus:not(.ui-state-error) {
+:host::ng-deep .p-inputtext:enabled:focus:not(.-state-error) {
     border-color: #6BA542;
     border-color: var(--theme-input-text-border-active);
     outline: 0;
