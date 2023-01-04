@@ -35,30 +35,17 @@ public class RegistryController
 
   public static final String INDEX_JSP = "net/geoprism/registry/index.jsp";
 
-//  @Endpoint(method = ServletMethod.GET)
-//  public ResponseIF manage()
-//  {
-//    ViewResponse resp = new ViewResponse(JSP_DIR + INDEX_JSP);
-//
-//    String customFont = GeoregistryProperties.getCustomFont();
-//    if (customFont != null && customFont.length() > 0)
-//    {
-//      resp.set("customFont", customFont);
-//    }
-//
-//    return resp;
-//  }
   @Endpoint(method = ServletMethod.GET)
   public ResponseIF manage()
   {
-    ViewResponse resp = new ViewResponse("/index.html");
-    
-//    String customFont = GeoregistryProperties.getCustomFont();
-//    if (customFont != null && customFont.length() > 0)
-//    {
-//      resp.set("customFont", customFont);
-//    }
-    
+    ViewResponse resp = new ViewResponse(JSP_DIR + INDEX_JSP);
+
+    String customFont = GeoregistryProperties.getCustomFont();
+    if (customFont != null && customFont.length() > 0)
+    {
+      resp.set("customFont", customFont);
+    }
+
     return resp;
   }
 }

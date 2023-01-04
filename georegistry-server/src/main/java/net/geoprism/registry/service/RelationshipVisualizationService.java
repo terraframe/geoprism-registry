@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.visualization;
+package net.geoprism.registry.service;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -27,6 +27,7 @@ import java.util.Map;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
+import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -52,9 +53,11 @@ import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.visualization.EdgeView;
+import net.geoprism.registry.visualization.VertexView;
 import net.geoprism.registry.visualization.VertexView.ObjectType;
 
+@Component
 public class RelationshipVisualizationService
 {
   // Usability really degrades past 500 or so. Past 1000 the browser falls over, even on good computers. @rrowlands

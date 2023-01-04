@@ -59,7 +59,7 @@ export class RelationshipVisualizationService {
         // this.eventService.start();
 
         return this.http
-            .get<TreeData>(registry.contextPath + "/relationship-visualization/tree", { params: params })
+            .get<TreeData>(registry.contextPath + "/api/relationship-visualization/tree", { params: params })
             .pipe(finalize(() => {
                 // this.eventService.complete();
             }))
@@ -86,7 +86,7 @@ export class RelationshipVisualizationService {
         // this.eventService.start();
 
         return this.http
-            .get<any>(registry.contextPath + "/relationship-visualization/treeAsGeoJson", { params: params })
+            .get<any>(registry.contextPath + "/api/relationship-visualization/treeAsGeoJson", { params: params })
             .pipe(finalize(() => {
                 // this.eventService.complete();
             }))
@@ -101,7 +101,7 @@ export class RelationshipVisualizationService {
         // this.eventService.start();
 
         return this.http
-            .get<any>(registry.contextPath + "/relationship-visualization/relationships", { params: params })
+            .get<any>(registry.contextPath + "/api/relationship-visualization/relationships", { params: params })
             .pipe(finalize(() => {
                 // this.eventService.complete();
             }))
