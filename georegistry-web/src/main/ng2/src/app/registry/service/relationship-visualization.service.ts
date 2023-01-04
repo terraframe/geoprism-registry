@@ -24,8 +24,6 @@ import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
 
-import { GeoRegistryConfiguration } from "@core/model/core";
-
 import { ActivatedRoute } from "@angular/router";
 import { ObjectReference, Relationship, TreeData } from "@registry/model/graph";
 import { environment } from 'src/environments/environment';
@@ -59,7 +57,7 @@ export class RelationshipVisualizationService {
         // this.eventService.start();
 
         return this.http
-            .get<TreeData>(environment.apiUrl + "/relationship-visualization/tree", { params: params })
+            .get<TreeData>(environment.apiUrl + "/api/relationship-visualization/tree", { params: params })
             .pipe(finalize(() => {
                 // this.eventService.complete();
             }))
@@ -86,7 +84,7 @@ export class RelationshipVisualizationService {
         // this.eventService.start();
 
         return this.http
-            .get<any>(environment.apiUrl + "/relationship-visualization/treeAsGeoJson", { params: params })
+            .get<any>(environment.apiUrl + "/api/relationship-visualization/treeAsGeoJson", { params: params })
             .pipe(finalize(() => {
                 // this.eventService.complete();
             }))
@@ -101,7 +99,7 @@ export class RelationshipVisualizationService {
         // this.eventService.start();
 
         return this.http
-            .get<any>(environment.apiUrl + "/relationship-visualization/relationships", { params: params })
+            .get<any>(environment.apiUrl + "/api/relationship-visualization/relationships", { params: params })
             .pipe(finalize(() => {
                 // this.eventService.complete();
             }))

@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.service;
 
+import org.springframework.stereotype.Component;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.session.Request;
@@ -27,6 +29,7 @@ import com.runwaysdk.session.Session;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.model.ClassificationType;
 
+@Component
 public class ClassificationTypeService
 {
   @Request(RequestType.SESSION)

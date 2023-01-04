@@ -4,7 +4,6 @@ import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
 
-import { GeoRegistryConfiguration } from "@core/model/core";
 import { PageResult } from "@shared/model/core";
 import { GenericTableService } from "@shared/model/generic-table";
 import { ClassificationType } from "@registry/model/classification-type";
@@ -25,7 +24,7 @@ export class ClassificationTypeService implements GenericTableService {
         this.eventService.start();
 
         return this.http
-            .post<ClassificationType>(environment.apiUrl + "/classification-type/apply", JSON.stringify({ classificationType: classificationType }), { headers: headers })
+            .post<ClassificationType>(environment.apiUrl + "/api/classification-type/apply", JSON.stringify({ classificationType: classificationType }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -33,13 +32,14 @@ export class ClassificationTypeService implements GenericTableService {
     }
 
     remove(type: ClassificationType): Promise<ClassificationType> {
-        const data = new FormData();
-        data.append("oid", type.oid);
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
         this.eventService.start();
 
         return this.http
-            .post<ClassificationType>(environment.apiUrl + "/classification-type/remove", data)
+            .post<ClassificationType>(environment.apiUrl + "/api/classification-type/remove", JSON.stringify({ oid: type.oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -47,15 +47,9 @@ export class ClassificationTypeService implements GenericTableService {
     }
 
     page(criteria: Object): Promise<PageResult<ClassificationType>> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        let params = {
-            criteria: criteria
-        } as any;
-
-        return this.http.post<PageResult<ClassificationType>>(environment.apiUrl + "/classification-type/page", JSON.stringify(params), { headers: headers })
+        let params: HttpParams = new HttpParams();
+        params = params.set("criteria", JSON.stringify(criteria));
+        return this.http.get<PageResult<ClassificationType>>(environment.apiUrl + "/api/classification-type/page", { params: params })
             .toPromise();
     }
 
@@ -63,7 +57,7 @@ export class ClassificationTypeService implements GenericTableService {
         let params: HttpParams = new HttpParams();
         params = params.set("classificationCode", classificationCode);
 
-        return this.http.get<ClassificationType>(environment.apiUrl + "/classification-type/get", { params: params })
+        return this.http.get<ClassificationType>(environment.apiUrl + "/api/classification-type/get", { params: params })
             .toPromise();
     }
 
