@@ -18,7 +18,7 @@
 #
 
 # This tells the build which version of npm to use:
-. $NVM_DIR/nvm.sh && nvm install lts/erbium
+. $NVM_DIR/nvm.sh && nvm install lts/hydrogen
 
 export ANSIBLE_HOST_KEY_CHECKING=false
 
@@ -33,7 +33,8 @@ if [ "$build_artifact" == "true" ]; then
   cd $WORKSPACE/georegistry/georegistry-web/src/main/ng2
   npm install
   node -v && npm -v
-  node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
+  #node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
+  npm run build  
   
   cd $WORKSPACE/georegistry
   mvn clean install -B -Djavax.net.ssl.trustStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/tomcat.truststore -Djavax.net.ssl.trustStorePassword=2v8hVW2rPFncN6m -Djavax.net.ssl.keyStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/keystore.ks -Djavax.net.ssl.keyStorePassword=2v8hVW2rPFncN6m
