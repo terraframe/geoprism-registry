@@ -31,7 +31,7 @@ import com.google.gson.JsonArray;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;

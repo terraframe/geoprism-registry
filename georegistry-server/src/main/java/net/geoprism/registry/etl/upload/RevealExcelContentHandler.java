@@ -22,16 +22,16 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.poi.ss.util.CellReference;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.geojson.GeoJsonReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wololo.jts2geojson.GeoJSONReader;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.session.Session;
-import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.ExceptionUtil;
 import net.geoprism.data.etl.ColumnType;
@@ -197,7 +197,7 @@ public class RevealExcelContentHandler extends ExcelContentHandler
         joGeometry.addProperty("type", this.geometryType);
       }
 
-      GeoJSONReader reader = new GeoJSONReader();
+      GeoJsonReader reader = new GeoJsonReader();
       Geometry jtsGeom = reader.read(joGeometry.toString());
 
       return jtsGeom;

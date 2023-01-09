@@ -25,8 +25,6 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.DefaultSerializer;
-import org.wololo.jts2geojson.GeoJSONReader;
-import org.wololo.jts2geojson.GeoJSONWriter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -37,7 +35,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.vividsolutions.jts.geom.Geometry;
 
 public class GeoObjectOverTimeJsonAdapters
 {
@@ -58,7 +55,7 @@ public class GeoObjectOverTimeJsonAdapters
     
     public static String getCode(String goJson)
     {
-      JsonObject jo = new JsonParser().parse(goJson).getAsJsonObject();
+      JsonObject jo = JsonParser.parseString(goJson).getAsJsonObject();
       
       JsonObject attributes = jo.get(GeoObjectOverTimeJsonAdapters.JSON_ATTRIBUTES).getAsJsonObject();
       
@@ -67,7 +64,7 @@ public class GeoObjectOverTimeJsonAdapters
     
     public static String getTypeCode(String goJson)
     {
-      JsonObject jo = new JsonParser().parse(goJson).getAsJsonObject();
+      JsonObject jo = JsonParser.parseString(goJson).getAsJsonObject();
       
       JsonObject attributes = jo.get(GeoObjectOverTimeJsonAdapters.JSON_ATTRIBUTES).getAsJsonObject();
       

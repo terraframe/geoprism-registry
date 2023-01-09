@@ -23,8 +23,10 @@ import java.lang.reflect.Type;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.DefaultSerializer;
-import org.wololo.jts2geojson.GeoJSONReader;
-import org.wololo.jts2geojson.GeoJSONWriter;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.geojson.GeoJsonReader;
+import org.locationtech.jts.io.geojson.GeoJsonWriter;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -34,7 +36,6 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.vividsolutions.jts.geom.Geometry;
 
 public class GeoObjectJsonAdapters
 {
@@ -92,8 +93,16 @@ public class GeoObjectJsonAdapters
       JsonElement oGeom = oJson.get(JSON_GEOMETRY);
       if (oGeom != null)
       {
-        GeoJSONReader reader = new GeoJSONReader();
-        Geometry jtsGeom = reader.read(oGeom.toString());
+        GeoJsonReader reader = new GeoJsonReader();
+        Geometry jtsGeom;
+        try
+        {
+          jtsGeom = reader.read(oGeom.toString());
+        }
+        catch (ParseException e)
+        {
+          throw new RuntimeException(e);
+        }
 
         geoObj.setGeometry(jtsGeom);
       }
@@ -138,11 +147,10 @@ public class GeoObjectJsonAdapters
 
       if (go.getGeometry() != null)
       {
-        GeoJSONWriter gw = new GeoJSONWriter();
-        org.wololo.geojson.Geometry gJSON = gw.write(go.getGeometry());
+        GeoJsonWriter gw = new GeoJsonWriter();
+        String json = gw.write(go.getGeometry());
 
-        JsonParser parser = new JsonParser();
-        JsonObject geomObj = parser.parse(gJSON.toString()).getAsJsonObject();
+        JsonObject geomObj = JsonParser.parseString(json).getAsJsonObject();
 
         jsonObj.add(JSON_GEOMETRY, geomObj);
       }

@@ -52,7 +52,7 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
-import com.vividsolutions.jts.geom.Point;
+import org.locationtech.jts.geom.Point;
 
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.GeoRegistryUtil;

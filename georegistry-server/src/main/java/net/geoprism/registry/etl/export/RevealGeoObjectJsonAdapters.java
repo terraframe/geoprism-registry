@@ -25,7 +25,8 @@ import java.util.Locale;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.wololo.jts2geojson.GeoJSONWriter;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.geojson.GeoJsonWriter;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -74,10 +75,10 @@ public class RevealGeoObjectJsonAdapters
 
         if (serverGo.getGeometry() != null)
         {
-          GeoJSONWriter gw = new GeoJSONWriter();
-          org.wololo.geojson.Geometry gJSON = gw.write(serverGo.getGeometry());
+          GeoJsonWriter gw = new GeoJsonWriter();
+          String json = gw.write(serverGo.getGeometry());
 
-          JsonObject joGeom = JsonParser.parseString(gJSON.toString()).getAsJsonObject();
+          JsonObject joGeom = JsonParser.parseString(json).getAsJsonObject();
 
           joGO.add("geometry", joGeom);
         }

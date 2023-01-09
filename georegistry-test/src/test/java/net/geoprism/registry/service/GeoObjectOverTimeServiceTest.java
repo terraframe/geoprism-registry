@@ -28,8 +28,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.runwaysdk.business.SmartExceptionDTO;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.test.FastTestDataset;

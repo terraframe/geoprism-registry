@@ -30,9 +30,9 @@ import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
 
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.geojson.GeoJsonReader;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.geojson.GeoJsonReader;
 
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.graph.FhirExternalSystem;

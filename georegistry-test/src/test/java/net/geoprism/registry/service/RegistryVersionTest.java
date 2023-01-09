@@ -36,7 +36,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.runwaysdk.session.Request;
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.model.ServerGeoObjectIF;

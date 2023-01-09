@@ -41,8 +41,8 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.session.Request;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeometryTypeException;

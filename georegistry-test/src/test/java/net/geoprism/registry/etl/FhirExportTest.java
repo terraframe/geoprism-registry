@@ -43,7 +43,7 @@ import org.junit.Test;
 
 import com.google.gson.GsonBuilder;
 import com.runwaysdk.session.Request;
-import com.vividsolutions.jts.io.geojson.GeoJsonWriter;
+import org.locationtech.jts.io.geojson.GeoJsonWriter;
 
 import ca.uhn.fhir.context.FhirContext;
 import net.geoprism.registry.ListType;

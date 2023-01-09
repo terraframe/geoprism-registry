@@ -36,7 +36,7 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
-import com.vividsolutions.jts.geom.Envelope;
+import org.locationtech.jts.geom.Envelope;
 
 import net.geoprism.ontology.PublisherUtil;
 import net.geoprism.registry.tile.VectorTileBuilder;

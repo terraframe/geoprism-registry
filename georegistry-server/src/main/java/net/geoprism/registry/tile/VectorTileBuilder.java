@@ -30,7 +30,7 @@ import java.util.TreeMap;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.json.JSONException;
-import org.postgis.jts.JtsGeometry;
+import net.postgis.jdbc.jts.JtsGeometry;
 import org.postgresql.util.PSQLException;
 
 import com.runwaysdk.dataaccess.AttributeIF;
@@ -46,9 +46,9 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.mapping.GeoserverFacade;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 import com.wdtinc.mapbox_vector_tile.VectorTile;
 import com.wdtinc.mapbox_vector_tile.VectorTile.Tile;
 import com.wdtinc.mapbox_vector_tile.VectorTile.Tile.Layer;

@@ -58,9 +58,10 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wololo.jts2geojson.GeoJSONWriter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -125,7 +126,6 @@ import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.scheduler.ExecutableJob;
-import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.gis.geoserver.GeoserverFacade;
@@ -1695,10 +1695,10 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
           if (geom != null)
           {
-            GeoJSONWriter gw = new GeoJSONWriter();
-            org.wololo.geojson.Geometry gJSON = gw.write(geom);
+            GeoJsonWriter gw = new GeoJsonWriter();
+            String json = gw.write(geom);
 
-            JsonObject geojson = JsonParser.parseString(gJSON.toString()).getAsJsonObject();
+            JsonObject geojson = JsonParser.parseString(json).getAsJsonObject();
 
             object.add("geometry", geojson);
           }

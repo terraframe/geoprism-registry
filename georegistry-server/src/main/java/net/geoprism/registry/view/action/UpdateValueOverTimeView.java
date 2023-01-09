@@ -33,7 +33,9 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.wololo.jts2geojson.GeoJSONReader;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.geojson.GeoJsonReader;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -47,7 +49,6 @@ import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.AttributeGraphRef;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.localization.LocalizationFacade;
-import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeometryTypeException;
@@ -193,8 +194,15 @@ public class UpdateValueOverTimeView
 
       if (!this.newValue.isJsonNull())
       {
-        GeoJSONReader reader = new GeoJSONReader();
-        convertedValue = reader.read(this.newValue.toString());
+        GeoJsonReader reader = new GeoJsonReader();
+        try
+        {
+          convertedValue = reader.read(this.newValue.toString());
+        }
+        catch (ParseException e)
+        {
+          throw new RuntimeException(e);
+        }
 
         if (!go.isValidGeometry(convertedValue))
         {
