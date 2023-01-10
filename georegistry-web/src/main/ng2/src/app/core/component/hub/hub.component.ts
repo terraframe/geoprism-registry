@@ -26,9 +26,9 @@ import { AuthService } from '@shared/service';
 
 import { HubService } from '@core/service/hub.service';
 
-import { environment } from 'src/environments/environment';
 import { APP_BASE_HREF } from '@angular/common';
 import EnvironmentUtil from '@core/utility/environment-util';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'hub',
@@ -47,7 +47,8 @@ export class HubComponent implements OnInit {
     constructor(
         @Inject(APP_BASE_HREF) private baseHref: string,
         private service: HubService,
-        public authService: AuthService,
+        private router: Router,
+        public authService: AuthService
 
     ) {
         this.context = EnvironmentUtil.getApiUrl();
@@ -75,13 +76,18 @@ export class HubComponent implements OnInit {
             application.url = application.url + "?pageContext=EXPLORER";
         }
 
-        let url = this.context;
-
-        if(this.baseHref != null) {
-            url += this.baseHref;
+        if (application.url.startsWith("#/")) {
+            this.router.navigate([application.url.substring(2)]);
         }
+        else {
+            let url = this.context;
 
-        window.location.href = url + '/' + application.url;
+            if (this.baseHref != null) {
+                url += this.baseHref;
+            }
+
+            window.location.href = url + '/' + application.url;
+        }
     }
 
     //   account():void{
