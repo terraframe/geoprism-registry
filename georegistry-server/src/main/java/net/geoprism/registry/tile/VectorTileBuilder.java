@@ -30,7 +30,10 @@ import java.util.TreeMap;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.json.JSONException;
-import org.postgis.jts.JtsGeometry;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.util.AffineTransformation;
 import org.postgresql.util.PSQLException;
 
 import com.runwaysdk.dataaccess.AttributeIF;
@@ -46,9 +49,6 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.mapping.GeoserverFacade;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.wdtinc.mapbox_vector_tile.VectorTile;
 import com.wdtinc.mapbox_vector_tile.VectorTile.Tile;
 import com.wdtinc.mapbox_vector_tile.VectorTile.Tile.Layer;
@@ -65,6 +65,7 @@ import net.geoprism.ontology.VectorLayerPublisherIF;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.TableEntity;
+import net.postgis.jdbc.jts.JtsGeometry;
 
 public class VectorTileBuilder implements VectorLayerPublisherIF
 {
@@ -170,8 +171,16 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
       IGeometryFilter acceptAllGeomFilter = geometry -> true;
 
       MvtLayerParams layerParams = new MvtLayerParams();
+      
+      final Envelope bufferedEnvelope = this.getBufferedEnvelope(envelope, layerParams);
 
-      TileGeomResult tileGeom = JtsAdapter.createTileGeom(geometries, envelope, geomFactory, layerParams, acceptAllGeomFilter);
+      final TileGeomResult tileGeom = JtsAdapter.createTileGeom(
+          geometries,
+          envelope,
+          bufferedEnvelope, 
+          geomFactory,
+          layerParams, 
+          acceptAllGeomFilter);      
 
       final VectorTile.Tile.Builder tileBuilder = VectorTile.Tile.newBuilder();
 
@@ -262,7 +271,15 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
 
       MvtLayerParams layerParams = new MvtLayerParams();
 
-      TileGeomResult tileGeom = JtsAdapter.createTileGeom(geometries, bounds, geomFactory, layerParams, acceptAllGeomFilter);
+      final Envelope bufferedEnvelope = this.getBufferedEnvelope(bounds, layerParams);
+
+      final TileGeomResult tileGeom = JtsAdapter.createTileGeom(
+          geometries,
+          bounds,
+          bufferedEnvelope, 
+          geomFactory,
+          layerParams, 
+          acceptAllGeomFilter);      
 
       // Create MVT layer
       final MvtLayerProps layerProps = new MvtLayerProps();
@@ -303,5 +320,39 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
 
     return data;
   }
+
+  public Envelope getBufferedEnvelope(Envelope envelope, MvtLayerParams layerParams)
+  {
+    final int bufferPixel = 64;
+    
+    final AffineTransformation t = new AffineTransformation();
+    final double xDiff = envelope.getWidth();
+    final double yDiff = envelope.getHeight();
+
+    final double xOffset = -envelope.getMinX();
+    final double yOffset = -envelope.getMinY();      
+
+    // Transform Setup: Shift to 0 as minimum value
+    t.translate(xOffset, yOffset);
+
+    // Transform Setup: Scale X and Y to tile extent values, flip Y values
+    double xScale = 1d / (xDiff / (double) layerParams.extent);
+    double yScale = -1d / (yDiff / (double) layerParams.extent);
+    
+    t.scale(xScale, yScale);
+
+    // Transform Setup: Bump Y values to positive quadrant
+    t.translate(0d, (double) layerParams.extent);
+    
+    // Calculate the buffered geometry envelop for determining geometry intersection
+    double deltaX = bufferPixel * Math.abs(1 / xScale);
+    double deltaY = bufferPixel * Math.abs(1 / yScale);
+    
+    final Envelope bufferedEnvelope = new Envelope(envelope);
+    bufferedEnvelope.expandBy(deltaX, deltaY );
+    
+    return bufferedEnvelope;
+  }
+
 
 }

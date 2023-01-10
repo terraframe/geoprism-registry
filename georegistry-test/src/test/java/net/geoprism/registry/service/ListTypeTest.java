@@ -32,7 +32,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.wololo.jts2geojson.GeoJSONReader;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.geojson.GeoJsonReader;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -48,7 +49,6 @@ import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
-import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.GeoRegistryUtil;
@@ -473,7 +473,7 @@ public class ListTypeTest
 
   private void dataTest(Boolean includeGeometries)
   {
-    GeoJSONReader reader = new GeoJSONReader();
+    GeoJsonReader reader = new GeoJsonReader();
 
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 

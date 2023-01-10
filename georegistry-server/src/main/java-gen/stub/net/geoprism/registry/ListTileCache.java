@@ -25,6 +25,9 @@ import java.util.concurrent.Executors;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.util.AffineTransformation;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.ThreadTransactionState;
@@ -36,7 +39,7 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
-import com.vividsolutions.jts.geom.Envelope;
+import com.wdtinc.mapbox_vector_tile.build.MvtLayerParams;
 
 import net.geoprism.ontology.PublisherUtil;
 import net.geoprism.registry.tile.VectorTileBuilder;
@@ -90,7 +93,7 @@ public class ListTileCache extends ListTileCacheBase
 
         Envelope envelope = PublisherUtil.getEnvelope(x, y, zoom);
         Envelope bounds = PublisherUtil.getTileBounds(envelope);
-
+        
         ListTypeVersion version = ListTypeVersion.get(this.versionId);
 
         VectorTileBuilder builder = new VectorTileBuilder(version);

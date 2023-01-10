@@ -18,7 +18,8 @@
  */
 package net.geoprism.registry;
 
-import org.wololo.jts2geojson.GeoJSONReader;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.geojson.GeoJsonReader;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -26,7 +27,6 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
-import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.io.InvalidGeometryException;
 
@@ -84,7 +84,7 @@ public class GeometryTester
         joGeometry.addProperty("type", geometryType);
       }
       
-      GeoJSONReader reader = new GeoJSONReader();
+      GeoJsonReader reader = new GeoJsonReader();
       Geometry jtsGeom = reader.read(joGeometry.toString());
       
       return jtsGeom;

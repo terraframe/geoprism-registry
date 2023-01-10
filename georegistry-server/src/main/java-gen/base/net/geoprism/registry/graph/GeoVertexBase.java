@@ -63,9 +63,9 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     this.setValue(CREATEDATE, value);
   }
   
-  public com.vividsolutions.jts.geom.LineString getGeoLine()
+  public org.locationtech.jts.geom.LineString getGeoLine()
   {
-    return (com.vividsolutions.jts.geom.LineString) this.getObjectValue(GEOLINE);
+    return (org.locationtech.jts.geom.LineString) this.getObjectValue(GEOLINE);
   }
   
   public static com.runwaysdk.gis.dataaccess.MdAttributeLineStringDAOIF getGeoLineMd()
@@ -74,14 +74,14 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     return (com.runwaysdk.gis.dataaccess.MdAttributeLineStringDAOIF)mdClassIF.definesAttribute(GEOLINE);
   }
   
-  public void setGeoLine(com.vividsolutions.jts.geom.LineString value)
+  public void setGeoLine(org.locationtech.jts.geom.LineString value)
   {
     this.setValue(GEOLINE, value);
   }
   
-  public com.vividsolutions.jts.geom.MultiLineString getGeoMultiLine()
+  public org.locationtech.jts.geom.MultiLineString getGeoMultiLine()
   {
-    return (com.vividsolutions.jts.geom.MultiLineString) this.getObjectValue(GEOMULTILINE);
+    return (org.locationtech.jts.geom.MultiLineString) this.getObjectValue(GEOMULTILINE);
   }
   
   public static com.runwaysdk.gis.dataaccess.MdAttributeMultiLineStringDAOIF getGeoMultiLineMd()
@@ -90,14 +90,14 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     return (com.runwaysdk.gis.dataaccess.MdAttributeMultiLineStringDAOIF)mdClassIF.definesAttribute(GEOMULTILINE);
   }
   
-  public void setGeoMultiLine(com.vividsolutions.jts.geom.MultiLineString value)
+  public void setGeoMultiLine(org.locationtech.jts.geom.MultiLineString value)
   {
     this.setValue(GEOMULTILINE, value);
   }
   
-  public com.vividsolutions.jts.geom.MultiPoint getGeoMultiPoint()
+  public org.locationtech.jts.geom.MultiPoint getGeoMultiPoint()
   {
-    return (com.vividsolutions.jts.geom.MultiPoint) this.getObjectValue(GEOMULTIPOINT);
+    return (org.locationtech.jts.geom.MultiPoint) this.getObjectValue(GEOMULTIPOINT);
   }
   
   public static com.runwaysdk.gis.dataaccess.MdAttributeMultiPointDAOIF getGeoMultiPointMd()
@@ -106,14 +106,14 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     return (com.runwaysdk.gis.dataaccess.MdAttributeMultiPointDAOIF)mdClassIF.definesAttribute(GEOMULTIPOINT);
   }
   
-  public void setGeoMultiPoint(com.vividsolutions.jts.geom.MultiPoint value)
+  public void setGeoMultiPoint(org.locationtech.jts.geom.MultiPoint value)
   {
     this.setValue(GEOMULTIPOINT, value);
   }
   
-  public com.vividsolutions.jts.geom.MultiPolygon getGeoMultiPolygon()
+  public org.locationtech.jts.geom.MultiPolygon getGeoMultiPolygon()
   {
-    return (com.vividsolutions.jts.geom.MultiPolygon) this.getObjectValue(GEOMULTIPOLYGON);
+    return (org.locationtech.jts.geom.MultiPolygon) this.getObjectValue(GEOMULTIPOLYGON);
   }
   
   public static com.runwaysdk.gis.dataaccess.MdAttributeMultiPolygonDAOIF getGeoMultiPolygonMd()
@@ -122,14 +122,14 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     return (com.runwaysdk.gis.dataaccess.MdAttributeMultiPolygonDAOIF)mdClassIF.definesAttribute(GEOMULTIPOLYGON);
   }
   
-  public void setGeoMultiPolygon(com.vividsolutions.jts.geom.MultiPolygon value)
+  public void setGeoMultiPolygon(org.locationtech.jts.geom.MultiPolygon value)
   {
     this.setValue(GEOMULTIPOLYGON, value);
   }
   
-  public com.vividsolutions.jts.geom.Point getGeoPoint()
+  public org.locationtech.jts.geom.Point getGeoPoint()
   {
-    return (com.vividsolutions.jts.geom.Point) this.getObjectValue(GEOPOINT);
+    return (org.locationtech.jts.geom.Point) this.getObjectValue(GEOPOINT);
   }
   
   public static com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF getGeoPointMd()
@@ -138,14 +138,14 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     return (com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF)mdClassIF.definesAttribute(GEOPOINT);
   }
   
-  public void setGeoPoint(com.vividsolutions.jts.geom.Point value)
+  public void setGeoPoint(org.locationtech.jts.geom.Point value)
   {
     this.setValue(GEOPOINT, value);
   }
   
-  public com.vividsolutions.jts.geom.Polygon getGeoPolygon()
+  public org.locationtech.jts.geom.Polygon getGeoPolygon()
   {
-    return (com.vividsolutions.jts.geom.Polygon) this.getObjectValue(GEOPOLYGON);
+    return (org.locationtech.jts.geom.Polygon) this.getObjectValue(GEOPOLYGON);
   }
   
   public static com.runwaysdk.gis.dataaccess.MdAttributePolygonDAOIF getGeoPolygonMd()
@@ -154,7 +154,7 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     return (com.runwaysdk.gis.dataaccess.MdAttributePolygonDAOIF)mdClassIF.definesAttribute(GEOPOLYGON);
   }
   
-  public void setGeoPolygon(com.vividsolutions.jts.geom.Polygon value)
+  public void setGeoPolygon(org.locationtech.jts.geom.Polygon value)
   {
     this.setValue(GEOPOLYGON, value);
   }
@@ -202,9 +202,9 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     this.setValue(SEQ, value);
   }
   
-  public com.vividsolutions.jts.geom.Geometry getShape()
+  public org.locationtech.jts.geom.Geometry getShape()
   {
-    return (com.vividsolutions.jts.geom.Geometry) this.getObjectValue(SHAPE);
+    return (org.locationtech.jts.geom.Geometry) this.getObjectValue(SHAPE);
   }
   
   public static com.runwaysdk.gis.dataaccess.MdAttributeShapeDAOIF getShapeMd()
@@ -213,7 +213,7 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
     return (com.runwaysdk.gis.dataaccess.MdAttributeShapeDAOIF)mdClassIF.definesAttribute(SHAPE);
   }
   
-  public void setShape(com.vividsolutions.jts.geom.Geometry value)
+  public void setShape(org.locationtech.jts.geom.Geometry value)
   {
     this.setValue(SHAPE, value);
   }

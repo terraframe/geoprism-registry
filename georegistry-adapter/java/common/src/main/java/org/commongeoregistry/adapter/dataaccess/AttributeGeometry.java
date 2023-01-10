@@ -22,15 +22,15 @@ import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeGeometryType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
-import org.wololo.jts2geojson.GeoJSONReader;
-import org.wololo.jts2geojson.GeoJSONWriter;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
+import org.locationtech.jts.io.geojson.GeoJsonReader;
+import org.locationtech.jts.io.geojson.GeoJsonWriter;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 
 public class AttributeGeometry extends Attribute
 {
@@ -91,10 +91,9 @@ public class AttributeGeometry extends Attribute
   
   public String getGeometryAsGeoJson()
   {
-    GeoJSONWriter gw = new GeoJSONWriter();
-    org.wololo.geojson.Geometry gJSON = gw.write(this.getValue());
+    GeoJsonWriter gw = new GeoJsonWriter();
 
-    return gJSON.toString();
+    return gw.write(this.getValue());
   }
   
   public void setGeometryAsGeoJson(String geoJson)
@@ -105,8 +104,16 @@ public class AttributeGeometry extends Attribute
     }
     else
     {
-      GeoJSONReader reader = new GeoJSONReader();
-      Geometry jtsGeom = reader.read(geoJson);
+      GeoJsonReader reader = new GeoJsonReader();
+      Geometry jtsGeom;
+      try
+      {
+        jtsGeom = reader.read(geoJson);
+      }
+      catch (ParseException e)
+      {
+        throw new RuntimeException(e);
+      }
   
       this.setValue(jtsGeom);
     }

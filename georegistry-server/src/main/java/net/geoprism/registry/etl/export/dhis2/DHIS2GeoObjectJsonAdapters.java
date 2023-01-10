@@ -24,15 +24,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedSet;
 import java.util.TimeZone;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.lang.StringUtils;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wololo.jts2geojson.GeoJSONWriter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -41,7 +41,6 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
 import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
@@ -58,7 +57,6 @@ import net.geoprism.registry.etl.export.ExportRemoteException;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.InvalidGeometryException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
@@ -304,10 +302,10 @@ public class DHIS2GeoObjectJsonAdapters
       {
         try
         {
-          GeoJSONWriter gw = new GeoJSONWriter();
-          org.wololo.geojson.Geometry gJSON = gw.write(geom);
+          GeoJsonWriter gw = new GeoJsonWriter();
+          String json = gw.write(geom);
 
-          JsonObject joGeom = JsonParser.parseString(gJSON.toString()).getAsJsonObject();
+          JsonObject joGeom = JsonParser.parseString(json).getAsJsonObject();
           
           if (this.dhis2.getVersionRemoteServerApi() < 32)
           {

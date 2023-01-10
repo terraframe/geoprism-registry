@@ -35,6 +35,7 @@ import { ListTypeVersion } from "@registry/model/list-type";
 
 import { environment } from 'src/environments/environment';
 import { ConfigurationService } from "@core/service/configuration.service";
+import EnvironmentUtil from "@core/utility/environment-util";
 
 class SelectedObject {
 
@@ -270,7 +271,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     }
                 },
                 sprite: layer.sprite,
-                glyphs: window.location.protocol + "//" + window.location.host + environment.apiUrl + "/glyphs/{fontstack}/{range}.pbf",
+                glyphs: window.location.protocol + "//" + window.location.host + EnvironmentUtil.getApiUrl() + "/glyphs/{fontstack}/{range}.pbf",
                 layers: [
                     {
                         id: layer.id,
@@ -678,7 +679,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
             },
             sprite: layer.sprite,
-            glyphs: window.location.protocol + "//" + window.location.host + environment.apiUrl + "/glyphs/{fontstack}/{range}.pbf",
+            glyphs: window.location.protocol + "//" + window.location.host + EnvironmentUtil.getApiUrl() + "/glyphs/{fontstack}/{range}.pbf",
             layers: [
                 {
                     id: layer.id,

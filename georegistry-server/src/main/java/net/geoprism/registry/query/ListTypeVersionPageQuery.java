@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.wololo.jts2geojson.GeoJSONWriter;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.geojson.GeoJsonWriter;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -33,12 +34,10 @@ import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
-import com.runwaysdk.query.AttributeBoolean;
 import com.runwaysdk.query.ComponentQuery;
 import com.runwaysdk.query.Selectable;
 import com.runwaysdk.query.SelectableBoolean;
 import com.runwaysdk.session.Session;
-import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListTypeVersion;
@@ -115,10 +114,10 @@ public class ListTypeVersionPageQuery extends AbstractBusinessPageQuery<JsonSeri
 
         if (geom != null)
         {
-          GeoJSONWriter gw = new GeoJSONWriter();
-          org.wololo.geojson.Geometry gJSON = gw.write(geom);
+          GeoJsonWriter gw = new GeoJsonWriter();
+          String json = gw.write(geom);
 
-          JsonObject geojson = JsonParser.parseString(gJSON.toString()).getAsJsonObject();
+          JsonObject geojson = JsonParser.parseString(json).getAsJsonObject();
 
           object.add("geometry", geojson);
         }

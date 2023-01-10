@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.etl.upload;
 
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.registry.etl.ImportStage;

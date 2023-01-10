@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
-import com.vividsolutions.jts.geom.Point;
+import org.locationtech.jts.geom.Point;
 
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;

@@ -33,7 +33,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.wololo.jts2geojson.GeoJSONWriter;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.io.geojson.GeoJsonWriter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -46,7 +47,6 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
-import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.CGRPermissionException;
@@ -948,9 +948,9 @@ public class ChangeRequestServiceTest
     VertexServerGeoObject cambodia = (VertexServerGeoObject) FastTestDataset.CAMBODIA.getServerObject();
     ValueOverTime vot = cambodia.getValuesOverTime(cambodia.getGeometryAttributeName()).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
     
-    GeoJSONWriter gw = new GeoJSONWriter();
-    org.wololo.geojson.Geometry gJSON = gw.write((Geometry) vot.getValue());
-    JsonObject geojson = JsonParser.parseString(gJSON.toString()).getAsJsonObject();
+    GeoJsonWriter gw = new GeoJsonWriter();
+    String json = gw.write((Geometry) vot.getValue());
+    JsonObject geojson = JsonParser.parseString(json).getAsJsonObject();
     
     JsonArray valuesOverTime = JsonParser.parseString("["
         + "{"

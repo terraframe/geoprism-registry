@@ -24,7 +24,7 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.query.OIterator;
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
