@@ -261,7 +261,7 @@
 				<artifactId>maven-war-plugin</artifactId>
 				<version>3.3.2</version>
 				<configuration>
-					<warSourceExcludes>*.jsp</warSourceExcludes>
+					<warSourceExcludes>**/prism.jsp,**/admin.jsp,**/index.jsp</warSourceExcludes>
 					<packagingExcludes>
 						<!-- Exclude all jars provided by tomcat -->
 						**/catalina*.jar,
@@ -278,6 +278,7 @@
 							<groupId>net.geoprism</groupId>
 							<artifactId>geoprism-web</artifactId>
 							<excludes>
+								<exclude>**.jsp</exclude>								
 								<exclude>WEB-INF/lib/*.jar</exclude>
 							</excludes>
 						</overlay>
