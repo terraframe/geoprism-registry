@@ -28,6 +28,7 @@ import { HubService } from '@core/service/hub.service';
 
 import { environment } from 'src/environments/environment';
 import { APP_BASE_HREF } from '@angular/common';
+import EnvironmentUtil from '@core/utility/environment-util';
 
 @Component({
     selector: 'hub',
@@ -49,7 +50,7 @@ export class HubComponent implements OnInit {
         public authService: AuthService,
 
     ) {
-        this.context = environment.apiUrl;
+        this.context = EnvironmentUtil.getApiUrl();
     }
 
     ngOnInit(): void {

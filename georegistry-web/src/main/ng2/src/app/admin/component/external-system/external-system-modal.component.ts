@@ -29,7 +29,7 @@ import { LocalizationService, AuthService, ExternalSystemService } from "@shared
 
 import { ErrorHandler } from "@shared/component";
 
-import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: "external-system-modal",
@@ -37,8 +37,6 @@ import { GeoRegistryConfiguration } from "@core/model/core"; import { environmen
     styles: [".modal-form .check-block .chk-area { margin: 10px 0px 0 0;}"]
 })
 export class ExternalSystemModalComponent implements OnInit {
-
-  context: string;
 
   message: string = null;
 
@@ -67,7 +65,6 @@ export class ExternalSystemModalComponent implements OnInit {
   public onSuccess: Subject<ExternalSystem>;
 
   constructor(private systemService: ExternalSystemService, private authService: AuthService, public bsModalRef: BsModalRef, private lService: LocalizationService) {
-      this.context = environment.apiUrl;
   }
 
   ngOnInit(): void {
@@ -162,7 +159,7 @@ export class ExternalSystemModalComponent implements OnInit {
   }
 
   downloadDhis2Plugin(): void {
-      window.location.href = this.context + "/api/external-system/download-dhis2-plugin";
+      window.location.href = environment.apiUrl + "/api/external-system/download-dhis2-plugin";
   }
 
   cancel(): void {

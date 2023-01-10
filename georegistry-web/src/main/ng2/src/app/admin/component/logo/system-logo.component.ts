@@ -27,6 +27,7 @@ import { EventService } from '@shared/service';
 import { SystemLogo } from '@admin/model/system-logo';
 
 import { environment } from 'src/environments/environment';
+import EnvironmentUtil from '@core/utility/environment-util';
 
 @Component({
 
@@ -53,11 +54,7 @@ export class SystemLogoComponent implements OnInit {
     constructor(
         private eventService: EventService,
         public bsModalRef: BsModalRef) {
-        this.context = environment.apiUrl;
-
-        if (this.context == '.') {
-            this.context = "";
-          }      
+        this.context = EnvironmentUtil.getApiUrl();
     }
 
     ngOnInit(): void {

@@ -57,6 +57,10 @@ export class ConfigurationService {
         return this.getConfiguration().googleanalyticstoken;
     }
 
+    getContextPath(): string {
+        return this.getConfiguration().contextPath + "/";
+    }
+
     getDefaultMapBounds(): [[number]] {
         return this.getConfiguration().defaultMapBounds;
     }

@@ -11,9 +11,9 @@ import { GeometryService } from "./geometry.service";
 import { ValueOverTimeCREditor } from "@registry/component/geoobject-shared-attribute-editor/ValueOverTimeCREditor";
 import { MapService } from "./map.service";
 
-import { GeoRegistryConfiguration } from "@core/model/core";
 import { ObjectReference } from "@registry/model/graph";
 import { environment } from 'src/environments/environment';
+import EnvironmentUtil from "@core/utility/environment-util";
 
 export abstract class LayerDataSource {
 
@@ -282,7 +282,7 @@ export class ListVectorLayerDataSource extends LayerDataSource {
 
         return {
             type: "vector",
-            tiles: [protocol + "//" + host + environment.apiUrl + "/api/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: this.versionId }))],
+            tiles: [protocol + "//" + host + EnvironmentUtil.getApiUrl() + "/api/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: this.versionId }))],
             promoteId: "uid"
         };
     }

@@ -35,6 +35,7 @@ import { SystemLogoService } from '@admin/service/system-logo.service';
 import { ErrorHandler } from '@shared/component';
 
 import { environment } from 'src/environments/environment';
+import EnvironmentUtil from '@core/utility/environment-util';
 
 @Component({
 
@@ -57,7 +58,7 @@ export class SystemLogosComponent implements OnInit {
     private changeDetectorRef: ChangeDetectorRef
   ) {
 
-    this.context = environment.apiUrl;
+    this.context = EnvironmentUtil.getApiUrl();
   }
 
   ngOnInit(): void {

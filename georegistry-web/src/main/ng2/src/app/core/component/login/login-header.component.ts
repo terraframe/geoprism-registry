@@ -22,6 +22,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorHandler } from '@shared/component';
 import { environment } from 'src/environments/environment';
+import EnvironmentUtil from '@core/utility/environment-util';
 
 @Component({
   selector: 'login-header',
@@ -32,11 +33,7 @@ export class LoginHeaderComponent {
   context: string;
 
   constructor() {
-    this.context = environment.apiUrl;
-
-    if (this.context == '.') {
-      this.context = "";
-    }
+    this.context = EnvironmentUtil.getApiUrl();
   }
 
   public error(err: HttpErrorResponse): void {
