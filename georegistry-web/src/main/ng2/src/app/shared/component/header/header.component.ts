@@ -11,6 +11,7 @@ import { environment } from 'src/environments/environment';
 import { ConfigurationService } from "@core/service/configuration.service";
 import { LocaleView } from "@core/model/core";
 import { Router } from "@angular/router";
+import EnvironmentUtil from "@core/utility/environment-util";
 
 @Component({
 
@@ -41,11 +42,7 @@ export class CgrHeaderComponent {
         private configuration: ConfigurationService,
         private router: Router
     ) {
-        this.context = environment.apiUrl;
-
-        if (this.context == '.') {
-            this.context = "";
-        }
+        this.context = EnvironmentUtil.getApiUrl();
 
         this.isAdmin = service.isAdmin();
         this.isMaintainer = this.isAdmin || service.isMaintainer();

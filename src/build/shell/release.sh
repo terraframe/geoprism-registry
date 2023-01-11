@@ -38,7 +38,7 @@ set +x # Don't print every command before we run it
 git config --global user.name "$GIT_TF_BUILDER_USERNAME"
 git config --global user.email builder@terraframe.com
 
-. $NVM_DIR/nvm.sh && nvm install lts/erbium
+. $NVM_DIR/nvm.sh && nvm install lts/hydrogen
 set -x # Go back to printing each command
 
 if [ "$release_georegistry" == "true" ]; then
@@ -50,9 +50,11 @@ if [ "$release_georegistry" == "true" ]; then
   git pull
   sed -i -E "s_<cgr.adapter.version>.*</cgr.adapter.version>_<cgr.adapter.version>$CGR_RELEASE_VERSION</cgr.adapter.version>_g" georegistry-server/pom.xml
   cd georegistry-web/src/main/ng2
-  npm install
+  npm install --force
   node -v && npm -v
-  node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
+  #node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
+  npm run build  
+  
   cd $WORKSPACE/georegistry
   git add -A
   git diff-index --quiet HEAD || git commit -m "chore(release): Preparing project for release $CGR_RELEASE_VERSION."
