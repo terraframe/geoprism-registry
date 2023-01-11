@@ -18,7 +18,7 @@
 #
 
 # This tells the build which version of npm to use:
-. $NVM_DIR/nvm.sh && nvm install lts/erbium
+. $NVM_DIR/nvm.sh && nvm install lts/hydrogen
 
 export ANSIBLE_HOST_KEY_CHECKING=false
 
@@ -31,9 +31,10 @@ export ANSIBLE_HOST_KEY_CHECKING=false
 ## Build angular source ##
 npm version
 cd $WORKSPACE/georegistry/georegistry-web/src/main/ng2
-npm install
+npm install --force
 node -v && npm -v
-node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
+  #node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
+npm run build  
 
 ## Run the tests ##
 cd $WORKSPACE/georegistry
