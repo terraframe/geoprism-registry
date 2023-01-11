@@ -1,7 +1,5 @@
 
-import { GeoRegistryConfiguration } from "@core/model/core";
-
-import { environment } from 'src/environments/environment';
+import EnvironmentUtil from "@core/utility/environment-util";
 
 export class WebSockets {
 
@@ -14,7 +12,7 @@ export class WebSockets {
             protocol = "ws";
         }
 
-        let baseUrl = protocol + "://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + environment.apiUrl;
+        let baseUrl = protocol + "://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + EnvironmentUtil.getApiUrl();
 
         return baseUrl;
     }
