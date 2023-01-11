@@ -49,7 +49,7 @@ if [ "$release_georegistry" == "true" ]; then
   git checkout $release_branch
   git pull
   sed -i -E "s_<cgr.adapter.version>.*</cgr.adapter.version>_<cgr.adapter.version>$CGR_RELEASE_VERSION</cgr.adapter.version>_g" georegistry-server/pom.xml
-  cd georegistry-web/src/main/ng2
+  cd georegistry-ui
   npm install --force
   node -v && npm -v
   #node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile

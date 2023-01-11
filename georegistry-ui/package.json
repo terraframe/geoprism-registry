@@ -8,7 +8,7 @@
 		"watch": "ng build --watch --configuration development",
 		"test": "ng test",
 		"lint": "npx eslint .eslintrc.json",
-		"prepare": "cd ../../../../ && husky install georegistry-web/src/main/ng2/.husky"
+		"prepare": "cd ../ && husky install georegistry-ui/.husky"
 	},
 	"dependencies": {
 		"@angular/animations": "^15.0.0",

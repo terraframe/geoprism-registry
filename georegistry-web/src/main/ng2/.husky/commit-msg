@@ -1,4 +1,0 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-cd georegistry-web/src/main/ng2 && npx --no -- commitlint --edit "${1}"

@@ -208,7 +208,7 @@
 							<outputDirectory>${basedir}/target/georegistry</outputDirectory>
 							<resources>
 								<resource>
-									<directory>src/main/ng2/dist</directory>
+									<directory>${project.basedir}/../georegistry-ui/dist</directory>
 									<filtering>false</filtering>
 								</resource>
 							</resources>
