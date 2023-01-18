@@ -17,7 +17,7 @@
 # License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 #
 
-FROM tomcat:8.5-jdk8-openjdk
+FROM tomcat:8.5-jdk11-openjdk
 
 ENV CGR_VERSION=LATEST
 ENV GEOSERVER_VERSION=2.20.2-terraframe
