@@ -333,7 +333,7 @@
       </plugin>
       <!-- Weave Aspects -->
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
+		<groupId>dev.aspectj</groupId>
         <artifactId>aspectj-maven-plugin</artifactId>
         <version>${aspectj.plugin.version}</version>
         <dependencies>
