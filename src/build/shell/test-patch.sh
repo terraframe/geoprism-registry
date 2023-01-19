@@ -47,7 +47,7 @@ sudo docker run \
   -e MAVEN_CONFIG=/var/maven/.m2 \
   -v $WORKSPACE/georegistry:/workspace \
   -w /workspace \
-  maven:3-openjdk-8-slim mvn clean install -B
+  maven:3-openjdk-11-slim mvn clean install -B
 
 # Build a Docker image
 cd $WORKSPACE/georegistry/src/build/docker/georegistry

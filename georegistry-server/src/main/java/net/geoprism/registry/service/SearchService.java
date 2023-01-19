@@ -209,9 +209,8 @@ public class SearchService
 
     GraphDBService service = GraphDBService.getInstance();
     GraphRequest request = service.getGraphDBRequest();
-    GraphRequest ddlRequest = service.getDDLGraphDBRequest();
 
-    service.ddlCommand(request, ddlRequest, statement.toString(), parameters);
+    service.command(request, statement.toString(), parameters);
   }
 
   // @Transaction
