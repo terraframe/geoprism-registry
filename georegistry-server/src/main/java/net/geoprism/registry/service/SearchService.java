@@ -45,8 +45,8 @@ import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.GraphDDLCommandAction;
+import com.runwaysdk.dataaccess.graph.GraphObjectDAOIF;
 import com.runwaysdk.dataaccess.graph.GraphRequest;
-import com.runwaysdk.dataaccess.graph.VertexObjectDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDateDAO;
@@ -271,7 +271,7 @@ public class SearchService
 
     for (ValueOverTime vot : vots)
     {
-      VertexObjectDAOIF value = (VertexObjectDAOIF) vot.getValue();
+      GraphObjectDAOIF value = (GraphObjectDAOIF) vot.getValue();
 
       Set<String> attributeNames = LocalizationService.getLocaleNames();
 

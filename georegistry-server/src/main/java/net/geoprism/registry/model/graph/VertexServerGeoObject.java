@@ -57,6 +57,14 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.locationtech.jts.geom.Envelope;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +87,7 @@ import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.GraphDBService;
+import com.runwaysdk.dataaccess.graph.GraphObjectDAO;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
@@ -97,14 +106,6 @@ import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.metadata.MdVertex;
 import com.runwaysdk.system.metadata.MdVertexQuery;
-import org.locationtech.jts.geom.Envelope;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.MultiLineString;
-import org.locationtech.jts.geom.MultiPoint;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
 
 import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.ontology.Classifier;
@@ -1940,11 +1941,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
   private LocalizedValue getValueLocalized(String attributeName)
   {
-    VertexObjectDAO vertexObjectDAO = null;
+    GraphObjectDAO embeddedObjectDAO = null;
 
     if (this.date == null)
     {
-      vertexObjectDAO = (VertexObjectDAO) this.getMostRecentValue(attributeName);
+      embeddedObjectDAO = (GraphObjectDAO) this.getMostRecentValue(attributeName);
     }
     else
     {
@@ -1952,16 +1953,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
       if (graphObject != null)
       {
-        vertexObjectDAO = (VertexObjectDAO) graphObject.getGraphObjectDAO();
+        embeddedObjectDAO = (GraphObjectDAO) graphObject.getGraphObjectDAO();
       }
     }
 
-    if (vertexObjectDAO == null)
+    if (embeddedObjectDAO == null)
     {
       return new LocalizedValue(null, new HashMap<String, String>());
     }
 
-    return LocalizedValueConverter.convert(vertexObjectDAO);
+    return LocalizedValueConverter.convert(embeddedObjectDAO);
   }
 
   public LocalizedValue getDisplayLabel(Date date)

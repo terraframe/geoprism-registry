@@ -2,7 +2,7 @@ version: '3'
 services:
   orientdb:
     container_name: georegistry-orientdb
-    image: 'orientdb:3.0'
+    image: 'orientdb:3.2'
     environment:
       ORIENTDB_ROOT_PASSWORD: "root"
       ORIENTDB_OPTS_MEMORY: "-Xms512M -Xmx2G"

@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.runwaysdk.dataaccess.graph.GraphObjectDAO;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
@@ -113,7 +114,7 @@ public class ValueOverTimeTest
     Assert.assertEquals(1, votc.size());
     
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(defaultValue, ((VertexObjectDAO) vot.getValue()).getObjectValue(com.runwaysdk.constants.MdAttributeLocalInfo.DEFAULT_LOCALE));
+    Assert.assertEquals(defaultValue, ((GraphObjectDAO) vot.getValue()).getObjectValue(com.runwaysdk.constants.MdAttributeLocalInfo.DEFAULT_LOCALE));
     Assert.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot.getStartDate());
     Assert.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot.getEndDate());
   }
@@ -145,17 +146,17 @@ public class ValueOverTimeTest
     Assert.assertEquals(3, votc.size());
     
     ValueOverTime vot = votc.get(0);
-    Assert.assertEquals(defaultValue, ((VertexObjectDAO) vot.getValue()).getObjectValue(com.runwaysdk.constants.MdAttributeLocalInfo.DEFAULT_LOCALE));
+    Assert.assertEquals(defaultValue, ((GraphObjectDAO) vot.getValue()).getObjectValue(com.runwaysdk.constants.MdAttributeLocalInfo.DEFAULT_LOCALE));
     Assert.assertEquals(TestDataSet.DEFAULT_OVER_TIME_DATE, vot.getStartDate());
     Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 4), vot.getEndDate());
     
     ValueOverTime vot2 = votc.get(1);
-    Assert.assertEquals(newValue, ((VertexObjectDAO) vot2.getValue()).getObjectValue(com.runwaysdk.constants.MdAttributeLocalInfo.DEFAULT_LOCALE));
+    Assert.assertEquals(newValue, ((GraphObjectDAO) vot2.getValue()).getObjectValue(com.runwaysdk.constants.MdAttributeLocalInfo.DEFAULT_LOCALE));
     Assert.assertEquals(addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), vot2.getStartDate());
     Assert.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, -5), vot2.getEndDate());
     
     ValueOverTime vot3 = votc.get(2);
-    Assert.assertEquals(defaultValue, ((VertexObjectDAO) vot3.getValue()).getObjectValue(com.runwaysdk.constants.MdAttributeLocalInfo.DEFAULT_LOCALE));
+    Assert.assertEquals(defaultValue, ((GraphObjectDAO) vot3.getValue()).getObjectValue(com.runwaysdk.constants.MdAttributeLocalInfo.DEFAULT_LOCALE));
     Assert.assertEquals(addDay(TestDataSet.DEFAULT_END_TIME_DATE, -4), vot3.getStartDate());
     Assert.assertEquals(TestDataSet.DEFAULT_END_TIME_DATE, vot3.getEndDate());
   }

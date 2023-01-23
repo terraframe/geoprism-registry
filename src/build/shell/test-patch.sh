@@ -83,8 +83,8 @@ target/yq -i ".services.postgres.volumes += [\"$(pwd)/target/postgres.backup:/tm
 
 # Load testdb into orientdb
 cd target && sudo docker-compose up -d orientdb && sleep 15 && cd ..
-sudo docker run --rm -e ORIENTDB_ROOT_PASSWORD=root --network=host -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.0 /orientdb/bin/console.sh CREATE DATABASE remote:localhost/georegistry root root plocal
-sudo docker run --rm -e ORIENTDB_ROOT_PASSWORD=root --network=host -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.0 /orientdb/bin/console.sh "connect remote:localhost/georegistry root root; import database /tmp/data/orientdb.backup.json; UPDATE OUser SET password = \"admin\" WHERE name = \"admin\""
+sudo docker run --rm -e ORIENTDB_ROOT_PASSWORD=root --network=host -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.2 /orientdb/bin/console.sh CREATE DATABASE remote:localhost/georegistry root root plocal
+sudo docker run --rm -e ORIENTDB_ROOT_PASSWORD=root --network=host -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.2 /orientdb/bin/console.sh "connect remote:localhost/georegistry root root; import database /tmp/data/orientdb.backup.json; UPDATE OUser SET password = \"admin\" WHERE name = \"admin\""
 
 # Boot the server
 cd target && sudo docker-compose up -d && cd ..
@@ -123,7 +123,7 @@ cd target && sudo docker-compose down && cd ..
 
 
 # Export the patched database and upload to S3
-#sudo docker run --rm -e ORIENTDB_ROOT_PASSWORD=root --network=host -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.0 /orientdb/bin/console.sh "connect remote:localhost/georegistry root root; export database /tmp/data/orientdb.backup.json"
+#sudo docker run --rm -e ORIENTDB_ROOT_PASSWORD=root --network=host -v "$(pwd)/target/orientdb.backup.json:/tmp/data/orientdb.backup.json" orientdb:3.2 /orientdb/bin/console.sh "connect remote:localhost/georegistry root root; export database /tmp/data/orientdb.backup.json"
 #sudo docker exec georegistry-postgres bash -c 'PGPASSWORD="root" /usr/bin/pg_dump --host localhost --port 5432 --username "postgres" --format custom --blobs --password --verbose --file "/tmp/data/postgres.backup" "georegistry"'
 
 #export PATCH_TO_VERSION=0.19.7
