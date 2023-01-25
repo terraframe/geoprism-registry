@@ -319,6 +319,42 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>dataset-cambodia</id>
+      <activation>
+        <property>
+          <name>dataset-cambodia</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.2.1</version>
+            <executions>
+              <execution>
+                <id>dataset-cambodia</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>java</goal>
+                </goals>
+                <configuration>
+                  <executable>java</executable>
+                  <mainClass>net.geoprism.registry.test.CambodiaTestDataset</mainClass>
+                  <systemProperties>
+                    <systemProperty>
+                      <key>envcfg</key>
+                      <value>${project.basedir}/../envcfg</value>
+                    </systemProperty>
+                  </systemProperties>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <build>
