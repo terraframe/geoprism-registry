@@ -51,7 +51,7 @@
                       <span>{{defaultLocaleView.label.localizedValue}}</span>
                     </label>
                     <label *ngFor="let l of locales" class="radio" style="font-weight: inherit;">
-                      <input class="inline-radio-input" type="radio" name="{{l.toString}}" [value]="l.toString" (change)="setLocale()" [(ngModel)]="locale">
+                      <input class="inline-radio-input" type="radio" [name]="l.toString" [value]="l.toString" (change)="setLocale()" [(ngModel)]="locale">
                       <span>{{l.label.localizedValue}}</span>
                     </label>
                 </div>

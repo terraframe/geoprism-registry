@@ -56,6 +56,10 @@ import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONException;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,10 +129,7 @@ import com.runwaysdk.system.metadata.MdAttributeDouble;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.MultiPoint;
-import org.locationtech.jts.geom.Point;
+import com.runwaysdk.system.scheduler.ExecutableJob;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.gis.geoserver.GeoserverFacade;
@@ -137,6 +138,10 @@ import net.geoprism.registry.command.GeoserverCreateWMSCommand;
 import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.curation.ListCurationHistory;
+import net.geoprism.registry.etl.PublishListTypeVersionJob;
+import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
+import net.geoprism.registry.etl.PublishShapefileJob;
+import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.localization.DefaultLocaleView;
 import net.geoprism.registry.masterlist.ListAttribute;
@@ -791,12 +796,12 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   public void delete()
   {
     // Delete all jobs
-    // List<ExecutableJob> jobs = this.getJobs();
-    //
-    // for (ExecutableJob job : jobs)
-    // {
-    // job.delete();
-    // }
+    List<ExecutableJob> jobs = this.getJobs();
+
+    for (ExecutableJob job : jobs)
+    {
+      job.delete();
+    }
 
     // Delete tile cache
     ListTileCache.deleteTiles(this);
@@ -823,31 +828,20 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     SerializedListTypeCache.getInstance().remove(this.getListTypeOid());
   }
 
-  // public List<ExecutableJob> getJobs()
-  // {
-  // LinkedList<ExecutableJob> jobs = new LinkedList<ExecutableJob>();
-  //
-  // PublishShapefileJobQuery psjq = new PublishShapefileJobQuery(new
-  // QueryFactory());
-  // psjq.WHERE(psjq.getVersion().EQ(this));
-  //
-  // try (OIterator<? extends PublishShapefileJob> it = psjq.getIterator())
-  // {
-  // jobs.addAll(it.getAll());
-  // }
-  //
-  // PublishListTypeVersionJobQuery pmlvj = new
-  // PublishListTypeVersionJobQuery(new QueryFactory());
-  // pmlvj.WHERE(pmlvj.getListTypeVersion().EQ(this));
-  //
-  // try (OIterator<? extends PublishListTypeVersionJob> it =
-  // pmlvj.getIterator())
-  // {
-  // jobs.addAll(it.getAll());
-  // }
-  //
-  // return jobs;
-  // }
+  public List<ExecutableJob> getJobs()
+  {
+    LinkedList<ExecutableJob> jobs = new LinkedList<ExecutableJob>();
+
+    PublishListTypeVersionJobQuery pmlvj = new PublishListTypeVersionJobQuery(new QueryFactory());
+    pmlvj.WHERE(pmlvj.getVersion().EQ(this));
+
+    try (OIterator<? extends PublishListTypeVersionJob> it = pmlvj.getIterator())
+    {
+      jobs.addAll(it.getAll());
+    }
+
+    return jobs;
+  }
 
   public File generateShapefile()
   {

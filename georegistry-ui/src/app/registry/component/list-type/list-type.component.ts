@@ -3,7 +3,7 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ConfirmModalComponent } from "@shared/component";
-import { AuthService, LocalizationService } from "@shared/service";
+import { AuthService, DateService, LocalizationService } from "@shared/service";
 import { ListType, ListTypeEntry, ListTypeVersion } from "@registry/model/list-type";
 import { ListTypePublishModalComponent } from "./publish-modal.component";
 import { ListTypeService } from "@registry/service/list-type.service";
@@ -37,7 +37,8 @@ export class ListTypeComponent implements OnInit, OnDestroy {
         private modalService: BsModalService,
         private localizeService: LocalizationService,
         private geomService: GeometryService,
-        private authService: AuthService) { }
+        private authService: AuthService,
+        private dateService: DateService) { }
 
     ngOnInit(): void {
         this.isRC = this.authService.isGeoObjectTypeOrSuperRC({
@@ -71,12 +72,19 @@ export class ListTypeComponent implements OnInit, OnDestroy {
     }
 
     onCreateEntries(): void {
-        // Expand the most recent version by default
         this.service.createEntries(this.list.oid).then(list => {
             list.entries.forEach(entry => {
                 if (this.list.entries.findIndex(e => e.oid === entry.oid) === -1) {
                     this.list.entries.push(entry);
                 }
+
+                // Order by date
+                this.list.entries.sort((a, b) => {
+                    const date1 = this.dateService.getDateFromDateString(a.forDate);
+                    const date2 = this.dateService.getDateFromDateString(b.forDate);
+
+                    return date2.getTime() - date1.getTime();
+                });
             });
         }).catch((err: HttpErrorResponse) => {
             this.error.emit(err);
