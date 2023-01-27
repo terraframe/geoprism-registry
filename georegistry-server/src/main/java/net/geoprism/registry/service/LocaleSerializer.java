@@ -52,6 +52,10 @@ public class LocaleSerializer extends DefaultSerializer implements CustomSeriali
     {
       object.addProperty(LocalizedValue.LOCALIZED_VALUE, value);
     }
+    else 
+    {
+      object.addProperty(LocalizedValue.LOCALIZED_VALUE, localizedValue.getValue(LocalizedValue.DEFAULT_LOCALE));
+    }
   }
   
   /**

@@ -59,7 +59,7 @@ public class RegistryLocalizationController extends RunwaySpringController
   
   public static class LocaleBody 
   {
-    @NotEmpty
+    @NotNull
     private String locale;
     
     public String getLocale()
