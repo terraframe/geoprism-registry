@@ -10,9 +10,9 @@ import * as ColorGen from "color-generator";
 import { GeoObject, GeoObjectType, GeoObjectTypeCache } from "@registry/model/registry";
 import { ModalState, PANEL_SIZE_STATE } from "@registry/model/location-manager";
 
-import { MapService, GeometryService } from "@registry/service";
+import { MapService, GeometryService, SEARCH_DATASOURCE_ID } from "@registry/service";
 import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@shared/component";
+import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent, ErrorModalComponent } from "@shared/component";
 
 import { AuthService, LocalizationService } from "@shared/service";
 import { ListTypeService } from "@registry/service/list-type.service";
@@ -36,6 +36,7 @@ import { ListTypeVersion } from "@registry/model/list-type";
 import { ConfigurationService } from "@core/service/configuration.service";
 import EnvironmentUtil from "@core/utility/environment-util";
 import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
+import { FeatureCollection } from "@turf/turf";
 
 class SelectedObject {
 
@@ -728,35 +729,57 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             ((layer.dataSource instanceof SearchLayerDataSource) && (layer.dataSource as SearchLayerDataSource).getText() === this.searchFieldText && (layer.dataSource as SearchLayerDataSource).getDate() === this.dateFieldValue)
         );
 
+        // Remove the existing search data source
+        this.geomService.unregisterDataSource(SEARCH_DATASOURCE_ID);
+
         // Add our search layer
         if (this.searchFieldText != null && this.searchFieldText !== "") {
             let dataSource = new SearchLayerDataSource(this.mapService, this.searchFieldText, this.dateFieldValue);
-            let layer = dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + this.searchFieldText + ")", true, ColorGen().hexString());
-            layers.splice(0, 0, layer);
-            this.geomService.zoomOnReady(layer.getId());
 
-            layers = layers.filter(l =>
-                l.getPinned() || // Always keep pinned layers
-                (
-                    !(l.dataSource instanceof ValueOverTimeDataSource) && !(l.dataSource instanceof GeoObjectLayerDataSource) && // Remove All Geo-Object layers
-                    !(l.dataSource instanceof RelationshipVisualizionDataSource) // Remove all Relationship Visualization layers
-                )
-            );
+            dataSource.getLayerData().then(data => {
+                this.geomService.registerDataSource(dataSource);
+
+                const collection = data as FeatureCollection;
+
+                if (data != null && collection.features.length > 0) {
+                    let layer = dataSource.createLayer(this.lService.decode("explorer.search.layer") + " (" + this.searchFieldText + ")", true, ColorGen().hexString());
+                    layers.splice(0, 0, layer);
+                    this.geomService.zoomOnReady(layer.getId());
+
+                    layers = layers.filter(l =>
+                        l.getPinned() || // Always keep pinned layers
+                        (
+                            !(l.dataSource instanceof ValueOverTimeDataSource) && !(l.dataSource instanceof GeoObjectLayerDataSource) && // Remove All Geo-Object layers
+                            !(l.dataSource instanceof RelationshipVisualizionDataSource) // Remove all Relationship Visualization layers
+                        )
+                    );
+                }
+                else {
+                    this.data = [];
+
+                    let confirmBsModalRef = this.modalService.show(ErrorModalComponent, {
+                        animated: true,
+                        backdrop: true,
+                        ignoreBackdropClick: true
+                    });
+                    confirmBsModalRef.content.message = this.lService.decode("explorer.search.no.results");
+                }
+
+                let newState: LocationManagerState = {
+                    text: this.searchFieldText,
+                    date: this.dateFieldValue,
+                    type: null,
+                    code: null,
+                    version: null,
+                    uid: null,
+                    layers: this.geomService.serializeLayers(layers)
+                };
+
+                this.updateState(newState, true);
+            });
         } else {
             this.data = [];
         }
-
-        let newState: LocationManagerState = {
-            text: this.searchFieldText,
-            date: this.dateFieldValue,
-            type: null,
-            code: null,
-            version: null,
-            uid: null,
-            layers: this.geomService.serializeLayers(layers)
-        };
-
-        this.updateState(newState, true);
     }
 
     loadSearchFromState(): void {
@@ -768,7 +791,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         this.spinner.show(this.CONSTANTS.SEARCH_OVERLAY);
 
+        const cached = this.geomService.getRegisteredDataSource(SEARCH_DATASOURCE_ID) as SearchLayerDataSource;
+
         let dataSource = new SearchLayerDataSource(this.mapService, this.state.text, this.state.date);
+
+        // Use the cached search data source if its the same to avoid another trip to the server
+        if (cached != null && cached.getKey() === dataSource.getKey()) {
+            dataSource = cached;
+        }
 
         dataSource.getLayerData().then((data: any) => {
             this.spinner.hide(this.CONSTANTS.SEARCH_OVERLAY);
@@ -961,7 +991,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.searchFieldText = match.item.name;
 
             this.search();
-        } 
+        }
     }
 
 
