@@ -9,6 +9,7 @@ import { GeoObject } from "@registry/model/registry";
 
 import { environment } from 'src/environments/environment';
 import { ConfigurationService } from "@core/service/configuration.service";
+import { firstValueFrom } from "rxjs";
 
 @Injectable()
 export class MapService {
@@ -62,6 +63,27 @@ export class MapService {
                 }
             }))
             .toPromise();
+    }
+
+    labels(text: string, date: string, showOverlay: boolean = true): Promise<{ label: string, name: string, code: string }> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("text", text);
+
+        if (date != null) {
+            params = params.set("date", date);
+        }
+
+        if (showOverlay) {
+            this.eventService.start();
+        }
+
+        return firstValueFrom(this.http
+            .get<{ label: string, name: string, code: string }>(environment.apiUrl + "/api/registrylocation/labels", { params: params })
+            .pipe(finalize(() => {
+                if (showOverlay) {
+                    this.eventService.complete();
+                }
+            })));
     }
 
 }

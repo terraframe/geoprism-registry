@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -28,10 +28,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.build.domain.SearchTablePatch;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.USATestData;
 
 public class SearchServiceTest
@@ -94,7 +96,7 @@ public class SearchServiceTest
     Assert.assertEquals(3, service.search(USATestData.TEST_DATA_KEY + "ColoradoDistrict", date, 10L).size());
     Assert.assertEquals(1, service.search(USATestData.TEST_DATA_KEY, date, 1L).size());
   }
-  
+
   @Test
   @Request
   public void testWhitespace()
@@ -103,23 +105,23 @@ public class SearchServiceTest
     service.clear();
     service.deleteSearchTable();
     service.createSearchTable();
-    
+
     new SearchTablePatch().createRecords(service);
-    
+
     Date date = USATestData.DEFAULT_OVER_TIME_DATE;
-    
+
     List<ServerGeoObjectIF> results = service.search(USATestData.CO_D_ONE.getDisplayLabel() + " ", date, 10L);
-    
+
     Assert.assertEquals(1, results.size());
-    
+
     ServerGeoObjectIF result = results.get(0);
-    
+
     Assert.assertEquals(result.getCode(), USATestData.CO_D_ONE.getCode());
-    
+
     Assert.assertEquals(3, service.search(USATestData.TEST_DATA_KEY + "ColoradoDistrict", date, 10L).size());
     Assert.assertEquals(1, service.search(USATestData.TEST_DATA_KEY, date, 1L).size());
   }
-  
+
   @Test
   @Request
   public void testSpecialCharacters()
@@ -128,16 +130,16 @@ public class SearchServiceTest
     service.clear();
     service.deleteSearchTable();
     service.createSearchTable();
-    
+
     new SearchTablePatch().createRecords(service);
-    
+
     Date date = USATestData.DEFAULT_OVER_TIME_DATE;
-    
+
     List<ServerGeoObjectIF> results = service.search(":~", date, 10L);
-    
-    Assert.assertEquals(0, results.size());    
+
+    Assert.assertEquals(0, results.size());
   }
-  
+
   @Test
   @Request
   public void testSearchNull()
@@ -146,13 +148,37 @@ public class SearchServiceTest
     service.clear();
     service.deleteSearchTable();
     service.createSearchTable();
-    
+
     new SearchTablePatch().createRecords(service);
-    
+
     Date date = USATestData.DEFAULT_OVER_TIME_DATE;
-    
+
     List<ServerGeoObjectIF> results = service.search(null, date, 10L);
-    
-    Assert.assertTrue(results.size() > 0);    
+
+    Assert.assertTrue(results.size() > 0);
   }
+  
+  @Test
+  @Request
+  public void testSearchLabels()
+  {
+    SearchService service = new SearchService();
+    service.clear();
+    service.deleteSearchTable();
+    service.createSearchTable();
+
+    new SearchTablePatch().createRecords(service);
+
+    Date date = USATestData.DEFAULT_OVER_TIME_DATE;
+
+    List<JsonObject> results = service.labels(USATestData.CO_D_ONE.getDisplayLabel(), date, 10L);
+
+    Assert.assertEquals(1, results.size());
+
+    JsonObject result = results.get(0);
+
+    Assert.assertEquals(result.get("code").getAsString(), USATestData.CO_D_ONE.getCode());
+  }
+
+
 }

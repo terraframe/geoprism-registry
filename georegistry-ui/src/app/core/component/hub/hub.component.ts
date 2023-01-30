@@ -72,14 +72,20 @@ export class HubComponent implements OnInit {
 
     open(application: Application): void {
 
-        if (application.url.includes("location-manager")) {
-            application.url = application.url + "?pageContext=EXPLORER";
-        }
-
         if (application.url.startsWith("#/")) {
-            this.router.navigate([application.url.substring(2)]);
+            let queryParams = {};
+
+            if (application.url.includes("location-manager")) {
+                queryParams = { 'pageContext': 'EXPLORER' };
+            }
+
+            this.router.navigate([application.url.substring(2)], { queryParams: queryParams });
         }
         else {
+            if (application.url.includes("location-manager")) {
+                application.url = application.url + "?pageContext=EXPLORER";
+            }
+
             let url = this.context;
 
             if (this.baseHref != null) {

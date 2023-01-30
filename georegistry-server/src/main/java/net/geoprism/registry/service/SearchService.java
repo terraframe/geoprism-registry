@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -25,10 +25,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.graph.GraphQuery;
@@ -275,13 +277,14 @@ public class SearchService
 
       Set<String> attributeNames = LocalizationService.getLocaleNames();
 
-      Set<String> labels = new HashSet<String>(); // Using a set so we don't have duplicates
-      
+      Set<String> labels = new HashSet<String>(); // Using a set so we don't
+                                                  // have duplicates
+
       for (String attributeName : attributeNames)
       {
         labels.add(value.getObjectValue(attributeName));
       }
-      
+
       for (String label : labels)
       {
         if (label != null && label.length() > 0)
@@ -326,19 +329,20 @@ public class SearchService
     {
       String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
       String escapedText = text.replaceAll(regex, "\\\\\\\\$1").trim();
-      escapedText = escapedText.replaceAll("\\'", "\\\\'"); // Special usecase for apostrophes
-      
+      escapedText = escapedText.replaceAll("\\'", "\\\\'"); // Special usecase
+                                                            // for apostrophes
+
       String[] escapedTokens = StringUtils.split(escapedText, " ");
       String term;
       if (escapedTokens.length == 1)
       {
-          term = escapedText + "*";
+        term = escapedText + "*";
       }
-      else 
+      else
       {
-          term = "(\"" + escapedText + "\"^" + escapedTokens.length + " " + StringUtils.join(escapedTokens, "* ") + "*)";
+        term = "(\"" + escapedText + "\"^" + escapedTokens.length + " " + StringUtils.join(escapedTokens, "* ") + "*)";
       }
-      
+
       statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", '+" + label.getColumnName() + ":" + term + "') = true");
       statement.append(" OR :code = " + code.getColumnName() + ")");
     }
@@ -384,17 +388,19 @@ public class SearchService
     }
 
     List<VertexObject> results = query.getResults();
-    
+
     Set<String> codeSet = new HashSet<String>();
 
     for (VertexObject result : results)
     {
       MdVertexDAOIF mdVertexType = (MdVertexDAOIF) result.getMdClass();
       ServerGeoObjectType type = ServerGeoObjectType.get(mdVertexType);
-      
+
       VertexServerGeoObject vsgo = new VertexServerGeoObject(type, result, date);
-      
-      // Due to the way we add multiple records (for different locales) for Geo-Objects we may have duplicates. Remove them now as it will be confusing to the end user.
+
+      // Due to the way we add multiple records (for different locales) for
+      // Geo-Objects we may have duplicates. Remove them now as it will be
+      // confusing to the end user.
       String key = type.getCode() + GeoObjectCache.SEPARATOR + vsgo.getCode();
       if (!codeSet.contains(key))
       {
@@ -402,6 +408,98 @@ public class SearchService
         codeSet.add(key);
       }
     }
+
+    return list;
+  }
+
+  public List<JsonObject> labels(String text, Date date, Long limit)
+  {
+    String suffix = this.getSuffix();
+
+    RolePermissionService service = new RolePermissionService();
+
+    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(PACKAGE + "." + VERTEX_PREFIX + suffix);
+    MdAttributeDAOIF code = mdVertex.definesAttribute(CODE);
+    MdAttributeDAOIF startDate = mdVertex.definesAttribute(START_DATE);
+    MdAttributeDAOIF endDate = mdVertex.definesAttribute(END_DATE);
+    MdAttributeDAOIF label = mdVertex.definesAttribute(LABEL);
+    MdAttributeDAOIF vertexType = mdVertex.definesAttribute(VERTEX_TYPE);
+    String attributeName = label.getValue(MdAttributeTextInfo.NAME);
+    String className = mdVertex.getDBClassName();
+    String indexName = className + "." + attributeName;
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT " + label.getColumnName() + " AS label, " + code.getColumnName() + " AS code");
+    statement.append(" FROM " + mdVertex.getDBClassName());
+
+    if (text != null)
+    {
+      String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
+      String escapedText = text.replaceAll(regex, "\\\\\\\\$1").trim();
+      escapedText = escapedText.replaceAll("\\'", "\\\\'"); // Special usecase
+                                                            // for apostrophes
+
+      String[] escapedTokens = StringUtils.split(escapedText, " ");
+      String term;
+      if (escapedTokens.length == 1)
+      {
+        term = escapedText + "*";
+      }
+      else
+      {
+        term = "(\"" + escapedText + "\"^" + escapedTokens.length + " " + StringUtils.join(escapedTokens, "* ") + "*)";
+      }
+
+      statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", '+" + label.getColumnName() + ":" + term + "') = true");
+      statement.append(" OR :code = " + code.getColumnName() + ")");
+    }
+    else
+    {
+      statement.append(" WHERE " + code.getColumnName() + " IS NOT NULL");
+    }
+
+    if (date != null)
+    {
+      statement.append(" AND :date BETWEEN " + startDate.getColumnName() + " AND " + endDate.getColumnName());
+    }
+
+    if (!service.isSRA() && service.hasSessionUser())
+    {
+      statement.append(" AND " + vertexType.getColumnName() + " IN ( :vertexTypes )");
+    }
+
+    statement.append(" ORDER BY " + label.getColumnName() + " DESC");
+
+    if (limit != null)
+    {
+      statement.append(" LIMIT " + limit);
+    }
+
+    GraphQuery<Map<String, Object>> query = new GraphQuery<Map<String, Object>>(statement.toString());
+
+    if (text != null)
+    {
+      query.setParameter("code", text);
+    }
+
+    if (date != null)
+    {
+      query.setParameter("date", date);
+    }
+
+    if (!service.isSRA() && service.hasSessionUser())
+    {
+      List<String> vertexTypes = new GeoObjectPermissionService().getMandateTypes(service.getOrganization());
+      query.setParameter("vertexTypes", vertexTypes);
+    }
+
+    List<JsonObject> list = query.getResults().stream().map(result -> {
+      JsonObject object = new JsonObject();
+      object.addProperty("label", result.get("label") + " - " + result.get("code"));
+      object.addProperty("name", (String) result.get("label"));
+      object.addProperty("code", (String) result.get("code"));
+      return object;
+    }).collect(Collectors.toList());
 
     return list;
   }
