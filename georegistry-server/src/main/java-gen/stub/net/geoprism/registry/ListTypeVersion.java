@@ -140,8 +140,6 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.curation.ListCurationHistory;
 import net.geoprism.registry.etl.PublishListTypeVersionJob;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
-import net.geoprism.registry.etl.PublishShapefileJob;
-import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.localization.DefaultLocaleView;
 import net.geoprism.registry.masterlist.ListAttribute;
@@ -856,6 +854,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     }
 
     final File file = new File(directory, filename);
+    
+    List<ListColumn> columns = this.getAttributeColumns();
 
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
 
@@ -863,7 +863,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     try
     {
-      ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(this, mdBusiness, mdAttributes, null, null);
+      ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(this, mdBusiness, columns, mdAttributes, null, null);
 
       try (final InputStream istream = exporter.export())
       {
@@ -1522,6 +1522,16 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
   private JsonArray getAttributesAsJson()
   {
+    List<ListColumn> columns = this.getAttributeColumns();
+
+    JsonArray array = columns.stream().map(m -> m.toJSON()).collect(() -> new JsonArray(), (a, e) -> a.add(e), (listA, listB) -> {
+    });
+
+    return array;
+  }
+
+  public List<ListColumn> getAttributeColumns()
+  {
     List<ListColumn> columns = new LinkedList<ListColumn>();
 
     String mdBusinessId = this.getMdBusinessOid();
@@ -1554,11 +1564,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         }
       }
     }
-
-    JsonArray array = columns.stream().map(m -> m.toJSON()).collect(() -> new JsonArray(), (a, e) -> a.add(e), (listA, listB) -> {
-    });
-
-    return array;
+    return columns;
   }
 
   public void removeAttributeType(AttributeType attributeType)

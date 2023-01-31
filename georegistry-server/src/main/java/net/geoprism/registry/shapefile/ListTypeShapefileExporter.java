@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.shapefile;
 
@@ -52,6 +52,12 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -86,12 +92,6 @@ import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.gis.dataaccess.MdAttributePolygonDAOIF;
 import com.runwaysdk.gis.dataaccess.MdAttributeShapeDAOIF;
 import com.runwaysdk.query.OIterator;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.MultiLineString;
-import org.locationtech.jts.geom.MultiPoint;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
 
 import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.ListType;
@@ -100,6 +100,10 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.excel.ListTypeExcelExporter;
 import net.geoprism.registry.excel.ListTypeExcelExporter.ListMetadataSource;
 import net.geoprism.registry.excel.ListTypeExcelExporter.ListTypeExcelExporterSheet;
+import net.geoprism.registry.masterlist.AbstractListColumnVisitor;
+import net.geoprism.registry.masterlist.ListAttribute;
+import net.geoprism.registry.masterlist.ListColumn;
+import net.geoprism.registry.masterlist.ListColumnVisitor;
 
 public class ListTypeShapefileExporter
 {
@@ -115,16 +119,19 @@ public class ListTypeShapefileExporter
 
   private MdBusinessDAOIF                          mdBusiness;
 
+  private List<ListColumn>                         columns;
+
   private List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
   private JsonObject                               criteria;
 
   private String                                   actualGeometryType;
 
-  public ListTypeShapefileExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, JsonObject criteria, String actualGeometryType)
+  public ListTypeShapefileExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<ListColumn> columns, List<? extends MdAttributeConcreteDAOIF> mdAttributes, JsonObject criteria, String actualGeometryType)
   {
     this.version = version;
     this.mdBusiness = mdBusiness;
+    this.columns = columns;
     this.mdAttributes = mdAttributes;
     this.criteria = criteria;
     this.actualGeometryType = actualGeometryType;
@@ -246,7 +253,7 @@ public class ListTypeShapefileExporter
 
       try (FileOutputStream fos = new FileOutputStream(file))
       {
-        ListTypeExcelExporter exporter = new ListTypeExcelExporter(this.version, mdBusiness, mdAttributes, new ListTypeExcelExporterSheet[] { ListTypeExcelExporterSheet.DICTIONARY, ListTypeExcelExporterSheet.METADATA }, criteria, ListMetadataSource.GEOSPATIAL);
+        ListTypeExcelExporter exporter = new ListTypeExcelExporter(this.version, mdBusiness, columns, mdAttributes, new ListTypeExcelExporterSheet[] { ListTypeExcelExporterSheet.DICTIONARY, ListTypeExcelExporterSheet.METADATA }, criteria, ListMetadataSource.GEOSPATIAL);
 
         Workbook wb = exporter.createWorkbook();
 
@@ -353,19 +360,44 @@ public class ListTypeShapefileExporter
 
         builder.set(GEOM, row.getObjectValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME));
 
-        for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
+        ListColumnVisitor visitor = new AbstractListColumnVisitor()
         {
-          String attributeName = mdAttribute.definesAttribute();
-          Object value = row.getObjectValue(attributeName);
-          String columnName = this.getColumnName(attributeName);
-          AttributeDescriptor descriptor = featureType.getDescriptor(columnName);
-          AttributeType attributeType = descriptor.getType();
-
-          if (value != null && attributeType.getBinding().isAssignableFrom(value.getClass()))
+          @Override
+          public void accept(ListAttribute attribute)
           {
-            builder.set(columnName, value);
+            mdAttributes.stream().filter(p -> p.definesAttribute().equals(attribute.getName())).findAny().ifPresent((mdAttribute) -> {
+              String attributeName = mdAttribute.definesAttribute();
+              Object value = row.getObjectValue(attributeName);
+              String columnName = ListTypeShapefileExporter.this.getColumnName(attributeName);
+              AttributeDescriptor descriptor = featureType.getDescriptor(columnName);
+              AttributeType attributeType = descriptor.getType();
+
+              if (value != null && attributeType.getBinding().isAssignableFrom(value.getClass()))
+              {
+                builder.set(columnName, value);
+              }
+            });
           }
-        }
+        };
+        
+        this.columns.forEach(column -> column.visit(visitor));
+
+
+        // for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
+        // {
+        // String attributeName = mdAttribute.definesAttribute();
+        // Object value = row.getObjectValue(attributeName);
+        // String columnName = this.getColumnName(attributeName);
+        // AttributeDescriptor descriptor =
+        // featureType.getDescriptor(columnName);
+        // AttributeType attributeType = descriptor.getType();
+        //
+        // if (value != null &&
+        // attributeType.getBinding().isAssignableFrom(value.getClass()))
+        // {
+        // builder.set(columnName, value);
+        // }
+        // }
 
         SimpleFeature feature = builder.buildFeature(row.getValue(DefaultAttribute.CODE.getName()));
         features.add(feature);
@@ -388,9 +420,23 @@ public class ListTypeShapefileExporter
     builder.setCRS(DefaultGeographicCRS.WGS84);
     builder.add(GEOM, this.getShapefileType(geometryAttribute, actualGeometryType), 4326);
 
-    this.mdAttributes.forEach(attribute -> {
-      builder.add(generateColumnName(attribute.definesAttribute()), this.getShapefileType(attribute));
-    });
+    ListColumnVisitor visitor = new AbstractListColumnVisitor()
+    {
+      @Override
+      public void accept(ListAttribute attribute)
+      {
+        mdAttributes.stream().filter(p -> p.definesAttribute().equals(attribute.getName())).findAny().ifPresent((mdAttribute) -> {
+          builder.add(ListTypeShapefileExporter.this.generateColumnName(mdAttribute.definesAttribute()), ListTypeShapefileExporter.this.getShapefileType(mdAttribute));
+        });
+      }
+    };
+
+    this.columns.forEach(column -> column.visit(visitor));
+
+    // this.mdAttributes.forEach(attribute -> {
+    // builder.add(generateColumnName(attribute.definesAttribute()),
+    // this.getShapefileType(attribute));
+    // });
 
     return builder.buildFeatureType();
   }

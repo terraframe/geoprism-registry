@@ -51,6 +51,7 @@ import net.geoprism.registry.excel.ListTypeExcelExporter;
 import net.geoprism.registry.excel.ListTypeExcelExporter.ListMetadataSource;
 import net.geoprism.registry.excel.MasterListExcelExporter;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.masterlist.ListColumn;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
@@ -262,6 +263,8 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     ListTypeVersion version = ListTypeVersion.get(oid);
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
     JsonObject criteria = ( json != null ) ? JsonParser.parseString(json).getAsJsonObject() : new JsonObject();
+    
+    List<ListColumn> columns = version.getAttributeColumns();
 
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
 
@@ -281,7 +284,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     try
     {
-      ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, criteria, actualGeometryType);
+      ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, columns, mdAttributes, criteria, actualGeometryType);
 
       return exporter.export();
     }
@@ -298,6 +301,8 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
     JsonObject criteria = ( json != null ) ? JsonParser.parseString(json).getAsJsonObject() : new JsonObject();
 
+    List<ListColumn> columns = version.getAttributeColumns();
+
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
 
     if (json != null && json.contains("invalid"))
@@ -317,7 +322,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     try
     {
-      ListTypeExcelExporter exporter = new ListTypeExcelExporter(version, mdBusiness, mdAttributes, null, criteria, ListMetadataSource.LIST);
+      ListTypeExcelExporter exporter = new ListTypeExcelExporter(version, mdBusiness, columns, mdAttributes, null, criteria, ListMetadataSource.LIST);
 
       return exporter.export();
     }

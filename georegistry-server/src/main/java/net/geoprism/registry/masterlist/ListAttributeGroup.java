@@ -112,4 +112,12 @@ public class ListAttributeGroup implements ListColumn
   {
     return name;
   }
+  
+  @Override
+  public void visit(ListColumnVisitor visitor)
+  {
+    visitor.accept(this);
+    
+    this.columns.forEach(column -> column.visit(visitor));
+  }
 }
