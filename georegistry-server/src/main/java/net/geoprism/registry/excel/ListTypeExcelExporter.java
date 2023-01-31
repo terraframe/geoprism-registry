@@ -49,24 +49,18 @@ import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
-import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
-import org.locationtech.jts.geom.Point;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.AttributeType;
 
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
-import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.masterlist.AbstractListColumnVisitor;
 import net.geoprism.registry.masterlist.ListAttribute;
 import net.geoprism.registry.masterlist.ListColumn;
 import net.geoprism.registry.masterlist.ListColumnVisitor;
-import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
+import net.geoprism.registry.shapefile.ShapefileColumnNameGenerator;
 
 public class ListTypeExcelExporter
 {
@@ -75,8 +69,6 @@ public class ListTypeExcelExporter
   private ListType                                 list;
 
   private ListTypeVersion                          version;
-
-  private MdBusinessDAOIF                          mdBusiness;
 
   private List<ListColumn>                         columns;
 
@@ -92,6 +84,8 @@ public class ListTypeExcelExporter
 
   private ListMetadataSource                       metadataSource;
 
+  private ShapefileColumnNameGenerator             generator;
+
   public static enum ListTypeExcelExporterSheet {
     DATA, METADATA, DICTIONARY
   }
@@ -100,14 +94,19 @@ public class ListTypeExcelExporter
     LIST, GEOSPATIAL
   }
 
-  public ListTypeExcelExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<ListColumn> columns, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria, ListMetadataSource metadataSource)
+  public ListTypeExcelExporter(ListTypeVersion version, List<ListColumn> columns, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria, ListMetadataSource metadataSource)
+  {
+    this(version, columns, mdAttributes, includedSheets, criteria, metadataSource, new ShapefileColumnNameGenerator());
+  }
+
+  public ListTypeExcelExporter(ListTypeVersion version, List<ListColumn> columns, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria, ListMetadataSource metadataSource, ShapefileColumnNameGenerator generator)
   {
     this.version = version;
-    this.mdBusiness = mdBusiness;
     this.columns = columns;
     this.mdAttributes = mdAttributes;
     this.criteria = criteria;
     this.metadataSource = metadataSource;
+    this.generator = generator;
 
     if (includedSheets != null)
     {
@@ -169,17 +168,46 @@ public class ListTypeExcelExporter
   {
     Sheet sheet = workbook.createSheet(getSheetName(workbook, "masterlist.data.dictionary"));
 
+    if (metadataSource.equals(ListMetadataSource.GEOSPATIAL))
+    {
+      String attributeLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.attribute");
+      String descriptionLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.description");
+      String columnLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.columnName");
+      
+      ListTypeExcelExporter.this.createRow(sheet, 0, boldStyle, attributeLabel, columnLabel, descriptionLabel);
+    }
+    else
+    {
+      String attributeLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.attribute");
+      String descriptionLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.description");
+
+      ListTypeExcelExporter.this.createRow(sheet, 0, boldStyle, attributeLabel, descriptionLabel);
+    }
+
     Locale locale = Session.getCurrentLocale();
 
     ListColumnVisitor visitor = new AbstractListColumnVisitor()
     {
-      int rowNumber = 0;
+      private int rowNumber = 1;
 
       @Override
       public void accept(ListAttribute attribute)
       {
         mdAttributes.stream().filter(p -> p.definesAttribute().equals(attribute.getName())).findAny().ifPresent((mdAttribute) -> {
-          ListTypeExcelExporter.this.createRow(sheet, locale, rowNumber++, mdAttribute, mdAttribute.getDescription(locale));
+          String label = mdAttribute.getDisplayLabel(locale);
+          String description = mdAttribute.getDescription(locale);
+
+          if (metadataSource.equals(ListMetadataSource.GEOSPATIAL))
+          {
+            String shapefileColumnName = ListTypeExcelExporter.this.generator.getColumnName(mdAttribute.definesAttribute());
+
+            ListTypeExcelExporter.this.createRow(sheet, rowNumber++, null, label, shapefileColumnName, description);
+          }
+          else
+          {
+            ListTypeExcelExporter.this.createRow(sheet, rowNumber++, null, label, description);
+          }
+
         });
       }
     };
@@ -287,6 +315,24 @@ public class ListTypeExcelExporter
     this.createRow(sheet, rowNum, label, value);
   }
 
+  private void createRow(Sheet sheet, int rowNum, CellStyle style, String... values)
+  {
+    int cellNum = 0;
+
+    Row row = sheet.createRow(rowNum);
+
+    for (String value : values)
+    {
+      Cell cell = row.createCell(cellNum++);
+      cell.setCellValue(value);
+
+      if (style != null)
+      {
+        cell.setCellStyle(style);
+      }
+    }
+  }
+
   private void createRow(Sheet sheet, int rowNum, String label, Object value)
   {
     Row row = sheet.createRow(rowNum);
@@ -311,12 +357,6 @@ public class ListTypeExcelExporter
     Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(this.getList().getDisplayLabel().getValue()));
 
     Row header = sheet.createRow(0);
-
-    // MdAttributeGeometryDAOIF geometryAttribute = (MdAttributeGeometryDAOIF)
-    // this.mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-    //
-    // boolean includeCoordinates = ( geometryAttribute instanceof
-    // MdAttributePointDAOIF );
 
     this.writeHeader(this.boldStyle, header);
 
@@ -388,76 +428,12 @@ public class ListTypeExcelExporter
 
     // Write the row
 
-    // MdAttributeConcreteDAOIF mdGeometry =
-    // mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-    //
-    // if (mdGeometry instanceof MdAttributePointDAOIF)
-    // {
-    // Point point = (Point)
-    // object.getObjectValue(mdGeometry.definesAttribute());
-    //
-    // if (point != null)
-    // {
-    // row.createCell(col++).setCellValue(point.getX());
-    // row.createCell(col++).setCellValue(point.getY());
-    // }
-    // }
-    //
-    // for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
-    // {
-    // String attributeName = mdAttribute.definesAttribute();
-    // Object value = object.getObjectValue(attributeName);
-    //
-    // Cell cell = row.createCell(col++);
-    //
-    // if (value != null)
-    // {
-    // if (value instanceof String)
-    // {
-    // cell.setCellValue((String) value);
-    // }
-    // else if (value instanceof Date)
-    // {
-    // cell.setCellValue((Date) value);
-    // cell.setCellStyle(dateStyle);
-    // }
-    // else if (value instanceof Number)
-    // {
-    // cell.setCellValue( ( (Number) value ).doubleValue());
-    // }
-    // else if (value instanceof Boolean)
-    // {
-    // cell.setCellValue((Boolean) value);
-    // }
-    // }
-    // }
   }
 
   public void writeHeader(CellStyle boldStyle, Row header)
   {
     // int col = 0;
     Locale locale = Session.getCurrentLocale();
-    //
-    // MdAttributeConcreteDAOIF mdGeometry =
-    // mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-    //
-    // if (mdGeometry instanceof MdAttributePointDAOIF)
-    // {
-    // Cell longitude = header.createCell(col++);
-    // longitude.setCellStyle(boldStyle);
-    // longitude.setCellValue(LocalizationFacade.getFromBundles(GeoObjectImportConfiguration.LONGITUDE_KEY));
-    //
-    // Cell latitude = header.createCell(col++);
-    // latitude.setCellStyle(boldStyle);
-    // latitude.setCellValue(LocalizationFacade.getFromBundles(GeoObjectImportConfiguration.LATITUDE_KEY));
-    // }
-    //
-    // for (MdAttributeConcreteDAOIF mdAttribute : this.mdAttributes)
-    // {
-    // Cell cell = header.createCell(col++);
-    // cell.setCellStyle(boldStyle);
-    // cell.setCellValue(mdAttribute.getDisplayLabel(locale));
-    // }
 
     ListColumnVisitor visitor = new AbstractListColumnVisitor()
     {

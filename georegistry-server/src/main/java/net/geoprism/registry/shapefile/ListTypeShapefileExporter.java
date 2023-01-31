@@ -40,7 +40,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.geotools.data.DefaultTransaction;
 import org.geotools.data.Transaction;
 import org.geotools.data.collection.ListFeatureCollection;
@@ -111,11 +110,11 @@ public class ListTypeShapefileExporter
 
   public static final String                       GEOM   = "the_geom";
 
-  private Map<String, String>                      columnNames;
-
   private ListType                                 list;
 
   private ListTypeVersion                          version;
+
+  private ShapefileColumnNameGenerator             generator;
 
   private MdBusinessDAOIF                          mdBusiness;
 
@@ -135,14 +134,9 @@ public class ListTypeShapefileExporter
     this.mdAttributes = mdAttributes;
     this.criteria = criteria;
     this.actualGeometryType = actualGeometryType;
-    this.columnNames = new HashMap<String, String>();
 
     this.list = version.getListType();
-  }
-
-  public Map<String, String> getColumnNames()
-  {
-    return columnNames;
+    this.generator = new ShapefileColumnNameGenerator();
   }
 
   public ListType getList()
@@ -253,7 +247,7 @@ public class ListTypeShapefileExporter
 
       try (FileOutputStream fos = new FileOutputStream(file))
       {
-        ListTypeExcelExporter exporter = new ListTypeExcelExporter(this.version, mdBusiness, columns, mdAttributes, new ListTypeExcelExporterSheet[] { ListTypeExcelExporterSheet.DICTIONARY, ListTypeExcelExporterSheet.METADATA }, criteria, ListMetadataSource.GEOSPATIAL);
+        ListTypeExcelExporter exporter = new ListTypeExcelExporter(this.version, columns, mdAttributes, new ListTypeExcelExporterSheet[] { ListTypeExcelExporterSheet.DICTIONARY, ListTypeExcelExporterSheet.METADATA }, criteria, ListMetadataSource.GEOSPATIAL, this.generator);
 
         Workbook wb = exporter.createWorkbook();
 
@@ -368,7 +362,7 @@ public class ListTypeShapefileExporter
             mdAttributes.stream().filter(p -> p.definesAttribute().equals(attribute.getName())).findAny().ifPresent((mdAttribute) -> {
               String attributeName = mdAttribute.definesAttribute();
               Object value = row.getObjectValue(attributeName);
-              String columnName = ListTypeShapefileExporter.this.getColumnName(attributeName);
+              String columnName = generator.getColumnName(attributeName);
               AttributeDescriptor descriptor = featureType.getDescriptor(columnName);
               AttributeType attributeType = descriptor.getType();
 
@@ -379,9 +373,8 @@ public class ListTypeShapefileExporter
             });
           }
         };
-        
-        this.columns.forEach(column -> column.visit(visitor));
 
+        this.columns.forEach(column -> column.visit(visitor));
 
         // for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
         // {
@@ -426,7 +419,7 @@ public class ListTypeShapefileExporter
       public void accept(ListAttribute attribute)
       {
         mdAttributes.stream().filter(p -> p.definesAttribute().equals(attribute.getName())).findAny().ifPresent((mdAttribute) -> {
-          builder.add(ListTypeShapefileExporter.this.generateColumnName(mdAttribute.definesAttribute()), ListTypeShapefileExporter.this.getShapefileType(mdAttribute));
+          builder.add(generator.generateColumnName(mdAttribute.definesAttribute()), ListTypeShapefileExporter.this.getShapefileType(mdAttribute));
         });
       }
     };
@@ -439,57 +432,6 @@ public class ListTypeShapefileExporter
     // });
 
     return builder.buildFeatureType();
-  }
-
-  public String getColumnName(String name)
-  {
-    if (this.columnNames.containsKey(name))
-    {
-      return this.columnNames.get(name);
-    }
-
-    throw new ProgrammingErrorException("Unable to find column name with key [" + name + "]");
-  }
-
-  public String generateColumnName(String name)
-  {
-    if (!this.columnNames.containsKey(name))
-    {
-      String format = this.format(name);
-
-      int count = 1;
-
-      String value = format;
-
-      while (this.columnNames.containsValue(value))
-      {
-        if (count == 1)
-        {
-          format = format.substring(0, format.length() - 1);
-        }
-
-        if (count == 10)
-        {
-          format = format.substring(0, format.length() - 1);
-        }
-
-        value = format + ( count++ );
-      }
-
-      this.columnNames.put(name, value);
-    }
-
-    return this.columnNames.get(name);
-  }
-
-  private String format(String name)
-  {
-    if (name.equals(GeoObject.DISPLAY_LABEL))
-    {
-      return "label";
-    }
-
-    return name.substring(0, Math.min(10, name.length()));
   }
 
   private Class<?> getShapefileType(MdAttributeConcreteDAOIF mdAttribute)

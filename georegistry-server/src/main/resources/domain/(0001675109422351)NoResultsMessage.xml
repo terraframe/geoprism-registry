@@ -28,6 +28,27 @@
           <attribute name="defaultLocale" value="No Geo-Objects found for the given search" />
         </attributeStruct>
       </object>                        
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.dictionary.attribute">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.dictionary.attribute" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Attribute" />
+        </attributeStruct>
+      </object>                        
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.dictionary.description">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.dictionary.description" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Description" />
+        </attributeStruct>
+      </object>                        
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.dictionary.columnName">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.dictionary.columnName" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Shapefile header" />
+        </attributeStruct>
+      </object>                        
       
     </createOrUpdate>
   </doIt>

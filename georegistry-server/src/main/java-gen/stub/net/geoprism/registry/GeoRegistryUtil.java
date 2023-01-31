@@ -322,7 +322,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     try
     {
-      ListTypeExcelExporter exporter = new ListTypeExcelExporter(version, mdBusiness, columns, mdAttributes, null, criteria, ListMetadataSource.LIST);
+      ListTypeExcelExporter exporter = new ListTypeExcelExporter(version, columns, mdAttributes, null, criteria, ListMetadataSource.LIST);
 
       return exporter.export();
     }
