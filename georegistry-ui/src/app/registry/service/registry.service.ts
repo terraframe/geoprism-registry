@@ -56,15 +56,11 @@ export class RegistryService implements AttributeTypeService {
     }
 
     // param types: array of GeoObjectType codes. If empty array then all GeoObjectType objects are returned.
-    getGeoObjectTypes(types: string[], hierarchies: string[]): Promise<GeoObjectType[]> {
+    getGeoObjectTypes(types: string[]): Promise<GeoObjectType[]> {
         let params: HttpParams = new HttpParams();
 
         if (types != null) {
             params = params.set("types", JSON.stringify(types));
-        }
-
-        if (hierarchies != null) {
-            params = params.set("hierarchies", JSON.stringify(hierarchies));
         }
 
         return this.http

@@ -48,12 +48,11 @@ public class GeoObjectTypeService
    * 
    * @param codes
    *          codes of the {@link GeoObjectType}s.
-   * @param hierarchies
    * @param context
    * @return the {@link GeoObjectType}s with the given codes or all
    *         {@link GeoObjectType}s if no codes are provided.
    */
-  public List<GeoObjectType> getGeoObjectTypes(String[] codes, String[] hierarchies, PermissionContext context)
+  public List<GeoObjectType> getGeoObjectTypes(String[] codes, PermissionContext context)
   {
     List<GeoObjectType> gots;
 
@@ -106,30 +105,6 @@ public class GeoObjectTypeService
         {
           it.remove();
           continue; // If we don't have continue here, then it could invoke it.remove twice which throws an error.
-        }
-      }
-
-      if (hierarchies != null && hierarchies.length > 0)
-      {
-        List<ServerHierarchyType> hts = serverGot.getHierarchies();
-
-        boolean contains = false;
-        OuterLoop: for (ServerHierarchyType ht : hts)
-        {
-          for (String hierarchy : hierarchies)
-          {
-            if (ht.getCode().equals(hierarchy))
-            {
-              contains = true;
-              break OuterLoop;
-            }
-          }
-        }
-
-        if (!contains)
-        {
-          it.remove();
-          continue;
         }
       }
     }

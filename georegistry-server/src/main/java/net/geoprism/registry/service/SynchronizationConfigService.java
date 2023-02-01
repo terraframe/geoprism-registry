@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -68,8 +67,8 @@ import net.geoprism.registry.etl.fhir.FhirExportSynchronizationManager;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 
@@ -119,16 +118,21 @@ public class SynchronizationConfigService
   @Request(RequestType.SESSION)
   public JsonObject getConfigForExternalSystem(String sessionId, String externalSystemId, String hierarchyTypeCode)
   {
+    ServerHierarchyType sht = ServerHierarchyType.get(hierarchyTypeCode);
+    
+    List<ServerGeoObjectType> gots = sht.getAllTypes();
+    
     JsonObject ret = new JsonObject();
 
     // Add GeoObjectTypes
-    GeoObjectType[] gots = service.getGeoObjectTypes(sessionId, null, new String[] { hierarchyTypeCode }, PermissionContext.WRITE);
+//    GeoObjectType[] gots = service.getGeoObjectTypes(sessionId, null, new String[] { hierarchyTypeCode }, PermissionContext.WRITE);
+    
     CustomSerializer serializer = service.serializer(sessionId);
 
     JsonArray jarray = new JsonArray();
-    for (int i = 0; i < gots.length; ++i)
+    for (ServerGeoObjectType got : gots)
     {
-      jarray.add(gots[i].toJSON(serializer));
+      jarray.add(got.toJSON(serializer));
     }
 
     ret.add("types", jarray);

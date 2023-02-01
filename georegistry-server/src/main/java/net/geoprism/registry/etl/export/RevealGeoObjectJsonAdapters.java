@@ -169,7 +169,7 @@ public class RevealGeoObjectJsonAdapters
         throw new UnsupportedOperationException("Multiple GeoObjectType parents not supported when 'includeLevel' is specified.");
       }
 
-      List<GeoObjectType> ancestors = this.got.getTypeAncestors(this.hierarchyType, true);
+      List<ServerGeoObjectType> ancestors = this.got.getTypeAncestors(this.hierarchyType, true);
 
       this.depth = ancestors.size();
     }

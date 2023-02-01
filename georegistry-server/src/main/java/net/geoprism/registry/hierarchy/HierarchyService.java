@@ -73,7 +73,7 @@ public class HierarchyService
 
         JsonArray allHierTypes = new JsonArray();
 
-        List<ServerGeoObjectType> types = sht.getAllTypes();
+        List<ServerGeoObjectType> types = sht.getAllTypes(false);
 
         for (ServerGeoObjectType type : types)
         {
@@ -139,7 +139,7 @@ public class HierarchyService
     {
       if (htpService.canRead(sHT.getOrganizationCode()))
       {
-        List<GeoObjectType> parents = geoObjectType.getTypeAncestors(sHT, true);
+        List<ServerGeoObjectType> parents = geoObjectType.getTypeAncestors(sHT, true);
 
         if (parents.size() > 0 || geoObjectType.isRoot(sHT))
         {
@@ -151,10 +151,8 @@ public class HierarchyService
           {
             JsonArray pArray = new JsonArray();
 
-            for (GeoObjectType parent : parents)
+            for (ServerGeoObjectType pType : parents)
             {
-              ServerGeoObjectType pType = ServerGeoObjectType.get(parent);
-
               if (!pType.getCode().equals(geoObjectType.getCode()) && grpService.canViewChild(sHT.getOrganizationCode(), null, pType))
               {
                 JsonObject pObject = new JsonObject();

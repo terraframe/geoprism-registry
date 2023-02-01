@@ -243,14 +243,12 @@ public class UpdateAttributeViewJsonAdapters
         sptns = newParent.getParentsForHierarchy(sht, true, startDate);
       }
       
-      List<GeoObjectType> parentTypes = cType.getTypeAncestors(sht, false);
+      List<ServerGeoObjectType> parentTypes = cType.getTypeAncestors(sht, false);
       
       for (ServerParentTreeNode node : sptns.getParents())
       {
-        for (GeoObjectType parent : parentTypes)
+        for (ServerGeoObjectType pType : parentTypes)
         {
-          ServerGeoObjectType pType = ServerGeoObjectType.get(parent);
-          
           if (!pType.getCode().equals(cType.getCode()))
           {
             ServerParentTreeNode match = null;

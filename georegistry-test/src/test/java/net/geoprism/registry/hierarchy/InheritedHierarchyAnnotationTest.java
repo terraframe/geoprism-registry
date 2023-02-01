@@ -117,11 +117,25 @@ public class InheritedHierarchyAnnotationTest
     {
       List<? extends InheritedHierarchyAnnotation> annotations = InheritedHierarchyAnnotation.getByUniversal(sGOT.getUniversal());
 
-      Assert.assertEquals(1, annotations.size());
+      Assert.assertEquals(2, annotations.size());
 
-      InheritedHierarchyAnnotation test = annotations.get(0);
-
-      Assert.assertEquals(test.getOid(), annotation.getOid());
+      for (InheritedHierarchyAnnotation dbanno : annotations)
+      {
+        String forHierCode = dbanno.getForHierarchicalRelationshipType().getCode();
+        
+        if (forHierCode.equals(TEST_HT.getCode()))
+        {
+          Assert.assertEquals(dbanno.getOid(), annotation.getOid());
+        }
+        else if (forHierCode.equals(FastTestDataset.HIER_SPLIT_CHILD.getCode()))
+        {
+          continue;
+        }
+        else
+        {
+          throw new UnsupportedOperationException("Unexpected inherited hierarchy with code [" + forHierCode + "].");
+        }
+      }
     }
     finally
     {
@@ -377,7 +391,7 @@ public class InheritedHierarchyAnnotationTest
     {
       ServerGeoObjectType childType = TEST_CHILD.getServerObject();
 
-      List<GeoObjectType> results = childType.getTypeAncestors(TEST_HT.getServerObject(), true);
+      List<ServerGeoObjectType> results = childType.getTypeAncestors(TEST_HT.getServerObject(), true);
 
       Assert.assertEquals(2, results.size());
     }
@@ -401,7 +415,7 @@ public class InheritedHierarchyAnnotationTest
     {
       ServerGeoObjectType childType = TEST_CHILD.getServerObject();
 
-      List<GeoObjectType> results = childType.getTypeAncestors(TEST_HT.getServerObject(), false);
+      List<ServerGeoObjectType> results = childType.getTypeAncestors(TEST_HT.getServerObject(), false);
 
       Assert.assertEquals(1, results.size());
     }

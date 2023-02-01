@@ -55,6 +55,7 @@ import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.locationtech.jts.geom.Envelope;
@@ -694,24 +695,39 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
   public List<VertexServerGeoObject> getAncestors(ServerHierarchyType hierarchy)
   {
-    return getAncestors(hierarchy, false);
+    return getAncestors(hierarchy, false, false);
   }
 
-  public List<VertexServerGeoObject> getAncestors(ServerHierarchyType hierarchy, boolean includeNonExist)
+  public List<VertexServerGeoObject> getAncestors(ServerHierarchyType hierarchy, boolean includeNonExist, boolean includeInherited)
   {
     List<VertexServerGeoObject> list = new LinkedList<VertexServerGeoObject>();
-
-    GraphQuery<VertexObject> query = buildAncestorQuery(hierarchy, includeNonExist);
-
-    List<VertexObject> results = query.getResults();
-
-    results.forEach(result -> {
-      list.add(new VertexServerGeoObject(type, result, this.date));
-    });
-
+    
+    if (includeInherited)
+    {
+      List<ServerGeoObjectType> typeAncestors = this.getType().getTypeAncestors(hierarchy, true);
+      
+      GraphQuery<VertexObject> query = buildAncestorVertexQueryFast(hierarchy, typeAncestors);
+      
+      List<VertexObject> results = query.getResults();
+      
+      results.forEach(result -> {
+        list.add(new VertexServerGeoObject(type, result, this.date));
+      });
+    }
+    else
+    {
+      GraphQuery<VertexObject> query = buildAncestorQuery(hierarchy, includeNonExist);
+  
+      List<VertexObject> results = query.getResults();
+  
+      results.forEach(result -> {
+        list.add(new VertexServerGeoObject(type, result, this.date));
+      });
+    }
+    
     return list;
   }
-
+  
   /**
    * 
    * @param hierarchy
@@ -719,7 +735,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
    *          The parent types, sorted from the top to the bottom
    * @return
    */
-  private GraphQuery<Map<String, Object>> buildAncestorQueryFast(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents)
+  private GraphQuery<VertexObject> buildAncestorVertexQueryFast(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents)
   {
     LinkedList<ServerHierarchyType> inheritancePath = new LinkedList<ServerHierarchyType>();
     inheritancePath.add(hierarchy);
@@ -741,19 +757,76 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     String dbClassName = this.getMdClass().getDBClassName();
 
-    // select code, displayLabel_cot from (
-    // TRAVERSE inE('adh0')[DATE('2021-06-10','yyyy-MM-dd') between startDate
-    // AND endDate].outV() FROM (
-    // TRAVERSE inE('hfgh0')[DATE('2021-06-10','yyyy-MM-dd') between startDate
-    // AND endDate].outV() FROM (
-    // SELECT FROM ch0 WHERE @rid=#65:0
-    // )
-    // )
-    // )
-    // WHERE
-    // exists_cot CONTAINS (value CONTAINS
-    // 'ea48a4be-aa38-4b92-9d5b-dfd10e0005ba' AND
-    // DATE('2021-06-10','yyyy-MM-dd') BETWEEN startDate AND endDate)
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT FROM (");
+
+    for (ServerHierarchyType hier : inheritancePath)
+    {
+      if (this.date != null)
+      {
+        statement.append("TRAVERSE inE('" + hier.getMdEdge().getDBClassName() + "')[:date between startDate AND endDate].outV() FROM (");
+      }
+      else
+      {
+        statement.append("TRAVERSE inE('" + hier.getMdEdge().getDBClassName() + "').outV() FROM (");
+      }
+    }
+
+    statement.append("SELECT FROM " + dbClassName + " WHERE @rid=:rid");
+
+    for (ServerHierarchyType hier : inheritancePath)
+    {
+      statement.append(")");
+    }
+
+    if (this.date != null)
+    {
+      statement.append(") WHERE exists_cot CONTAINS (value=true AND :date BETWEEN startDate AND endDate)");
+    }
+    else
+    {
+      statement.append(") WHERE exists_cot CONTAINS (value=true)");
+    }
+
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+    query.setParameter("rid", this.vertex.getRID());
+
+    if (this.date != null)
+    {
+      query.setParameter("date", this.date);
+    }
+
+    return query;
+  }
+
+  /**
+   * 
+   * @param hierarchy
+   * @param parents
+   *          The parent types, sorted from the top to the bottom
+   * @return
+   */
+  private GraphQuery<Map<String, Object>> buildAncestorSelectQueryFast(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents)
+  {
+    LinkedList<ServerHierarchyType> inheritancePath = new LinkedList<ServerHierarchyType>();
+    inheritancePath.add(hierarchy);
+
+    for (int i = parents.size() - 1; i >= 0; --i)
+    {
+      ServerGeoObjectType parent = parents.get(i);
+
+      if (parent.isRoot(hierarchy))
+      {
+        ServerHierarchyType inheritedHierarchy = parent.getInheritedHierarchy(hierarchy);
+
+        if (inheritedHierarchy != null)
+        {
+          inheritancePath.addFirst(inheritedHierarchy);
+        }
+      }
+    }
+
+    String dbClassName = this.getMdClass().getDBClassName();
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT @class AS cl, " + DefaultAttribute.CODE.getName() + " AS code, " + DefaultAttribute.DISPLAY_LABEL.getName() + "_cot AS label FROM (");
@@ -802,7 +875,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     TreeMap<String, LocationInfo> map = new TreeMap<String, LocationInfo>();
 
-    GraphQuery<Map<String, Object>> query = buildAncestorQueryFast(hierarchy, parents);
+    GraphQuery<Map<String, Object>> query = buildAncestorSelectQueryFast(hierarchy, parents);
 
     List<Map<String, Object>> results = query.getResults();
 

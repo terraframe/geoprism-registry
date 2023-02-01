@@ -180,7 +180,7 @@ export class GeoObjectEditorComponent implements OnInit {
     }
 
     private fetchGeoObjectType(code: string) {
-        this.registryService.getGeoObjectTypes([code], null)
+        this.registryService.getGeoObjectTypes([code])
             .then(geoObjectType => {
                 this.geoObjectType = geoObjectType[0];
 

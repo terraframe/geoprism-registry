@@ -252,8 +252,7 @@ public class GeoObjectTypeController extends RunwaySpringController
    **/
   @GetMapping(RegistryUrls.GEO_OBJECT_TYPE_GET_ALL)
   public ResponseEntity<String> getGeoObjectTypes(
-      @RequestParam(required = false) String types, 
-      @RequestParam(required = false) String hierarchies, 
+      @RequestParam(required = false) String types,
       @RequestParam(required = false) String context)
   {
     String[] aTypes = null;
@@ -268,21 +267,9 @@ public class GeoObjectTypeController extends RunwaySpringController
       }
     }
 
-    String[] aHierarchies = null;
-    if (hierarchies != null)
-    {
-      JSONArray jaHierarchies = new JSONArray(hierarchies);
-
-      aHierarchies = new String[jaHierarchies.length()];
-      for (int i = 0; i < jaHierarchies.length(); i++)
-      {
-        aHierarchies[i] = jaHierarchies.getString(i);
-      }
-    }
-
     PermissionContext pContext = PermissionContext.get(context);
 
-    GeoObjectType[] gots = this.service.getGeoObjectTypes(this.getSessionId(), aTypes, aHierarchies, pContext);
+    GeoObjectType[] gots = this.service.getGeoObjectTypes(this.getSessionId(), aTypes, pContext);
 
     JsonArray jarray = new JsonArray();
     for (int i = 0; i < gots.length; ++i)
@@ -308,7 +295,7 @@ public class GeoObjectTypeController extends RunwaySpringController
   public ResponseEntity<String> listGeoObjectTypes(@NotNull
   @RequestParam Boolean includeAbstractTypes)
   {
-    GeoObjectType[] gots = this.service.getGeoObjectTypes(this.getSessionId(), null, null, PermissionContext.READ);
+    GeoObjectType[] gots = this.service.getGeoObjectTypes(this.getSessionId(), null, PermissionContext.READ);
 
     Arrays.sort(gots, new Comparator<GeoObjectType>()
     {

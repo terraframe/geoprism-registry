@@ -128,9 +128,9 @@ public class RegistryComponentService
     service.deleteOrganization(sessionId, code);
   }
 
-  public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes, String[] hierarchies, PermissionContext context)
+  public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes, PermissionContext context)
   {
-    return service.getGeoObjectTypes(sessionId, codes, hierarchies, context);
+    return service.getGeoObjectTypes(sessionId, codes, context);
   }
 
   public JsonObject serialize(String sessionId, GeoObjectType got)

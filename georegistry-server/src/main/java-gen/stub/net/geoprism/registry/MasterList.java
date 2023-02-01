@@ -238,14 +238,7 @@ public class MasterList extends MasterListBase
         String hCode = hierarchy.get("code").getAsString();
         ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
 
-        List<GeoObjectType> dtoAncestors = type.getTypeAncestors(hierarchyType, true);
-
-        List<ServerGeoObjectType> ancestors = new LinkedList<ServerGeoObjectType>();
-
-        for (GeoObjectType ancestor : dtoAncestors)
-        {
-          ancestors.add(ServerGeoObjectType.get(ancestor));
-        }
+        List<ServerGeoObjectType> ancestors = type.getTypeAncestors(hierarchyType, true);
 
         map.put(hierarchyType, ancestors);
       }

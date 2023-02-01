@@ -49,6 +49,8 @@ import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.model.DHIS2Locale;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.HierarchicalRelationshipType;
+import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.DHIS2SyncLevel;
@@ -57,6 +59,7 @@ import net.geoprism.registry.etl.export.ExportRemoteException;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.InvalidGeometryException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
@@ -393,8 +396,25 @@ public class DHIS2GeoObjectJsonAdapters
       String directParentId = null;
       
       List<String> ancestorExternalIds = new ArrayList<String>();
-
-      List<VertexServerGeoObject> ancestors = serverGo.getAncestors(this.hierarchyType, this.dhis2Config.getSyncNonExistent());
+      
+      List<VertexServerGeoObject> ancestors = new ArrayList<VertexServerGeoObject>();
+      
+      if (serverGo.getType().isRoot(this.hierarchyType))
+      {
+        InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.get(serverGo.getType().getUniversal(), this.hierarchyType.getHierarchicalRelationshipType());
+        
+        if (anno != null)
+        {
+          HierarchicalRelationshipType hrt = anno.getInheritedHierarchicalRelationshipType();
+          ServerHierarchyType shtInherited = ServerHierarchyType.get(hrt);
+          
+          ancestors = serverGo.getAncestors(shtInherited, this.dhis2Config.getSyncNonExistent(), true);
+        }
+      }
+      else
+      {
+        ancestors = serverGo.getAncestors(this.hierarchyType, this.dhis2Config.getSyncNonExistent(), true);
+      }
 
       Collections.reverse(ancestors);
       

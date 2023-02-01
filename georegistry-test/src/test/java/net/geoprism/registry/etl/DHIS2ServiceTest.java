@@ -46,6 +46,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -74,6 +78,7 @@ import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
@@ -101,13 +106,17 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.AllAttributesDataset;
+import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestAttributeTypeInfo;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
+import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = { TestConfig.class })
 public class DHIS2ServiceTest
 {
   public static final TestGeoObjectInfo GO_NO_PARENT = new TestGeoObjectInfo("BOOL_NO_PARENT", AllAttributesDataset.GOT_BOOL);
@@ -121,19 +130,28 @@ public class DHIS2ServiceTest
   public static final String GO_NO_DEFAULT_LOCALE_CANADA_LABEL = "some canada value eh";
   
   protected static AllAttributesDataset  testData;
+  
+  protected static FastTestDataset       fastTestData;
 
   protected SynchronizationConfigService syncService;
 
   protected ExternalSystem               system;
 
   protected DHIS2TestService             dhis2;
+  
+  @Autowired
+  private TestRegistryClient   client;
 
   @BeforeClass
   public static void setUpClass()
   {
     TestDataSet.deleteExternalSystems("DHIS2ExportTest");
+    
     testData = AllAttributesDataset.newTestData();
     testData.setUpMetadata();
+    
+    fastTestData = FastTestDataset.newTestData();
+    fastTestData.setUpMetadata();
     
     LocalizationFacade.install(Locale.CANADA);
 
@@ -149,12 +167,14 @@ public class DHIS2ServiceTest
     LocalizationFacade.uninstall(Locale.CANADA);
     
     testData.tearDownMetadata();
+    fastTestData.tearDownMetadata();
   }
 
   @Before
   public void setUp()
   {
     testData.setUpInstanceData();
+    fastTestData.setUpInstanceData();
     
     this.dhis2 = new DHIS2TestService();
     DHIS2ServiceFactory.setDhis2TransportService(this.dhis2);
@@ -203,6 +223,7 @@ public class DHIS2ServiceTest
     GO_NO_DEFAULT_LOCALE.delete();
 
     testData.tearDownInstanceData();
+    fastTestData.tearDownInstanceData();
 
     // deleteExternalIds();
     TestDataSet.deleteExternalSystems("DHIS2ExportTest");
@@ -720,9 +741,9 @@ public class DHIS2ServiceTest
     Assert.assertTrue("Affected rows [" + ee.getAffectedRows() + "] is not what we expected.", ArrayUtils.contains(validRows, ee.getAffectedRows()));
     
     hist = ExportHistory.get(jo.get("historyId").getAsString());
-    Assert.assertEquals(new Long(5), hist.getWorkTotal());
-    Assert.assertEquals(new Long(5), hist.getWorkProgress());
-    Assert.assertEquals(new Long(2), hist.getExportedRecords());
+    Assert.assertEquals(Long.valueOf(5), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(5), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(2), hist.getExportedRecords());
   }
   
   /*
@@ -790,12 +811,12 @@ public class DHIS2ServiceTest
     Assert.assertEquals(1, query.getCount());
     
     ExportError ee = query.getIterator().next();
-    Assert.assertEquals(new Integer(401), ee.getErrorCode());
+    Assert.assertEquals(Integer.valueOf(401), ee.getErrorCode());
     Assert.assertEquals("Missing required property `openingDate`.", ee.getErrorMessage());
     Assert.assertEquals(DHIS2TestService.SIERRA_LEONE_ID, JsonParser.parseString(ee.getSubmittedJson()).getAsJsonObject().get("id").getAsString());
     JsonParser.parseString(ee.getResponseJson()).getAsJsonObject();
     Assert.assertEquals(AllAttributesDataset.GO_BOOL.getServerObject().getCode(), ee.getCode());
-    Assert.assertEquals(new Long(1), ee.getRowIndex());
+    Assert.assertEquals(Long.valueOf(1), ee.getRowIndex());
   }
   
   private void testExists(Collection<DHIS2AttributeMapping> paramMappings) throws Exception
@@ -1127,24 +1148,186 @@ public class DHIS2ServiceTest
     for (TestUserInfo user : users)
     {
       TestDataSet.runAsUser(user, (request) -> {
-//        JsonObject jo = adapter.getConfigForExternalSystem(this.system.getOid(), AllAttributesDataset.HIER.getCode());
-//
-//        Assert.assertTrue(jo.has("types"));
-//        JsonArray types = jo.get("types").getAsJsonArray();
-//
-//        Assert.assertTrue(types.size() == 7 || types.size() == 8);
-//
-//        Assert.assertTrue(jo.has("orgUnitGroups"));
-//        JsonArray orgUnitGroups = jo.get("orgUnitGroups").getAsJsonArray();
-//
-//        Assert.assertEquals(18, orgUnitGroups.size());
+        JsonObject jo = client.getConfigForExternalSystem(this.system.getOid(), AllAttributesDataset.HIER.getCode());
+
+        Assert.assertTrue(jo.has("types"));
+        JsonArray types = jo.get("types").getAsJsonArray();
+
+        Assert.assertTrue(types.size() == 7 || types.size() == 8);
+
+        Assert.assertTrue(jo.has("orgUnitGroups"));
+        JsonArray orgUnitGroups = jo.get("orgUnitGroups").getAsJsonArray();
+
+        Assert.assertEquals(18, orgUnitGroups.size());
       });
     }
+  }
+  
+  @Test
+  public void testGetConfigForExternalSystemInheritedHierarchy()
+  {
+    TestUserInfo[] users = new TestUserInfo[] { AllAttributesDataset.USER_ADMIN, AllAttributesDataset.USER_ORG_RA };
+
+    for (TestUserInfo user : users)
+    {
+      TestDataSet.runAsUser(user, (request) -> {
+        JsonObject jo = client.getConfigForExternalSystem(this.system.getOid(), FastTestDataset.HIER_SPLIT_CHILD.getCode());
+
+        Assert.assertTrue(jo.has("types"));
+        JsonArray types = jo.get("types").getAsJsonArray();
+        
+        Assert.assertEquals(3, types.size());
+
+        Assert.assertTrue(types.toString() + " did not contain " + FastTestDataset.COUNTRY.getCode(), types.toString().contains(FastTestDataset.COUNTRY.getCode()));
+        Assert.assertTrue(types.toString() + " did not contain " + FastTestDataset.PROVINCE.getCode(), types.toString().contains(FastTestDataset.PROVINCE.getCode()));
+        Assert.assertTrue(types.toString() + " did not contain " + FastTestDataset.DISTRICT.getCode(), types.toString().contains(FastTestDataset.DISTRICT.getCode()));
+
+        Assert.assertTrue(jo.has("orgUnitGroups"));
+        JsonArray orgUnitGroups = jo.get("orgUnitGroups").getAsJsonArray();
+
+        Assert.assertEquals(18, orgUnitGroups.size());
+      });
+    }
+  }
+  
+  @Request
+  public Object[] testSyncWithInheritedHierarchyConfig() throws Exception
+  {
+    // Define reusable objects
+    final ServerHierarchyType ht = FastTestDataset.HIER_SPLIT_CHILD.getServerObject();
+    final Organization org = AllAttributesDataset.ORG.getServerObject();
+
+    // Create DHIS2 Sync Config
+    DHIS2SyncConfig dhis2Config = new DHIS2SyncConfig();
+    dhis2Config.setHierarchy(ht);
+    dhis2Config.setHierarchyCode(ht.getCode());
+    dhis2Config.setLabel(new LocalizedValue("DHIS2 Export Test Data"));
+    dhis2Config.setOrganization(org);
+    dhis2Config.setDate(TestDataSet.DEFAULT_OVER_TIME_DATE);
+    dhis2Config.setSyncNonExistent(false);
+
+    // Populate Levels
+    SortedSet<DHIS2SyncLevel> levels = new TreeSet<DHIS2SyncLevel>();
+
+    DHIS2SyncLevel level = new DHIS2SyncLevel();
+    level.setGeoObjectType(FastTestDataset.COUNTRY.getServerObject().getCode());
+    level.setSyncType(DHIS2SyncLevel.Type.ALL);
+    level.setMappings(getDefaultMappings());
+    level.setLevel(0);
+    levels.add(level);
+
+    DHIS2SyncLevel level2 = new DHIS2SyncLevel();
+    level2.setGeoObjectType(FastTestDataset.PROVINCE.getServerObject().getCode());
+    level2.setSyncType(DHIS2SyncLevel.Type.ALL);
+    level2.setMappings(getDefaultMappings());
+    level2.setLevel(1);
+    levels.add(level2);
+    
+    DHIS2SyncLevel level3 = new DHIS2SyncLevel();
+    level3.setGeoObjectType(FastTestDataset.DISTRICT.getServerObject().getCode());
+    level3.setSyncType(DHIS2SyncLevel.Type.ALL);
+    level3.setMappings(getDefaultMappings());
+    level3.setLevel(2);
+    levels.add(level3);
+
+    dhis2Config.setLevels(levels);
+
+    // Serialize the DHIS2 Config
+    GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(Date.class, new SeverGeoObjectJsonAdapters.DateSerializer());
+    String dhis2JsonConfig = builder.create().toJson(dhis2Config);
+
+    // Create a SynchronizationConfig
+    SynchronizationConfig config = new SynchronizationConfig();
+    config.setConfiguration(dhis2JsonConfig);
+    config.setOrganization(org);
+    config.setHierarchy(ht.getMdTermRelationship());
+    config.setSystem(system.getOid());
+    config.getLabel().setValue("DHIS2 Export Test");
+
+    config.apply();
+    
+    return new Object[] { config, config.getOid() };
+  }
+  
+  @Test
+  public void testSyncWithInheritedHierarchy() throws Exception
+  {
+    Object[] objects = testSyncWithInheritedHierarchyConfig();
+    
+    SynchronizationConfig config = (SynchronizationConfig) objects[0];
+    String configOid = (String) objects[1];
+
+    SynchronizationConfigService service = new SynchronizationConfigService();
+
+    JsonObject joHist = service.run(testData.clientSession.getSessionId(), configOid);
+    
+    testSyncWithInheritedHierarchyValidate(joHist);
+  }
+  
+  @Request
+  public void testSyncWithInheritedHierarchyValidate(JsonObject joHist) throws Exception
+  {
+    ExportHistory hist = ExportHistory.get(joHist.get("historyId").getAsString());
+
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+
+    hist = ExportHistory.get(hist.getOid());
+    Assert.assertEquals(Long.valueOf(4), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(4), hist.getWorkProgress());
+    Assert.assertEquals(ImportStage.COMPLETE.name(), hist.getStage().get(0).name());
+
+    LinkedList<Dhis2Payload> payloads = this.dhis2.getPayloads();
+    Assert.assertEquals(3, payloads.size());
+
+    /*
+     * Payload 0
+     */
+    Dhis2Payload payload = payloads.get(0);
+
+    JsonObject data = JsonParser.parseString(payload.getData()).getAsJsonObject();
+
+    JsonArray orgUnits = data.get("organisationUnits").getAsJsonArray();
+
+    Assert.assertEquals(1, orgUnits.size());
+
+    JsonObject orgUnit = orgUnits.get(0).getAsJsonObject();
+
+    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), orgUnit.get("code").getAsString());
+    
+    /*
+     * Payload 1
+     */
+    Dhis2Payload payload1 = payloads.get(1);
+
+    JsonObject data1 = JsonParser.parseString(payload1.getData()).getAsJsonObject();
+
+    JsonArray orgUnits1 = data1.get("organisationUnits").getAsJsonArray();
+
+    Assert.assertEquals(2, orgUnits1.size());
+
+    Assert.assertTrue("Did not find [" + FastTestDataset.PROV_CENTRAL.getCode() + "] within " + orgUnits1.toString(), orgUnits1.toString().contains(FastTestDataset.PROV_CENTRAL.getCode()));
+    Assert.assertTrue("Did not find [" + FastTestDataset.PROV_WESTERN.getCode() + "] within " + orgUnits1.toString(), orgUnits1.toString().contains(FastTestDataset.PROV_WESTERN.getCode()));
+   
+    /*
+     * Payload 2
+     */
+    Dhis2Payload payload2 = payloads.get(2);
+
+    JsonObject data2 = JsonParser.parseString(payload2.getData()).getAsJsonObject();
+
+    JsonArray orgUnits2 = data2.get("organisationUnits").getAsJsonArray();
+
+    Assert.assertEquals(1, orgUnits2.size());
+
+    JsonObject orgUnit2 = orgUnits2.get(0).getAsJsonObject();
+
+    Assert.assertEquals(FastTestDataset.DIST_CENTRAL.getCode(), orgUnit2.get("code").getAsString());
   }
 
   @Request
   @Test
-  public void testApplySyncConfig() throws Exception
+  public void  testApplySyncConfig() throws Exception
   {
     SynchronizationConfig config = createSyncConfig(this.system, null, false);
 
@@ -1174,8 +1357,8 @@ public class DHIS2ServiceTest
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
     hist = ExportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(1), hist.getWorkTotal());
-    Assert.assertEquals(new Long(1), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
     Assert.assertEquals(ImportStage.COMPLETE.name(), hist.getStage().get(0).name());
 
     LinkedList<Dhis2Payload> payloads = this.dhis2.getPayloads();
@@ -1222,8 +1405,8 @@ public class DHIS2ServiceTest
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
     hist = ExportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(1), hist.getWorkTotal());
-    Assert.assertEquals(new Long(1), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
     Assert.assertEquals(ImportStage.COMPLETE.name(), hist.getStage().get(0).name());
 
     LinkedList<Dhis2Payload> payloads = this.dhis2.getPayloads();

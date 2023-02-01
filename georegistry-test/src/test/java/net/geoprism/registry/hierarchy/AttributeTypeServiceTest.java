@@ -298,7 +298,7 @@ public class AttributeTypeServiceTest
     this.client.createTerm(rootTerm.getCode(), childTerm1.toJSON().toString());
     this.client.createTerm(rootTerm.getCode(), childTerm2.toJSON().toString());
 
-    province = this.client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ)[0];
+    province = this.client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, PermissionContext.READ)[0];
     AttributeTermType attributeTermType2 = (AttributeTermType) province.getAttribute("testTerm").get();
 
     // Check to see if the cache was updated.
@@ -319,14 +319,14 @@ public class AttributeTypeServiceTest
 
     this.client.updateTerm(rootTerm.getCode(), childTerm2.toJSON().toString());
 
-    province = this.client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ)[0];
+    province = this.client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, PermissionContext.READ)[0];
     AttributeTermType attributeTermType3 = (AttributeTermType) province.getAttribute("testTerm").get();
 
     checkTermsUpdate(attributeTermType3);
 
     this.client.deleteTerm(rootTerm.getCode(), "termValue2");
 
-    province = this.client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ)[0];
+    province = this.client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, PermissionContext.READ)[0];
     attributeTermType3 = (AttributeTermType) province.getAttribute("testTerm").get();
 
     System.out.println(attributeTermType3.getRootTerm().toString());

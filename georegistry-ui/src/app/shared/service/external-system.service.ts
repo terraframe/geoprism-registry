@@ -57,14 +57,13 @@ export class ExternalSystemService {
     }
 
     getSystemCapabilities(system: ExternalSystem): Promise<SystemCapabilities> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
+        let params: HttpParams = new HttpParams();
+        params = params.set("system", JSON.stringify(system));
 
         this.eventService.start();
 
         return this.http
-            .post<SystemCapabilities>(environment.apiUrl + "/api/external-system/system-capabilities", JSON.stringify({ system: system }), { headers: headers })
+            .get<SystemCapabilities>(environment.apiUrl + "/api/external-system/system-capabilities", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

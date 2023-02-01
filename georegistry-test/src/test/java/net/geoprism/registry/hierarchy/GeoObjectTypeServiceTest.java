@@ -321,7 +321,7 @@ public class GeoObjectTypeServiceTest
     TEST_GOT.apply();
 
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request) -> {
-      GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.WRITE);
+      GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, PermissionContext.WRITE);
 
       Assert.assertEquals(0, response.length);
     });
@@ -333,7 +333,7 @@ public class GeoObjectTypeServiceTest
     TEST_GOT.apply();
 
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request) -> {
-      GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ);
+      GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, PermissionContext.READ);
 
       Assert.assertEquals(1, response.length);
     });
@@ -348,7 +348,7 @@ public class GeoObjectTypeServiceTest
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, USER_PRIVATE_GOT_RM, FastTestDataset.USER_CGOV_RM, USER_PRIVATE_GOT_RC, USER_PRIVATE_GOT_AC, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC })
     {
       FastTestDataset.runAsUser(user, (request) -> {
-        GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.READ);
+        GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, PermissionContext.READ);
 
         Assert.assertEquals(1, response.length);
       });
@@ -358,7 +358,7 @@ public class GeoObjectTypeServiceTest
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC })
     {
       FastTestDataset.runAsUser(user, (request) -> {
-        GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.READ);
+        GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, PermissionContext.READ);
 
         Assert.assertEquals("User: " + user.getUsername(), 0, response.length);
       });
@@ -368,7 +368,7 @@ public class GeoObjectTypeServiceTest
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_CGOV_RA })
     {
       FastTestDataset.runAsUser(user, (request) -> {
-        GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.WRITE);
+        GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, PermissionContext.WRITE);
 
         Assert.assertEquals(1, response.length);
       });
@@ -378,7 +378,7 @@ public class GeoObjectTypeServiceTest
     for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, USER_PRIVATE_GOT_RM, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, USER_PRIVATE_GOT_RC, USER_PRIVATE_GOT_AC })
     {
       FastTestDataset.runAsUser(user, (request) -> {
-        GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.WRITE);
+        GeoObjectType[] response = client.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, PermissionContext.WRITE);
 
         Assert.assertEquals(0, response.length);
       });
@@ -391,7 +391,7 @@ public class GeoObjectTypeServiceTest
     FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request) -> {
       String[] codes = new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() };
 
-      GeoObjectType[] gots = client.getGeoObjectTypes(codes, null, PermissionContext.READ);
+      GeoObjectType[] gots = client.getGeoObjectTypes(codes, PermissionContext.READ);
 
       Assert.assertEquals(codes.length, gots.length);
 
@@ -404,10 +404,10 @@ public class GeoObjectTypeServiceTest
       FastTestDataset.PROVINCE.assertEquals(district);
 
       // Test to make sure we can provide none
-      GeoObjectType[] gots2 = client.getGeoObjectTypes(new String[] {}, null, PermissionContext.READ);
+      GeoObjectType[] gots2 = client.getGeoObjectTypes(new String[] {}, PermissionContext.READ);
       Assert.assertTrue(gots2.length > 0);
 
-      GeoObjectType[] gots3 = client.getGeoObjectTypes(null, null, PermissionContext.READ);
+      GeoObjectType[] gots3 = client.getGeoObjectTypes(null, PermissionContext.READ);
       Assert.assertTrue(gots3.length > 0);
     });
   }

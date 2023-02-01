@@ -63,7 +63,11 @@
         <artifactId>jts-io-common</artifactId>
         <version>1.17.1</version>
     </dependency>
-    
+    <dependency>
+      <groupId>com.wdtinc</groupId>
+      <artifactId>mapbox-vector-tile</artifactId>
+      <version>3.1.2-TF</version>
+    </dependency>
     <dependency>
       <groupId>net.geoprism</groupId>
       <artifactId>dhis2adapter</artifactId>

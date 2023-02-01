@@ -53,11 +53,6 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
   constructor(private service: SynchronizationConfigService, public localizationService: LocalizationService) { }
 
   ngOnInit(): void {
-    // Get the types
-    // this.registryService.getGeoObjectTypes(null, [this.config.hierarchy]).then(types => {
-    //   this.types = types;
-    // });
-
       if (this.config.configuration == null) {
           this.config.configuration = {
               levels: [],

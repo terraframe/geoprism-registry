@@ -43,7 +43,7 @@ export class GeoObjectTypeCache {
     }
 
     public refresh(): Promise<GeoObjectType[]> {
-        return this.registryService.getGeoObjectTypes(null, null).then(types => {
+        return this.registryService.getGeoObjectTypes(null).then(types => {
             this.refreshPromise = null;
             this.types = types;
             return this.types;

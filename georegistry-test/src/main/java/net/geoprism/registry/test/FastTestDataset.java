@@ -56,6 +56,10 @@ public class FastTestDataset extends TestDataSet
   public static final TestHierarchyTypeInfo     HIER_ADMIN            = new TestHierarchyTypeInfo(TEST_DATA_KEY + "Admin", ORG_CGOV);
 
   public static final TestHierarchyTypeInfo     HIER_HEALTH_ADMIN     = new TestHierarchyTypeInfo(TEST_DATA_KEY + "HealthAdmin", ORG_MOHA);
+  
+  public static final TestHierarchyTypeInfo     HIER_SPLIT_PARENT     = new TestHierarchyTypeInfo(TEST_DATA_KEY + "SplitParent", ORG_CGOV); // Used for testing inheritance
+  
+  public static final TestHierarchyTypeInfo     HIER_SPLIT_CHILD      = new TestHierarchyTypeInfo(TEST_DATA_KEY + "SplitChild", ORG_CGOV); // Used for testing inheritance
 
   public static final TestGeoObjectTypeInfo     COUNTRY               = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Country", GeometryType.MULTIPOLYGON, ORG_CGOV);
 
@@ -129,6 +133,8 @@ public class FastTestDataset extends TestDataSet
 
     managedHierarchyTypeInfos.add(HIER_ADMIN);
     managedHierarchyTypeInfos.add(HIER_HEALTH_ADMIN);
+    managedHierarchyTypeInfos.add(HIER_SPLIT_PARENT);
+    managedHierarchyTypeInfos.add(HIER_SPLIT_CHILD);
 
     managedGeoObjectTypeInfos.add(COUNTRY);
     managedGeoObjectTypeInfos.add(PROVINCE);
@@ -185,6 +191,14 @@ public class FastTestDataset extends TestDataSet
       COUNTRY.addChild(PROVINCE, HIER_HEALTH_ADMIN);
       PROVINCE.addChild(HOSPITAL, HIER_HEALTH_ADMIN);
       PROVINCE.addChild(DISTRICT, HIER_HEALTH_ADMIN);
+      
+      COUNTRY.getUniversal().addLink(Universal.getRoot(), HIER_SPLIT_PARENT.getServerObject().getUniversalType());
+      COUNTRY.addChild(PROVINCE, HIER_SPLIT_PARENT);
+      
+      PROVINCE.getUniversal().addLink(Universal.getRoot(), HIER_SPLIT_CHILD.getServerObject().getUniversalType());
+      PROVINCE.addChild(DISTRICT, HIER_SPLIT_CHILD);
+      
+      PROVINCE.getServerObject().setInheritedHierarchy(HIER_SPLIT_CHILD.getServerObject(), HIER_SPLIT_PARENT.getServerObject());
     }
     catch (DuplicateGraphPathException ex)
     {
@@ -215,6 +229,10 @@ public class FastTestDataset extends TestDataSet
       CAMBODIA.addChild(PROV_CENTRAL, HIER_HEALTH_ADMIN);
       PROV_CENTRAL.addChild(CENTRAL_HOSPITAL, HIER_HEALTH_ADMIN);
       PROV_CENTRAL.addChild(DIST_CENTRAL, HIER_HEALTH_ADMIN);
+      
+      CAMBODIA.addChild(PROV_CENTRAL, HIER_SPLIT_PARENT);
+      CAMBODIA.addChild(PROV_WESTERN, HIER_SPLIT_PARENT);
+      PROV_CENTRAL.addChild(DIST_CENTRAL, HIER_SPLIT_CHILD);
     }
     catch (DuplicateGraphPathException ex)
     {

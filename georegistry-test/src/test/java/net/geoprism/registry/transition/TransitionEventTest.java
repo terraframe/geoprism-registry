@@ -195,7 +195,7 @@ public class TransitionEventTest
 
       Transition transition = event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.DOWNGRADE, TransitionImpact.FULL);
 
-      Assert.assertEquals(6, Task.getTasks(transition.getOid()).size());
+      Assert.assertEquals(8, Task.getTasks(transition.getOid()).size());
 
       List<Transition> transitions = event.getTransitions();
 
@@ -237,7 +237,7 @@ public class TransitionEventTest
 
       Transition transition = event.addTransition(FastTestDataset.PROV_WESTERN.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
-      Assert.assertEquals(3, Task.getTasks(transition.getOid()).size());
+      Assert.assertEquals(4, Task.getTasks(transition.getOid()).size());
 
       List<Transition> transitions = event.getTransitions();
 
@@ -280,7 +280,7 @@ public class TransitionEventTest
 
       List<Task> tasks = Task.getTasks(transition.getOid());
 
-      Assert.assertEquals(6, tasks.size());
+      Assert.assertEquals(8, tasks.size());
     }
     finally
     {

@@ -119,10 +119,11 @@ public class GeoObjectRelationshipServiceTest
     TestDataSet.runAsUser(FastTestDataset.USER_ADMIN, (request) -> {
       JsonArray ptn = client.getHierarchiesForGeoObjectOverTime(FastTestDataset.DIST_CENTRAL.getCode(), FastTestDataset.DISTRICT.getCode());
 
-      Assert.assertEquals(2, ptn.size());
+      Assert.assertEquals(3, ptn.size());
 
       boolean foundAdminHR = false;
       boolean foundHealthHR = false;
+      boolean foundSplitChildHR = false;
 
       for (int i = 0; i < ptn.size(); ++i)
       {
@@ -148,6 +149,14 @@ public class GeoObjectRelationshipServiceTest
           foundHealthHR = true;
 
           testHt = FastTestDataset.HIER_HEALTH_ADMIN;
+        }
+        else if (code.equals(FastTestDataset.HIER_SPLIT_CHILD.getCode()))
+        {
+          foundSplitChildHR = true;
+          
+          testHt = FastTestDataset.HIER_SPLIT_CHILD;
+          
+          continue; // Skip in-depth testing on this inherited hierarchy (for now)
         }
         else
         {
@@ -228,7 +237,7 @@ public class GeoObjectRelationshipServiceTest
         }
       }
 
-      Assert.assertTrue(foundHealthHR && foundAdminHR);
+      Assert.assertTrue(foundHealthHR && foundAdminHR && foundSplitChildHR);
     });
   }
 
@@ -280,7 +289,7 @@ public class GeoObjectRelationshipServiceTest
       TestDataSet.runAsUser(user, (request) -> {
         JsonArray hiers = client.getHierarchiesForGeoObjectOverTime(FastTestDataset.PROV_CENTRAL.getCode(), FastTestDataset.PROVINCE.getCode());
 
-        Assert.assertEquals(2, hiers.size());
+        Assert.assertEquals(4, hiers.size());
 
         // JsonObject hierarchy = hiers.get(0).getAsJsonObject();
         //
@@ -476,7 +485,7 @@ public class GeoObjectRelationshipServiceTest
 
     final List<TestGeoObjectInfo> expectedChildren = new ArrayList<TestGeoObjectInfo>();
     expectedChildren.add(FastTestDataset.PROV_CENTRAL);
-    expectedChildren.add(FastTestDataset.PROV_CENTRAL);
+    expectedChildren.add(FastTestDataset.PROV_CENTRAL_PRIVATE);
     expectedChildren.add(FastTestDataset.PROV_WESTERN);
 
     // Recursive

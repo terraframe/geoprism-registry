@@ -426,7 +426,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       {
 
         ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
-        List<GeoObjectType> ancestors = got.getTypeAncestors(hierarchyType, true);
+        List<ServerGeoObjectType> ancestors = got.getTypeAncestors(hierarchyType, true);
 
         this.setHierarchy(hierarchyType);
 

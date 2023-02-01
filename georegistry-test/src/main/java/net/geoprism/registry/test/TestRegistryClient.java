@@ -71,6 +71,9 @@ public class TestRegistryClient extends AbstractTestClient
 
   @Autowired
   private HierarchyTypeController     hierarchyController;
+  
+  @Autowired
+  private SynchronizationConfigController synchronizationConfigController;
 
   public Set<String> getUIDs(int amount)
   {
@@ -211,17 +214,16 @@ public class TestRegistryClient extends AbstractTestClient
     return responseToGeoObjectOverTime(this.geoObjectTimeController.updateGeoObjectOverTime(body));
   }
 
-  public GeoObjectType[] getGeoObjectTypes(String[] codes, String[] hierarchies, PermissionContext pc)
+  public GeoObjectType[] getGeoObjectTypes(String[] codes, PermissionContext pc)
   {
     String saCodes = this.serialize(codes);
-    String saHierarchies = this.serialize(hierarchies);
 
     if (pc == null)
     {
       pc = PermissionContext.READ;
     }
 
-    return responseToGeoObjectTypes(this.geoObjectTypeController.getGeoObjectTypes(saCodes, saHierarchies, pc.name()));
+    return responseToGeoObjectTypes(this.geoObjectTypeController.getGeoObjectTypes(saCodes, pc.name()));
   }
 
   public HierarchyType[] getHierarchyTypes(String[] codes)
@@ -264,7 +266,7 @@ public class TestRegistryClient extends AbstractTestClient
 
   public JsonObject getConfigForExternalSystem(String externalSystemId, String hierarchyTypeCode)
   {
-    return JsonParser.parseString(responseToString(new SynchronizationConfigController().getConfigForExternalSystem(externalSystemId, hierarchyTypeCode))).getAsJsonObject();
+    return JsonParser.parseString(responseToString(synchronizationConfigController.getConfigForExternalSystem(externalSystemId, hierarchyTypeCode))).getAsJsonObject();
   }
 
   public HierarchyType addToHierarchy(String hierarchyCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)

@@ -127,14 +127,7 @@ public class GeoObjectExcelExporter
     Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, this.type.getType()).attributes(this.type.getType());
 
     // Get the ancestors of the type
-    List<GeoObjectType> dtoAncestors = this.type.getTypeAncestors(this.hierarchy, true);
-    
-    List<ServerGeoObjectType> ancestors = new LinkedList<ServerGeoObjectType>();
-    
-    for (GeoObjectType ancestor : dtoAncestors)
-    {
-      ancestors.add(ServerGeoObjectType.get(ancestor));
-    }
+    List<ServerGeoObjectType> ancestors = this.type.getTypeAncestors(this.hierarchy, true);
 
     this.writeHeader(boldStyle, header, attributes, ancestors);
 

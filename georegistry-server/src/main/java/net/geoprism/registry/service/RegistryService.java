@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest.AuthenticationRequestBuilder;
@@ -304,7 +305,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public JsonObject initHierarchyManager(String sessionId)
   {
-    GeoObjectType[] gots = this.getGeoObjectTypes(sessionId, null, null, PermissionContext.READ);
+    GeoObjectType[] gots = this.getGeoObjectTypes(sessionId, null, PermissionContext.READ);
     HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(sessionId, null, PermissionContext.READ);
     OrganizationDTO[] orgDtos = new OrganizationService().getOrganizations(sessionId, null); // TODO
                                                                                              // :
@@ -435,14 +436,14 @@ public class RegistryService
     ServerGeoObjectType child = ServerGeoObjectType.get(code);
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
 
-    List<GeoObjectType> ancestors = child.getTypeAncestors(hierarchyType, includeInheritedTypes);
+    List<ServerGeoObjectType> ancestors = child.getTypeAncestors(hierarchyType, includeInheritedTypes);
 
     if (includeChild)
     {
-      ancestors.add(child.getType());
+      ancestors.add(child);
     }
 
-    return ancestors;
+    return ancestors.stream().map(stype -> stype.getType()).collect(Collectors.toList());
   }
 
   @Request(RequestType.SESSION)
@@ -611,7 +612,7 @@ public class RegistryService
   }
 
   /**
-   * >>>>>>> refs/remotes/origin/master Returns the {@link GeoObjectType}s with
+   * Returns the {@link GeoObjectType}s with
    * the given codes or all {@link GeoObjectType}s if no codes are provided.
    * 
    * @param sessionId
@@ -623,9 +624,9 @@ public class RegistryService
    *         {@link GeoObjectType}s if no codes are provided.
    */
   @Request(RequestType.SESSION)
-  public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes, String[] hierarchies, PermissionContext context)
+  public GeoObjectType[] getGeoObjectTypes(String sessionId, String[] codes, PermissionContext context)
   {
-    List<GeoObjectType> lTypes = new GeoObjectTypeService(ServiceFactory.getAdapter()).getGeoObjectTypes(codes, hierarchies, context);
+    List<GeoObjectType> lTypes = new GeoObjectTypeService(ServiceFactory.getAdapter()).getGeoObjectTypes(codes, context);
 
     return lTypes.toArray(new GeoObjectType[lTypes.size()]);
   }

@@ -815,9 +815,9 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
    * 
    * @return
    */
-  public List<GeoObjectType> getTypeAncestors(ServerHierarchyType hierarchyType, Boolean includeInheritedTypes)
+  public List<ServerGeoObjectType> getTypeAncestors(ServerHierarchyType hierarchyType, Boolean includeInheritedTypes)
   {
-    List<GeoObjectType> ancestors = new LinkedList<GeoObjectType>();
+    List<ServerGeoObjectType> ancestors = new LinkedList<ServerGeoObjectType>();
 
     Collection<com.runwaysdk.business.ontology.Term> list = GeoEntityUtil.getOrderedAncestors(Universal.getRoot(), this.getUniversal(), hierarchyType.getUniversalType());
 
@@ -828,7 +828,7 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
       {
         ServerGeoObjectType sParent = ServerGeoObjectType.get(parent);
 
-        ancestors.add(sParent.getType());
+        ancestors.add(sParent);
 
         if (includeInheritedTypes && sParent.isRoot(hierarchyType))
         {

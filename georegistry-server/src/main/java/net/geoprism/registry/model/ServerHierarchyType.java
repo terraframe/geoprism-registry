@@ -151,15 +151,15 @@ public class ServerHierarchyType implements ServerElement, GraphType
 
       if (inheritedHierarchy != null)
       {
-        List<GeoObjectType> ancestors = geoObjectType.getTypeAncestors(inheritedHierarchy, true);
+        List<ServerGeoObjectType> ancestors = geoObjectType.getTypeAncestors(inheritedHierarchy, true);
         Collections.reverse(ancestors);
 
         HierarchyNode child = new HierarchyNode(geoObjectType.getType(), null);
         HierarchyNode root = child;
 
-        for (GeoObjectType ancestor : ancestors)
+        for (ServerGeoObjectType ancestor : ancestors)
         {
-          HierarchyNode cNode = new HierarchyNode(ancestor, inheritedHierarchy.getCode());
+          HierarchyNode cNode = new HierarchyNode(ancestor.getType(), inheritedHierarchy.getCode());
           cNode.addChild(root);
 
           root = cNode;
@@ -432,16 +432,38 @@ public class ServerHierarchyType implements ServerElement, GraphType
     // relationships.
     this.refresh();
   }
-
+  
   public List<ServerGeoObjectType> getAllTypes()
+  {
+    return this.getAllTypes(true);
+  }
+
+  public List<ServerGeoObjectType> getAllTypes(boolean includeInherited)
   {
     List<ServerGeoObjectType> types = new LinkedList<ServerGeoObjectType>();
 
     Universal rootUniversal = Universal.getByKey(Universal.ROOT);
-
+    
     try (OIterator<? extends Business> i = rootUniversal.getAllDescendants(this.hierarchicalRelationship.getMdTermRelationship().definesType()))
     {
       i.forEach(u -> types.add(ServerGeoObjectType.get((Universal) u)));
+    }
+    
+    java.util.Optional<ServerGeoObjectType> rootOfHierarchy = types.stream().findFirst();
+    if (rootOfHierarchy.isPresent() && includeInherited)
+    {
+      InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.get(rootOfHierarchy.get().getUniversal(), hierarchicalRelationship);
+      
+      if (anno != null)
+      {
+        HierarchicalRelationshipType hrt = anno.getInheritedHierarchicalRelationshipType();
+        ServerHierarchyType sht = ServerHierarchyType.get(hrt);
+        List<ServerGeoObjectType> inheritedTypes = sht.getAllTypes(true);
+        
+        inheritedTypes.remove(inheritedTypes.size()-1); // Remove the duplicate 'rootOfHierarchy' entry
+        
+        types.addAll(0, inheritedTypes);
+      }
     }
 
     return types;

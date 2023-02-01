@@ -230,14 +230,12 @@ public class ServerParentTreeNodeOverTime
       final Hierarchy hierarchy = entry.getValue();
       final ServerHierarchyType ht = hierarchy.getType();
 
-      List<GeoObjectType> parentTypes = this.type.getTypeAncestors(ht, false);
+      List<ServerGeoObjectType> parentTypes = this.type.getTypeAncestors(ht, false);
 
       // Populate a "types" array with all ancestors of the GOT they passed us
       JsonArray types = new JsonArray();
-      for (GeoObjectType parent : parentTypes)
+      for (ServerGeoObjectType pType : parentTypes)
       {
-        ServerGeoObjectType pType = ServerGeoObjectType.get(parent);
-
         if (!pType.getCode().equals(this.type.getCode()))
         {
           JsonObject pObject = new JsonObject();
@@ -255,10 +253,8 @@ public class ServerParentTreeNodeOverTime
       {
         JsonObject pArray = new JsonObject();
 
-        for (GeoObjectType parent : parentTypes)
+        for (ServerGeoObjectType pType : parentTypes)
         {
-          ServerGeoObjectType pType = ServerGeoObjectType.get(parent);
-
           if (!pType.getCode().equals(this.type.getCode()))
           {
             final List<ServerParentTreeNode> ptns = node.findParentOfType(pType.getCode());

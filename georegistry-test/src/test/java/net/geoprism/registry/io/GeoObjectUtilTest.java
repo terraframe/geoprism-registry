@@ -84,12 +84,7 @@ public class GeoObjectUtilTest
 
     ServerGeoObjectIF object = new ServerGeoObjectService().getGeoObjectByCode(USATestData.CO_A_ONE.getCode(), type);
     
-    List<GeoObjectType> dtoAncestors = type.getTypeAncestors(hierarchyType, true);
-    List<ServerGeoObjectType> ancestors = new LinkedList<ServerGeoObjectType>();
-    for (GeoObjectType ancestor : dtoAncestors)
-    {
-      ancestors.add(ServerGeoObjectType.get(ancestor));
-    }
+    List<ServerGeoObjectType> ancestors = type.getTypeAncestors(hierarchyType, true);
 
     Map<String, LocationInfo> map = object.getAncestorMap(hierarchyType, ancestors);
 
