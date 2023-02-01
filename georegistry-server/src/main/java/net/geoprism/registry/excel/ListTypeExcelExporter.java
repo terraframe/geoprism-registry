@@ -94,15 +94,14 @@ public class ListTypeExcelExporter
     LIST, GEOSPATIAL
   }
 
-  public ListTypeExcelExporter(ListTypeVersion version, List<ListColumn> columns, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria, ListMetadataSource metadataSource)
+  public ListTypeExcelExporter(ListTypeVersion version, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria, ListMetadataSource metadataSource)
   {
-    this(version, columns, mdAttributes, includedSheets, criteria, metadataSource, new ShapefileColumnNameGenerator());
+    this(version, mdAttributes, includedSheets, criteria, metadataSource, new ShapefileColumnNameGenerator());
   }
 
-  public ListTypeExcelExporter(ListTypeVersion version, List<ListColumn> columns, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria, ListMetadataSource metadataSource, ShapefileColumnNameGenerator generator)
+  public ListTypeExcelExporter(ListTypeVersion version, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria, ListMetadataSource metadataSource, ShapefileColumnNameGenerator generator)
   {
     this.version = version;
-    this.columns = columns;
     this.mdAttributes = mdAttributes;
     this.criteria = criteria;
     this.metadataSource = metadataSource;
@@ -118,6 +117,7 @@ public class ListTypeExcelExporter
     }
 
     this.list = version.getListType();
+    this.columns = version.getAttributeColumns();
   }
 
   public ListType getList()

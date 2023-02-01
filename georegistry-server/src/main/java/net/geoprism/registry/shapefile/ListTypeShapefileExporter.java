@@ -126,16 +126,16 @@ public class ListTypeShapefileExporter
 
   private String                                   actualGeometryType;
 
-  public ListTypeShapefileExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<ListColumn> columns, List<? extends MdAttributeConcreteDAOIF> mdAttributes, JsonObject criteria, String actualGeometryType)
+  public ListTypeShapefileExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, JsonObject criteria, String actualGeometryType)
   {
     this.version = version;
     this.mdBusiness = mdBusiness;
-    this.columns = columns;
     this.mdAttributes = mdAttributes;
     this.criteria = criteria;
     this.actualGeometryType = actualGeometryType;
 
     this.list = version.getListType();
+    this.columns = version.getAttributeColumns();
     this.generator = new ShapefileColumnNameGenerator();
   }
 
@@ -247,7 +247,7 @@ public class ListTypeShapefileExporter
 
       try (FileOutputStream fos = new FileOutputStream(file))
       {
-        ListTypeExcelExporter exporter = new ListTypeExcelExporter(this.version, columns, mdAttributes, new ListTypeExcelExporterSheet[] { ListTypeExcelExporterSheet.DICTIONARY, ListTypeExcelExporterSheet.METADATA }, criteria, ListMetadataSource.GEOSPATIAL, this.generator);
+        ListTypeExcelExporter exporter = new ListTypeExcelExporter(this.version, mdAttributes, new ListTypeExcelExporterSheet[] { ListTypeExcelExporterSheet.DICTIONARY, ListTypeExcelExporterSheet.METADATA }, criteria, ListMetadataSource.GEOSPATIAL, this.generator);
 
         Workbook wb = exporter.createWorkbook();
 
@@ -519,6 +519,11 @@ public class ListTypeShapefileExporter
     }
 
     throw new UnsupportedOperationException("Unsupported attribute type [" + mdAttribute.getClass().getSimpleName() + "]");
+  }
+
+  public String getColumnName(String attributeName)
+  {
+    return this.generator.getColumnName(attributeName);
   }
 
 }

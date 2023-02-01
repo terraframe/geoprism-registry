@@ -863,7 +863,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     try
     {
-      ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(this, mdBusiness, columns, mdAttributes, null, null);
+      ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(this, mdBusiness, mdAttributes, null, null);
 
       try (final InputStream istream = exporter.export())
       {
