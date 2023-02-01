@@ -314,7 +314,7 @@ public class TestGeoObjectInfo
     // TODO : HierarchyType?
 
     List<ChildTreeNode> tnChildren = tn.getChildren();
-
+    
     Assert.assertEquals(expectedChildren.size(), tnChildren.size());
 
     for (TestGeoObjectInfo expectedChild : expectedChildren)
@@ -330,7 +330,7 @@ public class TestGeoObjectInfo
 
       if (tnChild == null)
       {
-        Assert.fail("The ChildTreeNode did not contain a child that we expected to find.");
+        Assert.fail("The ChildTreeNode did not contain a child that we expected to find [" + expectedChild.getCode() + "].");
       }
     }
   }

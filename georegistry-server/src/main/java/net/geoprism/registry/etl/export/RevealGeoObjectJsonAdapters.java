@@ -111,7 +111,7 @@ public class RevealGeoObjectJsonAdapters
 
           if (this.depth == null || this.depth > 0)
           {
-            ServerGeoObjectIF parent = getParent(serverGo, this.hierarchyType.getCode());
+            ServerGeoObjectIF parent = getParent(serverGo, this.hierarchyType);
 
             if (parent != null)
             {
@@ -140,15 +140,15 @@ public class RevealGeoObjectJsonAdapters
       }
     }
 
-    public static ServerGeoObjectIF getParent(ServerGeoObjectIF serverGo, String hierarchyCode)
+    public static ServerGeoObjectIF getParent(ServerGeoObjectIF serverGo, ServerHierarchyType hierarchy)
     {
-      ServerParentTreeNode sptn = serverGo.getParentGeoObjects(null, false, null);
+      ServerParentTreeNode sptn = serverGo.getParentGeoObjects(hierarchy, null, false, null);
 
       List<ServerParentTreeNode> parents = sptn.getParents();
 
       for (ServerParentTreeNode parent : parents)
       {
-        if (hierarchyCode == null || parent.getHierarchyType().getCode().equals(hierarchyCode))
+        if (hierarchy == null || parent.getHierarchyType().getCode().equals(hierarchy.getCode()))
         {
           return parent.getGeoObject();
         }

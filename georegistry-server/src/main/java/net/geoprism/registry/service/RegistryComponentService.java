@@ -98,14 +98,14 @@ public class RegistryComponentService
     return service.getAncestors(sessionId, code, hierarchyCode, includeInheritedTypes, includeChild);
   }
 
-  public ChildTreeNode getChildGeoObjects(String sessionId, String parentCode, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive, Date date)
+  public ChildTreeNode getChildGeoObjects(String sessionId, String parentCode, String parentGeoObjectTypeCode, String hierarchyCode, String[] childrenTypes, Boolean recursive, Date date)
   {
-    return service.getChildGeoObjects(sessionId, parentCode, parentGeoObjectTypeCode, childrenTypes, recursive, date);
+    return service.getChildGeoObjects(sessionId, parentCode, parentGeoObjectTypeCode, hierarchyCode, childrenTypes, recursive, date);
   }
 
-  public ParentTreeNode getParentGeoObjects(String sessionId, String childCode, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive, Date date)
+  public ParentTreeNode getParentGeoObjects(String sessionId, String childCode, String childGeoObjectTypeCode, String hierarchyCode, String[] parentTypes, boolean recursive, Date date)
   {
-    return service.getParentGeoObjects(sessionId, childCode, childGeoObjectTypeCode, parentTypes, recursive, date);
+    return service.getParentGeoObjects(sessionId, childCode, childGeoObjectTypeCode, hierarchyCode, parentTypes, recursive, date);
   }
 
   public OrganizationDTO[] getOrganizations(String sessionId, String[] codes)

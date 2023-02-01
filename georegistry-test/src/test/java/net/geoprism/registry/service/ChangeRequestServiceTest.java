@@ -138,7 +138,7 @@ public class ChangeRequestServiceTest
     + "}";
     
     ServerGeoObjectIF central_prov = FastTestDataset.PROV_CENTRAL.getServerObject();
-    ServerParentTreeNode ptn = central_prov.getParentGeoObjects(new String[] {FastTestDataset.COUNTRY.getCode()}, false, TestDataSet.DEFAULT_OVER_TIME_DATE).getParents().get(0);
+    ServerParentTreeNode ptn = central_prov.getParentGeoObjects(null, new String[] {FastTestDataset.COUNTRY.getCode()}, false, TestDataSet.DEFAULT_OVER_TIME_DATE).getParents().get(0);
     
     UPDATE_PARENT_ATTR_JSON = "{"
         + "\"hierarchyCode\" : \"" + FastTestDataset.HIER_ADMIN.getCode() + "\","

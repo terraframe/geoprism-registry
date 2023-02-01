@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest.AuthenticationRequestBuilder;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
@@ -447,7 +448,7 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public ChildTreeNode getChildGeoObjects(String sessionId, String parentCode, String parentGeoObjectTypeCode, String[] childrenTypes, Boolean recursive, Date date)
+  public ChildTreeNode getChildGeoObjects(String sessionId, String parentCode, String parentGeoObjectTypeCode, String hierarchyCode, String[] childrenTypes, Boolean recursive, Date date)
   {
     ServerGeoObjectIF object = this.service.getGeoObjectByCode(parentCode, parentGeoObjectTypeCode, true);
 
@@ -455,14 +456,20 @@ public class RegistryService
     {
       object.setDate(date);
     }
+    
+    ServerHierarchyType sht = null;
+    if (!StringUtils.isEmpty(hierarchyCode))
+    {
+      sht = ServerHierarchyType.get(hierarchyCode);
+    }
 
-    ServerChildTreeNode node = object.getChildGeoObjects(childrenTypes, recursive, date);
+    ServerChildTreeNode node = object.getChildGeoObjects(sht, childrenTypes, recursive, date);
 
     return node.toNode(true);
   }
 
   @Request(RequestType.SESSION)
-  public ParentTreeNode getParentGeoObjects(String sessionId, String childCode, String childGeoObjectTypeCode, String[] parentTypes, boolean recursive, Date date)
+  public ParentTreeNode getParentGeoObjects(String sessionId, String childCode, String childGeoObjectTypeCode, String hierarchyCode, String[] parentTypes, boolean recursive, Date date)
   {
     ServerGeoObjectIF object = this.service.getGeoObjectByCode(childCode, childGeoObjectTypeCode, true);
 
@@ -470,8 +477,14 @@ public class RegistryService
     {
       object.setDate(date);
     }
+    
+    ServerHierarchyType sht = null;
+    if (!StringUtils.isEmpty(hierarchyCode))
+    {
+      sht = ServerHierarchyType.get(hierarchyCode);
+    }
 
-    return object.getParentGeoObjects(parentTypes, recursive, date).toNode(true);
+    return object.getParentGeoObjects(sht, parentTypes, recursive, date).toNode(true);
   }
 
   public ServerGeoObjectQuery createQuery(String typeCode)

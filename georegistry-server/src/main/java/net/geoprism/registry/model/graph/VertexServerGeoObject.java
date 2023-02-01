@@ -1410,15 +1410,15 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Override
-  public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive, Date date)
+  public ServerChildTreeNode getChildGeoObjects(ServerHierarchyType hierarchy, String[] childrenTypes, Boolean recursive, Date date)
   {
-    return internalGetChildGeoObjects(this, childrenTypes, recursive, null, date);
+    return internalGetChildGeoObjects(this, childrenTypes, recursive, hierarchy, date);
   }
 
   @Override
-  public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive, Date date)
+  public ServerParentTreeNode getParentGeoObjects(ServerHierarchyType hierarchy, String[] parentTypes, Boolean recursive, Date date)
   {
-    return internalGetParentGeoObjects(this, parentTypes, recursive, null, date);
+    return internalGetParentGeoObjects(this, parentTypes, recursive, hierarchy, date);
   }
 
   @Override

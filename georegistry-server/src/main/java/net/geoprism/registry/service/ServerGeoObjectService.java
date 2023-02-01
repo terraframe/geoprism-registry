@@ -236,7 +236,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     target.setDisplayLabel(view.getLabel());
     target.apply(false);
 
-    final ServerParentTreeNode sNode = source.getParentGeoObjects(null, false, view.getDate());
+    final ServerParentTreeNode sNode = source.getParentGeoObjects(null, null, false, view.getDate());
 
     final List<ServerParentTreeNode> sParents = sNode.getParents();
 

@@ -413,24 +413,31 @@ public class GeoObjectController extends RunwaySpringController
   /**
    * Get children of the given GeoObject
    *
-   * @pre @post
-   *
-   * @param parentUid
-   *          UID of the parent object for which the call fetches
-   *          children. @param childrentTypes An array of GeoObjectType names of
+   * @param parentCode
+   *          Code of the parent object for which the call fetches children.
+   * @param parentTypeCode
+   *          Code of the parent object's type for which the call fetches children.
+   * @param hierarchyCode
+   *          Code of the hierarchy to search for children. If none is provided, all
+   *          are returned.
+   * @param date
+   *          Date for which the relationships must exist
+   * @param childrenTypes An array of GeoObjectType names of
    *          the types of children GeoObjects to fetch. If blank then return
-   *          children of all types. @param recursive TRUE if recursive children
-   *          of the given parent with the given types should be returned, FALSE
+   *          children of all types.
+   * @param recursive TRUE if recursive children
+   *          of the given parent should be returned, FALSE
    *          if only single level children should be returned.
    * 
-   * @returns @throws
+   * @returns {@link TreeNode} children
    **/
   @GetMapping(RegistryUrls.GEO_OBJECT_GET_CHILDREN)        
   public ResponseEntity<String> getChildGeoObjects( 
-      @NotEmpty @RequestParam String parentCode, 
-      @NotEmpty @RequestParam String parentTypeCode, 
-      @RequestParam(required = false) Date date, 
-      @RequestParam(required = false) String childrenTypes, 
+      @NotEmpty @RequestParam String parentCode,
+      @NotEmpty @RequestParam String parentTypeCode,
+      @RequestParam(required = false) String hierarchyCode,
+      @RequestParam(required = false) Date date,
+      @RequestParam(required = false) String childrenTypes,
       @NotNull @RequestParam Boolean recursive)
   {
     String[] aChildTypes = null;
@@ -446,33 +453,39 @@ public class GeoObjectController extends RunwaySpringController
       }
     }
 
-    TreeNode tn = this.service.getChildGeoObjects(this.getSessionId(), parentCode, parentTypeCode, aChildTypes, recursive, date);
+    TreeNode tn = this.service.getChildGeoObjects(this.getSessionId(), parentCode, parentTypeCode, hierarchyCode, aChildTypes, recursive, date);
 
     return new ResponseEntity<String>(tn.toJSON().toString(), HttpStatus.OK);
   }
   
   /**
-   * Get parents of the given GeoObject
+   * Get the parents of the given GeoObject
    *
-   * @pre @post
-   *
-   * @param childUid
-   *          UID of the child object for which the call fetches parents. @param
-   *          parentTypes An array of GeoObjectType names of the types of parent
-   *          GeoObjects to fetch. If blank then return parents of all
-   *          types. @param recursive TRUE if recursive parents of the given
-   *          parent with the given types should be returned, FALSE if only
-   *          single level parents should be returned.
-   * @throws ParseException
+   * @param childCode
+   *          Code of the child object for which the call fetches children.
+   * @param childTypeCode
+   *          Code of the child object's type for which the call fetches children.
+   * @param hierarchyCode
+   *          Code of the hierarchy to search for children. If none is provided, all
+   *          are returned.
+   * @param date
+   *          Date for which the relationships must exist
+   * @param childrenTypes An array of GeoObjectType names of
+   *          the types of children GeoObjects to fetch. If blank then return
+   *          children of all types.
+   * @param recursive TRUE if recursive parents
+   *          of the given child should be returned, FALSE
+   *          if only single level children should be returned.
    * 
-   * @returns @throws
+   * @returns {@link TreeNode} children
    **/
   @GetMapping(RegistryUrls.GEO_OBJECT_GET_PARENTS)          
   public ResponseEntity<String> getParentGeoObjects( 
-      @NotEmpty @RequestParam String childCode, 
-      @NotEmpty @RequestParam String childTypeCode, 
-      @RequestParam(required = false) Date date, 
-      @RequestParam(required = false) String parentTypes, 
+      @NotEmpty @RequestParam String childCode,
+      @NotEmpty @RequestParam String childTypeCode,
+      @RequestParam(required = false) String hierarchyCode,
+      @RequestParam(required = false) Date date,
+      @RequestParam(required = false) String parentTypes,
       @NotNull @RequestParam Boolean recursive)
   {
     String[] aParentTypes = null;
@@ -488,7 +501,7 @@ public class GeoObjectController extends RunwaySpringController
       }
     }
 
-    TreeNode tn = this.service.getParentGeoObjects(this.getSessionId(), childCode, childTypeCode, aParentTypes, recursive, date);
+    TreeNode tn = this.service.getParentGeoObjects(this.getSessionId(), childCode, childTypeCode, hierarchyCode, aParentTypes, recursive, date);
 
     return new ResponseEntity<String>(tn.toJSON().toString(), HttpStatus.OK);
   }

@@ -250,18 +250,18 @@ public class TestRegistryClient extends AbstractTestClient
     return JsonParser.parseString(response.getBody()).getAsJsonArray();
   }
 
-  public ChildTreeNode getChildGeoObjects(String parentId, String parentTypeCode, Date date, String[] childrenTypes, boolean recursive)
+  public ChildTreeNode getChildGeoObjects(String parentId, String parentTypeCode, String hierarchyCode, Date date, String[] childrenTypes, boolean recursive)
   {
     String saChildrenTypes = this.serialize(childrenTypes);
 
-    return responseToChildTreeNode(this.geoObjectController.getChildGeoObjects(parentId, parentTypeCode, date, saChildrenTypes, recursive));
+    return responseToChildTreeNode(this.geoObjectController.getChildGeoObjects(parentId, parentTypeCode, hierarchyCode, date, saChildrenTypes, recursive));
   }
 
-  public ParentTreeNode getParentGeoObjects(String childId, String childTypeCode, Date date, String[] parentTypes, boolean recursive)
+  public ParentTreeNode getParentGeoObjects(String childId, String childTypeCode, String hierarchyCode, Date date, String[] parentTypes, boolean recursive)
   {
     String saParentTypes = this.serialize(parentTypes);
 
-    return responseToParentTreeNode(this.geoObjectController.getParentGeoObjects(childId, childTypeCode, date, saParentTypes, recursive));
+    return responseToParentTreeNode(this.geoObjectController.getParentGeoObjects(childId, childTypeCode, hierarchyCode, date, saParentTypes, recursive));
   }
 
   public JsonObject getConfigForExternalSystem(String externalSystemId, String hierarchyTypeCode)

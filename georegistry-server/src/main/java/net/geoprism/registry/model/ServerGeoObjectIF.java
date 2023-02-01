@@ -106,9 +106,9 @@ public interface ServerGeoObjectIF
 
   public String bbox(Date date);
 
-  public ServerChildTreeNode getChildGeoObjects(String[] childrenTypes, Boolean recursive, Date date);
+  public ServerChildTreeNode getChildGeoObjects(ServerHierarchyType hierarchy, String[] childrenTypes, Boolean recursive, Date date);
 
-  public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive, Date date);
+  public ServerParentTreeNode getParentGeoObjects(ServerHierarchyType hierarchy, String[] parentTypes, Boolean recursive, Date date);
 
   public ServerParentTreeNode getParentsForHierarchy(ServerHierarchyType hierarchy, Boolean recursive, Date date);
 
