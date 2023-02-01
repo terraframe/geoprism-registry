@@ -141,4 +141,10 @@ public class ListAttribute implements ListColumn
   {
     return label;
   }
+
+  @Override
+  public void visit(ListColumnVisitor visitor)
+  {
+    visitor.accept(this);
+  }
 }

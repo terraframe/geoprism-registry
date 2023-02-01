@@ -60,6 +60,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ListTypeTest;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
+import net.geoprism.registry.shapefile.ShapefileColumnNameGenerator;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
@@ -151,8 +152,8 @@ public class ListTypeGeoObjectShapefileExporterTest
   @Request
   public void testGenerateName()
   {
-    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, null, null);
-
+    ShapefileColumnNameGenerator exporter = new ShapefileColumnNameGenerator();
+    
     Assert.assertEquals("testestest", exporter.generateColumnName("testestestest1"));
     Assert.assertEquals("testestes1", exporter.generateColumnName("testestestest2"));
     Assert.assertEquals("testestes2", exporter.generateColumnName("testestestest3"));

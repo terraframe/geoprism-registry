@@ -24,6 +24,8 @@ export const NEW_LAYER_COLOR = "#0062AA";
 
 export const SELECTED_COLOR = "#800000";
 
+export const SEARCH_DATASOURCE_ID = 'search';
+
 /**
  * This service provides a global abstraction for mapping and editing layers across many different components (simultaneously) and
  * serializing / deserializing these layers to / from the url parameters to facilitate saving + loading of layer state.
@@ -497,6 +499,10 @@ export class GeometryService implements OnDestroy {
 
     public setDataSourceFactory(fac) {
         this.dataSourceFactory = fac;
+    }
+
+    public getRegisteredDataSource(key: string) {
+        return this.dataSourceFactory.getRegisteredDataSource(key);
     }
 
     public registerDataSource(dataSource: LayerDataSource) {

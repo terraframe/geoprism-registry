@@ -105,4 +105,17 @@ public class RegistryLocationController extends RunwaySpringController
 
     return new ResponseEntity<String>(featureCollection.toString(), HttpStatus.OK);
   }
+  
+  @GetMapping(API_PATH + "/labels")
+  public ResponseEntity<String> labels(
+      @RequestParam(required = false) String text, 
+      @RequestParam(required = false) Date date)
+  {
+    List<JsonObject> results = service.labels(this.getSessionId(), text, date);
+    
+    JsonArray response = results.stream().collect(() -> new JsonArray(), (array, element) -> array.add(element), (listA, listB) -> {
+    });
+    
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
 }

@@ -7,7 +7,7 @@ import { v4 as uuid } from "uuid";
 import bbox from "@turf/bbox";
 import { GeoJSON } from "geojson";
 import { RelationshipVisualizationService } from "./relationship-visualization.service";
-import { GeometryService } from "./geometry.service";
+import { GeometryService, SEARCH_DATASOURCE_ID } from "./geometry.service";
 import { ValueOverTimeCREditor } from "@registry/component/geoobject-shared-attribute-editor/ValueOverTimeCREditor";
 import { MapService } from "./map.service";
 
@@ -679,7 +679,12 @@ export class DataSourceFactory {
     }
 
     public registerDataSource(dataSource: LayerDataSource) {
-        this.dataSources[dataSource.getId()] = dataSource;
+        if (dataSource instanceof SearchLayerDataSource) {
+            this.dataSources[SEARCH_DATASOURCE_ID] = dataSource;
+        }
+        else {
+            this.dataSources[dataSource.getId()] = dataSource;
+        }
     }
 
     public unregisterDataSource(dataSourceType: string) {
@@ -714,6 +719,14 @@ export class DataSourceFactory {
         }
 
         dataSource.fromJSON(obj);
+
+        if (dataSource instanceof SearchLayerDataSource) {
+            const cached = this.dataSources[SEARCH_DATASOURCE_ID];
+
+            if (cached != null && cached.getKey() === dataSource.getKey()) {
+                return cached;
+            }
+        }
 
         return dataSource;
     }

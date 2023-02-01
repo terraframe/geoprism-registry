@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.excel;
 
@@ -49,17 +49,18 @@ import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
-import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
-import org.locationtech.jts.geom.Point;
 
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
-import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.masterlist.AbstractListColumnVisitor;
+import net.geoprism.registry.masterlist.ListAttribute;
+import net.geoprism.registry.masterlist.ListColumn;
+import net.geoprism.registry.masterlist.ListColumnVisitor;
+import net.geoprism.registry.shapefile.ShapefileColumnNameGenerator;
 
 public class ListTypeExcelExporter
 {
@@ -69,7 +70,7 @@ public class ListTypeExcelExporter
 
   private ListTypeVersion                          version;
 
-  private MdBusinessDAOIF                          mdBusiness;
+  private List<ListColumn>                         columns;
 
   private List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
@@ -80,24 +81,31 @@ public class ListTypeExcelExporter
   private CellStyle                                dateStyle;
 
   private ListTypeExcelExporterSheet[]             includedSheets;
-  
-  private ListMetadataSource metadataSource;
+
+  private ListMetadataSource                       metadataSource;
+
+  private ShapefileColumnNameGenerator             generator;
 
   public static enum ListTypeExcelExporterSheet {
     DATA, METADATA, DICTIONARY
   }
-  
+
   public static enum ListMetadataSource {
     LIST, GEOSPATIAL
   }
 
-  public ListTypeExcelExporter(ListTypeVersion version, MdBusinessDAOIF mdBusiness, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria, ListMetadataSource metadataSource)
+  public ListTypeExcelExporter(ListTypeVersion version, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria, ListMetadataSource metadataSource)
+  {
+    this(version, mdAttributes, includedSheets, criteria, metadataSource, new ShapefileColumnNameGenerator());
+  }
+
+  public ListTypeExcelExporter(ListTypeVersion version, List<? extends MdAttributeConcreteDAOIF> mdAttributes, ListTypeExcelExporterSheet[] includedSheets, JsonObject criteria, ListMetadataSource metadataSource, ShapefileColumnNameGenerator generator)
   {
     this.version = version;
-    this.mdBusiness = mdBusiness;
     this.mdAttributes = mdAttributes;
     this.criteria = criteria;
     this.metadataSource = metadataSource;
+    this.generator = generator;
 
     if (includedSheets != null)
     {
@@ -109,6 +117,7 @@ public class ListTypeExcelExporter
     }
 
     this.list = version.getListType();
+    this.columns = version.getAttributeColumns();
   }
 
   public ListType getList()
@@ -159,14 +168,51 @@ public class ListTypeExcelExporter
   {
     Sheet sheet = workbook.createSheet(getSheetName(workbook, "masterlist.data.dictionary"));
 
+    if (metadataSource.equals(ListMetadataSource.GEOSPATIAL))
+    {
+      String attributeLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.attribute");
+      String descriptionLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.description");
+      String columnLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.columnName");
+      
+      ListTypeExcelExporter.this.createRow(sheet, 0, boldStyle, attributeLabel, columnLabel, descriptionLabel);
+    }
+    else
+    {
+      String attributeLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.attribute");
+      String descriptionLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.description");
+
+      ListTypeExcelExporter.this.createRow(sheet, 0, boldStyle, attributeLabel, descriptionLabel);
+    }
+
     Locale locale = Session.getCurrentLocale();
 
-    int rowNumber = 0;
-
-    for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
+    ListColumnVisitor visitor = new AbstractListColumnVisitor()
     {
-      this.createRow(sheet, locale, rowNumber++, mdAttribute, mdAttribute.getDescription(locale));
-    }
+      private int rowNumber = 1;
+
+      @Override
+      public void accept(ListAttribute attribute)
+      {
+        mdAttributes.stream().filter(p -> p.definesAttribute().equals(attribute.getName())).findAny().ifPresent((mdAttribute) -> {
+          String label = mdAttribute.getDisplayLabel(locale);
+          String description = mdAttribute.getDescription(locale);
+
+          if (metadataSource.equals(ListMetadataSource.GEOSPATIAL))
+          {
+            String shapefileColumnName = ListTypeExcelExporter.this.generator.getColumnName(mdAttribute.definesAttribute());
+
+            ListTypeExcelExporter.this.createRow(sheet, rowNumber++, null, label, shapefileColumnName, description);
+          }
+          else
+          {
+            ListTypeExcelExporter.this.createRow(sheet, rowNumber++, null, label, description);
+          }
+
+        });
+      }
+    };
+
+    this.columns.forEach(column -> column.visit(visitor));
   }
 
   private String getSheetName(Workbook workbook, String key)
@@ -211,7 +257,7 @@ public class ListTypeExcelExporter
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTACCESSCONSTRAINTS, this.version.getListAccessConstraints().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTUSECONSTRAINTS, this.version.getListUseConstraints().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTDISCLAIMER, this.version.getListDisclaimer().getValue());
-      
+
       this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTCONTACTNAME, this.version.getListContactName());
       this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTORGANIZATION, this.list.getOrganization().getDisplayLabel().getValue());
       this.createRow(sheet, locale, metadata, rowNumber++, ListType.LISTTELEPHONENUMBER, this.version.getListTelephoneNumber());
@@ -228,7 +274,7 @@ public class ListTypeExcelExporter
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALACCESSCONSTRAINTS, this.version.getGeospatialAccessConstraints().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALUSECONSTRAINTS, this.version.getGeospatialUseConstraints().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALDISCLAIMER, this.version.getGeospatialDisclaimer().getValue());
-      
+
       this.createRow(sheet, locale, metadata, rowNumber++, ListType.GEOSPATIALCONTACTNAME, this.version.getGeospatialContactName());
       this.createRow(sheet, locale, metadata, rowNumber++, ListType.GEOSPATIALORGANIZATION, this.list.getGeospatialOrganization());
       this.createRow(sheet, locale, metadata, rowNumber++, ListType.GEOSPATIALTELEPHONENUMBER, this.version.getGeospatialTelephoneNumber());
@@ -261,12 +307,30 @@ public class ListTypeExcelExporter
 
     this.createRow(sheet, rowNum, label, value);
   }
-  
+
   private void createRowForMetadata(Sheet sheet, Locale locale, int rowNum, String attributeName, Object value)
   {
     String label = ListTypeVersion.getMetadataLabel(attributeName, locale);
 
     this.createRow(sheet, rowNum, label, value);
+  }
+
+  private void createRow(Sheet sheet, int rowNum, CellStyle style, String... values)
+  {
+    int cellNum = 0;
+
+    Row row = sheet.createRow(rowNum);
+
+    for (String value : values)
+    {
+      Cell cell = row.createCell(cellNum++);
+      cell.setCellValue(value);
+
+      if (style != null)
+      {
+        cell.setCellStyle(style);
+      }
+    }
   }
 
   private void createRow(Sheet sheet, int rowNum, String label, Object value)
@@ -293,12 +357,6 @@ public class ListTypeExcelExporter
     Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(this.getList().getDisplayLabel().getValue()));
 
     Row header = sheet.createRow(0);
-
-    // MdAttributeGeometryDAOIF geometryAttribute = (MdAttributeGeometryDAOIF)
-    // this.mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-    //
-    // boolean includeCoordinates = ( geometryAttribute instanceof
-    // MdAttributePointDAOIF );
 
     this.writeHeader(this.boldStyle, header);
 
@@ -329,76 +387,71 @@ public class ListTypeExcelExporter
 
   public void writeRow(Row row, Business object, CellStyle dateStyle)
   {
-    int col = 0;
+    ListColumnVisitor visitor = new AbstractListColumnVisitor()
+    {
+      int col = 0;
+
+      @Override
+      public void accept(ListAttribute attribute)
+      {
+        mdAttributes.stream().filter(p -> p.definesAttribute().equals(attribute.getName())).findAny().ifPresent((mdAttribute) -> {
+          String attributeName = mdAttribute.definesAttribute();
+          Object value = object.getObjectValue(attributeName);
+
+          Cell cell = row.createCell(col++);
+
+          if (value != null)
+          {
+            if (value instanceof String)
+            {
+              cell.setCellValue((String) value);
+            }
+            else if (value instanceof Date)
+            {
+              cell.setCellValue((Date) value);
+              cell.setCellStyle(dateStyle);
+            }
+            else if (value instanceof Number)
+            {
+              cell.setCellValue( ( (Number) value ).doubleValue());
+            }
+            else if (value instanceof Boolean)
+            {
+              cell.setCellValue((Boolean) value);
+            }
+          }
+        });
+      }
+    };
+
+    this.columns.forEach(column -> column.visit(visitor));
+
     // Write the row
 
-    MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-
-    if (mdGeometry instanceof MdAttributePointDAOIF)
-    {
-      Point point = (Point) object.getObjectValue(mdGeometry.definesAttribute());
-
-      if (point != null)
-      {
-        row.createCell(col++).setCellValue(point.getX());
-        row.createCell(col++).setCellValue(point.getY());
-      }
-    }
-
-    for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
-    {
-      String attributeName = mdAttribute.definesAttribute();
-      Object value = object.getObjectValue(attributeName);
-
-      Cell cell = row.createCell(col++);
-
-      if (value != null)
-      {
-        if (value instanceof String)
-        {
-          cell.setCellValue((String) value);
-        }
-        else if (value instanceof Date)
-        {
-          cell.setCellValue((Date) value);
-          cell.setCellStyle(dateStyle);
-        }
-        else if (value instanceof Number)
-        {
-          cell.setCellValue( ( (Number) value ).doubleValue());
-        }
-        else if (value instanceof Boolean)
-        {
-          cell.setCellValue((Boolean) value);
-        }
-      }
-    }
   }
 
   public void writeHeader(CellStyle boldStyle, Row header)
   {
-    int col = 0;
+    // int col = 0;
     Locale locale = Session.getCurrentLocale();
 
-    MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
-
-    if (mdGeometry instanceof MdAttributePointDAOIF)
+    ListColumnVisitor visitor = new AbstractListColumnVisitor()
     {
-      Cell longitude = header.createCell(col++);
-      longitude.setCellStyle(boldStyle);
-      longitude.setCellValue(LocalizationFacade.getFromBundles(GeoObjectImportConfiguration.LONGITUDE_KEY));
+      int col = 0;
 
-      Cell latitude = header.createCell(col++);
-      latitude.setCellStyle(boldStyle);
-      latitude.setCellValue(LocalizationFacade.getFromBundles(GeoObjectImportConfiguration.LATITUDE_KEY));
-    }
+      @Override
+      public void accept(ListAttribute attribute)
+      {
+        mdAttributes.stream().filter(p -> p.definesAttribute().equals(attribute.getName())).findAny().ifPresent((mdAttribute) -> {
+          Cell cell = header.createCell(col++);
+          cell.setCellStyle(boldStyle);
+          cell.setCellValue(mdAttribute.getDisplayLabel(locale));
+        });
+      }
+    };
 
-    for (MdAttributeConcreteDAOIF mdAttribute : this.mdAttributes)
-    {
-      Cell cell = header.createCell(col++);
-      cell.setCellStyle(boldStyle);
-      cell.setCellValue(mdAttribute.getDisplayLabel(locale));
-    }
+    this.columns.forEach(column -> column.visit(visitor));
+
   }
 
   public InputStream export() throws IOException
