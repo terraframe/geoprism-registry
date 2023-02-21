@@ -91,6 +91,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.HierarchyRootException;
+import com.runwaysdk.dataaccess.AttributeDoesNotExistException;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.Organization;
@@ -99,6 +100,8 @@ import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.conversion.GeometryTypeFactory;
+import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.graph.transition.TransitionEvent;
@@ -138,6 +141,41 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
   public void setType(GeoObjectType type)
   {
     this.type = type;
+  }
+  
+  /**
+   * The GeoObjectType is a DTO type, which means it contains data which has been localized to a particular user's session.
+   * We need to rebuild this object such that it includes relevant request information (like the correct locale).
+   */
+  public GeoObjectType buildType()
+  {
+    com.runwaysdk.system.gis.geo.GeometryType geoPrismgeometryType = universal.getGeometryType().get(0);
+    org.commongeoregistry.adapter.constants.GeometryType cgrGeometryType = GeometryTypeFactory.get(geoPrismgeometryType);
+    LocalizedValue label = LocalizedValueConverter.convert(universal.getDisplayLabel());
+    LocalizedValue description = LocalizedValueConverter.convert(universal.getDescription());
+    String ownerActerOid = universal.getOwnerOid();
+    String organizationCode = Organization.getRootOrganizationCode(ownerActerOid);
+    MdVertexDAOIF superType = mdVertex.getSuperClass();
+    GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsGeometryEditable(), organizationCode, ServiceFactory.getAdapter());
+    geoObjType.setIsAbstract(mdBusiness.getIsAbstract());
+    try
+    {
+      GeoObjectTypeMetadata metadata = GeoObjectTypeMetadata.getByKey(universal.getKey());
+      geoObjType.setIsPrivate(metadata.getIsPrivate());
+    }
+    catch (DataNotFoundException | AttributeDoesNotExistException e)
+    {
+      geoObjType.setIsPrivate(false);
+    }
+    
+    if (superType != null && !superType.definesType().equals(GeoVertex.CLASS))
+    {
+      String parentCode = superType.getTypeName();
+      geoObjType.setSuperTypeCode(parentCode);
+    }
+    this.type = new ServerGeoObjectTypeConverter().convertAttributeTypes(universal, geoObjType, mdBusiness);
+    
+    return this.type;
   }
 
   public Universal getUniversal()
