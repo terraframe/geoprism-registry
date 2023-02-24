@@ -40,7 +40,7 @@
                   <ngx-spinner [fullScreen]="false" [name]="CONSTANTS.SEARCH_OVERLAY" type="ball-clip-rotate-multiple"
                     size="medium"></ngx-spinner>
                   <date-field [(value)]="dateFieldValue" label="" [inputName]="'date'" [allowInfinity]="false"
-                    [allowFutureDates]="false" [required]="false"
+                    [allowFutureDates]="false" [required]="false" [customContainerClasses]="'bs-datepicker-container-custom-left'"
                     style="display:table-cell;vertical-align:middle;width:175px;"> </date-field>
 
                   <input type="text" class="form-control" [placeholder]="'explorer.search.placeholder' | localize"
