@@ -295,6 +295,10 @@ a.navbar-brand {
 /**
  * location-manager
  */
+.bs-datepicker-container-custom-left {
+	left: 62px;
+}
+ 
 .date-required-message  {
   border-color: red;
 }
