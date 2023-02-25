@@ -43,9 +43,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.annotations.JsonAdapter;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeEmbeddedDAOIF;
-import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.MdEmbeddedGraphClassDAOIF;
+import com.runwaysdk.dataaccess.graph.EmbeddedGraphObjectDAO;
 import com.runwaysdk.dataaccess.graph.GraphObjectDAO;
-import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.AttributeGraphRef;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.localization.LocalizationFacade;
@@ -266,7 +266,7 @@ public class UpdateValueOverTimeView
           if (convertedValue != null)
           {
             MdAttributeEmbeddedDAOIF mdAttrEmbedded = (MdAttributeEmbeddedDAOIF) go.getMdAttributeDAO(attype.getName());
-            VertexObjectDAO votEmbeddedValue = VertexObjectDAO.newInstance((MdVertexDAOIF) mdAttrEmbedded.getEmbeddedMdClassDAOIF());
+            EmbeddedGraphObjectDAO votEmbeddedValue = EmbeddedGraphObjectDAO.newInstance((MdEmbeddedGraphClassDAOIF) mdAttrEmbedded.getEmbeddedMdClassDAOIF());
 
             votEmbeddedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, convertedValue.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
 

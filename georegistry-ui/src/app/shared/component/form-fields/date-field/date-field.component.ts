@@ -24,10 +24,11 @@ export class DateFieldComponent {
     @Input() label: string = ""; // raw string input
     @Input() disable: boolean = false;
     @Input() required: boolean = false;
-    @Input() placement: string = "right top";
+    @Input() placement: string = "bottom";
     @Input() oldDate: string = null;
     @Input() title: string = "";
     @Input() placeholder: string = "YYYY-MM-DD";
+    @Input() customContainerClasses: string = "";
 
     _value: Date;
     // eslint-disable-next-line accessor-pairs

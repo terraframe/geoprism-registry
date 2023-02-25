@@ -16,7 +16,7 @@
            (bsValueChange)="toggle($event)"
            [bsConfig]="{
               dateInputFormat: 'YYYY-MM-DD', 
-              containerClass: 'theme-default', 
+              containerClass: 'theme-default ' + customContainerClasses, 
               returnFocusToInput: returnFocusToInput,
               adaptivePosition: true
               }"
