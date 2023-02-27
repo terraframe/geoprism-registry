@@ -240,7 +240,8 @@
             <exclude>**/node_modules/**</exclude>
             <exclude>**/typings/**</exclude>
             <exclude>**/ng2/**</exclude>
-            <exclude>**/webapp/dist/**</exclude>
+	    <exclude>**/webapp/dist/**</exclude>
+	    <exclude>georegistry-ui/dist/**</exclude>
             <exclude>**/cldr/**</exclude>
 
             <!-- 3rd party library mishmashes. When we upgrade tomcat we can remove these with webjars. -->
