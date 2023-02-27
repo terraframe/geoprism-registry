@@ -57,7 +57,7 @@ if [ "$release_georegistry" == "true" ]; then
   
   cd $WORKSPACE/georegistry
   git add -A
-  git diff-index --quiet HEAD || git commit -m "chore(release): preparing project for release $CGR_RELEASE_VERSION"
+  git diff-index --quiet HEAD || git commit --no-verify -m "chore(release): preparing project for release $CGR_RELEASE_VERSION"
   if [ "$dry_run" == "false" ]; then
     git push
   else
@@ -70,7 +70,7 @@ if [ "$release_georegistry" == "true" ]; then
   git checkout $release_branch
   mvn license:format -B -q
   git add -A
-  git diff-index --quiet HEAD || git commit -m "chore(release): license headers for $CGR_RELEASE_VERSION"
+  git diff-index --quiet HEAD || git commit --no-verify -m "chore(release): license headers for $CGR_RELEASE_VERSION"
   if [ "$dry_run" == "false" ]; then
     git push
   else
@@ -99,7 +99,7 @@ if [ "$release_georegistry" == "true" ]; then
   cat CHANGELOG2.md >> CHANGELOG.md
   tail -n +3 CHANGELOG-old.md >> CHANGELOG.md
   git add CHANGELOG.md
-  git commit -m "chore(release): update changelog for $CGR_RELEASE_VERSION"
+  git commit --no-verify -m "chore(release): update changelog for $CGR_RELEASE_VERSION"
   if [ "$dry_run" == "false" ]; then
     git push
   else
