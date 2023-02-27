@@ -4,36 +4,6 @@
 
 ## [1.1.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.1.0) (2023-02-27)
 
-### Features
-
- - **explorer** show lat/long when not editing  ([#317](https://github.com/terraframe/geoprism-registry/issues/317)) ([be8d0](https://github.com/terraframe/geoprism-registry/commit/be8d05c669174dc94ef64def0c262bfc23be8cf4))
- - **change-request** ability to submit a create CR with no code  ([#401](https://github.com/terraframe/geoprism-registry/issues/401)) ([e8cd8](https://github.com/terraframe/geoprism-registry/commit/e8cd8957668ae4bf8965bf3af1213fb18c1905d0))
- - **api** optional hierarchy parameter on getChildGeoObjects/getParentGeoObjects   ([72dc7](https://github.com/terraframe/geoprism-registry/commit/72dc75c5933cc917034b43faae254398d178cdbd))
- - made attribute ordering consistent between a list and its exported spreadsheet, shapefile, and data dictionary  ([00c50](https://github.com/terraframe/geoprism-registry/commit/00c506e626fb2b06a38c4ef3c7e692e392e0839b))
- - explorer geo-Object search now displays a message if there a no results and gives look ahead options when typing  ([a666a](https://github.com/terraframe/geoprism-registry/commit/a666adb0f4be9277968bca0cca6a1ee85dd28fa7))
- - upgrade orientdb to v3.2   ([2ce9b](https://github.com/terraframe/geoprism-registry/commit/2ce9bec8d0ce36b68b0a7aa879984d99855885d8))
- - editing or creating a geo object will automatically update all working list versions of that geo object type to include the edits  ([cf6a7](https://github.com/terraframe/geoprism-registry/commit/cf6a700e8bb7a6edce3ee32571bb76e3bc28d54c))
-
-### Bug Fixes
-
-   - **lists** enforce read-only list-type properties  ([#569](https://github.com/terraframe/geoprism-registry/issues/569)) ([e26d8](https://github.com/terraframe/geoprism-registry/commit/e26d8f5a07cfe205ddc95fcc5b53194a81afe011))
-   - **explorer** date picker cut off  ([#763](https://github.com/terraframe/geoprism-registry/issues/763)) ([e58f4](https://github.com/terraframe/geoprism-registry/commit/e58f4dc052d465d9c7a305eb6b4a357ca0d4f3ea))
-   - **lists** localize labels  ([#794](https://github.com/terraframe/geoprism-registry/issues/794)) ([4dbe8](https://github.com/terraframe/geoprism-registry/commit/4dbe86bd5660ce25a3828f0830a4ce7cae3c1729))
-   - fixed issue with updating list periods for a frequency-based series, the new lists not in chronological order #835 ([#835](https://github.com/terraframe/geoprism-registry/issues/835)) ([22680](https://github.com/terraframe/geoprism-registry/commit/22680f14fc36d691baf583c2f9854c7623e03191))
-   - **explorer** show list when viewing record in working version  ([#862](https://github.com/terraframe/geoprism-registry/issues/862)) ([0b5d7](https://github.com/terraframe/geoprism-registry/commit/0b5d79fdb508c2b40204ab9e47805cf174cac3ba))
-   - **hierarchies** lao translation showing in english version  ([#877](https://github.com/terraframe/geoprism-registry/issues/877)) ([28e98](https://github.com/terraframe/geoprism-registry/commit/28e982abfa75ff0750819cc76fa324571c1db966))
-   - fixed issue where the locale of the user creating a type shows for the default locale if the default locale is not an exact match to theusers locale.  #877 ([#877](https://github.com/terraframe/geoprism-registry/issues/877)) ([277e1](https://github.com/terraframe/geoprism-registry/commit/277e1332e7d9366fd22f7f73224647489e0aef96))
-   - **synchronization** add inherited types to dhis2 sync config  ([#878](https://github.com/terraframe/geoprism-registry/issues/878)) ([15539](https://github.com/terraframe/geoprism-registry/commit/1553961b75d6460c0b94186eada41c1007814111))
-   - **geo-object-editor** unspecified error creating new time range  ([#883](https://github.com/terraframe/geoprism-registry/issues/883)) ([5a8c3](https://github.com/terraframe/geoprism-registry/commit/5a8c34648a74a41533550db27a20ee76dc4ba89d))
-   - **geo-object-editor** unspecified error creating new time range  ([#884](https://github.com/terraframe/geoprism-registry/issues/884)) ([5a8c3](https://github.com/terraframe/geoprism-registry/commit/5a8c34648a74a41533550db27a20ee76dc4ba89d))
-   - **import** adjusted UI of problem resolution for synonyms   ([35a36](https://github.com/terraframe/geoprism-registry/commit/35a36ab9f545b266f760d03138cf6429f48ef7b7))
-   - fixed bug where published lists do not show on the list entries page if only a single version has been published and the user belongs toa different organization  ([c3c5c](https://github.com/terraframe/geoprism-registry/commit/c3c5c206fcb42f7407f809341d770db322d45fe8))
-   - **localization** deadlock which could occur with active users on a system installing a new locale   ([bcf94](https://github.com/terraframe/geoprism-registry/commit/bcf9478c85a826c5368db88c88db4be521f6fe6b))
-
-
-
-## [1.1.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.1.0) (2023-02-27)
-
 This release includes two major breaking changes: upgrading of OrientDB from v3.0 to v3.2 and upgrading Postgres/PostGIS from v9.5-3.0 to v14-3.2. Please refer to the official v1.1.0 announcement on our forum for detailed migration instructions.
 
 ### Features
