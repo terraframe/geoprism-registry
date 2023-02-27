@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="Layer_1"
+   data-name="Layer 1"
+   viewBox="0 0 1232 1232"
+   version="1.1"
+   sodipodi:docname="task.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)">
+  <metadata
+     id="metadata15">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1698"
+     inkscape:window-height="1645"
+     id="namedview13"
+     showgrid="false"
+     inkscape:zoom="0.38311688"
+     inkscape:cx="822.87514"
+     inkscape:cy="382.07749"
+     inkscape:window-x="3353"
+     inkscape:window-y="48"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="Layer_1" />
+  <defs
+     id="defs4">
+    <style
+       id="style2">.cls-1{fill:#fff;}.cls-2{fill:#829160;}.cls-3{fill:none;stroke:#fff;stroke-linecap:round;stroke-linejoin:round;stroke-width:41px;}</style>
+  </defs>
+  <ellipse
+     class="cls-2"
+     cx="626.44067"
+     cy="589"
+     id="circle8"
+     rx="398.06781"
+     ry="400.67798"
+     style="fill:#b5d2a1;stroke-width:1.43658543;fill-opacity:1" />
+  <polyline
+     class="cls-3"
+     points="472.78 617.55 576.2 762.65 759.19 444.58"
+     id="polyline10"
+     transform="matrix(1.4318985,0,0,1.4412876,-255.60883,-259.91842)"
+     style="fill:none;stroke:#ffffff;stroke-width:41px;stroke-linecap:round;stroke-linejoin:round" />
+</svg>
