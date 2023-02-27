@@ -200,7 +200,7 @@
           </dependency>
         </dependencies>
         <configuration>
-          <scmCommentPrefix>chore(release): </scmCommentPrefix>
+          <scmCommentPrefix xml:space="preserve">chore(release): </scmCommentPrefix>
         </configuration>
       </plugin>
       <plugin>
