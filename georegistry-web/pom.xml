@@ -84,8 +84,7 @@
 		<profile>
 			<id>release</id>
 			<properties>
-				<!--When run in the release profile ${project.basedir} = georegistry/target/checkout/georegistry/georegistry-web/  -->
-				<!-- -->
+				<!-- When run in the release profile ${project.basedir} = georegistry/target/checkout/georegistry/georegistry-web/  -->
 				<ui.dist>${project.basedir}/../../../../georegistry-ui/dist/</ui.dist>
 			</properties>
 		</profile>
