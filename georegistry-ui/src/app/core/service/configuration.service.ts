@@ -21,7 +21,7 @@ export class ConfigurationService {
     }
 
     logout(): Promise<void> {
-        return firstValueFrom(this.http.post<void>(environment.apiUrl + "/session/logout", {}));
+        return firstValueFrom(this.http.post<void>(environment.apiUrl + "/api/session/logout", {}));
     }
 
 

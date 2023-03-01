@@ -1,1 +1,1 @@
-net.geoprism.registry.build.GeoregistryDatabaseBuilder
+net.geoprism.build.GeoprismClassifierDatabaseBuilder

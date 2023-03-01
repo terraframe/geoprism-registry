@@ -21,15 +21,18 @@ package net.geoprism.registry.geoobjecttype;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+
+import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -54,19 +57,19 @@ public class GeoObjectTypeService
    */
   public List<GeoObjectType> getGeoObjectTypes(String[] codes, PermissionContext context)
   {
-    List<GeoObjectType> gots;
+    List<ServerGeoObjectType> gots;
 
     if (codes == null || codes.length == 0)
     {
-      gots = adapter.getMetadataCache().getAllGeoObjectTypes();
+      gots = ServiceFactory.getMetadataCache().getAllGeoObjectTypes();
     }
     else
     {
-      gots = new ArrayList<GeoObjectType>(codes.length);
+      gots = new ArrayList<ServerGeoObjectType>(codes.length);
 
       for (int i = 0; i < codes.length; ++i)
       {
-        Optional<GeoObjectType> optional = adapter.getMetadataCache().getGeoObjectType(codes[i]);
+        Optional<ServerGeoObjectType> optional = ServiceFactory.getMetadataCache().getGeoObjectType(codes[i]);
 
         if (optional.isPresent())
         {
@@ -83,12 +86,10 @@ public class GeoObjectTypeService
       }
     }
 
-    Iterator<GeoObjectType> it = gots.iterator();
+    Iterator<ServerGeoObjectType> it = gots.iterator();
     while (it.hasNext())
     {
-      GeoObjectType got = it.next();
-
-      ServerGeoObjectType serverGot = ServerGeoObjectType.get(got);
+      ServerGeoObjectType serverGot = it.next();
 
       // Filter ones that they can't see due to permissions
       if (context.equals(PermissionContext.READ))
@@ -108,8 +109,8 @@ public class GeoObjectTypeService
         }
       }
     }
-
-    return gots;
+    
+    return gots.stream().map(server -> server.buildType()).collect(Collectors.toList());
   }
 
 }

@@ -76,6 +76,7 @@ import com.runwaysdk.system.metadata.MdAttributeTerm;
 
 import net.geoprism.account.OauthServer;
 import net.geoprism.account.OauthServerIF;
+import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.gis.geoserver.GeoserverProperties;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoRegistryUtil;
@@ -208,7 +209,7 @@ public class RegistryService
   {
     try
     {
-      String redirect = GeoregistryProperties.getRemoteServerUrl() + "cgrsession/ologin";
+      String redirect = GeoprismProperties.getRemoteServerUrl() + "session/ologin";
 
       JSONObject state = new JSONObject();
       state.put(OauthServerIF.SERVER_ID, server.getOid());
@@ -1220,7 +1221,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public String getLocalizationMap(String sessionId)
   {
-    return net.geoprism.localization.LocalizationFacade.getJSON();
+    return new net.geoprism.localization.LocalizationService().getAllView();
   }
 
   @Request(RequestType.SESSION)
@@ -1237,7 +1238,7 @@ public class RegistryService
     config.addProperty("enableBusinessData", GeoregistryProperties.isBusinessDataEnabled());
     config.addProperty("mapboxAccessToken", GeoserverProperties.getMapboxglAccessToken());
     config.add("defaultMapBounds", JsonParser.parseString(GeoregistryProperties.getDefaultMapBounds()));
-    config.add("localization", JsonParser.parseString(net.geoprism.localization.LocalizationFacade.getJSON()));
+    config.add("localization", JsonParser.parseString(getLocalizationMap(sessionId)));
     config.addProperty("googleanalyticstoken", GeoregistryProperties.getGoogleAnalyticsToken());
     config.addProperty("customFont", GeoregistryProperties.getCustomFont());
 

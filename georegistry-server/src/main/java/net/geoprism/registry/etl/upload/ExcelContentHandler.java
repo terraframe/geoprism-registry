@@ -27,8 +27,10 @@ import org.apache.poi.ss.util.CellReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.geoprism.ExceptionUtil;
-import net.geoprism.data.etl.ColumnType;
+import com.runwaysdk.RunwayException;
+import com.runwaysdk.session.Session;
+
+import net.geoprism.data.etl.excel.ColumnType;
 import net.geoprism.data.etl.excel.ExcelDataFormatter;
 import net.geoprism.data.etl.excel.ExcelFormulaException;
 import net.geoprism.data.etl.excel.ExcelObjectException;
@@ -143,7 +145,7 @@ public class ExcelContentHandler implements SheetHandler
         // Wrap all exceptions with information about the cell and row
         ExcelObjectException exception = new ExcelObjectException(e);
         exception.setRow(Long.valueOf(this.rowNum));
-        exception.setMsg(ExceptionUtil.getLocalizedException(e));
+        exception.setMsg(RunwayException.localizeThrowable(e, Session.getCurrentLocale()));
 
         throw exception;
       }
@@ -212,7 +214,7 @@ public class ExcelContentHandler implements SheetHandler
         // Wrap all exceptions with information about the cell and row
         ExcelValueException exception = new ExcelValueException();
         exception.setCell(cellReference);
-        exception.setMsg(ExceptionUtil.getLocalizedException(e));
+        exception.setMsg(RunwayException.localizeThrowable(e, Session.getCurrentLocale()));
 
         throw exception;
       }

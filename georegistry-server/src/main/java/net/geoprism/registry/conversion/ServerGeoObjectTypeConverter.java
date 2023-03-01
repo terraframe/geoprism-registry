@@ -512,42 +512,11 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
   {
     MdBusiness mdBusiness = universal.getMdBusiness();
     MdGeoVertexDAO mdVertex = GeoVertexType.getMdGeoVertex(universal.getUniversalId());
-    com.runwaysdk.system.gis.geo.GeometryType geoPrismgeometryType = universal.getGeometryType().get(0);
-
-    org.commongeoregistry.adapter.constants.GeometryType cgrGeometryType = GeometryTypeFactory.get(geoPrismgeometryType);
-
-    LocalizedValue label = convert(universal.getDisplayLabel());
-    LocalizedValue description = convert(universal.getDescription());
-
-    String ownerActerOid = universal.getOwnerOid();
-
-    String organizationCode = Organization.getRootOrganizationCode(ownerActerOid);
-
-    MdGeoVertexDAOIF superType = mdVertex.getSuperClass();
-
-    GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsGeometryEditable(), organizationCode, ServiceFactory.getAdapter());
-    geoObjType.setIsAbstract(mdBusiness.getIsAbstract());
-
-    try
-    {
-      GeoObjectTypeMetadata metadata = GeoObjectTypeMetadata.getByKey(universal.getKey());
-      geoObjType.setIsPrivate(metadata.getIsPrivate());
-    }
-    catch (DataNotFoundException | AttributeDoesNotExistException e)
-    {
-      geoObjType.setIsPrivate(false);
-    }
-
-    if (superType != null && !superType.definesType().equals(GeoVertex.CLASS))
-    {
-      String parentCode = superType.getTypeName();
-
-      geoObjType.setSuperTypeCode(parentCode);
-    }
-
-    geoObjType = this.convertAttributeTypes(universal, geoObjType, mdBusiness);
-
-    return new ServerGeoObjectType(geoObjType, universal, mdBusiness, mdVertex);
+    
+    ServerGeoObjectType server = new ServerGeoObjectType(null, universal, mdBusiness, mdVertex);
+    server.buildType();
+    
+    return server;
   }
 
   public GeoObjectType convertAttributeTypes(Universal uni, GeoObjectType gt, MdBusiness mdBusiness)

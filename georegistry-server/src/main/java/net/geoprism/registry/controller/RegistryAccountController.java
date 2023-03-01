@@ -46,7 +46,6 @@ import com.runwaysdk.mvc.conversion.BusinessDTOToBasicJSON;
 
 import net.geoprism.GeoprismUserDTO;
 import net.geoprism.account.UserInviteDTO;
-import net.geoprism.registry.account.RegistryAccountUtilDTO;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.service.AccountService;
 import net.geoprism.registry.spring.JsonArrayDeserializer;
@@ -314,14 +313,6 @@ public class RegistryAccountController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @PostMapping(API_PATH + "/inviteUser")
-  public ResponseEntity<Void> inviteUser(@Valid @RequestBody InviteUserBody body)
-  {
-    RegistryAccountUtilDTO.initiate(this.getClientRequest(), body.invite.toString(), body.roleIds.toString(), null);
-
-    return new ResponseEntity<Void>(HttpStatus.OK);
-  }
-
   /**
    * 
    * 
@@ -361,14 +352,6 @@ public class RegistryAccountController extends RunwaySpringController
     response.put("roles", new JSONArray(rolesJSONArray.toString()));
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
-  }
-
-  @PostMapping(API_PATH + "/inviteComplete")
-  public ResponseEntity<Void> inviteComplete(@Valid @RequestBody InviteCompleteBody body)
-  {
-    RegistryAccountUtilDTO.inviteComplete(this.getClientRequest(), body.token, body.user.toString());
-
-    return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
   private JsonArray createRoleMap(RegistryRole[] roles)

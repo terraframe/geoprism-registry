@@ -41,6 +41,7 @@ import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.util.LocaleUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.locationtech.jts.geom.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +51,10 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
-import org.locationtech.jts.geom.Point;
 
-import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
@@ -187,7 +187,7 @@ public class MasterListExcelExporter
 
   private String getSheetName(Workbook workbook, String key)
   {
-    String label = LocalizationFacade.getFromBundles(key);
+    String label = LocalizationFacade.localize(key);
     String name = WorkbookUtil.createSafeSheetName(label);
 
     int i = 0;
@@ -213,8 +213,8 @@ public class MasterListExcelExporter
     
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.DISPLAYLABEL, this.list.getDisplayLabel().getValue());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.CODE, this.list.getCode());
-    this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.publishDate"), stripTime(this.version.getPublishDate()));
-    this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.forDate"), stripTime(this.version.getForDate()));
+    this.createRow(sheet, rowNumber++, LocalizationFacade.localize("masterlist.publishDate"), stripTime(this.version.getPublishDate()));
+    this.createRow(sheet, rowNumber++, LocalizationFacade.localize("masterlist.forDate"), stripTime(this.version.getForDate()));
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.DESCRIPTIONLOCAL, this.list.getDescriptionLocal().getValue());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PROCESSLOCAL, this.list.getProcessLocal().getValue());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PROGRESSLOCAL, this.list.getProgressLocal().getValue());
@@ -372,11 +372,11 @@ public class MasterListExcelExporter
     {
       Cell longitude = header.createCell(col++);
       longitude.setCellStyle(boldStyle);
-      longitude.setCellValue(LocalizationFacade.getFromBundles(GeoObjectImportConfiguration.LONGITUDE_KEY));
+      longitude.setCellValue(LocalizationFacade.localize(GeoObjectImportConfiguration.LONGITUDE_KEY));
 
       Cell latitude = header.createCell(col++);
       latitude.setCellStyle(boldStyle);
-      latitude.setCellValue(LocalizationFacade.getFromBundles(GeoObjectImportConfiguration.LATITUDE_KEY));
+      latitude.setCellValue(LocalizationFacade.localize(GeoObjectImportConfiguration.LATITUDE_KEY));
     }
 
     for (MdAttributeConcreteDAOIF mdAttribute : this.mdAttributes)

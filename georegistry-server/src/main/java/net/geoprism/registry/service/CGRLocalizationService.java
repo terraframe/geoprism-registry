@@ -69,7 +69,7 @@ import net.geoprism.registry.localization.LocaleView;
 import net.geoprism.registry.localization.LocalizationImportMessagesException;
 
 @Component
-public class LocalizationService
+public class CGRLocalizationService extends net.geoprism.localization.LocalizationService
 {
 
   public void importSpreadsheet(String sessionId, MultipartFile file)
@@ -259,7 +259,7 @@ public class LocalizationService
     {
       if (locale != null && locale.length() > 0)
       {
-        Set<String> locales = LocalizationService.getLocaleNames();
+        Set<String> locales = CGRLocalizationService.getLocaleNames();
 
         if (locales.contains(locale))
         {

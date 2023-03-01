@@ -19,10 +19,7 @@
 package net.geoprism.registry.localization;
 
 import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import org.apache.commons.lang3.LocaleUtils;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.JsonObject;

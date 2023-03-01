@@ -1,0 +1,192 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+    </create>
+    <update></update>
+    <permissions>
+      <role roleName="cgr.RegistryAdministrator">
+        <grant>
+          <!-- Classifier -->
+          <mdBusinessPermission type="net.geoprism.ontology.Classifier">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="READ_CHILD" />
+            <operation name="READ_PARENT" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierMultiTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="READ_CHILD" />
+            <operation name="READ_PARENT" />
+          </mdRelationshipPermission>
+          <mdStructPermission type="net.geoprism.ontology.ClassifierDisplayLabel">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdStructPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierHasSynonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="READ_CHILD" />
+            <operation name="READ_PARENT" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierIsARelationship">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="READ_CHILD" />
+            <operation name="READ_PARENT" />
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="net.geoprism.ontology.ClassifierSynonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierSynonymTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="READ_CHILD" />
+            <operation name="READ_PARENT" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierSynonymMultiTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="READ_CHILD" />
+            <operation name="READ_PARENT" />
+          </mdRelationshipPermission>
+          <mdStructPermission type="net.geoprism.ontology.ClassifierSynonymDisplayLabel">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdStructPermission>
+          <mdBusinessPermission type="net.geoprism.ontology.Classifier">
+          <mdMethodPermission methodName="createOption">
+            <operation name="EXECUTE" />
+          </mdMethodPermission>
+          <mdMethodPermission methodName="editOption">
+            <operation name="EXECUTE" />
+          </mdMethodPermission>
+          <mdMethodPermission methodName="applyOption">
+            <operation name="EXECUTE" />
+          </mdMethodPermission>
+          <mdMethodPermission methodName="unlockCategory">
+            <operation name="EXECUTE" />
+          </mdMethodPermission>
+          <mdMethodPermission methodName="deleteOption">
+            <operation name="EXECUTE" />
+          </mdMethodPermission>
+        </mdBusinessPermission>
+          
+          <!-- Classifier Problem -->
+          <mdBusinessPermission type="net.geoprism.ontology.ClassifierProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.ontology.ClassifierProblemTypeMaster">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdViewPermission type="net.geoprism.ontology.ClassifierProblemView">
+            <operation name="ALL" />
+          </mdViewPermission>
+          
+          
+          <mdRelationshipPermission type="net.geoprism.TermSynonymRelationship">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <!-- Classifier -->
+          <mdBusinessPermission type="net.geoprism.ontology.Classifier">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="READ_CHILD" />
+            <operation name="READ_PARENT" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierMultiTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="READ_CHILD" />
+            <operation name="READ_PARENT" />
+          </mdRelationshipPermission>
+          <mdStructPermission type="net.geoprism.ontology.ClassifierDisplayLabel">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdStructPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierHasSynonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="READ_CHILD" />
+            <operation name="READ_PARENT" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierIsARelationship">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="READ_CHILD" />
+            <operation name="READ_PARENT" />
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="net.geoprism.ontology.ClassifierSynonym">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierSynonymTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="READ_CHILD" />
+            <operation name="READ_PARENT" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.ontology.ClassifierSynonymMultiTermAttributeRoot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="READ_CHILD" />
+            <operation name="READ_PARENT" />
+          </mdRelationshipPermission>
+          <mdStructPermission type="net.geoprism.ontology.ClassifierSynonymDisplayLabel">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdStructPermission>
+          <mdBusinessPermission type="net.geoprism.ontology.Classifier">
+          <mdMethodPermission methodName="createOption">
+            <operation name="EXECUTE" />
+          </mdMethodPermission>
+          <mdMethodPermission methodName="editOption">
+            <operation name="EXECUTE" />
+          </mdMethodPermission>
+          <mdMethodPermission methodName="applyOption">
+            <operation name="EXECUTE" />
+          </mdMethodPermission>
+          <mdMethodPermission methodName="unlockCategory">
+            <operation name="EXECUTE" />
+          </mdMethodPermission>
+          <mdMethodPermission methodName="deleteOption">
+            <operation name="EXECUTE" />
+          </mdMethodPermission>
+        </mdBusinessPermission>
+          
+          <!-- Classifier Problem -->
+          <mdBusinessPermission type="net.geoprism.ontology.ClassifierProblem">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.ontology.ClassifierProblemTypeMaster">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdViewPermission type="net.geoprism.ontology.ClassifierProblemView">
+            <operation name="ALL" />
+          </mdViewPermission>
+          
+          
+          <mdRelationshipPermission type="net.geoprism.TermSynonymRelationship">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

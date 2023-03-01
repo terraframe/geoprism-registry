@@ -19,7 +19,6 @@
 package net.geoprism.registry.action;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -42,6 +41,7 @@ import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdRelationshipDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.LocalizedValueStore;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
@@ -50,14 +50,13 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.VaultFile;
 
-import net.geoprism.EmailSetting;
 import net.geoprism.GeoprismUser;
-import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.GeoregistryProperties;
+import net.geoprism.configuration.GeoprismProperties;
+import net.geoprism.email.EmailService;
+import net.geoprism.email.SendEmailCommand;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
-import net.geoprism.registry.command.SendEmailCommand;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -270,14 +269,14 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
           if (toAddresses.size() > 0)
           {
-            String subject = LocalizationFacade.getFromBundles("change.request.email.submit.subject");
+            String subject = LocalizationFacade.localize("change.request.email.submit.subject");
 
-            String body = LocalizationFacade.getFromBundles("change.request.email.submit.body");
+            String body = LocalizationFacade.localize("change.request.email.submit.body");
             body = body.replaceAll("\\\\n", "\n");
             body = body.replaceAll("\\{user\\}", ( (GeoprismUser) createdBy ).getUsername());
             body = body.replaceAll("\\{geoobject\\}", this.getGeoObjectDisplayLabel().getValue());
 
-            String link = GeoregistryProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
+            String link = GeoprismProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
             body = body.replaceAll("\\{link\\}", link);
 
             // Aspects will weave in here and this will happen at the end of the
@@ -438,18 +437,18 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
           {
             final String statusLabel = status.getDisplayLabel().toLowerCase(Session.getCurrentLocale());
 
-            String subject = LocalizationFacade.getFromBundles("change.request.email.implement.subject");
+            String subject = LocalizationFacade.localize("change.request.email.implement.subject");
             subject = subject.replaceAll("\\{status\\}", StringUtils.capitalize(statusLabel));
 
-            String body = LocalizationFacade.getFromBundles("change.request.email.implement.body");
+            String body = LocalizationFacade.localize("change.request.email.implement.body");
             body = body.replaceAll("\\\\n", "\n");
             body = body.replaceAll("\\{status\\}", statusLabel);
             body = body.replaceAll("\\{geoobject\\}", this.getGeoObject().getDisplayLabel().getValue());
 
-            String link = GeoregistryProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
+            String link = GeoprismProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
             body = body.replaceAll("\\{link\\}", link);
 
-            EmailSetting.sendEmail(subject, body, new String[] { email });
+            new EmailService().sendEmail(Session.getCurrentSession().getOid(), subject, body, new String[] { email });
           }
         }
       }

@@ -46,11 +46,7 @@ export class AccountInviteCompleteComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.service.newUserInstance().then((user: User) => {
-			this.user = user;
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
+	  this.user = new User();
 
 		this.sub = this.route.params.subscribe(params => {
 			this.token = params['token'];

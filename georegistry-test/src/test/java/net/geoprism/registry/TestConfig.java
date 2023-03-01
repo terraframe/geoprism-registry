@@ -7,8 +7,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import net.geoprism.ForgotPasswordServiceIF;
+import net.geoprism.classifier.ClassifierService;
+import net.geoprism.classifier.ClassifierServiceIF;
+import net.geoprism.rbac.RoleService;
+import net.geoprism.rbac.RoleServiceIF;
+import net.geoprism.registry.account.ForgotPasswordCGRService;
+import net.geoprism.registry.session.ExternalProfileCGRService;
 import net.geoprism.registry.test.MockHttpServletRequest;
 import net.geoprism.registry.test.MockHttpServletResponse;
+import net.geoprism.session.ExternalProfileServiceIF;
 
 @Configuration
 @ComponentScan(basePackages = { "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.spring", "net.geoprism.registry.test" })
@@ -24,5 +32,25 @@ public class TestConfig
   @Bean
   HttpServletResponse response(){
     return new MockHttpServletResponse();
+  }
+  
+  @Bean
+  ForgotPasswordServiceIF forgotPasswordServiceIF() {
+    return new ForgotPasswordCGRService();
+  }
+  
+  @Bean
+  ExternalProfileServiceIF externalProfileServiceIF() {
+    return new ExternalProfileCGRService();
+  }
+  
+  @Bean
+  ClassifierServiceIF classifierServiceIF() {
+    return new ClassifierService();
+  }
+  
+  @Bean
+  RoleServiceIF roleServiceIF() {
+    return new RoleService();
   }
 }

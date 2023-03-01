@@ -38,8 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.resource.CloseableFile;
 
-import net.geoprism.GeoprismProperties;
-import net.geoprism.registry.GeoregistryProperties;
+import net.geoprism.configuration.GeoprismProperties;
 
 /**
  * This class is responsible for extracting a DHIS2 plugin zip (created from the
@@ -153,7 +152,7 @@ public class DHIS2PluginZipManager
             {
               String indexHtml = FileUtils.readFileToString(file, "UTF-8");
 
-              indexHtml = indexHtml.replace(REPLACE_TOKEN, GeoregistryProperties.getRemoteServerUrl());
+              indexHtml = indexHtml.replace(REPLACE_TOKEN, GeoprismProperties.getRemoteServerUrl());
 
               FileUtils.writeStringToFile(file, indexHtml, Charset.forName("UTF-8"));
             }

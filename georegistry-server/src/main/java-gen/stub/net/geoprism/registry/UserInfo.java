@@ -49,11 +49,9 @@ import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 
-import net.geoprism.ConfigurationIF;
-import net.geoprism.ConfigurationService;
-import net.geoprism.DefaultConfiguration;
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserQuery;
+import net.geoprism.account.RoleConstants;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.permission.RolePermissionService;
@@ -363,12 +361,17 @@ public class UserInfo extends UserInfoBase
         newRoles.add(role);
       }
 
-      List<ConfigurationIF> configurations = ConfigurationService.getConfigurations();
+//        ConfigurationIF.configureUserRoles(roleIdSet);
+      RoleDAOIF admin = RoleDAO.findRole(RoleConstants.ADMIN);
+      RoleDAOIF builder = RoleDAO.findRole(RoleConstants.DASHBOARD_BUILDER);
 
-      for (ConfigurationIF configuration : configurations)
+      if (! ( roleIdSet.contains(admin.getOid()) || roleIdSet.contains(builder.getOid()) ))
       {
-        configuration.configureUserRoles(roleIdSet);
+        RoleDAOIF role = RoleDAO.findRole(RoleConstants.DECISION_MAKER);
+
+        roleIdSet.add(role.getOid());
       }
+      
 
       UserDAOIF user = UserDAO.get(geoprismUser.getOid());
 
@@ -378,7 +381,7 @@ public class UserInfo extends UserInfoBase
       {
         RoleDAO roleDAO = RoleDAO.get(roleDAOIF.getOid()).getBusinessDAO();
 
-        if (! ( geoprismUser.getUsername().equals(RegistryConstants.ADMIN_USER_NAME) && ( roleDAO.getRoleName().equals(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE) || roleDAO.getRoleName().equals(DefaultConfiguration.ADMIN) ) ))
+        if (! ( geoprismUser.getUsername().equals(RegistryConstants.ADMIN_USER_NAME) && ( roleDAO.getRoleName().equals(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE) || roleDAO.getRoleName().equals(RoleConstants.ADMIN) ) ))
         {
           roleDAO.deassignMember(user);
         }

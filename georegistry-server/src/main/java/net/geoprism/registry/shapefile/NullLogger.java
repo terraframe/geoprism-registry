@@ -18,8 +18,6 @@
  */
 package net.geoprism.registry.shapefile;
 
-import net.geoprism.data.importer.GISImportLoggerIF;
-
 public class NullLogger implements GISImportLoggerIF
 {
 

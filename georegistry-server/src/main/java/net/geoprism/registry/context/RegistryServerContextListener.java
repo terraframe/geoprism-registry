@@ -20,16 +20,18 @@ package net.geoprism.registry.context;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.runwaysdk.session.Request;
+import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.context.event.ContextStoppedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 
 import it.geosolutions.geoserver.rest.GeoServerRESTReader;
-import net.geoprism.context.ServerContextListener;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.GeoserverProperties;
 import net.geoprism.registry.service.WMSService;
 
-public class RegistryServerContextListener implements ServerContextListener
+@Component
+public class RegistryServerContextListener
 {
 
   public static class StartupThread implements Runnable
@@ -81,13 +83,7 @@ public class RegistryServerContextListener implements ServerContextListener
     }
   }
 
-  @Override
-  public void initialize()
-  {
-  }
-
-  @Override
-  @Request
+  @EventListener({ ContextStartedEvent.class })
   public void startup()
   {
     Thread t = new Thread(new StartupThread());
@@ -95,7 +91,7 @@ public class RegistryServerContextListener implements ServerContextListener
     t.start();
   }
 
-  @Override
+  @EventListener({ ContextStoppedEvent.class })
   public void shutdown()
   {
   }

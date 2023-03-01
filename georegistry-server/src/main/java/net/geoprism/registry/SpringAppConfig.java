@@ -4,6 +4,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import javax.servlet.Filter;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +21,25 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
+import net.geoprism.EncodingFilter;
+import net.geoprism.ForgotPasswordController;
+import net.geoprism.ForgotPasswordServiceIF;
+import net.geoprism.account.UserInviteController;
+import net.geoprism.account.UserInviteServiceIF;
+import net.geoprism.classifier.ClassifierService;
+import net.geoprism.classifier.ClassifierServiceIF;
+import net.geoprism.email.EmailController;
+import net.geoprism.email.EmailService;
+import net.geoprism.email.EmailServiceIF;
+import net.geoprism.rbac.RoleService;
+import net.geoprism.rbac.RoleServiceIF;
+import net.geoprism.registry.account.ForgotPasswordCGRService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.service.CGRUserInviteService;
+import net.geoprism.registry.session.ExternalProfileCGRService;
+import net.geoprism.session.ExternalProfileController;
+import net.geoprism.session.ExternalProfileServiceIF;
+import net.geoprism.session.SessionFilter;
 
 @Configuration
 @EnableWebMvc
@@ -74,12 +94,77 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
     registry.addResourceHandler("index.html").addResourceLocations("/index.html    ");
     registry.addResourceHandler("/index.html").addResourceLocations("/index.html    ");
   }
-
+  
   @Bean
   public InternalResourceViewResolver viewResolver()
   {
     InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
     viewResolver.setSuffix(".html");
     return viewResolver;
+  }
+  
+  @Bean
+  Filter sessionFilter() {
+    return new SessionFilter();
+  }
+  
+  @Bean
+  EncodingFilter encodingFilter() {
+    return new EncodingFilter();
+  }
+  
+  @Bean
+  ForgotPasswordServiceIF forgotPasswordServiceIF() {
+    return new ForgotPasswordCGRService();
+  }
+  
+  @Bean
+  ForgotPasswordController forgotPasswordController() {
+    return new ForgotPasswordController();
+  }
+  
+  @Bean
+  ExternalProfileServiceIF externalProfileServiceIF() {
+    return new ExternalProfileCGRService();
+  }
+  
+  @Bean
+  ClassifierServiceIF classifierServiceIF() {
+    return new ClassifierService();
+  }
+  
+  @Bean
+  RoleServiceIF roleServiceIF() {
+    return new RoleService();
+  }
+  
+//  @Bean
+//  SessionController sessionController() {
+//    return new SessionController();
+//  }
+  
+  @Bean
+  ExternalProfileController externalProfileController() {
+    return new ExternalProfileController();
+  }
+  
+  @Bean
+  EmailServiceIF emailService() {
+    return new EmailService();
+  }
+  
+  @Bean
+  EmailController emailController() {
+    return new EmailController();
+  }
+  
+  @Bean
+  UserInviteServiceIF userInviteService() {
+    return new CGRUserInviteService();
+  }
+  
+  @Bean
+  UserInviteController userInviteController() {
+    return new UserInviteController();
   }
 }

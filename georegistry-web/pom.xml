@@ -42,13 +42,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.geoprism</groupId>
-			<artifactId>geoprism-web</artifactId>
-			<version>${geoprism.version}</version>
-			<type>war</type>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.geoserver</groupId>
 			<artifactId>geoserver</artifactId>
 			<version>${geoserver.version}</version>
@@ -254,35 +247,6 @@
 					<fork>true</fork>
 					<meminitial>512m</meminitial>
 					<maxmem>1024m</maxmem>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>3.3.2</version>
-				<configuration>
-					<warSourceExcludes>**/prism.jsp,**/admin.jsp,**/index.jsp</warSourceExcludes>
-					<packagingExcludes>
-						<!-- Exclude all jars provided by tomcat -->
-						**/catalina*.jar,
-						**/servlet-api*.jar,
-						**/annotations-api*.jar,
-						<!-- Exclude aspectjtools because it conflicts with our BIRT jar -->
-						**/aspectjtools*.jar
-					</packagingExcludes>
-					<overlays>
-						<overlay>
-							<!-- empty groupId/artifactId represents the current build -->
-						</overlay>
-						<overlay>
-							<groupId>net.geoprism</groupId>
-							<artifactId>geoprism-web</artifactId>
-							<excludes>
-								<exclude>**.jsp</exclude>								
-								<exclude>WEB-INF/lib/*.jar</exclude>
-							</excludes>
-						</overlay>
-					</overlays>
 				</configuration>
 			</plugin>
 		</plugins>

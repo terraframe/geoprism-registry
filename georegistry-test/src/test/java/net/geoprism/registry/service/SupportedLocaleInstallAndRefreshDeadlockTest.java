@@ -28,7 +28,7 @@ public class SupportedLocaleInstallAndRefreshDeadlockTest
   protected static final Locale testLocale = Locale.SIMPLIFIED_CHINESE;
   
   @Autowired
-  private LocalizationService                 service;
+  private CGRLocalizationService                 service;
   
   @BeforeClass
   public static void setUpClass()

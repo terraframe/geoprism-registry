@@ -127,7 +127,7 @@ import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 
-import net.geoprism.DefaultConfiguration;
+import net.geoprism.account.RoleConstants;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
@@ -1790,7 +1790,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
   private static void assignDefaultRolePermissions(ComponentIF component)
   {
-    RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
+    RoleDAO adminRole = RoleDAO.findRole(RoleConstants.ADMIN).getBusinessDAO();
     adminRole.grantPermission(Operation.CREATE, component.getOid());
     adminRole.grantPermission(Operation.DELETE, component.getOid());
     adminRole.grantPermission(Operation.WRITE, component.getOid());

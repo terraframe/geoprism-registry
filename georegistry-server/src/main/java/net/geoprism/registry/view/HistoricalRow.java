@@ -35,8 +35,8 @@ import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
+import com.runwaysdk.localization.LocalizationFacade;
 
-import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.excel.HistoricalReportExcelExporter;
@@ -195,14 +195,14 @@ public class HistoricalRow implements JsonSerializable
     if (split.length > 1)
     {
       StringBuilder builder = new StringBuilder();
-      builder.append(LocalizationFacade.getFromBundles("transition.event.type." + split[1].toLowerCase()));
+      builder.append(LocalizationFacade.localize("transition.event.type." + split[1].toLowerCase()));
       builder.append(" - ");
-      builder.append(LocalizationFacade.getFromBundles("transition.event.type." + split[0].toLowerCase()));
+      builder.append(LocalizationFacade.localize("transition.event.type." + split[0].toLowerCase()));
 
       return builder.toString();
     }
 
-    return LocalizationFacade.getFromBundles("transition.event.type." + eventType.toLowerCase());
+    return LocalizationFacade.localize("transition.event.type." + eventType.toLowerCase());
   }
 
   @Override

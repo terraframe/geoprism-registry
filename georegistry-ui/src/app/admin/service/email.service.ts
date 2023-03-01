@@ -37,8 +37,9 @@ export class EmailService {
 	getInstance(): Promise<Email> {
 
 		this.eventService.start();
+		console.log(environment);
 
-		return this.http.get<Email>(environment.apiUrl + '/email/getInstance')
+		return this.http.get<Email>(environment.apiUrl + '/api/email/editDefault')
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
@@ -53,7 +54,7 @@ export class EmailService {
 		this.eventService.start();
 
 		return this.http
-			.post<Email>(environment.apiUrl + '/email/apply', JSON.stringify({ setting: email }), { headers: headers })
+			.post<Email>(environment.apiUrl + '/api/email/apply', JSON.stringify(email), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))

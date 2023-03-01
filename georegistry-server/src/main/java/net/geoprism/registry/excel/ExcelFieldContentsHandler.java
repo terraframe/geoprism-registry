@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
-import net.geoprism.data.etl.ColumnType;
+import net.geoprism.data.etl.excel.ColumnType;
 import net.geoprism.data.etl.excel.ExcelFormulaException;
 import net.geoprism.data.etl.excel.ExcelHeaderException;
 import net.geoprism.data.etl.excel.InvalidHeaderRowException;

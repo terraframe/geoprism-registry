@@ -105,10 +105,6 @@
             <operation name="READ_CHILD" />
             <operation name="READ_PARENT" />
           </mdRelationshipPermission>
-          <mdViewPermission type="net.geoprism.RoleView">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdViewPermission>
         
           <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoNode">
             <operation name="READ" />
@@ -283,19 +279,8 @@
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdRelationshipPermission>
 
-
-          <!-- Localization -->
-          <mdUtilPermission type="net.geoprism.localization.LocalizationFacade">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdUtilPermission>
-
           <!-- Geo Entity -->
           <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoEntity">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
@@ -384,10 +369,6 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.ontology.ClassifierIsARelationshipAllPathsTable">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
           <mdRelationshipPermission type="net.geoprism.ontology.ClassifierTermAttributeRoot">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
@@ -438,10 +419,6 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
 		  </mdRelationshipPermission>          
-		  <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-		  </mdBusinessPermission>          
         
           <mdBusinessPermission type="net.geoprism.registry.GeoRegistryUtil">
             <mdMethodPermission methodName="submitChangeRequest">

@@ -38,7 +38,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.geoprism.localization.LocalizationFacade;
+import com.runwaysdk.localization.LocalizationFacade;
+
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.view.HistoricalRow;
@@ -175,7 +176,7 @@ public class HistoricalReportExcelExporter
   {
     Cell cell = header.createCell(col);
     cell.setCellStyle(boldStyle);
-    cell.setCellValue(LocalizationFacade.getFromBundles("historical.row." + code));
+    cell.setCellValue(LocalizationFacade.localize("historical.row." + code));
   }
 
   public InputStream export() throws IOException
