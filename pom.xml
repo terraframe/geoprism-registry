@@ -201,6 +201,8 @@
         </dependencies>
         <configuration>
           <scmCommentPrefix xml:space="preserve">chore(release): </scmCommentPrefix>
+          <releaseProfiles>release</releaseProfiles>
+          <workingDirectory>${project.build.directory}/checkout</workingDirectory>
         </configuration>
       </plugin>
       <plugin>

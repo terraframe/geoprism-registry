@@ -33,7 +33,7 @@
 		<db.name>georegistry</db.name>
 		<db.user>georegistry</db.user>
 		<db.port>5432</db.port>
-		<local.host>$${pageContext.request.contextPath}</local.host>
+		<ui.dist>${project.basedir}/../georegistry-ui/dist</ui.dist>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -80,10 +80,13 @@
 		</dependency>
 	</dependencies>
 	<profiles>
+		
 		<profile>
-			<id>ng2-dev</id>
+			<id>release</id>
 			<properties>
-				<local.host>https://localhost:8080</local.host>
+				<!--When run in the release profile ${project.basedir} = georegistry/target/checkout/georegistry/georegistry-web/  -->
+				<!-- -->
+				<ui.dist>${project.basedir}/../../../../georegistry-ui/dist/</ui.dist>
 			</properties>
 		</profile>
 		<profile>
@@ -208,7 +211,7 @@
 							<outputDirectory>${basedir}/target/georegistry</outputDirectory>
 							<resources>
 								<resource>
-									<directory>${project.basedir}/../georegistry-ui/dist</directory>
+									<directory>${ui.dist}</directory>
 									<filtering>false</filtering>
 								</resource>
 							</resources>
