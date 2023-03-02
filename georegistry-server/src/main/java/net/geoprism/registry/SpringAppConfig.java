@@ -24,8 +24,10 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import net.geoprism.EncodingFilter;
 import net.geoprism.ForgotPasswordController;
 import net.geoprism.ForgotPasswordServiceIF;
+import net.geoprism.PatchingContextListener;
+import net.geoprism.RMIContextListener;
+import net.geoprism.SchedulerContextListener;
 import net.geoprism.account.UserInviteController;
-import net.geoprism.account.UserInviteServiceIF;
 import net.geoprism.classifier.ClassifierService;
 import net.geoprism.classifier.ClassifierServiceIF;
 import net.geoprism.email.EmailController;
@@ -35,7 +37,6 @@ import net.geoprism.rbac.RoleService;
 import net.geoprism.rbac.RoleServiceIF;
 import net.geoprism.registry.account.ForgotPasswordCGRService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.service.CGRUserInviteService;
 import net.geoprism.registry.session.ExternalProfileCGRService;
 import net.geoprism.session.ExternalProfileController;
 import net.geoprism.session.ExternalProfileServiceIF;
@@ -138,11 +139,6 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
     return new RoleService();
   }
   
-//  @Bean
-//  SessionController sessionController() {
-//    return new SessionController();
-//  }
-  
   @Bean
   ExternalProfileController externalProfileController() {
     return new ExternalProfileController();
@@ -159,12 +155,22 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
   }
   
   @Bean
-  UserInviteServiceIF userInviteService() {
-    return new CGRUserInviteService();
+  UserInviteController userInviteController() {
+    return new UserInviteController();
   }
   
   @Bean
-  UserInviteController userInviteController() {
-    return new UserInviteController();
+  PatchingContextListener patchContextListener() {
+    return new PatchingContextListener();
+  }
+  
+  @Bean
+  RMIContextListener rmiContextListener() {
+    return new RMIContextListener();
+  }
+  
+  @Bean
+  SchedulerContextListener schedulerContextListener() {
+    return new SchedulerContextListener();
   }
 }

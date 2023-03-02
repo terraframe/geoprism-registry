@@ -40,7 +40,7 @@ public class CGRUserInviteService extends UserInviteService implements UserInvit
   {
     final String serverExternalUrl = GeoprismProperties.getRemoteServerUrl();
     
-    String link = serverExternalUrl + "cgr/manage#/admin/invite-complete/" + token;
+    String link = serverExternalUrl + "#/admin/invite-complete/" + token;
 
     String subject = LocalizationFacade.localize("user.invite.email.subject");
     
@@ -83,6 +83,10 @@ public class CGRUserInviteService extends UserInviteService implements UserInvit
     }
     
     body = body.replace("${roles}", StringUtils.join(roleLabels, ", "));
+    
+    if (orgLabel.equals("??")) {
+      orgLabel = StringUtils.join(roleLabels, ", ");
+    }
     body = body.replace("${organization}", orgLabel);
 
     this.emailService.sendEmail(Session.getCurrentSession().getOid(), subject, body, new String[] { emailAddress });
