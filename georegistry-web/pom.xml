@@ -33,7 +33,6 @@
 		<db.name>georegistry</db.name>
 		<db.user>georegistry</db.user>
 		<db.port>5432</db.port>
-		<ui.dist>${project.basedir}/../georegistry-ui/dist</ui.dist>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -79,15 +78,7 @@
 			<version>1.2</version>
 		</dependency>
 	</dependencies>
-	<profiles>
-		
-		<profile>
-			<id>release</id>
-			<properties>
-				<!-- When run in the release profile ${project.basedir} = georegistry/target/checkout/georegistry/georegistry-web/  -->
-				<ui.dist>${project.basedir}/../../../../georegistry-ui/dist/</ui.dist>
-			</properties>
-		</profile>
+	<profiles>		
 		<profile>
 			<id>cargo-run-georegistry</id>
 			<activation>
@@ -210,7 +201,7 @@
 							<outputDirectory>${basedir}/target/georegistry</outputDirectory>
 							<resources>
 								<resource>
-									<directory>${ui.dist}</directory>
+									<directory>${project.basedir}/../georegistry-ui/dist</directory>
 									<filtering>false</filtering>
 								</resource>
 							</resources>
