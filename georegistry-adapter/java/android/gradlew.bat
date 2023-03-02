@@ -1,20 +1,5 @@
 @REM
-@REM Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 @REM
-@REM This file is part of Geoprism Registry(tm).
-@REM
-@REM Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-@REM it under the terms of the GNU Lesser General Public License as
-@REM published by the Free Software Foundation, either version 3 of the
-@REM License, or (at your option) any later version.
-@REM
-@REM Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-@REM WITHOUT ANY WARRANTY; without even the implied warranty of
-@REM MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-@REM GNU Lesser General Public License for more details.
-@REM
-@REM You should have received a copy of the GNU Lesser General Public
-@REM License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 @REM
 
 @if "%DEBUG%" == "" @echo off
