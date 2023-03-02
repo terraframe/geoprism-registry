@@ -2,6 +2,8 @@
 # Release Notes
 
 
+
+
 ## [1.1.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.1.0) (2023-02-27)
 
 This release includes two major breaking changes: upgrading of OrientDB from v3.0 to v3.2 and upgrading Postgres/PostGIS from v9.5-3.0 to v14-3.2. Please refer to the official v1.1.0 announcement on our forum for detailed migration instructions.
