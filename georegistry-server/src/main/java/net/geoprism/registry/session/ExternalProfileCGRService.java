@@ -6,6 +6,7 @@ import com.runwaysdk.business.rbac.UserDAO;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.account.OauthServer;
+import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -35,5 +36,11 @@ public class ExternalProfileCGRService extends ExternalProfileService
     ex.setUsername(geoprismUser.getUsername());
     ex.setOauthServer(server.getDisplayLabel().getValue());
     throw ex;
+  }
+  
+  @Override
+  protected String buildRedirectURI()
+  {
+    return GeoprismProperties.getRemoteServerUrl() + "api/session/ologin";
   }
 }

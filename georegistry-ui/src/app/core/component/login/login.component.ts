@@ -82,9 +82,7 @@ export class LoginComponent implements OnInit {
   }
 
   public onClickDhis2(target: EventTarget): void {
-    const url = (<HTMLTextAreaElement>target).value;
-
-    if (url == null) {
+    if (target == null) {
       if (this.oauthServers.length == 1) {
         window.location.href = this.oauthServers[0].url;
       }
@@ -93,6 +91,7 @@ export class LoginComponent implements OnInit {
       }
     }
     else {
+      const url = (<HTMLTextAreaElement>target).value;
       window.location.href = url;
     }
   }

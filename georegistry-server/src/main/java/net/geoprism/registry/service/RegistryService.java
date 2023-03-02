@@ -209,7 +209,7 @@ public class RegistryService
   {
     try
     {
-      String redirect = GeoprismProperties.getRemoteServerUrl() + "session/ologin";
+      String redirect = GeoprismProperties.getRemoteServerUrl() + "api/session/ologin";
 
       JSONObject state = new JSONObject();
       state.put(OauthServerIF.SERVER_ID, server.getOid());
