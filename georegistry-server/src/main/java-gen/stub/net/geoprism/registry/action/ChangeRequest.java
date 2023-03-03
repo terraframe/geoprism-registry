@@ -281,7 +281,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
             // Aspects will weave in here and this will happen at the end of the
             // transaction
-            new SendEmailCommand(subject, body, toAddresses.toArray(new String[toAddresses.size()])).doIt();
+            new SendEmailCommand(new EmailService(), subject, body, toAddresses.toArray(new String[toAddresses.size()])).doIt();
           }
         }
       }
