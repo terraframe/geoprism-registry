@@ -49,6 +49,7 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
+import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.AbstractParentException;
 import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.HierarchyMetadata;
@@ -444,10 +445,14 @@ public class ServerHierarchyType implements ServerElement, GraphType
 
     Universal rootUniversal = Universal.getByKey(Universal.ROOT);
     
-    try (OIterator<? extends Business> i = rootUniversal.getAllDescendants(this.hierarchicalRelationship.getMdTermRelationship().definesType()))
-    {
-      i.forEach(u -> types.add(ServerGeoObjectType.get((Universal) u)));
-    }
+//    try (OIterator<? extends Business> i = rootUniversal.getAllDescendants(this.hierarchicalRelationship.getMdTermRelationship().definesType()))
+//    {
+//      i.forEach(u -> types.add(ServerGeoObjectType.get((Universal) u)));
+//    }
+    
+    GeoEntityUtil.getOrderedDescendants(rootUniversal, this.hierarchicalRelationship.getMdTermRelationship().definesType()).forEach(universal -> {
+      if (!universal.getKey().equals(rootUniversal.getKey())) types.add(ServerGeoObjectType.get((Universal) universal));
+    });
     
     java.util.Optional<ServerGeoObjectType> rootOfHierarchy = types.stream().findFirst();
     if (rootOfHierarchy.isPresent() && includeInherited)

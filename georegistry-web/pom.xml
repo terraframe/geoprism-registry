@@ -23,7 +23,7 @@
 	<parent>
 		<groupId>net.geoprism</groupId>
 		<artifactId>georegistry</artifactId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>1.1.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>georegistry-web</artifactId>
 	<packaging>war</packaging>
@@ -33,7 +33,6 @@
 		<db.name>georegistry</db.name>
 		<db.user>georegistry</db.user>
 		<db.port>5432</db.port>
-		<local.host>$${pageContext.request.contextPath}</local.host>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -72,13 +71,7 @@
 			<version>1.2</version>
 		</dependency>
 	</dependencies>
-	<profiles>
-		<profile>
-			<id>ng2-dev</id>
-			<properties>
-				<local.host>https://localhost:8080</local.host>
-			</properties>
-		</profile>
+	<profiles>		
 		<profile>
 			<id>cargo-run-georegistry</id>
 			<activation>
@@ -193,7 +186,7 @@
 					<execution>
 						<id>copy-resources</id>
 						<!-- here the phase you need -->
-						<phase>validate</phase>
+						<phase>process-resources</phase>
 						<goals>
 							<goal>copy-resources</goal>
 						</goals>

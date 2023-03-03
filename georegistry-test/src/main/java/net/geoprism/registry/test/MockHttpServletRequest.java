@@ -1,3 +1,6 @@
+/**
+ *
+ */
 package net.geoprism.registry.test;
 
 import java.io.BufferedReader;

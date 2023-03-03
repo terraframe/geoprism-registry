@@ -1,21 +1,6 @@
 <!--
 
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 
-    This file is part of Geoprism Registry(tm).
-
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
-
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses />.
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -23,7 +8,7 @@
 
   <groupId>net.geoprism</groupId>
   <artifactId>georegistry</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.1.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>GeoRegistry</name>
@@ -33,6 +18,7 @@
     <module>georegistry-adapter/java/common</module>
     <module>dhis2adapter</module>
     <module>georegistry-server</module>
+    <module>georegistry-ui</module>    
     <module>georegistry-web</module>
 <!-- 
     <module>georegistry-test</module>    
@@ -138,7 +124,7 @@
     <connection>scm:git:ssh://git@github.com/terraframe/geoprism-registry</connection>
     <developerConnection>scm:git:ssh://git@github.com/terraframe/geoprism-registry</developerConnection>
     <url>scm:git:ssh://git@github.com/terraframe/geoprism-registry</url>
-    <tag>HEAD</tag>
+    <tag>1.1.0</tag>
   </scm>
 
   <build>
@@ -199,6 +185,9 @@
             <version>1.8.1</version>
           </dependency>
         </dependencies>
+        <configuration>
+          <scmCommentPrefix xml:space="preserve">chore(release): </scmCommentPrefix>
+        </configuration>
       </plugin>
       <plugin>
         <inherited>true</inherited>
@@ -237,7 +226,8 @@
             <exclude>**/node_modules/**</exclude>
             <exclude>**/typings/**</exclude>
             <exclude>**/ng2/**</exclude>
-            <exclude>**/webapp/dist/**</exclude>
+	    <exclude>**/webapp/dist/**</exclude>
+	    <exclude>georegistry-ui/dist/**</exclude>
             <exclude>**/cldr/**</exclude>
 
             <!-- 3rd party library mishmashes. When we upgrade tomcat we can remove these with webjars. -->

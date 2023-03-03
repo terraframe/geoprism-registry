@@ -1,20 +1,5 @@
 #
-# Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
 #
-# This file is part of Geoprism Registry(tm).
-#
-# Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-#
-# Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public
-# License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 #
 
 
@@ -49,15 +34,10 @@ if [ "$release_georegistry" == "true" ]; then
   git checkout $release_branch
   git pull
   sed -i -E "s_<cgr.adapter.version>.*</cgr.adapter.version>_<cgr.adapter.version>$CGR_RELEASE_VERSION</cgr.adapter.version>_g" georegistry-server/pom.xml
-  cd georegistry-ui
-  npm install --force
-  node -v && npm -v
-  #node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
-  npm run build  
   
   cd $WORKSPACE/georegistry
   git add -A
-  git diff-index --quiet HEAD || git commit -m "chore(release): Preparing project for release $CGR_RELEASE_VERSION."
+  git diff-index --quiet HEAD || git commit --no-verify -m "chore(release): preparing project for release $CGR_RELEASE_VERSION"
   if [ "$dry_run" == "false" ]; then
     git push
   else
@@ -70,13 +50,23 @@ if [ "$release_georegistry" == "true" ]; then
   git checkout $release_branch
   mvn license:format -B -q
   git add -A
-  git diff-index --quiet HEAD || git commit -m "chore(release): License headers for $CGR_RELEASE_VERSION."
+  git diff-index --quiet HEAD || git commit --no-verify -m "chore(release): license headers for $CGR_RELEASE_VERSION"
   if [ "$dry_run" == "false" ]; then
     git push
   else
     git reset --hard
     git clean -fdx
   fi
+
+  # Georegistry : Build front-end  
+  cd $WORKSPACE/georegistry
+  # git checkout $release_branch
+  cd georegistry-ui
+  npm install --force
+  node -v && npm -v
+  #node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile
+  npm run build  
+  
   
   # Georegistry : Release
   cd $WORKSPACE/georegistry
@@ -99,7 +89,7 @@ if [ "$release_georegistry" == "true" ]; then
   cat CHANGELOG2.md >> CHANGELOG.md
   tail -n +3 CHANGELOG-old.md >> CHANGELOG.md
   git add CHANGELOG.md
-  git commit -m "chore(release): Update changelog for $CGR_RELEASE_VERSION."
+  git commit --no-verify -m "chore(release): update changelog for $CGR_RELEASE_VERSION"
   if [ "$dry_run" == "false" ]; then
     git push
   else

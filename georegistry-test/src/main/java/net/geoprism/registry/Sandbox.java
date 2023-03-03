@@ -1,20 +1,5 @@
 /**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
  *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -173,10 +158,10 @@ public class Sandbox
 
   public static void main(String[] args) throws Exception
   {
-    SimpleDateFormat format = new SimpleDateFormat("dd/MM/yy");
-    format.setLenient(false);
-    
-    System.out.println(format.parse("4/21/2021"));
+//    SimpleDateFormat format = new SimpleDateFormat("dd/MM/yy");
+//    format.setLenient(false);
+//    
+//    System.out.println(format.parse("4/21/2021"));
     
 //    String url = "http://localhost:8082/gofr/fhir/Cgre9b41c35-7c85-46df-aeea-a4e8dbf0364e?_getpages=ee514824-fd7c-440e-b9ce-ec0c03a89179&_getpagesoffset=20&_count=20&_pretty=true&_include=Location%3Aorganization&_bundletype=searchset";
 //    
@@ -185,24 +170,35 @@ public class Sandbox
 //    System.out.println("https://global/Cgre9b41c35-7c85-46df-aeea-a4e8dbf0364e" + "?" + split[1]);
 
     
-//    test();
+    test();
 
   }
 
   @Request
   private static void test() throws Exception
   {
-    String statement = "SELECT event.oid AS eventId, event.eventDate  AS eventDate, transitionType  AS eventType, event.description AS description\n" + 
-        "  ,event.beforeTypeCode AS beforeType, source.code AS beforeCode, source.displayLabel_cot.value[0] AS beforeLabel\n" + 
-        "  ,event.afterTypeCode AS afterType, target.code AS afterCode, target.displayLabel_cot.value[0] AS afterLabel\n" + 
-        "FROM transition\n" + 
-        "WHERE event.afterTypeCode = 'FASTProvince'\n" + 
-        "OR event.beforeTypeCode = 'FASTProvince'\n";
+    ServerGeoObjectType type = ServerGeoObjectType.get("SHR");
+    List<ListType> listTypes = ListType.getForType(type);
     
-    GraphQuery<Object> query = new GraphQuery<>(statement);
-    List<Object> results = query.getRawResults();
+    ListType listType = listTypes.get(0);    
+    List<ListTypeEntry> entries = listType.getEntries();
     
-    System.out.println(results.size());
+    entries.get(0).delete();
+    entries.get(1).delete();
+    entries.get(2).delete();
+    entries.get(entries.size() - 1).delete();
+    
+//    String statement = "SELECT event.oid AS eventId, event.eventDate  AS eventDate, transitionType  AS eventType, event.description AS description\n" + 
+//        "  ,event.beforeTypeCode AS beforeType, source.code AS beforeCode, source.displayLabel_cot.value[0] AS beforeLabel\n" + 
+//        "  ,event.afterTypeCode AS afterType, target.code AS afterCode, target.displayLabel_cot.value[0] AS afterLabel\n" + 
+//        "FROM transition\n" + 
+//        "WHERE event.afterTypeCode = 'FASTProvince'\n" + 
+//        "OR event.beforeTypeCode = 'FASTProvince'\n";
+//    
+//    GraphQuery<Object> query = new GraphQuery<>(statement);
+//    List<Object> results = query.getRawResults();
+//    
+//    System.out.println(results.size());
     
     
 //    // String url = "http://hapi.fhir.org/baseR4";

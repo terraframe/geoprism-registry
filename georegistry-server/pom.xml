@@ -24,7 +24,7 @@
 	<parent>
 		<groupId>net.geoprism</groupId>
 		<artifactId>georegistry</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.1.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>georegistry-server</artifactId>
 	<packaging>jar</packaging>
@@ -35,7 +35,6 @@
 	<properties>
     <hapifhir_version>5.7.2</hapifhir_version>
 		<cgr.adapter.version>1.0.0</cgr.adapter.version>
-		<geotools.version>24.6</geotools.version>
 	</properties>
 
 	<dependencies>
