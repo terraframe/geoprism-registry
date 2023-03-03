@@ -141,21 +141,6 @@ export class AccountService {
             .toPromise();
     }
 
-    unlock(oid: string): Promise<void> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return this.http
-            .post<void>(environment.apiUrl + "/api/registryaccount/unlock", JSON.stringify({ oid: oid }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
-            .toPromise();
-    }
-
     inviteUser(invite: UserInvite, roleIds: string[]): Promise<void> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"

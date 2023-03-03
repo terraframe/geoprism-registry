@@ -84,9 +84,9 @@ public class AccountService
   }
 
   @Request(RequestType.SESSION)
-  public JSONObject lock(String sessionId, String oid)
+  public JSONObject get(String sessionId, String oid)
   {
-    return UserInfo.lockByUser(oid);
+    return UserInfo.getByUser(oid);
   }
 
   @Request(RequestType.SESSION)
@@ -94,13 +94,7 @@ public class AccountService
   {
     SingleActorDAOIF user = Session.getCurrentSession().getUser();
 
-    return UserInfo.lockByUser(user.getOid());
-  }
-
-  @Request(RequestType.SESSION)
-  public void unlock(String sessionId, String oid)
-  {
-    UserInfo.unlockByUser(oid);
+    return UserInfo.getByUser(user.getOid());
   }
 
   /**

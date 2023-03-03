@@ -222,31 +222,13 @@ public class UserInfo extends UserInfoBase
   }
 
   @Transaction
-  public static JSONObject lockByUser(String userId)
+  public static JSONObject getByUser(String userId)
   {
-    GeoprismUser user = GeoprismUser.lock(userId);
+    GeoprismUser user = GeoprismUser.get(userId);
 
     UserInfo info = UserInfo.getByUser(user);
-
-    if (info != null)
-    {
-      info.lock();
-    }
 
     return UserInfo.serialize(user, info);
-  }
-
-  @Transaction
-  public static void unlockByUser(String userId)
-  {
-    GeoprismUser user = GeoprismUser.unlock(userId);
-
-    UserInfo info = UserInfo.getByUser(user);
-
-    if (info != null)
-    {
-      info.unlock();
-    }
   }
 
   @Transaction
