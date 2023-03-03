@@ -80,9 +80,7 @@ export class ProfileComponent {
     }
 
     cancel(): void {
-        this.service.unlock(this._profile.oid).then(profile => {
-            this.bsModalRef.hide();
-        });
+        this.bsModalRef.hide();
     }
 
 }

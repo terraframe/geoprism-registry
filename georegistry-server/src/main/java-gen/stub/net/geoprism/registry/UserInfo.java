@@ -506,7 +506,7 @@ public class UserInfo extends UserInfoBase
     {
       String userId = account.get(GeoprismUser.OID).getAsString();
 
-      user = GeoprismUser.get(userId);
+      user = GeoprismUser.lock(userId);
     }
     else
     {

@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.controller;
 
+import javax.annotation.Nullable;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -41,13 +42,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.mvc.NullConfiguration;
-import com.runwaysdk.mvc.conversion.BusinessDTOToBasicJSON;
-import com.runwaysdk.session.Request;
-import com.runwaysdk.session.RequestType;
 
 import net.geoprism.GeoprismUserDTO;
-import net.geoprism.account.UserInviteDTO;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.service.AccountService;
 import net.geoprism.registry.spring.JsonArrayDeserializer;
@@ -140,7 +136,7 @@ public class RegistryAccountController extends RunwaySpringController
     @JsonDeserialize(using = JsonObjectDeserializer.class)
     JsonObject account;
 
-    @NotNull
+    @Nullable
     @JsonDeserialize(using = JsonArrayDeserializer.class)
     JsonArray  roleNames;
 
