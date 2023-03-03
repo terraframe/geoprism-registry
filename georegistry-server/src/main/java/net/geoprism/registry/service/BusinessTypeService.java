@@ -48,7 +48,8 @@ public class BusinessTypeService
   @Request(RequestType.SESSION)
   public JsonObject apply(String sessionId, String ptJSON)
   {
-    BusinessType type = BusinessType.apply(JsonParser.parseString(ptJSON).getAsJsonObject());
+    JsonObject json = JsonParser.parseString(ptJSON).getAsJsonObject();
+    BusinessType type = BusinessType.apply(json.get("type").getAsJsonObject());
 
     // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();

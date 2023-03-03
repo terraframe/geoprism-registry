@@ -403,6 +403,14 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
       roleDAO.grantPermission(Operation.DELETE, mdVertex.getOid());
       roleDAO.grantPermission(Operation.WRITE, mdVertex.getOid());
       roleDAO.grantPermission(Operation.WRITE_ALL, mdVertex.getOid());
+      
+      // Assign edge permissions
+      roleDAO.grantPermission(Operation.CREATE, mdEdge.getOid());
+      roleDAO.grantPermission(Operation.DELETE, mdEdge.getOid());
+      roleDAO.grantPermission(Operation.WRITE, mdEdge.getOid());
+      roleDAO.grantPermission(Operation.WRITE_ALL, mdEdge.getOid());
+      roleDAO.grantPermission(Operation.ADD_CHILD, mdEdge.getOid());
+      roleDAO.grantPermission(Operation.ADD_PARENT, mdEdge.getOid());
     }
 
     if (object.has(BusinessType.LABELATTRIBUTE) && !object.get(BusinessType.LABELATTRIBUTE).isJsonNull())
