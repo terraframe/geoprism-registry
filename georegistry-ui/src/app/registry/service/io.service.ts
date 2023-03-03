@@ -160,7 +160,7 @@ export class IOService {
         params = params.set("limit", limit);
 
         return this.http
-            .get<{ text: string, data: any }[]>(environment.apiUrl + "/uploader/getClassifierSuggestions", { params: params })
+            .get<{ text: string, data: any }[]>(environment.apiUrl + "/api/term/getClassifierSuggestions", { params: params })
             .toPromise();
     }
 
