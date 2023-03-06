@@ -24,6 +24,7 @@ import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 
 import { environment } from 'src/environments/environment';
 import { GeoObjectSharedAttributeEditorComponent } from "../geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component";
+import { ModalTypes } from "@shared/model/modal";
 
 @Component({
 
@@ -370,7 +371,7 @@ export class RequestTableComponent {
                 ignoreBackdropClick: true
             });
 
-            bsModalRef.content.type = "danger";
+            bsModalRef.content.type = ModalTypes.danger;
             bsModalRef.content.submitText = this.localizationService.decode("change.request.delete.request.confirm.btn");
             bsModalRef.content.message = this.localizationService.decode("change.request.delete.request.message");
 

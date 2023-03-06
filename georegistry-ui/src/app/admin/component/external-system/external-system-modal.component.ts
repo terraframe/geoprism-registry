@@ -71,7 +71,7 @@ export class ExternalSystemModalComponent implements OnInit {
       this.onSuccess = new Subject();
   }
 
-  init(organizations: Organization[], system: ExternalSystem): void {
+  init(organizations: Organization[], system?: ExternalSystem): void {
       this.organizations = organizations.filter(o => {
           return this.authService.isOrganizationRA(o.code);
       });
