@@ -6,7 +6,9 @@
 
 ## [1.1.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.1.0) (2023-02-27)
 
-This release includes two major breaking changes: upgrading of OrientDB from v3.0 to v3.2 and upgrading Postgres/PostGIS from v9.5-3.0 to v14-3.2. Please refer to the official v1.1.0 announcement on our forum for detailed migration instructions.
+This release includes two major breaking changes: upgrading of OrientDB from v3.0 to v3.2 and upgrading Postgres/PostGIS from v9.5-3.0 to v14-3.2. Please refer to the [Database Migration](https://docs.geoprismregistry.com/readme/current/deployment-and-setup/3.10-migration) section of our documentation for detailed migration instructions.
+
+<b>Note:</b> The v1.0 version of our docker-compose.yml file was already set to use PostgreSQL version 14-3.2. If this applies to you, then you might not need to perform a PostgreSQL migration. The PostgreSQL breaking change was included here because our cloud customers were migrated to PostgreSQL v14 as part of this release.
 
 ### Features
 
