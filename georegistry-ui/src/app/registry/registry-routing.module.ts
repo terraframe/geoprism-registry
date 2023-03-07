@@ -72,12 +72,12 @@ const routes: Routes = [
     {
         path: "master-lists",
         component: ListTypeManagerComponent,
-        canActivate: [AuthGuard]
+        // canActivate: [AuthGuard]
     },
     {
         path: "master-list/:oid",
         component: ListComponent,
-        canActivate: [AuthGuard]
+        // canActivate: [AuthGuard]
     },
     {
         path: "scheduled-jobs",

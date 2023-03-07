@@ -38,6 +38,17 @@ public class CGRSessionService extends SessionService
     endpoints.add("api/forgotpassword/initiate");
     endpoints.add("api/forgotpassword/complete");
     endpoints.add("api/master-list/tile");
+    
+    // Public list support
+//    endpoints.add("api/cgr/init");
+    endpoints.add("api/list-type/version");
+    endpoints.add("api/list-type/data");
+    endpoints.add("api/list-type/export-shapefile");
+    endpoints.add("api/list-type/export-spreadsheet");
+    endpoints.add("api/geoobjecttype/get-all");
+    endpoints.add("websocket/notify");
+    endpoints.add("websocket/progress");
+    
     return endpoints;
   }
 

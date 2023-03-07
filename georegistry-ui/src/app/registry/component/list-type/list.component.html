@@ -112,50 +112,52 @@
             <div class="col-md-8">
                 <div class="button-holder pull-right">
 
-                    <span *ngIf="isWritable" class="clickable"
-                        style="vertical-align:middle;display:inline-block;line-height:0;">
-                        <boolean-field [(value)]="showInvalid" (change)="handleShowInvalidChange()"
-                            [localizeLabelKey]="'masterlist.showInvalid'"></boolean-field>
-                    </span>
+                    <span *ngIf="!isPublic">
 
-                    <span *ngIf="list.working" class="clickable" (click)="onPublish()" style="padding: 10px;">
-                        <i [ngClass]="{'fa fa-refresh clickable':true}"
-                            style="font-size: 24px;vertical-align: middle;padding-right: 5px;" aria-hidden="true"></i>
-                        <localize key="masterlist.publish"></localize>
-                    </span>
+                        <span *ngIf="isWritable" class="clickable"
+                            style="vertical-align:middle;display:inline-block;line-height:0;">
+                            <boolean-field [(value)]="showInvalid" (change)="handleShowInvalidChange()"
+                                [localizeLabelKey]="'masterlist.showInvalid'"></boolean-field>
+                        </span>
 
-                    <button *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'" type="submit"
-                        (click)="onGotoMap(null)" class="btn btn-primary" role="button">
-                        <localize key="masterlist.viewOnMap"></localize>
-                    </button>
+                        <span *ngIf="isWritable && list.working" class="clickable" (click)="onPublish()"
+                            style="padding: 10px;">
+                            <i [ngClass]="{'fa fa-refresh clickable':true}"
+                                style="font-size: 24px;vertical-align: middle;padding-right: 5px;"
+                                aria-hidden="true"></i>
+                            <localize key="masterlist.publish"></localize>
+                        </span>
 
-                    <button *ngIf="list.working && isWritable && !list.isAbstract" type="submit"
-                        (click)="onNewGeoObject()" class="btn btn-primary" role="button">
-                        <localize key="masterlist.newGeoObject"></localize>
-                    </button>
-
-                    <span dropdown #dropdown="bs-dropdown" class="dropdown" *ngIf="list.working && isWritable && list.isAbstract">
-                        <button dropdownToggle class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            <localize key="masterlist.newGeoObject"></localize>
-                            <span class="caret"></span>
+                        <button *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'" type="submit"
+                            (click)="onGotoMap(null)" class="btn btn-primary" role="button">
+                            <localize key="masterlist.viewOnMap"></localize>
                         </button>
-                        <ul *dropdownMenu class="dropdown-menu" aria-labelledby="dropdownMenu1">
-<!--                             <li> -->
-<!--                                 <localize style="padding-left:10px;" key="masterlist.newGeoObject.selectASubtype"> -->
-<!--                                 </localize> -->
-<!--                             </li> -->
-<!--                             <li role="separator" class="divider"></li> -->
-                            <li *ngFor="let subtype of list.subtypes"><a
-                                    (click)="onNewGeoObject(subtype.code)">{{subtype.label}}</a></li>
-                        </ul>
+
+                        <button *ngIf="list.working && isWritable && !list.isAbstract" type="submit"
+                            (click)="onNewGeoObject()" class="btn btn-primary" role="button">
+                            <localize key="masterlist.newGeoObject"></localize>
+                        </button>
+
+                        <span dropdown #dropdown="bs-dropdown" class="dropdown"
+                            *ngIf="list.working && isWritable && list.isAbstract">
+                            <button dropdownToggle class="btn btn-primary dropdown-toggle" type="button"
+                                id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                <localize key="masterlist.newGeoObject"></localize>
+                                <span class="caret"></span>
+                            </button>
+                            <ul *dropdownMenu class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                <li *ngFor="let subtype of list.subtypes"><a
+                                        (click)="onNewGeoObject(subtype.code)">{{subtype.label}}</a></li>
+                            </ul>
+                        </span>
                     </span>
 
-                    <button *ngIf="list.listMetadata.visibility === 'PUBLIC' || list.geospatialMetadata.visibility === 'PUBLIC' || isListInOrg() || isSRA"
-                     type="submit" (click)="onExport()" class="btn btn-primary" role="button">
-                     <localize *ngIf="!isFiltered" key="io.export.allrows"></localize>
-                     <localize *ngIf="isFiltered" key="io.export.filteredrows"></localize>
-             </button>
+                    <button
+                        *ngIf="list.listMetadata.visibility === 'PUBLIC' || list.geospatialMetadata.visibility === 'PUBLIC' || isListInOrg() || isSRA"
+                        type="submit" (click)="onExport()" class="btn btn-primary" role="button">
+                        <localize *ngIf="!isFiltered" key="io.export.allrows"></localize>
+                        <localize *ngIf="isFiltered" key="io.export.filteredrows"></localize>
+                    </button>
                 </div>
             </div>
         </div>

@@ -97,6 +97,10 @@ export class AuthService {
     }
 
     // Legacy Accessors:
+    isPublic(): boolean {
+        return this.user.roles.length === 0;
+    }
+
     isAdmin(): boolean {
         return this.isSRA() || this.isRA();
     }
