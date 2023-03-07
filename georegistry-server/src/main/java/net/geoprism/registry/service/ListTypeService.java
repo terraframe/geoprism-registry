@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -43,6 +43,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.session.SessionIF;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
@@ -56,6 +57,7 @@ import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.ListTypeVersionQuery;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.UnauthorizedAccessException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.ListTypeJob;
@@ -164,7 +166,7 @@ public class ListTypeService
   @Request(RequestType.SESSION)
   public JsonObject applyVersion(String sessionId, String oid, String metadata)
   {
-    ListTypeVersion version = ListTypeVersion.get(oid);
+    ListTypeVersion version = getVersion(oid);
     ListType listType = version.getListType();
 
     if (!listType.isValid())
@@ -223,7 +225,7 @@ public class ListTypeService
   @Request(RequestType.SESSION)
   public JsonObject publishVersion(String sessionId, String oid)
   {
-    ListTypeVersion version = ListTypeVersion.get(oid);
+    ListTypeVersion version = getVersion(oid);
 
     // Only a working version can be republished.
     if (!version.getWorking())
@@ -322,13 +324,27 @@ public class ListTypeService
   @Request(RequestType.SESSION)
   public JsonObject getEntry(String sessionId, String oid)
   {
-    return ListTypeVersion.get(oid).toJSON(true);
+    return getVersion(oid).toJSON(true);
   }
 
   @Request(RequestType.SESSION)
   public JsonObject getVersion(String sessionId, String oid)
   {
-    return ListTypeVersion.get(oid).toJSON(true);
+    return getVersion(oid).toJSON(true);
+  }
+
+  private ListTypeVersion getVersion(String oid)
+  {
+    ListTypeVersion version = ListTypeVersion.get(oid);
+
+    SessionIF session = Session.getCurrentSession();
+
+    if (session != null && session.getUser().getOid().equals(Session.PUBLIC_SESSION_ID) && version.getListVisibility().equals(ListType.PRIVATE))
+    {
+      throw new UnauthorizedAccessException();
+    }
+
+    return version;
   }
 
   @Request(RequestType.SESSION)
@@ -338,7 +354,7 @@ public class ListTypeService
 
     for (String oid : StringUtils.split(oids, ","))
     {
-      ja.add(serializeVersionAsListVersion(ListTypeVersion.get(oid)));
+      ja.add(serializeVersionAsListVersion(getVersion(oid)));
     }
 
     return ja;
@@ -347,13 +363,13 @@ public class ListTypeService
   @Request(RequestType.SESSION)
   public JsonArray getBounds(String sessionId, String oid, String uid)
   {
-    return ListTypeVersion.get(oid).bbox(uid);
+    return getVersion(oid).bbox(uid);
   }
 
   @Request(RequestType.SESSION)
   public JsonObject data(String sessionId, String oid, String criteria, Boolean showInvalid, Boolean includeGeometries)
   {
-    ListTypeVersion version = ListTypeVersion.get(oid);
+    ListTypeVersion version = getVersion(oid);
     Page<JsonSerializable> page = version.data(JsonParser.parseString(criteria).getAsJsonObject(), showInvalid, includeGeometries);
 
     return page.toJSON();
@@ -362,7 +378,7 @@ public class ListTypeService
   @Request(RequestType.SESSION)
   public JsonObject record(String sessionId, String oid, String uid)
   {
-    ListTypeVersion version = ListTypeVersion.get(oid);
+    ListTypeVersion version = getVersion(oid);
 
     // if (version.getWorking())
     // {
@@ -398,7 +414,7 @@ public class ListTypeService
   @Request(RequestType.SESSION)
   public JsonArray values(String sessionId, String oid, String value, String attributeName, String json)
   {
-    ListTypeVersion version = ListTypeVersion.get(oid);
+    ListTypeVersion version = getVersion(oid);
     JsonObject criteria = ( json != null ) ? JsonParser.parseString(json).getAsJsonObject() : new JsonObject();
 
     return version.values(value, attributeName, criteria);
@@ -419,7 +435,7 @@ public class ListTypeService
   @Request(RequestType.SESSION)
   public InputStream downloadShapefile(String sessionId, String oid)
   {
-    return ListTypeVersion.get(oid).downloadShapefile();
+    return getVersion(oid).downloadShapefile();
   }
 
   @Request(RequestType.SESSION)
@@ -433,7 +449,7 @@ public class ListTypeService
   {
     try
     {
-      ListTypeVersion version = ListTypeVersion.get(oid);
+      ListTypeVersion version = getVersion(oid);
 
       if (version.getWorking())
       {
