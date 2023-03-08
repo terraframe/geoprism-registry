@@ -320,5 +320,14 @@ export class AuthService {
         return this.user.version;
     }
 
-
+    clear(): void {
+        this.user = {
+            loggedIn: false,
+            userName: "",
+            roles: [],
+            roleDisplayLabels: [],
+            version: "0",
+            installedLocales: []
+        };
+    }
 }

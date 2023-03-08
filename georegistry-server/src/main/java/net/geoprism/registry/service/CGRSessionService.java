@@ -39,8 +39,12 @@ public class CGRSessionService extends SessionService
     endpoints.add("api/forgotpassword/complete");
     endpoints.add("api/master-list/tile");
     
+    // Public list management support
+    endpoints.add("api/cgr/init");
+    endpoints.add("api/list-type/entries");
+    endpoints.add("api/list-type/list-for-type");    
+    
     // Public list support
-//    endpoints.add("api/cgr/init");
     endpoints.add("api/list-type/version");
     endpoints.add("api/list-type/data");
     endpoints.add("api/list-type/export-shapefile");

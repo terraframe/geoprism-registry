@@ -58,6 +58,7 @@ import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.ListTypeVersionQuery;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.UnauthorizedAccessException;
+import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.ListTypeJob;
@@ -337,9 +338,7 @@ public class ListTypeService
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
 
-    SessionIF session = Session.getCurrentSession();
-
-    if (session != null && session.getUser().getOid().equals(Session.PUBLIC_SESSION_ID) && version.getListVisibility().equals(ListType.PRIVATE))
+    if (UserInfo.isPublicUser() && !version.getListVisibility().equals(ListType.PUBLIC))
     {
       throw new UnauthorizedAccessException();
     }

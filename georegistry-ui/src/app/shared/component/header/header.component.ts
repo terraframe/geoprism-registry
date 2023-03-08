@@ -145,9 +145,13 @@ export class CgrHeaderComponent {
                 // Ignore errors
                 sessionStorage.removeItem("locales");
 
+                this.service.clear();
+
                 this.router.navigate(['/login']);
             }).then(response => {
                 sessionStorage.removeItem("locales");
+
+                this.service.clear();
 
                 this.router.navigate(['/login']);
             });

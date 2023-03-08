@@ -57,7 +57,7 @@
                     <label><localize key="geoObjectType.attr.visibility.label"></localize></label>
                 </div>
                 <div class="holder">
-                    <boolean-field [disable]="readOnly || geoObjectType.superTypeCode != null" [(value)]="editGeoObjectType.isPrivate" [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
+                    <boolean-field [disable]="readOnly || (geoObjectType.superTypeCode != null && geoObjectType.superTypeCode != '')" [(value)]="editGeoObjectType.isPrivate" [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
                 </div>
             </div>
             
