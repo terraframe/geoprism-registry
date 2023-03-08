@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.excel;
 
@@ -26,8 +26,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Stack;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -58,6 +60,7 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.masterlist.AbstractListColumnVisitor;
 import net.geoprism.registry.masterlist.ListAttribute;
+import net.geoprism.registry.masterlist.ListAttributeGroup;
 import net.geoprism.registry.masterlist.ListColumn;
 import net.geoprism.registry.masterlist.ListColumnVisitor;
 import net.geoprism.registry.shapefile.ShapefileColumnNameGenerator;
@@ -173,7 +176,7 @@ public class ListTypeExcelExporter
       String attributeLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.attribute");
       String descriptionLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.description");
       String columnLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.columnName");
-      
+
       ListTypeExcelExporter.this.createRow(sheet, 0, boldStyle, attributeLabel, columnLabel, descriptionLabel);
     }
     else
@@ -189,12 +192,28 @@ public class ListTypeExcelExporter
     ListColumnVisitor visitor = new AbstractListColumnVisitor()
     {
       private int rowNumber = 1;
+      
+      Stack<String> labels = new Stack<>();
+
+      @Override
+      public void accept(ListAttributeGroup group)
+      {
+        labels.push(group.getLabel());
+      }
+
+      @Override
+      public void close(ListAttributeGroup group)
+      {
+        labels.pop();
+      }
 
       @Override
       public void accept(ListAttribute attribute)
       {
         mdAttributes.stream().filter(p -> p.definesAttribute().equals(attribute.getName())).findAny().ifPresent((mdAttribute) -> {
-          String label = mdAttribute.getDisplayLabel(locale);
+          labels.push(attribute.getLabel());
+
+          String label = StringUtils.join(labels, " - ");
           String description = mdAttribute.getDescription(locale);
 
           if (metadataSource.equals(ListMetadataSource.GEOSPATIAL))
@@ -208,6 +227,7 @@ public class ListTypeExcelExporter
             ListTypeExcelExporter.this.createRow(sheet, rowNumber++, null, label, description);
           }
 
+          labels.pop();
         });
       }
     };
@@ -437,15 +457,33 @@ public class ListTypeExcelExporter
 
     ListColumnVisitor visitor = new AbstractListColumnVisitor()
     {
-      int col = 0;
+      int           col    = 0;
+
+      Stack<String> labels = new Stack<>();
+
+      @Override
+      public void accept(ListAttributeGroup group)
+      {
+        labels.push(group.getLabel());
+      }
+
+      @Override
+      public void close(ListAttributeGroup group)
+      {
+        labels.pop();
+      }
 
       @Override
       public void accept(ListAttribute attribute)
       {
         mdAttributes.stream().filter(p -> p.definesAttribute().equals(attribute.getName())).findAny().ifPresent((mdAttribute) -> {
+          labels.push(attribute.getLabel());
+
           Cell cell = header.createCell(col++);
           cell.setCellStyle(boldStyle);
-          cell.setCellValue(mdAttribute.getDisplayLabel(locale));
+          cell.setCellValue(StringUtils.join(labels, " - "));
+          
+          labels.pop();
         });
       }
     };
