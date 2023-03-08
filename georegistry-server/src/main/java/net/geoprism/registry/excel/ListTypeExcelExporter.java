@@ -268,7 +268,6 @@ public class ListTypeExcelExporter
 
     if (this.metadataSource == null || this.metadataSource.equals(ListMetadataSource.LIST))
     {
-      this.createRowForMetadata(sheet, locale, rowNumber++, ListType.DESCRIPTION, this.list.getDescription().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTORIGINATOR, this.version.getListOriginator());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTLABEL, this.version.getListLabel().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTDESCRIPTION, this.version.getListDescription().getValue());
@@ -285,7 +284,6 @@ public class ListTypeExcelExporter
     }
     else
     {
-      this.createRowForMetadata(sheet, locale, rowNumber++, ListType.GEOSPATIALDESCRIPTION, this.list.getGeospatialDescription().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALORIGINATOR, this.version.getGeospatialOriginator());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALLABEL, this.version.getGeospatialLabel().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALDESCRIPTION, this.version.getGeospatialDescription().getValue());
