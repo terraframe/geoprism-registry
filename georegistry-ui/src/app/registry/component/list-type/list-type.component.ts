@@ -43,6 +43,7 @@ export class ListTypeComponent implements OnInit, OnDestroy {
     @Input() list: ListType;
     @Output() error = new EventEmitter<HttpErrorResponse>();
     isRC: boolean = false;
+    isPublic: boolean = true;
 
     /*
      * Reference to the modal current showing
@@ -60,6 +61,7 @@ export class ListTypeComponent implements OnInit, OnDestroy {
         private dateService: DateService) { }
 
     ngOnInit(): void {
+        this.isPublic = this.authService.isPublic();
         this.isRC = this.authService.isGeoObjectTypeOrSuperRC({
             organizationCode: this.list.organization,
             code: this.list.typeCode,

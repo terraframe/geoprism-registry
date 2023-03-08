@@ -78,7 +78,7 @@
                     )
                 </span>
             </li>
-            <li>
+            <li *ngIf="!isPublic">
                 <a *ngIf="(version.isMember || version.geospatialMetadata.visibility === 'PUBLIC')"
                     (click)="onGotoMap(version)">
                     <localize key="list.type.geospatial"></localize>
