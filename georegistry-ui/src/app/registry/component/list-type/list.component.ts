@@ -234,7 +234,7 @@ export class ListComponent implements OnInit, OnDestroy {
     onEdit(data): void {
         let editModal = this.modalService.show(GeoObjectEditorComponent, { backdrop: true, ignoreBackdropClick: true });
         editModal.content.configureAsExisting(data.code, this.list.typeCode, this.list.forDate, this.list.isGeometryEditable);
-        editModal.content.setListId(this.list.oid);
+        editModal.content.setMasterListId(this.list.oid);
         editModal.content.setOnSuccessCallback(() => {
             // Refresh the page
             // this.onPageChange(this.page.pageNumber);

@@ -19,7 +19,7 @@
 
 import { Component, OnDestroy, ViewChild } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
-import { Observer, Subject, Subscription } from "rxjs";
+import { NextObserver, Observer, Subject, Subscription } from "rxjs";
 import { TreeComponent, TreeNode } from "@circlon/angular-tree-component";
 import { ContextMenuComponent, ContextMenuService } from "ngx-contextmenu";
 
@@ -109,7 +109,7 @@ export class ClassificationFieldModalComponent implements OnDestroy {
         private service: ClassificationService
     ) { }
 
-    init(classificationType: string, rootCode: string, disabled: boolean, value: { code: string }, observer: Observer<Classification>): Subscription {
+    init(classificationType: string, rootCode: string, disabled: boolean, value: { code: string }, observer: Partial<Observer<Classification>> | ((value: Classification) => void)): Subscription {
         this.classificationType = classificationType;
         this.rootCode = rootCode;
         this.disabled = disabled;
