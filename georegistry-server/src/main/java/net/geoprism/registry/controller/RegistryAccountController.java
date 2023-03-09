@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.controller;
 
+import javax.annotation.Nullable;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -139,7 +140,7 @@ public class RegistryAccountController extends RunwaySpringController
     @JsonDeserialize(using = JsonObjectDeserializer.class)
     JsonObject account;
 
-    @NotNull
+    @Nullable
     @JsonDeserialize(using = JsonArrayDeserializer.class)
     JsonArray  roleNames;
 
