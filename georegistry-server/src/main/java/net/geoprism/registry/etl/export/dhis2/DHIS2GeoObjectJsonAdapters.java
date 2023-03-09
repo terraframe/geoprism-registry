@@ -29,7 +29,10 @@ import java.util.TimeZone;
 
 import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +44,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.localization.LocalizationFacade;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
 import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
@@ -57,9 +61,7 @@ import net.geoprism.registry.etl.DHIS2SyncLevel;
 import net.geoprism.registry.etl.GeoObjectCache;
 import net.geoprism.registry.etl.export.ExportRemoteException;
 import net.geoprism.registry.graph.ExternalSystem;
-import net.geoprism.registry.io.InvalidGeometryException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
@@ -299,14 +301,16 @@ public class DHIS2GeoObjectJsonAdapters
 
     private void writeGeometry(JsonObject jo, VertexServerGeoObject serverGo)
     {
-      Geometry geom = serverGo.getGeometry();
+      final Geometry geom = serverGo.getGeometry();
 
       if (geom != null)
       {
         try
         {
+          final Geometry converted = convertGeometry(geom);
+          
           GeoJsonWriter gw = new GeoJsonWriter();
-          String json = gw.write(geom);
+          String json = gw.write(converted);
 
           JsonObject joGeom = JsonParser.parseString(json).getAsJsonObject();
           
@@ -324,12 +328,57 @@ public class DHIS2GeoObjectJsonAdapters
             jo.add("geometry", joGeom);
           }
         }
+        catch (net.geoprism.registry.etl.export.dhis2.InvalidGeometryException e)
+        {
+          throw e;
+        }
         catch (Throwable t)
         {
           logger.error("Encountered an unexpected error when serializing geometry for GeoObject with code [" + serverGo.getCode() + "] and typeCode [" + serverGo.getType().getCode() + "].", t);
-          throw new InvalidGeometryException(t);
+          throw new net.geoprism.registry.io.InvalidGeometryException(t);
         }
       }
+    }
+    
+    /**
+     * DHIS2 does not support Multi-Point geometries. If we encounter one, we must convert it to point if we can, otherwise throw an exception.
+     * 
+     * @refs https://github.com/dhis2/dhis2-core/blob/f8ea5ba19b51f419eeac9e95f1f1f2ed7ace0ce6/[…]i/src/main/java/org/hisp/dhis/organisationunit/FeatureType.java
+     */
+    private Geometry convertGeometry(Geometry in)
+    {
+      final String[] unsupported = new String[] {
+          Geometry.TYPENAME_LINEARRING.toLowerCase(), Geometry.TYPENAME_LINESTRING.toLowerCase(), Geometry.TYPENAME_MULTILINESTRING.toLowerCase(), Geometry.TYPENAME_GEOMETRYCOLLECTION.toLowerCase()
+      };
+      
+      // Throw an exception if the type is unsupported
+      if (ArrayUtils.contains(unsupported, in.getGeometryType().toLowerCase()))
+      {
+        final String geometryType = Geometry.TYPENAME_GEOMETRYCOLLECTION.equalsIgnoreCase(in.getGeometryType()) ? Geometry.TYPENAME_GEOMETRYCOLLECTION : LocalizationFacade.localize("georegistry.geometry.line");
+        
+        net.geoprism.registry.etl.export.dhis2.InvalidGeometryException ex = new net.geoprism.registry.etl.export.dhis2.InvalidGeometryException();
+        ex.setGeometryType(geometryType);
+        throw ex;
+      }
+      
+      // Try to unwrap multi-points
+      if (in.getGeometryType().equals(Geometry.TYPENAME_MULTIPOINT))
+      {
+        Coordinate[] coordinates = in.getCoordinates();
+        
+        if (coordinates.length > 1)
+        {
+          net.geoprism.registry.etl.export.dhis2.InvalidGeometryException ex = new net.geoprism.registry.etl.export.dhis2.InvalidGeometryException();
+          ex.setGeometryType(LocalizationFacade.localize("georegistry.geometry.multipoint"));
+          throw ex;
+        }
+        else if (coordinates.length == 1)
+        {
+          return GeometryFactory.createPointFromInternalCoord(coordinates[0], in);
+        }
+      }
+      
+      return in;
     }
 
     private String convertGeometryType(String geometryType)

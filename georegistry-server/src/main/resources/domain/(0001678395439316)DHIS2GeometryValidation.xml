@@ -1,0 +1,18 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+    </createOrUpdate>
+    <create>
+      <mdException name="net.geoprism.registry.etl.export.dhis2.InvalidGeometryException"
+        message="Cannot export geometry of type [{geometryType}] because it is not supported by the external system. If this is a multipoint, try changing it to a single point. If it is a line, the external system may not support line geometries." generateController="false" exported="false">
+        <attributes>
+          <text name="geometryType" required="true" />
+        </attributes>
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

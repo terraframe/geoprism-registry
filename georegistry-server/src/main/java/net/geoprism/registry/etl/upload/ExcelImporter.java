@@ -281,8 +281,8 @@ public class ExcelImporter implements FormatSpecificImporterIF
 
         if (latitude != null && longitude != null)
         {
-          Double lat = new Double(latitude.toString());
-          Double lon = new Double(longitude.toString());
+          Double lat = Double.valueOf(latitude.toString());
+          Double lon = Double.valueOf(longitude.toString());
 
           if (Math.abs(lat) > 90 || Math.abs(lon) > 180)
           {
@@ -291,20 +291,8 @@ public class ExcelImporter implements FormatSpecificImporterIF
             ex.setLon(lon.toString());
             throw ex;
           }
-
-          ImportConfiguration configuration = this.objectImporter.getConfiguration();
-
-          if (configuration instanceof GeoObjectImportConfiguration)
-          {
-            ServerGeoObjectType type = ( (GeoObjectImportConfiguration) configuration ).getType();
-
-            if (type.getGeometryType().equals(GeometryType.POINT) || type.getGeometryType().equals(GeometryType.MIXED))
-            {
-              return new Point(new CoordinateSequence2D(lon, lat), factory);
-            }
-          }
-
-          return new MultiPoint(new Point[] { new Point(new CoordinateSequence2D(lon, lat), factory) }, factory);
+          
+          return new Point(new CoordinateSequence2D(lon, lat), factory);
         }
       }
 
