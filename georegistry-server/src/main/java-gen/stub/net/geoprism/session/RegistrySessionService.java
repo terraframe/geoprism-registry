@@ -84,12 +84,9 @@ public class RegistrySessionService extends RegistrySessionServiceBase
   {
     try
     {
-      // We used to try to build this from the controller but it would include stuff (like the port :443) which then wouldn't match
-      // with the redirect url the client specified in DHIS2. Therefore this has to be something that the user can set (or, at least,
-      // in a properties file)
       redirectBase = GeoregistryProperties.getRemoteServerUrl();
       
-      String redirect = redirectBase + "cgrsession/ologin";
+      String redirect = redirectBase + "api/cgrsession/ologin";
 
       OauthServer server = OauthServer.get(serverId);
       /*

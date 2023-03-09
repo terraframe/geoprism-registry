@@ -208,7 +208,7 @@ public class RegistryService
   {
     try
     {
-      String redirect = GeoregistryProperties.getRemoteServerUrl() + "cgrsession/ologin";
+      String redirect = GeoregistryProperties.getRemoteServerUrl() + "api/cgrsession/ologin";
 
       JSONObject state = new JSONObject();
       state.put(OauthServerIF.SERVER_ID, server.getOid());

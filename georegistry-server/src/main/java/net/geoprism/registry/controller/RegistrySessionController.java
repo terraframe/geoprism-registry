@@ -38,9 +38,12 @@ import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
@@ -202,18 +205,15 @@ public class RegistrySessionController extends RunwaySpringController
     }
   }
 
-  @PostMapping(API_PATH + "/ologin")  
-  public String ologin(@Valid @RequestBody OauthLoginBody body) 
+  @GetMapping(API_PATH + "/ologin")  
+  public RedirectView ologin(@RequestParam(required = true) String code, @RequestParam(required = true) String state)
   {
     RequestDecorator req = new RequestDecorator(this.getRequest());
     
     final SessionController geoprism = new SessionController();
-    
-//    URL url = new URL(req.getScheme(), req.getServerName(), req.getServerPort(), req.getContextPath());
-//
-//    String redirect = url.toString();
+    final String contextPath = this.getRequest().getContextPath().contains("/") ? this.getRequest().getContextPath() : "/";
 
-    String serverId = body.state.get(OauthServerIF.SERVER_ID).getAsString();
+    String serverId = JsonParser.parseString(state).getAsJsonObject().get(OauthServerIF.SERVER_ID).getAsString();
 
     Locale[] locales = geoprism.getLocales(req);
 
@@ -223,7 +223,7 @@ public class RegistrySessionController extends RunwaySpringController
     {
       ClientRequestIF clientRequest = clientSession.getRequest();
 
-      String cgrSessionJsonString = RegistrySessionServiceDTO.ologin(clientRequest, serverId, body.code, LocaleSerializer.serialize(locales), null);
+      String cgrSessionJsonString = RegistrySessionServiceDTO.ologin(clientRequest, serverId, code, LocaleSerializer.serialize(locales), null);
       
       JsonObject cgrSessionJson = (JsonObject) JsonParser.parseString(cgrSessionJsonString);
       final String sessionId = cgrSessionJson.get("sessionId").getAsString();
@@ -247,7 +247,7 @@ public class RegistrySessionController extends RunwaySpringController
             
       this.addCookie(this.getResponse(), this.getRequest(), cookieJson);
       
-      return "redirect:/";
+      return new RedirectView(contextPath);
     }
     catch (Throwable t)
     {
@@ -269,7 +269,7 @@ public class RegistrySessionController extends RunwaySpringController
         throw new ProgrammingErrorException(t2);
       }
       
-      return "redirect:/" + errorMessage;
+      return new RedirectView(contextPath + "/#/login/" + errorMessage);
 
     }
     finally
