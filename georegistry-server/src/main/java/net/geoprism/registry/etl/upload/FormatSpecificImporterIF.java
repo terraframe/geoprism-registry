@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.etl.upload;
 
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.locationtech.jts.geom.Geometry;
 
 import net.geoprism.data.importer.FeatureRow;

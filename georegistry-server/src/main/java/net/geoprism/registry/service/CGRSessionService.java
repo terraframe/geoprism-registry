@@ -53,6 +53,11 @@ public class CGRSessionService extends SessionService
     endpoints.add("websocket/notify");
     endpoints.add("websocket/progress");
     
+    // Public explorer support
+    endpoints.add("api/list-type/fetchVersionsAsListVersion");
+    endpoints.add("api/list-type/record");
+    endpoints.add("api/list-type/tile");
+    
     return endpoints;
   }
 

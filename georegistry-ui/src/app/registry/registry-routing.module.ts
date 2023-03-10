@@ -112,7 +112,7 @@ const routes: Routes = [
     {
         path: "location-manager",
         component: LocationManagerComponent,
-        canActivate: [AuthGuard]
+        // canActivate: [AuthGuard]
     },
     {
         path: "sync/details/:config/:oid",
