@@ -190,7 +190,7 @@ export class ListComponent implements OnInit, OnDestroy {
     }
 
     refreshColumns(): void {
-        this.setup = Utils.createColumns(this.list, this.showInvalid, this.isPublic, (attribute, column) => {
+        this.setup = Utils.createColumns(this.list, this.showInvalid, false, (attribute, column) => {
             this.service.values(this.list.oid, column.text, attribute.name, this.tableState.filters).then(options => {
                 column.results = options;
             }).catch((err: HttpErrorResponse) => {

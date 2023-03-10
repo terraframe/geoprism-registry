@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -853,7 +853,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     }
 
     final File file = new File(directory, filename);
-    
+
     List<ListColumn> columns = this.getAttributeColumns();
 
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
@@ -1840,7 +1840,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     ListType listType = this.getListType();
 
-    if (this.getWorking() && listType.doesActorHaveExploratoryPermission())
+    if (this.getWorking() && listType.doesActorHaveExploratoryPermission() && !UserInfo.isPublicUser())
     {
       ServerGeoObjectIF geoObject = new ServerGeoObjectService().getGeoObject(uid, listType.getGeoObjectType().getCode());
 
@@ -1863,15 +1863,18 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     record.addProperty("forDate", JsonDateUtil.format(this.getForDate()));
     record.addProperty("recordType", "LIST");
     record.addProperty("version", this.getOid());
-    record.addProperty("edit", this.getWorking() && listType.doesActorHaveExploratoryPermission());
+    record.addProperty("edit", this.getWorking() && listType.doesActorHaveExploratoryPermission() && !UserInfo.isPublicUser());
     record.add("typeLabel", LocalizedValueConverter.convertNoAutoCoalesce(listType.getDisplayLabel()).toJSON());
     record.add("attributes", this.getAttributesAsJson());
 
-    // We can't return the type of the list here because the front-end needs
-    // to know the concrete type. There is a corner case here where the
-    // Geo-Object could potentially not exist.
-    String typeCode = new ServerGeoObjectService().getGeoObject(uid, listType.getGeoObjectType().getCode()).getType().getCode();
-    record.addProperty("typeCode", typeCode);
+    if (!UserInfo.isPublicUser())
+    {
+      // We can't return the type of the list here because the front-end needs
+      // to know the concrete type. There is a corner case here where the
+      // Geo-Object could potentially not exist.
+      String typeCode = new ServerGeoObjectService().getGeoObject(uid, listType.getGeoObjectType().getCode()).getType().getCode();
+      record.addProperty("typeCode", typeCode);
+    }
 
     try (OIterator<Business> iterator = query.getIterator())
     {

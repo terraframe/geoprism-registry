@@ -132,7 +132,7 @@
 
       </div> <!--  END sidebar panel -->
 
-      <div [ngClass]="{'col-md-6':!state.attrPanelOpen, 'col-md-8':state.attrPanelOpen}"
+      <div *ngIf="!isPublic" [ngClass]="{'col-md-6':!state.attrPanelOpen, 'col-md-8':state.attrPanelOpen}"
         style="z-index:4;padding-top:10px;">
 
         <div style="z-index:999;padding-top:10px;overflow-y:auto;position:absolute;top:0;overflow:visible;">

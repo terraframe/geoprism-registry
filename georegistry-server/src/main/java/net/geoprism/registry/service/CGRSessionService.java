@@ -57,6 +57,9 @@ public class CGRSessionService extends SessionService
     endpoints.add("api/list-type/fetchVersionsAsListVersion");
     endpoints.add("api/list-type/record");
     endpoints.add("api/list-type/tile");
+    endpoints.add("api/list-type/bounds");
+    endpoints.add("api/list-type/get-geospatial-versions");
+    endpoints.add("glyphs/NotoSansRegular");
     
     return endpoints;
   }

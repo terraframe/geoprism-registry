@@ -640,6 +640,13 @@ public class ListTypeService
   {
     try
     {
+      ListTypeVersion version = ListTypeVersion.get(object.getString("oid"));
+
+      if (UserInfo.isPublicUser() && !version.getGeospatialVisibility().equals(ListType.PUBLIC))
+      {
+        throw new UnauthorizedAccessException();
+      }
+
       byte[] bytes = ListTileCache.getTile(object);
 
       if (bytes != null)
