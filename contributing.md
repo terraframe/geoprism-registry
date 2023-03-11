@@ -49,9 +49,10 @@ There are numerous organizations involved with designing, building, and testing 
 
 
 ### Dependency Projects
-* [CGR Specification](https://github.com/terraframe/common-geo-registry-specification)
-** [CGR Specification Docs](https://terraframe.github.io/common-geo-registry-specification-rest-api-docs/)
-* [CGR Adapter](https://github.com/terraframe/common-geo-registry-adapter)
+* [Geoprism Registry](https://github.com/terraframe/geoprism-registry)
+* [GPR Specification](https://github.com/terraframe/common-geo-registry-specification)
+* [GPR API Docs](https://terraframe.github.io/common-geo-registry-specification-rest-api-docs/)
+* [GPR User Docs](https://github.com/terraframe/geoprism-registry-documentation)
 
 ### Coding Standards
 
