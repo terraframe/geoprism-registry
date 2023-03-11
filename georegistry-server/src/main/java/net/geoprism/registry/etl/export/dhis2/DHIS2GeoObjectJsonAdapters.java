@@ -60,6 +60,7 @@ import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.DHIS2SyncLevel;
 import net.geoprism.registry.etl.GeoObjectCache;
 import net.geoprism.registry.etl.export.ExportRemoteException;
+import net.geoprism.registry.etl.export.UnsupportedGeometryException;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -328,7 +329,7 @@ public class DHIS2GeoObjectJsonAdapters
             jo.add("geometry", joGeom);
           }
         }
-        catch (net.geoprism.registry.etl.export.dhis2.InvalidGeometryException e)
+        catch (UnsupportedGeometryException e)
         {
           throw e;
         }
@@ -356,7 +357,7 @@ public class DHIS2GeoObjectJsonAdapters
       {
         final String geometryType = Geometry.TYPENAME_GEOMETRYCOLLECTION.equalsIgnoreCase(in.getGeometryType()) ? Geometry.TYPENAME_GEOMETRYCOLLECTION : LocalizationFacade.localize("georegistry.geometry.line");
         
-        net.geoprism.registry.etl.export.dhis2.InvalidGeometryException ex = new net.geoprism.registry.etl.export.dhis2.InvalidGeometryException();
+        UnsupportedGeometryException ex = new UnsupportedGeometryException();
         ex.setGeometryType(geometryType);
         throw ex;
       }
@@ -368,7 +369,7 @@ public class DHIS2GeoObjectJsonAdapters
         
         if (coordinates.length > 1)
         {
-          net.geoprism.registry.etl.export.dhis2.InvalidGeometryException ex = new net.geoprism.registry.etl.export.dhis2.InvalidGeometryException();
+          UnsupportedGeometryException ex = new UnsupportedGeometryException();
           ex.setGeometryType(LocalizationFacade.localize("georegistry.geometry.multipoint"));
           throw ex;
         }
