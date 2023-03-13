@@ -33,7 +33,7 @@
 	<description>The back-end database server for the georegistry project</description>
 
 	<properties>
-		<hapifhir_version>5.7.2</hapifhir_version>
+		<hapifhir_version>6.4.0</hapifhir_version>
 		<cgr.adapter.version>1.1.0</cgr.adapter.version>
 	</properties>
 
@@ -251,7 +251,7 @@
 									<mainClass>com.runwaysdk.dataaccess.io.UndoAll</mainClass>
 									<arguments>
 										<argument>${project.basedir}/src/main/working</argument>
-										<argument />
+										<argument/>
 										<argument>false</argument>
 									</arguments>
 									<systemProperties>
@@ -296,7 +296,7 @@
 									<mainClass>net.geoprism.ImportSchema</mainClass>
 									<arguments>
 										<argument>${project.basedir}/src/main/working</argument>
-										<argument />
+										<argument/>
 										<argument>false</argument>
 									</arguments>
 									<systemProperties>
@@ -474,7 +474,7 @@
 		                </goals>
 		              </pluginExecutionFilter>
 		              <action>
-		                <ignore />
+		                <ignore/>
 		              </action>
 		            </pluginExecution>
 		          </pluginExecutions>
