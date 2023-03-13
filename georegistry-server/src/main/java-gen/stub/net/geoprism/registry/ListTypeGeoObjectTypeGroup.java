@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -27,6 +27,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.masterlist.ColumnFilter;
 import net.geoprism.registry.masterlist.ListAttributeGroup;
 import net.geoprism.registry.masterlist.ListColumn;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -41,21 +42,21 @@ public class ListTypeGeoObjectTypeGroup extends ListTypeGeoObjectTypeGroupBase
     super();
   }
 
-  public ListColumn toColumn()
+  public ListColumn toColumn(ColumnFilter filter)
   {
     String label = this.getLabel().getValue();
 
-//    Integer level = this.getLevel();
-//
-//    if (level != null)
-//    {
-//      label += " - " + level;
-//    }
-//
+    // Integer level = this.getLevel();
+    //
+    // if (level != null)
+    // {
+    // label += " - " + level;
+    // }
+    //
     ListAttributeGroup column = new ListAttributeGroup(label);
 
-    this.getChildren().forEach(child -> column.add(child.toColumn()));
-    this.getAttributes().forEach(child -> column.add(child.toColumn()));
+    this.getChildren().forEach(child -> column.add(child.toColumn(filter)));
+    this.getAttributes().forEach(child -> column.add(child.toColumn(filter)));
 
     Collections.sort(column.getColumns(), new Comparator<ListColumn>()
     {
@@ -77,7 +78,12 @@ public class ListTypeGeoObjectTypeGroup extends ListTypeGeoObjectTypeGroupBase
       }
     });
 
-    return column;
+    if (filter.isValid(column))
+    {
+      return column;
+    }
+    
+    return null;
   }
 
   public static ListTypeGeoObjectTypeGroup create(ListTypeVersion version, ListTypeGroup parent, ServerGeoObjectType type, Integer level)

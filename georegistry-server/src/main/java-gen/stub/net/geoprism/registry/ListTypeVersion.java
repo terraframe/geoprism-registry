@@ -144,6 +144,7 @@ import net.geoprism.registry.localization.DefaultLocaleView;
 import net.geoprism.registry.masterlist.ListAttribute;
 import net.geoprism.registry.masterlist.ListAttributeGroup;
 import net.geoprism.registry.masterlist.ListColumn;
+import net.geoprism.registry.masterlist.PermissionColumnFilter;
 import net.geoprism.registry.masterlist.TableMetadata;
 import net.geoprism.registry.masterlist.TableMetadata.Attribute;
 import net.geoprism.registry.masterlist.TableMetadata.AttributeGroup;
@@ -1539,12 +1540,25 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       Set<String> attributeIds = new TreeSet<String>();
 
+      final PermissionColumnFilter filter = new PermissionColumnFilter(this);
+      
       List<ListTypeGroup> groups = ListTypeGroup.getRoots(this);
-      columns.addAll(groups.stream().map(group -> group.toColumn()).collect(Collectors.toList()));
+      columns.addAll(groups.stream().map(group -> group.toColumn(filter)).filter(column -> column != null && filter.isValid(column)).collect(Collectors.toList()));
       columns.forEach(column -> attributeIds.addAll(column.getColumnsIds()));
 
       MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(mdBusinessId);
       List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered();
+
+      // If the list isn't public and the user isn't a member of the
+      // organization the remove all non code and display label attributes
+      if (this.getListVisibility().equals(ListType.PRIVATE) && !Organization.isMember(this.getListType().getOrganization()))
+      {
+        mdAttributes = mdAttributes.stream().filter(mdAttribute -> {
+          String attributeName = mdAttribute.definesAttribute();
+
+          return attributeName.equals("code") || attributeName.contains("displayLabel");
+        }).collect(Collectors.toList());
+      }
 
       // Any attribute not already in a group is standalone
       for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)

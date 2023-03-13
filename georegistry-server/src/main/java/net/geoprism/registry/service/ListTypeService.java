@@ -338,7 +338,7 @@ public class ListTypeService
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
 
-    if (UserInfo.isPublicUser() && !version.getListVisibility().equals(ListType.PUBLIC))
+    if (UserInfo.isPublicUser() && !(version.getListVisibility().equals(ListType.PUBLIC) || version.getGeospatialVisibility().equals(ListType.PUBLIC)))
     {
       throw new UnauthorizedAccessException();
     }
