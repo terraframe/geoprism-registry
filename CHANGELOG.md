@@ -7,8 +7,8 @@
 
 ### Bug Fixes
 
-   - **explorer** searching for hyphenated GeoObjects   ([b058a](https://github.com/terraframe/geoprism-registry/commit/b058afd4df244737f8a40d02cdd63c793e8f8312))
-   - **dhis2** point geometries not syncing properly to dhis2   ([784be](https://github.com/terraframe/geoprism-registry/commit/784be18fdc834b32ffac7cd51707ffa50cf44298))
+   - **explorer** searching for hyphenated GeoObjects  ([#879](https://github.com/terraframe/geoprism-registry/issues/879)) ([b058a](https://github.com/terraframe/geoprism-registry/commit/b058afd4df244737f8a40d02cdd63c793e8f8312))
+   - **dhis2** point geometries not syncing properly to dhis2  ([#887](https://github.com/terraframe/geoprism-registry/issues/887)) ([784be](https://github.com/terraframe/geoprism-registry/commit/784be18fdc834b32ffac7cd51707ffa50cf44298))
    - **account** submit button on user profile editor does nothing   ([1993d](https://github.com/terraframe/geoprism-registry/commit/1993d2b5680dc19259c0fc7d64b5bc9a1474d232))
    - **oauth** clicking on oauth button does nothing   ([d435e](https://github.com/terraframe/geoprism-registry/commit/d435e5cc30b9a270251e2631404bc73ad4cf9980))
    - **hierarchy-manager** unspecified error thrown when importing types from xml   ([939e0](https://github.com/terraframe/geoprism-registry/commit/939e0404f7ec3f2d9d8dd15050603d52f6af4ad1))
