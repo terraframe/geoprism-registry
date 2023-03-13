@@ -211,7 +211,7 @@ public class RegistrySessionController extends RunwaySpringController
     RequestDecorator req = new RequestDecorator(this.getRequest());
     
     final SessionController geoprism = new SessionController();
-    final String contextPath = this.getRequest().getContextPath().contains("/") ? this.getRequest().getContextPath() : "/";
+    final String contextPath = this.getRequest().getContextPath().contains("/") ? this.getRequest().getContextPath() + "/" : "/";
 
     String serverId = JsonParser.parseString(state).getAsJsonObject().get(OauthServerIF.SERVER_ID).getAsString();
 
@@ -269,7 +269,7 @@ public class RegistrySessionController extends RunwaySpringController
         throw new ProgrammingErrorException(t2);
       }
       
-      return new RedirectView(contextPath + "/#/login/" + errorMessage);
+      return new RedirectView(contextPath + "#/login/" + errorMessage);
 
     }
     finally
