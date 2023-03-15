@@ -100,7 +100,7 @@ public class TermController extends RunwaySpringController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseEntity<String> createClassifierSynonym(@Valid @RequestBody ClassifierSynonymBody body)
   {
-    String response = this.classifierService.createSynonym(body.getClassifierId(), body.getLabel());
+    String response = this.classifierService.createSynonym(this.getClientRequest().getSessionId(), body.getClassifierId(), body.getLabel());
 
     JSONObject object = new JSONObject(response);
 
@@ -110,7 +110,7 @@ public class TermController extends RunwaySpringController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseEntity<Void> deleteClassifierSynonym(@Valid @RequestBody SynonymBody body)
   {
-    this.classifierService.deleteSynonym(body.getSynonymId());
+    this.classifierService.deleteSynonym(this.getClientRequest().getSessionId(), body.getSynonymId());
 
     return new ResponseEntity<Void>(HttpStatus.OK);
   }

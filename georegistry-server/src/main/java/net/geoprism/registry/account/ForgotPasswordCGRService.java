@@ -2,14 +2,14 @@ package net.geoprism.registry.account;
 
 import org.springframework.stereotype.Component;
 
-import net.geoprism.ForgotPasswordService;
 import net.geoprism.GeoprismUser;
+import net.geoprism.forgotpassword.business.ForgotPasswordBusinessService;
 import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.session.ForgotPasswordOnOauthUser;
 
 @Component
-public class ForgotPasswordCGRService extends ForgotPasswordService
+public class ForgotPasswordCGRService extends ForgotPasswordBusinessService
 {
   @Override
   protected void validateInitiate(GeoprismUser user)

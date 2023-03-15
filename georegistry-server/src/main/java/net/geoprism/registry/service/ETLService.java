@@ -57,7 +57,7 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 
 import net.geoprism.GeoprismUser;
-import net.geoprism.classifier.ClassifierServiceIF;
+import net.geoprism.classifier.ClassifierBusinessServiceIF;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.EdgeJsonImporter;
@@ -89,7 +89,7 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 public class ETLService
 {
   @Autowired
-  protected ClassifierServiceIF classifierService;
+  protected ClassifierBusinessServiceIF classifierService;
   
   @Request(RequestType.SESSION)
   public void cancelImport(String sessionId, String json)

@@ -64,7 +64,7 @@ export class SessionService {
         this.service.start();
 
         return this.http
-            .post<void>(environment.apiUrl + "/api/session/logout", { headers: headers })
+            .get<void>(environment.apiUrl + "/api/session/logout", { headers: headers })
             .pipe(finalize(() => {
                 this.service.complete();
             }))

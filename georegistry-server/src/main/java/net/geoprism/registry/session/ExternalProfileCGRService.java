@@ -7,13 +7,13 @@ import com.runwaysdk.business.rbac.UserDAO;
 import net.geoprism.GeoprismUser;
 import net.geoprism.account.OauthServer;
 import net.geoprism.configuration.GeoprismProperties;
+import net.geoprism.externalprofile.business.ExternalProfileBusinessService;
 import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
-import net.geoprism.session.ExternalProfileService;
 
 @Component
-public class ExternalProfileCGRService extends ExternalProfileService
+public class ExternalProfileCGRService extends ExternalProfileBusinessService
 {
   @Override
   protected void validateUser(String username, UserDAO user, GeoprismUser geoprismUser, OauthServer server)

@@ -52,8 +52,9 @@ import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.configuration.GeoprismProperties;
-import net.geoprism.email.EmailService;
 import net.geoprism.email.SendEmailCommand;
+import net.geoprism.email.business.EmailBusinessService;
+import net.geoprism.email.service.EmailService;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
@@ -281,7 +282,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
             // Aspects will weave in here and this will happen at the end of the
             // transaction
-            new SendEmailCommand(new EmailService(), subject, body, toAddresses.toArray(new String[toAddresses.size()])).doIt();
+            new SendEmailCommand(new EmailBusinessService(), subject, body, toAddresses.toArray(new String[toAddresses.size()])).doIt();
           }
         }
       }

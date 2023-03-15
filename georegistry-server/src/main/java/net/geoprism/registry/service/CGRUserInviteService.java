@@ -16,15 +16,15 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 
-import net.geoprism.account.UserInviteService;
-import net.geoprism.account.UserInviteServiceIF;
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
+import net.geoprism.userinvite.business.UserInviteBusinessService;
+import net.geoprism.userinvite.business.UserInviteBusinessServiceIF;
 
 @Component
-public class CGRUserInviteService extends UserInviteService implements UserInviteServiceIF
+public class CGRUserInviteService extends UserInviteBusinessService implements UserInviteBusinessServiceIF
 {
 
   private static final Logger logger = LoggerFactory.getLogger(CGRUserInviteService.class);
@@ -89,7 +89,7 @@ public class CGRUserInviteService extends UserInviteService implements UserInvit
     }
     body = body.replace("${organization}", orgLabel);
 
-    this.emailService.sendEmail(Session.getCurrentSession().getOid(), subject, body, new String[] { emailAddress });
+    this.emailService.sendEmail(subject, body, new String[] { emailAddress });
   }
   
 }

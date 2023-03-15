@@ -40,29 +40,28 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import net.geoprism.EncodingFilter;
-import net.geoprism.ForgotPasswordController;
-import net.geoprism.ForgotPasswordServiceIF;
 import net.geoprism.PatchingContextListener;
 import net.geoprism.RMIContextListener;
 import net.geoprism.SchedulerContextListener;
-import net.geoprism.account.UserInviteController;
-import net.geoprism.classifier.ClassifierService;
-import net.geoprism.classifier.ClassifierServiceIF;
-import net.geoprism.email.EmailController;
-import net.geoprism.email.EmailService;
-import net.geoprism.email.EmailServiceIF;
-import net.geoprism.rbac.RoleService;
-import net.geoprism.rbac.RoleServiceIF;
+import net.geoprism.externalprofile.business.ExternalProfileBusinessServiceIF;
+import net.geoprism.externalprofile.controller.ExternalProfileController;
+import net.geoprism.externalprofile.service.ExternalProfileService;
+import net.geoprism.externalprofile.service.ExternalProfileServiceIF;
+import net.geoprism.forgotpassword.business.ForgotPasswordBusinessServiceIF;
+import net.geoprism.forgotpassword.controller.ForgotPasswordController;
+import net.geoprism.forgotpassword.service.ForgotPasswordService;
+import net.geoprism.forgotpassword.service.ForgotPasswordServiceIF;
 import net.geoprism.registry.account.ForgotPasswordCGRService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.session.ExternalProfileCGRService;
-import net.geoprism.session.ExternalProfileController;
-import net.geoprism.session.ExternalProfileServiceIF;
+import net.geoprism.session.SessionController;
 import net.geoprism.session.SessionFilter;
+import net.geoprism.userinvite.controller.UserInviteController;
+import net.geoprism.userinvite.service.UserInviteService;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = { "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.spring" })
+@ComponentScan(basePackages = { "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.spring", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier" })
 public class SpringAppConfig extends WebMvcConfigurationSupport
 {
 
@@ -133,28 +132,23 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
   }
   
   @Bean
-  ForgotPasswordServiceIF forgotPasswordServiceIF() {
-    return new ForgotPasswordCGRService();
-  }
-  
-  @Bean
   ForgotPasswordController forgotPasswordController() {
     return new ForgotPasswordController();
   }
   
   @Bean
-  ExternalProfileServiceIF externalProfileServiceIF() {
-    return new ExternalProfileCGRService();
+  ForgotPasswordServiceIF forgotPasswordServiceIF() {
+    return new ForgotPasswordService();
   }
   
   @Bean
-  ClassifierServiceIF classifierServiceIF() {
-    return new ClassifierService();
+  ForgotPasswordBusinessServiceIF forgotPasswordBusinessServiceIF() {
+    return new ForgotPasswordCGRService();
   }
   
   @Bean
-  RoleServiceIF roleServiceIF() {
-    return new RoleService();
+  SessionController sessionController() {
+    return new SessionController();
   }
   
   @Bean
@@ -163,18 +157,23 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
   }
   
   @Bean
-  EmailServiceIF emailService() {
-    return new EmailService();
+  ExternalProfileServiceIF externalProfileServiceIF() {
+    return new ExternalProfileService();
   }
   
   @Bean
-  EmailController emailController() {
-    return new EmailController();
+  ExternalProfileBusinessServiceIF externalProfileBusinessServiceIF() {
+    return new ExternalProfileCGRService();
   }
   
   @Bean
   UserInviteController userInviteController() {
     return new UserInviteController();
+  }
+  
+  @Bean
+  UserInviteService userInviteService() {
+    return new UserInviteService();
   }
   
   @Bean
