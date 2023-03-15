@@ -21,6 +21,8 @@ package net.geoprism.registry.service;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -93,7 +95,7 @@ public class SerializedListTypeCache
     }
     else
     {
-      return "SYSTEM" + oid;
+      return oid + "SYSTEM";
     }
   }
 
@@ -121,6 +123,10 @@ public class SerializedListTypeCache
 
   public void remove(String oid)
   {
-    this.cache.remove(this.hash(oid));
+    Set<String> keys = this.cache.keySet().stream().filter(key -> key.startsWith(oid)).collect(Collectors.toSet());
+    
+    keys.forEach(key -> {
+      this.cache.remove(key);      
+    });    
   }
 }
