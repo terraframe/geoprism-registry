@@ -56,6 +56,7 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.session.ExternalProfileCGRService;
 import net.geoprism.session.SessionController;
 import net.geoprism.session.SessionFilter;
+import net.geoprism.spring.JsonExceptionHandler;
 import net.geoprism.userinvite.controller.UserInviteController;
 import net.geoprism.userinvite.service.UserInviteService;
 
@@ -124,6 +125,11 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
   @Bean
   Filter sessionFilter() {
     return new SessionFilter();
+  }
+  
+  @Bean
+  JsonExceptionHandler exceptionHandler() {
+    return new JsonExceptionHandler();
   }
   
   @Bean
