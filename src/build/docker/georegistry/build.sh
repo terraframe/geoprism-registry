@@ -1,9 +1,14 @@
 #!/bin/bash
 #
-#
+# Arguments:
+# $1 : Optional, if set to 'false' then we will not save the image to a file afterwords.
 #
 
-# Run with elevated 'sudo' permissions as necessary
+# Run this with sudo
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
 
 set -e
 
@@ -17,8 +22,10 @@ cp -R ../../../../envcfg/prod target/appcfg
 
 docker build -t terraframe/geoprism-registry:$tag .
 
-if [ "$CGR_RELEASE_VERSION" != "latest" ]; then
+if [ "${CGR_RELEASE_VERSION:-'latest'}" != "latest" ]; then
   docker tag terraframe/geoprism-registry:$tag terraframe/geoprism-registry:latest
 fi
 
-docker save terraframe/geoprism-registry:$tag | gzip > target/georegistry.dimg.gz
+if [ "$1 != 'false'" ]; then
+  docker save terraframe/geoprism-registry:$tag | gzip > target/georegistry.dimg.gz
+fi

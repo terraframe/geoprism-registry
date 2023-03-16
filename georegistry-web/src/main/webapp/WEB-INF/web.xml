@@ -72,6 +72,10 @@
     <servlet-name>SpringDispatcher</servlet-name>
     <url-pattern>/api/*</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>SpringDispatcher</servlet-name>
+    <url-pattern>/cgr/manage</url-pattern>
+  </servlet-mapping>
   
   <filter>
     <filter-name>EncodingFilter</filter-name>
