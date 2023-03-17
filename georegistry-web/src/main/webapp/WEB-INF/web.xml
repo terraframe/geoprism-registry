@@ -101,4 +101,20 @@
     <filter-name>SessionFilter</filter-name>
     <url-pattern>*</url-pattern>
   </filter-mapping>
+  
+  <listener>
+    <listener-class>net.geoprism.PatchingContextListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>net.geoprism.RMIContextListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>net.geoprism.SchedulerContextListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>net.geoprism.gis.geoserver.GeoserverContextListener</listener-class>
+  </listener>
+  <listener>
+    <listener-class>net.geoprism.registry.context.RegistryServerContextListener</listener-class>
+  </listener>
 </web-app>
