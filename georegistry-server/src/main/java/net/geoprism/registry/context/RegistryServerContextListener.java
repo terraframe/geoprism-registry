@@ -83,12 +83,14 @@ public class RegistryServerContextListener implements ServletContextListener
     }
   }
 
+  @Override
   public void contextInitialized(ServletContextEvent sce) {
     Thread t = new Thread(new StartupThread());
     t.setDaemon(true);
     t.start();
   } 
   
+  @Override
   public void contextDestroyed(ServletContextEvent sce) { 
   }
 }

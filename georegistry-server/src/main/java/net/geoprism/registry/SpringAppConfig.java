@@ -39,9 +39,6 @@ import org.springframework.web.servlet.view.BeanNameViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
 import net.geoprism.EncodingFilter;
-import net.geoprism.PatchingContextListener;
-import net.geoprism.RMIContextListener;
-import net.geoprism.SchedulerContextListener;
 import net.geoprism.externalprofile.business.ExternalProfileBusinessServiceIF;
 import net.geoprism.externalprofile.controller.ExternalProfileController;
 import net.geoprism.externalprofile.service.ExternalProfileService;
@@ -181,20 +178,5 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
   @Bean
   UserInviteService userInviteService() {
     return new UserInviteService();
-  }
-  
-  @Bean
-  PatchingContextListener patchContextListener() {
-    return new PatchingContextListener();
-  }
-  
-  @Bean
-  RMIContextListener rmiContextListener() {
-    return new RMIContextListener();
-  }
-  
-  @Bean
-  SchedulerContextListener schedulerContextListener() {
-    return new SchedulerContextListener();
   }
 }
