@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.localization.LocalizationFacade;
 
-import net.geoprism.account.RoleConstants;
+import net.geoprism.rbac.RoleConstants;
 
 public class CGRApplication
 {

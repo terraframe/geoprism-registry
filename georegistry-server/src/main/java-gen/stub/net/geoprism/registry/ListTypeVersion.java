@@ -130,7 +130,7 @@ import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 
-import net.geoprism.account.RoleConstants;
+import net.geoprism.rbac.RoleConstants;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.command.GeoserverCreateWMSCommand;

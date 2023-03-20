@@ -30,7 +30,7 @@ public class CGRUserInviteService extends UserInviteBusinessService implements U
   private static final Logger logger = LoggerFactory.getLogger(CGRUserInviteService.class);
   
   @Override
-  protected void applyUserWithRoles(JsonObject joUser, List<String> roleNames)
+  protected void applyUserWithRoles(JsonObject joUser, Set<String> roleNames)
   {
     UserInfo.applyUserWithRoles(joUser, roleNames.toArray(new String[roleNames.size()]), true);
   }

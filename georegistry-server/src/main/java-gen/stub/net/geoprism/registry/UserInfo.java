@@ -51,7 +51,7 @@ import com.runwaysdk.system.Roles;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserQuery;
-import net.geoprism.account.RoleConstants;
+import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.permission.RolePermissionService;
@@ -344,15 +344,15 @@ public class UserInfo extends UserInfoBase
       }
 
 //        ConfigurationIF.configureUserRoles(roleIdSet);
-      RoleDAOIF admin = RoleDAO.findRole(RoleConstants.ADMIN);
-      RoleDAOIF builder = RoleDAO.findRole(RoleConstants.DASHBOARD_BUILDER);
-
-      if (! ( roleIdSet.contains(admin.getOid()) || roleIdSet.contains(builder.getOid()) ))
-      {
-        RoleDAOIF role = RoleDAO.findRole(RoleConstants.DECISION_MAKER);
-
-        roleIdSet.add(role.getOid());
-      }
+//      RoleDAOIF admin = RoleDAO.findRole(RoleConstants.ADMIN);
+//      RoleDAOIF builder = RoleDAO.findRole(RoleConstants.DASHBOARD_BUILDER);
+//
+//      if (! ( roleIdSet.contains(admin.getOid()) || roleIdSet.contains(builder.getOid()) ))
+//      {
+//        RoleDAOIF role = RoleDAO.findRole(RoleConstants.DECISION_MAKER);
+//
+//        roleIdSet.add(role.getOid());
+//      }
       
 
       UserDAOIF user = UserDAO.get(geoprismUser.getOid());

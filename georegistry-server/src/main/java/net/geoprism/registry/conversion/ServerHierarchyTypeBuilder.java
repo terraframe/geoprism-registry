@@ -47,7 +47,7 @@ import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.RelationshipCache;
 
-import net.geoprism.account.RoleConstants;
+import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.CodeLengthException;
 import net.geoprism.registry.DuplicateHierarchyTypeException;
 import net.geoprism.registry.HierarchicalRelationshipType;

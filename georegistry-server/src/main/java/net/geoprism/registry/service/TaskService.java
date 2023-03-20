@@ -40,7 +40,7 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.RolesQuery;
 
-import net.geoprism.account.RoleConstants;
+import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.task.Task;
 import net.geoprism.registry.task.Task.TaskStatus;
 import net.geoprism.registry.task.TaskHasRoleQuery;
