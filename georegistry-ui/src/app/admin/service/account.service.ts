@@ -96,21 +96,6 @@ export class AccountService {
             .toPromise();
     }
 
-    newUserInstance(): Promise<User> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return this.http
-            .post<User>(environment.apiUrl + "/api/registryaccount/newUserInstance", JSON.stringify({}), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
-            .toPromise();
-    }
-
     newInvite(organizationCodes: string[]): Promise<Account> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
@@ -156,21 +141,6 @@ export class AccountService {
             .toPromise();
     }
 
-    unlock(oid: string): Promise<void> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return this.http
-            .post<void>(environment.apiUrl + "/api/registryaccount/unlock", JSON.stringify({ oid: oid }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
-            .toPromise();
-    }
-
     inviteUser(invite: UserInvite, roleIds: string[]): Promise<void> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
@@ -181,7 +151,7 @@ export class AccountService {
         //        console.log( "Submitting to inviteUser : ", JSON.stringify( { invite: invite, roleIds: roleIds } ) );
 
         return this.http
-            .post<void>(environment.apiUrl + "/api/registryaccount/inviteUser", JSON.stringify({ invite: invite, roleIds: roleIds }), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/invite-user/initiate", JSON.stringify({ invite: invite, roleIds: roleIds }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -196,7 +166,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<void>(environment.apiUrl + "/api/registryaccount/inviteComplete", JSON.stringify({ user: user, token: token }), { headers: headers })
+            .post<void>(environment.apiUrl + "/api/invite-user/complete", JSON.stringify({ user: user, token: token }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

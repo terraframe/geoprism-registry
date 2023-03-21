@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,8 +56,8 @@ import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 
-import net.geoprism.DataUploader;
 import net.geoprism.GeoprismUser;
+import net.geoprism.classifier.ClassifierBusinessServiceIF;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.EdgeJsonImporter;
@@ -87,6 +88,9 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 @Component
 public class ETLService
 {
+  @Autowired
+  protected ClassifierBusinessServiceIF classifierService;
+  
   @Request(RequestType.SESSION)
   public void cancelImport(String sessionId, String json)
   {
@@ -700,7 +704,7 @@ public class ETLService
         String classifierId = config.get("classifierId").getAsString();
         String label = config.get("label").getAsString();
 
-        response = JsonParser.parseString(DataUploader.createClassifierSynonym(classifierId, label)).getAsJsonObject();
+        response = JsonParser.parseString(this.classifierService.createSynonym(classifierId, label)).getAsJsonObject();
       }
       else if (problem instanceof ParentReferenceProblem)
       {

@@ -17,12 +17,4 @@ public class GeoregistryTestPatcher extends GeoprismDatabaseBuilder implements G
 //    AndroidIntegrationTestDatabaseBuilder.main(new String[] {});
     CambodiaTestDataset.main(new String[] {});
   }
-  
-  @Override
-  protected void importLocationData()
-  {
-    // skip
-  }
-  
-  
 }

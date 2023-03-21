@@ -134,9 +134,6 @@
           </mdBusinessPermission>
         </grant>
       </role>
-      <method methodName="login" type="net.geoprism.account.ExternalProfile">
-        <assignedRole roleName="Administrator"/>
-      </method>
     </permissions>
   </doIt>
   <undoIt>

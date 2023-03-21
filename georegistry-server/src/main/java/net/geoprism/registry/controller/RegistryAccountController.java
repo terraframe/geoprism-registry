@@ -42,12 +42,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.mvc.NullConfiguration;
-import com.runwaysdk.mvc.conversion.BusinessDTOToBasicJSON;
 
 import net.geoprism.GeoprismUserDTO;
-import net.geoprism.account.UserInviteDTO;
-import net.geoprism.registry.account.RegistryAccountUtilDTO;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.service.AccountService;
 import net.geoprism.registry.spring.JsonArrayDeserializer;
@@ -200,7 +196,7 @@ public class RegistryAccountController extends RunwaySpringController
   @PostMapping(API_PATH + "/edit")
   public ResponseEntity<String> edit(@Valid @RequestBody OidBody body)
   {
-    JSONObject user = this.accountService.lock(this.getSessionId(), body.getOid());
+    JSONObject user = this.accountService.get(this.getSessionId(), body.getOid());
 
     RegistryRole[] registryRoles = this.accountService.getRolesForUser(this.getSessionId(), body.getOid());
 
@@ -250,24 +246,14 @@ public class RegistryAccountController extends RunwaySpringController
       orgCodeArray = new String[0];
     }
 
-    GeoprismUserDTO user = UserInviteDTO.newUserInst(this.getClientRequest());
+//    GeoprismUserDTO user = UserInviteDTO.newUserInst(this.getClientRequest());
 
     RegistryRole[] registryRoles = this.accountService.getRolesForOrganization(this.getSessionId(), orgCodeArray);
     JsonArray rolesJSONArray = this.createRoleMap(registryRoles);
 
     JSONObject response = new JSONObject();
-    response.put("user", BusinessDTOToBasicJSON.getConverter(user, new NullConfiguration()).populate());
+//    response.put("user", BusinessDTOToBasicJSON.getConverter(user, new NullConfiguration()).populate());
     response.put("roles", new JSONArray(rolesJSONArray.toString()));
-
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
-  }
-
-  @PostMapping(API_PATH + "/newUserInstance")
-  public ResponseEntity<String> newUserInstance()
-  {
-    GeoprismUserDTO user = UserInviteDTO.newUserInst(this.getClientRequest());
-
-    JSONObject response = BusinessDTOToBasicJSON.getConverter(user, new NullConfiguration()).populate();
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
@@ -276,14 +262,6 @@ public class RegistryAccountController extends RunwaySpringController
   public ResponseEntity<Void> remove(@Valid @RequestBody OidBody body)
   {
     accountService.remove(this.getSessionId(), body.getOid());
-
-    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-  }
-
-  @PostMapping(API_PATH + "/unlock")
-  public ResponseEntity<Void> unlock(@Valid @RequestBody OidBody body)
-  {
-    this.accountService.unlock(this.getSessionId(), body.getOid());
 
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
@@ -313,14 +291,6 @@ public class RegistryAccountController extends RunwaySpringController
     response.put("roles", new JSONArray(rolesJSONArray.toString()));
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
-  }
-
-  @PostMapping(API_PATH + "/inviteUser")
-  public ResponseEntity<Void> inviteUser(@Valid @RequestBody InviteUserBody body)
-  {
-    RegistryAccountUtilDTO.initiate(this.getClientRequest(), body.invite.toString(), body.roleIds.toString(), null);
-
-    return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
   /**
@@ -362,14 +332,6 @@ public class RegistryAccountController extends RunwaySpringController
     response.put("roles", new JSONArray(rolesJSONArray.toString()));
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
-  }
-
-  @PostMapping(API_PATH + "/inviteComplete")
-  public ResponseEntity<Void> inviteComplete(@Valid @RequestBody InviteCompleteBody body)
-  {
-    RegistryAccountUtilDTO.inviteComplete(this.getClientRequest(), body.token, body.user.toString());
-
-    return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
   private JsonArray createRoleMap(RegistryRole[] roles)

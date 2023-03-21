@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -48,9 +48,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import net.geoprism.ClientConfigurationService;
-import net.geoprism.GeoprismApplication;
-import net.geoprism.RoleViewDTO;
+import net.geoprism.rbac.RoleServiceIF;
+import net.geoprism.rbac.RoleView;
+import net.geoprism.registry.CGRApplication;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.AccountService;
 import net.geoprism.registry.service.ExternalSystemService;
 import net.geoprism.registry.service.OrganizationService;
@@ -91,6 +92,9 @@ public class GenericRestController extends RunwaySpringController
 
   @Autowired
   private RegistryComponentService service;
+  
+  @Autowired
+  private RoleServiceIF roleService;
 
   /**
    * Create the {@link HierarchyType} from the given JSON.
@@ -100,7 +104,7 @@ public class GenericRestController extends RunwaySpringController
    *          JSON of the {@link HierarchyType} to be created.
    * @throws IOException
    */
-  @PostMapping("cgr/import-types")
+  @PostMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/import-types")
   public ResponseEntity<Void> importTypes(@Valid
   @ModelAttribute ImportTypeBody body) throws IOException
   {
@@ -120,14 +124,14 @@ public class GenericRestController extends RunwaySpringController
    * @param request
    * @return
    */
-  @GetMapping("cgr/init")
+  @GetMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/init")
   public ResponseEntity<String> init()
   {
     JsonObject response = this.service.initHierarchyManager(this.getSessionId());
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping("cgr/init-settings")
+  @GetMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/init-settings")
   public ResponseEntity<String> initSettings()
   {
     OrganizationDTO[] orgs = new OrganizationService().getOrganizations(this.getSessionId(), null); // TODO
@@ -159,7 +163,7 @@ public class GenericRestController extends RunwaySpringController
     return new ResponseEntity<String>(settingsView.toString(), HttpStatus.OK);
   }
 
-  @GetMapping("cgr/current-locale")
+  @GetMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/current-locale")
   public ResponseEntity<String> getCurrentLocale()
   {
     String locale = this.service.getCurrentLocale(this.getSessionId());
@@ -170,7 +174,7 @@ public class GenericRestController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping("cgr/locales")
+  @GetMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/locales")
   public ResponseEntity<String> getLocales()
   {
     JsonArray response = this.service.getLocales(this.getSessionId());
@@ -178,7 +182,7 @@ public class GenericRestController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping("cgr/localization-map")
+  @GetMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/localization-map")
   public ResponseEntity<String> localizationMap()
   {
     String response = this.service.getLocalizationMap(this.getSessionId());
@@ -186,7 +190,7 @@ public class GenericRestController extends RunwaySpringController
     return new ResponseEntity<String>(response, HttpStatus.OK);
   }
 
-  @GetMapping("cgr/configuration")
+  @GetMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/configuration")
   public ResponseEntity<String> getConfiguration(HttpServletRequest request)
   {
     JsonObject response = this.service.configuration(this.getSessionId(), request.getContextPath());
@@ -194,16 +198,16 @@ public class GenericRestController extends RunwaySpringController
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
-  @GetMapping("cgr/applications")
+  @GetMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/applications")
   public ResponseEntity<String> applications()
   {
     Set<String> roleNames = this.getAssignedRoleNames();
 
-    List<GeoprismApplication> allApplications = ClientConfigurationService.getApplications(this.getClientRequest());
+    List<CGRApplication> allApplications = CGRApplication.getApplications(this.getClientRequest());
 
     JSONArray response = new JSONArray();
 
-    for (GeoprismApplication application : allApplications)
+    for (CGRApplication application : allApplications)
     {
       if (application.isValid(roleNames))
       {
@@ -218,17 +222,9 @@ public class GenericRestController extends RunwaySpringController
   {
     try
     {
-      Set<String> roleNames = new TreeSet<String>();
-
-      JSONArray jaUserRoles = new JSONArray(RoleViewDTO.getCurrentRoles(this.getClientRequest()));
-      for (int i = 0; i < jaUserRoles.length(); ++i)
-      {
-        String roleName = jaUserRoles.getString(i);
-
-        roleNames.add(roleName);
-      }
-
-      return roleNames;
+      Set<RoleView> roles = this.roleService.getCurrentRoles(this.getClientRequest().getSessionId(), true);
+      
+      return roles.stream().map(roleView -> roleView.getRoleName()).collect(Collectors.toSet());
     }
     catch (JSONException e)
     {

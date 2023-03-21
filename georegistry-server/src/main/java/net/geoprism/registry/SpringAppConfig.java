@@ -20,7 +20,8 @@ package net.geoprism.registry;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+
+import javax.servlet.Filter;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -30,18 +31,34 @@ import org.springframework.format.datetime.DateFormatterRegistrar;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.format.support.FormattingConversionService;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.servlet.view.BeanNameViewResolver;
+import org.springframework.web.servlet.view.JstlView;
 
+import net.geoprism.EncodingFilter;
+import net.geoprism.externalprofile.business.ExternalProfileBusinessServiceIF;
+import net.geoprism.externalprofile.controller.ExternalProfileController;
+import net.geoprism.externalprofile.service.ExternalProfileService;
+import net.geoprism.externalprofile.service.ExternalProfileServiceIF;
+import net.geoprism.forgotpassword.business.ForgotPasswordBusinessServiceIF;
+import net.geoprism.forgotpassword.controller.ForgotPasswordController;
+import net.geoprism.forgotpassword.service.ForgotPasswordService;
+import net.geoprism.forgotpassword.service.ForgotPasswordServiceIF;
+import net.geoprism.registry.account.ForgotPasswordCGRService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.session.ExternalProfileCGRService;
+import net.geoprism.session.SessionController;
+import net.geoprism.session.SessionFilter;
+import net.geoprism.spring.JsonExceptionHandler;
+import net.geoprism.userinvite.controller.UserInviteController;
+import net.geoprism.userinvite.service.UserInviteService;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = { "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.spring" })
+@ComponentScan(basePackages = { "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.spring", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" })
 public class SpringAppConfig extends WebMvcConfigurationSupport
 {
 
@@ -77,27 +94,89 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
     return conversionService;
   }
 
-  @Override
-  public void configureMessageConverters(List<HttpMessageConverter<?>> converters)
-  {
+//  @Override
+//  public void configureMessageConverters(List<HttpMessageConverter<?>> converters)
+//  {
     // GsonHttpMessageConverter msgConverter = new GsonHttpMessageConverter();
     // Gson gson = new GsonBuilder().setPrettyPrinting().create();
     // msgConverter.setGson(gson);
     // converters.add(msgConverter);
-  }
+//  }
 
-  @Override
-  public void addResourceHandlers(ResourceHandlerRegistry registry)
-  {
-    registry.addResourceHandler("index.html").addResourceLocations("/index.html    ");
-    registry.addResourceHandler("/index.html").addResourceLocations("/index.html    ");
-  }
-
+//  @Override
+//  public void addResourceHandlers(ResourceHandlerRegistry registry)
+//  {
+//    registry.addResourceHandler("index.html").addResourceLocations("/index.html    ");
+//    registry.addResourceHandler("/index.html").addResourceLocations("/index.html    ");
+//  }
+  
   @Bean
-  public InternalResourceViewResolver viewResolver()
-  {
-    InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-    viewResolver.setSuffix(".html");
-    return viewResolver;
+  public BeanNameViewResolver beanNameViewResolver(){
+      return new BeanNameViewResolver();
+  }
+  
+  @Bean
+  public View index() {
+      return new JstlView("../index.html");
+  }
+  
+  @Bean
+  Filter sessionFilter() {
+    return new SessionFilter();
+  }
+  
+  @Bean
+  JsonExceptionHandler exceptionHandler() {
+    return new JsonExceptionHandler();
+  }
+  
+  @Bean
+  EncodingFilter encodingFilter() {
+    return new EncodingFilter();
+  }
+  
+  @Bean
+  ForgotPasswordController forgotPasswordController() {
+    return new ForgotPasswordController();
+  }
+  
+  @Bean
+  ForgotPasswordServiceIF forgotPasswordServiceIF() {
+    return new ForgotPasswordService();
+  }
+  
+  @Bean
+  ForgotPasswordBusinessServiceIF forgotPasswordBusinessServiceIF() {
+    return new ForgotPasswordCGRService();
+  }
+  
+  @Bean
+  SessionController sessionController() {
+    return new SessionController();
+  }
+  
+  @Bean
+  ExternalProfileController externalProfileController() {
+    return new ExternalProfileController();
+  }
+  
+  @Bean
+  ExternalProfileServiceIF externalProfileServiceIF() {
+    return new ExternalProfileService();
+  }
+  
+  @Bean
+  ExternalProfileBusinessServiceIF externalProfileBusinessServiceIF() {
+    return new ExternalProfileCGRService();
+  }
+  
+  @Bean
+  UserInviteController userInviteController() {
+    return new UserInviteController();
+  }
+  
+  @Bean
+  UserInviteService userInviteService() {
+    return new UserInviteService();
   }
 }

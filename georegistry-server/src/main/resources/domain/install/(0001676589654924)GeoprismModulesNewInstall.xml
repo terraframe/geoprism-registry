@@ -1,0 +1,18 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.dhis2.response.DHIS2UnexpectedResponseException" label="DHIS2 Unexpected Response Exception" message="DHIS2 returned an unexpected response [{dhis2Response}].">
+        <attributes>
+          <char name="dhis2Response" label="DHIS2 Response" required="true" size="1000"/>
+        </attributes>
+      </mdException>
+      <mdException name="net.geoprism.dashboard.GeometryUpdateException" label="Geometry Update Exception" message="You cannot update a geometry for this Geo Object Type"></mdException>
+    </create>
+    <update></update>
+    <permissions>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

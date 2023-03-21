@@ -40,7 +40,7 @@ export class ForgotPasswordService {
 		this.eventService.start();
 
 		return this.http
-			.post<void>(environment.apiUrl + '/forgotpassword/initiate', JSON.stringify({ username: username }), { headers: headers })
+			.post<void>(environment.apiUrl + '/api/forgotpassword/initiate', username, { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
@@ -55,7 +55,7 @@ export class ForgotPasswordService {
 		this.eventService.start();
 
 		return this.http
-			.post<void>(environment.apiUrl + '/forgotpassword/complete', JSON.stringify({ newPassword: newPassword, token: token }), { headers: headers })
+			.post<void>(environment.apiUrl + '/api/forgotpassword/complete', JSON.stringify({ newPassword: newPassword, token: token }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))

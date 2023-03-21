@@ -81,4 +81,6 @@ public interface RegistryConstants
   public final static String TERM_CLASS                       = "CLASS";
 
   public static final String ADMIN_USER_NAME                  = "admin";
+  
+  public static final String CONTROLLER_ROOT                  = "";
 }

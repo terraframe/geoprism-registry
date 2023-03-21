@@ -49,11 +49,9 @@ import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 
-import net.geoprism.ConfigurationIF;
-import net.geoprism.ConfigurationService;
-import net.geoprism.DefaultConfiguration;
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserQuery;
+import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.permission.RolePermissionService;
@@ -224,31 +222,13 @@ public class UserInfo extends UserInfoBase
   }
 
   @Transaction
-  public static JSONObject lockByUser(String userId)
+  public static JSONObject getByUser(String userId)
   {
-    GeoprismUser user = GeoprismUser.lock(userId);
+    GeoprismUser user = GeoprismUser.get(userId);
 
     UserInfo info = UserInfo.getByUser(user);
-
-    if (info != null)
-    {
-      info.lock();
-    }
 
     return UserInfo.serialize(user, info);
-  }
-
-  @Transaction
-  public static void unlockByUser(String userId)
-  {
-    GeoprismUser user = GeoprismUser.unlock(userId);
-
-    UserInfo info = UserInfo.getByUser(user);
-
-    if (info != null)
-    {
-      info.unlock();
-    }
   }
 
   @Transaction
@@ -363,12 +343,17 @@ public class UserInfo extends UserInfoBase
         newRoles.add(role);
       }
 
-      List<ConfigurationIF> configurations = ConfigurationService.getConfigurations();
-
-      for (ConfigurationIF configuration : configurations)
-      {
-        configuration.configureUserRoles(roleIdSet);
-      }
+//        ConfigurationIF.configureUserRoles(roleIdSet);
+//      RoleDAOIF admin = RoleDAO.findRole(RoleConstants.ADMIN);
+//      RoleDAOIF builder = RoleDAO.findRole(RoleConstants.DASHBOARD_BUILDER);
+//
+//      if (! ( roleIdSet.contains(admin.getOid()) || roleIdSet.contains(builder.getOid()) ))
+//      {
+//        RoleDAOIF role = RoleDAO.findRole(RoleConstants.DECISION_MAKER);
+//
+//        roleIdSet.add(role.getOid());
+//      }
+      
 
       UserDAOIF user = UserDAO.get(geoprismUser.getOid());
 
@@ -378,7 +363,7 @@ public class UserInfo extends UserInfoBase
       {
         RoleDAO roleDAO = RoleDAO.get(roleDAOIF.getOid()).getBusinessDAO();
 
-        if (! ( geoprismUser.getUsername().equals(RegistryConstants.ADMIN_USER_NAME) && ( roleDAO.getRoleName().equals(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE) || roleDAO.getRoleName().equals(DefaultConfiguration.ADMIN) ) ))
+        if (! ( geoprismUser.getUsername().equals(RegistryConstants.ADMIN_USER_NAME) && ( roleDAO.getRoleName().equals(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE) || roleDAO.getRoleName().equals(RoleConstants.ADMIN) ) ))
         {
           roleDAO.deassignMember(user);
         }
@@ -521,7 +506,7 @@ public class UserInfo extends UserInfoBase
     {
       String userId = account.get(GeoprismUser.OID).getAsString();
 
-      user = GeoprismUser.get(userId);
+      user = GeoprismUser.lock(userId);
     }
     else
     {

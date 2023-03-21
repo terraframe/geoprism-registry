@@ -73,27 +73,48 @@
       <artifactId>dhis2adapter</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
 		<dependency>
 			<groupId>net.geoprism</groupId>
-			<artifactId>geoprism-server</artifactId>
-			<version>${geoprism.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>org.apache.batik.pdf</artifactId>
-					<groupId>org.eclipse.birt.runtime.3_7_1</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>net.geoprism</groupId>
-			<artifactId>geoprism-client</artifactId>
+			<artifactId>geoprism-classifier</artifactId>
 			<version>${geoprism.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.geoprism</groupId>
-			<artifactId>geoprism-common</artifactId>
-			<version>${geoprism.version}</version>
-		</dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-external-profile</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-forgot-password</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-user-invite</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-logos</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-email</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-geoserver</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.geoprism</groupId>
+      <artifactId>geoprism-excel</artifactId>
+      <version>${geoprism.version}</version>
+    </dependency>
+		
 		<dependency>
 			<groupId>net.geoprism</groupId>
 			<artifactId>georegistry-adapter</artifactId>

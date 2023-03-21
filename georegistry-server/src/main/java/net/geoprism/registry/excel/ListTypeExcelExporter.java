@@ -51,10 +51,10 @@ import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
@@ -173,16 +173,16 @@ public class ListTypeExcelExporter
 
     if (metadataSource.equals(ListMetadataSource.GEOSPATIAL))
     {
-      String attributeLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.attribute");
-      String descriptionLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.description");
-      String columnLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.columnName");
-
+      String attributeLabel = LocalizationFacade.localize("masterlist.dictionary.attribute");
+      String descriptionLabel = LocalizationFacade.localize("masterlist.dictionary.description");
+      String columnLabel = LocalizationFacade.localize("masterlist.dictionary.columnName");
+      
       ListTypeExcelExporter.this.createRow(sheet, 0, boldStyle, attributeLabel, columnLabel, descriptionLabel);
     }
     else
     {
-      String attributeLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.attribute");
-      String descriptionLabel = LocalizationFacade.getFromBundles("masterlist.dictionary.description");
+      String attributeLabel = LocalizationFacade.localize("masterlist.dictionary.attribute");
+      String descriptionLabel = LocalizationFacade.localize("masterlist.dictionary.description");
 
       ListTypeExcelExporter.this.createRow(sheet, 0, boldStyle, attributeLabel, descriptionLabel);
     }
@@ -237,7 +237,7 @@ public class ListTypeExcelExporter
 
   private String getSheetName(Workbook workbook, String key)
   {
-    String label = LocalizationFacade.getFromBundles(key);
+    String label = LocalizationFacade.localize(key);
     String name = WorkbookUtil.createSafeSheetName(label);
 
     int i = 0;
@@ -263,8 +263,8 @@ public class ListTypeExcelExporter
 
     this.createRow(sheet, locale, metadata, rowNumber++, ListType.DISPLAYLABEL, this.list.getDisplayLabel().getValue());
     this.createRow(sheet, locale, metadata, rowNumber++, ListType.CODE, this.list.getCode());
-    this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.publishDate"), stripTime(this.version.getPublishDate()));
-    this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.forDate"), stripTime(this.version.getForDate()));
+    this.createRow(sheet, rowNumber++, LocalizationFacade.localize("masterlist.publishDate"), stripTime(this.version.getPublishDate()));
+    this.createRow(sheet, rowNumber++, LocalizationFacade.localize("masterlist.forDate"), stripTime(this.version.getForDate()));
 
     if (this.metadataSource == null || this.metadataSource.equals(ListMetadataSource.LIST))
     {

@@ -25,6 +25,7 @@ import javax.validation.Valid;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -39,7 +40,7 @@ import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
 
-import net.geoprism.DataUploaderDTO;
+import net.geoprism.classifier.ClassifierServiceIF;
 import net.geoprism.ontology.ClassifierDTO;
 
 @RestController
@@ -90,13 +91,16 @@ public class TermController extends RunwaySpringController
       this.label = label;
     }
   }
+  
+  @Autowired
+  protected ClassifierServiceIF classifierService;
 
   public static final String API_PATH = "term";
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseEntity<String> createClassifierSynonym(@Valid @RequestBody ClassifierSynonymBody body)
   {
-    String response = DataUploaderDTO.createClassifierSynonym(this.getClientRequest(), body.getClassifierId(), body.getLabel());
+    String response = this.classifierService.createSynonym(this.getClientRequest().getSessionId(), body.getClassifierId(), body.getLabel());
 
     JSONObject object = new JSONObject(response);
 
@@ -106,7 +110,7 @@ public class TermController extends RunwaySpringController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseEntity<Void> deleteClassifierSynonym(@Valid @RequestBody SynonymBody body)
   {
-    DataUploaderDTO.deleteClassifierSynonym(this.getClientRequest(), body.getSynonymId());
+    this.classifierService.deleteSynonym(this.getClientRequest().getSessionId(), body.getSynonymId());
 
     return new ResponseEntity<Void>(HttpStatus.OK);
   }

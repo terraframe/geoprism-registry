@@ -48,16 +48,6 @@ export class ProfileService {
             .toPromise();
     }
 
-    unlock(oid: string): Promise<void> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        return this.http
-            .post<void>(environment.apiUrl + "/api/registryaccount/unlock", JSON.stringify({ oid: oid }), { headers: headers })
-            .toPromise();
-    }
-
     setLocale(locale: string): Promise<any> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"

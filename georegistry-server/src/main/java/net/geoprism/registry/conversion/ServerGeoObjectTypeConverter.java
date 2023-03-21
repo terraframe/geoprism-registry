@@ -512,7 +512,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
   {
     MdBusiness mdBusiness = universal.getMdBusiness();
     MdGeoVertexDAO mdVertex = GeoVertexType.getMdGeoVertex(universal.getUniversalId());
-   
+    
     ServerGeoObjectType server = new ServerGeoObjectType(null, universal, mdBusiness, mdVertex);
     server.buildType();
     

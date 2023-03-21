@@ -18,15 +18,9 @@
  */
 package net.geoprism.registry.controller;
 
-import java.util.Locale;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.LocaleUtils;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -45,9 +39,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.localization.LocaleView;
-import net.geoprism.registry.service.LocalizationService;
+import net.geoprism.registry.service.CGRLocalizationService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
@@ -92,7 +85,7 @@ public class RegistryLocalizationController extends RunwaySpringController
 
   
   @Autowired
-  private LocalizationService service;
+  private CGRLocalizationService service;
 
   @PostMapping(API_PATH + "/importSpreadsheet")    
   public ResponseEntity<Void> importSpreadsheet(@ModelAttribute MultipartFile file)
@@ -110,34 +103,10 @@ public class RegistryLocalizationController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
-  @GetMapping(API_PATH + "/getNewLocaleInformation")      
+  @GetMapping(API_PATH + "/getNewLocaleInformation")
   public ResponseEntity<String> getNewLocaleInformation()
   {
-    JSONObject json = new JSONObject();
-
-    JSONArray languages = new JSONArray();
-    JSONArray countries = new JSONArray();
-
-    Locale sessionLocale = LocaleUtils.toLocale(ServiceFactory.getRegistryService().getCurrentLocale(this.getSessionId()));
-
-    for (Locale locale : LocalizationFacade.getAvailableLanguagesSorted())
-    {
-      JSONObject jobj = new JSONObject();
-      jobj.put("key", locale.getLanguage());
-      jobj.put("label", locale.getDisplayLanguage(sessionLocale));
-      languages.put(jobj);
-    }
-
-    for (Locale locale : LocalizationFacade.getAvailableCountriesSorted())
-    {
-      JSONObject jobj = new JSONObject();
-      jobj.put("key", locale.getCountry());
-      jobj.put("label", locale.getDisplayCountry(sessionLocale));
-      countries.put(jobj);
-    }
-
-    json.put("languages", languages);
-    json.put("countries", countries);
+    JsonObject json = this.service.getNewLocaleInformation(this.getSessionId());
 
     return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
   }

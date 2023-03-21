@@ -18,18 +18,20 @@
  */
 package net.geoprism.registry.context;
 
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.runwaysdk.session.Request;
+import org.springframework.stereotype.Component;
 
 import it.geosolutions.geoserver.rest.GeoServerRESTReader;
-import net.geoprism.context.ServerContextListener;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.GeoserverProperties;
 import net.geoprism.registry.service.WMSService;
 
-public class RegistryServerContextListener implements ServerContextListener
+@Component
+public class RegistryServerContextListener implements ServletContextListener
 {
 
   public static class StartupThread implements Runnable
@@ -82,21 +84,13 @@ public class RegistryServerContextListener implements ServerContextListener
   }
 
   @Override
-  public void initialize()
-  {
-  }
-
-  @Override
-  @Request
-  public void startup()
-  {
+  public void contextInitialized(ServletContextEvent sce) {
     Thread t = new Thread(new StartupThread());
     t.setDaemon(true);
     t.start();
-  }
-
+  } 
+  
   @Override
-  public void shutdown()
-  {
+  public void contextDestroyed(ServletContextEvent sce) { 
   }
 }

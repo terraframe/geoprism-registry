@@ -49,18 +49,6 @@ public class GeoregistryProperties
     return Singleton.INSTANCE.props.getInteger("import.refreshSessionRecordCount", 10000);
   }
 
-  public static String getRemoteServerUrl()
-  {
-    String url = Singleton.INSTANCE.props.getString("cgr.remote.url", "https://localhost:8443/georegistry/");
-
-    if (!url.endsWith("/"))
-    {
-      url = url + "/";
-    }
-
-    return url;
-  }
-
   public static String getGoogleAnalyticsToken()
   {
     String token = Singleton.INSTANCE.props.getString("cgr.google.analytics.token", "");

@@ -35,7 +35,7 @@ import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
-import net.geoprism.DefaultConfiguration;
+import net.geoprism.rbac.RoleConstants;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.RegistryConstants;
@@ -94,7 +94,7 @@ public class AddWritePermissions
       @Override
       public void postApply(MdBusinessDAO mdBusiness)
       {
-        RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
+        RoleDAO adminRole = RoleDAO.findRole(RoleConstants.ADMIN).getBusinessDAO();
 
         adminRole.grantPermission(Operation.READ, mdBusiness.getOid());
         adminRole.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
@@ -152,7 +152,7 @@ public class AddWritePermissions
 
   private void grantWritePermissionsOnMdTermRel(ComponentIF mdTermRelationship)
   {
-    RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
+    RoleDAO adminRole = RoleDAO.findRole(RoleConstants.ADMIN).getBusinessDAO();
 
     grantWritePermissionsOnMdTermRel(adminRole, mdTermRelationship);
   }

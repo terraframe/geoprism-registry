@@ -63,7 +63,6 @@ import org.locationtech.jts.geom.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.services.kms.model.UnsupportedOperationException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -131,7 +130,7 @@ import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 
-import net.geoprism.DefaultConfiguration;
+import net.geoprism.rbac.RoleConstants;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.command.GeoserverCreateWMSCommand;
@@ -1985,7 +1984,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
   private static void assignDefaultRolePermissions(ComponentIF component)
   {
-    RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
+    RoleDAO adminRole = RoleDAO.findRole(RoleConstants.ADMIN).getBusinessDAO();
     adminRole.grantPermission(Operation.CREATE, component.getOid());
     adminRole.grantPermission(Operation.DELETE, component.getOid());
     adminRole.grantPermission(Operation.WRITE, component.getOid());

@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -103,7 +103,7 @@ public class RemoveChildAction extends RemoveChildActionBase
     ServerGeoObjectType childType = ServerGeoObjectType.get(this.getChildTypeCode());
     HierarchyType hierarchyType = cache.getHierachyType(this.getHierarchyTypeCode()).get();
 
-    String message = LocalizationFacade.getFromBundles("change.request.email.remove.child");
+    String message = LocalizationFacade.localize("change.request.email.remove.child");
     message = message.replaceAll("\\{0\\}", this.getChildId());
     message = message.replaceAll("\\{1\\}", childType.getLabel().getValue(Session.getCurrentLocale()));
     message = message.replaceAll("\\{2\\}", this.getParentId());

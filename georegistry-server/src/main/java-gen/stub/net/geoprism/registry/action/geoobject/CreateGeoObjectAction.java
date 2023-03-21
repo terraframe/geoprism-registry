@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.ChangeRequestPermissionService;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
@@ -126,7 +126,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
     GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), this.getGeoObjectJson());
     GeoObjectType got = go.getType();
 
-    String message = LocalizationFacade.getFromBundles("change.request.email.create.object");
+    String message = LocalizationFacade.localize("change.request.email.create.object");
     message = message.replaceAll("\\{0\\}", go.getCode());
     message = message.replaceAll("\\{1\\}", got.getLabel().getValue(Session.getCurrentLocale()));
 

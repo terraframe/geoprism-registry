@@ -47,7 +47,7 @@
 		"ngx-spinner": "^11.0.2",
 		"primeicons": "^6.0.1",
 		"primeng": "^14.2.3",
-		"rxjs": "~7.5.0",
+		"rxjs": "~7.6.0",
 		"ts-debounce": "^4.0.0",
 		"tslib": "^2.3.0",
 		"y18n": "^4.0.1",

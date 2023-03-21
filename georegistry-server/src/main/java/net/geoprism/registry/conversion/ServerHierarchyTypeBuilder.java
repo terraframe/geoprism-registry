@@ -47,7 +47,7 @@ import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.RelationshipCache;
 
-import net.geoprism.DefaultConfiguration;
+import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.CodeLengthException;
 import net.geoprism.registry.DuplicateHierarchyTypeException;
 import net.geoprism.registry.HierarchicalRelationshipType;
@@ -96,7 +96,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
       @Override
       public void postApply(MdBusinessDAO mdBusiness)
       {
-        RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
+        RoleDAO adminRole = RoleDAO.findRole(RoleConstants.ADMIN).getBusinessDAO();
 
         adminRole.grantPermission(Operation.READ, mdBusiness.getOid());
         adminRole.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
@@ -306,7 +306,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
 
   public void grantWritePermissionsOnMdTermRel(ComponentIF mdTermRelationship)
   {
-    RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();
+    RoleDAO adminRole = RoleDAO.findRole(RoleConstants.ADMIN).getBusinessDAO();
 
     grantWritePermissionsOnMdTermRel(adminRole, mdTermRelationship);
   }

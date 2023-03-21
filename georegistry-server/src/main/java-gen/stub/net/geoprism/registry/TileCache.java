@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.locationtech.jts.geom.Envelope;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.ThreadTransactionState;
@@ -36,9 +37,8 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
-import org.locationtech.jts.geom.Envelope;
 
-import net.geoprism.ontology.PublisherUtil;
+import net.geoprism.registry.tile.PublisherUtil;
 import net.geoprism.registry.tile.VectorTileBuilder;
 
 public class TileCache extends TileCacheBase

@@ -40,11 +40,11 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.RolesQuery;
 
-import net.geoprism.DefaultConfiguration;
+import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.task.Task;
+import net.geoprism.registry.task.Task.TaskStatus;
 import net.geoprism.registry.task.TaskHasRoleQuery;
 import net.geoprism.registry.task.TaskQuery;
-import net.geoprism.registry.task.Task.TaskStatus;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 
@@ -85,7 +85,7 @@ public class TaskService
     {
       String roleName = role.getRoleName();
 
-      if (roleName.equals(DefaultConfiguration.ADMIN))
+      if (roleName.equals(RoleConstants.ADMIN))
       {
         continue;
       }

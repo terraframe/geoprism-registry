@@ -60,8 +60,6 @@ import com.wdtinc.mapbox_vector_tile.build.MvtLayerBuild;
 import com.wdtinc.mapbox_vector_tile.build.MvtLayerParams;
 import com.wdtinc.mapbox_vector_tile.build.MvtLayerProps;
 
-import net.geoprism.ontology.UserDataConverter;
-import net.geoprism.ontology.VectorLayerPublisherIF;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.TableEntity;

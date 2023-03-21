@@ -17,12 +17,12 @@ import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdBusiness;
 
-import net.geoprism.context.ProjectDataConfiguration;
-import net.geoprism.data.LocationImporter;
-import net.geoprism.data.XMLEndpoint;
-import net.geoprism.data.XMLLocationImporter;
-import net.geoprism.data.aws.AmazonEndpoint;
-import net.geoprism.registry.io.HierarchyExporter;
+//import net.geoprism.context.ProjectDataConfiguration;
+//import net.geoprism.data.LocationImporter;
+//import net.geoprism.data.XMLEndpoint;
+//import net.geoprism.data.XMLLocationImporter;
+//import net.geoprism.data.aws.AmazonEndpoint;
+//import net.geoprism.registry.io.HierarchyExporter;
 
 public class CambodiaHierarchyGenerator
 {
@@ -117,12 +117,12 @@ public class CambodiaHierarchyGenerator
   {
 //    XMLEndpoint endpoint = new LocalEndpoint(new File("/Users/nathan/git/geoprism-registry/georegistry-server/cache/deployable_countries"));
 
-    ProjectDataConfiguration configuration = new ProjectDataConfiguration();
-    
-    XMLEndpoint endpoint = new AmazonEndpoint();
-    
-    LocationImporter importer = new XMLLocationImporter(endpoint);
-    importer.loadProjectData(configuration);
+//    ProjectDataConfiguration configuration = new ProjectDataConfiguration();
+//    
+//    XMLEndpoint endpoint = new AmazonEndpoint();
+//    
+//    LocationImporter importer = new XMLLocationImporter(endpoint);
+//    importer.loadProjectData(configuration);
   }
   
   @Request
@@ -138,7 +138,7 @@ public class CambodiaHierarchyGenerator
     
     System.out.println("Test");
     
-    HierarchyExporter.exportHierarchyDefinition(uniFileName, schemaLocation, false);
+//    HierarchyExporter.exportHierarchyDefinition(uniFileName, schemaLocation, false);
     
 //    HierarchyExporter.exportHierarchyInstances(geoFileName,  schemaLocation, false);
    

@@ -50,10 +50,6 @@
             <operation name="READ_CHILD" />
             <operation name="READ_PARENT" />
           </mdRelationshipPermission>
-          <mdViewPermission type="net.geoprism.RoleView">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdViewPermission>
         
           <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoNode">
             <operation name="ALL" />
@@ -185,17 +181,8 @@
             <operation name="ALL" />
           </mdRelationshipPermission>
 
-
-          <!-- Localization -->
-          <mdUtilPermission type="net.geoprism.localization.LocalizationFacade">
-            <operation name="ALL" />
-          </mdUtilPermission>
-
           <!-- Geo Entity -->
           <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoEntity">
-            <operation name="ALL" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable">
             <operation name="ALL" />
           </mdBusinessPermission>
           <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.GeoEntityTermAttributeRoot">
@@ -259,18 +246,10 @@
           <mdViewPermission type="com.runwaysdk.system.gis.geo.GeoEntityProblemView">
             <operation name="ALL" />
           </mdViewPermission>
-          <mdBusinessPermission type="net.geoprism.ontology.GeoEntityUtil">
-            <mdMethodPermission methodName="deleteGeoEntity">
-              <operation name="EXECUTE" />
-            </mdMethodPermission>
-          </mdBusinessPermission>
 
 
           <!-- Classifier -->
           <mdBusinessPermission type="net.geoprism.ontology.Classifier">
-            <operation name="ALL" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.ontology.ClassifierIsARelationshipAllPathsTable">
             <operation name="ALL" />
           </mdBusinessPermission>
           <mdRelationshipPermission type="net.geoprism.ontology.ClassifierTermAttributeRoot">
@@ -316,26 +295,6 @@
           </mdViewPermission>      
           
           <!-- Synonyms -->
-          <mdBusinessPermission type="net.geoprism.DataUploader">
-            <mdMethodPermission methodName="createGeoEntity">
-              <operation name="EXECUTE" />
-            </mdMethodPermission>
-            <mdMethodPermission methodName="createGeoEntitySynonym">
-              <operation name="EXECUTE" />
-            </mdMethodPermission>
-            <mdMethodPermission methodName="deleteGeoEntity">
-              <operation name="EXECUTE" />
-            </mdMethodPermission>
-            <mdMethodPermission methodName="deleteGeoEntitySynonym">
-              <operation name="EXECUTE" />
-            </mdMethodPermission>
-            <mdMethodPermission methodName="createClassifierSynonym">
-              <operation name="EXECUTE" />
-            </mdMethodPermission>
-            <mdMethodPermission methodName="deleteClassifierSynonym">
-              <operation name="EXECUTE" />
-            </mdMethodPermission>            
-          </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.ontology.Classifier">
             <mdMethodPermission methodName="createOption">
               <operation name="EXECUTE" />
@@ -369,12 +328,6 @@
 		  <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.AllowedIn">
 		     <operation name="ALL" />
 		  </mdRelationshipPermission>          		  
-		  <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable">
-		     <operation name="ALL" />
-		  </mdBusinessPermission>          
-          <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.AllowedInAllPathsTable">
-            <operation name="ALL" />
-          </mdBusinessPermission>		  
         </grant>
       </role>
       <role roleName="cgr.APIConsumer">
@@ -406,10 +359,6 @@
             <operation name="READ_CHILD" />
             <operation name="READ_PARENT" />
           </mdRelationshipPermission>
-          <mdViewPermission type="net.geoprism.RoleView">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdViewPermission>
         
           <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoNode">
             <operation name="READ" />
@@ -585,18 +534,8 @@
           </mdRelationshipPermission>
 
 
-          <!-- Localization -->
-          <mdUtilPermission type="net.geoprism.localization.LocalizationFacade">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdUtilPermission>
-
           <!-- Geo Entity -->
           <mdBusinessPermission type="com.runwaysdk.system.gis.geo.GeoEntity">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
@@ -680,19 +619,10 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdViewPermission>
-          <mdBusinessPermission type="net.geoprism.ontology.GeoEntityUtil">
-            <mdMethodPermission methodName="deleteGeoEntity">
-              <operation name="EXECUTE" />
-            </mdMethodPermission>
-          </mdBusinessPermission>
 
 
           <!-- Classifier -->
           <mdBusinessPermission type="net.geoprism.ontology.Classifier">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-          </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.ontology.ClassifierIsARelationshipAllPathsTable">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
@@ -746,10 +676,6 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
 		  </mdRelationshipPermission>          
-		  <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable">
-            <operation name="READ" />
-            <operation name="READ_ALL_ATTRIBUTES" />
-		  </mdBusinessPermission>          
         </grant>
       </role>
 <!-- 
@@ -761,9 +687,6 @@
 		  <mdRelationshipPermission type="com.runwaysdk.system.gis.geo.AllowedIn">
 		     <operation name="ALL" />
 		  </mdRelationshipPermission>          
-		  <mdBusinessPermission type="com.runwaysdk.generated.system.gis.geo.LocatedInAllPathsTable">
-		     <operation name="ALL" />
-		  </mdBusinessPermission>          
         </grant>
       </role>
  -->      

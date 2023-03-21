@@ -33,8 +33,7 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.ExceptionUtil;
-import net.geoprism.data.etl.ColumnType;
+import net.geoprism.data.etl.excel.ColumnType;
 import net.geoprism.data.etl.excel.ExcelValueException;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.io.InvalidGeometryException;
@@ -151,7 +150,7 @@ public class RevealExcelContentHandler extends ExcelContentHandler
         // Wrap all exceptions with information about the cell and row
         ExcelValueException exception = new ExcelValueException();
         exception.setCell(cellReference);
-        exception.setMsg(ExceptionUtil.getLocalizedException(e));
+        exception.setMsg(RunwayException.localizeThrowable(e, Session.getCurrentLocale()));
 
         throw exception;
       }

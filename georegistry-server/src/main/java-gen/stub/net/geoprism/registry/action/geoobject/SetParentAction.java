@@ -28,9 +28,9 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.ChangeRequestPermissionService;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
@@ -123,7 +123,7 @@ public class SetParentAction extends SetParentActionBase
   {
     ServerGeoObjectType childType = ServerGeoObjectType.get(this.getChildTypeCode());
 
-    String message = LocalizationFacade.getFromBundles("change.request.email.set.parent");
+    String message = LocalizationFacade.localize("change.request.email.set.parent");
     message = message.replaceAll("\\{0\\}", childType.getLabel().getValue(Session.getCurrentLocale()));
     message = message.replaceAll("\\{1\\}", this.getChildCode());
 

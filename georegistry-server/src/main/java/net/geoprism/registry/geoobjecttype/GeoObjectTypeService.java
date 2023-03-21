@@ -26,11 +26,13 @@ import java.util.stream.Collectors;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+
+import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -107,7 +109,7 @@ public class GeoObjectTypeService
         }
       }
     }
-
+    
     return gots.stream().map(server -> server.buildType()).collect(Collectors.toList());
   }
 

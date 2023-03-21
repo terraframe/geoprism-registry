@@ -33,7 +33,7 @@ public class UnknownTermException extends RuntimeException
 
   public UnknownTermException(String code, AttributeType attribute)
   {
-    super("The term code [" + code + "] does not correspond to a known term for attribute [" + attribute.getLabel() + "]");
+    super("The term code [" + code + "] does not correspond to a known term for attribute [" + attribute.getLabel().getValue() + "]");
 
     this.code = code;
     this.attribute = attribute;

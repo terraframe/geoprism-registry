@@ -39,6 +39,13 @@ export class User {
   position?: string;
   department?: string;
   externalSystemOid?: string;
+  type?: string;
+  
+  constructor() {
+    this.newInstance = true;
+    this.type = "net.geoprism.GeoprismUser";
+    this.inactive = false;
+  }
 }
 
 export class Group {

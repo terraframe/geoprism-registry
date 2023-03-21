@@ -135,7 +135,7 @@ export class CgrHeaderComponent {
         if (environment.production) {
             sessionStorage.removeItem("locales");
 
-            window.location.href = environment.apiUrl + "/session/logout";
+            window.location.href = environment.apiUrl + "/api/session/logout";
         }
         else {
 
