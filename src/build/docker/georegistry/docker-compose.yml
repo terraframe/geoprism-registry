@@ -35,7 +35,7 @@ services:
     container_name: georegistry
     image: terraframe/geoprism-registry:latest
     environment:
-      JAVA_OPTS: "-Xms1024m -Xmx4000m -Dorientdb.root.password=root -Ddatabase.password=georegistry -Ddatabase.hostURL=georegistry-postgres -Dorientdb.db.url=remote:georegistry-orientdb -Dgeoserver.local.path=http://127.0.0.1:8080/geoserver"
+      JAVA_OPTS: "-Xms1024m -Xmx4000m -Dgeoprism.remote.url=http://127.0.0.1:8080/ -Dgeoserver.local.path=http://127.0.0.1:8080/geoserver -Dmapboxgl.accessToken=your.token.here -Dorientdb.root.password=root -Ddatabase.password=georegistry -Ddatabase.hostURL=georegistry-postgres -Dorientdb.db.url=remote:georegistry-orientdb"
       POSTGRES_PORT: 5432
       POSTGRES_ROOT_USERNAME: postgres
       POSTGRES_ROOT_PASSWORD: georegistry
