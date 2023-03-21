@@ -31,11 +31,11 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
@@ -44,6 +44,10 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +67,6 @@ import com.runwaysdk.session.RequestState;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.AbstractClassification;
-import org.locationtech.jts.geom.Geometry;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
@@ -85,6 +88,7 @@ import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
+import net.geoprism.registry.io.SridException;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
@@ -317,21 +321,12 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
 
           Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
+          
+          geometry = convertGeometry(geometry);
+          
           if (geometry != null)
           {
-            // TODO : We should be able to check the CRS here and throw a
-            // specific invalid CRS error if it's not what we expect.
-            // For some reason JTS always returns 0 when we call
-            // geometry.getSRID().
-            if (geometry.isValid())
-            {
-              entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
-            }
-            else
-            {
-              InvalidGeometryException geomEx = new InvalidGeometryException();
-              throw geomEx;
-            }
+            entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
           }
 
           Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
@@ -557,21 +552,12 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
 
         Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
+        
+        geometry = convertGeometry(geometry);
+        
         if (geometry != null)
         {
-          // TODO : We should be able to check the CRS here and throw a
-          // specific invalid CRS error if it's not what we expect.
-          // For some reason JTS always returns 0 when we call
-          // geometry.getSRID().
-          if (geometry.isValid())
-          {
-            serverGo.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
-          }
-          else
-          {
-            // throw new SridException();
-            throw new InvalidGeometryException();
-          }
+          serverGo.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
         }
 
         if (isNew)
@@ -765,6 +751,83 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
 
     return imported;
+  }
+  
+  /**
+   * Our system represents Points as MultiPoints. The source geometries might need to be wrapped to support import.
+   */
+  private Geometry convertGeometry(Geometry in)
+  {
+    if (in == null) { return null; }
+    
+    // 0 is JTS's way of saying "we don't know what the SRID is"
+    if (in.getSRID() > 0 && in.getSRID() != 4326)
+    {
+      throw new SridException();
+    }
+    
+    if (!in.isValid())
+    {
+      throw new InvalidGeometryException();
+    }
+    
+    ImportConfiguration configuration = this.getConfiguration();
+
+    if (configuration instanceof GeoObjectImportConfiguration)
+    {
+      ServerGeoObjectType type = ( (GeoObjectImportConfiguration) configuration ).getType();
+      
+      if (type.getGeometryType().equals(GeometryType.MIXED))
+      {
+        return in;
+      }
+      else if (type.getGeometryType().equals(GeometryType.POINT) || type.getGeometryType().equals(GeometryType.LINE) || type.getGeometryType().equals(GeometryType.POLYGON))
+      {
+        if ((type.getGeometryType().equals(GeometryType.POINT) && !in.getGeometryType().equals(Geometry.TYPENAME_POINT))
+            || (type.getGeometryType().equals(GeometryType.LINE) && !(in.getGeometryType().equals(Geometry.TYPENAME_LINEARRING) || in.getGeometryType().equals(Geometry.TYPENAME_LINESTRING)))
+            || (type.getGeometryType().equals(GeometryType.POLYGON) && !in.getGeometryType().equals(Geometry.TYPENAME_POLYGON)))
+        {
+          throw new InvalidGeometryException();
+        }
+        
+        return in;
+      }
+      else if (type.getGeometryType().equals(GeometryType.MULTIPOINT))
+      {
+        if (in.getGeometryType().equals(Geometry.TYPENAME_POINT))
+        {
+          return in.getFactory().createMultiPoint(new Point[] { (Point) in });
+        }
+        else if (in.getGeometryType().equals(Geometry.TYPENAME_MULTIPOINT))
+        {
+          return in;
+        }
+      }
+      else if (type.getGeometryType().equals(GeometryType.MULTIPOLYGON))
+      {
+        if (in.getGeometryType().equals(Geometry.TYPENAME_POLYGON))
+        {
+          return in.getFactory().createMultiPolygon(new Polygon[] { (Polygon) in });
+        }
+        else if (in.getGeometryType().equals(Geometry.TYPENAME_MULTIPOLYGON))
+        {
+          return in;
+        }
+      }
+      else if (type.getGeometryType().equals(GeometryType.MULTILINE))
+      {
+        if (in.getGeometryType().equals(Geometry.TYPENAME_LINESTRING))
+        {
+          return in.getFactory().createMultiLineString(new LineString[] { (LineString) in });
+        }
+        else if (in.getGeometryType().equals(Geometry.TYPENAME_MULTILINESTRING))
+        {
+          return in;
+        }
+      }
+    }
+    
+    throw new InvalidGeometryException();
   }
 
   private void buildRecordException(String goJson, boolean isNew, GeoObjectParentErrorBuilder parentBuilder, Throwable t)

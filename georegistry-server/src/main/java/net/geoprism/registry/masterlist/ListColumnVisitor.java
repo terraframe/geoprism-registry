@@ -23,4 +23,6 @@ public interface ListColumnVisitor
   public void accept(ListAttribute attribute);
 
   public void accept(ListAttributeGroup group);
+
+  public void close(ListAttributeGroup group);
 }

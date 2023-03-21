@@ -119,5 +119,7 @@ public class ListAttributeGroup implements ListColumn
     visitor.accept(this);
     
     this.columns.forEach(column -> column.visit(visitor));
+    
+    visitor.close(this);
   }
 }

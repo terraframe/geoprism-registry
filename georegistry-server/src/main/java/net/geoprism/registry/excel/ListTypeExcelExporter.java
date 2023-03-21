@@ -26,8 +26,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Stack;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -58,6 +60,7 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.masterlist.AbstractListColumnVisitor;
 import net.geoprism.registry.masterlist.ListAttribute;
+import net.geoprism.registry.masterlist.ListAttributeGroup;
 import net.geoprism.registry.masterlist.ListColumn;
 import net.geoprism.registry.masterlist.ListColumnVisitor;
 import net.geoprism.registry.shapefile.ShapefileColumnNameGenerator;
@@ -189,12 +192,28 @@ public class ListTypeExcelExporter
     ListColumnVisitor visitor = new AbstractListColumnVisitor()
     {
       private int rowNumber = 1;
+      
+      Stack<String> labels = new Stack<>();
+
+      @Override
+      public void accept(ListAttributeGroup group)
+      {
+        labels.push(group.getLabel());
+      }
+
+      @Override
+      public void close(ListAttributeGroup group)
+      {
+        labels.pop();
+      }
 
       @Override
       public void accept(ListAttribute attribute)
       {
         mdAttributes.stream().filter(p -> p.definesAttribute().equals(attribute.getName())).findAny().ifPresent((mdAttribute) -> {
-          String label = mdAttribute.getDisplayLabel(locale);
+          labels.push(attribute.getLabel());
+
+          String label = StringUtils.join(labels, " - ");
           String description = mdAttribute.getDescription(locale);
 
           if (metadataSource.equals(ListMetadataSource.GEOSPATIAL))
@@ -208,6 +227,7 @@ public class ListTypeExcelExporter
             ListTypeExcelExporter.this.createRow(sheet, rowNumber++, null, label, description);
           }
 
+          labels.pop();
         });
       }
     };
@@ -248,7 +268,6 @@ public class ListTypeExcelExporter
 
     if (this.metadataSource == null || this.metadataSource.equals(ListMetadataSource.LIST))
     {
-      this.createRowForMetadata(sheet, locale, rowNumber++, ListType.DESCRIPTION, this.list.getDescription().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTORIGINATOR, this.version.getListOriginator());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTLABEL, this.version.getListLabel().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.LISTDESCRIPTION, this.version.getListDescription().getValue());
@@ -265,7 +284,6 @@ public class ListTypeExcelExporter
     }
     else
     {
-      this.createRowForMetadata(sheet, locale, rowNumber++, ListType.GEOSPATIALDESCRIPTION, this.list.getGeospatialDescription().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALORIGINATOR, this.version.getGeospatialOriginator());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALLABEL, this.version.getGeospatialLabel().getValue());
       this.createRowForMetadata(sheet, locale, rowNumber++, ListTypeVersion.GEOSPATIALDESCRIPTION, this.version.getGeospatialDescription().getValue());
@@ -437,15 +455,33 @@ public class ListTypeExcelExporter
 
     ListColumnVisitor visitor = new AbstractListColumnVisitor()
     {
-      int col = 0;
+      int           col    = 0;
+
+      Stack<String> labels = new Stack<>();
+
+      @Override
+      public void accept(ListAttributeGroup group)
+      {
+        labels.push(group.getLabel());
+      }
+
+      @Override
+      public void close(ListAttributeGroup group)
+      {
+        labels.pop();
+      }
 
       @Override
       public void accept(ListAttribute attribute)
       {
         mdAttributes.stream().filter(p -> p.definesAttribute().equals(attribute.getName())).findAny().ifPresent((mdAttribute) -> {
+          labels.push(attribute.getLabel());
+
           Cell cell = header.createCell(col++);
           cell.setCellStyle(boldStyle);
-          cell.setCellValue(mdAttribute.getDisplayLabel(locale));
+          cell.setCellValue(StringUtils.join(labels, " - "));
+          
+          labels.pop();
         });
       }
     };

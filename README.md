@@ -9,8 +9,8 @@ There are numerous organizations involved with designing, building, and testing 
 * <a href="https://clintonhealthaccess.org/" target="_blank">Clinton Health Access Initiative (CHAI)</a>
 * <a href="http://dsme.community/" target="_blank">Digital Solutions For Malaria Elimination (DSME)</a>
 
-## A more comprehensive ticket system can be found here (requires GitHub login):
-*  <a href="https://app.zenhub.com/workspaces/geoprism-registry-5df81d4b734ff217d40b12a4/roadmap" target="_blank">Software Development Tickets on ZenHub</a>
+## A more comprehensive ticket system can be found in the repositories Projects section:
+*  <a href="https://github.com/orgs/terraframe/projects/2" target="_blank">Software Development Tickets on GitHub Projects</a>
 
 NOTE: This is synchronized with GitHub so it is as current as GitHub. This sytem simply adds some more higher level roadmap features on top of GitHub.
 

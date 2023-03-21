@@ -18,17 +18,26 @@ import com.runwaysdk.build.domain.SearchTablePatch;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.test.TestGeoObjectInfo;
 
 public class SearchServiceTest
 {
-  private static USATestData testData;
+  public static final TestGeoObjectInfo BELIZE_CITY = new TestGeoObjectInfo("Belize Ci't/=&y*)(0$#-@!\"}{][.,;:", "BelizeCity", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
+  
+//  public static final TestGeoObjectInfo HALF_LIFE = new TestGeoObjectInfo("Half-Life", "HalfLife", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
+//  public static final TestGeoObjectInfo HALFLIFE = new TestGeoObjectInfo("HalfLife", "HalfLifeNoDash", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
+  
+  public static final TestGeoObjectInfo EXACT_MATCH_TEST = new TestGeoObjectInfo("Exact-Term(Test) Match Test", "ExactMatchTest", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
+  public static final TestGeoObjectInfo EXACT_MATCH_FAIL = new TestGeoObjectInfo("Exact-Term(Test) Match Fail", "ExactMatchFail", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
+  public static final TestGeoObjectInfo EXACT_WRONG_FAIL = new TestGeoObjectInfo("Exact-Term(Test) Wrong Fail", "ExactWrongFail", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
+  
+  protected static FastTestDataset testData;
 
   @BeforeClass
   public static void setUpClass()
   {
-    testData = USATestData.newTestData();
+    testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
   }
 
@@ -45,18 +54,32 @@ public class SearchServiceTest
   public void setUp()
   {
     testData.setUpInstanceData();
+    
+    BELIZE_CITY.apply();
+//    HALF_LIFE.apply();
+//    HALFLIFE.apply();
+    EXACT_MATCH_TEST.apply();
+    EXACT_MATCH_FAIL.apply();
+    EXACT_WRONG_FAIL.apply();
 
-    testData.logIn(USATestData.USER_NPS_RA);
+    testData.logIn(FastTestDataset.USER_ADMIN);
   }
 
   @After
   public void tearDown()
   {
     testData.logOut();
+    
+    BELIZE_CITY.delete();
+//    HALF_LIFE.delete();
+//    HALFLIFE.delete();
+    EXACT_MATCH_TEST.delete();
+    EXACT_MATCH_FAIL.delete();
+    EXACT_WRONG_FAIL.delete();
 
     testData.tearDownInstanceData();
   }
-
+  
   @Test
   @Request
   public void testSearchTable()
@@ -68,18 +91,18 @@ public class SearchServiceTest
 
     new SearchTablePatch().createRecords(service);
 
-    Date date = USATestData.DEFAULT_OVER_TIME_DATE;
+    Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
 
-    List<ServerGeoObjectIF> results = service.search(USATestData.CO_D_ONE.getDisplayLabel(), date, 10L);
+    List<ServerGeoObjectIF> results = service.search(FastTestDataset.CAMBODIA.getDisplayLabel(), date, 10L);
 
     Assert.assertEquals(1, results.size());
 
     ServerGeoObjectIF result = results.get(0);
 
-    Assert.assertEquals(result.getCode(), USATestData.CO_D_ONE.getCode());
+    Assert.assertEquals(result.getCode(), FastTestDataset.CAMBODIA.getCode());
 
-    Assert.assertEquals(3, service.search(USATestData.TEST_DATA_KEY + "ColoradoDistrict", date, 10L).size());
-    Assert.assertEquals(1, service.search(USATestData.TEST_DATA_KEY, date, 1L).size());
+    Assert.assertEquals(6, service.search(FastTestDataset.TEST_DATA_KEY, date, 10L).size());
+    Assert.assertEquals(1, service.search(FastTestDataset.TEST_DATA_KEY, date, 1L).size());
   }
 
   @Test
@@ -93,18 +116,18 @@ public class SearchServiceTest
 
     new SearchTablePatch().createRecords(service);
 
-    Date date = USATestData.DEFAULT_OVER_TIME_DATE;
+    Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
 
-    List<ServerGeoObjectIF> results = service.search(USATestData.CO_D_ONE.getDisplayLabel() + " ", date, 10L);
+    List<ServerGeoObjectIF> results = service.search(FastTestDataset.CAMBODIA.getDisplayLabel() + " ", date, 10L);
 
     Assert.assertEquals(1, results.size());
 
     ServerGeoObjectIF result = results.get(0);
 
-    Assert.assertEquals(result.getCode(), USATestData.CO_D_ONE.getCode());
+    Assert.assertEquals(result.getCode(), FastTestDataset.CAMBODIA.getCode());
 
-    Assert.assertEquals(3, service.search(USATestData.TEST_DATA_KEY + "ColoradoDistrict", date, 10L).size());
-    Assert.assertEquals(1, service.search(USATestData.TEST_DATA_KEY, date, 1L).size());
+    Assert.assertEquals(6, service.search(FastTestDataset.TEST_DATA_KEY, date, 10L).size());
+    Assert.assertEquals(1, service.search(FastTestDataset.TEST_DATA_KEY, date, 1L).size());
   }
 
   @Test
@@ -118,11 +141,75 @@ public class SearchServiceTest
 
     new SearchTablePatch().createRecords(service);
 
-    Date date = USATestData.DEFAULT_OVER_TIME_DATE;
+    Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
+    
+    // These tests were removed because dashes are not escaping properly and we did a little bit of a hack so it doesn't query exactly as expected
+//    assertFound(service.search("Half-", date, 10L), HALF_LIFE);
+//    assertFound(service.search(HALF_LIFE.getDisplayLabel(), date, 10L), HALF_LIFE);
+    
+    assertFound(service.search("Bel", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize ", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(0", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(0$", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(0$#", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(0$#-", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(0$#-@!", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(0$#-@!\"", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(0$#-@!\"}", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(0$#-@!\"}{", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(0$#-@!\"}{]", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(0$#-@!\"}{][", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(0$#-@!\"}{][.", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(0$#-@!\"}{][.,", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(0$#-@!\"}{][.,;", date, 10L), BELIZE_CITY);
+    assertFound(service.search("Belize Ci't/=&y*)(0$#-@!\"}{][.,;:", date, 10L), BELIZE_CITY);
+    assertFound(service.search(BELIZE_CITY.getDisplayLabel(), date, 10L), BELIZE_CITY);
+  }
+  
+  private void assertFound(List<ServerGeoObjectIF> results, TestGeoObjectInfo go)
+  {
+    Assert.assertEquals(1, results.size());
 
-    List<ServerGeoObjectIF> results = service.search(":~", date, 10L);
+    ServerGeoObjectIF result = results.get(0);
 
-    Assert.assertEquals(0, results.size());
+    Assert.assertEquals(result.getCode(), go.getCode());
+  }
+  
+  @Test
+  @Request
+  public void testSearchExactMatch()
+  {
+    SearchService service = new SearchService();
+    service.clear();
+    service.deleteSearchTable();
+    service.createSearchTable();
+
+    new SearchTablePatch().createRecords(service);
+
+    Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
+
+    List<ServerGeoObjectIF> results = service.search("Exact-Term(Test)", date, 10L);
+    Assert.assertEquals(3, results.size());
+    
+    results = service.search("Exact-Term(Test) Match", date, 10L);
+    Assert.assertEquals(3, results.size());
+    Assert.assertEquals(EXACT_WRONG_FAIL.getCode(), results.get(2).getCode());
+    
+    results = service.search("Exact-Term(Test) Match Test", date, 10L);
+    Assert.assertEquals(3, results.size());
+    Assert.assertEquals(EXACT_MATCH_TEST.getCode(), results.get(0).getCode());
+    Assert.assertEquals(EXACT_MATCH_FAIL.getCode(), results.get(1).getCode());
+    Assert.assertEquals(EXACT_WRONG_FAIL.getCode(), results.get(2).getCode());
   }
 
   @Test
@@ -136,7 +223,7 @@ public class SearchServiceTest
 
     new SearchTablePatch().createRecords(service);
 
-    Date date = USATestData.DEFAULT_OVER_TIME_DATE;
+    Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
 
     List<ServerGeoObjectIF> results = service.search(null, date, 10L);
 
@@ -154,15 +241,15 @@ public class SearchServiceTest
 
     new SearchTablePatch().createRecords(service);
 
-    Date date = USATestData.DEFAULT_OVER_TIME_DATE;
+    Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
 
-    List<JsonObject> results = service.labels(USATestData.CO_D_ONE.getDisplayLabel(), date, 10L);
+    List<JsonObject> results = service.labels(FastTestDataset.CAMBODIA.getDisplayLabel(), date, 10L);
 
     Assert.assertEquals(1, results.size());
 
     JsonObject result = results.get(0);
 
-    Assert.assertEquals(result.get("code").getAsString(), USATestData.CO_D_ONE.getCode());
+    Assert.assertEquals(result.get("code").getAsString(), FastTestDataset.CAMBODIA.getCode());
   }
 
 

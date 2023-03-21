@@ -2,11 +2,26 @@
 # Release Notes
 
 
+## [1.1.1](https://github.com/terraframe/geoprism-registry/releases/tag/1.1.1) (2023-03-13)
+
+
+### Bug Fixes
+
+   - **explorer** searching for hyphenated GeoObjects  ([#879](https://github.com/terraframe/geoprism-registry/issues/879)) ([b058a](https://github.com/terraframe/geoprism-registry/commit/b058afd4df244737f8a40d02cdd63c793e8f8312))
+   - **dhis2** point geometries not syncing properly to dhis2  ([#887](https://github.com/terraframe/geoprism-registry/issues/887)) ([784be](https://github.com/terraframe/geoprism-registry/commit/784be18fdc834b32ffac7cd51707ffa50cf44298))
+   - **account** submit button on user profile editor does nothing   ([1993d](https://github.com/terraframe/geoprism-registry/commit/1993d2b5680dc19259c0fc7d64b5bc9a1474d232))
+   - **oauth** clicking on oauth button does nothing   ([d435e](https://github.com/terraframe/geoprism-registry/commit/d435e5cc30b9a270251e2631404bc73ad4cf9980))
+   - **hierarchy-manager** unspecified error thrown when importing types from xml   ([939e0](https://github.com/terraframe/geoprism-registry/commit/939e0404f7ec3f2d9d8dd15050603d52f6af4ad1))
+
+
+
 
 
 ## [1.1.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.1.0) (2023-02-27)
 
-This release includes two major breaking changes: upgrading of OrientDB from v3.0 to v3.2 and upgrading Postgres/PostGIS from v9.5-3.0 to v14-3.2. Please refer to the official v1.1.0 announcement on our forum for detailed migration instructions.
+This release includes two major breaking changes: upgrading of OrientDB from v3.0 to v3.2 and upgrading Postgres/PostGIS from v9.5-3.0 to v14-3.2. Please refer to the [Database Migration](https://docs.geoprismregistry.com/readme/current/deployment-and-setup/3.10-migration) section of our documentation for detailed migration instructions.
+
+<b>Note:</b> The v1.0 version of our docker-compose.yml file was already set to use PostgreSQL version 14-3.2. If this applies to you, then you might not need to perform a PostgreSQL migration. The PostgreSQL breaking change was included here because our cloud customers were migrated to PostgreSQL v14 as part of this release.
 
 ### Features
 

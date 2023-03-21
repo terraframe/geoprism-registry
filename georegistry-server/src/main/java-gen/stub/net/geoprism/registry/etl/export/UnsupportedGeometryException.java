@@ -16,24 +16,31 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.masterlist;
+package net.geoprism.registry.etl.export;
 
-public abstract class AbstractListColumnVisitor implements ListColumnVisitor
+public class UnsupportedGeometryException extends UnsupportedGeometryExceptionBase
 {
-
-  @Override
-  public void accept(ListAttribute attribute)
+  @SuppressWarnings("unused")
+  private static final long serialVersionUID = 501859670;
+  
+  public UnsupportedGeometryException()
   {
+    super();
   }
-
-  @Override
-  public void accept(ListAttributeGroup group)
+  
+  public UnsupportedGeometryException(java.lang.String developerMessage)
   {
+    super(developerMessage);
   }
-
-  @Override
-  public void close(ListAttributeGroup group)
+  
+  public UnsupportedGeometryException(java.lang.String developerMessage, java.lang.Throwable cause)
   {
+    super(developerMessage, cause);
   }
-
+  
+  public UnsupportedGeometryException(java.lang.Throwable cause)
+  {
+    super(cause);
+  }
+  
 }

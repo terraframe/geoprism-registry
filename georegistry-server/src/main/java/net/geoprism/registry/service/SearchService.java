@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.service;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -303,6 +304,15 @@ public class SearchService
     }
 
   }
+  
+  private String escapeText(String text)
+  {
+    String regex = "([-/+\\!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
+    text = text.replaceAll(regex, "\\\\\\\\$1").trim();
+    text = text.replaceAll("\\'", "\\\\'"); // Apostrophe needs double backslash in orient sql
+    
+    return text;
+  }
 
   public List<ServerGeoObjectIF> search(String text, Date date, Long limit)
   {
@@ -327,11 +337,9 @@ public class SearchService
 
     if (text != null)
     {
-      String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
-      String escapedText = text.replaceAll(regex, "\\\\\\\\$1").trim();
-      escapedText = escapedText.replaceAll("\\'", "\\\\'"); // Special usecase
-                                                            // for apostrophes
-
+      text = text.replace("-", " "); // I realize this is a total hack. But I think there might be some bug in OrientDB where its not escaping dashes properly
+      String escapedText = escapeText(text);
+      
       String[] escapedTokens = StringUtils.split(escapedText, " ");
       String term;
       if (escapedTokens.length == 1)
@@ -434,10 +442,8 @@ public class SearchService
 
     if (text != null)
     {
-      String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
-      String escapedText = text.replaceAll(regex, "\\\\\\\\$1").trim();
-      escapedText = escapedText.replaceAll("\\'", "\\\\'"); // Special usecase
-                                                            // for apostrophes
+      text = text.replace("-", " "); // I realize this is a total hack. But I think there might be some bug in OrientDB where its not escaping dashes properly
+      String escapedText = escapeText(text);
 
       String[] escapedTokens = StringUtils.split(escapedText, " ");
       String term;

@@ -330,24 +330,10 @@ public class ShapefileImporter implements FormatSpecificImporterIF
     }
   }
 
+  @Override
   public Geometry getGeometry(FeatureRow row)
   {
-    Geometry geometry = (Geometry) ( (SimpleFeatureRow) row ).getFeature().getDefaultGeometry();
-
-    if (geometry instanceof Point)
-    {
-      return new GeometryFactory().createMultiPoint(new Point[] { (Point) geometry });
-    }
-    else if (geometry instanceof Polygon)
-    {
-      return new GeometryFactory().createMultiPolygon(new Polygon[] { (Polygon) geometry });
-    }
-    else if (geometry instanceof LineString)
-    {
-      return new GeometryFactory().createMultiLineString(new LineString[] { (LineString) geometry });
-    }
-
-    return (Geometry) geometry;
+    return (Geometry) ( (SimpleFeatureRow) row ).getFeature().getDefaultGeometry();
   }
 
 }
