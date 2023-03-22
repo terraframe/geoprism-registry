@@ -423,7 +423,7 @@ public class GeoObjectImporter implements ObjectImporterIF
                 {
                   AttributeType attributeType = entry.getValue();
 
-                  this.setValue(entity, attributeType, attributeName, value);
+                  this.setValue(entity, attributeType, attributeName, value, row);
                 }
               }
             }
@@ -701,7 +701,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         // defaultExists.getStartDate(), defaultExists.getEndDate());
         // }
         // }
-        this.setValue(serverGo, this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(), DefaultAttribute.EXISTS.getName(), true);
+        this.setValue(serverGo, this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(), DefaultAttribute.EXISTS.getName(), true, row);
 
         Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
         Set<Entry<String, AttributeType>> entries = attributes.entrySet();
@@ -754,11 +754,11 @@ public class GeoObjectImporter implements ObjectImporterIF
                 // }
                 // }
 
-                this.setValue(serverGo, attributeType, attributeName, value);
+                this.setValue(serverGo, attributeType, attributeName, value, row);
               }
               else if (this.configuration.getCopyBlank())
               {
-                this.setValue(serverGo, attributeType, attributeName, null);
+                this.setValue(serverGo, attributeType, attributeName, null, row);
               }
             }
           }
@@ -1171,7 +1171,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             String parentCode = ( parent == null ) ? null : parent.getCode();
 
             ParentReferenceProblem prp = new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context.toString());
-            prp.addAffectedRowNumber(this.progressListener.getRowNumber());
+            prp.addAffectedRowNumber(feature.getRowNumber());
             prp.setHistoryId(this.configuration.historyId);
 
             this.progressListener.addReferenceProblem(prp);
@@ -1253,7 +1253,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     return null;
   }
 
-  protected void setTermValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value, Date startDate, Date endDate)
+  protected void setTermValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value, Date startDate, Date endDate, FeatureRow feature)
   {
     if (!this.configuration.isExclusion(attributeName, value.toString()))
     {
@@ -1275,7 +1275,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
 
           TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
-          trp.addAffectedRowNumber(this.progressListener.getRowNumber());
+          trp.addAffectedRowNumber(feature.getRowNumber());
           trp.setHistoryId(this.configuration.getHistoryId());
 
           this.progressListener.addReferenceProblem(trp);
@@ -1386,7 +1386,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
   }
 
-  protected void setValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value)
+  protected void setValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value, FeatureRow row)
   {
     if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
@@ -1407,7 +1407,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       if (value != null)
       {
-        this.setTermValue(entity, attributeType, attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
+        this.setTermValue(entity, attributeType, attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate(), row);
       }
       else
       {

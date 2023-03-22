@@ -24,9 +24,14 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.session.CloseableReentrantLock;
 import com.runwaysdk.system.scheduler.JobHistory;
 
@@ -36,7 +41,7 @@ import net.geoprism.registry.etl.ValidationProblem;
 
 public class ImportHistoryProgressScribe implements ImportProgressListenerIF
 {
-  private static class Range implements Comparable<Range>
+  public static class Range implements Comparable<Range>
   {
     private long start;
 
@@ -140,6 +145,59 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
       return list;
     }
 
+    public static SortedSet<Range> parse(String string)
+    {
+      TreeSet<Range> set = new TreeSet<Range>();
+
+      if (!StringUtils.isEmpty(string))
+      {
+        JsonArray array = JsonParser.parseString(string).getAsJsonArray();
+
+        for (int i = 0; i < array.size(); i++)
+        {
+          JsonElement element = array.get(i);
+
+          if (element.isJsonObject())
+          {
+            JsonObject object = element.getAsJsonObject();
+            long start = object.get("start").getAsLong();
+            long end = object.get("end").getAsLong();
+
+            set.add(new Range(start, end));
+          }
+          else
+          {
+            set.add(new Range(element.getAsLong()));
+          }
+        }
+      }
+
+      return set;
+    }
+
+    public static String serialize(SortedSet<Range> set)
+    {
+      JsonArray array = new JsonArray();
+
+      for (Range range : set)
+      {
+        if (range.start != range.end)
+        {
+          JsonObject object = new JsonObject();
+          object.addProperty("start", range.start);
+          object.addProperty("end", range.end);
+
+          array.add(object);
+        }
+        else
+        {
+          array.add(range.start);
+        }
+      }
+
+      return array.toString();
+    }
+
   }
 
   private static Logger          logger                    = LoggerFactory.getLogger(ImportHistoryProgressScribe.class);
@@ -165,7 +223,7 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
     this.history = history;
     this.importedRecords = history.getImportedRecords();
 
-    this.completedRows.add(new Range(0, history.getWorkProgress()));
+    this.completedRows = Range.parse(history.getCompletedRowsJson());
   }
 
   @Override
@@ -196,6 +254,7 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
       {
         this.history.appLock();
         this.history.setWorkProgress(this.completedRows.last().end);
+        this.history.setCompletedRowsJson(Range.serialize(this.completedRows));
         this.history.apply();
       }
     }
@@ -227,7 +286,12 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
   @Override
   public Long getRowNumber()
   {
-    return this.completedRows.last().end;
+    if (this.completedRows.size() > 0)
+    {
+      return this.completedRows.last().end;
+    }
+
+    return Long.valueOf(-1L);
   }
 
   @Override
@@ -350,6 +414,7 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
       this.history.appLock();
       this.history.setImportedRecords(this.importedRecords);
       this.history.setWorkProgress(this.completedRows.last().end);
+      this.history.setCompletedRowsJson(Range.serialize(this.completedRows));
       this.history.apply();
     }
   }

@@ -1,28 +1,11 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 13552015)
+@com.runwaysdk.business.ClassSignature(hash = 1515933457)
 public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.scheduler.JobHistoryDTO
 {
   public final static String CLASS = "net.geoprism.registry.etl.ImportHistory";
-  private static final long serialVersionUID = 13552015;
+  @SuppressWarnings("unused")
+  private static final long serialVersionUID = 1515933457;
   
   protected ImportHistoryDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -45,14 +28,52 @@ public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.schedule
     return CLASS;
   }
   
-  public static final java.lang.String CONFIGJSON = "configJson";
-  public static final java.lang.String ERRORCOUNT = "errorCount";
-  public static final java.lang.String ERRORRESOLVEDCOUNT = "errorResolvedCount";
-  public static final java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
-  public static final java.lang.String IMPORTFILE = "importFile";
-  public static final java.lang.String IMPORTEDRECORDS = "importedRecords";
-  public static final java.lang.String ORGANIZATION = "organization";
-  public static final java.lang.String STAGE = "stage";
+  public static java.lang.String COMPLETEDROWSJSON = "completedRowsJson";
+  public static java.lang.String CONFIGJSON = "configJson";
+  public static java.lang.String ERRORCOUNT = "errorCount";
+  public static java.lang.String ERRORRESOLVEDCOUNT = "errorResolvedCount";
+  public static java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
+  public static java.lang.String IMPORTFILE = "importFile";
+  public static java.lang.String IMPORTEDRECORDS = "importedRecords";
+  public static java.lang.String ORGANIZATION = "organization";
+  public static java.lang.String STAGE = "stage";
+  public String getCompletedRowsJson()
+  {
+    return getValue(COMPLETEDROWSJSON);
+  }
+  
+  public void setCompletedRowsJson(String value)
+  {
+    if(value == null)
+    {
+      setValue(COMPLETEDROWSJSON, "");
+    }
+    else
+    {
+      setValue(COMPLETEDROWSJSON, value);
+    }
+  }
+  
+  public boolean isCompletedRowsJsonWritable()
+  {
+    return isWritable(COMPLETEDROWSJSON);
+  }
+  
+  public boolean isCompletedRowsJsonReadable()
+  {
+    return isReadable(COMPLETEDROWSJSON);
+  }
+  
+  public boolean isCompletedRowsJsonModified()
+  {
+    return isModified(COMPLETEDROWSJSON);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getCompletedRowsJsonMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(COMPLETEDROWSJSON).getAttributeMdDTO();
+  }
+  
   public String getConfigJson()
   {
     return getValue(CONFIGJSON);
@@ -302,7 +323,7 @@ public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.schedule
     return isModified(ORGANIZATION);
   }
   
-  
+  @SuppressWarnings("unchecked")
   public java.util.List<net.geoprism.registry.etl.ImportStageDTO> getStage()
   {
     return (java.util.List<net.geoprism.registry.etl.ImportStageDTO>) com.runwaysdk.transport.conversion.ConversionFacade.convertEnumDTOsFromEnumNames(getRequest(), net.geoprism.registry.etl.ImportStageDTO.CLASS, getEnumNames(STAGE));

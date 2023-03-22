@@ -7,9 +7,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Term;
@@ -64,6 +66,7 @@ import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
 import net.geoprism.registry.etl.upload.GeoObjectImporter;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.etl.upload.ImportHistoryProgressScribe.Range;
 import net.geoprism.registry.etl.upload.ShapefileImporter;
 import net.geoprism.registry.excel.MapFeatureRow;
 import net.geoprism.registry.io.ConstantShapefileFunction;
@@ -1096,8 +1099,9 @@ public class ShapefileServiceTest
     fakeImportHistory.setStartTime(new Date());
     fakeImportHistory.addStatus(AllJobStatus.RUNNING);
     fakeImportHistory.addStage(ImportStage.IMPORT);
-    fakeImportHistory.setWorkProgress(6L);
+    fakeImportHistory.setWorkProgress(10L);
     fakeImportHistory.setImportedRecords(0L);
+    fakeImportHistory.setCompletedRowsJson(Range.serialize(new TreeSet<>(Arrays.asList(new Range(5, 10)))));
     fakeImportHistory.apply();
 
     JobHistoryRecord record = new JobHistoryRecord(job, fakeImportHistory);
