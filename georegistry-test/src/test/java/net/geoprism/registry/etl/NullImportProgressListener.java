@@ -72,9 +72,8 @@ public class NullImportProgressListener implements ImportProgressListenerIF
   }
 
   @Override
-  public void setRowNumber(Long rowNumber)
+  public void setCompletedRow(Long rowNumber)
   {
-    
   }
 
   @Override
@@ -92,7 +91,11 @@ public class NullImportProgressListener implements ImportProgressListenerIF
   @Override
   public void finalizeImport()
   {
-    
+
   }
 
+  @Override
+  public void incrementImportedRecords()
+  {
+  }
 }

@@ -147,8 +147,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
     {
       private static final long serialVersionUID = 1L;
 
-      public boolean removeEldestEntry(@SuppressWarnings("rawtypes")
-      Map.Entry eldest)
+      public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
       {
         return size() > MAX_ENTRIES;
       }
@@ -327,7 +326,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
         this.progressListener.addRowValidationProblem(problem);
       }
 
-      this.progressListener.setRowNumber(curRowNumber + 1);
+      this.progressListener.setCompletedRow(curRowNumber + 1);
 
       if (Thread.interrupted())
       {
@@ -371,7 +370,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
         if (imported)
         {
-          this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
+          this.progressListener.incrementImportedRecords();
         }
       }
       catch (DuplicateDataException e)
@@ -384,7 +383,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
       this.recordError(e);
     }
 
-    this.progressListener.setRowNumber(this.progressListener.getRowNumber() + 1);
+    this.progressListener.setCompletedRow(this.progressListener.getRowNumber() + 1);
 
     if (Thread.interrupted())
     {
@@ -928,5 +927,10 @@ public class BusinessObjectImporter implements ObjectImporterIF
     {
       entity.setValue(attributeName, value);
     }
+  }
+  
+  @Override
+  public void close()
+  {
   }
 }

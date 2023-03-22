@@ -20,7 +20,7 @@ package net.geoprism.registry.etl.upload;
 
 import net.geoprism.data.importer.FeatureRow;
 
-public interface ObjectImporterIF
+public interface ObjectImporterIF extends AutoCloseable
 {
 
   public void validateRow(FeatureRow simpleFeatureRow) throws InterruptedException;
@@ -30,5 +30,7 @@ public interface ObjectImporterIF
   public void setFormatSpecificImporter(FormatSpecificImporterIF formatImporter);
 
   public ImportConfiguration getConfiguration();
+
+  public abstract void close();
 
 }

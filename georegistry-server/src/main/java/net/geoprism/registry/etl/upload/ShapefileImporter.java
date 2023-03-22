@@ -307,18 +307,22 @@ public class ShapefileImporter implements FormatSpecificImporterIF
 
     try (SimpleFeatureReader sr = new SortedFeatureReader(fr, sortBy.toArray(new SortBy[sortBy.size()]), 5000))
     {
+      long rowNum = 1;
+
       while (sr.hasNext())
       {
         SimpleFeature feature = sr.next();
 
         if (stage.equals(ImportStage.VALIDATE))
         {
-          this.objectImporter.validateRow(new SimpleFeatureRow(feature));
+          this.objectImporter.validateRow(new SimpleFeatureRow(feature, rowNum));
         }
         else
         {
-          this.objectImporter.importRow(new SimpleFeatureRow(feature));
+          this.objectImporter.importRow(new SimpleFeatureRow(feature, rowNum));
         }
+
+        rowNum++;
       }
     }
     catch (Throwable t)

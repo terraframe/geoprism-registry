@@ -26,7 +26,7 @@ public interface ImportProgressListenerIF
 
   public Long getWorkTotal();
   
-  public void setRowNumber(Long rowNumber);
+  public void setCompletedRow(Long rowNumber);
 
   public Long getRowNumber();
 
@@ -49,5 +49,7 @@ public interface ImportProgressListenerIF
   public void applyValidationProblems();
   
   public void finalizeImport();
+
+  public void incrementImportedRecords();
 
 }

@@ -128,7 +128,7 @@ public class BusinessObjectImporterTest
     configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
 
     BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
-    importer.importRow(new MapFeatureRow(row));
+    importer.importRow(new MapFeatureRow(row, 0L));
 
     BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
 
@@ -165,7 +165,7 @@ public class BusinessObjectImporterTest
     configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
 
     BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
-    importer.importRow(new MapFeatureRow(row));
+    importer.importRow(new MapFeatureRow(row, 0L));
 
     BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
 
@@ -208,7 +208,7 @@ public class BusinessObjectImporterTest
       configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
 
       BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
-      importer.importRow(new MapFeatureRow(row));
+      importer.importRow(new MapFeatureRow(row, 0L));
 
       Assert.assertFalse(configuration.hasExceptions());
 
@@ -251,7 +251,7 @@ public class BusinessObjectImporterTest
       configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
 
       BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
-      importer.importRow(new MapFeatureRow(row));
+      importer.importRow(new MapFeatureRow(row, 0L));
 
       Assert.assertTrue(configuration.hasExceptions());
 
@@ -299,7 +299,7 @@ public class BusinessObjectImporterTest
     configuration.addLocation(new Location(got, hierarchy, new BasicColumnFunction(geoAttribute), ParentMatchStrategy.CODE));
 
     BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
-    importer.importRow(new MapFeatureRow(row));
+    importer.importRow(new MapFeatureRow(row, 0L));
 
     BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
 
@@ -308,9 +308,9 @@ public class BusinessObjectImporterTest
       Assert.assertNotNull(result);
 
       List<VertexServerGeoObject> results = result.getGeoObjects();
-      
+
       Assert.assertEquals(1, results.size());
-      
+
       VertexServerGeoObject geoObject = results.get(0);
 
       Assert.assertNotNull(geoObject);
@@ -353,7 +353,7 @@ public class BusinessObjectImporterTest
     configuration.addLocation(new Location(got, hierarchy, new BasicColumnFunction(geoAttribute), ParentMatchStrategy.CODE));
 
     BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
-    importer.importRow(new MapFeatureRow(row));
+    importer.importRow(new MapFeatureRow(row, 0L));
 
     BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
 
