@@ -13,7 +13,7 @@ import net.geoprism.registry.etl.upload.ObjectImporterIF;
 public class NullFormatSpecificImporter implements FormatSpecificImporterIF
 {
   @Override
-  public Geometry getGeometry(FeatureRow row, GeometryType geometryType)
+  public Geometry getGeometry(FeatureRow row)
   {
     return null;
   }
