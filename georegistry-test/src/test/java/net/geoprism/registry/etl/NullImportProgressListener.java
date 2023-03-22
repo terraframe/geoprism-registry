@@ -98,4 +98,10 @@ public class NullImportProgressListener implements ImportProgressListenerIF
   public void incrementImportedRecords()
   {
   }
+
+  @Override
+  public boolean isComplete(Long rowNumber)
+  {
+    return false;
+  }
 }

@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.etl.upload;
 
-import org.commongeoregistry.adapter.constants.GeometryType;
 import org.locationtech.jts.geom.Geometry;
 
 import net.geoprism.data.importer.FeatureRow;
@@ -29,8 +28,6 @@ public interface FormatSpecificImporterIF
   public Geometry getGeometry(FeatureRow row);
 
   public void setObjectImporter(ObjectImporterIF objectImporter);
-
-  public void setStartIndex(Long workProgress);
 
   public void run(ImportStage stage);
 }

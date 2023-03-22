@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -163,7 +163,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
 
   }
-  
+
   private static class RowData
   {
     private String                      goJson;
@@ -326,7 +326,7 @@ public class GeoObjectImporter implements ObjectImporterIF
   {
     return configuration;
   }
-  
+
   public void validateRow(FeatureRow row) throws InterruptedException
   {
     try
@@ -396,9 +396,9 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
 
           Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
-          
+
           geometry = convertGeometry(geometry);
-          
+
           if (geometry != null)
           {
             entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
@@ -486,20 +486,13 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     return false;
   }
-  
+
   public void importRow(FeatureRow row) throws InterruptedException
   {
-    try
+    if (!this.progressListener.isComplete(row.getRowNumber()))
     {
       this.blockingQueue.put(new Task(row, Action.IMPORT, Session.getCurrentSession().getOid()));
-
-      // System.out.println("Queued " + ( ++this.queueCount ));
     }
-    catch (Throwable e)
-    {
-      e.printStackTrace();
-    }
-
   }
 
   /**
@@ -670,9 +663,9 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
 
         Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
-        
+
         geometry = convertGeometry(geometry);
-        
+
         if (geometry != null)
         {
           serverGo.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
@@ -870,44 +863,46 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     return imported;
   }
-  
+
   /**
-   * Our system represents Points as MultiPoints. The source geometries might need to be wrapped to support import.
+   * Our system represents Points as MultiPoints. The source geometries might
+   * need to be wrapped to support import.
    */
   private Geometry convertGeometry(Geometry in)
   {
-    if (in == null) { return null; }
-    
+    if (in == null)
+    {
+      return null;
+    }
+
     // 0 is JTS's way of saying "we don't know what the SRID is"
     if (in.getSRID() > 0 && in.getSRID() != 4326)
     {
       throw new SridException();
     }
-    
+
     if (!in.isValid())
     {
       throw new InvalidGeometryException();
     }
-    
+
     ImportConfiguration configuration = this.getConfiguration();
 
     if (configuration instanceof GeoObjectImportConfiguration)
     {
       ServerGeoObjectType type = ( (GeoObjectImportConfiguration) configuration ).getType();
-      
+
       if (type.getGeometryType().equals(GeometryType.MIXED))
       {
         return in;
       }
       else if (type.getGeometryType().equals(GeometryType.POINT) || type.getGeometryType().equals(GeometryType.LINE) || type.getGeometryType().equals(GeometryType.POLYGON))
       {
-        if ((type.getGeometryType().equals(GeometryType.POINT) && !in.getGeometryType().equals(Geometry.TYPENAME_POINT))
-            || (type.getGeometryType().equals(GeometryType.LINE) && !(in.getGeometryType().equals(Geometry.TYPENAME_LINEARRING) || in.getGeometryType().equals(Geometry.TYPENAME_LINESTRING)))
-            || (type.getGeometryType().equals(GeometryType.POLYGON) && !in.getGeometryType().equals(Geometry.TYPENAME_POLYGON)))
+        if ( ( type.getGeometryType().equals(GeometryType.POINT) && !in.getGeometryType().equals(Geometry.TYPENAME_POINT) ) || ( type.getGeometryType().equals(GeometryType.LINE) && ! ( in.getGeometryType().equals(Geometry.TYPENAME_LINEARRING) || in.getGeometryType().equals(Geometry.TYPENAME_LINESTRING) ) ) || ( type.getGeometryType().equals(GeometryType.POLYGON) && !in.getGeometryType().equals(Geometry.TYPENAME_POLYGON) ))
         {
           throw new InvalidGeometryException();
         }
-        
+
         return in;
       }
       else if (type.getGeometryType().equals(GeometryType.MULTIPOINT))
@@ -944,7 +939,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
       }
     }
-    
+
     throw new InvalidGeometryException();
   }
 

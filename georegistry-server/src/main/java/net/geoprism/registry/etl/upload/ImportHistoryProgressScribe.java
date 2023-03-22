@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +58,11 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
     public int compareTo(Range o)
     {
       return Long.compare(this.start, o.start);
+    }
+
+    public boolean contains(long value)
+    {
+      return this.start <= value && value <= this.end;
     }
 
     @Override
@@ -183,17 +187,17 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
     try (CloseableReentrantLock lock = this.lock.open())
     {
       this.completedRows = Range.consecutiveRanges(this.completedRows, newRowNum);
-      
-//      System.out.println(newRowNum);
 
-      System.out.println(StringUtils.join(completedRows, ", "));
+      // System.out.println(newRowNum);
 
-      // if (newRowNum % UPDATE_PROGRESS_EVERY_NUM == 0)
-      // {
-      // this.history.appLock();
-      // this.history.setWorkProgress(newRowNum);
-      // this.history.apply();
-      // }
+      // System.out.println(StringUtils.join(completedRows, ", "));
+
+      if (newRowNum % UPDATE_PROGRESS_EVERY_NUM == 0)
+      {
+        this.history.appLock();
+        this.history.setWorkProgress(this.completedRows.last().end);
+        this.history.apply();
+      }
     }
   }
 
@@ -364,6 +368,15 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
         this.history.setImportedRecords(this.importedRecords);
         this.history.apply();
       }
+    }
+  }
+
+  @Override
+  public boolean isComplete(final Long rowNumber)
+  {
+    try (CloseableReentrantLock lock = this.lock.open())
+    {
+      return this.completedRows.stream().map(range -> range.contains(rowNumber.longValue())).reduce((a, b) -> a || b).orElse(false);
     }
   }
 

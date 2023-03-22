@@ -280,22 +280,6 @@ public class DataImportJob extends DataImportJobBase
       formatImporter.setObjectImporter(objectImporter);
       objectImporter.setFormatSpecificImporter(formatImporter);
 
-      if (history.getWorkProgress() > 0)
-      {
-        formatImporter.setStartIndex(history.getWorkProgress() + 1); // We add
-                                                                     // one
-                                                                     // because
-                                                                     // the
-                                                                     // previous
-                                                                     // import
-                                                                     // failed
-                                                                     // at
-                                                                     // one row
-                                                                     // after
-                                                                     // where we
-                                                                     // were.
-      }
-
       formatImporter.run(stage);
     }
     finally

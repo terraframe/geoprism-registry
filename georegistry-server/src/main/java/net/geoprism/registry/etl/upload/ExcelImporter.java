@@ -103,12 +103,6 @@ public class ExcelImporter implements FormatSpecificImporterIF
     this.objectImporter = objectImporter;
   }
 
-  @Override
-  public void setStartIndex(Long startIndex)
-  {
-    this.startIndex = startIndex;
-  }
-
   public Long getStartIndex()
   {
     return this.startIndex;
