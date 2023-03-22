@@ -130,11 +130,11 @@ public class ExcelContentHandler implements SheetHandler
         {
           if (stage.equals(ImportStage.VALIDATE))
           {
-            this.objectImporter.validateRow(new MapFeatureRow(this.row, (this.rowNum + 1)));
+            this.objectImporter.validateRow(new MapFeatureRow(this.row, this.rowNum));
           }
           else
           {
-            this.objectImporter.importRow(new MapFeatureRow(this.row, (this.rowNum + 1)));
+            this.objectImporter.importRow(new MapFeatureRow(this.row, this.rowNum));
           }
 
           this.row = new HashMap<String, Object>();
