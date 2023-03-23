@@ -1441,7 +1441,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
       else if (value instanceof String)
       {
-        entity.setValue(attributeName, new Double((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
+        entity.setValue(attributeName, Double.valueOf((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
       }
       else if (value instanceof Number)
       {

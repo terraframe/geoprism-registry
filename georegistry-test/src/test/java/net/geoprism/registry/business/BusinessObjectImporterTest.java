@@ -127,8 +127,10 @@ public class BusinessObjectImporterTest
     configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
     configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
 
-    BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
-    importer.importRow(new MapFeatureRow(row, 0L));
+    try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
+    {
+      importer.importRow(new MapFeatureRow(row, 0L));
+    }
 
     BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
 
@@ -164,8 +166,10 @@ public class BusinessObjectImporterTest
     configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
     configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
 
-    BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
-    importer.importRow(new MapFeatureRow(row, 0L));
+    try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
+    {
+      importer.importRow(new MapFeatureRow(row, 0L));
+    }
 
     BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
 
@@ -207,8 +211,10 @@ public class BusinessObjectImporterTest
       configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
       configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
 
-      BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
-      importer.importRow(new MapFeatureRow(row, 0L));
+      try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
+      {
+        importer.importRow(new MapFeatureRow(row, 0L));
+      }
 
       Assert.assertFalse(configuration.hasExceptions());
 
@@ -250,8 +256,10 @@ public class BusinessObjectImporterTest
       configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
       configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
 
-      BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
-      importer.importRow(new MapFeatureRow(row, 0L));
+      try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
+      {
+        importer.importRow(new MapFeatureRow(row, 0L));
+      }
 
       Assert.assertTrue(configuration.hasExceptions());
 
@@ -298,8 +306,10 @@ public class BusinessObjectImporterTest
     configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
     configuration.addLocation(new Location(got, hierarchy, new BasicColumnFunction(geoAttribute), ParentMatchStrategy.CODE));
 
-    BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
-    importer.importRow(new MapFeatureRow(row, 0L));
+    try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
+    {
+      importer.importRow(new MapFeatureRow(row, 0L));
+    }
 
     BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
 
@@ -352,8 +362,10 @@ public class BusinessObjectImporterTest
     configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
     configuration.addLocation(new Location(got, hierarchy, new BasicColumnFunction(geoAttribute), ParentMatchStrategy.CODE));
 
-    BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
-    importer.importRow(new MapFeatureRow(row, 0L));
+    try (BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener()))
+    {
+      importer.importRow(new MapFeatureRow(row, 0L));
+    }
 
     BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
 
@@ -402,9 +414,9 @@ public class BusinessObjectImporterTest
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(2), hist.getWorkTotal());
-    Assert.assertEquals(new Long(2), hist.getWorkProgress());
-    Assert.assertEquals(new Long(2), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(2), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(2), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(2), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     assertAndDelete(BusinessObject.get(type, attributeType.getName(), "0001"));

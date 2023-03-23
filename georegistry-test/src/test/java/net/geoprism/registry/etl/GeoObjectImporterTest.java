@@ -25,6 +25,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.VaultProperties;
@@ -32,10 +36,6 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.PrecisionModel;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.registry.DataNotFoundException;
@@ -232,9 +232,9 @@ public class GeoObjectImporterTest
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(3), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(3), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
@@ -246,8 +246,8 @@ public class GeoObjectImporterTest
 
     Assert.assertNotNull(geometry);
 
-    Double lat = new Double(2.232343);
-    Double lon = new Double(1.134232);
+    Double lat = Double.valueOf(2.232343);
+    Double lon = Double.valueOf(1.134232);
 
     GeometryFactory factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
     Point expected = new Point(new CoordinateSequence2D(lon, lat), factory);
@@ -256,8 +256,8 @@ public class GeoObjectImporterTest
 
     GeoObjectOverTime coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectOverTimeByCode(testData.clientRequest.getSessionId(), USATestData.CO_D_ONE.getCode(), USATestData.DISTRICT.getCode());
 
-    Double cd1_lat = new Double(4.3333);
-    Double cd1_lon = new Double(1.222);
+    Double cd1_lat = Double.valueOf(4.3333);
+    Double cd1_lon = Double.valueOf(1.222);
 
     GeometryFactory cd1_factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
     Point cd1_expected = new Point(new CoordinateSequence2D(cd1_lon, cd1_lat), cd1_factory);
@@ -289,9 +289,9 @@ public class GeoObjectImporterTest
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(1), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
     try
@@ -311,8 +311,8 @@ public class GeoObjectImporterTest
 
     GeoObjectOverTime coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectOverTimeByCode(testData.clientRequest.getSessionId(), USATestData.CO_D_ONE.getCode(), USATestData.DISTRICT.getCode());
 
-    Double cd1_lat = new Double(4.3333);
-    Double cd1_lon = new Double(1.222);
+    Double cd1_lat = Double.valueOf(4.3333);
+    Double cd1_lon = Double.valueOf(1.222);
 
     GeometryFactory cd1_factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
     Point cd1_expected = new Point(new CoordinateSequence2D(cd1_lon, cd1_lat), cd1_factory);
@@ -350,9 +350,9 @@ public class GeoObjectImporterTest
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(10), hist.getWorkTotal());
-    Assert.assertEquals(new Long(10), hist.getWorkProgress());
-    Assert.assertEquals(new Long(10), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(10), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(10), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(10), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
     
     // Import a second spreadsheet, which should have a few duplicate records.
@@ -364,9 +364,9 @@ public class GeoObjectImporterTest
     SchedulerTestUtils.waitUntilStatus(hist2.getOid(), AllJobStatus.FEEDBACK);
 
     hist2 = ImportHistory.get(hist2.getOid());
-    Assert.assertEquals(new Long(17), hist2.getWorkTotal());
-    Assert.assertEquals(new Long(17), hist2.getWorkProgress());
-    Assert.assertEquals(new Long(7), hist2.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(17), hist2.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(17), hist2.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(7), hist2.getImportedRecords());
     Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist2.getStage().get(0));
 
     JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist2.getOid(), false, 100, 1).toString());
@@ -395,9 +395,9 @@ public class GeoObjectImporterTest
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(2), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(2), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
@@ -409,8 +409,8 @@ public class GeoObjectImporterTest
 
     Assert.assertNotNull(geometry);
 
-    Double lat = new Double(2.232343);
-    Double lon = new Double(1.134232);
+    Double lat = Double.valueOf(2.232343);
+    Double lon = Double.valueOf(1.134232);
 
     GeometryFactory factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
     Point expected = new Point(new CoordinateSequence2D(lon, lat), factory);
@@ -419,8 +419,8 @@ public class GeoObjectImporterTest
 
     GeoObject coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), USATestData.CO_D_ONE.getCode(), USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Double cd1_lat = new Double(80);
-    Double cd1_lon = new Double(110);
+    Double cd1_lat = Double.valueOf(80);
+    Double cd1_lon = Double.valueOf(110);
 
     GeometryFactory cd1_factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
     Point cd1_expected = new Point(new CoordinateSequence2D(cd1_lon, cd1_lat), cd1_factory);
@@ -466,11 +466,11 @@ public class GeoObjectImporterTest
     JSONArray errors = json.getJSONArray("resultSet");
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(2), hist.getWorkTotal());
-    Assert.assertEquals(new Long(2), hist.getWorkProgress());
-    Assert.assertEquals(new Long(1), hist.getErrorCount());
-    Assert.assertEquals(new Long(0), hist.getErrorResolvedCount());
-    Assert.assertEquals(new Long(1), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(2), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(2), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(1), hist.getErrorCount());
+    Assert.assertEquals(Long.valueOf(0), hist.getErrorResolvedCount());
+    Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
     Assert.assertEquals(1, errors.length());
@@ -519,11 +519,11 @@ public class GeoObjectImporterTest
     new ETLService().resolveImport(testData.clientRequest.getSessionId(), hist.getOid());
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(2), hist.getWorkTotal());
-    Assert.assertEquals(new Long(2), hist.getWorkProgress());
-    Assert.assertEquals(new Long(1), hist.getErrorCount());
-    Assert.assertEquals(new Long(0), hist.getErrorResolvedCount());
-    Assert.assertEquals(new Long(1), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(2), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(2), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(1), hist.getErrorCount());
+    Assert.assertEquals(Long.valueOf(0), hist.getErrorResolvedCount());
+    Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
     Assert.assertEquals(AllJobStatus.SUCCESS, hist.getStatus().get(0));
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
@@ -562,9 +562,9 @@ public class GeoObjectImporterTest
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(2), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(2), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
     JSONObject jo = new JSONObject(new ETLService().getImportDetails(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());

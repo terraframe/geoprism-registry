@@ -495,7 +495,7 @@ public class ListTypeTest
           Page<JsonSerializable> data = version.data(new JsonObject(), true, includeGeometries);
 
           // Entries should be HP_1, HP_2, HS_1, HS_2
-          Assert.assertEquals(new Long(4), data.getCount());
+          Assert.assertEquals(Long.valueOf(4), data.getCount());
 
           List<JsonSerializable> results = data.getResults();
 

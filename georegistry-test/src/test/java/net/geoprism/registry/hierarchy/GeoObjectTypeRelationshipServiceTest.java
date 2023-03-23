@@ -31,10 +31,10 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.roles.HierarchyRelationshipPermissionException;
 import net.geoprism.registry.test.FastTestDataset;
-import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
+import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
 @RunWith(SpringJUnit4ClassRunner.class)

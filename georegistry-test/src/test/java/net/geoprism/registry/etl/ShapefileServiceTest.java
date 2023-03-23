@@ -41,6 +41,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.sort.SortBy;
@@ -56,7 +57,6 @@ import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.SchedulerManager;
-import org.locationtech.jts.geom.Geometry;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
@@ -1101,7 +1101,7 @@ public class ShapefileServiceTest
     fakeImportHistory.addStage(ImportStage.IMPORT);
     fakeImportHistory.setWorkProgress(10L);
     fakeImportHistory.setImportedRecords(0L);
-    fakeImportHistory.setCompletedRowsJson(Range.serialize(new TreeSet<>(Arrays.asList(new Range(5, 10)))));
+    fakeImportHistory.setCompletedRowsJson(Range.serialize(new TreeSet<>(Arrays.asList(new Range(1, 6)))));
     fakeImportHistory.apply();
 
     JobHistoryRecord record = new JobHistoryRecord(job, fakeImportHistory);

@@ -129,7 +129,7 @@ public class ClassificationTypeTest
     {
       Page<ClassificationType> page = ClassificationType.page(new JsonObject());
 
-      Assert.assertEquals(new Long(1), page.getCount());
+      Assert.assertEquals(Long.valueOf(1), page.getCount());
 
       ClassificationType result = page.getResults().get(0);
 

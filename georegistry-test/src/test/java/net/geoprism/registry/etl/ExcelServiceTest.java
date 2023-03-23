@@ -5,9 +5,11 @@ package net.geoprism.registry.etl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
@@ -35,6 +37,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.PrecisionModel;
 
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.session.Request;
@@ -43,11 +50,6 @@ import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.SchedulerManager;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.PrecisionModel;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
@@ -58,6 +60,7 @@ import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterTyp
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.etl.upload.ImportHistoryProgressScribe.Range;
 import net.geoprism.registry.excel.GeoObjectExcelExporter;
 import net.geoprism.registry.io.DelegateShapefileFunction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -298,9 +301,9 @@ public class ExcelServiceTest
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
@@ -312,8 +315,8 @@ public class ExcelServiceTest
 
     Assert.assertNotNull(geometry);
 
-    Double lat = new Double(2.232343);
-    Double lon = new Double(1.134232);
+    Double lat = Double.valueOf(2.232343);
+    Double lon = Double.valueOf(1.134232);
 
     GeometryFactory factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
     Point expected = new Point(new CoordinateSequence2D(lon, lat), factory);
@@ -342,15 +345,15 @@ public class ExcelServiceTest
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(object);
-    Assert.assertEquals(new Long(123), object.getValue(testInteger.getName()));
+    Assert.assertEquals(Long.valueOf(123), object.getValue(testInteger.getName()));
   }
 
   @Test
@@ -374,9 +377,9 @@ public class ExcelServiceTest
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK));
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(1), hist.getWorkTotal());
-    Assert.assertEquals(new Long(1), hist.getWorkProgress());
-    Assert.assertEquals(new Long(0), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(0), hist.getImportedRecords());
 
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
@@ -408,9 +411,9 @@ public class ExcelServiceTest
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK));
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(1), hist.getWorkTotal());
-    Assert.assertEquals(new Long(1), hist.getWorkProgress());
-    Assert.assertEquals(new Long(0), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(1), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(1), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(0), hist.getImportedRecords());
 
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
@@ -442,9 +445,9 @@ public class ExcelServiceTest
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
@@ -479,15 +482,15 @@ public class ExcelServiceTest
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(object);
-    Assert.assertEquals(new Boolean(true), object.getValue(testBoolean.getName()));
+    Assert.assertEquals(Boolean.valueOf(true), object.getValue(testBoolean.getName()));
   }
 
   @Test
@@ -510,9 +513,9 @@ public class ExcelServiceTest
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     ServerGeoObjectType type = USATestData.DISTRICT.getServerObject();
@@ -619,9 +622,9 @@ public class ExcelServiceTest
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     String sessionId = testData.clientRequest.getSessionId();
@@ -693,9 +696,9 @@ public class ExcelServiceTest
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     String sessionId = testData.clientRequest.getSessionId();
@@ -734,9 +737,9 @@ public class ExcelServiceTest
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(1), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(1), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     // Ensure the geo objects were not created
@@ -769,9 +772,9 @@ public class ExcelServiceTest
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK));
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(0), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
     JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
@@ -812,9 +815,9 @@ public class ExcelServiceTest
       Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
       hist = ImportHistory.get(hist.getOid());
-      Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-      Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-      Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
+      Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+      Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+      Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getImportedRecords());
       Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
       String sessionId = testData.clientRequest.getSessionId();
@@ -852,9 +855,9 @@ public class ExcelServiceTest
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     String sessionId = testData.clientRequest.getSessionId();
@@ -884,9 +887,9 @@ public class ExcelServiceTest
     Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK));
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
-    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
-    Assert.assertEquals(new Long(0), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
     JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
@@ -926,6 +929,7 @@ public class ExcelServiceTest
     fakeImportHistory.addStatus(AllJobStatus.RUNNING);
     fakeImportHistory.addStage(ImportStage.IMPORT);
     fakeImportHistory.setWorkProgress(2L);
+    fakeImportHistory.setCompletedRowsJson(Range.serialize(new TreeSet<>(Arrays.asList(new Range(1, 2)))));
     fakeImportHistory.setImportedRecords(0L);
     fakeImportHistory.apply();
 
@@ -954,9 +958,9 @@ public class ExcelServiceTest
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
-    Assert.assertEquals(new Long(10), hist.getWorkTotal());
-    Assert.assertEquals(new Long(10), hist.getWorkProgress());
-    Assert.assertEquals(new Long(8), hist.getImportedRecords());
+    Assert.assertEquals(Long.valueOf(10), hist.getWorkTotal());
+    Assert.assertEquals(Long.valueOf(10), hist.getWorkProgress());
+    Assert.assertEquals(Long.valueOf(8), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     for (int i = 1; i < 3; ++i)

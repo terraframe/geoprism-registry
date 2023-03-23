@@ -3,14 +3,9 @@
  */
 package net.geoprism.registry.service;
 
-import java.util.Date;
-
 import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Test;
 
 import net.geoprism.registry.test.FastTestDataset;
-import net.geoprism.registry.view.LocationInformation;
 
 public abstract class AbstractLocationServiceTest
 {

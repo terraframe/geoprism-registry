@@ -143,7 +143,7 @@ public class ConversionTest
     geoObj.setCode(testGo.getCode());
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
-    geoObj.setValue(testBoolean.getName(), new Boolean(true));
+    geoObj.setValue(testBoolean.getName(), Boolean.valueOf(true));
 
     ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
@@ -169,7 +169,7 @@ public class ConversionTest
 //    geoObj.setCode(testGo.getCode());
 //    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
 //    geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
-//    geoObj.setValue(testBoolean.getName(), new Boolean(true));
+//    geoObj.setValue(testBoolean.getName(), Boolean.valueOf(true));
 //
 //    ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
 //
@@ -194,7 +194,7 @@ public class ConversionTest
     geoObj.setCode(testGo.getCode());
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
-    geoObj.setValue(testFloat.getName(), new Double(234.2));
+    geoObj.setValue(testFloat.getName(), Double.valueOf(234.2));
 
     ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
@@ -220,7 +220,7 @@ public class ConversionTest
 //    geoObj.setCode(testGo.getCode());
 //    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
 //    geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
-//    geoObj.setValue(testFloat.getName(), new Double(234.2));
+//    geoObj.setValue(testFloat.getName(), Double.valueOf(234.2));
 //
 //    ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
 //
@@ -245,7 +245,7 @@ public class ConversionTest
     geoObj.setCode(testGo.getCode());
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
-    geoObj.setValue(testInteger.getName(), new Long(123));
+    geoObj.setValue(testInteger.getName(), Long.valueOf(123));
 
     ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
@@ -270,7 +270,7 @@ public class ConversionTest
 //    geoObj.setCode(testGo.getCode());
 //    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
 //    geoObj.setUid(ServiceFactory.getRegistryService().getUIDS(sessionId, 1)[0]);
-//    geoObj.setValue(testInteger.getName(), new Long(234));
+//    geoObj.setValue(testInteger.getName(), Long.valueOf(234));
 //
 //    ServiceFactory.getRegistryService().createGeoObject(sessionId, geoObj.toJSON().toString());
 //

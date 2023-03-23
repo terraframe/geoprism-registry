@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -37,7 +37,6 @@ import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
@@ -258,11 +257,10 @@ public class BusinessObjectImporter implements ObjectImporterIF
     try
     {
       // Refresh the session because it might expire on long imports
-      final long curRowNumber = this.progressListener.getRowNumber();
-      if ( ( this.lastValidateSessionRefresh + BusinessObjectImporter.refreshSessionRecordCount ) < curRowNumber)
+      if ( ( this.lastValidateSessionRefresh + BusinessObjectImporter.refreshSessionRecordCount ) < row.getRowNumber())
       {
         SessionFacade.renewSession(Session.getCurrentSession().getOid());
-        this.lastValidateSessionRefresh = curRowNumber;
+        this.lastValidateSessionRefresh = row.getRowNumber();
       }
 
       try
@@ -307,7 +305,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
               {
                 AttributeType attributeType = entry.getValue();
 
-                this.setValue(entity, attributeType, attributeName, value);
+                this.setValue(entity, attributeType, attributeName, value, row);
               }
             }
           }
@@ -320,13 +318,13 @@ public class BusinessObjectImporter implements ObjectImporterIF
       catch (Throwable t)
       {
         RowValidationProblem problem = new RowValidationProblem(t);
-        problem.addAffectedRowNumber(curRowNumber + 1);
+        problem.addAffectedRowNumber(row.getRowNumber());
         problem.setHistoryId(this.configuration.historyId);
 
         this.progressListener.addRowValidationProblem(problem);
       }
 
-      this.progressListener.setCompletedRow(curRowNumber + 1);
+      this.progressListener.setCompletedRow(row.getRowNumber());
 
       if (Thread.interrupted())
       {
@@ -380,10 +378,10 @@ public class BusinessObjectImporter implements ObjectImporterIF
     }
     catch (BusinessObjectRecordedErrorException e)
     {
-      this.recordError(e);
+      this.recordError(e, row);
     }
 
-    this.progressListener.setCompletedRow(this.progressListener.getRowNumber() + 1);
+    this.progressListener.setCompletedRow(row.getRowNumber());
 
     if (Thread.interrupted())
     {
@@ -394,7 +392,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
   }
 
   @Transaction
-  private void recordError(BusinessObjectRecordedErrorException e)
+  private void recordError(BusinessObjectRecordedErrorException e, FeatureRow row)
   {
     JSONObject obj = new JSONObject(e.getObjectJson());
 
@@ -404,7 +402,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
       obj.put("parents", parentBuilder.build());
     }
 
-    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getRowNumber());
+    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), row.getRowNumber());
     this.getConfiguration().addException(e);
   }
 
@@ -414,11 +412,10 @@ public class BusinessObjectImporter implements ObjectImporterIF
     boolean imported = false;
 
     // Refresh the session because it might expire on long imports
-    final long curRowNum = this.progressListener.getRowNumber();
-    if ( ( this.lastImportSessionRefresh + BusinessObjectImporter.refreshSessionRecordCount ) < curRowNum)
+    if ( ( this.lastImportSessionRefresh + BusinessObjectImporter.refreshSessionRecordCount ) < row.getRowNumber())
     {
       SessionFacade.renewSession(Session.getCurrentSession().getOid());
-      this.lastImportSessionRefresh = curRowNum;
+      this.lastImportSessionRefresh = row.getRowNumber();
     }
 
     BusinessObject businessObject = null;
@@ -481,11 +478,11 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
           if (value != null && !this.isEmptyString(value))
           {
-            this.setValue(businessObject, attributeType, attributeName, value);
+            this.setValue(businessObject, attributeType, attributeName, value, row);
           }
           else if (this.configuration.getCopyBlank())
           {
-            this.setValue(businessObject, attributeType, attributeName, null);
+            this.setValue(businessObject, attributeType, attributeName, null, row);
           }
         }
       }
@@ -760,7 +757,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
             String parentCode = ( parent == null ) ? null : parent.getCode();
 
             ParentReferenceProblem prp = new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context.toString());
-            prp.addAffectedRowNumber(this.progressListener.getRowNumber());
+            prp.addAffectedRowNumber(feature.getRowNumber());
             prp.setHistoryId(this.configuration.historyId);
 
             this.progressListener.addReferenceProblem(prp);
@@ -780,7 +777,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
     return function.getValue(feature);
   }
 
-  protected void setTermValue(BusinessObject entity, AttributeType attributeType, String attributeName, Object value)
+  protected void setTermValue(BusinessObject entity, AttributeType attributeType, String attributeName, Object value, FeatureRow row)
   {
     if (!this.configuration.isExclusion(attributeName, value.toString()))
     {
@@ -797,7 +794,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
           Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
 
           TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
-          trp.addAffectedRowNumber(this.progressListener.getRowNumber());
+          trp.addAffectedRowNumber(row.getRowNumber());
           trp.setHistoryId(this.configuration.getHistoryId());
 
           this.progressListener.addReferenceProblem(trp);
@@ -850,7 +847,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
     }
   }
 
-  protected void setValue(BusinessObject entity, AttributeType attributeType, String attributeName, Object value)
+  protected void setValue(BusinessObject entity, AttributeType attributeType, String attributeName, Object value, FeatureRow row)
   {
     if (attributeType instanceof AttributeClassificationType)
     {
@@ -867,7 +864,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
     {
       if (value != null)
       {
-        this.setTermValue(entity, attributeType, attributeName, value);
+        this.setTermValue(entity, attributeType, attributeName, value, row);
       }
       else
       {
@@ -901,7 +898,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
       }
       else if (value instanceof String)
       {
-        entity.setValue(attributeName, new Double((String) value));
+        entity.setValue(attributeName, Double.valueOf((String) value));
       }
       else if (value instanceof Number)
       {
@@ -928,7 +925,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
       entity.setValue(attributeName, value);
     }
   }
-  
+
   @Override
   public void close()
   {
