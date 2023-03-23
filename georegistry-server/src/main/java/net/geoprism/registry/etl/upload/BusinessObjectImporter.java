@@ -19,13 +19,17 @@
 package net.geoprism.registry.etl.upload;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Term;
@@ -44,6 +48,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
 import com.runwaysdk.business.graph.VertexObject;
@@ -51,8 +56,11 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestState;
+import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.AbstractClassification;
@@ -89,6 +97,55 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class BusinessObjectImporter implements ObjectImporterIF
 {
+  private static enum Action {
+    VALIDATE, IMPORT
+  }
+
+  private class Task implements Runnable
+  {
+    private FeatureRow row;
+
+    private Action     action;
+
+    private String     sessionId;
+
+    public Task(FeatureRow row, Action action, String sessionId)
+    {
+      super();
+      this.row = row;
+      this.action = action;
+      this.sessionId = sessionId;
+    }
+
+    @Override
+    public void run()
+    {
+      try
+      {
+        runInRequest(sessionId);
+      }
+      catch (InterruptedException e)
+      {
+        // Do nothing
+        e.printStackTrace();
+      }
+    }
+
+    @Request(RequestType.SESSION)
+    public void runInRequest(String sessionId) throws InterruptedException
+    {
+      if (action.equals(Action.VALIDATE))
+      {
+        BusinessObjectImporter.this.performValidationTask(this.row);
+      }
+      else if (action.equals(Action.IMPORT))
+      {
+        BusinessObjectImporter.this.performImportTask(this.row);
+      }
+    }
+
+  }
+
   private static class RowData
   {
     private String                goJson;
@@ -118,11 +175,14 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
   protected static final String               ERROR_OBJECT_TYPE          = GeoObjectOverTime.class.getName();
 
+  protected static final String               parentConcatToken          = "&";
+
+  // Refresh the user's session every X amount of records
+  private static final long                   refreshSessionRecordCount  = GeoregistryProperties.getRefreshSessionRecordCount();
+
   protected BusinessObjectImportConfiguration configuration;
 
   protected Map<String, ServerGeoObjectIF>    cache;
-
-  protected static final String               parentConcatToken          = "&";
 
   protected ImportProgressListenerIF          progressListener;
 
@@ -132,17 +192,17 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
   private long                                lastImportSessionRefresh   = 0;
 
-  // Refresh the user's session every X amount of records
-  private static final long                   refreshSessionRecordCount  = GeoregistryProperties.getRefreshSessionRecordCount();
+  private BlockingQueue<Runnable>             blockingQueue;
+
+  private ThreadPoolExecutor                  executor;
 
   public BusinessObjectImporter(BusinessObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.configuration = configuration;
     this.progressListener = progressListener;
-    this.cache = new HashMap<String, ServerGeoObjectIF>();
 
     final int MAX_ENTRIES = 10000; // The size of our parentCache
-    this.cache = new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES + 1, .75F, true)
+    this.cache = Collections.synchronizedMap(new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES + 1, .75F, true)
     {
       private static final long serialVersionUID = 1L;
 
@@ -150,7 +210,12 @@ public class BusinessObjectImporter implements ObjectImporterIF
       {
         return size() > MAX_ENTRIES;
       }
-    };
+    });
+
+    this.blockingQueue = new LinkedBlockingDeque<Runnable>(50);
+
+    this.executor = new ThreadPoolExecutor(10, 20, 5, TimeUnit.SECONDS, blockingQueue);
+    this.executor.prestartAllCoreThreads();
   }
 
   protected class GeoObjectErrorBuilder
@@ -251,8 +316,13 @@ public class BusinessObjectImporter implements ObjectImporterIF
     return this.configuration;
   }
 
-  @Transaction
   public void validateRow(FeatureRow row) throws InterruptedException
+  {
+    this.blockingQueue.put(new Task(row, Action.VALIDATE, Session.getCurrentSession().getOid()));
+  }
+
+  @Transaction
+  private void performValidationTask(FeatureRow row) throws InterruptedException
   {
     try
     {
@@ -349,6 +419,14 @@ public class BusinessObjectImporter implements ObjectImporterIF
     return false;
   }
 
+  public void importRow(FeatureRow row) throws InterruptedException
+  {
+    if (!this.progressListener.isComplete(row.getRowNumber()))
+    {
+      this.blockingQueue.put(new Task(row, Action.IMPORT, Session.getCurrentSession().getOid()));
+    }
+  }
+
   /**
    * Imports a GeoObject based on the given SimpleFeature.
    * 
@@ -356,7 +434,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
    * @throws InterruptedException
    * @throws Exception
    */
-  public void importRow(FeatureRow row) throws InterruptedException
+  private void performImportTask(FeatureRow row) throws InterruptedException
   {
     RowData data = new RowData();
 
@@ -364,7 +442,32 @@ public class BusinessObjectImporter implements ObjectImporterIF
     {
       try
       {
-        boolean imported = this.importRowInTrans(row, data);
+        boolean imported = false;
+
+        /*
+         * In a multi-threaded import it is likely to get an
+         * OCurrentModificationException because adding a link to the parent geo
+         * object adds a pointer to the parent vertex and causes an optimistic
+         * lock check on the parent vertex. So if multiple geo-objects are
+         * assigned to the same parent at the same time the system will throw a
+         * OConcurrentModificationException. Retry the commit again.
+         */
+        for (int i = 0; i < 100; i++)
+        {
+          try
+          {
+            imported = this.importRowInTrans(row, data);
+
+            break;
+          }
+          catch (ProgrammingErrorException e)
+          {
+            if (! ( e.getCause() instanceof OConcurrentModificationException ))
+            {
+              throw e;
+            }
+          }
+        }
 
         if (imported)
         {
@@ -929,5 +1032,15 @@ public class BusinessObjectImporter implements ObjectImporterIF
   @Override
   public void close()
   {
+    executor.shutdown();
+    try
+    {
+      executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+    }
+    catch (InterruptedException e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 }

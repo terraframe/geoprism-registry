@@ -329,14 +329,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   public void validateRow(FeatureRow row) throws InterruptedException
   {
-    try
-    {
       this.blockingQueue.put(new Task(row, Action.VALIDATE, Session.getCurrentSession().getOid()));
-    }
-    catch (Throwable t)
-    {
-      t.printStackTrace();
-    }
   }
 
   @Transaction
