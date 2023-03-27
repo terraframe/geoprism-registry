@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -73,7 +74,6 @@ import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.dhis2.DHIS2FeatureService.DHIS2SyncError;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.DHIS2SyncLevel;
-import net.geoprism.registry.etl.ExportJobHasErrors;
 import net.geoprism.registry.etl.GeoObjectCache;
 import net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError;
 import net.geoprism.registry.etl.export.ExportError;
@@ -239,7 +239,9 @@ public class DHIS2SynchronizationManager
                 }
               }
               
-              if (level.getOrgUnitGroupId() != null && level.getOrgUnitGroupId().length() > 0)
+              Collection<String> groupIds = level.getOrgUnitGroupIds();
+              
+              if (groupIds != null && groupIds.size() > 0)
               {
                 String externalId;
                 
@@ -256,7 +258,7 @@ public class DHIS2SynchronizationManager
                 
                 if (externalId != null && externalId.length() > 0)
                 {
-                  level.getOrCreateOrgUnitGroupIdSet(level.getOrgUnitGroupId()).add(externalId);
+                  groupIds.forEach(groupId -> level.getOrCreateOrgUnitGroupIdSet(groupId).add(externalId));
                 }
               }
             

@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gson.JsonArray;
 import com.google.gson.annotations.SerializedName;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -47,8 +48,13 @@ public class DHIS2SyncLevel implements Comparable<DHIS2SyncLevel>
 
   private Collection<DHIS2AttributeMapping>  mappings;
 
+  // Backwards compatibility as we migrate towards orgUnitGroupIds
   private String                             orgUnitGroupId;
+  
+  // An array of org unit group ids which represent all the groups we would like this type to be sync'ed to
+  private Collection<String>                 orgUnitGroupIds;
 
+  // A mapping between orgUnitGroupId -> [ orgUnitId ]
   private transient Map<String, Set<String>> orgUnitGroupIdSet = new HashMap<String, Set<String>>();
 
   public ServerGeoObjectType getGeoObjectType()
@@ -108,12 +114,12 @@ public class DHIS2SyncLevel implements Comparable<DHIS2SyncLevel>
     return this.getLevel().compareTo(o.getLevel());
   }
 
-  public String getOrgUnitGroupId()
+  protected String getOrgUnitGroupId()
   {
     return orgUnitGroupId;
   }
 
-  public void setOrgUnitGroupId(String orgUnitGroupId)
+  protected void setOrgUnitGroupId(String orgUnitGroupId)
   {
     this.orgUnitGroupId = orgUnitGroupId;
   }
@@ -125,6 +131,16 @@ public class DHIS2SyncLevel implements Comparable<DHIS2SyncLevel>
     this.orgUnitGroupIdSet.put(orgUnitGroupId, set);
 
     return set;
+  }
+  
+  public Collection<String> getOrgUnitGroupIds()
+  {
+    return orgUnitGroupIds;
+  }
+
+  public void setOrgUnitGroupIds(Collection<String> orgUnitGroupIds)
+  {
+    this.orgUnitGroupIds = orgUnitGroupIds;
   }
 
   public Set<String> getOrCreateOrgUnitGroupIdSet(String orgUnitGroupId)

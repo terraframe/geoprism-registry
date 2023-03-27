@@ -71,5 +71,5 @@ export interface SyncLevel {
     type: string;
     level: number;
     mappings: DHIS2AttributeMapping[];
-    orgUnitGroupId: string;
+    orgUnitGroupIds: string[];
 }

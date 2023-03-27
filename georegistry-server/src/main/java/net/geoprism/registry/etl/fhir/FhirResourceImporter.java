@@ -20,17 +20,17 @@ package net.geoprism.registry.etl.fhir;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hl7.fhir.r4.hapi.fluentpath.FhirPathR4;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleLinkComponent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.runwaysdk.build.domain.AddWritePermissions;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.scheduler.JobHistory;
@@ -115,8 +115,10 @@ public class FhirResourceImporter
 
   private void process(Bundle bundle)
   {
-    FhirPathR4 path = new FhirPathR4(FhirContext.forR4());
-    List<Location> locations = path.evaluate(bundle, "Bundle.entry.resource.ofType(Location)", Location.class);
+//    FhirPathR4 path = new FhirPathR4(FhirContext.forR4());
+//    List<Location> locations = path.evaluate(bundle, "Bundle.entry.resource.ofType(Location)", Location.class);
+    
+    List<Location> locations = bundle.getEntry().stream().map(e -> e.getResource()).filter(r -> (r instanceof Location)).map(r -> (Location) r).collect(Collectors.toList());
 
     for (Location location : locations)
     {
@@ -149,7 +151,8 @@ public class FhirResourceImporter
       }
     }
 
-    List<Organization> organizations = path.evaluate(bundle, "Bundle.entry.resource.ofType(Organization)", Organization.class);
+//    List<Organization> organizations = path.evaluate(bundle, "Bundle.entry.resource.ofType(Organization)", Organization.class);
+    List<Organization> organizations = bundle.getEntry().stream().map(e -> e.getResource()).filter(r -> (r instanceof Organization)).map(r -> (Organization) r).collect(Collectors.toList());
 
     for (Organization organization : organizations)
     {
