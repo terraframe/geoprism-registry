@@ -101,17 +101,9 @@
                       </select>
                     </td>
                     <td style="width:17%" *ngIf="levelRow.isAttributeEditor === false && orgUnitGroups.length > 0">
-                      <!--
-                      <select type="text" [(ngModel)]="levelRow.level.orgUnitGroupIds" [name]="'group' + levelRow.levelNum">
-                        <option></option>
-                        <option *ngFor="let group of orgUnitGroups" [value]="group.id">
-	                        {{group.name}}
-                        </option>
-                      </select>
-                      -->
-                      <!--
-                      <ngx-bootstrap-multiselect [options]="orgUnitGroups" [(ngModel)]="levelRow.level.orgUnitGroupIds" [name]="'group' + levelRow.levelNum" (ngModelChange)="onChange(levelRow.level.orgUnitGroupIds)"></ngx-bootstrap-multiselect>
-                      -->
+                      <!-- Custom Multi-Select widget built ontop of Bootstrap Dropdown component
+                           - ngx-bootstrap-multiselect was investigated as a potential solution and found to have lots of styling issues and as such was intentionally decided against.                      
+                       -->
                       <div class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="true" container="#select-root">
 											  <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
 											    {{buildOrgUnitButtonLabel(levelRow.level.orgUnitGroupIds)}} <span class="caret"></span>
