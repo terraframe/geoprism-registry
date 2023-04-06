@@ -38,7 +38,7 @@ import * as ColorGen from "color-generator";
 import { RegistryCacheService } from "@registry/service/registry-cache.service";
 import { GeometryService } from "@registry/service";
 import { Router, ActivatedRoute } from "@angular/router";
-import { LngLatBounds } from "mapbox-gl";
+import { LngLatBounds } from "maplibre-gl";
 import { ObjectReference, RelatedType, Relationship, TreeData, Vertex } from "@registry/model/graph";
 import { LocationManagerState } from "../location-manager/location-manager.component";
 import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";

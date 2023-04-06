@@ -29,7 +29,7 @@ import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-cha
 import { Subject } from "rxjs";
 import { ChangeType } from "@registry/model/constants";
 import { ListTypeService } from "@registry/service/list-type.service";
-import { LngLatBoundsLike } from "mapbox-gl";
+import { LngLatBoundsLike } from "maplibre-gl";
 import { GeoJsonLayer, Layer } from "@registry/service/layer-data-source";
 import { ConflictMessage } from "@shared/model/message";
 

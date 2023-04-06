@@ -35,7 +35,7 @@ import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 import { GenericTableConfig, TableColumnSetup, TableEvent } from "@shared/model/generic-table";
-import { LngLatBounds } from "mapbox-gl";
+import { LngLatBounds } from "maplibre-gl";
 
 import { GeoRegistryConfiguration } from "@core/model/core";
 import { GeometryService } from "@registry/service/geometry.service";

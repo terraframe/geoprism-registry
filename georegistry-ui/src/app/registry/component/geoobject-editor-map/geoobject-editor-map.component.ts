@@ -20,12 +20,14 @@
 import { Component, OnInit, ViewChild, OnDestroy, Input } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { RegistryService, MapService, GeometryService } from "@registry/service";
+import { GeometryService } from "@registry/service";
 
-import { Map, NavigationControl } from "mapbox-gl";
+import { Map, NavigationControl } from "maplibre-gl";
 
 // eslint-disable-next-line no-unused-vars
 import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
+import { ConfigurationService } from "@core/service/configuration.service";
+import EnvironmentUtil from "@core/utility/environment-util";
 
 @Component({
     selector: "geoobject-editor-map[geometryType]",
@@ -73,7 +75,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     map: Map;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private geomService: GeometryService, private registryService: RegistryService, private mapService: MapService) { }
+    constructor(private geomService: GeometryService, private configuration: ConfigurationService) { }
 
     ngOnInit(): void {
     }
@@ -84,7 +86,29 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
             this.map = new Map({
                 container: this.mapDiv.nativeElement.id,
-                style: "mapbox://styles/mapbox/satellite-v9",
+                style: {
+                    'version': 8,                                
+                    'sources': {
+                        'base-raster': {
+                            'type': 'raster',
+                            'tiles': [
+                                'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90?access_token=' + this.configuration.getMapboxAccessToken()
+                            ],
+                            'tileSize': 512,
+                        }
+                    },
+                    "glyphs": window.location.protocol + "//" + window.location.host + EnvironmentUtil.getApiUrl() + "/glyphs/{fontstack}/{range}.pbf",
+                    'layers': [
+                        {
+                            'id': 'base-layer',
+                            'type': 'raster',
+                            'source': 'base-raster',
+                            'minzoom': 0,
+                            'maxzoom': 22
+                        }
+                    ]
+
+                },
                 zoom: 2,
                 center: [110.880453, 10.897852]
             });
@@ -112,7 +136,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
         this.geomService.initialize(this.map, this.geometryType, false);
 
         // Add zoom and rotation controls to the map.
-        this.map.addControl(new NavigationControl());
+        this.map.addControl(new NavigationControl({}));
 
         this.zoomToBbox();
     }

@@ -20,7 +20,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, HostListener, Injector, ApplicationRef, ComponentFactoryResolver } from "@angular/core";
 import { Location } from "@angular/common";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Map, NavigationControl, AttributionControl, IControl, LngLatBounds } from "mapbox-gl";
+import { Map, NavigationControl, AttributionControl, IControl, LngLatBounds } from "maplibre-gl";
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
@@ -292,9 +292,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 },
                 sources: {
                     mapbox: {
-                        type: "raster",
-                        url: layer.url,
-                        tileSize: 256
+                        'type': 'raster',
+                        'tiles': [
+                            'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90?access_token=' + this.configuration.getMapboxAccessToken()
+                        ],
+                        'tileSize': 512,
                     }
                 },
                 sprite: layer.sprite,
@@ -303,7 +305,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     {
                         id: layer.id,
                         type: "raster",
-                        source: "mapbox"
+                        source: "mapbox",
+                        'minzoom': 0,
+                        'maxzoom': 22
                         // "source-layer": "mapbox_satellite_full"
                     }
                 ]
