@@ -1,5 +1,9 @@
 #!/bin/bash
 #
+#
+#
+
+#
 # Arguments:
 # $1 : Optional, if set to 'false' then we will not save the image to a file afterwords.
 #
