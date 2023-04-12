@@ -2,6 +2,21 @@
 # Release Notes
 
 
+## [1.2.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.2.0) (2023-04-12)
+
+### Features
+
+ - **dhis2-sync** ability to select multiple org unit groups   ([48d2e](https://github.com/terraframe/geoprism-registry/commit/48d2e83d41ac72c7cc847da37b2dd82341c54021))
+
+### Bug Fixes
+
+   - **change-request** privacy setting always disabled on edit   ([bb741](https://github.com/terraframe/geoprism-registry/commit/bb741acbea85d9ffa71a1f6ccf80e36590d54b4b))
+   - **settings** removing system logo throwing error   ([58466](https://github.com/terraframe/geoprism-registry/commit/584664187ae29c4212ab2b9efde5afb8986304f4))
+   - **jobs** canceling a job does nothing if the import type was deleted   ([7b699](https://github.com/terraframe/geoprism-registry/commit/7b6991d18f15795f8322870e2135adb245f56af1))
+   - georegistry-server/pom.xml to reduce vulnerabilities The following vulnerabilities are fixed with an upgrade:- https://snyk.io/vuln/SNYK-JAVA-ORGSPRINGFRAMEWORK-3369749- https://snyk.io/vuln/SNYK-JAVA-ORGSPRINGFRAMEWORK-3369852  ([bd27f](https://github.com/terraframe/geoprism-registry/commit/bd27f788da406e6ba77a64d845691aa850afd73d))
+
+
+
 ## [1.1.1](https://github.com/terraframe/geoprism-registry/releases/tag/1.1.1) (2023-03-13)
 
 
