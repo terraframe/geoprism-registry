@@ -6,7 +6,7 @@
 
 ### Features
 
- - **dhis2-sync** ability to select multiple org unit groups   ([48d2e](https://github.com/terraframe/geoprism-registry/commit/48d2e83d41ac72c7cc847da37b2dd82341c54021))
+ - **dhis2-sync** ability to select multiple org unit groups ([#873](https://github.com/terraframe/geoprism-registry/issues/873)) ([48d2e](https://github.com/terraframe/geoprism-registry/commit/48d2e83d41ac72c7cc847da37b2dd82341c54021))
 
 ### Bug Fixes
 
