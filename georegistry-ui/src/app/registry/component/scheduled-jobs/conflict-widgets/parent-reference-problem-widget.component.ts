@@ -88,9 +88,12 @@ export class ParentReferenceProblemWidgetComponent implements OnInit {
     }
 
     typeaheadOnSelect(e: TypeaheadMatch, conflict: any): void {
+        this.searchLabel = '';
+
         this.service.getParentGeoObjects(e.item.code, conflict.typeCode, [], false, this.job.startDate).then(ancestors => {
             conflict.parent = ancestors.geoObject;
-            this.searchLabel = ancestors.geoObject.properties.displayLabel.localizedValue;
+
+            this.searchLabel = e.item.name + ':' + e.item.code;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
