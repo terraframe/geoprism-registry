@@ -457,15 +457,16 @@ public class ServerHierarchyType implements ServerElement, GraphType
     java.util.Optional<ServerGeoObjectType> rootOfHierarchy = types.stream().findFirst();
     if (rootOfHierarchy.isPresent() && includeInherited)
     {
-      InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.get(rootOfHierarchy.get().getUniversal(), hierarchicalRelationship);
+      ServerGeoObjectType rootType = rootOfHierarchy.get();
+      
+      InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.get(rootType.getUniversal(), hierarchicalRelationship);
       
       if (anno != null)
       {
         HierarchicalRelationshipType hrt = anno.getInheritedHierarchicalRelationshipType();
         ServerHierarchyType sht = ServerHierarchyType.get(hrt);
-        List<ServerGeoObjectType> inheritedTypes = sht.getAllTypes(true);
         
-        inheritedTypes.remove(inheritedTypes.size()-1); // Remove the duplicate 'rootOfHierarchy' entry
+        List<ServerGeoObjectType> inheritedTypes = rootType.getTypeAncestors(sht, true);
         
         types.addAll(0, inheritedTypes);
       }
