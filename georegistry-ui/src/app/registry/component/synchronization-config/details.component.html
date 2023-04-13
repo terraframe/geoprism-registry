@@ -94,13 +94,13 @@
                             <tbody>
                                 <tr *ngFor="let row of page.resultSet | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
                                     <td class="label-column" style="vertical-align: middle;">
-                                      <p>{{row.code}}</p>
+                                      <p>{{formatGeoObjectCode(row.code)}}</p>
                                     </td>
                                     <td class="label-column" style="vertical-align: middle;">
                                       <p>{{row.message}}</p>
                                     </td>
                                     <td  *ngIf="config == null || !config.isImport" class="label-column" style="vertical-align: middle;">
-                                      <p>{{row.rowNum}}</p>
+                                      <p>{{formatAffectedRows(row.rowNum)}}</p>
                                     </td>
                                     <td  *ngIf="config == null || !config.isImport" class="label-column" style="vertical-align: middle;">
                                       <p>
