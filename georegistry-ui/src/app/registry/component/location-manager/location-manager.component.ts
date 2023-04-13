@@ -54,7 +54,6 @@ import { ListTypeVersion } from "@registry/model/list-type";
 
 import { ConfigurationService } from "@core/service/configuration.service";
 import EnvironmentUtil from "@core/utility/environment-util";
-import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 import { FeatureCollection } from "@turf/turf";
 
 class SelectedObject {
@@ -195,8 +194,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     graphVisualizerEnabled: boolean = false;
 
-    typeahead: Observable<any> = null;
-
     typeCache: GeoObjectTypeCache;
 
     public layersPanelSize: number = PANEL_SIZE_STATE.MINIMIZED;
@@ -249,12 +246,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.typeCache = this.cacheService.getTypeCache();
 
         this.geomService.dumpLayers();
-
-        this.typeahead = new Observable((observer: Observer<any>) => {
-            this.mapService.labels(this.searchFieldText, this.dateFieldValue, false).then(results => {
-                observer.next(results);
-            });
-        });
 
 
         // const version = this.route.snapshot.queryParamMap.get("version");
@@ -1008,15 +999,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     isAttributePanelOpen(): boolean {
         return (this.state.attrPanelOpen && ((this.mode === this.MODE.VIEW && this.current != null) || (this.mode === this.MODE.SEARCH && this.searchEnabled && this.data.length > 0)));
     }
-
-    typeaheadOnSelect(match: TypeaheadMatch): void {
-        if (match != null) {
-            this.searchFieldText = match.item.name;
-
-            this.search();
-        }
-    }
-
 
 
     error(err: HttpErrorResponse): void {

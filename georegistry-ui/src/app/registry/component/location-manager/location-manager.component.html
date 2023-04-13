@@ -29,10 +29,6 @@
   </h6>
 </ng-template>
 
-<ng-template #searchTemplate let-model="item" let-index="index">
-  <h5>{{model.name }} : {{ model.code }}</h5>
-</ng-template>
-
 <cgr-header></cgr-header>
 <loading-bar></loading-bar>
 
@@ -64,9 +60,7 @@
                     style="display:table-cell;vertical-align:middle;width:175px;"> </date-field>
 
                   <input type="text" class="form-control" [placeholder]="'explorer.search.placeholder' | localize"
-                    (keyup.enter)="search()" [(ngModel)]="searchFieldText" name="text" [typeaheadAsync]="true"
-                    [typeahead]="typeahead" (typeaheadOnSelect)="typeaheadOnSelect($event)"
-                    [typeaheadItemTemplate]="searchTemplate" [typeaheadMinLength]="2" [typeaheadWaitMs]="300">
+                    (keyup.enter)="search()" [(ngModel)]="searchFieldText" name="text">
                   <span class="input-group-btn">
                     <button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="search()">
                       <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
