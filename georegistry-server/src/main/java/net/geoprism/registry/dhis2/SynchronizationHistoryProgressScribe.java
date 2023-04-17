@@ -28,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.RunwayException;
+import com.runwaysdk.business.SmartException;
+import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.JobHistory;
 
@@ -134,6 +136,11 @@ public class SynchronizationHistoryProgressScribe implements SynchronizationProg
     ee.setCode(goCode);
     ee.setHistory(history);
     ee.apply();
+    
+    if (type.equals(ErrorType.ERROR))
+    {
+      logger.error("Error thrown during sync. [" + ee.toJSON().toString() + "].");
+    }
 
     this.recordedErrors++;
   }
@@ -255,6 +262,11 @@ public class SynchronizationHistoryProgressScribe implements SynchronizationProg
     exportError.setHistory(history);
     
     exportError.apply();
+    
+    if (!(ex instanceof SmartException || ex instanceof SmartExceptionDTO))
+    {
+      logger.error("Unlocalized exception thrown during sync. [" + exportError.toJSON().toString() + "].", ex);
+    }
   }
 
   public int getRecordedErrorCount()
