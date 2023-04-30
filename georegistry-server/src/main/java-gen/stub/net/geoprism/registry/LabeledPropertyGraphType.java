@@ -278,7 +278,7 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
     LocalizedValueConverter.populate(this.getDisplayLabel(), LocalizedValue.fromJSON(object.get(LabeledPropertyGraphType.DISPLAYLABEL).getAsJsonObject()));
     LocalizedValueConverter.populate(this.getDescription(), LocalizedValue.fromJSON(object.get(LabeledPropertyGraphType.DESCRIPTION).getAsJsonObject()));
     this.setCode(object.get(LabeledPropertyGraphType.CODE).getAsString());
-    this.setTypes(object.get(LabeledPropertyGraphType.TYPES).getAsString());
+    this.setTypes(object.get(LabeledPropertyGraphType.TYPES).getAsJsonArray().toString());
     this.setHierarchies(object.get(LabeledPropertyGraphType.HIERARCHIES).getAsJsonArray().toString());
 
     if (object.has(LabeledPropertyGraphType.SUBTYPEHIERARCHIES) && !object.get(LabeledPropertyGraphType.SUBTYPEHIERARCHIES).isJsonNull())
@@ -394,6 +394,18 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
     return LabeledPropertyGraphTypeEntry.create(this, forDate, metadata);
   }
 
+  public void setGeoObjectTypes(ServerGeoObjectType... types)
+  {
+    JsonArray array = new JsonArray();
+
+    for (ServerGeoObjectType type : types)
+    {
+      array.add(type.getCode());
+    }
+
+    this.setTypes(array.toString());
+  }
+
   public List<ServerGeoObjectType> getGeoObjectTypes()
   {
     List<ServerGeoObjectType> list = new LinkedList<>();
@@ -404,16 +416,28 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
     return list;
   }
 
+  public void setHierarchyTypes(ServerHierarchyType... types)
+  {
+    JsonArray array = new JsonArray();
+
+    for (ServerHierarchyType type : types)
+    {
+      array.add(type.getCode());
+    }
+
+    this.setHierarchies(array.toString());
+  }
+
   public List<ServerHierarchyType> getHierarchyTypes()
   {
     List<ServerHierarchyType> list = new LinkedList<>();
-    
+
     JsonArray types = this.getHierarchiesAsJson();
     types.forEach(type -> list.add(ServerHierarchyType.get(type.getAsString())));
-    
+
     return list;
   }
-  
+
   public void markAsInvalid(ServerHierarchyType hierarchyType, ServerGeoObjectType type)
   {
     boolean isValid = true;

@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -903733884)
+@com.runwaysdk.business.ClassSignature(hash = 96199060)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -29,7 +29,7 @@ public abstract class LabeledPropertyGraphTypeVersionBase extends com.runwaysdk.
   public final static java.lang.String TYPE = "type";
   public final static java.lang.String VERSIONNUMBER = "versionNumber";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -903733884;
+  private static final long serialVersionUID = 96199060;
   
   public LabeledPropertyGraphTypeVersionBase()
   {
@@ -546,6 +546,62 @@ public abstract class LabeledPropertyGraphTypeVersionBase extends com.runwaysdk.
     LabeledPropertyGraphTypeVersionQuery query = new LabeledPropertyGraphTypeVersionQuery(new com.runwaysdk.query.QueryFactory());
     com.runwaysdk.business.Entity.getAllInstances(query, sortAttribute, ascending, pageSize, pageNumber);
     return query;
+  }
+  
+  public net.geoprism.registry.action.GraphHasEdge addEdges(com.runwaysdk.system.metadata.MdEdge mdEdge)
+  {
+    return (net.geoprism.registry.action.GraphHasEdge) addChild(mdEdge, net.geoprism.registry.action.GraphHasEdge.CLASS);
+  }
+  
+  public void removeEdges(com.runwaysdk.system.metadata.MdEdge mdEdge)
+  {
+    removeAllChildren(mdEdge, net.geoprism.registry.action.GraphHasEdge.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends com.runwaysdk.system.metadata.MdEdge> getAllEdges()
+  {
+    return (com.runwaysdk.query.OIterator<? extends com.runwaysdk.system.metadata.MdEdge>) getChildren(net.geoprism.registry.action.GraphHasEdge.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasEdge> getAllEdgesRel()
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasEdge>) getChildRelationships(net.geoprism.registry.action.GraphHasEdge.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasEdge> getEdgesRel(com.runwaysdk.system.metadata.MdEdge mdEdge)
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasEdge>) getRelationshipsWithChild(mdEdge, net.geoprism.registry.action.GraphHasEdge.CLASS);
+  }
+  
+  public net.geoprism.registry.action.GraphHasVertex addVertices(com.runwaysdk.system.metadata.MdVertex mdVertex)
+  {
+    return (net.geoprism.registry.action.GraphHasVertex) addChild(mdVertex, net.geoprism.registry.action.GraphHasVertex.CLASS);
+  }
+  
+  public void removeVertices(com.runwaysdk.system.metadata.MdVertex mdVertex)
+  {
+    removeAllChildren(mdVertex, net.geoprism.registry.action.GraphHasVertex.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends com.runwaysdk.system.metadata.MdVertex> getAllVertices()
+  {
+    return (com.runwaysdk.query.OIterator<? extends com.runwaysdk.system.metadata.MdVertex>) getChildren(net.geoprism.registry.action.GraphHasVertex.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasVertex> getAllVerticesRel()
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasVertex>) getChildRelationships(net.geoprism.registry.action.GraphHasVertex.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasVertex> getVerticesRel(com.runwaysdk.system.metadata.MdVertex mdVertex)
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasVertex>) getRelationshipsWithChild(mdVertex, net.geoprism.registry.action.GraphHasVertex.CLASS);
   }
   
   public static LabeledPropertyGraphTypeVersion get(String oid)

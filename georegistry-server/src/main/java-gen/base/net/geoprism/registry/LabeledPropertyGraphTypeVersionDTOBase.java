@@ -1,11 +1,11 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1060749564)
+@com.runwaysdk.business.ClassSignature(hash = -2024452076)
 public abstract class LabeledPropertyGraphTypeVersionDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.LabeledPropertyGraphTypeVersion";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1060749564;
+  private static final long serialVersionUID = -2024452076;
   
   protected LabeledPropertyGraphTypeVersionDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {

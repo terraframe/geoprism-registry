@@ -18,8 +18,6 @@
  */
 package net.geoprism.registry;
 
-import org.commongeoregistry.adapter.metadata.DefaultSerializer;
-
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 

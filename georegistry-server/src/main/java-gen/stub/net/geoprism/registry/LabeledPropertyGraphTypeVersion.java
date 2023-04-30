@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,13 +37,11 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
-import com.runwaysdk.constants.BusinessInfo;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.graph.MdEdgeInfo;
 import com.runwaysdk.constants.graph.MdVertexInfo;
-import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
@@ -51,6 +49,7 @@ import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
@@ -59,6 +58,8 @@ import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.rbac.RoleConstants;
+import net.geoprism.registry.action.GraphHasEdge;
+import net.geoprism.registry.action.GraphHasVertex;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -177,106 +178,6 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     return name;
   }
 
-  private boolean isValid(AttributeType attributeType)
-  {
-    if (attributeType.getName().equals(DefaultAttribute.UID.getName()))
-    {
-      return true;
-    }
-
-    if (attributeType.getName().equals(DefaultAttribute.SEQUENCE.getName()))
-    {
-      return false;
-    }
-
-    if (attributeType.getName().equals(DefaultAttribute.LAST_UPDATE_DATE.getName()))
-    {
-      return false;
-    }
-
-    if (attributeType.getName().equals(DefaultAttribute.CREATE_DATE.getName()))
-    {
-      return false;
-    }
-
-    if (attributeType.getName().equals(DefaultAttribute.TYPE.getName()))
-    {
-      return false;
-    }
-
-    if (attributeType.getName().equals(DefaultAttribute.EXISTS.getName()))
-    {
-      return false;
-    }
-
-    return true;
-  }
-
-  public boolean isValid(MdAttributeConcreteDAOIF mdAttribute)
-  {
-    if (mdAttribute.isSystem() || mdAttribute.definesAttribute().equals(DefaultAttribute.UID.getName()))
-    {
-      return false;
-    }
-
-    if (mdAttribute.definesAttribute().equals(DefaultAttribute.SEQUENCE.getName()))
-    {
-      return false;
-    }
-
-    if (mdAttribute.definesAttribute().equals(DefaultAttribute.LAST_UPDATE_DATE.getName()))
-    {
-      return false;
-    }
-
-    if (mdAttribute.definesAttribute().equals(DefaultAttribute.CREATE_DATE.getName()))
-    {
-      return false;
-    }
-
-    if (mdAttribute.definesAttribute().equals(DefaultAttribute.TYPE.getName()))
-    {
-      return false;
-    }
-
-    if (mdAttribute.definesAttribute().equals(DefaultAttribute.EXISTS.getName()))
-    {
-      return false;
-    }
-
-    if (mdAttribute.definesAttribute().equals(ORIGINAL_OID))
-    {
-      return false;
-    }
-
-    // if (mdAttribute.definesAttribute().endsWith("Oid"))
-    // {
-    // return false;
-    // }
-
-    if (mdAttribute.definesAttribute().equals(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME))
-    {
-      return false;
-    }
-
-    if (mdAttribute.definesAttribute().equals(BusinessInfo.OWNER))
-    {
-      return false;
-    }
-
-    if (mdAttribute.definesAttribute().equals(BusinessInfo.KEY))
-    {
-      return false;
-    }
-
-    if (mdAttribute.definesAttribute().equals(BusinessInfo.DOMAIN))
-    {
-      return false;
-    }
-
-    return true;
-  }
-
   private MdVertex createTable(ServerGeoObjectType type, MdVertexDAOIF rootMdVertex)
   {
     LabeledPropertyGraphType masterlist = this.getGraphType();
@@ -294,12 +195,15 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     mdTableDAO.setValue(MdVertexInfo.SUPER_MD_VERTEX, rootMdVertex.getOid());
     mdTableDAO.apply();
 
+    List<String> existingAttributes = mdTableDAO.getAllDefinedMdAttributes().stream().map(attribute -> attribute.definesAttribute()).collect(Collectors.toList());
+
     MdVertexDAOIF sourceMdVertex = type.getMdVertex();
 
     List<? extends MdAttributeDAOIF> attributes = sourceMdVertex.getAllDefinedMdAttributes();
 
     attributes.forEach(attribute -> {
-      if (!attribute.isSystem())
+      String attributeName = attribute.definesAttribute();
+      if (!attribute.isSystem() && !existingAttributes.contains(attributeName))
       {
         MdAttributeDAO mdAttribute = (MdAttributeDAO) attribute.copy();
         mdAttribute.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
@@ -342,13 +246,29 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     // }
     //
 
-    List<? extends Business> mdVertices = this.getChildren("net.geoprism.registry.action.GraphHasVertex").getAll();
-    List<? extends Business> mdEdges = this.getChildren("net.geoprism.registry.action.GraphHasEdge").getAll();
+    List<MdVertex> mdVertices = getVertices();
+    List<MdEdge> mdEdges = this.getEdges();
 
     super.delete();
 
-    mdEdges.forEach(e -> e.delete());
-    mdVertices.forEach(v -> v.delete());
+    mdEdges.forEach(e -> MdEdgeDAO.get(e.getOid()).getBusinessDAO().delete());
+    mdVertices.forEach(v -> MdVertexDAO.get(v.getOid()).getBusinessDAO().delete());
+  }
+
+  public List<MdVertex> getVertices()
+  {
+    try (OIterator<? extends Business> it = this.getChildren(GraphHasVertex.CLASS))
+    {
+      return it.getAll().stream().map(b -> (MdVertex) b).collect(Collectors.toList());
+    }
+  }
+
+  public List<MdEdge> getEdges()
+  {
+    try (OIterator<? extends Business> it = this.getChildren(GraphHasEdge.CLASS))
+    {
+      return it.getAll().stream().map(b -> (MdEdge) b).collect(Collectors.toList());
+    }
   }
 
   @Transaction
@@ -747,9 +667,10 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     rootMdVertexDAO.setValue(MdVertexInfo.DB_CLASS_NAME, tableName);
     rootMdVertexDAO.setValue(MdVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
     rootMdVertexDAO.setValue(MdVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
+    rootMdVertexDAO.setValue(MdVertexInfo.ABSTRACT, MdAttributeBooleanInfo.TRUE);
     rootMdVertexDAO.apply();
 
-    version.addChild(rootMdVertexDAO.getOid(), "net.geoprism.registry.action.GraphHasVertex").apply();
+    version.addChild(rootMdVertexDAO.getOid(), GraphHasVertex.CLASS).apply();
 
     LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(rootMdVertexDAO);
 
@@ -769,7 +690,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
 
       MdVertex mdVertex = version.createTable(type, rootMdVertexDAO);
 
-      version.addChild(mdVertex, "net.geoprism.registry.action.GraphHasVertex").apply();
+      version.addChild(mdVertex, GraphHasVertex.CLASS).apply();
 
       LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(mdVertex);
     }
@@ -790,7 +711,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
 
       MdEdge mdEdge = version.createEdge(hierarchy, rootMdVertexDAO);
 
-      version.addChild(mdEdge, "net.geoprism.registry.action.GraphHasEdge").apply();
+      version.addChild(mdEdge, GraphHasEdge.CLASS).apply();
 
       LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(mdEdge);
     }
