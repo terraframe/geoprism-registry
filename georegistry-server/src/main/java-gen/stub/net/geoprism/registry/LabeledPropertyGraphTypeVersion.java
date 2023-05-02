@@ -22,9 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.gson.JsonObject;
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.Business;
@@ -67,29 +64,15 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
 {
   private static final long  serialVersionUID = -351397872;
 
-  private static Logger      logger           = LoggerFactory.getLogger(LabeledPropertyGraphTypeVersion.class);
-
-  public static final String PREFIX           = "lt_";
-
-  public static final String ORIGINAL_OID     = "originalOid";
-
-  public static final String LEAF             = "leaf";
+  public static final String PREFIX           = "gt_";
 
   public static final String TYPE_CODE        = "typeCode";
-
-  public static final String ORG_CODE         = "orgCode";
 
   public static final String ATTRIBUTES       = "attributes";
 
   public static final String HIERARCHIES      = "hierarchies";
 
-  public static final String DEFAULT_LOCALE   = "DefaultLocale";
-
   public static final String PERIOD           = "period";
-
-  public static final String PUBLISHED        = "PUBLISHED";
-
-  public static final String EXPLORATORY      = "EXPLORATORY";
 
   public LabeledPropertyGraphTypeVersion()
   {
@@ -207,9 +190,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
       }
     });
 
-    MdVertex mdVertex = (MdVertex) BusinessFacade.get(mdTableDAO);
-
-    return mdVertex;
+    return (MdVertex) BusinessFacade.get(mdTableDAO);
   }
 
   private MdEdge createEdge(ServerHierarchyType type, MdVertexDAOIF mdBusGeoEntity)
@@ -414,10 +395,10 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     vertex.setGraphMdVertexId(graphVertexOid);
     vertex.setGeoObjectMdVertexId(geoObjectVertex.getOid());
     vertex.apply();
-    
+
     GraphHasVertex relationship = this.addVertices(vertex);
     relationship.apply();
-    
+
     return relationship;
   }
 
@@ -427,13 +408,13 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     edge.setGraphMdEdgeId(graphEdge.getOid());
     edge.setGeoObjectMdEdgeId(geoObjectEdge.getOid());
     edge.apply();
-    
+
     GraphHasEdge relationship = this.addEdges(edge);
     relationship.apply();
-    
+
     return relationship;
   }
-  
+
   private static void assignDefaultRolePermissions(ComponentIF component)
   {
     RoleDAO adminRole = RoleDAO.findRole(RoleConstants.ADMIN).getBusinessDAO();

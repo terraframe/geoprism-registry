@@ -5,6 +5,7 @@ package net.geoprism.registry.service;
 
 import java.util.List;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
@@ -18,7 +19,11 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.metadata.MdEdge;
+import com.runwaysdk.system.metadata.MdVertex;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.ChangeFrequency;
@@ -275,6 +280,27 @@ public class LabeledPropertyGraphTest
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
       version.publishNoAuth();
+      
+      LabeledPropertyGraphVertex graphVertex = version.getMdVertexForType(USATestData.COUNTRY.getServerObject());
+      MdVertex mdVertex = graphVertex.getGraphMdVertex();
+      
+      LabeledPropertyGraphEdge graphEdge = version.getMdEdgeForType(USATestData.HIER_ADMIN.getServerObject());
+      MdEdge mdEdge = graphEdge.getGraphMdEdge();
+      
+      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
+      List<VertexObject> results = query.getResults();
+      
+      Assert.assertEquals(1, results.size());
+      
+      VertexObject result = results.get(0);
+      
+      Assert.assertEquals(USATestData.USA.getCode(), result.getObjectValue(DefaultAttribute.CODE.getName()));
+      
+      List<VertexObject> children = result.getChildren(mdEdge.definesType(), VertexObject.class);
+
+      Assert.assertEquals(2, children.size());
+      
+
     }
     finally
     {
