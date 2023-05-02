@@ -17,7 +17,7 @@ public class SingleLabeledPropertyGraphType extends SingleLabeledPropertyGraphTy
   public JsonObject toJSON(boolean includeEntries)
   {
     JsonObject object = super.toJSON(includeEntries);
-    object.addProperty(LIST_TYPE, SINGLE);
+    object.addProperty(GRAPH_TYPE, SINGLE);
     object.addProperty(VALIDON, GeoRegistryUtil.formatDate(this.getValidOn(), false));
 
     return object;

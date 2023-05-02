@@ -238,7 +238,7 @@ public class IncrementalLabeledPropertyGraphType extends IncrementalLabeledPrope
     JsonObject object = super.toJSON(includeEntries);
     object.addProperty(IncrementalLabeledPropertyGraphType.FREQUENCY, this.toFrequency().name());
     object.addProperty(IncrementalLabeledPropertyGraphType.PUBLISHINGSTARTDATE, format.format(this.getPublishingStartDate()));
-    object.addProperty(LIST_TYPE, INCREMENTAL);
+    object.addProperty(GRAPH_TYPE, INCREMENTAL);
 
     return object;
   }

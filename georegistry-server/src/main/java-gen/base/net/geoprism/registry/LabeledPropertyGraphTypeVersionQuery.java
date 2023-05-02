@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1516669309)
+@com.runwaysdk.business.ClassSignature(hash = -234269831)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -460,33 +460,33 @@ public  class LabeledPropertyGraphTypeVersionQuery extends com.runwaysdk.query.G
     return this.getBusinessQuery().isParentIn_SUBSELECT(graphHasEdgeQuery);
   }
 
-  public com.runwaysdk.query.Condition edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery)
+  public com.runwaysdk.query.Condition edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasEdge.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdEdgeQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphEdgeQuery));
 
     return this.getBusinessQuery().isParentIn(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasEdge.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdEdgeQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphEdgeQuery));
 
     return this.getBusinessQuery().isParentIn_SUBSELECT(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
+  public com.runwaysdk.query.Condition edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
   {
-    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(mdEdgeQuery));
+    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(labeledPropertyGraphEdgeQuery));
     return this.getBusinessQuery().isParentIn(graphHasEdgeQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
   {
-    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(mdEdgeQuery));
+    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(labeledPropertyGraphEdgeQuery));
     return this.getBusinessQuery().isParentIn_SUBSELECT(graphHasEdgeQuery);
   }
 
@@ -518,33 +518,33 @@ public  class LabeledPropertyGraphTypeVersionQuery extends com.runwaysdk.query.G
     return this.getBusinessQuery().isNotParentIn_SUBSELECT(graphHasEdgeQuery);
   }
 
-  public com.runwaysdk.query.Condition NOT_IN_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery)
+  public com.runwaysdk.query.Condition NOT_IN_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasEdge.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdEdgeQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphEdgeQuery));
 
     return this.getBusinessQuery().isNotParentIn(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasEdge.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdEdgeQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphEdgeQuery));
 
     return this.getBusinessQuery().isNotParentIn_SUBSELECT(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition NOT_IN_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
+  public com.runwaysdk.query.Condition NOT_IN_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
   {
-    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(mdEdgeQuery));
+    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(labeledPropertyGraphEdgeQuery));
     return this.getBusinessQuery().isNotParentIn(graphHasEdgeQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
   {
-    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(mdEdgeQuery));
+    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(labeledPropertyGraphEdgeQuery));
     return this.getBusinessQuery().isNotParentIn_SUBSELECT(graphHasEdgeQuery);
   }
 
@@ -576,33 +576,33 @@ public  class LabeledPropertyGraphTypeVersionQuery extends com.runwaysdk.query.G
     return this.getBusinessQuery().isParentIn_SUBSELECT(graphHasVertexQuery);
   }
 
-  public com.runwaysdk.query.Condition vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery)
+  public com.runwaysdk.query.Condition vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasVertex.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdVertexQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphVertexQuery));
 
     return this.getBusinessQuery().isParentIn(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasVertex.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdVertexQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphVertexQuery));
 
     return this.getBusinessQuery().isParentIn_SUBSELECT(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
+  public com.runwaysdk.query.Condition vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
   {
-    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(mdVertexQuery));
+    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(labeledPropertyGraphVertexQuery));
     return this.getBusinessQuery().isParentIn(graphHasVertexQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
   {
-    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(mdVertexQuery));
+    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(labeledPropertyGraphVertexQuery));
     return this.getBusinessQuery().isParentIn_SUBSELECT(graphHasVertexQuery);
   }
 
@@ -634,33 +634,33 @@ public  class LabeledPropertyGraphTypeVersionQuery extends com.runwaysdk.query.G
     return this.getBusinessQuery().isNotParentIn_SUBSELECT(graphHasVertexQuery);
   }
 
-  public com.runwaysdk.query.Condition NOT_IN_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery)
+  public com.runwaysdk.query.Condition NOT_IN_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasVertex.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdVertexQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphVertexQuery));
 
     return this.getBusinessQuery().isNotParentIn(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasVertex.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdVertexQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphVertexQuery));
 
     return this.getBusinessQuery().isNotParentIn_SUBSELECT(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition NOT_IN_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
+  public com.runwaysdk.query.Condition NOT_IN_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
   {
-    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(mdVertexQuery));
+    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(labeledPropertyGraphVertexQuery));
     return this.getBusinessQuery().isNotParentIn(graphHasVertexQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
   {
-    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(mdVertexQuery));
+    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(labeledPropertyGraphVertexQuery));
     return this.getBusinessQuery().isNotParentIn_SUBSELECT(graphHasVertexQuery);
   }
 
@@ -731,58 +731,58 @@ public  class LabeledPropertyGraphTypeVersionQuery extends com.runwaysdk.query.G
 
   public com.runwaysdk.query.Condition edges();
 
-  public com.runwaysdk.query.Condition edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery);
+  public com.runwaysdk.query.Condition edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery);
 
-  public com.runwaysdk.query.Condition edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery);
+  public com.runwaysdk.query.Condition edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery);
 
 
   public com.runwaysdk.query.Condition SUBSELECT_edges();
 
-  public com.runwaysdk.query.Condition SUBSELECT_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery);
+  public com.runwaysdk.query.Condition SUBSELECT_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery);
 
-  public com.runwaysdk.query.Condition SUBSELECT_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery);
+  public com.runwaysdk.query.Condition SUBSELECT_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery);
 
 
   public com.runwaysdk.query.Condition vertices();
 
-  public com.runwaysdk.query.Condition vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery);
+  public com.runwaysdk.query.Condition vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery);
 
-  public com.runwaysdk.query.Condition vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery);
+  public com.runwaysdk.query.Condition vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery);
 
 
   public com.runwaysdk.query.Condition SUBSELECT_vertices();
 
-  public com.runwaysdk.query.Condition SUBSELECT_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery);
+  public com.runwaysdk.query.Condition SUBSELECT_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery);
 
-  public com.runwaysdk.query.Condition SUBSELECT_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery);
+  public com.runwaysdk.query.Condition SUBSELECT_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery);
 
 
   public com.runwaysdk.query.Condition NOT_IN_edges();
 
-  public com.runwaysdk.query.Condition NOT_IN_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery);
+  public com.runwaysdk.query.Condition NOT_IN_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery);
 
-  public com.runwaysdk.query.Condition NOT_IN_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery);
+  public com.runwaysdk.query.Condition NOT_IN_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery);
 
 
   public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_edges();
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery);
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery);
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery);
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery);
 
 
   public com.runwaysdk.query.Condition NOT_IN_vertices();
 
-  public com.runwaysdk.query.Condition NOT_IN_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery);
+  public com.runwaysdk.query.Condition NOT_IN_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery);
 
-  public com.runwaysdk.query.Condition NOT_IN_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery);
+  public com.runwaysdk.query.Condition NOT_IN_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery);
 
 
   public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_vertices();
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery);
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery);
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery);
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery);
 
   }
 
@@ -1131,33 +1131,33 @@ public  class LabeledPropertyGraphTypeVersionQuery extends com.runwaysdk.query.G
     return this.isParentIn_SUBSELECT(graphHasEdgeQuery);
   }
 
-  public com.runwaysdk.query.Condition edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery)
+  public com.runwaysdk.query.Condition edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasEdge.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdEdgeQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphEdgeQuery));
 
     return this.isParentIn(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasEdge.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdEdgeQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphEdgeQuery));
 
     return this.isParentIn_SUBSELECT(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
+  public com.runwaysdk.query.Condition edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
   {
-    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(mdEdgeQuery));
+    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(labeledPropertyGraphEdgeQuery));
     return this.isParentIn(graphHasEdgeQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
   {
-    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(mdEdgeQuery));
+    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(labeledPropertyGraphEdgeQuery));
     return this.isParentIn_SUBSELECT(graphHasEdgeQuery);
   }
 
@@ -1189,33 +1189,33 @@ public  class LabeledPropertyGraphTypeVersionQuery extends com.runwaysdk.query.G
     return this.isParentIn_SUBSELECT(graphHasVertexQuery);
   }
 
-  public com.runwaysdk.query.Condition vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery)
+  public com.runwaysdk.query.Condition vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasVertex.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdVertexQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphVertexQuery));
 
     return this.isParentIn(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasVertex.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdVertexQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphVertexQuery));
 
     return this.isParentIn_SUBSELECT(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
+  public com.runwaysdk.query.Condition vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
   {
-    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(mdVertexQuery));
+    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(labeledPropertyGraphVertexQuery));
     return this.isParentIn(graphHasVertexQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
   {
-    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(mdVertexQuery));
+    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(labeledPropertyGraphVertexQuery));
     return this.isParentIn_SUBSELECT(graphHasVertexQuery);
   }
 
@@ -1247,33 +1247,33 @@ public  class LabeledPropertyGraphTypeVersionQuery extends com.runwaysdk.query.G
     return this.isNotParentIn_SUBSELECT(graphHasEdgeQuery);
   }
 
-  public com.runwaysdk.query.Condition NOT_IN_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery)
+  public com.runwaysdk.query.Condition NOT_IN_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasEdge.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdEdgeQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphEdgeQuery));
 
     return this.isNotParentIn(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasEdge.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdEdgeQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphEdgeQuery));
 
     return this.isNotParentIn_SUBSELECT(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition NOT_IN_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
+  public com.runwaysdk.query.Condition NOT_IN_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
   {
-    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(mdEdgeQuery));
+    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(labeledPropertyGraphEdgeQuery));
     return this.isNotParentIn(graphHasEdgeQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_edges(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_edges(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery, net.geoprism.registry.action.GraphHasEdgeQuery graphHasEdgeQuery)
   {
-    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(mdEdgeQuery));
+    graphHasEdgeQuery.AND(graphHasEdgeQuery.hasChild(labeledPropertyGraphEdgeQuery));
     return this.isNotParentIn_SUBSELECT(graphHasEdgeQuery);
   }
 
@@ -1305,33 +1305,33 @@ public  class LabeledPropertyGraphTypeVersionQuery extends com.runwaysdk.query.G
     return this.isNotParentIn_SUBSELECT(graphHasVertexQuery);
   }
 
-  public com.runwaysdk.query.Condition NOT_IN_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery)
+  public com.runwaysdk.query.Condition NOT_IN_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasVertex.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdVertexQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphVertexQuery));
 
     return this.isNotParentIn(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery)
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
     com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.GraphHasVertex.CLASS);
-    relationshipQuery.AND(relationshipQuery.hasChild(mdVertexQuery));
+    relationshipQuery.AND(relationshipQuery.hasChild(labeledPropertyGraphVertexQuery));
 
     return this.isNotParentIn_SUBSELECT(relationshipQuery);
   }
 
-  public com.runwaysdk.query.Condition NOT_IN_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
+  public com.runwaysdk.query.Condition NOT_IN_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
   {
-    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(mdVertexQuery));
+    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(labeledPropertyGraphVertexQuery));
     return this.isNotParentIn(graphHasVertexQuery);
   }
 
-  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_vertices(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_vertices(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery, net.geoprism.registry.action.GraphHasVertexQuery graphHasVertexQuery)
   {
-    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(mdVertexQuery));
+    graphHasVertexQuery.AND(graphHasVertexQuery.hasChild(labeledPropertyGraphVertexQuery));
     return this.isNotParentIn_SUBSELECT(graphHasVertexQuery);
   }
 

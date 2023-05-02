@@ -19,24 +19,26 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.metadata.MdEdge;
-import com.runwaysdk.system.metadata.MdVertex;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.IncrementalLabeledPropertyGraphType;
 import net.geoprism.registry.IntervalLabeledPropertyGraphType;
+import net.geoprism.registry.LabeledPropertyGraphEdge;
 import net.geoprism.registry.LabeledPropertyGraphType;
 import net.geoprism.registry.LabeledPropertyGraphTypeBuilder;
 import net.geoprism.registry.LabeledPropertyGraphTypeEntry;
 import net.geoprism.registry.LabeledPropertyGraphTypeVersion;
+import net.geoprism.registry.LabeledPropertyGraphVertex;
 import net.geoprism.registry.SingleLabeledPropertyGraphType;
 import net.geoprism.registry.classification.ClassificationTypeTest;
+import net.geoprism.registry.graph.TreeStrategyConfiguration;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.TestDataSet;
+import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.USATestData;
@@ -145,6 +147,7 @@ public class LabeledPropertyGraphTest
     type.setCode("TEST_CODE");
     type.getDescription().setValue("My Overal Description");
     type.setValidOn(USATestData.DEFAULT_OVER_TIME_DATE);
+    type.setStrategyType(SingleLabeledPropertyGraphType.TREE);
 
     JsonObject json = type.toJSON();
     SingleLabeledPropertyGraphType test = (SingleLabeledPropertyGraphType) LabeledPropertyGraphType.fromJSON(json);
@@ -175,6 +178,7 @@ public class LabeledPropertyGraphTest
     type.setHierarchyTypes(USATestData.HIER_ADMIN.getServerObject(), USATestData.HIER_SCHOOL.getServerObject());
     type.getDescription().setValue("My Overal Description");
     type.setIntervalJson(intervalJson.toString());
+    type.setStrategyType(SingleLabeledPropertyGraphType.TREE);
 
     JsonObject json = type.toJSON();
     IntervalLabeledPropertyGraphType test = (IntervalLabeledPropertyGraphType) LabeledPropertyGraphType.fromJSON(json);
@@ -199,6 +203,7 @@ public class LabeledPropertyGraphTest
     type.getDescription().setValue("My Overal Description");
     type.setPublishingStartDate(USATestData.DEFAULT_OVER_TIME_DATE);
     type.addFrequency(ChangeFrequency.ANNUAL);
+    type.setStrategyType(SingleLabeledPropertyGraphType.TREE);
 
     JsonObject json = type.toJSON();
     IncrementalLabeledPropertyGraphType test = (IncrementalLabeledPropertyGraphType) LabeledPropertyGraphType.fromJSON(json);
@@ -214,9 +219,9 @@ public class LabeledPropertyGraphTest
 
   @Test
   @Request
-  public void testCreateMultiple()
+  public void testCreate()
   {
-    JsonObject json = getJson(new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.COUNTY });
+    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.COUNTY });
 
     LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
 
@@ -234,11 +239,11 @@ public class LabeledPropertyGraphTest
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
 
-      List<MdVertex> vertices = version.getVertices();
+      List<LabeledPropertyGraphVertex> vertices = version.getVertices();
 
       Assert.assertEquals(4, vertices.size());
 
-      List<MdEdge> edges = version.getEdges();
+      List<LabeledPropertyGraphEdge> edges = version.getEdges();
 
       Assert.assertEquals(1, edges.size());
     }
@@ -248,879 +253,43 @@ public class LabeledPropertyGraphTest
     }
   }
 
-  //
-  // @Test
-  // @Request
-  // public void testCreateMultipleNonMaster()
-  // {
-  // JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.STATE);
-  //
-  // LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
-  //
-  // try
-  // {
-  // json.addProperty(LabeledPropertyGraphType.CODE, "CODE_2");
-  //
-  // LabeledPropertyGraphType test2 = LabeledPropertyGraphType.apply(json);
-  // test2.delete();
-  // }
-  // catch (DuplicateDataDatabaseException e)
-  // {
-  // test1.delete();
-  //
-  // Assert.fail("Not able to apply multiple mastertypes with the same universal
-  // when type is not a master");
-  // }
-  // }
-  //
-  // @Test(expected = RunwayExceptionDTO.class)
-  // public void testServiceCreateAndRemove()
-  // {
-  // JsonObject typeJson = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.STATE);
-  //
-  // LabeledPropertyGraphTypeService service = new
-  // LabeledPropertyGraphTypeService();
-  // JsonObject result = service.apply(testData.clientRequest.getSessionId(),
-  // typeJson);
-  //
-  // String oid = result.get(ComponentInfo.OID).getAsString();
-  //
-  // this.waitUntilPublished(oid);
-  //
-  // service.remove(testData.clientRequest.getSessionId(), oid);
-  //
-  // service.get(testData.clientRequest.getSessionId(), oid);
-  // }
-  //
-  // @Test
-  // public void testListForType()
-  // {
-  // JsonObject typeJson = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.STATE);
-  //
-  // LabeledPropertyGraphTypeService service = new
-  // LabeledPropertyGraphTypeService();
-  // JsonObject result = service.apply(testData.clientRequest.getSessionId(),
-  // typeJson);
-  //
-  // String oid = result.get(ComponentInfo.OID).getAsString();
-  // this.waitUntilPublished(oid);
-  //
-  // try
-  // {
-  // JsonObject org = service.typeForType(testData.clientRequest.getSessionId(),
-  // USATestData.STATE.getCode());
-  //
-  // Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(),
-  // org.get("orgLabel").getAsString());
-  // Assert.assertEquals(USATestData.ORG_NPS.getCode(),
-  // org.get("orgCode").getAsString());
-  // Assert.assertEquals(USATestData.STATE.getDisplayLabel().getValue(),
-  // org.get("typeLabel").getAsString());
-  // Assert.assertEquals(USATestData.STATE.getCode(),
-  // org.get("typeCode").getAsString());
-  // Assert.assertTrue(org.get("write").getAsBoolean());
-  // Assert.assertTrue(org.get("types").getAsJsonArray().size() > 0);
-  // }
-  // finally
-  // {
-  // service.remove(testData.clientRequest.getSessionId(), oid);
-  // }
-  // }
-  //
-  //// @Test
-  //// public void testListPublicByOrgFromOtherOrg()
-  //// {
-  //// JsonObject typeJson = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.STATE);
-  ////
-  //// LabeledPropertyGraphTypeService service = new
-  // LabeledPropertyGraphTypeService();
-  //// JsonObject result = service.apply(testData.clientRequest.getSessionId(),
-  // typeJson);
-  ////
-  //// String oid = result.get(ComponentInfo.OID).getAsString();
-  //// this.waitUntilPublished(oid);
-  ////
-  //// try
-  //// {
-  //// USATestData.runAsUser(USATestData.USER_PPP_RA, (request) -> {
-  ////
-  //// JsonObject org =
-  // service.typeForType(testData.clientRequest.getSessionId(),
-  // USATestData.STATE.getCode());
-  ////
-  //// Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(),
-  // org.get("orgLabel").getAsString());
-  //// Assert.assertEquals(USATestData.ORG_NPS.getCode(),
-  // org.get("orgCode").getAsString());
-  //// Assert.assertEquals(USATestData.STATE.getDisplayLabel().getValue(),
-  // org.get("typeLabel").getAsString());
-  //// Assert.assertEquals(USATestData.STATE.getCode(),
-  // org.get("typeCode").getAsString());
-  //// Assert.assertTrue(org.get("write").getAsBoolean());
-  //// Assert.assertTrue(org.get("types").getAsJsonArray().size() > 0);
-  //// });
-  //// }
-  //// finally
-  //// {
-  //// service.remove(testData.clientRequest.getSessionId(), oid);
-  //// }
-  //// }
-  ////
-  //// //
-  //// // @Test
-  //// // public void testPrivateListByOrgFromOtherOrg()
-  //// // {
-  //// // JsonObject typeJson = getJson(USATestData.ORG_NPS.getServerObject(),
-  //// // USATestData.HIER_ADMIN, USATestData.STATE,
-  // LabeledPropertyGraphType.PRIVATE, false);
-  //// //
-  //// // LabeledPropertyGraphTypeService service = new
-  // LabeledPropertyGraphTypeService();
-  //// // JsonObject result =
-  // service.apply(testData.clientRequest.getSessionId(),
-  //// // typeJson);
-  //// //
-  //// // try
-  //// // {
-  //// // USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
-  //// // JsonArray orgs = service.typeByOrg(request.getSessionId());
-  //// //
-  //// // JsonObject org = null;
-  //// // for (int i = 0; i < orgs.size(); ++i)
-  //// // {
-  //// // if
-  //// //
-  // (orgs.get(i).getAsJsonObject().get("oid").getAsString().equals(USATestData.ORG_NPS.getServerObject().getOid()))
-  //// // {
-  //// // org = orgs.get(i).getAsJsonObject();
-  //// // }
-  //// // }
-  //// //
-  //// // Assert.assertNotNull(org.get("oid").getAsString());
-  //// // Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(),
-  //// // org.get("label").getAsString());
-  //// // Assert.assertFalse(org.get("write").getAsBoolean());
-  //// // Assert.assertTrue(org.get("types").getAsJsonArray().size() == 0);
-  //// // });
-  //// // }
-  //// // finally
-  //// // {
-  //// // String oid = result.get(ComponentInfo.OID).getAsString();
-  //// // service.remove(testData.clientRequest.getSessionId(), oid);
-  //// // }
-  //// // }
-  //// //
-  ////
-  //// @Test
-  //// public void testPublishVersion()
-  //// {
-  //// USATestData.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
-  ////
-  //// JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
-  ////
-  //// LabeledPropertyGraphType test = LabeledPropertyGraphType.apply(json);
-  ////
-  //// try
-  //// {
-  //// LabeledPropertyGraphTypeEntry entry =
-  // test.createEntry(TestDataSet.DEFAULT_OVER_TIME_DATE);
-  ////
-  //// try
-  //// {
-  //// entry.publish(createVersionMetadata().toString());
-  ////
-  //// List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
-  ////
-  //// Assert.assertEquals(2, versions.size());
-  ////
-  //// LabeledPropertyGraphTypeVersion version = versions.get(0);
-  ////
-  //// MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
-  ////
-  //// Assert.assertNotNull(mdTable);
-  //// }
-  //// finally
-  //// {
-  //// entry.delete();
-  //// }
-  //// }
-  //// catch (Exception e)
-  //// {
-  //// e.printStackTrace();
-  ////
-  //// Assert.fail(e.getLocalizedMessage());
-  //// }
-  //// finally
-  //// {
-  //// test.delete();
-  //// }
-  //// });
-  //// }
-  ////
-  //// @Test
-  //// public void testPublishVersionOfAbstract()
-  //// {
-  //// dataTest(null);
-  //// }
-  ////
-  //// @Test
-  //// public void testFetchDataWithGeometries()
-  //// {
-  //// dataTest(true);
-  //// }
-  ////
-  //// private void dataTest(Boolean includeGeometries)
-  //// {
-  //// GeoJsonReader reader = new GeoJsonReader();
-  ////
-  //// TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
-  ////
-  //// LabeledPropertyGraphTypeBuilder.Hierarchy hierarchy = new
-  // LabeledPropertyGraphTypeBuilder.Hierarchy();
-  //// hierarchy.setType(USATestData.HIER_ADMIN);
-  //// hierarchy.setParents(USATestData.COUNTRY, USATestData.STATE,
-  // USATestData.DISTRICT);
-  //// hierarchy.setSubtypeHierarchies(USATestData.HIER_REPORTS_TO);
-  ////
-  //// LabeledPropertyGraphTypeBuilder builder = new
-  // LabeledPropertyGraphTypeBuilder();
-  //// builder.setOrg(USATestData.ORG_NPS.getServerObject());
-  //// builder.setInfo(USATestData.HEALTH_FACILITY);
-  //// builder.setHts(hierarchy);
-  ////
-  //// LabeledPropertyGraphType test = builder.build();
-  ////
-  //// try
-  //// {
-  //// LabeledPropertyGraphTypeEntry entry =
-  // test.createEntry(TestDataSet.DEFAULT_OVER_TIME_DATE);
-  ////
-  //// try
-  //// {
-  //// entry.publish(createVersionMetadata().toString());
-  ////
-  //// List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
-  ////
-  //// Assert.assertEquals(2, versions.size());
-  ////
-  //// LabeledPropertyGraphTypeVersion version = versions.get(0);
-  ////
-  //// MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
-  ////
-  //// Assert.assertNotNull(mdTable);
-  ////
-  //// Page<JsonSerializable> data = version.data(new JsonObject(), true,
-  // includeGeometries);
-  ////
-  //// // Entries should be HP_1, HP_2, HS_1, HS_2
-  //// Assert.assertEquals(new Long(4), data.getCount());
-  ////
-  //// List<JsonSerializable> results = data.getResults();
-  ////
-  //// for (int i = 0; i < results.size(); i++)
-  //// {
-  //// JsonObject result = results.get(i).toJSON().getAsJsonObject();
-  ////
-  //// String code = result.get("code").getAsString();
-  ////
-  //// if (code.equals(USATestData.HS_ONE.getCode()))
-  //// {
-  //// String reportsTo = result.get("usatestdatareportstocode").getAsString();
-  //// Assert.assertEquals(USATestData.HP_ONE.getCode(), reportsTo);
-  //// }
-  //// else if (code.equals(USATestData.HS_TWO.getCode()))
-  //// {
-  //// String reportsTo = result.get("usatestdatareportstocode").getAsString();
-  ////
-  //// Assert.assertEquals(USATestData.HP_TWO.getCode(), reportsTo);
-  //// }
-  ////
-  //// if (includeGeometries != null && includeGeometries.equals(Boolean.TRUE))
-  //// {
-  //// Assert.assertEquals(true, result.has("geometry"));
-  ////
-  //// JsonObject geometries = result.get("geometry").getAsJsonObject();
-  ////
-  //// Geometry jtsGeom = reader.read(geometries.toString());
-  //// Assert.assertTrue(jtsGeom.isValid());
-  //// }
-  //// else
-  //// {
-  //// Assert.assertEquals(false, result.has("geometry"));
-  //// }
-  //// }
-  //// }
-  //// finally
-  //// {
-  //// entry.delete();
-  //// }
-  //// }
-  //// catch (Throwable t)
-  //// {
-  //// t.printStackTrace();
-  //// throw new RuntimeException(t);
-  //// }
-  //// finally
-  //// {
-  //// test.delete();
-  //// }
-  //// });
-  //// }
-  ////
-  //// @Test(expected = InvalidMasterListException.class)
-  //// @Request
-  //// public void testPublishInvalidVersion()
-  //// {
-  //// JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
-  ////
-  //// LabeledPropertyGraphType test = LabeledPropertyGraphType.apply(json);
-  ////
-  //// try
-  //// {
-  //// test.appLock();
-  //// test.setValid(false);
-  //// test.apply();
-  ////
-  //// LabeledPropertyGraphTypeEntry version =
-  // test.getOrCreateEntry(TestDataSet.DEFAULT_OVER_TIME_DATE, null);
-  //// version.delete();
-  //// }
-  //// finally
-  //// {
-  //// test.delete();
-  //// }
-  //// }
-  ////
-  //// // @Test
-  //// // public void testCreatePublishedVersions()
-  //// // {
-  //// // JsonObject typeJson = getJson(USATestData.ORG_NPS.getServerObject(),
-  //// // USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
-  //// //
-  //// // LabeledPropertyGraphTypeService service = new
-  // LabeledPropertyGraphTypeService();
-  //// // JsonObject result =
-  // service.apply(testData.clientRequest.getSessionId(),
-  //// // typeJson);
-  //// // String oid = result.get(ComponentInfo.OID).getAsString();
-  //// //
-  //// // try
-  //// // {
-  //// // service.createPublishedVersions(testData.clientRequest.getSessionId(),
-  //// // oid);
-  //// //
-  //// // final JsonObject json =
-  //// // service.getEntries(testData.clientRequest.getSessionId(), oid);
-  //// //
-  //// // Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
-  //// // }
-  //// // finally
-  //// // {
-  //// // service.remove(testData.clientRequest.getSessionId(), oid);
-  //// // }
-  //// // }
-  ////
-  //// @Test
-  //// public void testCreateFromBadRole()
-  //// {
-  //// JsonObject typeJson = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
-  ////
-  //// TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_PPP_RA };
-  ////
-  //// for (TestUserInfo user : users)
-  //// {
-  //// USATestData.runAsUser(user, (request) -> {
-  ////
-  //// LabeledPropertyGraphTypeService service = new
-  // LabeledPropertyGraphTypeService();
-  ////
-  //// try
-  //// {
-  //// service.apply(request.getSessionId(), typeJson);
-  ////
-  //// Assert.fail("Expected an exception to be thrown.");
-  //// }
-  //// catch (SmartExceptionDTO e)
-  //// {
-  //// // This is expected
-  //// }
-  ////
-  //// });
-  //// }
-  //// }
-  ////
-  //// @Test
-  //// public void testRemoveFromBadRole()
-  //// {
-  //// JsonObject typeJson = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
-  ////
-  //// LabeledPropertyGraphTypeService service = new
-  // LabeledPropertyGraphTypeService();
-  //// JsonObject result = service.apply(testData.clientRequest.getSessionId(),
-  // typeJson);
-  //// String oid = result.get(ComponentInfo.OID).getAsString();
-  ////
-  //// this.waitUntilPublished(oid);
-  ////
-  //// try
-  //// {
-  //// TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_PPP_RA };
-  ////
-  //// for (TestUserInfo user : users)
-  //// {
-  //// USATestData.runAsUser(user, (request) -> {
-  ////
-  //// try
-  //// {
-  //// service.remove(request.getSessionId(), oid);
-  ////
-  //// Assert.fail("Expected an exception to be thrown.");
-  //// }
-  //// catch (SmartExceptionDTO e)
-  //// {
-  //// // This is expected
-  //// }
-  ////
-  //// });
-  //// }
-  //// }
-  //// finally
-  //// {
-  //// service.remove(testData.clientRequest.getSessionId(), oid);
-  //// }
-  //// }
-  ////
-  //// @Request
-  //// private void waitUntilPublished(String oid)
-  //// {
-  //// List<? extends JobHistory> histories = null;
-  //// int waitTime = 0;
-  ////
-  //// while (histories == null)
-  //// {
-  //// if (waitTime > 10000)
-  //// {
-  //// Assert.fail("Job was never scheduled. Unable to find any associated
-  // history.");
-  //// }
-  ////
-  //// QueryFactory qf = new QueryFactory();
-  ////
-  //// PublishLabeledPropertyGraphTypeVersionJobQuery jobQuery = new
-  // PublishLabeledPropertyGraphTypeVersionJobQuery(qf);
-  //// jobQuery.WHERE(jobQuery.getLabeledPropertyGraphType().EQ(oid));
-  ////
-  //// JobHistoryQuery jhq = new JobHistoryQuery(qf);
-  //// jhq.WHERE(jhq.job(jobQuery));
-  ////
-  //// List<? extends JobHistory> potentialHistories =
-  // jhq.getIterator().getAll();
-  ////
-  //// if (potentialHistories.size() > 0)
-  //// {
-  //// histories = potentialHistories;
-  //// }
-  //// else
-  //// {
-  //// try
-  //// {
-  //// Thread.sleep(1000);
-  //// }
-  //// catch (InterruptedException e)
-  //// {
-  //// e.printStackTrace();
-  //// Assert.fail("Interrupted while waiting");
-  //// }
-  ////
-  //// waitTime += 1000;
-  //// }
-  //// }
-  ////
-  //// for (JobHistory history : histories)
-  //// {
-  //// try
-  //// {
-  //// SchedulerTestUtils.waitUntilStatus(history.getOid(),
-  // AllJobStatus.SUCCESS);
-  //// }
-  //// catch (InterruptedException e)
-  //// {
-  //// e.printStackTrace();
-  //// Assert.fail("Interrupted while waiting");
-  //// }
-  //// }
-  //// }
-  ////
-  //// // @Test
-  //// // public void testCreatePublishedVersionsFromOtherOrg()
-  //// // {
-  //// // JsonObject typeJson = getJson(USATestData.ORG_NPS.getServerObject(),
-  //// // USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
-  //// //
-  //// // LabeledPropertyGraphTypeService service = new
-  // LabeledPropertyGraphTypeService();
-  //// // JsonObject result =
-  // service.apply(testData.clientRequest.getSessionId(),
-  //// // typeJson);
-  //// // String oid = result.get(ComponentInfo.OID).getAsString();
-  //// //
-  //// // try
-  //// // {
-  //// // TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_PPP_RA };
-  //// //
-  //// // for (TestUserInfo user : users)
-  //// // {
-  //// // try
-  //// // {
-  //// // USATestData.runAsUser(user, (request, adapter) -> {
-  //// //
-  //// // service.createPublishedVersions(request.getSessionId(), oid);
-  //// //
-  //// // Assert.fail("Able to publish a master type as a user with bad roles");
-  //// // });
-  //// // }
-  //// // catch (SmartExceptionDTO e)
-  //// // {
-  //// // // This is expected
-  //// // }
-  //// // }
-  //// // }
-  //// // finally
-  //// // {
-  //// // service.remove(testData.clientRequest.getSessionId(), oid);
-  //// // }
-  //// //
-  //// // }
-  ////
-  //// //
-  //// // @Test
-  //// // public void testGetTile() throws IOException
-  //// // {
-  //// // JsonObject typeJson = getJson(USATestData.ORG_NPS.getServerObject(),
-  //// // USATestData.HIER_ADMIN, USATestData.STATE,
-  // LabeledPropertyGraphType.PUBLIC, false,
-  //// // USATestData.COUNTRY);
-  //// //
-  //// // LabeledPropertyGraphTypeService service = new
-  // LabeledPropertyGraphTypeService();
-  //// // JsonObject result =
-  // service.apply(testData.clientRequest.getSessionId(),
-  //// // typeJson);
-  //// // String oid = result.get(ComponentInfo.OID).getAsString();
-  //// //
-  //// // try
-  //// // {
-  //// // service.applyPublishedVersions(testData.clientRequest.getSessionId(),
-  //// // oid);
-  //// //
-  //// // final JsonObject object =
-  //// // service.getVersions(testData.clientRequest.getSessionId(), oid,
-  //// // LabeledPropertyGraphTypeVersion.PUBLISHED);
-  //// // final JsonArray json =
-  // object.get(LabeledPropertyGraphType.VERSIONS).getAsJsonArray();
-  //// //
-  //// // Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
-  //// //
-  //// // String versionId =
-  // json.get(0).getAsJsonObject().get("oid").getAsString();
-  //// //
-  //// // JSONObject tileObj = new JSONObject();
-  //// // tileObj.put("oid", versionId);
-  //// // tileObj.put("x", 1);
-  //// // tileObj.put("y", 1);
-  //// // tileObj.put("z", 1);
-  //// //
-  //// // try (InputStream tile =
-  //// // service.getTile(testData.clientRequest.getSessionId(), tileObj))
-  //// // {
-  //// // Assert.assertNotNull(tile);
-  //// //
-  //// // byte[] ctile = getCachedTile(versionId);
-  //// //
-  //// // Assert.assertNotNull(ctile);
-  //// // Assert.assertTrue(ctile.length > 0);
-  //// // }
-  //// // }
-  //// // finally
-  //// // {
-  //// // service.remove(testData.clientRequest.getSessionId(), oid);
-  //// // }
-  //// // }
-  //// //
-  //// // @Request
-  //// // private byte[] getCachedTile(String versionId)
-  //// // {
-  //// // return TileCache.getCachedTile(versionId, 1, 1, 1);
-  //// // }
-  ////
-  //// @Test
-  //// @Request
-  //// public void testGetAnnualFrequencyDates()
-  //// {
-  //// final IncrementalLabeledPropertyGraphType type = new
-  // IncrementalLabeledPropertyGraphType();
-  //// type.addFrequency(ChangeFrequency.ANNUAL);
-  ////
-  //// Calendar calendar =
-  // Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-  //// calendar.clear();
-  //// calendar.set(2012, Calendar.MARCH, 3);
-  ////
-  //// final Date startDate = calendar.getTime();
-  ////
-  //// calendar.set(2017, Calendar.OCTOBER, 21);
-  ////
-  //// final Date endDate = calendar.getTime();
-  ////
-  //// List<Date> dates = type.getFrequencyDates(startDate, endDate);
-  ////
-  //// Assert.assertEquals(6, dates.size());
-  ////
-  //// for (int i = 0; i < dates.size(); i++)
-  //// {
-  //// calendar.clear();
-  //// calendar.set( ( 2012 + i ), Calendar.MARCH, 3);
-  ////
-  //// Assert.assertEquals(calendar.getTime(), dates.get(i));
-  //// }
-  //// }
-  ////
-  //// @Test
-  //// @Request
-  //// public void testGetQuarterFrequencyDates()
-  //// {
-  //// final IncrementalLabeledPropertyGraphType type = new
-  // IncrementalLabeledPropertyGraphType();
-  //// type.addFrequency(ChangeFrequency.QUARTER);
-  ////
-  //// Calendar calendar =
-  // Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-  //// calendar.clear();
-  //// calendar.set(2012, Calendar.MARCH, 3);
-  ////
-  //// final Date startDate = calendar.getTime();
-  ////
-  //// calendar.set(2013, Calendar.JANUARY, 2);
-  ////
-  //// final Date endDate = calendar.getTime();
-  ////
-  //// List<Date> dates = type.getFrequencyDates(startDate, endDate);
-  ////
-  //// Assert.assertEquals(4, dates.size());
-  ////
-  //// for (int i = 0; i < dates.size(); i++)
-  //// {
-  //// calendar.clear();
-  //// calendar.set(2012, Calendar.MARCH, 3);
-  //// calendar.add(Calendar.MONTH, ( 3 * i ));
-  ////
-  //// Assert.assertEquals(calendar.getTime(), dates.get(i));
-  //// }
-  ////
-  //// }
-  ////
-  //// @Test
-  //// @Request
-  //// public void testGetBiannualFrequencyDates()
-  //// {
-  //// final IncrementalLabeledPropertyGraphType type = new
-  // IncrementalLabeledPropertyGraphType();
-  //// type.addFrequency(ChangeFrequency.BIANNUAL);
-  ////
-  //// Calendar calendar =
-  // Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-  //// calendar.clear();
-  //// calendar.set(2012, Calendar.MARCH, 3);
-  ////
-  //// final Date startDate = calendar.getTime();
-  ////
-  //// calendar.set(2013, Calendar.JANUARY, 2);
-  ////
-  //// final Date endDate = calendar.getTime();
-  ////
-  //// List<Date> dates = type.getFrequencyDates(startDate, endDate);
-  ////
-  //// Assert.assertEquals(2, dates.size());
-  ////
-  //// for (int i = 0; i < dates.size(); i++)
-  //// {
-  //// calendar.clear();
-  //// calendar.set(2012, Calendar.MARCH, 3);
-  //// calendar.add(Calendar.MONTH, ( 6 * i ));
-  ////
-  //// Assert.assertEquals(calendar.getTime(), dates.get(i));
-  //// }
-  //// }
-  ////
-  //// @Test
-  //// @Request
-  //// public void testGetMonthFrequencyDates()
-  //// {
-  //// final IncrementalLabeledPropertyGraphType type = new
-  // IncrementalLabeledPropertyGraphType();
-  //// type.addFrequency(ChangeFrequency.MONTHLY);
-  ////
-  //// Calendar calendar =
-  // Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-  //// calendar.clear();
-  //// calendar.set(2012, Calendar.MARCH, 3);
-  ////
-  //// final Date startDate = calendar.getTime();
-  ////
-  //// calendar.set(2013, Calendar.JANUARY, 2);
-  ////
-  //// final Date endDate = calendar.getTime();
-  ////
-  //// List<Date> dates = type.getFrequencyDates(startDate, endDate);
-  ////
-  //// Assert.assertEquals(10, dates.size());
-  ////
-  //// for (int i = 0; i < dates.size(); i++)
-  //// {
-  //// calendar.clear();
-  //// calendar.set(2012, Calendar.MARCH, 3);
-  //// calendar.add(Calendar.MONTH, i);
-  ////
-  //// Assert.assertEquals(calendar.getTime(), dates.get(i));
-  //// }
-  //// }
-  ////
-  //// @Test
-  //// @Request
-  //// public void testMarkAsInvalidByParent()
-  //// {
-  //// JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY,
-  // USATestData.STATE);
-  ////
-  //// LabeledPropertyGraphType mastertype =
-  // LabeledPropertyGraphType.apply(json);
-  ////
-  //// try
-  //// {
-  //// mastertype.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(),
-  // USATestData.STATE.getServerObject());
-  ////
-  //// Assert.assertFalse(mastertype.getValid());
-  //// }
-  //// catch (DuplicateDataDatabaseException e)
-  //// {
-  //// mastertype.delete();
-  //// }
-  //// }
-  ////
-  //// @Test
-  //// @Request
-  //// public void testMarkAsInvalidByDirectType()
-  //// {
-  //// JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY,
-  // USATestData.STATE);
-  ////
-  //// LabeledPropertyGraphType mastertype =
-  // LabeledPropertyGraphType.apply(json);
-  ////
-  //// try
-  //// {
-  //// mastertype.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(),
-  // USATestData.DISTRICT.getServerObject());
-  ////
-  //// Assert.assertFalse(mastertype.getValid());
-  //// }
-  //// catch (DuplicateDataDatabaseException e)
-  //// {
-  //// mastertype.delete();
-  //// }
-  //// }
-  ////
-  //// @Test
-  //// @Request
-  //// public void testFailMarkAsInvalidByType()
-  //// {
-  //// JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY,
-  // USATestData.STATE);
-  ////
-  //// LabeledPropertyGraphType mastertype =
-  // LabeledPropertyGraphType.apply(json);
-  ////
-  //// try
-  //// {
-  //// mastertype.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(),
-  // USATestData.COUNTY.getServerObject());
-  ////
-  //// Assert.assertTrue(mastertype.isValid());
-  //// }
-  //// catch (DuplicateDataDatabaseException e)
-  //// {
-  //// mastertype.delete();
-  //// }
-  //// }
-  ////
-  //// @Test
-  //// @Request
-  //// public void testFailMarkAsInvalidByHierarchy()
-  //// {
-  //// JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY,
-  // USATestData.STATE);
-  ////
-  //// LabeledPropertyGraphType mastertype =
-  // LabeledPropertyGraphType.apply(json);
-  ////
-  //// try
-  //// {
-  //// mastertype.markAsInvalid(USATestData.HIER_SCHOOL.getServerObject(),
-  // USATestData.DISTRICT.getServerObject());
-  ////
-  //// Assert.assertTrue(mastertype.isValid());
-  //// }
-  //// catch (DuplicateDataDatabaseException e)
-  //// {
-  //// mastertype.delete();
-  //// }
-  //// }
-  ////
-  //// @Test
-  //// @Request
-  //// public void testMarkAllAsInvalid()
-  //// {
-  //// JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.STATE);
-  ////
-  //// LabeledPropertyGraphType mastertype =
-  // LabeledPropertyGraphType.apply(json);
-  ////
-  //// try
-  //// {
-  //// LabeledPropertyGraphType.markAllAsInvalid(USATestData.HIER_ADMIN.getServerObject(),
-  // USATestData.STATE.getServerObject());
-  ////
-  //// LabeledPropertyGraphType test =
-  // LabeledPropertyGraphType.get(mastertype.getOid());
-  ////
-  //// Assert.assertFalse(test.getValid());
-  //// }
-  //// catch (DuplicateDataDatabaseException e)
-  //// {
-  //// mastertype.delete();
-  //// }
-  //// }
-  //
+  @Test
   @Request
-  public static JsonObject getJson(TestHierarchyTypeInfo[] ht, TestGeoObjectTypeInfo[] types)
+  public void testPublish()
+  {
+    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.COUNTY });
+
+    LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
+
+    try
+    {
+      List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
+
+      Assert.assertEquals(1, entries.size());
+
+      LabeledPropertyGraphTypeEntry entry = entries.get(0);
+
+      List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
+
+      Assert.assertEquals(1, versions.size());
+
+      LabeledPropertyGraphTypeVersion version = versions.get(0);
+      version.publishNoAuth();
+    }
+    finally
+    {
+      test1.delete();
+    }
+  }
+
+
+  @Request
+  public static JsonObject getJson(TestGeoObjectInfo root, TestHierarchyTypeInfo[] ht, TestGeoObjectTypeInfo[] types)
   {
     LabeledPropertyGraphTypeBuilder builder = new LabeledPropertyGraphTypeBuilder();
     builder.setHts(ht);
     builder.setTypes(types);
+    builder.setConfiguration(new TreeStrategyConfiguration(root.getCode(), root.getGeoObjectType().getCode()));
 
     return builder.buildJSON();
   }

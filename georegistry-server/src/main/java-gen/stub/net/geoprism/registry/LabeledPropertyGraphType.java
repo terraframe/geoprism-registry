@@ -34,6 +34,7 @@ import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.Pair;
@@ -46,6 +47,8 @@ import com.runwaysdk.session.Session;
 
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.graph.StrategyConfiguration;
+import net.geoprism.registry.graph.TreeStrategyConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.LocaleSerializer;
@@ -53,45 +56,17 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeBase
 {
-  private static final long  serialVersionUID    = 190790165;
+  private static final long  serialVersionUID = 190790165;
 
-  public static final String TYPE_CODE           = "typeCode";
+  public static final String GRAPH_TYPE       = "graphType";
 
-  public static final String ATTRIBUTES          = "attributes";
+  public static final String SINGLE           = "single";
 
-  public static final String NAME                = "name";
+  public static final String INTERVAL         = "interval";
 
-  public static final String LABEL               = "label";
+  public static final String INCREMENTAL      = "incremental";
 
-  public static final String VALUE               = "value";
-
-  public static final String TYPE                = "type";
-
-  public static final String BASE                = "base";
-
-  public static final String DEPENDENCY          = "dependency";
-
-  public static final String DEFAULT_LOCALE      = "DefaultLocale";
-
-  public static final String VERSIONS            = "versions";
-
-  public static final String PUBLIC              = "PUBLIC";
-
-  public static final String PRIVATE             = "PRIVATE";
-
-  public static final String LIST_TYPE           = "listType";
-
-  public static final String LIST_METADATA       = "listMetadata";
-
-  public static final String GEOSPATIAL_METADATA = "geospatialMetadata";
-
-  public static final String SINGLE              = "single";
-
-  public static final String INTERVAL            = "interval";
-
-  public static final String INCREMENTAL         = "incremental";
-
-  public static final String FILTER              = "filter";
+  public static final String TREE             = "TREE";
 
   public LabeledPropertyGraphType()
   {
@@ -101,6 +76,21 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
   protected abstract JsonObject formatVersionLabel(LabeledVersion version);
 
   public abstract void createEntries(JsonObject metadata);
+
+  public void setStrategyConfiguration(StrategyConfiguration configuration)
+  {
+    super.setStrategyConfiguration(configuration.toJson().toString());
+  }
+
+  public StrategyConfiguration toStrategyConfiguration()
+  {
+    if (this.getStrategyType().equals(TREE))
+    {
+      return TreeStrategyConfiguration.parse(this.getStrategyConfiguration());
+    }
+
+    throw new UnsupportedOperationException();
+  }
 
   @Override
   @Transaction
@@ -208,21 +198,21 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
     return new JsonArray();
   }
 
+  public JsonElement getStrategyConfigurationAsJson()
+  {
+    if (this.getStrategyConfiguration() != null && this.getStrategyConfiguration().length() > 0)
+    {
+      return JsonParser.parseString(this.getStrategyConfiguration());
+    }
+
+    return new JsonObject();
+  }
+
   public JsonArray getHierarchiesAsJson()
   {
     if (this.getHierarchies() != null && this.getHierarchies().length() > 0)
     {
       return JsonParser.parseString(this.getHierarchies()).getAsJsonArray();
-    }
-
-    return new JsonArray();
-  }
-
-  public JsonArray getSubtypeHierarchiesAsJson()
-  {
-    if (this.getSubtypeHierarchies() != null && this.getSubtypeHierarchies().length() > 0)
-    {
-      return JsonParser.parseString(this.getSubtypeHierarchies()).getAsJsonArray();
     }
 
     return new JsonArray();
@@ -281,17 +271,8 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
     this.setTypes(object.get(LabeledPropertyGraphType.TYPES).getAsJsonArray().toString());
     this.setHierarchies(object.get(LabeledPropertyGraphType.HIERARCHIES).getAsJsonArray().toString());
 
-    if (object.has(LabeledPropertyGraphType.SUBTYPEHIERARCHIES) && !object.get(LabeledPropertyGraphType.SUBTYPEHIERARCHIES).isJsonNull())
-    {
-      this.setSubtypeHierarchies(object.get(LabeledPropertyGraphType.SUBTYPEHIERARCHIES).getAsJsonArray().toString());
-    }
-
-    // if (object.has(LabeledPropertyGraphType.FILTER) &&
-    // !object.get(LabeledPropertyGraphType.FILTER).isJsonNull())
-    // {
-    // this.setFilterJson(object.get(LabeledPropertyGraphType.FILTER).getAsJsonArray().toString());
-    // }
-
+    this.setStrategyType(object.get(LabeledPropertyGraphType.STRATEGYTYPE).getAsString());
+    this.setStrategyConfiguration(object.get(LabeledPropertyGraphType.STRATEGYCONFIGURATION).toString());
   }
 
   public final JsonObject toJSON()
@@ -316,7 +297,8 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
     object.addProperty(LabeledPropertyGraphType.CODE, this.getCode());
     object.add(LabeledPropertyGraphType.TYPES, this.getTypesAsJson());
     object.add(LabeledPropertyGraphType.HIERARCHIES, this.getHierarchiesAsJson());
-    object.add(LabeledPropertyGraphType.SUBTYPEHIERARCHIES, this.getSubtypeHierarchiesAsJson());
+    object.addProperty(LabeledPropertyGraphType.STRATEGYTYPE, this.getStrategyType());
+    object.add(LabeledPropertyGraphType.STRATEGYCONFIGURATION, this.getStrategyConfigurationAsJson());
 
     // if (this.getFilterJson() != null && this.getFilterJson().length() > 0)
     // {
@@ -654,15 +636,15 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
 
       list = LabeledPropertyGraphType.lock(oid);
     }
-    else if (object.get(LabeledPropertyGraphType.LIST_TYPE).getAsString().equals(LabeledPropertyGraphType.SINGLE))
+    else if (object.get(LabeledPropertyGraphType.GRAPH_TYPE).getAsString().equals(LabeledPropertyGraphType.SINGLE))
     {
       list = new SingleLabeledPropertyGraphType();
     }
-    else if (object.get(LabeledPropertyGraphType.LIST_TYPE).getAsString().equals(LabeledPropertyGraphType.INCREMENTAL))
+    else if (object.get(LabeledPropertyGraphType.GRAPH_TYPE).getAsString().equals(LabeledPropertyGraphType.INCREMENTAL))
     {
       list = new IncrementalLabeledPropertyGraphType();
     }
-    else if (object.get(LabeledPropertyGraphType.LIST_TYPE).getAsString().equals(LabeledPropertyGraphType.INTERVAL))
+    else if (object.get(LabeledPropertyGraphType.GRAPH_TYPE).getAsString().equals(LabeledPropertyGraphType.INTERVAL))
     {
       list = new IntervalLabeledPropertyGraphType();
     }

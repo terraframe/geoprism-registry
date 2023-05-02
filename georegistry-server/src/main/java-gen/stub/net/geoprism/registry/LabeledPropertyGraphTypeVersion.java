@@ -19,14 +19,9 @@
 package net.geoprism.registry;
 
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,11 +40,11 @@ import com.runwaysdk.constants.graph.MdVertexInfo;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
-import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
@@ -61,7 +56,8 @@ import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.action.GraphHasEdge;
 import net.geoprism.registry.action.GraphHasVertex;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.graph.StrategyPublisher;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.progress.Progress;
@@ -246,29 +242,41 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     // }
     //
 
-    List<MdVertex> mdVertices = getVertices();
-    List<MdEdge> mdEdges = this.getEdges();
+    this.getEdges().forEach(e -> LabeledPropertyGraphEdge.get(e.getOid()).delete());
+    this.getVertices().forEach(v -> LabeledPropertyGraphVertex.get(v.getOid()).delete());
 
     super.delete();
 
-    mdEdges.forEach(e -> MdEdgeDAO.get(e.getOid()).getBusinessDAO().delete());
-    mdVertices.forEach(v -> MdVertexDAO.get(v.getOid()).getBusinessDAO().delete());
   }
 
-  public List<MdVertex> getVertices()
+  public List<LabeledPropertyGraphVertex> getVertices()
   {
     try (OIterator<? extends Business> it = this.getChildren(GraphHasVertex.CLASS))
     {
-      return it.getAll().stream().map(b -> (MdVertex) b).collect(Collectors.toList());
+      return it.getAll().stream().map(b -> (LabeledPropertyGraphVertex) b).collect(Collectors.toList());
     }
   }
 
-  public List<MdEdge> getEdges()
+  public List<LabeledPropertyGraphEdge> getEdges()
   {
     try (OIterator<? extends Business> it = this.getChildren(GraphHasEdge.CLASS))
     {
-      return it.getAll().stream().map(b -> (MdEdge) b).collect(Collectors.toList());
+      return it.getAll().stream().map(b -> (LabeledPropertyGraphEdge) b).collect(Collectors.toList());
     }
+  }
+
+  public LabeledPropertyGraphVertex getMdVertexForType(ServerGeoObjectType type)
+  {
+    return this.getVertices().stream().filter(mdVertex -> mdVertex.getGeoObjectMdVertexOid().equals(type.getMdVertex().getOid())).findFirst().orElseThrow(() -> {
+      throw new ProgrammingErrorException("Unable to find Labeled Property Graph Vertex definition for the type [" + type.getCode() + "]");
+    });
+  }
+
+  public LabeledPropertyGraphEdge getMdEdgeForType(ServerHierarchyType type)
+  {
+    return this.getEdges().stream().filter(mdEdge -> mdEdge.getGeoObjectMdEdgeOid().endsWith(type.getMdEdge().getOid())).findFirst().orElseThrow(() -> {
+      throw new ProgrammingErrorException("Unable to find Labeled Property Graph Edge definition for the type [" + type.getCode() + "]");
+    });
   }
 
   @Transaction
@@ -281,331 +289,12 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
   @Transaction
   public String publishNoAuth()
   {
-    // this.lock();
-    //
-    // try
-    // {
-    // LabeledPropertyGraphType masterlist = this.getGraphType();
-    //
-    // if (!masterlist.isValid())
-    // {
-    // throw new InvalidMasterListException();
-    // }
-    //
-    // // Delete tile cache
-    // MdBusinessDAO mdBusiness =
-    // MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
-    // mdBusiness.deleteAllRecords();
-    //
-    // MdAttributeConcreteDAO status = (MdAttributeConcreteDAO)
-    // mdBusiness.definesAttribute("status");
-    // if (status != null)
-    // {
-    // status.delete();
-    // }
-    //
-    // MdAttributeConcreteDAO statusDefaultLocale = (MdAttributeConcreteDAO)
-    // mdBusiness.definesAttribute("statusDefaultLocale");
-    // if (statusDefaultLocale != null)
-    // {
-    // statusDefaultLocale.delete();
-    // }
-    //
-    // ServerGeoObjectType type =
-    // ServerGeoObjectType.get(masterlist.getUniversal());
-    //
-    // Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
-    //
-    // // Add the type ancestor fields
-    // Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap =
-    // masterlist.getAncestorMap(type);
-    // Collection<AttributeType> attributes = type.getAttributeMap().values();
-    // Set<ServerHierarchyType> hierarchiesOfSubTypes =
-    // type.getHierarchiesOfSubTypes();
-    //
-    // // ServerGeoObjectService service = new ServerGeoObjectService();
-    // // ServerGeoObjectQuery query = service.createQuery(type,
-    // // this.getPeriod());
-    //
-    // Date forDate = this.getForDate();
-    //
-    // BasicVertexRestriction restriction = masterlist.getRestriction(type,
-    // forDate);
-    // BasicVertexQuery query = new BasicVertexQuery(type, forDate);
-    // query.setRestriction(restriction);
-    // Long count = query.getCount();
-    //
-    // if (count == null)
-    // {
-    // count = 0L;
-    // }
-    //
-    // long current = 0;
-    //
-    // try
-    // {
-    // ProgressService.put(this.getOid(), new Progress(0L, count, ""));
-    // int pageSize = 1000;
-    //
-    // long skip = 0;
-    //
-    // while (skip < count)
-    // {
-    // query = new BasicVertexQuery(type, forDate);
-    // query.setRestriction(restriction);
-    // query.setLimit(pageSize);
-    // query.setSkip(skip);
-    //
-    // // List<GeoObjectStatus> validStats = new
-    // // ArrayList<GeoObjectStatus>();
-    // // validStats.add(GeoObjectStatus.ACTIVE);
-    // // validStats.add(GeoObjectStatus.INACTIVE);
-    // // validStats.add(GeoObjectStatus.PENDING);
-    // // validStats.add(GeoObjectStatus.NEW);
-    // // query.setRestriction(new ServerStatusRestriction(validStats,
-    // // this.getForDate(), JoinOp.OR));
-    //
-    // List<ServerGeoObjectIF> results = query.getResults();
-    //
-    // for (ServerGeoObjectIF result : results)
-    // {
-    // if (result.getExists(forDate))
-    // {
-    // Business business = new Business(mdBusiness.definesType());
-    //
-    // publish(masterlist, type, result, business, attributes, ancestorMap,
-    // hierarchiesOfSubTypes, locales);
-    //
-    // Thread.yield();
-    //
-    // ProgressService.put(this.getOid(), new Progress(current++, count, ""));
-    // }
-    // }
-    //
-    // skip += pageSize;
-    // }
-    //
-    // this.setPublishDate(new Date());
-    // this.apply();
-    //
-    // return this.toJSON(true).toString();
-    // }
-    // finally
-    // {
-    // ProgressService.remove(this.getOid());
-    // }
-    // }
-    // finally
-    // {
-    // this.unlock();
-    // }
+    LabeledPropertyGraphType type = this.getGraphType();
+    StrategyPublisher publisher = type.toStrategyConfiguration().getPublisher();
+
+    publisher.publish(this);
 
     return null;
-  }
-
-  private void publish(LabeledPropertyGraphType listType, ServerGeoObjectType type, ServerGeoObjectIF go, Business business, Collection<AttributeType> attributes, Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap, Set<ServerHierarchyType> hierarchiesOfSubTypes, Collection<Locale> locales)
-  {
-    // VertexServerGeoObject vertexGo = (VertexServerGeoObject) go;
-    //
-    // business.setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME,
-    // go.getGeometry());
-    //
-    // for (AttributeType attribute : attributes)
-    // {
-    // String name = attribute.getName();
-    //
-    // business.setValue(ORIGINAL_OID, go.getRunwayId());
-    //
-    // if (this.isValid(attribute))
-    // {
-    // Object value = go.getValue(name, this.getForDate());
-    //
-    // if (value != null)
-    // {
-    // if (value instanceof LocalizedValue && ( (LocalizedValue) value
-    // ).isNull())
-    // {
-    // continue;
-    // }
-    //
-    // if (attribute instanceof AttributeTermType)
-    // {
-    // Classifier classifier = (Classifier) value;
-    //
-    // Term term = ( (AttributeTermType) attribute
-    // ).getTermByCode(classifier.getClassifierId()).get();
-    // LocalizedValue label = term.getLabel();
-    //
-    // this.setValue(business, name, term.getCode());
-    // this.setValue(business, name + DEFAULT_LOCALE,
-    // label.getValue(LocalizedValue.DEFAULT_LOCALE));
-    //
-    // for (Locale locale : locales)
-    // {
-    // this.setValue(business, name + locale.toString(),
-    // label.getValue(locale));
-    // }
-    // }
-    // else if (attribute instanceof AttributeClassificationType)
-    // {
-    // String classificationTypeCode = ( (AttributeClassificationType) attribute
-    // ).getClassificationType();
-    // ClassificationType classificationType =
-    // ClassificationType.getByCode(classificationTypeCode);
-    // Classification classification =
-    // Classification.getByOid(classificationType, (String) value);
-    //
-    // LocalizedValue label = classification.getDisplayLabel();
-    //
-    // this.setValue(business, name, classification.getCode());
-    // this.setValue(business, name + DEFAULT_LOCALE,
-    // label.getValue(LocalizedValue.DEFAULT_LOCALE));
-    //
-    // for (Locale locale : locales)
-    // {
-    // this.setValue(business, name + locale.toString(),
-    // label.getValue(locale));
-    // }
-    // }
-    // else if (attribute instanceof AttributeLocalType)
-    // {
-    // LocalizedValue label = (LocalizedValue) value;
-    //
-    // String defaultLocale = label.getValue(LocalizedValue.DEFAULT_LOCALE);
-    //
-    // if (defaultLocale == null)
-    // {
-    // defaultLocale = "";
-    // }
-    //
-    // this.setValue(business, name + DEFAULT_LOCALE, defaultLocale);
-    //
-    // for (Locale locale : locales)
-    // {
-    // String localeValue = label.getValue(locale);
-    //
-    // if (localeValue == null)
-    // {
-    // localeValue = "";
-    // }
-    //
-    // this.setValue(business, name + locale.toString(), localeValue);
-    // }
-    // }
-    // else
-    // {
-    // this.setValue(business, name, value);
-    // }
-    // }
-    // }
-    // }
-    //
-    // Set<Entry<ServerHierarchyType, List<ServerGeoObjectType>>> entries =
-    // ancestorMap.entrySet();
-    //
-    // for (Entry<ServerHierarchyType, List<ServerGeoObjectType>> entry :
-    // entries)
-    // {
-    // ServerHierarchyType hierarchy = entry.getKey();
-    //
-    // Map<String, LocationInfo> map = vertexGo.getAncestorMap(hierarchy,
-    // entry.getValue());
-    //
-    // Set<Entry<String, LocationInfo>> locations = map.entrySet();
-    //
-    // for (Entry<String, LocationInfo> location : locations)
-    // {
-    // String pCode = location.getKey();
-    // LocationInfo vObject = location.getValue();
-    //
-    // if (vObject != null)
-    // {
-    // String attributeName = hierarchy.getCode().toLowerCase() +
-    // pCode.toLowerCase();
-    //
-    // this.setValue(business, attributeName, vObject.getCode());
-    // this.setValue(business, attributeName + DEFAULT_LOCALE,
-    // vObject.getLabel());
-    //
-    // for (Locale locale : locales)
-    // {
-    // this.setValue(business, attributeName + locale.toString(),
-    // vObject.getLabel(locale));
-    // }
-    // }
-    // }
-    // }
-    //
-    // for (ServerHierarchyType hierarchy : hierarchiesOfSubTypes)
-    // {
-    // ServerParentTreeNode node = go.getParentsForHierarchy(hierarchy, false,
-    // this.getForDate());
-    // List<ServerParentTreeNode> parents = node.getParents();
-    //
-    // if (parents.size() > 0)
-    // {
-    // ServerParentTreeNode parent = parents.get(0);
-    //
-    // String attributeName = hierarchy.getCode().toLowerCase();
-    // ServerGeoObjectIF geoObject = parent.getGeoObject();
-    // LocalizedValue label = geoObject.getDisplayLabel();
-    //
-    // this.setValue(business, attributeName, geoObject.getCode());
-    // this.setValue(business, attributeName + DEFAULT_LOCALE,
-    // label.getValue(DEFAULT_LOCALE));
-    //
-    // for (Locale locale : locales)
-    // {
-    // this.setValue(business, attributeName + locale.toString(),
-    // label.getValue(locale));
-    // }
-    // }
-    // }
-    //
-    // if (type.getGeometryType().equals(GeometryType.MULTIPOINT) ||
-    // type.getGeometryType().equals(GeometryType.POINT) &&
-    // listType.getIncludeLatLong())
-    // {
-    // Geometry geom = vertexGo.getGeometry();
-    //
-    // if (geom instanceof MultiPoint)
-    // {
-    // MultiPoint mp = (MultiPoint) geom;
-    //
-    // Coordinate[] coords = mp.getCoordinates();
-    //
-    // Coordinate firstCoord = coords[0];
-    //
-    // this.setValue(business, "latitude", String.valueOf(firstCoord.y));
-    // this.setValue(business, "longitude", String.valueOf(firstCoord.x));
-    // }
-    // else if (geom instanceof Point)
-    // {
-    // Point point = (Point) geom;
-    //
-    // Coordinate firstCoord = point.getCoordinate();
-    //
-    // this.setValue(business, "latitude", String.valueOf(firstCoord.y));
-    // this.setValue(business, "longitude", String.valueOf(firstCoord.x));
-    // }
-    // }
-    //
-    // business.apply();
-  }
-
-  private void setValue(Business business, String name, Object value)
-  {
-    // if (business.hasAttribute(name))
-    // {
-    // if (value != null)
-    // {
-    // business.setValue(name, value);
-    // }
-    // else
-    // {
-    // business.setValue(name, "");
-    // }
-    // }
   }
 
   public JsonObject toJSON(boolean includeAttribute)
@@ -670,7 +359,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     rootMdVertexDAO.setValue(MdVertexInfo.ABSTRACT, MdAttributeBooleanInfo.TRUE);
     rootMdVertexDAO.apply();
 
-    version.addChild(rootMdVertexDAO.getOid(), GraphHasVertex.CLASS).apply();
+    version.addChild(rootMdVertexDAO.getOid(), MdGeoVertexDAO.getMdGeoVertexDAO(GeoVertex.CLASS));
 
     LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(rootMdVertexDAO);
 
@@ -690,7 +379,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
 
       MdVertex mdVertex = version.createTable(type, rootMdVertexDAO);
 
-      version.addChild(mdVertex, GraphHasVertex.CLASS).apply();
+      version.addChild(mdVertex.getOid(), type.getMdVertex());
 
       LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(mdVertex);
     }
@@ -711,7 +400,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
 
       MdEdge mdEdge = version.createEdge(hierarchy, rootMdVertexDAO);
 
-      version.addChild(mdEdge, GraphHasEdge.CLASS).apply();
+      version.addChild(mdEdge, hierarchy.getMdEdgeDAO());
 
       LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(mdEdge);
     }
@@ -719,6 +408,32 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     return version;
   }
 
+  private GraphHasVertex addChild(String graphVertexOid, MdVertexDAOIF geoObjectVertex)
+  {
+    LabeledPropertyGraphVertex vertex = new LabeledPropertyGraphVertex();
+    vertex.setGraphMdVertexId(graphVertexOid);
+    vertex.setGeoObjectMdVertexId(geoObjectVertex.getOid());
+    vertex.apply();
+    
+    GraphHasVertex relationship = this.addVertices(vertex);
+    relationship.apply();
+    
+    return relationship;
+  }
+
+  private GraphHasEdge addChild(MdEdge graphEdge, MdEdgeDAOIF geoObjectEdge)
+  {
+    LabeledPropertyGraphEdge edge = new LabeledPropertyGraphEdge();
+    edge.setGraphMdEdgeId(graphEdge.getOid());
+    edge.setGeoObjectMdEdgeId(geoObjectEdge.getOid());
+    edge.apply();
+    
+    GraphHasEdge relationship = this.addEdges(edge);
+    relationship.apply();
+    
+    return relationship;
+  }
+  
   private static void assignDefaultRolePermissions(ComponentIF component)
   {
     RoleDAO adminRole = RoleDAO.findRole(RoleConstants.ADMIN).getBusinessDAO();

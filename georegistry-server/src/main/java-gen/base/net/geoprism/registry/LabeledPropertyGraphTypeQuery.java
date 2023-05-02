@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 81349202)
+@com.runwaysdk.business.ClassSignature(hash = -488645797)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -335,21 +335,38 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphType.SITEMASTER, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies()
+  public com.runwaysdk.query.SelectableChar getStrategyConfiguration()
   {
-    return getSubtypeHierarchies(null);
+    return getStrategyConfiguration(null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias)
+  public com.runwaysdk.query.SelectableChar getStrategyConfiguration(String alias)
   {
-    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphType.SUBTYPEHIERARCHIES, alias, null);
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphType.STRATEGYCONFIGURATION, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableChar getStrategyConfiguration(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphType.SUBTYPEHIERARCHIES, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphType.STRATEGYCONFIGURATION, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getStrategyType()
+  {
+    return getStrategyType(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getStrategyType(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphType.STRATEGYTYPE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getStrategyType(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphType.STRATEGYTYPE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getType()
@@ -530,9 +547,12 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
     public com.runwaysdk.query.SelectableChar getSiteMaster();
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias);
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableChar getSubtypeHierarchies();
-    public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias);
-    public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getStrategyConfiguration();
+    public com.runwaysdk.query.SelectableChar getStrategyConfiguration(String alias);
+    public com.runwaysdk.query.SelectableChar getStrategyConfiguration(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getStrategyType();
+    public com.runwaysdk.query.SelectableChar getStrategyType(String alias);
+    public com.runwaysdk.query.SelectableChar getStrategyType(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
@@ -832,21 +852,38 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.SITEMASTER, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies()
+  public com.runwaysdk.query.SelectableChar getStrategyConfiguration()
   {
-    return getSubtypeHierarchies(null);
+    return getStrategyConfiguration(null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias)
+  public com.runwaysdk.query.SelectableChar getStrategyConfiguration(String alias)
   {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.SUBTYPEHIERARCHIES, alias, null);
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.STRATEGYCONFIGURATION, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableChar getStrategyConfiguration(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.SUBTYPEHIERARCHIES, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.STRATEGYCONFIGURATION, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getStrategyType()
+  {
+    return getStrategyType(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getStrategyType(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.STRATEGYTYPE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getStrategyType(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.STRATEGYTYPE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getType()
@@ -1004,9 +1041,12 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
     public com.runwaysdk.query.SelectableChar getSiteMaster();
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias);
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableChar getSubtypeHierarchies();
-    public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias);
-    public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getStrategyConfiguration();
+    public com.runwaysdk.query.SelectableChar getStrategyConfiguration(String alias);
+    public com.runwaysdk.query.SelectableChar getStrategyConfiguration(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getStrategyType();
+    public com.runwaysdk.query.SelectableChar getStrategyType(String alias);
+    public com.runwaysdk.query.SelectableChar getStrategyType(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
@@ -1355,21 +1395,38 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.SITEMASTER, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies()
+  public com.runwaysdk.query.SelectableChar getStrategyConfiguration()
   {
-    return getSubtypeHierarchies(null);
+    return getStrategyConfiguration(null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias)
+  public com.runwaysdk.query.SelectableChar getStrategyConfiguration(String alias)
   {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.SUBTYPEHIERARCHIES, alias, null);
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.STRATEGYCONFIGURATION, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableChar getStrategyConfiguration(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.SUBTYPEHIERARCHIES, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.STRATEGYCONFIGURATION, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getStrategyType()
+  {
+    return getStrategyType(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getStrategyType(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.STRATEGYTYPE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getStrategyType(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.STRATEGYTYPE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getType()

@@ -1,6 +1,6 @@
 package net.geoprism.registry.action;
 
-@com.runwaysdk.business.ClassSignature(hash = -2090792795)
+@com.runwaysdk.business.ClassSignature(hash = -736214224)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -39,21 +39,21 @@ public  class GraphHasVertexQuery extends com.runwaysdk.query.GeneratedRelations
   }
   /**
    * Restricts the query to include objects that are children in this relationship.
-   * @param mdVertexQuery
+   * @param labeledPropertyGraphVertexQuery
    * @return Condition restricting objects that are children in this relationship.
    */
-   public com.runwaysdk.query.Condition hasChild(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery)
+   public com.runwaysdk.query.Condition hasChild(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery)
    {
-     return this.getRelationshipQuery().hasChild(mdVertexQuery);
+     return this.getRelationshipQuery().hasChild(labeledPropertyGraphVertexQuery);
    }
   /**
    * Restricts the query to include objects that are children in this relationship.
-   * @param mdVertexQuery
+   * @param labeledPropertyGraphVertexQuery
    * @return Condition restricting objects that are children in this relationship.
    */
-   public com.runwaysdk.query.Condition doesNotHaveChild(com.runwaysdk.system.metadata.MdVertexQuery mdVertexQuery)
+   public com.runwaysdk.query.Condition doesNotHaveChild(net.geoprism.registry.LabeledPropertyGraphVertexQuery labeledPropertyGraphVertexQuery)
    {
-     return this.getRelationshipQuery().doesNotHaveChild(mdVertexQuery);
+     return this.getRelationshipQuery().doesNotHaveChild(labeledPropertyGraphVertexQuery);
    }
   /**
    * Restricts the query to include objects that are parents in this relationship.

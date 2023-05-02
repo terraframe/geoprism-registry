@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 2129735835)
+@com.runwaysdk.business.ClassSignature(hash = 1875119716)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -30,12 +30,13 @@ public abstract class LabeledPropertyGraphTypeBase extends com.runwaysdk.busines
   public final static java.lang.String OWNER = "owner";
   public final static java.lang.String SEQ = "seq";
   public final static java.lang.String SITEMASTER = "siteMaster";
-  public final static java.lang.String SUBTYPEHIERARCHIES = "subtypeHierarchies";
+  public final static java.lang.String STRATEGYCONFIGURATION = "strategyConfiguration";
+  public final static java.lang.String STRATEGYTYPE = "strategyType";
   public final static java.lang.String TYPE = "type";
   public final static java.lang.String TYPES = "types";
   public final static java.lang.String VALID = "valid";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 2129735835;
+  private static final long serialVersionUID = 1875119716;
   
   public LabeledPropertyGraphTypeBase()
   {
@@ -428,31 +429,59 @@ public abstract class LabeledPropertyGraphTypeBase extends com.runwaysdk.busines
     return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(SITEMASTER);
   }
   
-  public String getSubtypeHierarchies()
+  public String getStrategyConfiguration()
   {
-    return getValue(SUBTYPEHIERARCHIES);
+    return getValue(STRATEGYCONFIGURATION);
   }
   
-  public void validateSubtypeHierarchies()
+  public void validateStrategyConfiguration()
   {
-    this.validateAttribute(SUBTYPEHIERARCHIES);
+    this.validateAttribute(STRATEGYCONFIGURATION);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getSubtypeHierarchiesMd()
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getStrategyConfigurationMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.LabeledPropertyGraphType.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(SUBTYPEHIERARCHIES);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(STRATEGYCONFIGURATION);
   }
   
-  public void setSubtypeHierarchies(String value)
+  public void setStrategyConfiguration(String value)
   {
     if(value == null)
     {
-      setValue(SUBTYPEHIERARCHIES, "");
+      setValue(STRATEGYCONFIGURATION, "");
     }
     else
     {
-      setValue(SUBTYPEHIERARCHIES, value);
+      setValue(STRATEGYCONFIGURATION, value);
+    }
+  }
+  
+  public String getStrategyType()
+  {
+    return getValue(STRATEGYTYPE);
+  }
+  
+  public void validateStrategyType()
+  {
+    this.validateAttribute(STRATEGYTYPE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF getStrategyTypeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.LabeledPropertyGraphType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(STRATEGYTYPE);
+  }
+  
+  public void setStrategyType(String value)
+  {
+    if(value == null)
+    {
+      setValue(STRATEGYTYPE, "");
+    }
+    else
+    {
+      setValue(STRATEGYTYPE, value);
     }
   }
   

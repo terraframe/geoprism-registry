@@ -30,7 +30,7 @@ public class IntervalLabeledPropertyGraphType extends IntervalLabeledPropertyGra
   public JsonObject toJSON(boolean includeEntries)
   {
     JsonObject object = super.toJSON(includeEntries);
-    object.addProperty(LIST_TYPE, INTERVAL);
+    object.addProperty(GRAPH_TYPE, INTERVAL);
     object.add(INTERVALJSON, JsonParser.parseString(this.getIntervalJson()));
 
     return object;

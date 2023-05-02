@@ -1,6 +1,6 @@
 package net.geoprism.registry.action;
 
-@com.runwaysdk.business.ClassSignature(hash = 507382935)
+@com.runwaysdk.business.ClassSignature(hash = 425186622)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -39,21 +39,21 @@ public  class GraphHasEdgeQuery extends com.runwaysdk.query.GeneratedRelationshi
   }
   /**
    * Restricts the query to include objects that are children in this relationship.
-   * @param mdEdgeQuery
+   * @param labeledPropertyGraphEdgeQuery
    * @return Condition restricting objects that are children in this relationship.
    */
-   public com.runwaysdk.query.Condition hasChild(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery)
+   public com.runwaysdk.query.Condition hasChild(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery)
    {
-     return this.getRelationshipQuery().hasChild(mdEdgeQuery);
+     return this.getRelationshipQuery().hasChild(labeledPropertyGraphEdgeQuery);
    }
   /**
    * Restricts the query to include objects that are children in this relationship.
-   * @param mdEdgeQuery
+   * @param labeledPropertyGraphEdgeQuery
    * @return Condition restricting objects that are children in this relationship.
    */
-   public com.runwaysdk.query.Condition doesNotHaveChild(com.runwaysdk.system.metadata.MdEdgeQuery mdEdgeQuery)
+   public com.runwaysdk.query.Condition doesNotHaveChild(net.geoprism.registry.LabeledPropertyGraphEdgeQuery labeledPropertyGraphEdgeQuery)
    {
-     return this.getRelationshipQuery().doesNotHaveChild(mdEdgeQuery);
+     return this.getRelationshipQuery().doesNotHaveChild(labeledPropertyGraphEdgeQuery);
    }
   /**
    * Restricts the query to include objects that are parents in this relationship.

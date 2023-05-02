@@ -1,6 +1,6 @@
 package net.geoprism.registry.action;
 
-@com.runwaysdk.business.ClassSignature(hash = -1443017284)
+@com.runwaysdk.business.ClassSignature(hash = 1183496633)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -24,7 +24,7 @@ public abstract class GraphHasVertexBase extends com.runwaysdk.business.Relation
   public final static java.lang.String SITEMASTER = "siteMaster";
   public final static java.lang.String TYPE = "type";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1443017284;
+  private static final long serialVersionUID = 1183496633;
   
   public GraphHasVertexBase(String parentOid, String childOid)
   {
@@ -353,9 +353,9 @@ public abstract class GraphHasVertexBase extends com.runwaysdk.business.Relation
     return (net.geoprism.registry.LabeledPropertyGraphTypeVersion) super.getParent();
   }
   
-  public com.runwaysdk.system.metadata.MdVertex getChild()
+  public net.geoprism.registry.LabeledPropertyGraphVertex getChild()
   {
-    return (com.runwaysdk.system.metadata.MdVertex) super.getChild();
+    return (net.geoprism.registry.LabeledPropertyGraphVertex) super.getChild();
   }
   
   public static GraphHasVertex get(String oid)
