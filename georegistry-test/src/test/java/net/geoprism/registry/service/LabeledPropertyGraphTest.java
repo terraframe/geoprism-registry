@@ -308,6 +308,59 @@ public class LabeledPropertyGraphTest
     }
   }
 
+  @Test
+  @Request
+  public void testPublishMultipleHierarchies()
+  {
+    JsonObject json = getJson(USATestData.USA, 
+        new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN, USATestData.HIER_SCHOOL }, 
+        new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT, USATestData.SCHOOL_ZONE }
+    );
+    
+    LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
+    
+    try
+    {
+      List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
+      
+      Assert.assertEquals(1, entries.size());
+      
+      LabeledPropertyGraphTypeEntry entry = entries.get(0);
+      
+      List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
+      
+      Assert.assertEquals(1, versions.size());
+      
+      LabeledPropertyGraphTypeVersion version = versions.get(0);
+      version.publishNoAuth();
+      
+      LabeledPropertyGraphVertex graphVertex = version.getMdVertexForType(USATestData.COUNTRY.getServerObject());
+      MdVertex mdVertex = graphVertex.getGraphMdVertex();
+      
+      LabeledPropertyGraphEdge graphEdge = version.getMdEdgeForType(USATestData.HIER_ADMIN.getServerObject());
+      MdEdge mdEdge = graphEdge.getGraphMdEdge();
+      
+      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
+      List<VertexObject> results = query.getResults();
+      
+      Assert.assertEquals(1, results.size());
+      
+      VertexObject result = results.get(0);
+      
+      Assert.assertEquals(USATestData.USA.getCode(), result.getObjectValue(DefaultAttribute.CODE.getName()));
+      
+      List<VertexObject> children = result.getChildren(mdEdge.definesType(), VertexObject.class);
+      
+      Assert.assertEquals(2, children.size());
+      
+      
+    }
+    finally
+    {
+      test1.delete();
+    }
+  }
+  
 
   @Request
   public static JsonObject getJson(TestGeoObjectInfo root, TestHierarchyTypeInfo[] ht, TestGeoObjectTypeInfo[] types)

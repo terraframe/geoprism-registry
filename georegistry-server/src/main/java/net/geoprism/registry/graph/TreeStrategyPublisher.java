@@ -2,8 +2,15 @@ package net.geoprism.registry.graph;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.Stack;
+import java.util.TreeSet;
 
+import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
 
@@ -20,11 +27,41 @@ import net.geoprism.registry.service.ServerGeoObjectService;
 
 public class TreeStrategyPublisher extends AbstractStrategyPublisher implements StrategyPublisher
 {
+  private static class Snapshot
+  {
+    private ServerGeoObjectIF node;
+
+    private MdEdge            hierarchy;
+
+    private VertexObject      parent;
+
+    public Snapshot(ServerGeoObjectIF node, MdEdge hierarchy, VertexObject parent)
+    {
+      super();
+      this.node = node;
+      this.hierarchy = hierarchy;
+      this.parent = parent;
+    }
+
+    public Snapshot(ServerGeoObjectIF node)
+    {
+      this(node, null, null);
+    }
+
+  }
+
   private TreeStrategyConfiguration configuration;
+
+  private Set<String>               uids;
+
+  private Stack<Snapshot>           stack;
 
   public TreeStrategyPublisher(TreeStrategyConfiguration configuration)
   {
     this.configuration = configuration;
+
+    this.uids = new TreeSet<String>();
+    this.stack = new Stack<Snapshot>();
   }
 
   @Override
@@ -43,18 +80,68 @@ public class TreeStrategyPublisher extends AbstractStrategyPublisher implements 
 
       List<ServerGeoObjectType> geoObjectTypes = type.getGeoObjectTypes();
       List<ServerHierarchyType> hierarchyTypes = type.getHierarchyTypes();
+      Date forDate = version.getForDate();
 
       ServerGeoObjectService service = new ServerGeoObjectService();
       ServerGeoObjectIF root = service.getGeoObjectByCode(configuration.getCode(), configuration.getTypeCode());
 
       if (root != null && geoObjectTypes.contains(root.getType()))
       {
-        Date forDate = version.getForDate();
-
         root.setDate(forDate);
 
-        publish(version, geoObjectTypes, hierarchyTypes, root, forDate);
+        stack.push(new Snapshot(root));
+      }
 
+      while (!stack.isEmpty())
+      {
+        Snapshot snapshot = stack.pop();
+
+        LabeledPropertyGraphVertex graphVertex = version.getMdVertexForType(snapshot.node.getType());
+        MdVertex mdVertex = graphVertex.getGraphMdVertex();
+
+        VertexObject vertex = null;
+
+        if (!this.uids.contains(snapshot.node.getUid()))
+        {
+          vertex = this.publish(snapshot.node, mdVertex);
+
+          final VertexObject parent = vertex;
+
+          hierarchyTypes.forEach(ht -> {
+            ServerChildTreeNode node = snapshot.node.getChildGeoObjects(ht, null, false, forDate);
+            List<ServerChildTreeNode> children = node.getChildren();
+
+            if (children.size() > 0)
+            {
+              LabeledPropertyGraphEdge graphEdge = version.getMdEdgeForType(ht);
+              MdEdge mdEdge = graphEdge.getGraphMdEdge();
+
+              for (ServerChildTreeNode childNode : children)
+              {
+                ServerGeoObjectIF child = childNode.getGeoObject();
+                child.setDate(forDate);
+
+                if (geoObjectTypes.contains(child.getType()))
+                {
+                  stack.push(new Snapshot(child, mdEdge, parent));
+                }
+              }
+            }
+
+          });
+
+          this.uids.add(snapshot.node.getUid());
+        }
+        else
+        {
+          vertex = this.get(mdVertex, snapshot.node.getUid());
+        }
+
+        if (snapshot.parent != null && snapshot.hierarchy != null)
+        {
+
+          snapshot.parent.addChild(vertex, snapshot.hierarchy.definesType()).apply();
+        }
       }
     }
     finally
@@ -63,40 +150,19 @@ public class TreeStrategyPublisher extends AbstractStrategyPublisher implements 
     }
   }
 
-  private VertexObject publish(LabeledPropertyGraphTypeVersion version, List<ServerGeoObjectType> geoObjectTypes, List<ServerHierarchyType> hierarchyTypes, ServerGeoObjectIF root, Date forDate)
+  private VertexObject get(MdVertex mdVertex, String uid)
   {
-    // TODO Check for duplicates
-    LabeledPropertyGraphVertex graphVertex = version.getMdVertexForType(root.getType());
-    MdVertex mdVertex = graphVertex.getGraphMdVertex();
-    
-    VertexObject parentVertex = this.publish(root, mdVertex);
+    MdVertexDAOIF mdVertexDAO = (MdVertexDAOIF) BusinessFacade.getEntityDAO(mdVertex);
+    MdAttributeDAOIF attribute = mdVertexDAO.definesAttribute("uuid");
 
-    hierarchyTypes.forEach(ht -> {
-      ServerChildTreeNode node = root.getChildGeoObjects(ht, null, false, forDate);
-      List<ServerChildTreeNode> children = node.getChildren();
+    StringBuffer statement = new StringBuffer();
+    statement.append("SELECT FROM " + mdVertex.getDbClassName());
+    statement.append(" WHERE " + attribute.getColumnName() + " = :uid");
 
-      if (children.size() > 0)
-      {
-        LabeledPropertyGraphEdge graphEdge = version.getMdEdgeForType(ht);
-        MdEdge mdEdge = graphEdge.getGraphMdEdge();
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+    query.setParameter("uid", uid);
 
-        for (ServerChildTreeNode childNode : children)
-        {
-          ServerGeoObjectIF child = childNode.getGeoObject();
-          child.setDate(forDate);
-
-          if (geoObjectTypes.contains(child.getType()))
-          {
-            VertexObject childVertex = this.publish(version, geoObjectTypes, hierarchyTypes, child, forDate);
-
-            parentVertex.addChild(childVertex, mdEdge.definesType()).apply();
-          }
-        }
-      }
-
-    });
-
-    return parentVertex;
+    return query.getSingleResult();
   }
 
 }
