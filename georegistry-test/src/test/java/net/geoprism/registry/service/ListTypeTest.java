@@ -292,7 +292,7 @@ public class ListTypeTest
 
     String oid = result.get(ComponentInfo.OID).getAsString();
 
-    this.waitUntilPublished(oid);
+    ListTypeTest.waitUntilPublished(oid);
 
     service.remove(testData.clientRequest.getSessionId(), oid);
 
@@ -308,7 +308,7 @@ public class ListTypeTest
     JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
 
     String oid = result.get(ComponentInfo.OID).getAsString();
-    this.waitUntilPublished(oid);
+    ListTypeTest.waitUntilPublished(oid);
 
     try
     {
@@ -336,7 +336,7 @@ public class ListTypeTest
     JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
 
     String oid = result.get(ComponentInfo.OID).getAsString();
-    this.waitUntilPublished(oid);
+    ListTypeTest.waitUntilPublished(oid);
 
     try
     {
@@ -495,7 +495,7 @@ public class ListTypeTest
           Page<JsonSerializable> data = version.data(new JsonObject(), true, includeGeometries);
 
           // Entries should be HP_1, HP_2, HS_1, HS_2
-          Assert.assertEquals(new Long(4), data.getCount());
+          Assert.assertEquals(Long.valueOf(4), data.getCount());
 
           List<JsonSerializable> results = data.getResults();
 
@@ -636,7 +636,7 @@ public class ListTypeTest
     JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
     String oid = result.get(ComponentInfo.OID).getAsString();
 
-    this.waitUntilPublished(oid);
+    ListTypeTest.waitUntilPublished(oid);
 
     try
     {
@@ -667,7 +667,7 @@ public class ListTypeTest
   }
 
   @Request
-  private void waitUntilPublished(String oid)
+  private static void waitUntilPublished(String oid)
   {
     List<? extends JobHistory> histories = null;
     int waitTime = 0;

@@ -19,6 +19,7 @@
 package net.geoprism.registry;
 
 import java.text.SimpleDateFormat;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,11 +49,14 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
+import com.runwaysdk.system.scheduler.ExecutableJob;
 
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.action.GraphHasEdge;
 import net.geoprism.registry.action.GraphHasVertex;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob;
+import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobQuery;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.StrategyPublisher;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -214,14 +218,13 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
   @Transaction
   public void delete()
   {
-    // // Delete all jobs
-    // List<ExecutableJob> jobs = this.getJobs();
-    //
-    // for (ExecutableJob job : jobs)
-    // {
-    // job.delete();
-    // }
-    //
+    // Delete all jobs
+    List<ExecutableJob> jobs = this.getJobs();
+
+    for (ExecutableJob job : jobs)
+    {
+      job.delete();
+    }
 
     this.getEdges().forEach(e -> LabeledPropertyGraphEdge.get(e.getOid()).delete());
     this.getVertices().forEach(v -> LabeledPropertyGraphVertex.get(v.getOid()).delete());
@@ -259,6 +262,22 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
       throw new ProgrammingErrorException("Unable to find Labeled Property Graph Edge definition for the type [" + type.getCode() + "]");
     });
   }
+  
+  public List<ExecutableJob> getJobs()
+  {
+    LinkedList<ExecutableJob> jobs = new LinkedList<ExecutableJob>();
+
+    PublishLabeledPropertyGraphTypeVersionJobQuery pmlvj = new PublishLabeledPropertyGraphTypeVersionJobQuery(new QueryFactory());
+    pmlvj.WHERE(pmlvj.getVersion().EQ(this));
+
+    try (OIterator<? extends PublishLabeledPropertyGraphTypeVersionJob> it = pmlvj.getIterator())
+    {
+      jobs.addAll(it.getAll());
+    }
+
+    return jobs;
+  }
+
 
   @Transaction
   @Authenticate

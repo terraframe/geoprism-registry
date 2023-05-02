@@ -21,7 +21,7 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <create>
-      <mdBusiness name="net.geoprism.registry.LabeledPropertyGraphType" isAbstract="true" label="List Type" generateController="false" publish="false">
+      <mdBusiness name="net.geoprism.registry.LabeledPropertyGraphType" isAbstract="true" label="Graph Type" generateController="false" publish="false">
         <attributes>
           <localChar name="displayLabel" label="Label" required="true" />
           <localText name="description"/>          
@@ -36,25 +36,25 @@
             <mdParameter name="forDate" label="forDate" order="0" type="java.util.Date" />
           </mdMethod>        
       </mdBusiness>
-      <mdBusiness name="net.geoprism.registry.SingleLabeledPropertyGraphType" extends="net.geoprism.registry.LabeledPropertyGraphType" label="Single List Type" generateController="false">
+      <mdBusiness name="net.geoprism.registry.SingleLabeledPropertyGraphType" extends="net.geoprism.registry.LabeledPropertyGraphType" label="Single Graph Type" generateController="false">
         <attributes>
           <dateTime name="validOn" label="Valid On" />          
         </attributes>
       </mdBusiness>
-      <mdBusiness name="net.geoprism.registry.IncrementalLabeledPropertyGraphType" extends="net.geoprism.registry.LabeledPropertyGraphType" label="Incremental List Type" generateController="false">
+      <mdBusiness name="net.geoprism.registry.IncrementalLabeledPropertyGraphType" extends="net.geoprism.registry.LabeledPropertyGraphType" label="Incremental Graph Type" generateController="false">
         <attributes>
           <enumeration name="frequency" label="Publishing frequency" required="false" type="net.geoprism.registry.ChangeFrequency" immutable="false" selectMultiple="false" />
           <dateTime name="publishingStartDate" label="Publishing start date" />          
         </attributes>
       </mdBusiness>
-      <mdBusiness name="net.geoprism.registry.IntervalLabeledPropertyGraphType" extends="net.geoprism.registry.LabeledPropertyGraphType" label="Interval List Type" generateController="false">
+      <mdBusiness name="net.geoprism.registry.IntervalLabeledPropertyGraphType" extends="net.geoprism.registry.LabeledPropertyGraphType" label="Interval Graph Type" generateController="false">
         <attributes>
           <text name="intervalJson" label="Interval" />          
         </attributes>
       </mdBusiness>
       <mdBusiness name="net.geoprism.registry.LabeledPropertyGraphTypeEntry" label="List Entry" generateController="false">
         <attributes>
-          <reference name="graphType" type="net.geoprism.registry.LabeledPropertyGraphType" required="true" label="List Type" />
+          <reference name="graphType" type="net.geoprism.registry.LabeledPropertyGraphType" required="true" label="Graph Type" />
           <dateTime name="forDate" label="For Date" required="true" immutable="true" />
           <reference name="working" type="net.geoprism.registry.LabeledPropertyGraphTypeVersion" required="false" label="Working" />          
         </attributes> 
@@ -64,8 +64,8 @@
       </mdBusiness>
       <mdBusiness name="net.geoprism.registry.LabeledPropertyGraphTypeVersion" label="Entry Version" generateController="false">
         <attributes>
-          <reference name="graphType" type="net.geoprism.registry.LabeledPropertyGraphType" required="true" label="List Type" />        
-          <reference name="entry" type="net.geoprism.registry.LabeledPropertyGraphTypeEntry" required="true" label="Master List" />
+          <reference name="graphType" type="net.geoprism.registry.LabeledPropertyGraphType" required="true" label="Graph Type" />        
+          <reference name="entry" type="net.geoprism.registry.LabeledPropertyGraphTypeEntry" required="true" label="Graph Entry" />
           <dateTime name="forDate" label="For Date" required="true" immutable="true" />
           <date name="publishDate" label="Publish Date" />
           <integer name="versionNumber" label="Version Number" required="true" />
@@ -97,6 +97,12 @@
         <child cardinality="*" name="net.geoprism.registry.LabeledPropertyGraphEdge" method="Edges" />
       </mdRelationship>
         
+      <mdBusiness name="net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false">
+        <attributes>
+          <reference name="graphType" type="net.geoprism.registry.LabeledPropertyGraphType" required="true" label="Graph Type" />                
+          <reference name="version" type="net.geoprism.registry.LabeledPropertyGraphTypeVersion" label="Graph Type Version" required="true"/>
+        </attributes>
+      </mdBusiness>
         
     </create>
     <permissions>
@@ -126,6 +132,9 @@
           <mdBusinessPermission type="net.geoprism.registry.LabeledPropertyGraphEdge">
             <operation name="ALL" />
           </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>                  
         </grant>
       </role>
       <role roleName="cgr.RegistryMaintainer">
@@ -145,6 +154,9 @@
           <mdBusinessPermission type="net.geoprism.registry.LabeledPropertyGraphEdge">
             <operation name="ALL" />
           </mdBusinessPermission>          
+          <mdBusinessPermission type="net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>                            
         </grant>
       </role>
       <role roleName="cgr.RegistryContributor">

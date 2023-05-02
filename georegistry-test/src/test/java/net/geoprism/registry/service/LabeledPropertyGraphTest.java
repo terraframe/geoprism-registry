@@ -21,9 +21,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
+import com.runwaysdk.system.scheduler.AllJobStatus;
+import com.runwaysdk.system.scheduler.JobHistory;
+import com.runwaysdk.system.scheduler.JobHistoryQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.ChangeFrequency;
@@ -38,15 +42,21 @@ import net.geoprism.registry.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.LabeledPropertyGraphVertex;
 import net.geoprism.registry.SingleLabeledPropertyGraphType;
 import net.geoprism.registry.classification.ClassificationTypeTest;
+import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob;
+import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobQuery;
 import net.geoprism.registry.graph.TreeStrategyConfiguration;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 public class LabeledPropertyGraphTest
 {
@@ -280,26 +290,83 @@ public class LabeledPropertyGraphTest
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
       version.publishNoAuth();
-      
+
       LabeledPropertyGraphVertex graphVertex = version.getMdVertexForType(USATestData.COUNTRY.getServerObject());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
-      
+
       LabeledPropertyGraphEdge graphEdge = version.getMdEdgeForType(USATestData.HIER_ADMIN.getServerObject());
       MdEdge mdEdge = graphEdge.getGraphMdEdge();
-      
+
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
       List<VertexObject> results = query.getResults();
-      
+
       Assert.assertEquals(1, results.size());
-      
+
       VertexObject result = results.get(0);
-      
+
       Assert.assertEquals(USATestData.USA.getCode(), result.getObjectValue(DefaultAttribute.CODE.getName()));
-      
+
       List<VertexObject> children = result.getChildren(mdEdge.definesType(), VertexObject.class);
 
       Assert.assertEquals(2, children.size());
+
+    }
+    finally
+    {
+      test1.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testPublishJob()
+  {
+    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.COUNTY });
+
+    LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
+
+    try
+    {
+      List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
+
+      Assert.assertEquals(1, entries.size());
+
+      LabeledPropertyGraphTypeEntry entry = entries.get(0);
+
+      List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
+
+      Assert.assertEquals(1, versions.size());
+
+      LabeledPropertyGraphTypeVersion version = versions.get(0);
+
+      PublishLabeledPropertyGraphTypeVersionJob job = new PublishLabeledPropertyGraphTypeVersionJob();
+//      job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+      job.setVersion(version);
+      job.setGraphType(version.getGraphType());
+      job.apply();
       
+      job.start();
+      
+      LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
+
+      LabeledPropertyGraphVertex graphVertex = version.getMdVertexForType(USATestData.COUNTRY.getServerObject());
+      MdVertex mdVertex = graphVertex.getGraphMdVertex();
+
+      LabeledPropertyGraphEdge graphEdge = version.getMdEdgeForType(USATestData.HIER_ADMIN.getServerObject());
+      MdEdge mdEdge = graphEdge.getGraphMdEdge();
+
+      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
+      List<VertexObject> results = query.getResults();
+
+      Assert.assertEquals(1, results.size());
+
+      VertexObject result = results.get(0);
+
+      Assert.assertEquals(USATestData.USA.getCode(), result.getObjectValue(DefaultAttribute.CODE.getName()));
+
+      List<VertexObject> children = result.getChildren(mdEdge.definesType(), VertexObject.class);
+
+      Assert.assertEquals(2, children.size());
 
     }
     finally
@@ -312,55 +379,50 @@ public class LabeledPropertyGraphTest
   @Request
   public void testPublishMultipleHierarchies()
   {
-    JsonObject json = getJson(USATestData.USA, 
-        new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN, USATestData.HIER_SCHOOL }, 
-        new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT, USATestData.SCHOOL_ZONE }
-    );
-    
+    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN, USATestData.HIER_SCHOOL }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT, USATestData.SCHOOL_ZONE });
+
     LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
-    
+
     try
     {
       List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
-      
+
       Assert.assertEquals(1, entries.size());
-      
+
       LabeledPropertyGraphTypeEntry entry = entries.get(0);
-      
+
       List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
-      
+
       Assert.assertEquals(1, versions.size());
-      
+
       LabeledPropertyGraphTypeVersion version = versions.get(0);
       version.publishNoAuth();
-      
+
       LabeledPropertyGraphVertex graphVertex = version.getMdVertexForType(USATestData.COUNTRY.getServerObject());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
-      
+
       LabeledPropertyGraphEdge graphEdge = version.getMdEdgeForType(USATestData.HIER_ADMIN.getServerObject());
       MdEdge mdEdge = graphEdge.getGraphMdEdge();
-      
+
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
       List<VertexObject> results = query.getResults();
-      
+
       Assert.assertEquals(1, results.size());
-      
+
       VertexObject result = results.get(0);
-      
+
       Assert.assertEquals(USATestData.USA.getCode(), result.getObjectValue(DefaultAttribute.CODE.getName()));
-      
+
       List<VertexObject> children = result.getChildren(mdEdge.definesType(), VertexObject.class);
-      
+
       Assert.assertEquals(2, children.size());
-      
-      
+
     }
     finally
     {
       test1.delete();
     }
   }
-  
 
   @Request
   public static JsonObject getJson(TestGeoObjectInfo root, TestHierarchyTypeInfo[] ht, TestGeoObjectTypeInfo[] types)
@@ -371,6 +433,63 @@ public class LabeledPropertyGraphTest
     builder.setConfiguration(new TreeStrategyConfiguration(root.getCode(), root.getGeoObjectType().getCode()));
 
     return builder.buildJSON();
+  }
+
+  @Request
+  private static void waitUntilPublished(String oid)
+  {
+    List<? extends JobHistory> histories = null;
+    int waitTime = 0;
+
+    while (histories == null)
+    {
+      if (waitTime > 10000)
+      {
+        Assert.fail("Job was never scheduled. Unable to find any associated history.");
+      }
+
+      QueryFactory qf = new QueryFactory();
+
+      PublishLabeledPropertyGraphTypeVersionJobQuery jobQuery = new PublishLabeledPropertyGraphTypeVersionJobQuery(qf);
+      jobQuery.WHERE(jobQuery.getVersion().EQ(oid));
+
+      JobHistoryQuery jhq = new JobHistoryQuery(qf);
+      jhq.WHERE(jhq.job(jobQuery));
+
+      List<? extends JobHistory> potentialHistories = jhq.getIterator().getAll();
+
+      if (potentialHistories.size() > 0)
+      {
+        histories = potentialHistories;
+      }
+      else
+      {
+        try
+        {
+          Thread.sleep(1000);
+        }
+        catch (InterruptedException e)
+        {
+          e.printStackTrace();
+          Assert.fail("Interrupted while waiting");
+        }
+
+        waitTime += 1000;
+      }
+    }
+
+    for (JobHistory history : histories)
+    {
+      try
+      {
+        SchedulerTestUtils.waitUntilStatus(history.getOid(), AllJobStatus.SUCCESS);
+      }
+      catch (InterruptedException e)
+      {
+        e.printStackTrace();
+        Assert.fail("Interrupted while waiting");
+      }
+    }
   }
 
 }
