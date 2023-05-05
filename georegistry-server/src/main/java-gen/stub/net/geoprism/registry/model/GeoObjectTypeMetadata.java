@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
 
@@ -29,6 +31,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.localization.LocalizedValueIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -37,6 +40,7 @@ import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.ListTypeVersionQuery;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.geoobjecttype.PrivateTypeHasPublicChildren;
 import net.geoprism.registry.geoobjecttype.PrivateTypeIsReferencedInPublicMasterLists;
 import net.geoprism.registry.geoobjecttype.TypeHasPrivateParents;
@@ -51,6 +55,24 @@ public class GeoObjectTypeMetadata extends GeoObjectTypeMetadataBase
   public GeoObjectTypeMetadata()
   {
     super();
+  }
+  
+  public void injectDisplayLabels(GeoObjectType type)
+  {
+    for (DefaultAttribute defaultAttr : DefaultAttribute.values())
+    {
+      if (type.getAttribute(defaultAttr.getName()).isPresent())
+      {
+        AttributeType attr = type.getAttribute(defaultAttr.getName()).get();
+        
+        LocalizedValueIF val = LocalizationFacade.localizeAll("geoObjectType.attr."  + attr.getName());
+        
+        if (val != null)
+        {
+          attr.setLabel(LocalizedValueConverter.convert(val));
+        }
+      }
+    }
   }
 
   @Override

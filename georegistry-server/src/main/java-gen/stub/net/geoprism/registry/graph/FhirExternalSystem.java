@@ -120,7 +120,7 @@ public class FhirExternalSystem extends FhirExternalSystemBase implements OauthE
     return object;
   }
 
-  public static List<FhirExternalSystem> getAll()
+  public static List<FhirExternalSystem> getAllFhir()
   {
     final MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(FhirExternalSystem.CLASS);
 

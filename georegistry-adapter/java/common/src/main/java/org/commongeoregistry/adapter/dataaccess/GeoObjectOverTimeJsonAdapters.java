@@ -169,7 +169,7 @@ public class GeoObjectOverTimeJsonAdapters
         Attribute attr = go.attributeMap.get(key);
         
         JsonElement value = attr.toJSON(serializer);
-        if (!value.isJsonNull())
+        if (value != null && !value.isJsonNull())
         {
           attrs.add(attr.getName(), value);
         }

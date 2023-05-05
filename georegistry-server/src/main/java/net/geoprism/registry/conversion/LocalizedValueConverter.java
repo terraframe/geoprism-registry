@@ -36,6 +36,7 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.LocalStruct;
+import com.runwaysdk.business.LocalStructDTO;
 import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
@@ -49,6 +50,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.model.LocalizedValueContainer;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class LocalizedValueConverter
@@ -369,6 +371,22 @@ public class LocalizedValueConverter
     {
       Universal universal = Universal.getByKey(geoObjectTypeCode);
       registryRole.setGeoObjectTypeLabel(LocalizedValueConverter.convert(universal.getDisplayLabel()));
+    }
+  }
+
+  public static LocalizedValue convert(LocalizedValueIF val)
+  {
+    if (val instanceof LocalStruct)
+    {
+      return LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) val);
+    }
+    else if (val instanceof LocalizedValueContainer)
+    {
+      return ((LocalizedValueContainer) val).getLocalizedValue();
+    }
+    else
+    {
+      throw new UnsupportedOperationException("TODO");
     }
   }
 

@@ -287,6 +287,10 @@ public abstract class AttributeType implements Serializable
     {
       attributeType = new AttributeGeometryType(_name, _label, _description, _isDefault, _required, _unique);
     }
+    else if (_type.equals(AttributeListType.TYPE))
+    {
+      attributeType = new AttributeListType(_name, _label, _description, _isDefault, _required, _unique);
+    }
 
     attributeType.setIsChangeOverTime(_isChange);
 

@@ -496,6 +496,10 @@ public class GeoObjectType implements Serializable
 
     AttributeBooleanType exists = (AttributeBooleanType) DefaultAttribute.EXISTS.createAttributeType();
     defaultAttributeMap.put(DefaultAttribute.EXISTS.getName(), exists);
+    
+    @SuppressWarnings("unchecked")
+    AttributeListType<String> alternateIds = (AttributeListType<String>) DefaultAttribute.ALT_IDS.createAttributeType();
+    defaultAttributeMap.put(DefaultAttribute.ALT_IDS.getName(), alternateIds);
 
     // AttributeCharacterType organization = (AttributeCharacterType)
     // DefaultAttribute.ORGANIZATION.createAttributeType();

@@ -33,6 +33,11 @@ public class LocalizedValueContainer implements LocalizedValueIF
   {
     this.value = value;
   }
+  
+  public LocalizedValue getLocalizedValue()
+  {
+    return this.value;
+  }
 
   @Override
   public String getValue()

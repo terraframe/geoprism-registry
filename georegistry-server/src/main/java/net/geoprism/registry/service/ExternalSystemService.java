@@ -23,6 +23,7 @@ import java.util.List;
 import org.json.JSONException;
 import org.springframework.stereotype.Component;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -49,6 +50,16 @@ public class ExternalSystemService
     List<ExternalSystem> results = ExternalSystem.getExternalSystemsForOrg(pageNumber, pageSize);
 
     return new Page<ExternalSystem>(count, pageNumber, pageSize, results).toJSON();
+  }
+  
+  @Request(RequestType.SESSION)
+  public JsonArray getAllRead(String sessionId) throws JSONException
+  {
+    List<ExternalSystem> results = ExternalSystem.getAll();
+
+    JsonArray ja = new JsonArray();
+    results.forEach(result -> ja.add(result.toJSON()));
+    return ja;
   }
 
   @Request(RequestType.SESSION)

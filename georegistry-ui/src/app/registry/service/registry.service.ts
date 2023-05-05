@@ -54,6 +54,8 @@ export class RegistryService implements AttributeTypeService {
         return this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }>(environment.apiUrl + "/api/cgr/init")
             .toPromise();
     }
+    
+    
 
     // param types: array of GeoObjectType codes. If empty array then all GeoObjectType objects are returned.
     getGeoObjectTypes(types: string[]): Promise<GeoObjectType[]> {

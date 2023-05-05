@@ -29,6 +29,24 @@ export class LocaleValue {
 
 }
 
+export class AlternateId {
+    type: string;
+    id: string;
+    
+    public static getKey(id: AlternateId) {
+        if (id instanceof ExternalId) {
+            return id.id + "," + id.externalSystemId;
+        }
+        
+        return id.type + "," + id.id;
+    }
+}
+
+export class ExternalId extends AlternateId {
+    externalSystemId: string;
+    externalSystemLabel: string;
+}
+
 export class LocalizedValue {
 
     localizedValue: string;

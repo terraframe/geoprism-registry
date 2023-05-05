@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
@@ -97,6 +98,14 @@ public class ExternalSystemController extends RunwaySpringController
   public ResponseEntity<String> page(@RequestParam Integer pageNumber, @RequestParam Integer pageSize)
   {
     JsonObject response = this.service.page(this.getSessionId(), pageNumber, pageSize);
+
+    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+  }
+  
+  @GetMapping(API_PATH + "/get-all-read")
+  public ResponseEntity<String> getAllRead()
+  {
+    JsonArray response = this.service.getAllRead(this.getSessionId());
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }

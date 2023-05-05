@@ -151,6 +151,18 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
   {
     return LocalizedValueConverter.convert(this.getEmbeddedComponent(ExternalSystem.LABEL));
   }
+  
+  public static List<ExternalSystem> getAll()
+  {
+    final MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(ExternalSystem.CLASS);
+
+    StringBuilder builder = new StringBuilder();
+    builder.append("SELECT FROM " + mdVertex.getDBClassName());
+    
+    final GraphQuery<ExternalSystem> query = new GraphQuery<ExternalSystem>(builder.toString());
+    
+    return query.getResults();
+  }
 
   public static List<ExternalSystem> getExternalSystemsForOrg(Integer pageNumber, Integer pageSize)
   {

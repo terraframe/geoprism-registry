@@ -27,6 +27,7 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeGeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeListType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -111,6 +112,10 @@ public abstract class Attribute implements Serializable
     else if (attributeType instanceof AttributeGeometryType)
     {
       attribute = new AttributeGeometry(attributeType.getName());
+    }
+    else if (attributeType instanceof AttributeListType)
+    {
+      attribute = new AttributeList(attributeType.getName(), ( (AttributeListType) attributeType ).getElementType());
     }
     else
     {
