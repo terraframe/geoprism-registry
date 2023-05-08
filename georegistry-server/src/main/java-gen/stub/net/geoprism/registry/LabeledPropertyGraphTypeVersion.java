@@ -230,7 +230,14 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     this.getVertices().forEach(v -> LabeledPropertyGraphVertex.get(v.getOid()).delete());
 
     super.delete();
-
+  }
+  
+  @Override
+  @Transaction
+  @Authenticate  
+  public void remove()
+  {
+    this.delete();
   }
 
   public List<LabeledPropertyGraphVertex> getVertices()

@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
@@ -54,9 +55,6 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.USATestData;
-import net.geoprism.registry.ws.GlobalNotificationMessage;
-import net.geoprism.registry.ws.MessageType;
-import net.geoprism.registry.ws.NotificationFacade;
 
 public class LabeledPropertyGraphTest
 {
@@ -340,13 +338,13 @@ public class LabeledPropertyGraphTest
       LabeledPropertyGraphTypeVersion version = versions.get(0);
 
       PublishLabeledPropertyGraphTypeVersionJob job = new PublishLabeledPropertyGraphTypeVersionJob();
-//      job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+      // job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
       job.setVersion(version);
       job.setGraphType(version.getGraphType());
       job.apply();
-      
+
       job.start();
-      
+
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
 
       LabeledPropertyGraphVertex graphVertex = version.getMdVertexForType(USATestData.COUNTRY.getServerObject());
@@ -424,6 +422,26 @@ public class LabeledPropertyGraphTest
     }
   }
 
+  @Test
+  public void testServiceApply()
+  {
+    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN, USATestData.HIER_SCHOOL }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT, USATestData.SCHOOL_ZONE });
+
+    LabeledPropertyGraphTypeService service = new LabeledPropertyGraphTypeService();
+    JsonObject result = service.apply(testData.clientRequest.getSessionId(), json);
+
+    String oid = result.get(ComponentInfo.OID).getAsString();
+
+    try
+    {
+      LabeledPropertyGraphTest.waitUntilPublished(oid);
+    }
+    finally
+    {
+      service.remove(testData.clientRequest.getSessionId(), oid);
+    }
+  }
+
   @Request
   public static JsonObject getJson(TestGeoObjectInfo root, TestHierarchyTypeInfo[] ht, TestGeoObjectTypeInfo[] types)
   {
@@ -452,6 +470,7 @@ public class LabeledPropertyGraphTest
 
       PublishLabeledPropertyGraphTypeVersionJobQuery jobQuery = new PublishLabeledPropertyGraphTypeVersionJobQuery(qf);
       jobQuery.WHERE(jobQuery.getVersion().EQ(oid));
+      jobQuery.OR(jobQuery.getGraphType().EQ(oid));
 
       JobHistoryQuery jhq = new JobHistoryQuery(qf);
       jhq.WHERE(jhq.job(jobQuery));

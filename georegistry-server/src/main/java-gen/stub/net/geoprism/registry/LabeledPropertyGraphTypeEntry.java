@@ -29,6 +29,7 @@ import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
 
@@ -54,7 +55,17 @@ public class LabeledPropertyGraphTypeEntry extends LabeledPropertyGraphTypeEntry
     this.setWorking(null);
     this.apply();
 
-    this.getVersions().forEach(version -> version.delete());
+    this.getVersions().forEach(version -> {
+
+      if (Session.getCurrentSession() != null)
+      {
+        version.remove();
+      }
+      else
+      {
+        version.delete();
+      }
+    });
 
     // if (working != null)
     // {

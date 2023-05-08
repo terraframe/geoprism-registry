@@ -71,6 +71,7 @@
           <integer name="versionNumber" label="Version Number" required="true" />
         </attributes> 
         <mdMethod name="publish" label="publish" static="false" returnType="java.lang.String" />        
+        <mdMethod name="remove" label="publish" static="false" returnType="void" />        
       </mdBusiness>
       
       <mdBusiness name="net.geoprism.registry.LabeledPropertyGraphVertex" label="Labeled Property Graph Vertex" generateController="false" publish="false">
@@ -115,6 +116,9 @@
       <method methodName="publish" type="net.geoprism.registry.LabeledPropertyGraphTypeVersion">
         <assignedRole roleName="Administrator" />
       </method>    
+      <method methodName="remove" type="net.geoprism.registry.LabeledPropertyGraphTypeVersion">
+        <assignedRole roleName="Administrator" />
+      </method>    
       <role roleName="geoprism.admin.Administrator">
         <grant>
           <mdBusinessPermission type="net.geoprism.registry.LabeledPropertyGraphType">
@@ -122,9 +126,18 @@
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.LabeledPropertyGraphTypeEntry">
             <operation name="ALL" />
+            <mdMethodPermission methodName="publish">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>            
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.LabeledPropertyGraphTypeVersion">
             <operation name="ALL" />
+            <mdMethodPermission methodName="publish">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>                        
+            <mdMethodPermission methodName="remove">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>                        
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.LabeledPropertyGraphVertex">
             <operation name="ALL" />
@@ -132,6 +145,12 @@
           <mdBusinessPermission type="net.geoprism.registry.LabeledPropertyGraphEdge">
             <operation name="ALL" />
           </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.action.GraphHasVertex">
+            <operation name="ALL" />
+          </mdRelationshipPermission>                  
+          <mdRelationshipPermission type="net.geoprism.registry.action.GraphHasEdge">
+            <operation name="ALL" />
+          </mdRelationshipPermission>                  
           <mdBusinessPermission type="net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob">
             <operation name="ALL" />
           </mdBusinessPermission>                  
@@ -144,9 +163,18 @@
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.LabeledPropertyGraphTypeEntry">
             <operation name="ALL" />
+            <mdMethodPermission methodName="publish">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>                        
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.LabeledPropertyGraphTypeVersion">
             <operation name="ALL" />
+            <mdMethodPermission methodName="publish">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>                        
+            <mdMethodPermission methodName="remove">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>                                    
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.LabeledPropertyGraphVertex">
             <operation name="ALL" />
@@ -154,6 +182,12 @@
           <mdBusinessPermission type="net.geoprism.registry.LabeledPropertyGraphEdge">
             <operation name="ALL" />
           </mdBusinessPermission>          
+          <mdRelationshipPermission type="net.geoprism.registry.action.GraphHasVertex">
+            <operation name="ALL" />
+          </mdRelationshipPermission>                  
+          <mdRelationshipPermission type="net.geoprism.registry.action.GraphHasEdge">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
           <mdBusinessPermission type="net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob">
             <operation name="ALL" />
           </mdBusinessPermission>                            
@@ -177,6 +211,14 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.action.GraphHasVertex">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                  
+          <mdRelationshipPermission type="net.geoprism.registry.action.GraphHasEdge">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                            
           <mdBusinessPermission type="net.geoprism.registry.LabeledPropertyGraphEdge">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
@@ -205,12 +247,21 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>          
+          <mdRelationshipPermission type="net.geoprism.registry.action.GraphHasVertex">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                  
+          <mdRelationshipPermission type="net.geoprism.registry.action.GraphHasEdge">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                                      
         </grant>
       </role>
     </permissions>
   </doIt>
   <undoIt>
     <delete>
+      <object key="net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob" type="com.runwaysdk.system.metadata.MdBusiness"></object>
       <object key="net.geoprism.registry.action.GraphHasEdge" type="com.runwaysdk.system.metadata.MdRelationship"></object>
       <object key="net.geoprism.registry.action.GraphHasVertex" type="com.runwaysdk.system.metadata.MdRelationship"></object>
       <object key="net.geoprism.registry.LabeledPropertyGraphVertex" type="com.runwaysdk.system.metadata.MdBusiness"></object>

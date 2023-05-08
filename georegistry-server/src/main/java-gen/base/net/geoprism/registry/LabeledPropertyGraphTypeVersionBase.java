@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -155094960)
+@com.runwaysdk.business.ClassSignature(hash = 315976602)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -29,7 +29,7 @@ public abstract class LabeledPropertyGraphTypeVersionBase extends com.runwaysdk.
   public final static java.lang.String TYPE = "type";
   public final static java.lang.String VERSIONNUMBER = "versionNumber";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -155094960;
+  private static final long serialVersionUID = 315976602;
   
   public LabeledPropertyGraphTypeVersionBase()
   {
@@ -624,6 +624,18 @@ public abstract class LabeledPropertyGraphTypeVersionBase extends com.runwaysdk.
   {
     LabeledPropertyGraphTypeVersion _instance = LabeledPropertyGraphTypeVersion.get(oid);
     return _instance.publish();
+  }
+  
+  public void remove()
+  {
+    String msg = "This method should never be invoked.  It should be overwritten in net.geoprism.registry.LabeledPropertyGraphTypeVersion.java";
+    throw new com.runwaysdk.dataaccess.metadata.ForbiddenMethodException(msg);
+  }
+  
+  public static final void remove(java.lang.String oid)
+  {
+    LabeledPropertyGraphTypeVersion _instance = LabeledPropertyGraphTypeVersion.get(oid);
+    _instance.remove();
   }
   
   public static LabeledPropertyGraphTypeVersion lock(java.lang.String oid)

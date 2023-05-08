@@ -1,11 +1,11 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1203700016)
+@com.runwaysdk.business.ClassSignature(hash = 1510857242)
 public abstract class LabeledPropertyGraphTypeVersionDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.LabeledPropertyGraphTypeVersion";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1203700016;
+  private static final long serialVersionUID = 1510857242;
   
   protected LabeledPropertyGraphTypeVersionDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -580,6 +580,22 @@ public abstract class LabeledPropertyGraphTypeVersionDTOBase extends com.runways
     Object[] _parameters = new Object[]{oid};
     com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.LabeledPropertyGraphTypeVersionDTO.CLASS, "publish", _declaredTypes);
     return (java.lang.String) clientRequest.invokeMethod(_metadata, null, _parameters);
+  }
+  
+  public final void remove()
+  {
+    String[] _declaredTypes = new String[]{};
+    Object[] _parameters = new Object[]{};
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.LabeledPropertyGraphTypeVersionDTO.CLASS, "remove", _declaredTypes);
+    getRequest().invokeMethod(_metadata, this, _parameters);
+  }
+  
+  public static final void remove(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
+  {
+    String[] _declaredTypes = new String[]{"java.lang.String"};
+    Object[] _parameters = new Object[]{oid};
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.LabeledPropertyGraphTypeVersionDTO.CLASS, "remove", _declaredTypes);
+    clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
   public static net.geoprism.registry.LabeledPropertyGraphTypeVersionDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)

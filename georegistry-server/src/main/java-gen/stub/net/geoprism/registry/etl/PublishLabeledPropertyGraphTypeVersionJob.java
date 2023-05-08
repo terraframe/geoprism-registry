@@ -9,11 +9,12 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.QuartzRunwayJob;
 import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
+import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
 
-public class PublishLabeledPropertyGraphTypeVersionJob extends PublishLabeledPropertyGraphTypeVersionJobBase
+public class PublishLabeledPropertyGraphTypeVersionJob extends PublishLabeledPropertyGraphTypeVersionJobBase implements JsonSerializable
 {
   @SuppressWarnings("unused")
   private static final long serialVersionUID = 397687071;
