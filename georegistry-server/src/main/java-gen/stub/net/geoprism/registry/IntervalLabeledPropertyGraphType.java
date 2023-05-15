@@ -109,33 +109,17 @@ public class IntervalLabeledPropertyGraphType extends IntervalLabeledPropertyGra
 
   @Override
   @Transaction
-  public void createEntries(JsonObject metadata)
+  public void createEntries()
   {
     if (!this.isValid())
     {
       throw new InvalidMasterListException();
     }
 
-    if (metadata == null)
-    {
-      List<LabeledPropertyGraphTypeEntry> entries = this.getEntries();
-
-      if (entries.size() > 0)
-      {
-
-        LabeledPropertyGraphTypeEntry entry = entries.get(0);
-        LabeledPropertyGraphTypeVersion working = entry.getWorking();
-
-        metadata = working.toJSON(false);
-      }
-    }
-
-    final JsonObject object = metadata;
-
     this.getIntervals().forEach((pair) -> {
       Date startDate = pair.getFirst();
 
-      this.getOrCreateEntry(startDate, object);
+      this.getOrCreateEntry(startDate);
     });
   }
 

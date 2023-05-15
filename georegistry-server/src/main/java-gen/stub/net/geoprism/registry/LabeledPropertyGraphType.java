@@ -75,7 +75,7 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
 
   protected abstract JsonObject formatVersionLabel(LabeledVersion version);
 
-  public abstract void createEntries(JsonObject metadata);
+  public abstract void createEntries();
 
   public void setStrategyConfiguration(StrategyConfiguration configuration)
   {
@@ -300,12 +300,6 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
     object.addProperty(LabeledPropertyGraphType.STRATEGYTYPE, this.getStrategyType());
     object.add(LabeledPropertyGraphType.STRATEGYCONFIGURATION, this.getStrategyConfigurationAsJson());
 
-    // if (this.getFilterJson() != null && this.getFilterJson().length() > 0)
-    // {
-    // object.add(LabeledPropertyGraphType.FILTER,
-    // JsonParser.parseString(this.getFilterJson()).getAsJsonArray());
-    // }
-
     if (includeEntries)
     {
       List<LabeledPropertyGraphTypeEntry> entries = this.getEntries();
@@ -350,11 +344,11 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
   @Authenticate
   public LabeledPropertyGraphTypeEntry createEntry(Date forDate)
   {
-    return LabeledPropertyGraphTypeEntry.create(this, forDate, null);
+    return LabeledPropertyGraphTypeEntry.create(this, forDate);
   }
 
   @Transaction
-  public LabeledPropertyGraphTypeEntry getOrCreateEntry(Date forDate, JsonObject metadata)
+  public LabeledPropertyGraphTypeEntry getOrCreateEntry(Date forDate)
   {
     if (!this.isValid())
     {
@@ -373,7 +367,7 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
       }
     }
 
-    return LabeledPropertyGraphTypeEntry.create(this, forDate, metadata);
+    return LabeledPropertyGraphTypeEntry.create(this, forDate);
   }
 
   public void setGeoObjectTypes(ServerGeoObjectType... types)
@@ -667,7 +661,7 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
 
     list.apply();
 
-    list.createEntries(isNew ? object : null);
+    list.createEntries();
 
     return list;
   }

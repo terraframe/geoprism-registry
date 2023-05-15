@@ -184,7 +184,7 @@ public class IncrementalLabeledPropertyGraphType extends IncrementalLabeledPrope
 
   @Override
   @Transaction
-  public void createEntries(JsonObject metadata)
+  public void createEntries()
   {
     if (!this.isValid())
     {
@@ -192,20 +192,6 @@ public class IncrementalLabeledPropertyGraphType extends IncrementalLabeledPrope
     }
 
     Pair<Date, Date> range = this.getDateRange();
-
-    if (metadata == null)
-    {
-      List<LabeledPropertyGraphTypeEntry> entries = this.getEntries();
-
-      if (entries.size() > 0)
-      {
-
-        LabeledPropertyGraphTypeEntry entry = entries.get(0);
-        LabeledPropertyGraphTypeVersion working = entry.getWorking();
-
-        metadata = working.toJSON(false);
-      }
-    }
 
     if (range != null)
     {
@@ -220,7 +206,7 @@ public class IncrementalLabeledPropertyGraphType extends IncrementalLabeledPrope
 
       for (Date date : dates)
       {
-        this.getOrCreateEntry(date, metadata);
+        this.getOrCreateEntry(date);
       }
     }
     else

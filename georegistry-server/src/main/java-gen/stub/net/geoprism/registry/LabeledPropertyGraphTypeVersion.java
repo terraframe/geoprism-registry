@@ -30,6 +30,7 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
@@ -39,22 +40,26 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.graph.GraphDBService;
-import com.runwaysdk.dataaccess.graph.GraphRequest;
+import com.runwaysdk.dataaccess.cache.ObjectCache;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
+import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
+import com.runwaysdk.system.scheduler.JobHistory;
+import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.action.GraphHasEdge;
 import net.geoprism.registry.action.GraphHasVertex;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobQuery;
 import net.geoprism.registry.graph.GeoVertex;
@@ -63,6 +68,9 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVersionBase implements LabeledVersion
 {
@@ -104,10 +112,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
       name = name.substring(0, 25);
     }
 
-    GraphDBService service = GraphDBService.getInstance();
-    GraphRequest ddl = service.getDDLGraphDBRequest();
-
-    while (service.isClassDefined(ddl, name))
+    while (ObjectCache.hasClassByTableName(name))
     {
       count++;
 
@@ -130,35 +135,6 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     String className = mdEdge.getDBClassName();
 
     return this.getTableName(className);
-  }
-
-  public String getEdgeName(String className)
-  {
-    int count = 0;
-
-    String name = PREFIX + count + className;
-
-    if (name.length() > 25)
-    {
-      name = name.substring(0, 25);
-    }
-
-    GraphDBService service = GraphDBService.getInstance();
-    GraphRequest ddl = service.getDDLGraphDBRequest();
-
-    while (service.isEdgeClassDefined(ddl, name))
-    {
-      count++;
-
-      name = PREFIX + count + className;
-
-      if (name.length() > 25)
-      {
-        name = name.substring(0, 25);
-      }
-    }
-
-    return name;
   }
 
   private MdVertex createTable(ServerGeoObjectType type, MdVertexDAOIF rootMdVertex)
@@ -204,6 +180,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     MdEdgeDAO mdEdgeDAO = MdEdgeDAO.newInstance();
     mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.UNIVERSAL_GRAPH_PACKAGE);
     mdEdgeDAO.setValue(MdEdgeInfo.NAME, viewName);
+    mdEdgeDAO.setValue(MdEdgeInfo.DB_CLASS_NAME, viewName);
     mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, mdBusGeoEntity.getOid());
     mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, mdBusGeoEntity.getOid());
     LocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, type.getLabel());
@@ -231,10 +208,10 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
 
     super.delete();
   }
-  
+
   @Override
   @Transaction
-  @Authenticate  
+  @Authenticate
   public void remove()
   {
     this.delete();
@@ -269,7 +246,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
       throw new ProgrammingErrorException("Unable to find Labeled Property Graph Edge definition for the type [" + type.getCode() + "]");
     });
   }
-  
+
   public List<ExecutableJob> getJobs()
   {
     LinkedList<ExecutableJob> jobs = new LinkedList<ExecutableJob>();
@@ -285,6 +262,34 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     return jobs;
   }
 
+  public JobHistory createPublishJob()
+  {
+    QueryFactory factory = new QueryFactory();
+
+    PublishLabeledPropertyGraphTypeVersionJobQuery query = new PublishLabeledPropertyGraphTypeVersionJobQuery(factory);
+    query.WHERE(query.getVersion().EQ(this));
+
+    JobHistoryQuery q = new JobHistoryQuery(factory);
+    q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED, AllJobStatus.RUNNING));
+    q.AND(q.job(query));
+
+    if (q.getCount() > 0)
+    {
+      throw new DuplicateJobException("This version has already been queued for publishing");
+    }
+
+    SingleActorDAOIF currentUser = Session.getCurrentSession().getUser();
+
+    PublishLabeledPropertyGraphTypeVersionJob job = new PublishLabeledPropertyGraphTypeVersionJob();
+    job.setRunAsUserId(currentUser.getOid());
+    job.setVersion(this);
+    job.setGraphType(this.getGraphType());
+    job.apply();
+
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+
+    return job.start();
+  }
 
   @Transaction
   @Authenticate
@@ -304,7 +309,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     return null;
   }
 
-  public JsonObject toJSON(boolean includeAttribute)
+  public JsonObject toJSON()
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
@@ -343,7 +348,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
   }
 
   @Transaction
-  public static LabeledPropertyGraphTypeVersion create(LabeledPropertyGraphTypeEntry listEntry, boolean working, int versionNumber, JsonObject metadata)
+  public static LabeledPropertyGraphTypeVersion create(LabeledPropertyGraphTypeEntry listEntry, boolean working, int versionNumber)
   {
     LabeledPropertyGraphType listType = listEntry.getGraphType();
 

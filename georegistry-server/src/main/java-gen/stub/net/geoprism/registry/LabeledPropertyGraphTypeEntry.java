@@ -24,14 +24,11 @@ import java.util.List;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
-
-import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class LabeledPropertyGraphTypeEntry extends LabeledPropertyGraphTypeEntryBase implements LabeledVersion
 {
@@ -99,7 +96,7 @@ public class LabeledPropertyGraphTypeEntry extends LabeledPropertyGraphTypeEntry
     {
       // Only include the versions the user has access to
 
-      jVersions.add(version.toJSON(false));
+      jVersions.add(version.toJSON());
     }
 
     object.add(LabeledPropertyGraphTypeEntry.VERSIONS, jVersions);
@@ -128,43 +125,46 @@ public class LabeledPropertyGraphTypeEntry extends LabeledPropertyGraphTypeEntry
 
     for (LabeledPropertyGraphTypeVersion entry : versions)
     {
-      jVersions.add(entry.toJSON(false));
+      jVersions.add(entry.toJSON());
     }
 
     return jVersions;
   }
 
-  // @Transaction
-  // @Authenticate
-  public LabeledPropertyGraphTypeVersion createVersion(JsonObject metadata)
+  @Transaction
+  public LabeledPropertyGraphTypeVersion createVersion()
   {
     List<LabeledPropertyGraphTypeVersion> versions = this.getVersions();
 
     int versionNumber = versions.size() > 0 ? versions.get(0).getVersionNumber() + 1 : 1;
 
-    return LabeledPropertyGraphTypeVersion.create(this, false, versionNumber, metadata);
+    return LabeledPropertyGraphTypeVersion.create(this, false, versionNumber);
   }
 
   @Override
-  @Transaction
   @Authenticate
-  public String publish(String metadata)
+  public String publish()
   {
     // Create a new version and publish it
-    LabeledPropertyGraphTypeVersion version = this.createVersion(JsonParser.parseString(metadata).getAsJsonObject());
+    LabeledPropertyGraphTypeVersion version = this.createVersion();
 
-    return version.publish();
+    // Refresh the users session
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
+    version.createPublishJob();
+
+    return version.toJSON().toString();
   }
 
   @Transaction
-  public static LabeledPropertyGraphTypeEntry create(LabeledPropertyGraphType list, Date forDate, JsonObject metadata)
+  public static LabeledPropertyGraphTypeEntry create(LabeledPropertyGraphType list, Date forDate)
   {
     LabeledPropertyGraphTypeEntry entry = new LabeledPropertyGraphTypeEntry();
     entry.setGraphType(list);
     entry.setForDate(forDate);
     entry.apply();
 
-    entry.setWorking(LabeledPropertyGraphTypeVersion.create(entry, true, 0, metadata));
+    entry.setWorking(LabeledPropertyGraphTypeVersion.create(entry, true, 0));
     entry.apply();
 
     return entry;

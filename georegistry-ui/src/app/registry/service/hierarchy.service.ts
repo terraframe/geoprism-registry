@@ -26,7 +26,7 @@ import { HierarchyType, HierarchyGroupedTypeView } from "@registry/model/hierarc
 import { TreeEntity } from "@registry/model/registry";
 import { EventService } from "@shared/service";
 
-import { GeoRegistryConfiguration } from "@core/model/core"; import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class HierarchyService {

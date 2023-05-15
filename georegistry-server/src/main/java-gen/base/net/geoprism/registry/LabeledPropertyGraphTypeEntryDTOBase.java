@@ -1,11 +1,11 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 910064527)
+@com.runwaysdk.business.ClassSignature(hash = -38318557)
 public abstract class LabeledPropertyGraphTypeEntryDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.LabeledPropertyGraphTypeEntry";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 910064527;
+  private static final long serialVersionUID = -38318557;
   
   protected LabeledPropertyGraphTypeEntryDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -490,18 +490,18 @@ public abstract class LabeledPropertyGraphTypeEntryDTOBase extends com.runwaysdk
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(WORKING).getAttributeMdDTO();
   }
   
-  public final java.lang.String publish(java.lang.String config)
+  public final java.lang.String publish()
   {
-    String[] _declaredTypes = new String[]{"java.lang.String"};
-    Object[] _parameters = new Object[]{config};
+    String[] _declaredTypes = new String[]{};
+    Object[] _parameters = new Object[]{};
     com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.LabeledPropertyGraphTypeEntryDTO.CLASS, "publish", _declaredTypes);
     return (java.lang.String) getRequest().invokeMethod(_metadata, this, _parameters);
   }
   
-  public static final java.lang.String publish(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid, java.lang.String config)
+  public static final java.lang.String publish(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
   {
-    String[] _declaredTypes = new String[]{"java.lang.String", "java.lang.String"};
-    Object[] _parameters = new Object[]{oid, config};
+    String[] _declaredTypes = new String[]{"java.lang.String"};
+    Object[] _parameters = new Object[]{oid};
     com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.LabeledPropertyGraphTypeEntryDTO.CLASS, "publish", _declaredTypes);
     return (java.lang.String) clientRequest.invokeMethod(_metadata, null, _parameters);
   }

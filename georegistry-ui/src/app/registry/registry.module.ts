@@ -163,6 +163,10 @@ import { ListModalComponent } from "./component/location-manager/list-modal.comp
 import { ListPanelComponent } from "./component/location-manager/list-panel.component";
 import { ListRowComponent } from "./component/location-manager/list-row.component";
 import { VotService } from "./service/vot.service";
+import { LabeledPropertyGraphTypeManagerComponent } from "./component/labeled-property-graph-type/labeled-property-graph-type-manager.component";
+import { LabeledPropertyGraphTypeComponent } from "./component/labeled-property-graph-type/labeled-property-graph-type.component";
+import { LabeledPropertyGraphTypeService } from "./service/labeled-property-graph-type.service";
+import { LabeledPropertyGraphTypePublishModalComponent } from "./component/labeled-property-graph-type/publish-modal.component";
 
 @NgModule({
     imports: [
@@ -292,7 +296,11 @@ import { VotService } from "./service/vot.service";
         ClassificationTypeComponent,
         ClassificationPublishModalComponent,
         ClassificationFieldComponent,
-        ClassificationFieldModalComponent
+        ClassificationFieldModalComponent,
+        // Labeled Property Graph Type
+        LabeledPropertyGraphTypeManagerComponent,
+        LabeledPropertyGraphTypeComponent,
+        LabeledPropertyGraphTypePublishModalComponent
     ],
     providers: [
         MapService,
@@ -313,6 +321,7 @@ import { VotService } from "./service/vot.service";
         BusinessTypeService,
         BusinessObjectService,
         ListTypeService,
+        LabeledPropertyGraphTypeService,
         ClassificationTypeService,
         ClassificationService,
         GeometryService,
@@ -354,7 +363,8 @@ import { VotService } from "./service/vot.service";
         ClassificationPublishModalComponent,
         ClassificationFieldModalComponent,
         ListModalComponent,
-        RecordPopupComponent
+        RecordPopupComponent,
+        LabeledPropertyGraphTypePublishModalComponent
     ]
 })
 export class RegistryModule { }

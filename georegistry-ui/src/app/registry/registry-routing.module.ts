@@ -42,6 +42,7 @@ import { ListComponent } from "./component/list-type/list.component";
 import { CurationJobComponent } from "./component/curation/curation-job.component";
 import { BusinessTableComponent } from "./component/business-table/business-table.component";
 import { ClassificationTypeManagerComponent } from "./component/classification-type/classification-type-manager.component";
+import { LabeledPropertyGraphTypeManagerComponent } from "./component/labeled-property-graph-type/labeled-property-graph-type-manager.component";
 
 const routes: Routes = [
     {
@@ -147,6 +148,11 @@ const routes: Routes = [
     {
         path: "classification-type",
         component: ClassificationTypeManagerComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: "labeled-property-graph-type",
+        component: LabeledPropertyGraphTypeManagerComponent,
         canActivate: [AuthGuard]
     }
 ];

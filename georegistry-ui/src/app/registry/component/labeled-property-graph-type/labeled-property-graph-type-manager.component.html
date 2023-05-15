@@ -1,0 +1,64 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<div class="new-admin-design-main" style="overflow-y:hidden;">
+    <cgr-header></cgr-header>
+    <loading-bar></loading-bar>
+
+    <div id="app-container" class="container-fluid">
+
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+        <div class="row">
+
+            <nav class="col-md-3 list-sidebar">
+                <div class="sidebar-section-content">
+                    <ul class="list-group">
+                        <li class="list-group-item got-li-item">
+                            <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
+                                <localize key="hierarchy.management.button.create"></localize>
+                            </button>
+                        </li>
+                        <li class="list-group-item got-li-item" *ngFor="let type of types" [id]="type.oid">
+                            <a [routerLink]="'/registry/labeled-property-graph-type'" [queryParams]="{oid:type.oid}"
+                                routerLinkActive="active">
+                                {{type.label}}
+                            </a>
+
+                            <span
+                                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);">
+
+                                <a class="fa fa-trash-o ico-remove" (click)="onDelete(type)"
+                                    [title]="'button.delete.helptext' | localize"></a>
+                            </span>
+
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="col-md-9 list-type-content">
+                <div id="overflow-div">
+                    <labeled-property-graph-type *ngIf="current != null" [type]="current" (error)="error($event)"></labeled-property-graph-type>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

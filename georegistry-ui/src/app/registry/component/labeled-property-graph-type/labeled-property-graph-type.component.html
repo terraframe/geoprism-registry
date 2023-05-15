@@ -1,0 +1,136 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<ng-template #versionDetail let-version='version' let-entry="entry">
+    <div class="row" style="margin-bottom:5px;line-height:40px;">
+        <div class="col-md-7" style="vertical-align: middle;">
+
+            <span>
+                <span class="h4">
+                    <localize key="list.type.version"></localize> {{version.versionNumber}}
+                </span>
+                <span style="margin-left:10px;color:grey;">
+                    <localize key="list.type.date.generated"></localize>: {{version.createDate}}
+                </span>
+            </span>
+        </div>
+        <div class="col-md-5" style="text-align: right;">
+            <button type="submit" (click)="onDelete(entry, version)"
+                class="btn btn-danger" role="button">
+                <localize key="modal.button.delete"></localize>
+            </button>
+        </div>
+
+    </div>
+
+</ng-template>
+
+
+<ng-container>
+
+    <div class="heading">
+        <div class="row">
+            <div class="col-md-12">
+                <h2>
+                    {{type.displayLabel.localizedValue}}
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12" style="padding: 20px 15px;">
+            <button type="submit" (click)="onViewConfiguration(type)" class="btn btn-default"
+                style="padding-right: 10px;" role="button">
+                <localize key="masterlist.button.configuration"></localize>
+            </button>
+
+            <button *ngIf="type.graphType === 'incremental'" type="submit" (click)="onCreateEntries()"
+                class="btn btn-primary" style="margin:0;" role="button">
+                <localize key="list.type.create.entries"></localize>
+            </button>
+        </div>
+    </div>
+
+
+    <div *ngFor="let entry of type.entries" class="row" style="margin-bottom: 5px;">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3>
+                                <ng-container *ngIf="entry.period.type === 'text'">
+                                    {{entry.period.value}}
+                                </ng-container>
+                                <ng-container *ngIf="entry.period.type === 'date'">
+                                    <date-text [date]="entry.period.value"></date-text>
+                                </ng-container>
+                                <ng-container *ngIf="entry.period.type === 'range'">
+                                    <date-text [date]="entry.period.value.startDate"></date-text>
+                                    -
+                                    <date-text [date]="entry.period.value.endDate"></date-text>
+                                </ng-container>
+
+                            </h3>
+                        </div>
+                    </div>
+
+
+                    <hr style="border-color:lightgrey;">
+
+                    <h4 style="margin-top:20px;">
+                        <localize key="list.type.published.versions.header"></localize>
+                    </h4>
+
+
+                    <div>
+                        <button type="submit" (click)="onCreate(entry)" class="btn btn-primary"
+                            style="margin:0;" role="button">
+                            <localize key="list.type.new.version"></localize>
+                        </button>
+
+                        <button *ngIf="entry.versions.length > 1" type="submit" (click)="toggleVersions(entry)"
+                            class="btn btn-default" role="button">
+                            <localize *ngIf="!entry.showAll" key="list.type.see.versions"></localize>
+                            <localize *ngIf="entry.showAll" key="list.type.hide.versions"></localize>
+                        </button>
+                    </div>
+
+                    <ng-container *ngIf="entry.versions.length > 0">
+                        <ng-container *ngFor="let version of entry.versions; let j = index;">
+                            <ng-container *ngIf="j === 0 || (entry.showAll)"
+                                [ngTemplateOutlet]="versionDetail"
+                                [ngTemplateOutletContext]="{entry:entry, version:version}">
+                            </ng-container>
+                        </ng-container>
+                    </ng-container>
+
+                    <div class="row" *ngIf="entry.versions.length === 0">
+                        <div class="col-md-12">
+                            <localize key="type.type.no.versions" style="color:grey;font-style:italic;"></localize>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</ng-container>

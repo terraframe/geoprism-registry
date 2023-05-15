@@ -33,14 +33,14 @@ public class SingleLabeledPropertyGraphType extends SingleLabeledPropertyGraphTy
 
   @Override
   @Transaction
-  public void createEntries(JsonObject metadata)
+  public void createEntries()
   {
     if (!this.isValid())
     {
       throw new InvalidMasterListException();
     }
 
-    this.getOrCreateEntry(this.getValidOn(), metadata);
+    this.getOrCreateEntry(this.getValidOn());
   }
 
   @Override

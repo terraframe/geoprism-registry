@@ -91,7 +91,7 @@ public class LabeledPropertyGraphTypeService
   public JsonObject createEntries(String sessionId, String oid)
   {
     LabeledPropertyGraphType mList = LabeledPropertyGraphType.get(oid);
-    mList.createEntries(null);
+    mList.createEntries();
 
     // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
@@ -118,7 +118,7 @@ public class LabeledPropertyGraphTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject createVersion(String sessionId, String oid, String metadata)
+  public JsonObject createVersion(String sessionId, String oid)
   {
     LabeledPropertyGraphTypeEntry entry = LabeledPropertyGraphTypeEntry.get(oid);
     LabeledPropertyGraphType listType = entry.getGraphType();
@@ -128,13 +128,12 @@ public class LabeledPropertyGraphTypeService
       throw new InvalidMasterListException();
     }
 
-    String version = entry.publish(metadata);
+    String version = entry.publish();
 
     // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
     return JsonParser.parseString(version).getAsJsonObject();
-    // return entry.toJSON(false);
   }
 
   @Request(RequestType.SESSION)
@@ -173,32 +172,7 @@ public class LabeledPropertyGraphTypeService
   public JsonObject publishVersion(String sessionId, String oid)
   {
     LabeledPropertyGraphTypeVersion version = LabeledPropertyGraphTypeVersion.get(oid);
-
-    QueryFactory factory = new QueryFactory();
-
-    PublishLabeledPropertyGraphTypeVersionJobQuery query = new PublishLabeledPropertyGraphTypeVersionJobQuery(factory);
-    query.WHERE(query.getVersion().EQ(version));
-
-    JobHistoryQuery q = new JobHistoryQuery(factory);
-    q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED, AllJobStatus.RUNNING));
-    q.AND(q.job(query));
-
-    if (q.getCount() > 0)
-    {
-      throw new DuplicateJobException("This version has already been queued for publishing");
-    }
-
-    SingleActorDAOIF currentUser = Session.getCurrentSession().getUser();
-    
-    PublishLabeledPropertyGraphTypeVersionJob job = new PublishLabeledPropertyGraphTypeVersionJob();
-    job.setRunAsUserId(currentUser.getOid());
-    job.setVersion(version);
-    job.setGraphType(version.getGraphType());
-    job.apply();
-
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
-
-    final JobHistory history = job.start();
+    JobHistory history = version.createPublishJob();
 
     JsonObject resp = new JsonObject();
     resp.addProperty("jobOid", history.getOid());
@@ -215,7 +189,7 @@ public class LabeledPropertyGraphTypeService
   public JsonObject getEntries(String sessionId, String oid)
   {
     LabeledPropertyGraphType listType = LabeledPropertyGraphType.get(oid);
-    
+
     return listType.toJSON(true);
   }
 
@@ -230,13 +204,13 @@ public class LabeledPropertyGraphTypeService
   @Request(RequestType.SESSION)
   public JsonObject getEntry(String sessionId, String oid)
   {
-    return LabeledPropertyGraphTypeVersion.get(oid).toJSON(true);
+    return LabeledPropertyGraphTypeVersion.get(oid).toJSON();
   }
 
   @Request(RequestType.SESSION)
   public JsonObject getVersion(String sessionId, String oid)
   {
-    return LabeledPropertyGraphTypeVersion.get(oid).toJSON(true);
+    return LabeledPropertyGraphTypeVersion.get(oid).toJSON();
   }
 
   @Request(RequestType.SESSION)
@@ -251,7 +225,6 @@ public class LabeledPropertyGraphTypeService
 
     return ja;
   }
-
 
   @Request(RequestType.SESSION)
   public JsonObject progress(String sessionId, String oid)

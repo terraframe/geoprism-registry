@@ -1,0 +1,365 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<div class="modal-body">
+    <ng-container *ngIf="type != null">
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+        <div class="text-center">
+            <h2>
+                <localize key="type.publish.configuration.header"></localize>
+            </h2>
+            <hr>
+        </div>
+
+        <!-- <div class="col-md-12 order-md-1"> -->
+        <form #form="ngForm" class="modal-form" autocomplete="off">
+
+            <fieldset>
+                <div class="row-holder" style="text-align: center;">
+                    <label class="radio radio-inline" style="padding-left:0;">
+                        <input class="inline-radio-input" type="radio" [checked]="type.graphType === 'single'"
+                            [value]="'single'" [(ngModel)]="type.graphType" name="single"
+                            [disabled]="readonly || !isNew">
+                        <span>
+                            <localize key="list.type.single.date"></localize>
+                        </span>
+                    </label>
+
+                    <label class="radio radio-inline" style="padding-left:0;">
+                        <input class="inline-radio-input" type="radio" [checked]="type.graphType === 'incremental'"
+                            [value]="'incremental'" [(ngModel)]="type.graphType" name="incremental"
+                            [disabled]="readonly || !isNew">
+                        <span>
+                            <localize key="list.type.incremental.series"></localize>
+                        </span>
+                    </label>
+
+                    <label class="radio radio-inline" style="padding-left:0;">
+                        <input class="inline-radio-input" type="radio" [checked]="type.graphType === 'interval'"
+                            [value]="'interval'" [(ngModel)]="type.graphType" name="interval"
+                            [disabled]="readonly || !isNew">
+                        <span>
+                            <localize key="list.type.interval.series"></localize>
+                        </span>
+                    </label>
+
+                </div>
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            <localize key="masterlist.code"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <input [(ngModel)]="type.code" name="code" type="text" class="form-control"
+                            [disabled]="readonly || !isNew" required />
+                    </div>
+                </div>
+                <div class="row-holder" *ngFor="let localeValue of type.displayLabel.localeValues">
+                    <div class="label-holder">
+                        <label>
+                            <localize key="masterlist.metadata.title"></localize>
+                            <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
+                                </convert-key-label>)</span>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text"
+                            class="form-control" [disabled]="readonly"
+                            [required]="localeValue.locale === 'defaultLocale'" />
+                    </div>
+                </div>
+                <div class="row-holder" *ngFor="let localeValue of type.description.localeValues">
+                    <div class="label-holder">
+                        <label>
+                            <localize key="masterlist.listAbstract"></localize>
+                            <span style="color: #BABABA">
+                                &nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)
+                            </span>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <input [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="text"
+                            class="form-control" [disabled]="readonly"
+                            [required]="localeValue.locale === 'defaultLocale'" />
+                    </div>
+                </div>
+
+
+                <div class="row-holder" *ngIf="type.graphType === 'single'">
+                    <div class="label-holder">
+                        <label for="validOn">
+                            <localize key="list.type.valid.on"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <date-field [(value)]="type.validOn" [classNames]="'form-control'" label=""
+                            [inputName]="'validOn'" [allowFutureDates]="false" name="typeValidOn" [required]="true"
+                            [disable]="readonly || !isNew" (valueChange)="handleDateChange()"></date-field>
+                    </div>
+                </div>
+
+                <ng-container *ngIf="type.graphType === 'incremental'">
+                    <div class="row-holder">
+                        <div class="label-holder">
+                            <label>
+                                <localize key="data.property.label.frequency"></localize>
+                            </label>
+                        </div>
+                        <div class="holder">
+                            <select class="select-area" name="frequency" [(ngModel)]="type.frequency"
+                                [disabled]="readonly || !isNew" required #frequency="ngModel">
+                                <option></option>
+                                <option value="ANNUAL">
+                                    <localize key="georegistry.frequency.annual"></localize>
+                                </option>
+                                <option value="BIANNUAL">
+                                    <localize key="georegistry.frequency.biannual"></localize>
+                                </option>
+                                <option value="QUARTER">
+                                    <localize key="georegistry.frequency.quarter"></localize>
+                                </option>
+                                <option value="MONTHLY">
+                                    <localize key="georegistry.frequency.monthly"></localize>
+                                </option>
+                            </select>
+                            <div *ngIf="!type.frequency && (frequency.dirty)"
+                                class="form-input-validation-error-message-wrapper">
+                                <p class="error-message">
+                                    <localize key="type.change.frequency"></localize>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row-holder">
+                        <div class="label-holder">
+                            <label>
+                                <localize key="data.property.label.publishingStartDate"></localize>
+                            </label>
+                        </div>
+                        <div class="holder">
+                            <span *ngIf="readonly" style="line-height: 40px;" class="date-string-display">
+                                <date-text [date]="type.publishingStartDate"></date-text>
+                            </span>
+                            <date-field *ngIf="!readonly" [(value)]="type.publishingStartDate"
+                                [classNames]="'form-control'" label="" [inputName]="'publishingStartDate'"
+                                [allowFutureDates]="false" name="typePublishingStartDate" [required]="true"
+                                [disable]="readonly || !isNew" (valueChange)="handleDateChange()"></date-field>
+
+                        </div>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="type.graphType === 'interval'">
+                    <div class="row-holder">
+                        <div class="label-holder">
+                            <label>
+                                <localize key="list.type.intervals"></localize>
+                            </label>
+                        </div>
+                        <div class="holder">
+                            <div *ngFor="let interval of type.intervalJson; let i = index;">
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <label>
+                                            <localize key="io.startDate"></localize>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label>
+                                            <localize key="io.endDate"></localize>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-2"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <date-field [(value)]="interval.startDate" [classNames]="'form-control'"
+                                            label="" [inputName]="'startDate-' + interval.oid"
+                                            [allowFutureDates]="false" [required]="true"
+                                            [disable]="readonly || (!isNew && interval.readonly != null)"
+                                            (valueChange)="handleDateChange()"></date-field>
+
+                                    </div>
+                                    <div class="col-md-5">
+                                        <date-field [(value)]="interval.endDate" [classNames]="'form-control'" label=""
+                                            [inputName]="'endDate-' + interval.oid" [allowInfinity]="true"
+                                            [required]="true"
+                                            [disable]="readonly || (!isNew && interval.readonly == 'BOTH')"
+                                            (valueChange)="handleDateChange()"></date-field>
+
+                                    </div>
+                                    <div class="col-md-2">
+                                        <i class="fa fa-times delete-btn clickable"
+                                            *ngIf="(isNew || interval.readonly == null)" (click)="removeInterval(i)"
+                                            [title]="'button.delete.helptext' | localize">
+                                        </i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" *ngIf="!readonly">
+                                <div class="col-md-12">
+                                    <button type="button" (click)="onNewInterval()" class="btn btn-primary"
+                                        role="button" style="margin:15px 0;">
+                                        <localize key="changeovertime.manageVersions.summaryKey.NEW"></localize>
+                                    </button>
+                                    <div *ngIf="!valid" style="float:none;" class="error-message">
+                                        <localize key="list.type.bad.interval.dates"></localize>
+                                    </div>
+                                    <div *ngIf="gap" style="float:none;" class="warning-text">
+                                        <localize key="manage.versions.gap.message"></localize>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            Types
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <div class="row" *ngIf="!(readonly || !isNew)">
+                            <div class="col-md-12">
+
+                                <select class="select-area" name="type" [disabled]="readonly || !isNew"
+                                    (change)="onSetType($event)">
+                                    <option></option>
+                                    <ng-container *ngFor="let t of types">
+                                        <option *ngIf="type.types.indexOf(t.code) === -1" [value]="t.code">
+                                            {{t.label.localizedValue}}
+                                        </option>
+                                    </ng-container>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" *ngFor="let t of type.types; let i = index;">
+                            <div class="col-md-5">
+                                {{t}}
+                            </div>
+                            <div class="col-md-2">
+                                <i class="fa fa-times delete-btn clickable" *ngIf="(isNew)" (click)="removeType(i)"
+                                    [title]="'button.delete.helptext' | localize">
+                                </i>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            Hierarchies
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <div class="row" *ngIf="!(readonly || !isNew)">
+                            <div class="col-md-12">
+
+                                <select class="select-area" name="hierarchy" [disabled]="readonly || !isNew"
+                                    (change)="onSetHierarchy($event)">
+                                    <option></option>
+                                    <ng-container *ngFor="let t of hierarchies">
+                                        <option *ngIf="type.types.indexOf(t.code) === -1" [value]="t.code">
+                                            {{t.label.localizedValue}}
+                                        </option>
+                                    </ng-container>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" *ngFor="let t of type.hierarchies; let i = index;">
+                            <div class="col-md-5">
+                                {{t}}
+                            </div>
+                            <div class="col-md-2">
+                                <i class="fa fa-times delete-btn clickable" *ngIf="(isNew)" (click)="removeHierarchy(i)"
+                                    [title]="'button.delete.helptext' | localize">
+                                </i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <ng-container *ngIf="type.types.length > 0">
+                    <div class="row-holder">
+                        <div class="label-holder">
+                            <label>
+                                Root Geo Object
+                            </label>
+                        </div>
+                        <div class="holder">
+                            <div class="row">
+                                <div class="col-md-5">
+
+                                    <select class="select-area" name="rootType"
+                                        [(ngModel)]="type.strategyConfiguration.typeCode"
+                                        [disabled]="readonly || !isNew" required>
+                                        <option></option>
+                                        <option *ngFor="let t of type.types" [value]="t">
+                                            {{t}}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <ng-container
+                                        *ngIf="type.strategyConfiguration.typeCode != null && type.strategyConfiguration.typeCode.length > 0">
+
+                                        <div class="holder" style="width:300px;">
+                                            <input name="root" [(ngModel)]="entityLabel" [typeaheadAsync]="true"
+                                                [typeahead]="dataSource" (typeaheadOnSelect)="typeaheadOnSelect($event)"
+                                                [typeaheadOptionsLimit]="7" 
+                                                typeaheadOptionField="name" 
+                                                [typeaheadMinLength]="0"
+                                                [typeaheadWaitMs]="300"
+                                                [container]="null"
+                                                [disabled]="readonly || !isNew"
+                                                class="form-control">
+                                        </div>
+                                    </ng-container>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <div class="row-holder">
+                    <div class="label-holder"></div>
+                    <div>
+                        <div class="button-holder">
+                            <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+                                <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
+                            </button>
+                            <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary"
+                                role="button" [disabled]="form.invalid || !valid">
+                                <localize key="io.submit"></localize>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+    </ng-container>
+</div>

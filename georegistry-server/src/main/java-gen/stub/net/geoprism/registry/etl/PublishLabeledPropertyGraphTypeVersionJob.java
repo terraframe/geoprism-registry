@@ -32,7 +32,7 @@ public class PublishLabeledPropertyGraphTypeVersionJob extends PublishLabeledPro
 
   public JsonObject toJSON()
   {
-    return this.getVersion().toJSON(false);
+    return this.getVersion().toJSON();
   }
 
   @Override
