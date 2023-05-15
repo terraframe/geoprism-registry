@@ -3,6 +3,7 @@ package net.geoprism.registry.graph;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
@@ -22,6 +23,8 @@ public abstract class AbstractStrategyPublisher implements StrategyPublisher
     VertexObject node = new VertexObject(mdVertex.definesType());
 
     node.setValue(DefaultAttribute.CODE.getName(), object.getCode());
+
+    this.setGeometryValue(object, type, node);
 
     Map<String, AttributeType> attributes = type.getAttributeMap();
 
@@ -46,6 +49,28 @@ public abstract class AbstractStrategyPublisher implements StrategyPublisher
     node.apply();
 
     return node;
+  }
+
+  private void setGeometryValue(ServerGeoObjectIF object, ServerGeoObjectType type, VertexObject node)
+  {
+    GeometryType geometryType = type.getGeometryType();
+
+    if (geometryType.equals(GeometryType.LINE) || geometryType.equals(GeometryType.MULTILINE))
+    {
+      node.setValue(GeoVertex.GEOMULTILINE, object.getGeometry());
+    }
+    else if (geometryType.equals(GeometryType.POINT) || geometryType.equals(GeometryType.MULTIPOINT))
+    {
+      node.setValue(GeoVertex.GEOMULTIPOINT, object.getGeometry());
+    }
+    else if (geometryType.equals(GeometryType.MULTIPOLYGON) || geometryType.equals(GeometryType.MULTIPOLYGON))
+    {
+      node.setValue(GeoVertex.GEOMULTIPOLYGON, object.getGeometry());
+    }
+    else if (geometryType.equals(GeometryType.MIXED))
+    {
+      node.setValue(GeoVertex.SHAPE, object.getGeometry());
+    }
   }
 
 }

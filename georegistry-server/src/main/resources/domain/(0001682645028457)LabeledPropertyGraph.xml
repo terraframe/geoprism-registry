@@ -59,7 +59,6 @@
           <reference name="working" type="net.geoprism.registry.LabeledPropertyGraphTypeVersion" required="false" label="Working" />          
         </attributes> 
         <mdMethod name="publish" label="publish" static="false" returnType="java.lang.String">
-            <mdParameter name="config" label="config" order="0" type="java.lang.String" />        
         </mdMethod>        
       </mdBusiness>
       <mdBusiness name="net.geoprism.registry.LabeledPropertyGraphTypeVersion" label="Entry Version" generateController="false">
@@ -258,6 +257,37 @@
         </grant>
       </role>
     </permissions>
+    <createOrUpdate>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.menu">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.menu" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Labeled Property Graphs" />
+        </attributeStruct>
+      </object>                        
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.types">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.types" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Types" />
+        </attributeStruct>
+      </object>                        
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.hierarchies">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.hierarchies" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hierarchies" />
+        </attributeStruct>
+      </object>                        
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.root">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.root" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Root Geo Object" />
+        </attributeStruct>
+      </object>                        
+      
+    </createOrUpdate>
   </doIt>
   <undoIt>
     <delete>
