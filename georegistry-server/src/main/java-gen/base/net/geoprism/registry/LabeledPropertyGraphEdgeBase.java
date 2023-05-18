@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 641720262)
+@com.runwaysdk.business.ClassSignature(hash = -1316158462)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -14,7 +14,6 @@ public abstract class LabeledPropertyGraphEdgeBase extends com.runwaysdk.busines
   public final static java.lang.String CREATEDATE = "createDate";
   public final static java.lang.String CREATEDBY = "createdBy";
   public final static java.lang.String ENTITYDOMAIN = "entityDomain";
-  public final static java.lang.String GEOOBJECTMDEDGE = "geoObjectMdEdge";
   public final static java.lang.String GRAPHMDEDGE = "graphMdEdge";
   public final static java.lang.String KEYNAME = "keyName";
   public final static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
@@ -25,8 +24,9 @@ public abstract class LabeledPropertyGraphEdgeBase extends com.runwaysdk.busines
   public final static java.lang.String SEQ = "seq";
   public final static java.lang.String SITEMASTER = "siteMaster";
   public final static java.lang.String TYPE = "type";
+  public final static java.lang.String TYPECODE = "typeCode";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 641720262;
+  private static final long serialVersionUID = -1316158462;
   
   public LabeledPropertyGraphEdgeBase()
   {
@@ -126,58 +126,6 @@ public abstract class LabeledPropertyGraphEdgeBase extends com.runwaysdk.busines
     else
     {
       setValue(ENTITYDOMAIN, oid);
-    }
-  }
-  
-  public com.runwaysdk.system.metadata.MdEdge getGeoObjectMdEdge()
-  {
-    if (getValue(GEOOBJECTMDEDGE).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return com.runwaysdk.system.metadata.MdEdge.get(getValue(GEOOBJECTMDEDGE));
-    }
-  }
-  
-  public String getGeoObjectMdEdgeOid()
-  {
-    return getValue(GEOOBJECTMDEDGE);
-  }
-  
-  public void validateGeoObjectMdEdge()
-  {
-    this.validateAttribute(GEOOBJECTMDEDGE);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getGeoObjectMdEdgeMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.LabeledPropertyGraphEdge.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(GEOOBJECTMDEDGE);
-  }
-  
-  public void setGeoObjectMdEdge(com.runwaysdk.system.metadata.MdEdge value)
-  {
-    if(value == null)
-    {
-      setValue(GEOOBJECTMDEDGE, "");
-    }
-    else
-    {
-      setValue(GEOOBJECTMDEDGE, value.getOid());
-    }
-  }
-  
-  public void setGeoObjectMdEdgeId(java.lang.String oid)
-  {
-    if(oid == null)
-    {
-      setValue(GEOOBJECTMDEDGE, "");
-    }
-    else
-    {
-      setValue(GEOOBJECTMDEDGE, oid);
     }
   }
   
@@ -447,6 +395,34 @@ public abstract class LabeledPropertyGraphEdgeBase extends com.runwaysdk.busines
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.LabeledPropertyGraphEdge.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(TYPE);
+  }
+  
+  public String getTypeCode()
+  {
+    return getValue(TYPECODE);
+  }
+  
+  public void validateTypeCode()
+  {
+    this.validateAttribute(TYPECODE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getTypeCodeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.LabeledPropertyGraphEdge.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(TYPECODE);
+  }
+  
+  public void setTypeCode(String value)
+  {
+    if(value == null)
+    {
+      setValue(TYPECODE, "");
+    }
+    else
+    {
+      setValue(TYPECODE, value);
+    }
   }
   
   protected String getDeclaredType()

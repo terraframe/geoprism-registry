@@ -54,8 +54,6 @@ import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.MdAttributePointInfo;
 import com.runwaysdk.gis.dataaccess.MdAttributeGeometryDAOIF;
-import com.runwaysdk.gis.dataaccess.MdGeoVertexDAOIF;
-import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
@@ -329,18 +327,9 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     }
   }
 
-  public LabeledPropertyGraphVertex getRootMdVertex()
-  {
-    MdGeoVertexDAOIF geoVertex = MdGeoVertexDAO.getMdGeoVertexDAO(GeoVertex.CLASS);
-
-    return this.getVertices().stream().filter(mdVertex -> mdVertex.getGeoObjectMdVertexOid().equals(geoVertex.getOid())).findFirst().orElseThrow(() -> {
-      throw new ProgrammingErrorException("Unable to find Labeled Property Graph Vertex definition for the root type");
-    });
-  }
-
   public LabeledPropertyGraphVertex getMdVertexForType(ServerGeoObjectType type)
   {
-    return this.getVertices().stream().filter(mdVertex -> mdVertex.getGeoObjectMdVertexOid().equals(type.getMdVertex().getOid())).findFirst().orElseThrow(() -> {
+    return this.getVertices().stream().filter(mdVertex -> mdVertex.getTypeCode().equals(type.getCode())).findFirst().orElseThrow(() -> {
       throw new ProgrammingErrorException("Unable to find Labeled Property Graph Vertex definition for the type [" + type.getCode() + "]");
     });
   }
@@ -351,12 +340,12 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
       throw new ProgrammingErrorException("Unable to find Labeled Property Graph Vertex definition for the type [" + mdClass.definesType() + "]");
     });
 
-    return ServerGeoObjectType.get((MdVertexDAOIF) BusinessFacade.getEntityDAO(lpgv.getGeoObjectMdVertex()));
+    return ServerGeoObjectType.get(lpgv.getTypeCode());
   }
 
   public LabeledPropertyGraphEdge getMdEdgeForType(ServerHierarchyType type)
   {
-    return this.getEdges().stream().filter(mdEdge -> mdEdge.getGeoObjectMdEdgeOid().endsWith(type.getMdEdge().getOid())).findFirst().orElseThrow(() -> {
+    return this.getEdges().stream().filter(mdEdge -> mdEdge.getTypeCode().equals(type.getCode())).findFirst().orElseThrow(() -> {
       throw new ProgrammingErrorException("Unable to find Labeled Property Graph Edge definition for the type [" + type.getCode() + "]");
     });
   }
@@ -498,7 +487,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     rootMdVertexDAO.setValue(MdVertexInfo.ABSTRACT, MdAttributeBooleanInfo.TRUE);
     rootMdVertexDAO.apply();
 
-    version.addChild(rootMdVertexDAO.getOid(), MdGeoVertexDAO.getMdGeoVertexDAO(GeoVertex.CLASS));
+    version.addChild(rootMdVertexDAO.getOid(), (ServerGeoObjectType) null);
 
     LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(rootMdVertexDAO);
 
@@ -518,7 +507,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
 
       MdVertex mdVertex = version.createTable(type, rootMdVertexDAO);
 
-      version.addChild(mdVertex.getOid(), type.getMdVertex());
+      version.addChild(mdVertex.getOid(), type);
 
       LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(mdVertex);
     }
@@ -539,7 +528,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
 
       MdEdge mdEdge = version.createEdge(hierarchy, rootMdVertexDAO);
 
-      version.addChild(mdEdge, hierarchy.getMdEdgeDAO());
+      version.addChild(mdEdge, hierarchy);
 
       LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(mdEdge);
     }
@@ -547,11 +536,16 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     return version;
   }
 
-  private GraphHasVertex addChild(String graphVertexOid, MdVertexDAOIF geoObjectVertex)
+  private GraphHasVertex addChild(String graphVertexOid, ServerGeoObjectType type)
   {
     LabeledPropertyGraphVertex vertex = new LabeledPropertyGraphVertex();
     vertex.setGraphMdVertexId(graphVertexOid);
-    vertex.setGeoObjectMdVertexId(geoObjectVertex.getOid());
+
+    if (type != null)
+    {
+      vertex.setTypeCode(type.getCode());
+    }
+
     vertex.apply();
 
     GraphHasVertex relationship = this.addVertices(vertex);
@@ -560,11 +554,16 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     return relationship;
   }
 
-  private GraphHasEdge addChild(MdEdge graphEdge, MdEdgeDAOIF geoObjectEdge)
+  private GraphHasEdge addChild(MdEdge graphEdge, ServerHierarchyType type)
   {
     LabeledPropertyGraphEdge edge = new LabeledPropertyGraphEdge();
     edge.setGraphMdEdgeId(graphEdge.getOid());
-    edge.setGeoObjectMdEdgeId(geoObjectEdge.getOid());
+
+    if (type != null)
+    {
+      edge.setTypeCode(type.getCode());
+    }
+
     edge.apply();
 
     GraphHasEdge relationship = this.addEdges(edge);

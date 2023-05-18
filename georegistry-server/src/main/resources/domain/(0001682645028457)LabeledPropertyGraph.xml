@@ -75,14 +75,14 @@
       
       <mdBusiness name="net.geoprism.registry.LabeledPropertyGraphVertex" label="Labeled Property Graph Vertex" generateController="false" publish="false">
         <attributes>
-		  <reference name="geoObjectMdVertex" type="com.runwaysdk.system.metadata.MdVertex" required="false" label="MdAttribute" />
+		  <text name="typeCode" required="false" label="MdAttribute" />
 		  <reference name="graphMdVertex" type="com.runwaysdk.system.metadata.MdVertex" required="false" label="MdTermRelationship" />
         </attributes>
       </mdBusiness>
       
       <mdBusiness name="net.geoprism.registry.LabeledPropertyGraphEdge" label="Labeled Property Graph Edge" generateController="false" publish="false">
         <attributes>
-		  <reference name="geoObjectMdEdge" type="com.runwaysdk.system.metadata.MdEdge" required="false" label="MdAttribute" />
+		  <text name="typeCode" required="false" label="MdAttribute" />
 		  <reference name="graphMdEdge" type="com.runwaysdk.system.metadata.MdEdge" required="false" label="MdTermRelationship" />
         </attributes>
       </mdBusiness>

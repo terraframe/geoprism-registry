@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1947541212)
+@com.runwaysdk.business.ClassSignature(hash = -172176060)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -99,29 +99,6 @@ public  class LabeledPropertyGraphVertexQuery extends com.runwaysdk.query.Genera
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.LabeledPropertyGraphVertex.ENTITYDOMAIN);
 
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.LabeledPropertyGraphVertex.ENTITYDOMAIN, mdAttributeIF, this, alias, displayLabel);
-
-  }
-  public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex()
-  {
-    return getGeoObjectMdVertex(null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex(String alias)
-  {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.LabeledPropertyGraphVertex.GEOOBJECTMDVERTEX);
-
-    return (com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.LabeledPropertyGraphVertex.GEOOBJECTMDVERTEX, mdAttributeIF, this, alias, null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex(String alias, String displayLabel)
-  {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.LabeledPropertyGraphVertex.GEOOBJECTMDVERTEX);
-
-    return (com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.LabeledPropertyGraphVertex.GEOOBJECTMDVERTEX, mdAttributeIF, this, alias, displayLabel);
 
   }
   public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGraphMdVertex()
@@ -318,6 +295,23 @@ public  class LabeledPropertyGraphVertexQuery extends com.runwaysdk.query.Genera
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphVertex.TYPE, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getTypeCode()
+  {
+    return getTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphVertex.TYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphVertex.TYPECODE, alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -329,10 +323,6 @@ public  class LabeledPropertyGraphVertexQuery extends com.runwaysdk.query.Genera
     else if (name.equals(net.geoprism.registry.LabeledPropertyGraphVertex.ENTITYDOMAIN)) 
     {
        return new com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else if (name.equals(net.geoprism.registry.LabeledPropertyGraphVertex.GEOOBJECTMDVERTEX)) 
-    {
-       return new com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.LabeledPropertyGraphVertex.GRAPHMDVERTEX)) 
     {
@@ -514,9 +504,6 @@ public  class LabeledPropertyGraphVertexQuery extends com.runwaysdk.query.Genera
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
-    public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex();
-    public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex(String alias);
-    public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGraphMdVertex();
     public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGraphMdVertex(String alias);
     public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGraphMdVertex(String alias, String displayLabel);
@@ -547,6 +534,9 @@ public  class LabeledPropertyGraphVertexQuery extends com.runwaysdk.query.Genera
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getTypeCode();
+    public com.runwaysdk.query.SelectableChar getTypeCode(String alias);
+    public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.LabeledPropertyGraphVertex labeledPropertyGraphVertex);
 
@@ -655,23 +645,6 @@ public  class LabeledPropertyGraphVertexQuery extends com.runwaysdk.query.Genera
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphVertex.ENTITYDOMAIN,  alias, displayLabel);
-
-  }
-  public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex()
-  {
-    return getGeoObjectMdVertex(null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex(String alias)
-  {
-    return (com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphVertex.GEOOBJECTMDVERTEX, alias, null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphVertex.GEOOBJECTMDVERTEX,  alias, displayLabel);
 
   }
   public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGraphMdVertex()
@@ -844,6 +817,23 @@ public  class LabeledPropertyGraphVertexQuery extends com.runwaysdk.query.Genera
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphVertex.TYPE, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getTypeCode()
+  {
+    return getTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphVertex.TYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphVertex.TYPECODE, alias, displayLabel);
+
+  }
 
   public com.runwaysdk.query.Condition request()
   {
@@ -972,10 +962,6 @@ public  class LabeledPropertyGraphVertexQuery extends com.runwaysdk.query.Genera
     {
        return new com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
-    else if (name.equals(net.geoprism.registry.LabeledPropertyGraphVertex.GEOOBJECTMDVERTEX)) 
-    {
-       return new com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
     else if (name.equals(net.geoprism.registry.LabeledPropertyGraphVertex.GRAPHMDVERTEX)) 
     {
        return new com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
@@ -1017,9 +1003,6 @@ public  class LabeledPropertyGraphVertexQuery extends com.runwaysdk.query.Genera
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
-    public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex();
-    public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex(String alias);
-    public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGraphMdVertex();
     public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGraphMdVertex(String alias);
     public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGraphMdVertex(String alias, String displayLabel);
@@ -1050,6 +1033,9 @@ public  class LabeledPropertyGraphVertexQuery extends com.runwaysdk.query.Genera
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getTypeCode();
+    public com.runwaysdk.query.SelectableChar getTypeCode(String alias);
+    public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.LabeledPropertyGraphVertex ... labeledPropertyGraphVertex);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.LabeledPropertyGraphVertex ... labeledPropertyGraphVertex);
@@ -1185,23 +1171,6 @@ public  class LabeledPropertyGraphVertexQuery extends com.runwaysdk.query.Genera
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphVertex.ENTITYDOMAIN,  alias, displayLabel);
 
   }
-  public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex()
-  {
-    return getGeoObjectMdVertex(null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex(String alias)
-  {
-    return (com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphVertex.GEOOBJECTMDVERTEX, alias, null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGeoObjectMdVertex(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphVertex.GEOOBJECTMDVERTEX,  alias, displayLabel);
-
-  }
   public com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReferenceIF getGraphMdVertex()
   {
     return getGraphMdVertex(null);
@@ -1372,6 +1341,23 @@ public  class LabeledPropertyGraphVertexQuery extends com.runwaysdk.query.Genera
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphVertex.TYPE, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getTypeCode()
+  {
+    return getTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphVertex.TYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphVertex.TYPECODE, alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -1383,10 +1369,6 @@ public  class LabeledPropertyGraphVertexQuery extends com.runwaysdk.query.Genera
     else if (name.equals(net.geoprism.registry.LabeledPropertyGraphVertex.ENTITYDOMAIN)) 
     {
        return new com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else if (name.equals(net.geoprism.registry.LabeledPropertyGraphVertex.GEOOBJECTMDVERTEX)) 
-    {
-       return new com.runwaysdk.system.metadata.MdVertexQuery.MdVertexQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.LabeledPropertyGraphVertex.GRAPHMDVERTEX)) 
     {

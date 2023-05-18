@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 691779629)
+@com.runwaysdk.business.ClassSignature(hash = 517457179)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -14,7 +14,6 @@ public abstract class LabeledPropertyGraphVertexBase extends com.runwaysdk.busin
   public final static java.lang.String CREATEDATE = "createDate";
   public final static java.lang.String CREATEDBY = "createdBy";
   public final static java.lang.String ENTITYDOMAIN = "entityDomain";
-  public final static java.lang.String GEOOBJECTMDVERTEX = "geoObjectMdVertex";
   public final static java.lang.String GRAPHMDVERTEX = "graphMdVertex";
   public final static java.lang.String KEYNAME = "keyName";
   public final static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
@@ -25,8 +24,9 @@ public abstract class LabeledPropertyGraphVertexBase extends com.runwaysdk.busin
   public final static java.lang.String SEQ = "seq";
   public final static java.lang.String SITEMASTER = "siteMaster";
   public final static java.lang.String TYPE = "type";
+  public final static java.lang.String TYPECODE = "typeCode";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 691779629;
+  private static final long serialVersionUID = 517457179;
   
   public LabeledPropertyGraphVertexBase()
   {
@@ -126,58 +126,6 @@ public abstract class LabeledPropertyGraphVertexBase extends com.runwaysdk.busin
     else
     {
       setValue(ENTITYDOMAIN, oid);
-    }
-  }
-  
-  public com.runwaysdk.system.metadata.MdVertex getGeoObjectMdVertex()
-  {
-    if (getValue(GEOOBJECTMDVERTEX).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return com.runwaysdk.system.metadata.MdVertex.get(getValue(GEOOBJECTMDVERTEX));
-    }
-  }
-  
-  public String getGeoObjectMdVertexOid()
-  {
-    return getValue(GEOOBJECTMDVERTEX);
-  }
-  
-  public void validateGeoObjectMdVertex()
-  {
-    this.validateAttribute(GEOOBJECTMDVERTEX);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getGeoObjectMdVertexMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.LabeledPropertyGraphVertex.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(GEOOBJECTMDVERTEX);
-  }
-  
-  public void setGeoObjectMdVertex(com.runwaysdk.system.metadata.MdVertex value)
-  {
-    if(value == null)
-    {
-      setValue(GEOOBJECTMDVERTEX, "");
-    }
-    else
-    {
-      setValue(GEOOBJECTMDVERTEX, value.getOid());
-    }
-  }
-  
-  public void setGeoObjectMdVertexId(java.lang.String oid)
-  {
-    if(oid == null)
-    {
-      setValue(GEOOBJECTMDVERTEX, "");
-    }
-    else
-    {
-      setValue(GEOOBJECTMDVERTEX, oid);
     }
   }
   
@@ -447,6 +395,34 @@ public abstract class LabeledPropertyGraphVertexBase extends com.runwaysdk.busin
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.LabeledPropertyGraphVertex.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(TYPE);
+  }
+  
+  public String getTypeCode()
+  {
+    return getValue(TYPECODE);
+  }
+  
+  public void validateTypeCode()
+  {
+    this.validateAttribute(TYPECODE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getTypeCodeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.LabeledPropertyGraphVertex.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(TYPECODE);
+  }
+  
+  public void setTypeCode(String value)
+  {
+    if(value == null)
+    {
+      setValue(TYPECODE, "");
+    }
+    else
+    {
+      setValue(TYPECODE, value);
+    }
   }
   
   protected String getDeclaredType()

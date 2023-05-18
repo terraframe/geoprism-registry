@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1626832515)
+@com.runwaysdk.business.ClassSignature(hash = 977379051)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -99,29 +99,6 @@ public  class LabeledPropertyGraphEdgeQuery extends com.runwaysdk.query.Generate
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.LabeledPropertyGraphEdge.ENTITYDOMAIN);
 
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.LabeledPropertyGraphEdge.ENTITYDOMAIN, mdAttributeIF, this, alias, displayLabel);
-
-  }
-  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge()
-  {
-    return getGeoObjectMdEdge(null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge(String alias)
-  {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.LabeledPropertyGraphEdge.GEOOBJECTMDEDGE);
-
-    return (com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.LabeledPropertyGraphEdge.GEOOBJECTMDEDGE, mdAttributeIF, this, alias, null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge(String alias, String displayLabel)
-  {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.LabeledPropertyGraphEdge.GEOOBJECTMDEDGE);
-
-    return (com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.LabeledPropertyGraphEdge.GEOOBJECTMDEDGE, mdAttributeIF, this, alias, displayLabel);
 
   }
   public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGraphMdEdge()
@@ -318,6 +295,23 @@ public  class LabeledPropertyGraphEdgeQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphEdge.TYPE, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getTypeCode()
+  {
+    return getTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphEdge.TYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphEdge.TYPECODE, alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -329,10 +323,6 @@ public  class LabeledPropertyGraphEdgeQuery extends com.runwaysdk.query.Generate
     else if (name.equals(net.geoprism.registry.LabeledPropertyGraphEdge.ENTITYDOMAIN)) 
     {
        return new com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else if (name.equals(net.geoprism.registry.LabeledPropertyGraphEdge.GEOOBJECTMDEDGE)) 
-    {
-       return new com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.LabeledPropertyGraphEdge.GRAPHMDEDGE)) 
     {
@@ -514,9 +504,6 @@ public  class LabeledPropertyGraphEdgeQuery extends com.runwaysdk.query.Generate
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
-    public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge();
-    public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge(String alias);
-    public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGraphMdEdge();
     public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGraphMdEdge(String alias);
     public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGraphMdEdge(String alias, String displayLabel);
@@ -547,6 +534,9 @@ public  class LabeledPropertyGraphEdgeQuery extends com.runwaysdk.query.Generate
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getTypeCode();
+    public com.runwaysdk.query.SelectableChar getTypeCode(String alias);
+    public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.LabeledPropertyGraphEdge labeledPropertyGraphEdge);
 
@@ -655,23 +645,6 @@ public  class LabeledPropertyGraphEdgeQuery extends com.runwaysdk.query.Generate
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphEdge.ENTITYDOMAIN,  alias, displayLabel);
-
-  }
-  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge()
-  {
-    return getGeoObjectMdEdge(null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge(String alias)
-  {
-    return (com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphEdge.GEOOBJECTMDEDGE, alias, null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphEdge.GEOOBJECTMDEDGE,  alias, displayLabel);
 
   }
   public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGraphMdEdge()
@@ -844,6 +817,23 @@ public  class LabeledPropertyGraphEdgeQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphEdge.TYPE, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getTypeCode()
+  {
+    return getTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphEdge.TYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphEdge.TYPECODE, alias, displayLabel);
+
+  }
 
   public com.runwaysdk.query.Condition request()
   {
@@ -972,10 +962,6 @@ public  class LabeledPropertyGraphEdgeQuery extends com.runwaysdk.query.Generate
     {
        return new com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
-    else if (name.equals(net.geoprism.registry.LabeledPropertyGraphEdge.GEOOBJECTMDEDGE)) 
-    {
-       return new com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
     else if (name.equals(net.geoprism.registry.LabeledPropertyGraphEdge.GRAPHMDEDGE)) 
     {
        return new com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
@@ -1017,9 +1003,6 @@ public  class LabeledPropertyGraphEdgeQuery extends com.runwaysdk.query.Generate
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
-    public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge();
-    public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge(String alias);
-    public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGraphMdEdge();
     public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGraphMdEdge(String alias);
     public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGraphMdEdge(String alias, String displayLabel);
@@ -1050,6 +1033,9 @@ public  class LabeledPropertyGraphEdgeQuery extends com.runwaysdk.query.Generate
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getTypeCode();
+    public com.runwaysdk.query.SelectableChar getTypeCode(String alias);
+    public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.LabeledPropertyGraphEdge ... labeledPropertyGraphEdge);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.LabeledPropertyGraphEdge ... labeledPropertyGraphEdge);
@@ -1185,23 +1171,6 @@ public  class LabeledPropertyGraphEdgeQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphEdge.ENTITYDOMAIN,  alias, displayLabel);
 
   }
-  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge()
-  {
-    return getGeoObjectMdEdge(null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge(String alias)
-  {
-    return (com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphEdge.GEOOBJECTMDEDGE, alias, null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGeoObjectMdEdge(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphEdge.GEOOBJECTMDEDGE,  alias, displayLabel);
-
-  }
   public com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReferenceIF getGraphMdEdge()
   {
     return getGraphMdEdge(null);
@@ -1372,6 +1341,23 @@ public  class LabeledPropertyGraphEdgeQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphEdge.TYPE, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getTypeCode()
+  {
+    return getTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphEdge.TYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphEdge.TYPECODE, alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -1383,10 +1369,6 @@ public  class LabeledPropertyGraphEdgeQuery extends com.runwaysdk.query.Generate
     else if (name.equals(net.geoprism.registry.LabeledPropertyGraphEdge.ENTITYDOMAIN)) 
     {
        return new com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else if (name.equals(net.geoprism.registry.LabeledPropertyGraphEdge.GEOOBJECTMDEDGE)) 
-    {
-       return new com.runwaysdk.system.metadata.MdEdgeQuery.MdEdgeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.LabeledPropertyGraphEdge.GRAPHMDEDGE)) 
     {
