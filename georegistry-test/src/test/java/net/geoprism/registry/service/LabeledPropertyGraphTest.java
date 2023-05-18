@@ -45,6 +45,8 @@ import net.geoprism.registry.SingleLabeledPropertyGraphType;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobQuery;
+import net.geoprism.registry.graph.JsonGraphVersionPublisher;
+import net.geoprism.registry.graph.LabeledPropertyGraphJsonExporter;
 import net.geoprism.registry.graph.TreeStrategyConfiguration;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
@@ -415,6 +417,61 @@ public class LabeledPropertyGraphTest
 
       Assert.assertEquals(2, children.size());
 
+    }
+    finally
+    {
+      test1.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testLabeledPropertyGraphJsonExporter()
+  {
+    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT });
+
+    LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
+
+    try
+    {
+      List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
+
+      Assert.assertEquals(1, entries.size());
+
+      LabeledPropertyGraphTypeEntry entry = entries.get(0);
+
+      List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
+
+      Assert.assertEquals(1, versions.size());
+
+      LabeledPropertyGraphTypeVersion version = versions.get(0);
+      version.publishNoAuth();
+
+      LabeledPropertyGraphJsonExporter exporter = new LabeledPropertyGraphJsonExporter(version);
+      JsonObject export = exporter.export();
+
+      version.truncate();
+
+      new JsonGraphVersionPublisher(version).publish(export);
+
+      LabeledPropertyGraphVertex graphVertex = version.getMdVertexForType(USATestData.COUNTRY.getServerObject());
+      MdVertex mdVertex = graphVertex.getGraphMdVertex();
+
+      LabeledPropertyGraphEdge graphEdge = version.getMdEdgeForType(USATestData.HIER_ADMIN.getServerObject());
+      MdEdge mdEdge = graphEdge.getGraphMdEdge();
+
+      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
+      List<VertexObject> results = query.getResults();
+
+      Assert.assertEquals(1, results.size());
+
+      VertexObject result = results.get(0);
+
+      Assert.assertEquals(USATestData.USA.getCode(), result.getObjectValue(DefaultAttribute.CODE.getName()));
+
+      List<VertexObject> children = result.getChildren(mdEdge.definesType(), VertexObject.class);
+
+      Assert.assertEquals(2, children.size());
     }
     finally
     {

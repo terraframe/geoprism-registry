@@ -25,7 +25,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServerGeoObjectService;
 
-public class TreeStrategyPublisher extends AbstractStrategyPublisher implements StrategyPublisher
+public class TreeStrategyPublisher extends AbstractGraphVersionPublisher implements StrategyPublisher
 {
   private static class Snapshot
   {
@@ -89,7 +89,10 @@ public class TreeStrategyPublisher extends AbstractStrategyPublisher implements 
       {
         root.setDate(forDate);
 
-        stack.push(new Snapshot(root));
+        if (!root.getInvalid() && root.getExists(forDate))
+        {
+          stack.push(new Snapshot(root));
+        }
       }
 
       while (!stack.isEmpty())
@@ -103,7 +106,7 @@ public class TreeStrategyPublisher extends AbstractStrategyPublisher implements 
 
         if (!this.uids.contains(snapshot.node.getUid()))
         {
-          vertex = this.publish(snapshot.node, mdVertex);
+          vertex = this.publish(snapshot.node, mdVertex, forDate);
 
           final VertexObject parent = vertex;
 
@@ -121,7 +124,7 @@ public class TreeStrategyPublisher extends AbstractStrategyPublisher implements 
                 ServerGeoObjectIF child = childNode.getGeoObject();
                 child.setDate(forDate);
 
-                if (geoObjectTypes.contains(child.getType()))
+                if (child.getExists(forDate) && !child.getInvalid() && geoObjectTypes.contains(child.getType()))
                 {
                   stack.push(new Snapshot(child, mdEdge, parent));
                 }

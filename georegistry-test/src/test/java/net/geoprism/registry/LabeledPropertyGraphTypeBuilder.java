@@ -3,8 +3,6 @@
  */
 package net.geoprism.registry;
 
-import java.util.Date;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
@@ -12,6 +10,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.graph.StrategyConfiguration;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
+import net.geoprism.registry.test.USATestData;
 
 public class LabeledPropertyGraphTypeBuilder
 {
@@ -77,7 +76,7 @@ public class LabeledPropertyGraphTypeBuilder
     }
 
     SingleLabeledPropertyGraphType graph = new SingleLabeledPropertyGraphType();
-    graph.setValidOn(new Date());
+    graph.setValidOn(USATestData.DEFAULT_OVER_TIME_DATE);
     graph.getDisplayLabel().setValue("Test List");
     graph.setCode(this.code);
     graph.getDescription().setValue("My Abstract");

@@ -58,7 +58,7 @@ public class GeoObjectJsonAdapters
     
     public static String getCode(String goJson)
     {
-      JsonObject jo = new JsonParser().parse(goJson).getAsJsonObject();
+      JsonObject jo = JsonParser.parseString(goJson).getAsJsonObject();
       
       JsonObject properties = jo.get(GeoObjectJsonAdapters.JSON_PROPERTIES).getAsJsonObject();
       
@@ -67,7 +67,7 @@ public class GeoObjectJsonAdapters
     
     public static String getTypeCode(String goJson)
     {
-      JsonObject jo = new JsonParser().parse(goJson).getAsJsonObject();
+      JsonObject jo = JsonParser.parseString(goJson).getAsJsonObject();
       
       JsonObject properties = jo.get(GeoObjectJsonAdapters.JSON_PROPERTIES).getAsJsonObject();
       
