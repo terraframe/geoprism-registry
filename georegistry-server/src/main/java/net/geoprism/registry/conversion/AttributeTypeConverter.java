@@ -34,7 +34,6 @@ import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeClassificationInfo;
 import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.BusinessDAO;
@@ -55,11 +54,7 @@ import com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.RelationshipDAOIF;
-import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
-import com.runwaysdk.dataaccess.graph.VertexObjectDAOIF;
-import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.metadata.MdAttributeUUID;
 
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;

@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.GraphQuery;
@@ -565,6 +566,50 @@ public class LabeledPropertyGraphTest
         e.printStackTrace();
         Assert.fail("Interrupted while waiting");
       }
+    }
+  }
+
+  @Test
+  @Request
+  public void testJsonExportAndImportOfVersion()
+  {
+    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.COUNTY });
+
+    LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
+
+    try
+    {
+      List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
+
+      Assert.assertEquals(1, entries.size());
+
+      LabeledPropertyGraphTypeEntry entry = entries.get(0);
+
+      List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
+
+      Assert.assertEquals(1, versions.size());
+
+      LabeledPropertyGraphTypeVersion version = versions.get(0);
+      JsonObject versionJson = version.toJSON(true);
+
+      System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(versionJson));
+
+      version.delete();
+
+      version = LabeledPropertyGraphTypeVersion.create(versionJson);
+
+      List<LabeledPropertyGraphVertex> vertices = version.getVertices();
+
+      Assert.assertEquals(4, vertices.size());
+
+      List<LabeledPropertyGraphEdge> edges = version.getEdges();
+
+      Assert.assertEquals(1, edges.size());
+
+    }
+    finally
+    {
+      test1.delete();
     }
   }
 

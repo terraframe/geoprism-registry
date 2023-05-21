@@ -18,6 +18,15 @@
  */
 package net.geoprism.registry.conversion;
 
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.gis.dataaccess.MdAttributeLineStringDAOIF;
+import com.runwaysdk.gis.dataaccess.MdAttributeMultiLineStringDAOIF;
+import com.runwaysdk.gis.dataaccess.MdAttributeMultiPointDAOIF;
+import com.runwaysdk.gis.dataaccess.MdAttributeMultiPolygonDAOIF;
+import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
+import com.runwaysdk.gis.dataaccess.MdAttributePolygonDAOIF;
+import com.runwaysdk.gis.dataaccess.MdAttributeShapeDAOIF;
+
 public class GeometryTypeFactory
 {
   /**
@@ -53,6 +62,48 @@ public class GeometryTypeFactory
       return org.commongeoregistry.adapter.constants.GeometryType.MULTIPOLYGON;
     }
     else if (geoPrismGeometryType.equals(com.runwaysdk.system.gis.geo.GeometryType.SHAPE))
+    {
+      return org.commongeoregistry.adapter.constants.GeometryType.MIXED;
+    }
+    else
+    {
+      return null;
+    }
+  }
+  
+  /**
+   * Convert Geometry types between GeoPrism and the CGR standard.
+   * 
+   * @param geoPrismgeometryType
+   * @return CGR GeometryType
+   */
+  public static org.commongeoregistry.adapter.constants.GeometryType get(MdAttributeDAOIF mdAttribute)
+  {
+    if (mdAttribute instanceof MdAttributePointDAOIF)
+    {
+      return org.commongeoregistry.adapter.constants.GeometryType.POINT;
+    }
+    else if (mdAttribute instanceof MdAttributeLineStringDAOIF)
+    {
+      return org.commongeoregistry.adapter.constants.GeometryType.LINE;
+    }
+    else if (mdAttribute instanceof MdAttributePolygonDAOIF)
+    {
+      return org.commongeoregistry.adapter.constants.GeometryType.POLYGON;
+    }
+    else if (mdAttribute instanceof MdAttributeMultiPointDAOIF)
+    {
+      return org.commongeoregistry.adapter.constants.GeometryType.MULTIPOINT;
+    }
+    else if (mdAttribute instanceof MdAttributeMultiLineStringDAOIF)
+    {
+      return org.commongeoregistry.adapter.constants.GeometryType.MULTILINE;
+    }
+    else if (mdAttribute instanceof MdAttributeMultiPolygonDAOIF)
+    {
+      return org.commongeoregistry.adapter.constants.GeometryType.MULTIPOLYGON;
+    }
+    else if (mdAttribute instanceof MdAttributeShapeDAOIF)
     {
       return org.commongeoregistry.adapter.constants.GeometryType.MIXED;
     }
