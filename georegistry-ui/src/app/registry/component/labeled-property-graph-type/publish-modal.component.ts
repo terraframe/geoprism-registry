@@ -91,7 +91,7 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
         this.onChange = onChange;
 
         this.registryService.init().then(response => {
-            this.types = response.types;
+            this.types = response.types.filter(type => !type.isAbstract);
             this.hierarchies = response.hierarchies;
 
             if (type == null) {

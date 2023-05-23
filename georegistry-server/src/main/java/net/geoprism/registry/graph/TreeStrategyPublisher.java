@@ -15,10 +15,11 @@ import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.registry.InvalidMasterListException;
-import net.geoprism.registry.LabeledPropertyGraphEdge;
+import net.geoprism.registry.HierarchyTypeSnapshot;
 import net.geoprism.registry.LabeledPropertyGraphType;
 import net.geoprism.registry.LabeledPropertyGraphTypeVersion;
-import net.geoprism.registry.LabeledPropertyGraphVertex;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.GeoObjectTypeSnapshot;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -99,7 +100,7 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
       {
         Snapshot snapshot = stack.pop();
 
-        LabeledPropertyGraphVertex graphVertex = version.getMdVertexForType(snapshot.node.getType());
+        GeoObjectTypeSnapshot graphVertex = version.getSnapshot(snapshot.node.getType());
         MdVertex mdVertex = graphVertex.getGraphMdVertex();
 
         VertexObject vertex = null;
@@ -116,7 +117,7 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
 
             if (children.size() > 0)
             {
-              LabeledPropertyGraphEdge graphEdge = version.getMdEdgeForType(ht);
+              HierarchyTypeSnapshot graphEdge = version.getSnapshot(ht);
               MdEdge mdEdge = graphEdge.getGraphMdEdge();
 
               for (ServerChildTreeNode childNode : children)
@@ -156,7 +157,7 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
   private VertexObject get(MdVertex mdVertex, String uid)
   {
     MdVertexDAOIF mdVertexDAO = (MdVertexDAOIF) BusinessFacade.getEntityDAO(mdVertex);
-    MdAttributeDAOIF attribute = mdVertexDAO.definesAttribute("uuid");
+    MdAttributeDAOIF attribute = mdVertexDAO.definesAttribute(RegistryConstants.UUID);
 
     StringBuffer statement = new StringBuffer();
     statement.append("SELECT FROM " + mdVertex.getDbClassName());

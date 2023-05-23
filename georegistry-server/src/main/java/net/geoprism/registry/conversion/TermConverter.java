@@ -66,11 +66,10 @@ public class TermConverter
   {
     Classifier rootClassifier = Classifier.getByKey(this.rootClassifierKey);
 
-    return this.buildTermFromClassifier(rootClassifier);
-
+    return buildTermFromClassifier(rootClassifier);
   }
 
-  private Term buildTermFromClassifier(Classifier classifier)
+  public static Term buildTermFromClassifier(Classifier classifier)
   {
     LocalizedValue label = AttributeTypeConverter.convert(classifier.getDisplayLabel());
 
@@ -78,7 +77,7 @@ public class TermConverter
 
     OIterator<? extends net.geoprism.ontology.Classifier> childClassifiers = classifier.getAllIsAChild();
 
-    childClassifiers.forEach(c -> term.addChild(this.buildTermFromClassifier(c)));
+    childClassifiers.forEach(c -> term.addChild(buildTermFromClassifier(c)));
 
     return term;
   }

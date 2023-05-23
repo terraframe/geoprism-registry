@@ -5,6 +5,7 @@ package net.geoprism.registry.service;
 
 import java.util.List;
 
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
@@ -32,18 +33,20 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
+import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.ChangeFrequency;
+import net.geoprism.registry.GeoObjectTypeSnapshot;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.HierarchyTypeSnapshot;
 import net.geoprism.registry.IncrementalLabeledPropertyGraphType;
 import net.geoprism.registry.IntervalLabeledPropertyGraphType;
-import net.geoprism.registry.LabeledPropertyGraphEdge;
 import net.geoprism.registry.LabeledPropertyGraphType;
 import net.geoprism.registry.LabeledPropertyGraphTypeBuilder;
 import net.geoprism.registry.LabeledPropertyGraphTypeEntry;
 import net.geoprism.registry.LabeledPropertyGraphTypeVersion;
-import net.geoprism.registry.LabeledPropertyGraphVertex;
 import net.geoprism.registry.SingleLabeledPropertyGraphType;
 import net.geoprism.registry.classification.ClassificationTypeTest;
+import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobQuery;
 import net.geoprism.registry.graph.JsonGraphVersionPublisher;
@@ -103,10 +106,17 @@ public class LabeledPropertyGraphTest
     testClassification = (AttributeClassificationType) got.createAttributeType(testClassification.toJSON().toString());
 
     testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-
     testTerm = (AttributeTermType) got.createAttributeType(testTerm.toJSON().toString());
 
+    Term term = new Term("TERM_1", new LocalizedValue("Term 1"), new LocalizedValue("Term 1"));
+
+    Classifier classifier = TermConverter.createClassifierFromTerm(testTerm.getRootTerm().getCode(), term);
+    term = TermConverter.buildTermFromClassifier(classifier);
+
     USATestData.COLORADO.setDefaultValue(testClassification.getName(), CODE);
+    USATestData.COLORADO.setDefaultValue(testTerm.getName(), term);
+
+    RegistryService.getInstance().refreshMetadataCache();
   }
 
   @AfterClass
@@ -119,6 +129,7 @@ public class LabeledPropertyGraphTest
     }
 
     USATestData.COLORADO.removeDefaultValue(testClassification.getName());
+    USATestData.COLORADO.removeDefaultValue(testTerm.getName());
 
     if (type != null)
     {
@@ -255,11 +266,11 @@ public class LabeledPropertyGraphTest
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
 
-      List<LabeledPropertyGraphVertex> vertices = version.getVertices();
+      List<GeoObjectTypeSnapshot> vertices = version.getTypes();
 
       Assert.assertEquals(4, vertices.size());
 
-      List<LabeledPropertyGraphEdge> edges = version.getEdges();
+      List<HierarchyTypeSnapshot> edges = version.getHierarchies();
 
       Assert.assertEquals(1, edges.size());
     }
@@ -292,10 +303,10 @@ public class LabeledPropertyGraphTest
       LabeledPropertyGraphTypeVersion version = versions.get(0);
       version.publishNoAuth();
 
-      LabeledPropertyGraphVertex graphVertex = version.getMdVertexForType(USATestData.COUNTRY.getServerObject());
+      GeoObjectTypeSnapshot graphVertex = version.getSnapshot(USATestData.COUNTRY.getServerObject());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
 
-      LabeledPropertyGraphEdge graphEdge = version.getMdEdgeForType(USATestData.HIER_ADMIN.getServerObject());
+      HierarchyTypeSnapshot graphEdge = version.getSnapshot(USATestData.HIER_ADMIN.getServerObject());
       MdEdge mdEdge = graphEdge.getGraphMdEdge();
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
@@ -350,10 +361,10 @@ public class LabeledPropertyGraphTest
 
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
 
-      LabeledPropertyGraphVertex graphVertex = version.getMdVertexForType(USATestData.COUNTRY.getServerObject());
+      GeoObjectTypeSnapshot graphVertex = version.getSnapshot(USATestData.COUNTRY.getServerObject());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
 
-      LabeledPropertyGraphEdge graphEdge = version.getMdEdgeForType(USATestData.HIER_ADMIN.getServerObject());
+      HierarchyTypeSnapshot graphEdge = version.getSnapshot(USATestData.HIER_ADMIN.getServerObject());
       MdEdge mdEdge = graphEdge.getGraphMdEdge();
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
@@ -399,10 +410,10 @@ public class LabeledPropertyGraphTest
       LabeledPropertyGraphTypeVersion version = versions.get(0);
       version.publishNoAuth();
 
-      LabeledPropertyGraphVertex graphVertex = version.getMdVertexForType(USATestData.COUNTRY.getServerObject());
+      GeoObjectTypeSnapshot graphVertex = version.getSnapshot(USATestData.COUNTRY.getServerObject());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
 
-      LabeledPropertyGraphEdge graphEdge = version.getMdEdgeForType(USATestData.HIER_ADMIN.getServerObject());
+      HierarchyTypeSnapshot graphEdge = version.getSnapshot(USATestData.HIER_ADMIN.getServerObject());
       MdEdge mdEdge = graphEdge.getGraphMdEdge();
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
@@ -451,14 +462,16 @@ public class LabeledPropertyGraphTest
       LabeledPropertyGraphJsonExporter exporter = new LabeledPropertyGraphJsonExporter(version);
       JsonObject export = exporter.export();
 
+      System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(export));
+
       version.truncate();
 
       new JsonGraphVersionPublisher(version).publish(export);
 
-      LabeledPropertyGraphVertex graphVertex = version.getMdVertexForType(USATestData.COUNTRY.getServerObject());
+      GeoObjectTypeSnapshot graphVertex = version.getSnapshot(USATestData.COUNTRY.getServerObject());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
 
-      LabeledPropertyGraphEdge graphEdge = version.getMdEdgeForType(USATestData.HIER_ADMIN.getServerObject());
+      HierarchyTypeSnapshot graphEdge = version.getSnapshot(USATestData.HIER_ADMIN.getServerObject());
       MdEdge mdEdge = graphEdge.getGraphMdEdge();
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
@@ -473,6 +486,15 @@ public class LabeledPropertyGraphTest
       List<VertexObject> children = result.getChildren(mdEdge.definesType(), VertexObject.class);
 
       Assert.assertEquals(2, children.size());
+
+      children.forEach(child -> {
+        String code = child.getObjectValue(DefaultAttribute.CODE.getName());
+
+        if (code.equals(USATestData.COLORADO.getCode()))
+        {
+          Assert.assertNotNull(child.getObjectValue(testTerm.getName()));
+        }
+      });
     }
     finally
     {
@@ -497,6 +519,52 @@ public class LabeledPropertyGraphTest
     finally
     {
       service.remove(testData.clientRequest.getSessionId(), oid);
+    }
+  }
+
+  @Test
+  @Request
+  public void testJsonExportAndImport()
+  {
+    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.COUNTY });
+
+    LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
+
+    try
+    {
+      List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
+
+      Assert.assertEquals(1, entries.size());
+
+      LabeledPropertyGraphTypeEntry entry = entries.get(0);
+      JsonObject entryJson = entry.toJSON();
+
+      List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
+
+      Assert.assertEquals(1, versions.size());
+
+      LabeledPropertyGraphTypeVersion version = versions.get(0);
+      JsonObject versionJson = version.toJSON(true);
+
+      System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(versionJson));
+
+      entry.delete();
+
+      entry = LabeledPropertyGraphTypeEntry.create(test1, entryJson);
+      version = LabeledPropertyGraphTypeVersion.create(entry, versionJson);
+
+      List<GeoObjectTypeSnapshot> vertices = version.getTypes();
+
+      Assert.assertEquals(4, vertices.size());
+
+      List<HierarchyTypeSnapshot> edges = version.getHierarchies();
+
+      Assert.assertEquals(1, edges.size());
+
+    }
+    finally
+    {
+      test1.delete();
     }
   }
 
@@ -566,50 +634,6 @@ public class LabeledPropertyGraphTest
         e.printStackTrace();
         Assert.fail("Interrupted while waiting");
       }
-    }
-  }
-
-  @Test
-  @Request
-  public void testJsonExportAndImportOfVersion()
-  {
-    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.COUNTY });
-
-    LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
-
-    try
-    {
-      List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
-
-      Assert.assertEquals(1, entries.size());
-
-      LabeledPropertyGraphTypeEntry entry = entries.get(0);
-
-      List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
-
-      Assert.assertEquals(1, versions.size());
-
-      LabeledPropertyGraphTypeVersion version = versions.get(0);
-      JsonObject versionJson = version.toJSON(true);
-
-      System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(versionJson));
-
-      version.delete();
-
-      version = LabeledPropertyGraphTypeVersion.create(versionJson);
-
-      List<LabeledPropertyGraphVertex> vertices = version.getVertices();
-
-      Assert.assertEquals(4, vertices.size());
-
-      List<LabeledPropertyGraphEdge> edges = version.getEdges();
-
-      Assert.assertEquals(1, edges.size());
-
-    }
-    finally
-    {
-      test1.delete();
     }
   }
 

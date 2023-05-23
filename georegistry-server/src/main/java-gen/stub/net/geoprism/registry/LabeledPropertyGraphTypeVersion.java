@@ -19,24 +19,14 @@
 package net.geoprism.registry;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.constants.GeometryType;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.AttributeType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.runwaysdk.ComponentIF;
-import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
@@ -44,45 +34,22 @@ import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
-import com.runwaysdk.constants.MdAttributeBooleanInfo;
-import com.runwaysdk.constants.MdAttributeConcreteInfo;
-import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.constants.graph.MdEdgeInfo;
-import com.runwaysdk.constants.graph.MdVertexInfo;
-import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
-import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.graph.GraphDBService;
-import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
-import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
-import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.gis.constants.MdAttributePointInfo;
-import com.runwaysdk.gis.dataaccess.MdAttributeGeometryDAOIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.metadata.MdEdge;
-import com.runwaysdk.system.metadata.MdGraphClassQuery;
-import com.runwaysdk.system.metadata.MdVertex;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.rbac.RoleConstants;
-import net.geoprism.registry.action.GraphHasEdge;
-import net.geoprism.registry.action.GraphHasVertex;
-import net.geoprism.registry.conversion.AttributeTypeConverter;
-import net.geoprism.registry.conversion.GeometryTypeFactory;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobQuery;
-import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.StrategyPublisher;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -113,231 +80,6 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     super();
   }
 
-  private String getTableName(ServerGeoObjectType type)
-  {
-
-    MdVertexDAOIF mdVertex = type.getMdVertex();
-
-    String className = mdVertex.getDBClassName();
-
-    return this.getTableName(className);
-  }
-
-  public String getTableName(String className)
-  {
-    int count = 0;
-
-    String name = PREFIX + count + SPLIT + className;
-
-    if (name.length() > 25)
-    {
-      name = name.substring(0, 25);
-    }
-
-    while (isTableNameInUse(name))
-    {
-      count++;
-
-      name = PREFIX + count + className;
-
-      if (name.length() > 25)
-      {
-        name = name.substring(0, 25);
-      }
-    }
-
-    return name;
-  }
-
-  private boolean isTableNameInUse(String name)
-  {
-    MdGraphClassQuery query = new MdGraphClassQuery(new QueryFactory());
-    query.WHERE(query.getDbClassName().EQ(name));
-
-    return query.getCount() > 0;
-  }
-
-  private String getEdgeName(ServerHierarchyType type)
-  {
-
-    MdEdgeDAOIF mdEdge = type.getMdEdgeDAO();
-
-    String className = mdEdge.getDBClassName();
-
-    return this.getTableName(className);
-  }
-
-  private MdVertex createTable(ServerGeoObjectType type, MdVertexDAOIF rootMdVertex)
-  {
-    LabeledPropertyGraphType masterlist = this.getGraphType();
-
-    String viewName = this.getTableName(type);
-
-    // Create the MdTable
-    MdVertexDAO mdTableDAO = MdVertexDAO.newInstance();
-    mdTableDAO.setValue(MdVertexInfo.NAME, viewName);
-    mdTableDAO.setValue(MdVertexInfo.PACKAGE, RegistryConstants.TABLE_PACKAGE);
-    mdTableDAO.setStructValue(MdVertexInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, masterlist.getDisplayLabel().getValue());
-    mdTableDAO.setValue(MdVertexInfo.DB_CLASS_NAME, viewName);
-    mdTableDAO.setValue(MdVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-    mdTableDAO.setValue(MdVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-    mdTableDAO.setValue(MdVertexInfo.SUPER_MD_VERTEX, rootMdVertex.getOid());
-    mdTableDAO.apply();
-
-    this.createGeometryAttribute(type, mdTableDAO);
-
-    List<String> existingAttributes = mdTableDAO.getAllDefinedMdAttributes().stream().map(attribute -> attribute.definesAttribute()).collect(Collectors.toList());
-
-    MdVertexDAOIF sourceMdVertex = type.getMdVertex();
-
-    List<? extends MdAttributeDAOIF> attributes = sourceMdVertex.getAllDefinedMdAttributes();
-
-    attributes.forEach(attribute -> {
-      String attributeName = attribute.definesAttribute();
-      if (!attribute.isSystem() && ! ( attribute instanceof MdAttributeGeometryDAOIF ) && !existingAttributes.contains(attributeName))
-      {
-        MdAttributeDAO mdAttribute = (MdAttributeDAO) attribute.copy();
-        mdAttribute.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-        mdAttribute.apply();
-      }
-    });
-
-    return (MdVertex) BusinessFacade.get(mdTableDAO);
-  }
-
-  private MdVertex createTable(JsonObject type, MdVertexDAOIF rootMdVertex)
-  {
-    LabeledPropertyGraphType masterlist = this.getGraphType();
-
-    String viewName = this.getTableName(type.get("tableName").getAsString());
-
-    // Create the MdTable
-    MdVertexDAO mdTableDAO = MdVertexDAO.newInstance();
-    mdTableDAO.setValue(MdVertexInfo.NAME, viewName);
-    mdTableDAO.setValue(MdVertexInfo.PACKAGE, RegistryConstants.TABLE_PACKAGE);
-    mdTableDAO.setStructValue(MdVertexInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, masterlist.getDisplayLabel().getValue());
-    mdTableDAO.setValue(MdVertexInfo.DB_CLASS_NAME, viewName);
-    mdTableDAO.setValue(MdVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-    mdTableDAO.setValue(MdVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-    mdTableDAO.setValue(MdVertexInfo.SUPER_MD_VERTEX, rootMdVertex.getOid());
-    mdTableDAO.apply();
-
-    MdVertex mdTable = (MdVertex) BusinessFacade.get(mdTableDAO);
-
-    this.createGeometryAttribute(GeometryType.valueOf(type.get("geometryType").getAsString()), mdTableDAO);
-
-    JsonArray attributes = type.get("attributes").getAsJsonArray();
-
-    attributes.forEach(joAttr -> {
-      AttributeType attributeType = AttributeType.parse(joAttr.getAsJsonObject());
-
-      ServerGeoObjectType.createMdAttributeFromAttributeType(mdTable, attributeType);
-    });
-
-    return (MdVertex) BusinessFacade.get(mdTableDAO);
-  }
-
-  private void createGeometryAttribute(ServerGeoObjectType type, MdVertexDAO mdTableDAO)
-  {
-    createGeometryAttribute(type.getGeometryType(), mdTableDAO);
-  }
-
-  private void createGeometryAttribute(GeometryType geometryType, MdVertexDAO mdTableDAO)
-  {
-    MdVertexDAOIF mdGeoVertex = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS);
-    Map<String, ? extends MdAttributeDAOIF> map = mdGeoVertex.getAllDefinedMdAttributeMap();
-
-    // Create the geometry attribute
-    if (geometryType.equals(GeometryType.LINE))
-    {
-      MdAttributeDAO mdAttribute = (MdAttributeDAO) map.get(GeoVertex.GEOLINE.toLowerCase()).copy();
-      mdAttribute.setValue(MdAttributePointInfo.NAME, DefaultAttribute.GEOMETRY.getName());
-      mdAttribute.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-      mdAttribute.apply();
-    }
-    else if (geometryType.equals(GeometryType.MULTILINE))
-    {
-      MdAttributeDAO mdAttribute = (MdAttributeDAO) map.get(GeoVertex.GEOMULTILINE.toLowerCase()).copy();
-      mdAttribute.setValue(MdAttributePointInfo.NAME, DefaultAttribute.GEOMETRY.getName());
-      mdAttribute.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-      mdAttribute.apply();
-    }
-    else if (geometryType.equals(GeometryType.POINT))
-    {
-      MdAttributeDAO mdAttribute = (MdAttributeDAO) map.get(GeoVertex.GEOPOINT.toLowerCase()).copy();
-      mdAttribute.setValue(MdAttributePointInfo.NAME, DefaultAttribute.GEOMETRY.getName());
-      mdAttribute.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-      mdAttribute.apply();
-    }
-    else if (geometryType.equals(GeometryType.MULTIPOINT))
-    {
-      MdAttributeDAO mdAttribute = (MdAttributeDAO) map.get(GeoVertex.GEOMULTIPOINT.toLowerCase()).copy();
-      mdAttribute.setValue(MdAttributePointInfo.NAME, DefaultAttribute.GEOMETRY.getName());
-      mdAttribute.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-      mdAttribute.apply();
-    }
-    else if (geometryType.equals(GeometryType.POLYGON))
-    {
-      MdAttributeDAO mdAttribute = (MdAttributeDAO) map.get(GeoVertex.GEOPOLYGON.toLowerCase()).copy();
-      mdAttribute.setValue(MdAttributePointInfo.NAME, DefaultAttribute.GEOMETRY.getName());
-      mdAttribute.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-      mdAttribute.apply();
-    }
-    else if (geometryType.equals(GeometryType.MULTIPOLYGON))
-    {
-      MdAttributeDAO mdAttribute = (MdAttributeDAO) map.get(GeoVertex.GEOMULTIPOLYGON.toLowerCase()).copy();
-      mdAttribute.setValue(MdAttributePointInfo.NAME, DefaultAttribute.GEOMETRY.getName());
-      mdAttribute.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-      mdAttribute.apply();
-    }
-    else if (geometryType.equals(GeometryType.MIXED))
-    {
-      MdAttributeDAO mdAttribute = (MdAttributeDAO) map.get(GeoVertex.SHAPE.toLowerCase()).copy();
-      mdAttribute.setValue(MdAttributePointInfo.NAME, DefaultAttribute.GEOMETRY.getName());
-      mdAttribute.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
-      mdAttribute.apply();
-    }
-  }
-
-  private MdEdge createEdge(ServerHierarchyType type, MdVertexDAOIF mdBusGeoEntity)
-  {
-    String viewName = this.getEdgeName(type);
-
-    MdEdgeDAO mdEdgeDAO = MdEdgeDAO.newInstance();
-    mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.UNIVERSAL_GRAPH_PACKAGE);
-    mdEdgeDAO.setValue(MdEdgeInfo.NAME, viewName);
-    mdEdgeDAO.setValue(MdEdgeInfo.DB_CLASS_NAME, viewName);
-    mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, mdBusGeoEntity.getOid());
-    mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, mdBusGeoEntity.getOid());
-    LocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, type.getLabel());
-    LocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, LocalizedValueConverter.convertNoAutoCoalesce(type.getDescription()));
-    mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-    mdEdgeDAO.apply();
-
-    return (MdEdge) BusinessFacade.get(mdEdgeDAO);
-  }
-
-  private MdEdge createEdge(JsonObject type, MdVertexDAOIF mdBusGeoEntity)
-  {
-    String viewName = this.getTableName(type.get("tableName").getAsString());
-
-    LocalizedValue label = LocalizedValue.fromJSON(type.get("label").getAsJsonObject());
-    LocalizedValue description = LocalizedValue.fromJSON(type.get("description").getAsJsonObject());
-
-    MdEdgeDAO mdEdgeDAO = MdEdgeDAO.newInstance();
-    mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.UNIVERSAL_GRAPH_PACKAGE);
-    mdEdgeDAO.setValue(MdEdgeInfo.NAME, viewName);
-    mdEdgeDAO.setValue(MdEdgeInfo.DB_CLASS_NAME, viewName);
-    mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, mdBusGeoEntity.getOid());
-    mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, mdBusGeoEntity.getOid());
-    LocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, label);
-    LocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, description);
-    mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-    mdEdgeDAO.apply();
-
-    return (MdEdge) BusinessFacade.get(mdEdgeDAO);
-  }
-
   @Override
   @Transaction
   public void delete()
@@ -350,8 +92,13 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
       job.delete();
     }
 
-    this.getEdges().forEach(e -> LabeledPropertyGraphEdge.get(e.getOid()).delete());
-    this.getVertices().forEach(v -> LabeledPropertyGraphVertex.get(v.getOid()).delete());
+    this.getHierarchies().forEach(e -> HierarchyTypeSnapshot.get(e.getOid()).delete());
+    
+    // Delete the non-root snapshots first
+    this.getTypes().stream().filter(v -> !v.isRoot()).forEach(v -> GeoObjectTypeSnapshot.get(v.getOid()).delete());
+    
+    // Delete the root snapshots after all the sub snapshots have been deleted
+    this.getTypes().stream().filter(v -> v.isRoot()).forEach(v -> GeoObjectTypeSnapshot.get(v.getOid()).delete());
 
     super.delete();
   }
@@ -368,7 +115,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-    MdVertexDAOIF mdVertex = (MdVertexDAOIF) BusinessFacade.getEntityDAO(this.getMdVertexForType(type).getGraphMdVertex());
+    MdVertexDAOIF mdVertex = (MdVertexDAOIF) BusinessFacade.getEntityDAO(this.getSnapshot(type).getGraphMdVertex());
     MdAttributeDAOIF mdAttribute = mdVertex.definesAttribute(RegistryConstants.UUID);
 
     StringBuilder statement = new StringBuilder();
@@ -381,43 +128,60 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     return query.getSingleResult();
   }
 
-  public List<LabeledPropertyGraphVertex> getVertices()
+  public List<GeoObjectTypeSnapshot> getTypes()
   {
-    try (OIterator<? extends Business> it = this.getChildren(GraphHasVertex.CLASS))
+    GeoObjectTypeSnapshotQuery query = new GeoObjectTypeSnapshotQuery(new QueryFactory());
+    query.WHERE(query.getVersion().EQ(this));
+
+    try (OIterator<? extends GeoObjectTypeSnapshot> it = query.getIterator())
     {
-      return it.getAll().stream().map(b -> (LabeledPropertyGraphVertex) b).collect(Collectors.toList());
+      return it.getAll().stream().map(b -> (GeoObjectTypeSnapshot) b).collect(Collectors.toList());
     }
   }
 
-  public List<LabeledPropertyGraphEdge> getEdges()
+  public List<HierarchyTypeSnapshot> getHierarchies()
   {
-    try (OIterator<? extends Business> it = this.getChildren(GraphHasEdge.CLASS))
+    HierarchyTypeSnapshotQuery query = new HierarchyTypeSnapshotQuery(new QueryFactory());
+    query.WHERE(query.getVersion().EQ(this));
+
+    try (OIterator<? extends HierarchyTypeSnapshot> it = query.getIterator())
     {
-      return it.getAll().stream().map(b -> (LabeledPropertyGraphEdge) b).collect(Collectors.toList());
+      return it.getAll().stream().map(b -> (HierarchyTypeSnapshot) b).collect(Collectors.toList());
     }
   }
 
-  public LabeledPropertyGraphVertex getMdVertexForType(ServerGeoObjectType type)
+  public GeoObjectTypeSnapshot getSnapshot(ServerGeoObjectType type)
   {
-    return this.getVertices().stream().filter(mdVertex -> mdVertex.getTypeCode().equals(type.getCode())).findFirst().orElseThrow(() -> {
-      throw new ProgrammingErrorException("Unable to find Labeled Property Graph Vertex definition for the type [" + type.getCode() + "]");
-    });
+    GeoObjectTypeSnapshotQuery query = new GeoObjectTypeSnapshotQuery(new QueryFactory());
+    query.WHERE(query.getVersion().EQ(this));
+    query.AND(query.getCode().EQ(type.getCode()));
+
+    try (OIterator<? extends GeoObjectTypeSnapshot> it = query.getIterator())
+    {
+      if (it.hasNext())
+      {
+        return it.next();
+      }
+    }
+
+    throw new ProgrammingErrorException("Unable to find Geo-Object Type Snapshot definition for the type [" + type.getCode() + "]");
   }
 
-  public ServerGeoObjectType getTypeForGraphVertex(MdVertexDAOIF mdClass)
+  public HierarchyTypeSnapshot getSnapshot(ServerHierarchyType type)
   {
-    LabeledPropertyGraphVertex lpgv = this.getVertices().stream().filter(mdVertex -> mdVertex.getGraphMdVertexOid().equals(mdClass.getOid())).findFirst().orElseThrow(() -> {
-      throw new ProgrammingErrorException("Unable to find Labeled Property Graph Vertex definition for the type [" + mdClass.definesType() + "]");
-    });
+    HierarchyTypeSnapshotQuery query = new HierarchyTypeSnapshotQuery(new QueryFactory());
+    query.WHERE(query.getVersion().EQ(this));
+    query.AND(query.getCode().EQ(type.getCode()));
 
-    return ServerGeoObjectType.get(lpgv.getTypeCode());
-  }
+    try (OIterator<? extends HierarchyTypeSnapshot> it = query.getIterator())
+    {
+      if (it.hasNext())
+      {
+        return it.next();
+      }
+    }
 
-  public LabeledPropertyGraphEdge getMdEdgeForType(ServerHierarchyType type)
-  {
-    return this.getEdges().stream().filter(mdEdge -> mdEdge.getTypeCode().equals(type.getCode())).findFirst().orElseThrow(() -> {
-      throw new ProgrammingErrorException("Unable to find Labeled Property Graph Edge definition for the type [" + type.getCode() + "]");
-    });
+    throw new ProgrammingErrorException("Unable to find Hierarchy Type Snapshot definition for the type [" + type.getCode() + "]");
   }
 
   public List<ExecutableJob> getJobs()
@@ -484,13 +248,8 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
 
   public void truncate()
   {
-    LabeledPropertyGraphType graphType = this.getGraphType();
-
-    graphType.getGeoObjectTypes().forEach(type -> {
-      MdVertex mdVertex = this.getMdVertexForType(type).getGraphMdVertex();
-
-      GraphDBService service = GraphDBService.getInstance();
-      service.command(service.getGraphDBRequest(), "DELETE VERTEX FROM " + mdVertex.getDbClassName(), new HashMap<>());
+    this.getTypes().forEach(type -> {
+      type.truncate();
     });
 
   }
@@ -538,96 +297,24 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     {
       JsonArray types = new JsonArray();
 
-      List<LabeledPropertyGraphVertex> vertices = this.getVertices();
-      vertices.stream().filter(type -> !StringUtils.isEmpty(type.getTypeCode())).forEach(type -> {
-
-        AttributeTypeConverter converter = new AttributeTypeConverter();
-        JsonArray attributes = new JsonArray();
-        ArrayList<GeometryType> holder = new ArrayList<>();
-
-        MdVertexDAOIF mdVertex = MdVertexDAO.get(type.getGraphMdVertexOid());
-        List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdVertex.definesAttributes();
-        mdAttributes.forEach(attribute -> {
-          if (! ( attribute instanceof MdAttributeGeometryDAOIF ) && ! ( attribute instanceof MdAttributeTermDAOIF ))
-          {
-            attributes.add(converter.build(attribute).toJSON());
-          }
-          else if (attribute instanceof MdAttributeGeometryDAOIF)
-          {
-            holder.add(GeometryTypeFactory.get(attribute));
-          }
-        });
-
-        if (holder.size() > 0)
-        {
-          JsonObject typeObject = new JsonObject();
-          typeObject.addProperty("code", type.getTypeCode());
-          typeObject.addProperty("tableName", mdVertex.getDBClassName().split(SPLIT)[1]);
-          typeObject.add("label", AttributeTypeConverter.convert(null, mdVertex.getDisplayLabels()).toJSON());
-          typeObject.add("description", AttributeTypeConverter.convert(null, mdVertex.getDescriptions()).toJSON());
-          typeObject.addProperty("geometryType", holder.get(0).toString());
-          typeObject.add("attributes", attributes);
-
-          types.add(typeObject);
-        }
+      List<GeoObjectTypeSnapshot> vertices = this.getTypes();
+      vertices.stream().filter(type -> !type.isRoot()).forEach(type -> {
+        types.add(type.toJSON());
       });
 
       object.add("types", types);
 
       JsonArray hierarchies = new JsonArray();
 
-      this.getEdges().forEach(hierarchy -> {
-        MdEdgeDAOIF mdEdge = MdEdgeDAO.get(hierarchy.getGraphMdEdgeOid());
+      this.getHierarchies().forEach(hierarchy -> {
 
-        JsonObject hierarchyObject = new JsonObject();
-        hierarchyObject.addProperty("code", hierarchy.getTypeCode());
-        hierarchyObject.addProperty("tableName", mdEdge.getDBClassName().split(SPLIT)[1]);
-        hierarchyObject.add("label", AttributeTypeConverter.convert(null, mdEdge.getDisplayLabels()).toJSON());
-        hierarchyObject.add("description", AttributeTypeConverter.convert(null, mdEdge.getDescriptions()).toJSON());
-
-        hierarchies.add(hierarchyObject);
+        hierarchies.add(hierarchy.toJSON());
       });
 
       object.add("hierarchies", hierarchies);
     }
 
     return object;
-  }
-
-  protected GraphHasVertex addTypeChild(String graphVertexOid, ServerGeoObjectType type)
-  {
-    return addTypeChild(graphVertexOid, type != null ? type.getCode() : null);
-  }
-
-  protected GraphHasVertex addTypeChild(String graphVertexOid, String typeCode)
-  {
-    LabeledPropertyGraphVertex vertex = new LabeledPropertyGraphVertex();
-    vertex.setGraphMdVertexId(graphVertexOid);
-    vertex.setTypeCode(typeCode);
-    vertex.apply();
-
-    GraphHasVertex relationship = this.addVertices(vertex);
-    relationship.apply();
-
-    return relationship;
-  }
-
-  protected GraphHasEdge addHierarchyChild(MdEdge graphEdge, ServerHierarchyType type)
-  {
-    return addHierarchyChild(graphEdge, type != null ? type.getCode() : null);
-  }
-
-  protected GraphHasEdge addHierarchyChild(MdEdge graphEdge, String typeCode)
-  {
-    LabeledPropertyGraphEdge edge = new LabeledPropertyGraphEdge();
-    edge.setGraphMdEdgeId(graphEdge.getOid());
-    edge.setTypeCode(typeCode);
-    edge.apply();
-
-    GraphHasEdge relationship = this.addEdges(edge);
-    relationship.apply();
-
-    return relationship;
   }
 
   @Transaction
@@ -642,21 +329,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     version.setVersionNumber(versionNumber);
     version.apply();
 
-    String tableName = version.getTableName(listType.getCode());
-
-    MdVertexDAO rootMdVertexDAO = MdVertexDAO.newInstance();
-    rootMdVertexDAO.setValue(MdVertexInfo.NAME, tableName);
-    rootMdVertexDAO.setValue(MdVertexInfo.PACKAGE, RegistryConstants.TABLE_PACKAGE);
-    rootMdVertexDAO.setStructValue(MdVertexInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Root Type");
-    rootMdVertexDAO.setValue(MdVertexInfo.DB_CLASS_NAME, tableName);
-    rootMdVertexDAO.setValue(MdVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-    rootMdVertexDAO.setValue(MdVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-    rootMdVertexDAO.setValue(MdVertexInfo.ABSTRACT, MdAttributeBooleanInfo.TRUE);
-    rootMdVertexDAO.apply();
-
-    version.addTypeChild(rootMdVertexDAO.getOid(), (ServerGeoObjectType) null);
-
-    LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(rootMdVertexDAO);
+    GeoObjectTypeSnapshot root = GeoObjectTypeSnapshot.createRoot(version);
 
     List<ServerGeoObjectType> types = listType.getGeoObjectTypes();
 
@@ -672,11 +345,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
       // public if the Geo-Object Type is private");
       // }
 
-      MdVertex mdVertex = version.createTable(type, rootMdVertexDAO);
-
-      version.addTypeChild(mdVertex.getOid(), type);
-
-      LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(mdVertex);
+      GeoObjectTypeSnapshot.create(version, type, root);
     }
 
     List<ServerHierarchyType> hierarchies = listType.getHierarchyTypes();
@@ -693,21 +362,16 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
       // public if the Geo-Object Type is private");
       // }
 
-      MdEdge mdEdge = version.createEdge(hierarchy, rootMdVertexDAO);
-
-      version.addHierarchyChild(mdEdge, hierarchy);
-
-      LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(mdEdge);
+      HierarchyTypeSnapshot.create(version, hierarchy, root);
     }
 
     return version;
   }
 
   @Transaction
-  public static LabeledPropertyGraphTypeVersion create(JsonObject json)
+  public static LabeledPropertyGraphTypeVersion create(LabeledPropertyGraphTypeEntry entry, JsonObject json)
   {
-    LabeledPropertyGraphType graphType = LabeledPropertyGraphType.get(json.get(GRAPHTYPE).getAsString());
-    LabeledPropertyGraphTypeEntry entry = LabeledPropertyGraphTypeEntry.get(json.get(ENTRY).getAsString());
+    LabeledPropertyGraphType graphType = entry.getGraphType();
 
     LabeledPropertyGraphTypeVersion version = new LabeledPropertyGraphTypeVersion();
     version.setEntry(entry);
@@ -716,53 +380,26 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     version.setVersionNumber(json.get(VERSIONNUMBER).getAsInt());
     version.apply();
 
-    String tableName = version.getTableName(graphType.getCode());
-
-    MdVertexDAO rootMdVertexDAO = MdVertexDAO.newInstance();
-    rootMdVertexDAO.setValue(MdVertexInfo.NAME, tableName);
-    rootMdVertexDAO.setValue(MdVertexInfo.PACKAGE, RegistryConstants.TABLE_PACKAGE);
-    rootMdVertexDAO.setStructValue(MdVertexInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Root Type");
-    rootMdVertexDAO.setValue(MdVertexInfo.DB_CLASS_NAME, tableName);
-    rootMdVertexDAO.setValue(MdVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-    rootMdVertexDAO.setValue(MdVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-    rootMdVertexDAO.setValue(MdVertexInfo.ABSTRACT, MdAttributeBooleanInfo.TRUE);
-    rootMdVertexDAO.apply();
-
-    version.addTypeChild(rootMdVertexDAO.getOid(), (ServerGeoObjectType) null);
-
-    LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(rootMdVertexDAO);
+    GeoObjectTypeSnapshot root = GeoObjectTypeSnapshot.createRoot(version);
 
     JsonArray types = json.get("types").getAsJsonArray();
 
     for (JsonElement element : types)
     {
-      JsonObject type = element.getAsJsonObject();
-      String typeCode = type.get("code").getAsString();
-      MdVertex mdVertex = version.createTable(type, rootMdVertexDAO);
-
-      version.addTypeChild(mdVertex.getOid(), typeCode);
-
-      LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(mdVertex);
+      GeoObjectTypeSnapshot.create(version, element.getAsJsonObject(), root);
     }
 
     JsonArray hierarchies = json.get("hierarchies").getAsJsonArray();
 
     for (JsonElement element : hierarchies)
     {
-      JsonObject hierarchy = element.getAsJsonObject();
-      String typeCode = hierarchy.get("code").getAsString();
-
-      MdEdge mdEdge = version.createEdge(hierarchy, rootMdVertexDAO);
-
-      version.addHierarchyChild(mdEdge, typeCode);
-
-      LabeledPropertyGraphTypeVersion.assignDefaultRolePermissions(mdEdge);
+      HierarchyTypeSnapshot.create(version, element.getAsJsonObject(), root);
     }
 
     return version;
   }
 
-  private static void assignDefaultRolePermissions(ComponentIF component)
+  public static void assignDefaultRolePermissions(ComponentIF component)
   {
     RoleDAO adminRole = RoleDAO.findRole(RoleConstants.ADMIN).getBusinessDAO();
     adminRole.grantPermission(Operation.CREATE, component.getOid());

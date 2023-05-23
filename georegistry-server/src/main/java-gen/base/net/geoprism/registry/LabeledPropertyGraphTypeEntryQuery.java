@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1630836084)
+@com.runwaysdk.business.ClassSignature(hash = -912082811)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -312,29 +312,6 @@ public  class LabeledPropertyGraphTypeEntryQuery extends com.runwaysdk.query.Gen
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphTypeEntry.TYPE, alias, displayLabel);
 
   }
-  public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking()
-  {
-    return getWorking(null);
-
-  }
- 
-  public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking(String alias)
-  {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.LabeledPropertyGraphTypeEntry.WORKING);
-
-    return (net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.LabeledPropertyGraphTypeEntry.WORKING, mdAttributeIF, this, alias, null);
-
-  }
- 
-  public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking(String alias, String displayLabel)
-  {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.LabeledPropertyGraphTypeEntry.WORKING);
-
-    return (net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.LabeledPropertyGraphTypeEntry.WORKING, mdAttributeIF, this, alias, displayLabel);
-
-  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -362,10 +339,6 @@ public  class LabeledPropertyGraphTypeEntryQuery extends com.runwaysdk.query.Gen
     else if (name.equals(net.geoprism.registry.LabeledPropertyGraphTypeEntry.OWNER)) 
     {
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else if (name.equals(net.geoprism.registry.LabeledPropertyGraphTypeEntry.WORKING)) 
-    {
-       return new net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {
@@ -448,9 +421,6 @@ public  class LabeledPropertyGraphTypeEntryQuery extends com.runwaysdk.query.Gen
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
-    public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking();
-    public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking(String alias);
-    public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.LabeledPropertyGraphTypeEntry labeledPropertyGraphTypeEntry);
 
@@ -724,23 +694,6 @@ public  class LabeledPropertyGraphTypeEntryQuery extends com.runwaysdk.query.Gen
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphTypeEntry.TYPE, alias, displayLabel);
 
   }
-  public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking()
-  {
-    return getWorking(null);
-
-  }
- 
-  public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking(String alias)
-  {
-    return (net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphTypeEntry.WORKING, alias, null);
-
-  }
- 
-  public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking(String alias, String displayLabel)
-  {
-    return (net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphTypeEntry.WORKING,  alias, displayLabel);
-
-  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -768,10 +721,6 @@ public  class LabeledPropertyGraphTypeEntryQuery extends com.runwaysdk.query.Gen
     else if (name.equals(net.geoprism.registry.LabeledPropertyGraphTypeEntry.OWNER)) 
     {
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else if (name.equals(net.geoprism.registry.LabeledPropertyGraphTypeEntry.WORKING)) 
-    {
-       return new net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {
@@ -831,9 +780,6 @@ public  class LabeledPropertyGraphTypeEntryQuery extends com.runwaysdk.query.Gen
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
-    public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking();
-    public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking(String alias);
-    public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.LabeledPropertyGraphTypeEntry ... labeledPropertyGraphTypeEntry);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.LabeledPropertyGraphTypeEntry ... labeledPropertyGraphTypeEntry);
@@ -1156,23 +1102,6 @@ public  class LabeledPropertyGraphTypeEntryQuery extends com.runwaysdk.query.Gen
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphTypeEntry.TYPE, alias, displayLabel);
 
   }
-  public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking()
-  {
-    return getWorking(null);
-
-  }
- 
-  public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking(String alias)
-  {
-    return (net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphTypeEntry.WORKING, alias, null);
-
-  }
- 
-  public net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF getWorking(String alias, String displayLabel)
-  {
-    return (net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphTypeEntry.WORKING,  alias, displayLabel);
-
-  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -1200,10 +1129,6 @@ public  class LabeledPropertyGraphTypeEntryQuery extends com.runwaysdk.query.Gen
     else if (name.equals(net.geoprism.registry.LabeledPropertyGraphTypeEntry.OWNER)) 
     {
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else if (name.equals(net.geoprism.registry.LabeledPropertyGraphTypeEntry.WORKING)) 
-    {
-       return new net.geoprism.registry.LabeledPropertyGraphTypeVersionQuery.LabeledPropertyGraphTypeVersionQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {

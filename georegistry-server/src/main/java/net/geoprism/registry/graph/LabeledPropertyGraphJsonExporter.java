@@ -20,6 +20,7 @@ package net.geoprism.registry.graph;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
@@ -28,31 +29,29 @@ import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.LabeledPropertyGraphType;
+import net.geoprism.registry.GeoObjectTypeSnapshot;
+import net.geoprism.registry.HierarchyTypeSnapshot;
 import net.geoprism.registry.LabeledPropertyGraphTypeVersion;
-import net.geoprism.registry.LabeledPropertyGraphVertex;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
 
 public class LabeledPropertyGraphJsonExporter
 {
@@ -60,12 +59,9 @@ public class LabeledPropertyGraphJsonExporter
 
   final private LabeledPropertyGraphTypeVersion version;
 
-  final private LabeledPropertyGraphType        type;
-
   public LabeledPropertyGraphJsonExporter(LabeledPropertyGraphTypeVersion version)
   {
     this.version = version;
-    this.type = version.getGraphType();
   }
 
   public JsonObject export()
@@ -73,19 +69,17 @@ public class LabeledPropertyGraphJsonExporter
     JsonArray geoObjects = new JsonArray();
     JsonArray edges = new JsonArray();
 
-    List<ServerGeoObjectType> types = type.getGeoObjectTypes();
+    List<GeoObjectTypeSnapshot> types = version.getTypes().stream().filter(type -> !type.isRoot()).collect(Collectors.toList());
+    List<HierarchyTypeSnapshot> hierarchies = version.getHierarchies();
 
-    List<ServerHierarchyType> hierarchies = type.getHierarchyTypes();
-
-    for (ServerGeoObjectType type : types)
+    for (GeoObjectTypeSnapshot type : types)
     {
 
       final int BLOCK_SIZE = 2000;
 
       VertexObject prev = null;
 
-      LabeledPropertyGraphVertex lpgVertex = version.getMdVertexForType(type);
-      MdVertex mdVertex = lpgVertex.getGraphMdVertex();
+      MdVertex mdVertex = type.getGraphMdVertex();
 
       do
       {
@@ -116,18 +110,25 @@ public class LabeledPropertyGraphJsonExporter
 
           geoObjects.add(geoObject.toJSON());
 
-          for (ServerHierarchyType hierarchy : hierarchies)
+          for (HierarchyTypeSnapshot hierarchy : hierarchies)
           {
-            String mdEdgeOid = version.getMdEdgeForType(hierarchy).getGraphMdEdgeOid();
-            MdEdgeDAOIF mdEdge = MdEdgeDAO.get(mdEdgeOid);
+            MdEdgeDAOIF mdEdge = MdEdgeDAO.get(hierarchy.getGraphMdEdgeOid());
 
             object.getChildren(mdEdge, VertexObject.class).forEach(child -> {
+
+              MdVertexDAOIF mdClass = (MdVertexDAOIF) child.getMdClass();
+
+              GeoObjectTypeSnapshot childType = types.stream().filter(t -> {
+                return t.getGraphMdVertexOid().equals(mdClass.getOid());
+              }).findAny().orElseThrow(() -> {
+                throw new ProgrammingErrorException("Unable to find end type");
+              });
 
               JsonObject jsonEdge = new JsonObject();
               jsonEdge.addProperty("startNode", geoObject.getUid());
               jsonEdge.addProperty("startType", geoObject.getType().getCode());
               jsonEdge.addProperty("endNode", (String) child.getObjectValue(RegistryConstants.UUID));
-              jsonEdge.addProperty("endType", version.getTypeForGraphVertex((MdVertexDAOIF) child.getMdClass()).getCode());
+              jsonEdge.addProperty("endType", childType.getCode());
 
               jsonEdge.addProperty("type", hierarchy.getCode());
 
@@ -145,20 +146,16 @@ public class LabeledPropertyGraphJsonExporter
     graph.add("geoObjects", geoObjects);
     graph.add("edges", edges);
 
-    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-    System.out.println(gson.toJson(graph));
-
     return graph;
   }
 
-  protected GeoObject serialize(VertexObject vertex, ServerGeoObjectType type)
+  protected GeoObject serialize(VertexObject vertex, GeoObjectTypeSnapshot snapshot)
   {
-    // TODO Build the type from the MdVertex
+    GeoObjectType type = snapshot.toGeoObjectType();
 
-    Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(type.getType());
+    Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(type);
 
-    GeoObject geoObj = new GeoObject(type.getType(), type.getGeometryType(), attributeMap);
+    GeoObject geoObj = new GeoObject(type, type.getGeometryType(), attributeMap);
 
     Map<String, AttributeType> attributes = type.getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {

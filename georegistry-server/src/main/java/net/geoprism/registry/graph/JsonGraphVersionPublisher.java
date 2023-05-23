@@ -34,7 +34,7 @@ public class JsonGraphVersionPublisher extends AbstractGraphVersionPublisher
 
       ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
 
-      MdVertex mdVertex = this.version.getMdVertexForType(type).getGraphMdVertex();
+      MdVertex mdVertex = this.version.getSnapshot(type).getGraphMdVertex();
 
       this.publish(mdVertex, geoObject);
     }
@@ -52,7 +52,7 @@ public class JsonGraphVersionPublisher extends AbstractGraphVersionPublisher
 
       ServerHierarchyType hierarchy = ServerHierarchyType.get(typeCode);
 
-      MdEdge mdEdge = this.version.getMdEdgeForType(hierarchy).getGraphMdEdge();
+      MdEdge mdEdge = this.version.getSnapshot(hierarchy).getGraphMdEdge();
 
       VertexObject parent = version.getVertex(parentUid, parentType);
       VertexObject child = version.getVertex(childUid, childType);

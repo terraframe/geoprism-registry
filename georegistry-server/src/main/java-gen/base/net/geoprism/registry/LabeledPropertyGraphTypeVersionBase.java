@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 315976602)
+@com.runwaysdk.business.ClassSignature(hash = 597196538)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -29,7 +29,7 @@ public abstract class LabeledPropertyGraphTypeVersionBase extends com.runwaysdk.
   public final static java.lang.String TYPE = "type";
   public final static java.lang.String VERSIONNUMBER = "versionNumber";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 315976602;
+  private static final long serialVersionUID = 597196538;
   
   public LabeledPropertyGraphTypeVersionBase()
   {
@@ -546,62 +546,6 @@ public abstract class LabeledPropertyGraphTypeVersionBase extends com.runwaysdk.
     LabeledPropertyGraphTypeVersionQuery query = new LabeledPropertyGraphTypeVersionQuery(new com.runwaysdk.query.QueryFactory());
     com.runwaysdk.business.Entity.getAllInstances(query, sortAttribute, ascending, pageSize, pageNumber);
     return query;
-  }
-  
-  public net.geoprism.registry.action.GraphHasEdge addEdges(net.geoprism.registry.LabeledPropertyGraphEdge labeledPropertyGraphEdge)
-  {
-    return (net.geoprism.registry.action.GraphHasEdge) addChild(labeledPropertyGraphEdge, net.geoprism.registry.action.GraphHasEdge.CLASS);
-  }
-  
-  public void removeEdges(net.geoprism.registry.LabeledPropertyGraphEdge labeledPropertyGraphEdge)
-  {
-    removeAllChildren(labeledPropertyGraphEdge, net.geoprism.registry.action.GraphHasEdge.CLASS);
-  }
-  
-  @SuppressWarnings("unchecked")
-  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.LabeledPropertyGraphEdge> getAllEdges()
-  {
-    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.LabeledPropertyGraphEdge>) getChildren(net.geoprism.registry.action.GraphHasEdge.CLASS);
-  }
-  
-  @SuppressWarnings("unchecked")
-  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasEdge> getAllEdgesRel()
-  {
-    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasEdge>) getChildRelationships(net.geoprism.registry.action.GraphHasEdge.CLASS);
-  }
-  
-  @SuppressWarnings("unchecked")
-  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasEdge> getEdgesRel(net.geoprism.registry.LabeledPropertyGraphEdge labeledPropertyGraphEdge)
-  {
-    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasEdge>) getRelationshipsWithChild(labeledPropertyGraphEdge, net.geoprism.registry.action.GraphHasEdge.CLASS);
-  }
-  
-  public net.geoprism.registry.action.GraphHasVertex addVertices(net.geoprism.registry.LabeledPropertyGraphVertex labeledPropertyGraphVertex)
-  {
-    return (net.geoprism.registry.action.GraphHasVertex) addChild(labeledPropertyGraphVertex, net.geoprism.registry.action.GraphHasVertex.CLASS);
-  }
-  
-  public void removeVertices(net.geoprism.registry.LabeledPropertyGraphVertex labeledPropertyGraphVertex)
-  {
-    removeAllChildren(labeledPropertyGraphVertex, net.geoprism.registry.action.GraphHasVertex.CLASS);
-  }
-  
-  @SuppressWarnings("unchecked")
-  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.LabeledPropertyGraphVertex> getAllVertices()
-  {
-    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.LabeledPropertyGraphVertex>) getChildren(net.geoprism.registry.action.GraphHasVertex.CLASS);
-  }
-  
-  @SuppressWarnings("unchecked")
-  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasVertex> getAllVerticesRel()
-  {
-    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasVertex>) getChildRelationships(net.geoprism.registry.action.GraphHasVertex.CLASS);
-  }
-  
-  @SuppressWarnings("unchecked")
-  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasVertex> getVerticesRel(net.geoprism.registry.LabeledPropertyGraphVertex labeledPropertyGraphVertex)
-  {
-    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.GraphHasVertex>) getRelationshipsWithChild(labeledPropertyGraphVertex, net.geoprism.registry.action.GraphHasVertex.CLASS);
   }
   
   public static LabeledPropertyGraphTypeVersion get(String oid)

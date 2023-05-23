@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 820928419)
+@com.runwaysdk.business.ClassSignature(hash = 1437759772)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -25,9 +25,8 @@ public abstract class LabeledPropertyGraphTypeEntryBase extends com.runwaysdk.bu
   public final static java.lang.String SEQ = "seq";
   public final static java.lang.String SITEMASTER = "siteMaster";
   public final static java.lang.String TYPE = "type";
-  public final static java.lang.String WORKING = "working";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 820928419;
+  private static final long serialVersionUID = 1437759772;
   
   public LabeledPropertyGraphTypeEntryBase()
   {
@@ -424,58 +423,6 @@ public abstract class LabeledPropertyGraphTypeEntryBase extends com.runwaysdk.bu
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.LabeledPropertyGraphTypeEntry.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(TYPE);
-  }
-  
-  public net.geoprism.registry.LabeledPropertyGraphTypeVersion getWorking()
-  {
-    if (getValue(WORKING).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return net.geoprism.registry.LabeledPropertyGraphTypeVersion.get(getValue(WORKING));
-    }
-  }
-  
-  public String getWorkingOid()
-  {
-    return getValue(WORKING);
-  }
-  
-  public void validateWorking()
-  {
-    this.validateAttribute(WORKING);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getWorkingMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.LabeledPropertyGraphTypeEntry.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(WORKING);
-  }
-  
-  public void setWorking(net.geoprism.registry.LabeledPropertyGraphTypeVersion value)
-  {
-    if(value == null)
-    {
-      setValue(WORKING, "");
-    }
-    else
-    {
-      setValue(WORKING, value.getOid());
-    }
-  }
-  
-  public void setWorkingId(java.lang.String oid)
-  {
-    if(oid == null)
-    {
-      setValue(WORKING, "");
-    }
-    else
-    {
-      setValue(WORKING, oid);
-    }
   }
   
   protected String getDeclaredType()

@@ -101,6 +101,13 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
       throw new InvalidMasterListCodeException("The list code has an invalid character");
     }
 
+    this.getGeoObjectTypes().forEach(type -> {
+      if (type.getIsAbstract())
+      {
+        throw new ProgrammingErrorException("Cannot include abstract types in a labeled property graph");
+      }
+    });
+
     super.apply();
   }
 
@@ -656,9 +663,6 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
   public static LabeledPropertyGraphType apply(JsonObject object)
   {
     LabeledPropertyGraphType list = LabeledPropertyGraphType.fromJSON(object);
-
-    boolean isNew = list.isNew() && !list.isAppliedToDB();
-
     list.apply();
 
     list.createEntries();

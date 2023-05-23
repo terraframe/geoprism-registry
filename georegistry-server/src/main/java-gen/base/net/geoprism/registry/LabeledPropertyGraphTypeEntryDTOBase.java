@@ -1,11 +1,11 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -38318557)
+@com.runwaysdk.business.ClassSignature(hash = 1062381468)
 public abstract class LabeledPropertyGraphTypeEntryDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.LabeledPropertyGraphTypeEntry";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -38318557;
+  private static final long serialVersionUID = 1062381468;
   
   protected LabeledPropertyGraphTypeEntryDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -42,7 +42,6 @@ public abstract class LabeledPropertyGraphTypeEntryDTOBase extends com.runwaysdk
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  public static java.lang.String WORKING = "working";
   public java.util.Date getCreateDate()
   {
     return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(CREATEDATE));
@@ -439,55 +438,6 @@ public abstract class LabeledPropertyGraphTypeEntryDTOBase extends com.runwaysdk
   public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getSiteMasterMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(SITEMASTER).getAttributeMdDTO();
-  }
-  
-  public net.geoprism.registry.LabeledPropertyGraphTypeVersionDTO getWorking()
-  {
-    if(getValue(WORKING) == null || getValue(WORKING).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return net.geoprism.registry.LabeledPropertyGraphTypeVersionDTO.get(getRequest(), getValue(WORKING));
-    }
-  }
-  
-  public String getWorkingOid()
-  {
-    return getValue(WORKING);
-  }
-  
-  public void setWorking(net.geoprism.registry.LabeledPropertyGraphTypeVersionDTO value)
-  {
-    if(value == null)
-    {
-      setValue(WORKING, "");
-    }
-    else
-    {
-      setValue(WORKING, value.getOid());
-    }
-  }
-  
-  public boolean isWorkingWritable()
-  {
-    return isWritable(WORKING);
-  }
-  
-  public boolean isWorkingReadable()
-  {
-    return isReadable(WORKING);
-  }
-  
-  public boolean isWorkingModified()
-  {
-    return isModified(WORKING);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getWorkingMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(WORKING).getAttributeMdDTO();
   }
   
   public final java.lang.String publish()

@@ -49,7 +49,6 @@ public class LabeledPropertyGraphTypeEntry extends LabeledPropertyGraphTypeEntry
     // LabeledPropertyGraphTypeVersion working = this.getWorking();
 
     this.appLock();
-    this.setWorking(null);
     this.apply();
 
     this.getVersions().forEach(version -> {
@@ -164,7 +163,19 @@ public class LabeledPropertyGraphTypeEntry extends LabeledPropertyGraphTypeEntry
     entry.setForDate(forDate);
     entry.apply();
 
-    entry.setWorking(LabeledPropertyGraphTypeVersion.create(entry, true, 0));
+    LabeledPropertyGraphTypeVersion.create(entry, true, 0);
+
+    return entry;
+  }
+
+  @Transaction
+  public static LabeledPropertyGraphTypeEntry create(LabeledPropertyGraphType list, JsonObject json)
+  {
+    String forDate = json.get(FORDATE).getAsString();
+
+    LabeledPropertyGraphTypeEntry entry = new LabeledPropertyGraphTypeEntry();
+    entry.setGraphType(list);
+    entry.setForDate(GeoRegistryUtil.parseDate(forDate, false));
     entry.apply();
 
     return entry;

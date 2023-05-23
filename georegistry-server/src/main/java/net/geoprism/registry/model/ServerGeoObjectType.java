@@ -242,6 +242,11 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
     return this.type.getLabel();
   }
 
+  public LocalizedValue getDescription()
+  {
+    return this.type.getDescription();
+  }
+  
   public boolean getIsAbstract()
   {
     return this.type.getIsAbstract();
