@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -642447835)
+@com.runwaysdk.business.ClassSignature(hash = 500357504)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -23,20 +23,23 @@ public abstract class GeoObjectTypeSnapshotBase extends com.runwaysdk.business.B
   public final static java.lang.String ENTITYDOMAIN = "entityDomain";
   public final static java.lang.String GEOMETRYTYPE = "geometryType";
   public final static java.lang.String GRAPHMDVERTEX = "graphMdVertex";
+  public final static java.lang.String ISABSTRACT = "isAbstract";
   public final static java.lang.String ISGEOMETRYEDITABLE = "isGeometryEditable";
   public final static java.lang.String ISPRIVATE = "isPrivate";
+  public final static java.lang.String ISROOT = "isRoot";
   public final static java.lang.String KEYNAME = "keyName";
   public final static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public final static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
   public final static java.lang.String LOCKEDBY = "lockedBy";
   public final static java.lang.String OID = "oid";
   public final static java.lang.String OWNER = "owner";
+  public final static java.lang.String PARENT = "parent";
   public final static java.lang.String SEQ = "seq";
   public final static java.lang.String SITEMASTER = "siteMaster";
   public final static java.lang.String TYPE = "type";
   public final static java.lang.String VERSION = "version";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -642447835;
+  private static final long serialVersionUID = 500357504;
   
   public GeoObjectTypeSnapshotBase()
   {
@@ -281,6 +284,34 @@ public abstract class GeoObjectTypeSnapshotBase extends com.runwaysdk.business.B
     }
   }
   
+  public Boolean getIsAbstract()
+  {
+    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(ISABSTRACT));
+  }
+  
+  public void validateIsAbstract()
+  {
+    this.validateAttribute(ISABSTRACT);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF getIsAbstractMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.GeoObjectTypeSnapshot.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF)mdClassIF.definesAttribute(ISABSTRACT);
+  }
+  
+  public void setIsAbstract(Boolean value)
+  {
+    if(value == null)
+    {
+      setValue(ISABSTRACT, "");
+    }
+    else
+    {
+      setValue(ISABSTRACT, java.lang.Boolean.toString(value));
+    }
+  }
+  
   public Boolean getIsGeometryEditable()
   {
     return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(ISGEOMETRYEDITABLE));
@@ -334,6 +365,34 @@ public abstract class GeoObjectTypeSnapshotBase extends com.runwaysdk.business.B
     else
     {
       setValue(ISPRIVATE, java.lang.Boolean.toString(value));
+    }
+  }
+  
+  public Boolean getIsRoot()
+  {
+    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(ISROOT));
+  }
+  
+  public void validateIsRoot()
+  {
+    this.validateAttribute(ISROOT);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF getIsRootMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.GeoObjectTypeSnapshot.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF)mdClassIF.definesAttribute(ISROOT);
+  }
+  
+  public void setIsRoot(Boolean value)
+  {
+    if(value == null)
+    {
+      setValue(ISROOT, "");
+    }
+    else
+    {
+      setValue(ISROOT, java.lang.Boolean.toString(value));
     }
   }
   
@@ -505,6 +564,58 @@ public abstract class GeoObjectTypeSnapshotBase extends com.runwaysdk.business.B
     }
   }
   
+  public net.geoprism.registry.GeoObjectTypeSnapshot getParent()
+  {
+    if (getValue(PARENT).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.registry.GeoObjectTypeSnapshot.get(getValue(PARENT));
+    }
+  }
+  
+  public String getParentOid()
+  {
+    return getValue(PARENT);
+  }
+  
+  public void validateParent()
+  {
+    this.validateAttribute(PARENT);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getParentMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.GeoObjectTypeSnapshot.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(PARENT);
+  }
+  
+  public void setParent(net.geoprism.registry.GeoObjectTypeSnapshot value)
+  {
+    if(value == null)
+    {
+      setValue(PARENT, "");
+    }
+    else
+    {
+      setValue(PARENT, value.getOid());
+    }
+  }
+  
+  public void setParentId(java.lang.String oid)
+  {
+    if(oid == null)
+    {
+      setValue(PARENT, "");
+    }
+    else
+    {
+      setValue(PARENT, oid);
+    }
+  }
+  
   public Long getSeq()
   {
     return com.runwaysdk.constants.MdAttributeLongUtil.getTypeSafeValue(getValue(SEQ));
@@ -608,6 +719,62 @@ public abstract class GeoObjectTypeSnapshotBase extends com.runwaysdk.business.B
   protected String getDeclaredType()
   {
     return CLASS;
+  }
+  
+  public net.geoprism.registry.action.SnapshotHierarchy addChildSnapshot(net.geoprism.registry.GeoObjectTypeSnapshot geoObjectTypeSnapshot)
+  {
+    return (net.geoprism.registry.action.SnapshotHierarchy) addChild(geoObjectTypeSnapshot, net.geoprism.registry.action.SnapshotHierarchy.CLASS);
+  }
+  
+  public void removeChildSnapshot(net.geoprism.registry.GeoObjectTypeSnapshot geoObjectTypeSnapshot)
+  {
+    removeAllChildren(geoObjectTypeSnapshot, net.geoprism.registry.action.SnapshotHierarchy.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.GeoObjectTypeSnapshot> getAllChildSnapshot()
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.GeoObjectTypeSnapshot>) getChildren(net.geoprism.registry.action.SnapshotHierarchy.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.SnapshotHierarchy> getAllChildSnapshotRel()
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.SnapshotHierarchy>) getChildRelationships(net.geoprism.registry.action.SnapshotHierarchy.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.SnapshotHierarchy> getChildSnapshotRel(net.geoprism.registry.GeoObjectTypeSnapshot geoObjectTypeSnapshot)
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.SnapshotHierarchy>) getRelationshipsWithChild(geoObjectTypeSnapshot, net.geoprism.registry.action.SnapshotHierarchy.CLASS);
+  }
+  
+  public net.geoprism.registry.action.SnapshotHierarchy addParentSnapshot(net.geoprism.registry.GeoObjectTypeSnapshot geoObjectTypeSnapshot)
+  {
+    return (net.geoprism.registry.action.SnapshotHierarchy) addParent(geoObjectTypeSnapshot, net.geoprism.registry.action.SnapshotHierarchy.CLASS);
+  }
+  
+  public void removeParentSnapshot(net.geoprism.registry.GeoObjectTypeSnapshot geoObjectTypeSnapshot)
+  {
+    removeAllParents(geoObjectTypeSnapshot, net.geoprism.registry.action.SnapshotHierarchy.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.GeoObjectTypeSnapshot> getAllParentSnapshot()
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.GeoObjectTypeSnapshot>) getParents(net.geoprism.registry.action.SnapshotHierarchy.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.SnapshotHierarchy> getAllParentSnapshotRel()
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.SnapshotHierarchy>) getParentRelationships(net.geoprism.registry.action.SnapshotHierarchy.CLASS);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.SnapshotHierarchy> getParentSnapshotRel(net.geoprism.registry.GeoObjectTypeSnapshot geoObjectTypeSnapshot)
+  {
+    return (com.runwaysdk.query.OIterator<? extends net.geoprism.registry.action.SnapshotHierarchy>) getRelationshipsWithParent(geoObjectTypeSnapshot, net.geoprism.registry.action.SnapshotHierarchy.CLASS);
   }
   
   public static GeoObjectTypeSnapshot get(String oid)

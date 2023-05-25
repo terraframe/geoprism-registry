@@ -3,24 +3,20 @@
  */
 package net.geoprism.registry;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.graph.StrategyConfiguration;
-import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
 public class LabeledPropertyGraphTypeBuilder
 {
-  private TestHierarchyTypeInfo[] hts;
+  private TestHierarchyTypeInfo ht;
 
-  private TestGeoObjectTypeInfo[] types;
+  private String                code;
 
-  private String                  code;
-
-  private StrategyConfiguration   configuration;
+  private StrategyConfiguration configuration;
 
   public LabeledPropertyGraphTypeBuilder()
   {
@@ -37,16 +33,9 @@ public class LabeledPropertyGraphTypeBuilder
     this.configuration = configuration;
   }
 
-  public LabeledPropertyGraphTypeBuilder setHts(TestHierarchyTypeInfo... hts)
+  public LabeledPropertyGraphTypeBuilder setHt(TestHierarchyTypeInfo ht)
   {
-    this.hts = hts;
-
-    return this;
-  }
-
-  public LabeledPropertyGraphTypeBuilder setTypes(TestGeoObjectTypeInfo... types)
-  {
-    this.types = types;
+    this.ht = ht;
 
     return this;
   }
@@ -61,27 +50,12 @@ public class LabeledPropertyGraphTypeBuilder
   @Request
   public JsonObject buildJSON()
   {
-    JsonArray array = new JsonArray();
-
-    for (TestHierarchyTypeInfo ht : hts)
-    {
-      array.add(ht.getCode());
-    }
-
-    JsonArray tArray = new JsonArray();
-
-    for (TestGeoObjectTypeInfo ht : types)
-    {
-      tArray.add(ht.getCode());
-    }
-
     SingleLabeledPropertyGraphType graph = new SingleLabeledPropertyGraphType();
     graph.setValidOn(USATestData.DEFAULT_OVER_TIME_DATE);
     graph.getDisplayLabel().setValue("Test List");
     graph.setCode(this.code);
     graph.getDescription().setValue("My Abstract");
-    graph.setHierarchies(array.toString());
-    graph.setTypes(tArray.toString());
+    graph.setHierarchy(this.ht.getCode());
     graph.setStrategyType(LabeledPropertyGraphType.TREE);
     graph.setStrategyConfiguration(this.configuration);
 

@@ -65,8 +65,7 @@ export class LabeledPropertyGraphType {
     code: string;
     displayLabel: LocalizedValue;
     description: LocalizedValue;
-    hierarchies: string[];
-    types: string[];
+    hierarchy: string;
     strategyType?: string;
     strategyConfiguration?: any;
     graphType: string;

@@ -35,6 +35,7 @@ import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.MdAttributePointInfo;
 import com.runwaysdk.gis.dataaccess.MdAttributeGeometryDAOIF;
+import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdGraphClassQuery;
 import com.runwaysdk.system.metadata.MdVertex;
@@ -56,6 +57,12 @@ public class GeoObjectTypeSnapshot extends GeoObjectTypeSnapshotBase
   public GeoObjectTypeSnapshot()
   {
     super();
+  }
+
+  @Override
+  public String toString()
+  {
+    return this.getCode();
   }
 
   public boolean isRoot()
@@ -126,11 +133,21 @@ public class GeoObjectTypeSnapshot extends GeoObjectTypeSnapshotBase
     this.getAttributeTypes().forEach(attribute -> attributes.add(attribute.toJSON()));
 
     JsonObject typeObject = new JsonObject();
-    typeObject.addProperty("code", this.getCode());
-    typeObject.add("label", AttributeTypeConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
-    typeObject.add("description", AttributeTypeConverter.convertNoAutoCoalesce(this.getDescription()).toJSON());
-    typeObject.addProperty("geometryType", this.getGeometryType());
+    typeObject.addProperty(CODE, this.getCode());
+    typeObject.add(DISPLAYLABEL, AttributeTypeConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
+    typeObject.add(DESCRIPTION, AttributeTypeConverter.convertNoAutoCoalesce(this.getDescription()).toJSON());
+    typeObject.addProperty(GEOMETRYTYPE, this.getGeometryType());
+    typeObject.addProperty(ISABSTRACT, this.getIsAbstract());
+    typeObject.addProperty(ISROOT, this.getIsRoot());
+    typeObject.addProperty(ISPRIVATE, this.getIsPrivate());
     typeObject.add("attributes", attributes);
+
+    GeoObjectTypeSnapshot parent = this.getParent();
+
+    if (parent != null)
+    {
+      typeObject.addProperty(PARENT, parent.getCode());
+    }
 
     return typeObject;
   }
@@ -263,6 +280,9 @@ public class GeoObjectTypeSnapshot extends GeoObjectTypeSnapshotBase
     snapshot.setVersion(version);
     snapshot.setGraphMdVertex(graphMdVertex);
     snapshot.setCode(viewName);
+    snapshot.setIsAbstract(true);
+    snapshot.setIsRoot(true);
+    snapshot.setIsPrivate(true);
     LocalizedValueConverter.populate(snapshot.getDisplayLabel(), LocalizedValueConverter.convertNoAutoCoalesce(graphMdVertex.getDisplayLabel()));
     LocalizedValueConverter.populate(snapshot.getDescription(), LocalizedValueConverter.convertNoAutoCoalesce(graphMdVertex.getDescription()));
     snapshot.apply();
@@ -271,7 +291,7 @@ public class GeoObjectTypeSnapshot extends GeoObjectTypeSnapshotBase
   }
 
   @Transaction
-  public static GeoObjectTypeSnapshot create(LabeledPropertyGraphTypeVersion version, ServerGeoObjectType type, GeoObjectTypeSnapshot root)
+  public static GeoObjectTypeSnapshot create(LabeledPropertyGraphTypeVersion version, ServerGeoObjectType type, GeoObjectTypeSnapshot parent)
   {
     String viewName = getTableName(type);
 
@@ -279,15 +299,19 @@ public class GeoObjectTypeSnapshot extends GeoObjectTypeSnapshotBase
     MdVertexDAO mdVertexDAO = MdVertexDAO.newInstance();
     mdVertexDAO.setValue(MdVertexInfo.NAME, viewName);
     mdVertexDAO.setValue(MdVertexInfo.PACKAGE, RegistryConstants.TABLE_PACKAGE);
+    mdVertexDAO.setValue(MdVertexInfo.ABSTRACT, type.getIsAbstract());
     LocalizedValueConverter.populate(mdVertexDAO, MdVertexInfo.DISPLAY_LABEL, type.getLabel());
     LocalizedValueConverter.populate(mdVertexDAO, MdVertexInfo.DESCRIPTION, type.getDescription());
     mdVertexDAO.setValue(MdVertexInfo.DB_CLASS_NAME, viewName);
     mdVertexDAO.setValue(MdVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
     mdVertexDAO.setValue(MdVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-    mdVertexDAO.setValue(MdVertexInfo.SUPER_MD_VERTEX, root.getGraphMdVertexOid());
+    mdVertexDAO.setValue(MdVertexInfo.SUPER_MD_VERTEX, parent.getGraphMdVertexOid());
     mdVertexDAO.apply();
 
-    createGeometryAttribute(type, mdVertexDAO);
+    if (!type.getIsAbstract())
+    {
+      createGeometryAttribute(type, mdVertexDAO);
+    }
 
     List<String> existingAttributes = mdVertexDAO.getAllDefinedMdAttributes().stream().map(attribute -> attribute.definesAttribute()).collect(Collectors.toList());
 
@@ -327,6 +351,10 @@ public class GeoObjectTypeSnapshot extends GeoObjectTypeSnapshotBase
     snapshot.setGraphMdVertex(graphMdVertex);
     snapshot.setCode(type.getCode());
     snapshot.setGeometryType(type.getGeometryType().name());
+    snapshot.setIsAbstract(type.getIsAbstract());
+    snapshot.setIsRoot(false);
+    snapshot.setIsPrivate(type.getIsPrivate());
+    snapshot.setParent(parent);
     LocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
     LocalizedValueConverter.populate(snapshot.getDescription(), type.getDescription());
     snapshot.apply();
@@ -337,12 +365,17 @@ public class GeoObjectTypeSnapshot extends GeoObjectTypeSnapshotBase
   }
 
   @Transaction
-  public static GeoObjectTypeSnapshot create(LabeledPropertyGraphTypeVersion version, JsonObject type, GeoObjectTypeSnapshot root)
+  public static GeoObjectTypeSnapshot create(LabeledPropertyGraphTypeVersion version, JsonObject type)
   {
+    GeoObjectTypeSnapshot parent = GeoObjectTypeSnapshot.get(version, type.get(PARENT).getAsString());
+
     String code = type.get(CODE).getAsString();
     String viewName = getTableName(code);
-    GeometryType geometryType = GeometryType.valueOf(type.get("geometryType").getAsString());
-    LocalizedValue label = LocalizedValue.fromJSON(type.get("label").getAsJsonObject());
+    boolean isAbstract = type.get(ISABSTRACT).getAsBoolean();
+    boolean isRoot = type.get(ISROOT).getAsBoolean();
+    boolean isPrivate = type.get(ISPRIVATE).getAsBoolean();
+    GeometryType geometryType = GeometryType.valueOf(type.get(GEOMETRYTYPE).getAsString());
+    LocalizedValue label = LocalizedValue.fromJSON(type.get(DISPLAYLABEL).getAsJsonObject());
     LocalizedValue description = LocalizedValue.fromJSON(type.get(DESCRIPTION).getAsJsonObject());
 
     // Create the MdTable
@@ -354,12 +387,15 @@ public class GeoObjectTypeSnapshot extends GeoObjectTypeSnapshotBase
     mdTableDAO.setValue(MdVertexInfo.DB_CLASS_NAME, viewName);
     mdTableDAO.setValue(MdVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
     mdTableDAO.setValue(MdVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
-    mdTableDAO.setValue(MdVertexInfo.SUPER_MD_VERTEX, root.getGraphMdVertexOid());
+    mdTableDAO.setValue(MdVertexInfo.SUPER_MD_VERTEX, parent.getGraphMdVertexOid());
     mdTableDAO.apply();
 
     MdVertex mdTable = (MdVertex) BusinessFacade.get(mdTableDAO);
 
-    createGeometryAttribute(geometryType, mdTableDAO);
+    if (!isAbstract)
+    {
+      createGeometryAttribute(geometryType, mdTableDAO);
+    }
 
     JsonArray attributes = type.get("attributes").getAsJsonArray();
 
@@ -374,10 +410,48 @@ public class GeoObjectTypeSnapshot extends GeoObjectTypeSnapshotBase
     snapshot.setGraphMdVertex(mdTable);
     snapshot.setCode(code);
     snapshot.setGeometryType(geometryType.name());
+    snapshot.setIsAbstract(isAbstract);
+    snapshot.setIsRoot(isRoot);
+    snapshot.setIsPrivate(isPrivate);
     LocalizedValueConverter.populate(snapshot.getDisplayLabel(), label);
     LocalizedValueConverter.populate(snapshot.getDescription(), description);
+    snapshot.setParent(parent);
     snapshot.apply();
 
     return snapshot;
+  }
+
+  public static GeoObjectTypeSnapshot get(LabeledPropertyGraphTypeVersion version, String code)
+  {
+    GeoObjectTypeSnapshotQuery query = new GeoObjectTypeSnapshotQuery(new QueryFactory());
+    query.WHERE(query.getVersion().EQ(version));
+    query.AND(query.getCode().EQ(code));
+
+    try (OIterator<? extends GeoObjectTypeSnapshot> it = query.getIterator())
+    {
+      if (it.hasNext())
+      {
+        return it.next();
+      }
+    }
+
+    return null;
+  }
+
+  public static GeoObjectTypeSnapshot getRoot(LabeledPropertyGraphTypeVersion version)
+  {
+    GeoObjectTypeSnapshotQuery query = new GeoObjectTypeSnapshotQuery(new QueryFactory());
+    query.WHERE(query.getVersion().EQ(version));
+    query.AND(query.getIsRoot().EQ(true));
+
+    try (OIterator<? extends GeoObjectTypeSnapshot> it = query.getIterator())
+    {
+      if (it.hasNext())
+      {
+        return it.next();
+      }
+    }
+
+    return null;
   }
 }

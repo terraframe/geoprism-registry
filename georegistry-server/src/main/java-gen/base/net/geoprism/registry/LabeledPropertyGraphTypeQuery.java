@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -488645797)
+@com.runwaysdk.business.ClassSignature(hash = -378227108)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -164,21 +164,21 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.LabeledPropertyGraphType.ENTITYDOMAIN, mdAttributeIF, this, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableChar getHierarchies()
+  public com.runwaysdk.query.SelectableChar getHierarchy()
   {
-    return getHierarchies(null);
+    return getHierarchy(null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getHierarchies(String alias)
+  public com.runwaysdk.query.SelectableChar getHierarchy(String alias)
   {
-    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphType.HIERARCHIES, alias, null);
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphType.HIERARCHY, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getHierarchies(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableChar getHierarchy(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphType.HIERARCHIES, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphType.HIERARCHY, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()
@@ -386,23 +386,6 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphType.TYPE, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableChar getTypes()
-  {
-    return getTypes(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getTypes(String alias)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphType.TYPES, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getTypes(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.LabeledPropertyGraphType.TYPES, alias, displayLabel);
-
-  }
   public com.runwaysdk.query.SelectableBoolean getValid()
   {
     return getValid(null);
@@ -520,9 +503,9 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableChar getHierarchies();
-    public com.runwaysdk.query.SelectableChar getHierarchies(String alias);
-    public com.runwaysdk.query.SelectableChar getHierarchies(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getHierarchy();
+    public com.runwaysdk.query.SelectableChar getHierarchy(String alias);
+    public com.runwaysdk.query.SelectableChar getHierarchy(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
@@ -556,9 +539,6 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableChar getTypes();
-    public com.runwaysdk.query.SelectableChar getTypes(String alias);
-    public com.runwaysdk.query.SelectableChar getTypes(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableBoolean getValid();
     public com.runwaysdk.query.SelectableBoolean getValid(String alias);
     public com.runwaysdk.query.SelectableBoolean getValid(String alias, String displayLabel);
@@ -699,21 +679,21 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphType.ENTITYDOMAIN,  alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableChar getHierarchies()
+  public com.runwaysdk.query.SelectableChar getHierarchy()
   {
-    return getHierarchies(null);
+    return getHierarchy(null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getHierarchies(String alias)
+  public com.runwaysdk.query.SelectableChar getHierarchy(String alias)
   {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.HIERARCHIES, alias, null);
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.HIERARCHY, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getHierarchies(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableChar getHierarchy(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.HIERARCHIES, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.HIERARCHY, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()
@@ -903,23 +883,6 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.TYPE, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableChar getTypes()
-  {
-    return getTypes(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getTypes(String alias)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.TYPES, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getTypes(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.TYPES, alias, displayLabel);
-
-  }
   public com.runwaysdk.query.SelectableBoolean getValid()
   {
     return getValid(null);
@@ -1014,9 +977,9 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableChar getHierarchies();
-    public com.runwaysdk.query.SelectableChar getHierarchies(String alias);
-    public com.runwaysdk.query.SelectableChar getHierarchies(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getHierarchy();
+    public com.runwaysdk.query.SelectableChar getHierarchy(String alias);
+    public com.runwaysdk.query.SelectableChar getHierarchy(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
@@ -1050,9 +1013,6 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableChar getTypes();
-    public com.runwaysdk.query.SelectableChar getTypes(String alias);
-    public com.runwaysdk.query.SelectableChar getTypes(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableBoolean getValid();
     public com.runwaysdk.query.SelectableBoolean getValid(String alias);
     public com.runwaysdk.query.SelectableBoolean getValid(String alias, String displayLabel);
@@ -1242,21 +1202,21 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.LabeledPropertyGraphType.ENTITYDOMAIN,  alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableChar getHierarchies()
+  public com.runwaysdk.query.SelectableChar getHierarchy()
   {
-    return getHierarchies(null);
+    return getHierarchy(null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getHierarchies(String alias)
+  public com.runwaysdk.query.SelectableChar getHierarchy(String alias)
   {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.HIERARCHIES, alias, null);
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.HIERARCHY, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getHierarchies(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableChar getHierarchy(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.HIERARCHIES, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.HIERARCHY, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()
@@ -1444,23 +1404,6 @@ public  class LabeledPropertyGraphTypeQuery extends com.runwaysdk.query.Generate
   public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.TYPE, alias, displayLabel);
-
-  }
-  public com.runwaysdk.query.SelectableChar getTypes()
-  {
-    return getTypes(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getTypes(String alias)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.TYPES, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getTypes(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.LabeledPropertyGraphType.TYPES, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableBoolean getValid()

@@ -51,6 +51,7 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
 
     types: GeoObjectType[] = [];
     hierarchies: HierarchyType[] = [];
+    objectTypes: GeoObjectType[] = [];
 
     tab: string = "LIST";
 
@@ -91,8 +92,8 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
         this.onChange = onChange;
 
         this.registryService.init().then(response => {
-            this.types = response.types.filter(type => !type.isAbstract);
             this.hierarchies = response.hierarchies;
+            this.objectTypes = response.types;
 
             if (type == null) {
                 this.isNew = true;
@@ -102,8 +103,7 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
                     displayLabel: this.lService.create(),
                     description: this.lService.create(),
                     code: "graph_" + Math.floor(Math.random() * 999999),
-                    hierarchies: [],
-                    types: [],
+                    hierarchy: null,
                     strategyType: "TREE",
                     strategyConfiguration: {
                         code: null,
@@ -150,36 +150,14 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
         });
     }
 
-    onSetType(event): void {
-        const target: HTMLInputElement = (event.target as HTMLInputElement);
-
-        const value = target.value
-
-        if (value != null && value.length > 0) {
-            this.type.types.push(value);
-
-            target.value = '';
-        }
-    }
-
-    removeType(index: number): void {
-        this.type.types.splice(index, 1);
-    }
 
     onSetHierarchy(event): void {
-        const target: HTMLInputElement = (event.target as HTMLInputElement);
+        const hierarchy = this.hierarchies.find(h => h.code === this.type.hierarchy);
 
-        const value = target.value
+        console.log(hierarchy);
+        
+        this.types = hierarchy.rootGeoObjectTypes.map(node => this.objectTypes.find(t => t.code == node.geoObjectType));
 
-        if (value != null && value.length > 0) {
-            this.type.hierarchies.push(value);
-
-            target.value = '';
-        }
-    }
-
-    removeHierarchy(index: number): void {
-        this.type.hierarchies.splice(index, 1);
     }
 
     onNewInterval(): void {

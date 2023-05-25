@@ -27,32 +27,25 @@ import org.springframework.stereotype.Component;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
-import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.LabeledPropertyGraphType;
 import net.geoprism.registry.LabeledPropertyGraphTypeEntry;
 import net.geoprism.registry.LabeledPropertyGraphTypeVersion;
-import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobQuery;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
-import net.geoprism.registry.ws.GlobalNotificationMessage;
-import net.geoprism.registry.ws.MessageType;
-import net.geoprism.registry.ws.NotificationFacade;
 
 @Component
 public class LabeledPropertyGraphTypeService
@@ -61,12 +54,6 @@ public class LabeledPropertyGraphTypeService
   public JsonArray listAll(String sessionId)
   {
     return LabeledPropertyGraphType.list();
-  }
-
-  @Request(RequestType.SESSION)
-  public JsonObject listForType(String sessionId, String typeCode)
-  {
-    return LabeledPropertyGraphType.listForType(typeCode);
   }
 
   @Request(RequestType.SESSION)

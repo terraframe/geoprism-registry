@@ -79,8 +79,9 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
         throw new InvalidMasterListException();
       }
 
-      List<ServerGeoObjectType> geoObjectTypes = type.getGeoObjectTypes();
-      List<ServerHierarchyType> hierarchyTypes = type.getHierarchyTypes();
+      ServerHierarchyType hierarchyType = type.getHierarchyType();
+      List<ServerGeoObjectType> geoObjectTypes = hierarchyType.getAllTypes(false);
+
       Date forDate = version.getForDate();
 
       ServerGeoObjectService service = new ServerGeoObjectService();
@@ -111,28 +112,25 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
 
           final VertexObject parent = vertex;
 
-          hierarchyTypes.forEach(ht -> {
-            ServerChildTreeNode node = snapshot.node.getChildGeoObjects(ht, null, false, forDate);
-            List<ServerChildTreeNode> children = node.getChildren();
+          ServerChildTreeNode node = snapshot.node.getChildGeoObjects(hierarchyType, null, false, forDate);
+          List<ServerChildTreeNode> children = node.getChildren();
 
-            if (children.size() > 0)
+          if (children.size() > 0)
+          {
+            HierarchyTypeSnapshot graphEdge = version.getSnapshot(hierarchyType);
+            MdEdge mdEdge = graphEdge.getGraphMdEdge();
+
+            for (ServerChildTreeNode childNode : children)
             {
-              HierarchyTypeSnapshot graphEdge = version.getSnapshot(ht);
-              MdEdge mdEdge = graphEdge.getGraphMdEdge();
+              ServerGeoObjectIF child = childNode.getGeoObject();
+              child.setDate(forDate);
 
-              for (ServerChildTreeNode childNode : children)
+              if (child.getExists(forDate) && !child.getInvalid() && geoObjectTypes.contains(child.getType()))
               {
-                ServerGeoObjectIF child = childNode.getGeoObject();
-                child.setDate(forDate);
-
-                if (child.getExists(forDate) && !child.getInvalid() && geoObjectTypes.contains(child.getType()))
-                {
-                  stack.push(new Snapshot(child, mdEdge, parent));
-                }
+                stack.push(new Snapshot(child, mdEdge, parent));
               }
             }
-
-          });
+          }
 
           this.uids.add(snapshot.node.getUid());
         }

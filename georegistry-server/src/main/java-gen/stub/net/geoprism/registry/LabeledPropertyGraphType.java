@@ -22,15 +22,11 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
-import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.JsonArray;
@@ -52,7 +48,6 @@ import net.geoprism.registry.graph.TreeStrategyConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.LocaleSerializer;
-import net.geoprism.registry.service.ServiceFactory;
 
 public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeBase
 {
@@ -100,13 +95,6 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
     {
       throw new InvalidMasterListCodeException("The list code has an invalid character");
     }
-
-    this.getGeoObjectTypes().forEach(type -> {
-      if (type.getIsAbstract())
-      {
-        throw new ProgrammingErrorException("Cannot include abstract types in a labeled property graph");
-      }
-    });
 
     super.apply();
   }
@@ -195,16 +183,6 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
   // }
   // }
 
-  public JsonArray getTypesAsJson()
-  {
-    if (this.getTypes() != null && this.getTypes().length() > 0)
-    {
-      return JsonParser.parseString(this.getTypes()).getAsJsonArray();
-    }
-
-    return new JsonArray();
-  }
-
   public JsonElement getStrategyConfigurationAsJson()
   {
     if (this.getStrategyConfiguration() != null && this.getStrategyConfiguration().length() > 0)
@@ -213,42 +191,6 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
     }
 
     return new JsonObject();
-  }
-
-  public JsonArray getHierarchiesAsJson()
-  {
-    if (this.getHierarchies() != null && this.getHierarchies().length() > 0)
-    {
-      return JsonParser.parseString(this.getHierarchies()).getAsJsonArray();
-    }
-
-    return new JsonArray();
-  }
-
-  public Map<ServerHierarchyType, List<ServerGeoObjectType>> getAncestorMap(ServerGeoObjectType type)
-  {
-    Map<ServerHierarchyType, List<ServerGeoObjectType>> map = new HashMap<>();
-
-    JsonArray hierarchies = this.getHierarchiesAsJson();
-
-    for (int i = 0; i < hierarchies.size(); i++)
-    {
-      JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
-
-      List<Pair<String, Integer>> pCodes = this.getParentCodes(hierarchy);
-
-      if (pCodes.size() > 0)
-      {
-        String hCode = hierarchy.get("code").getAsString();
-        ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
-
-        List<ServerGeoObjectType> ancestors = type.getTypeAncestors(hierarchyType, true);
-
-        map.put(hierarchyType, ancestors);
-      }
-    }
-
-    return map;
   }
 
   public List<Pair<String, Integer>> getParentCodes(JsonObject hierarchy)
@@ -275,8 +217,7 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
     LocalizedValueConverter.populate(this.getDisplayLabel(), LocalizedValue.fromJSON(object.get(LabeledPropertyGraphType.DISPLAYLABEL).getAsJsonObject()));
     LocalizedValueConverter.populate(this.getDescription(), LocalizedValue.fromJSON(object.get(LabeledPropertyGraphType.DESCRIPTION).getAsJsonObject()));
     this.setCode(object.get(LabeledPropertyGraphType.CODE).getAsString());
-    this.setTypes(object.get(LabeledPropertyGraphType.TYPES).getAsJsonArray().toString());
-    this.setHierarchies(object.get(LabeledPropertyGraphType.HIERARCHIES).getAsJsonArray().toString());
+    this.setHierarchy(object.get(LabeledPropertyGraphType.HIERARCHY).getAsString());
 
     this.setStrategyType(object.get(LabeledPropertyGraphType.STRATEGYTYPE).getAsString());
     this.setStrategyConfiguration(object.get(LabeledPropertyGraphType.STRATEGYCONFIGURATION).toString());
@@ -302,8 +243,7 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
     object.add(LabeledPropertyGraphType.DISPLAYLABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON(serializer));
     object.add(LabeledPropertyGraphType.DESCRIPTION, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescription()).toJSON(serializer));
     object.addProperty(LabeledPropertyGraphType.CODE, this.getCode());
-    object.add(LabeledPropertyGraphType.TYPES, this.getTypesAsJson());
-    object.add(LabeledPropertyGraphType.HIERARCHIES, this.getHierarchiesAsJson());
+    object.addProperty(LabeledPropertyGraphType.HIERARCHY, this.getHierarchy());
     object.addProperty(LabeledPropertyGraphType.STRATEGYTYPE, this.getStrategyType());
     object.add(LabeledPropertyGraphType.STRATEGYCONFIGURATION, this.getStrategyConfigurationAsJson());
 
@@ -377,86 +317,20 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
     return LabeledPropertyGraphTypeEntry.create(this, forDate);
   }
 
-  public void setGeoObjectTypes(ServerGeoObjectType... types)
+  public void setHierarchyType(ServerHierarchyType type)
   {
-    JsonArray array = new JsonArray();
-
-    for (ServerGeoObjectType type : types)
-    {
-      array.add(type.getCode());
-    }
-
-    this.setTypes(array.toString());
+    this.setHierarchy(type.getCode());
   }
 
-  public List<ServerGeoObjectType> getGeoObjectTypes()
+  public ServerHierarchyType getHierarchyType()
   {
-    List<ServerGeoObjectType> list = new LinkedList<>();
-
-    JsonArray types = this.getTypesAsJson();
-    types.forEach(type -> list.add(ServerGeoObjectType.get(type.getAsString())));
-
-    return list;
-  }
-
-  public void setHierarchyTypes(ServerHierarchyType... types)
-  {
-    JsonArray array = new JsonArray();
-
-    for (ServerHierarchyType type : types)
-    {
-      array.add(type.getCode());
-    }
-
-    this.setHierarchies(array.toString());
-  }
-
-  public List<ServerHierarchyType> getHierarchyTypes()
-  {
-    List<ServerHierarchyType> list = new LinkedList<>();
-
-    JsonArray types = this.getHierarchiesAsJson();
-    types.forEach(type -> list.add(ServerHierarchyType.get(type.getAsString())));
-
-    return list;
+    return ServerHierarchyType.get(this.getHierarchy());
   }
 
   public void markAsInvalid(ServerHierarchyType hierarchyType, ServerGeoObjectType type)
   {
     boolean isValid = true;
 
-    JsonArray hierarchies = this.getHierarchiesAsJson();
-    List<ServerGeoObjectType> geoObjectTypes = this.getGeoObjectTypes();
-
-    for (ServerGeoObjectType geoObjectType : geoObjectTypes)
-    {
-
-      for (int i = 0; i < hierarchies.size(); i++)
-      {
-        JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
-        String hCode = hierarchy.get("code").getAsString();
-        Optional<ServerHierarchyType> ht = ServiceFactory.getMetadataCache().getHierachyType(hCode);
-
-        if (ht.isPresent())
-        {
-          ServerHierarchyType actualHierarchy = geoObjectType.findHierarchy(ht.get(), type);
-
-          if (hCode.equals(hierarchyType.getCode()) || actualHierarchy.getCode().equals(hierarchyType.getCode()))
-          {
-            List<String> pCodes = this.getParentCodes(hierarchy).stream().map(p -> p.getFirst()).collect(Collectors.toList());
-
-            if (pCodes.contains(type.getCode()) || type.getCode().equals(geoObjectType.getCode()))
-            {
-              isValid = false;
-            }
-          }
-        }
-        else
-        {
-          isValid = false;
-        }
-      }
-    }
 
     if (!isValid)
     {
@@ -470,34 +344,6 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
   {
     boolean isValid = true;
 
-    JsonArray hierarchies = this.getHierarchiesAsJson();
-    List<ServerGeoObjectType> geoObjectTypes = this.getGeoObjectTypes();
-
-    for (ServerGeoObjectType geoObjectType : geoObjectTypes)
-    {
-
-      for (int i = 0; i < hierarchies.size(); i++)
-      {
-        JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
-        String hCode = hierarchy.get("code").getAsString();
-
-        Optional<ServerHierarchyType> ht = ServiceFactory.getMetadataCache().getHierachyType(hCode);
-
-        if (ht.isPresent())
-        {
-          List<String> pCodes = this.getParentCodes(hierarchy).stream().map(p -> p.getFirst()).collect(Collectors.toList());
-
-          if (pCodes.contains(type.getCode()) || type.getCode().equals(geoObjectType.getCode()))
-          {
-            isValid = false;
-          }
-        }
-        else
-        {
-          isValid = false;
-        }
-      }
-    }
 
     if (!isValid)
     {
@@ -509,20 +355,8 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
 
   public void markAsInvalid(ServerHierarchyType hierarchyType)
   {
-    boolean isValid = true;
+    boolean isValid = this.getHierarchy().equals(hierarchyType.getCode());
 
-    JsonArray hierarchies = this.getHierarchiesAsJson();
-
-    for (int i = 0; i < hierarchies.size(); i++)
-    {
-      JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
-      String hCode = hierarchy.get("code").getAsString();
-
-      if (hierarchyType.getCode().equals(hCode))
-      {
-        isValid = false;
-      }
-    }
 
     if (!isValid)
     {
@@ -670,59 +504,6 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
     return list;
   }
 
-  @Transaction
-  public static void deleteAll(ServerGeoObjectType type)
-  {
-    getForType(type).forEach(graphType -> graphType.delete());
-  }
-
-  public static List<LabeledPropertyGraphType> getForType(ServerGeoObjectType type)
-  {
-    LabeledPropertyGraphTypeQuery query = new LabeledPropertyGraphTypeQuery(new QueryFactory());
-    query.WHERE(query.getTypes().LIKEi("%" + type.getCode() + "%"));
-
-    try (OIterator<? extends LabeledPropertyGraphType> it = query.getIterator())
-    {
-      List<? extends LabeledPropertyGraphType> results = it.getAll().stream().filter(list -> list.getGeoObjectTypes().contains(type)).collect(Collectors.toList());
-
-      return new LinkedList<LabeledPropertyGraphType>(results);
-    }
-  }
-
-  // public static void createMdAttribute(ServerGeoObjectType type,
-  // AttributeType attributeType)
-  // {
-  // Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
-  //
-  // LabeledPropertyGraphTypeQuery query = new LabeledPropertyGraphTypeQuery(new
-  // QueryFactory());
-  // query.WHERE(query.getUniversal().EQ(type.getUniversal()));
-  //
-  // List<? extends LabeledPropertyGraphType> lists =
-  // query.getIterator().getAll();
-  //
-  // for (LabeledPropertyGraphType list : lists)
-  // {
-  // list.createMdAttributeFromAttributeType(type, attributeType, locales);
-  // }
-  // }
-  //
-  // public static void deleteMdAttribute(Universal universal, AttributeType
-  // attributeType)
-  // {
-  // LabeledPropertyGraphTypeQuery query = new LabeledPropertyGraphTypeQuery(new
-  // QueryFactory());
-  // query.WHERE(query.getUniversal().EQ(universal));
-  //
-  // List<? extends LabeledPropertyGraphType> lists =
-  // query.getIterator().getAll();
-  //
-  // for (LabeledPropertyGraphType list : lists)
-  // {
-  // list.removeAttributeType(attributeType);
-  // }
-  // }
-
   public static boolean isValidName(String name)
   {
     if (name.contains(" ") || name.contains("<") || name.contains(">") || name.contains("-") || name.contains("+") || name.contains("=") || name.contains("!") || name.contains("@") || name.contains("#") || name.contains("$") || name.contains("%") || name.contains("^") || name.contains("&") || name.contains("*") || name.contains("?") || name.contains(";") || name.contains(":") || name.contains(",") || name.contains("^") || name.contains("{") || name.contains("}") || name.contains("]") || name.contains("[") || name.contains("`") || name.contains("~") || name.contains("|") || name.contains("/") || name.contains("\\"))
@@ -760,45 +541,6 @@ public abstract class LabeledPropertyGraphType extends LabeledPropertyGraphTypeB
     return response;
   }
 
-  public static JsonObject listForType(String typeCode)
-  {
-    ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
-
-    Organization org = type.getOrganization();
-
-    List<LabeledPropertyGraphType> graphTypes = getForType(type);
-
-    final JsonArray lists = new JsonArray();
-
-    graphTypes.stream().sorted((a, b) -> {
-
-      int compareTo = a.getType().compareTo(b.getType());
-
-      if (compareTo == 0)
-      {
-        return a.getDisplayLabel().getValue().compareTo(b.getDisplayLabel().getValue());
-      }
-
-      return compareTo;
-    }).filter(f -> {
-      // TODO Make visible if the type has a public version???
-      // return isMember;
-
-      return true;
-    }).forEach(list -> {
-      lists.add(list.toJSON());
-    });
-
-    JsonObject object = new JsonObject();
-    object.addProperty("orgCode", org.getCode());
-    object.addProperty("orgLabel", org.getDisplayLabel().getValue());
-    object.addProperty("typeCode", type.getCode());
-    object.addProperty("typeLabel", type.getLabel().getValue());
-    object.addProperty("geometryType", type.getGeometryType().name());
-    object.add("lists", lists);
-
-    return object;
-  }
 
   @Transaction
   public static void markAllAsInvalid(ServerHierarchyType hierarchyType, ServerGeoObjectType type)

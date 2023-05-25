@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1875119716)
+@com.runwaysdk.business.ClassSignature(hash = 2015432371)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -21,7 +21,7 @@ public abstract class LabeledPropertyGraphTypeBase extends com.runwaysdk.busines
   private com.runwaysdk.business.Struct displayLabel = null;
   
   public final static java.lang.String ENTITYDOMAIN = "entityDomain";
-  public final static java.lang.String HIERARCHIES = "hierarchies";
+  public final static java.lang.String HIERARCHY = "hierarchy";
   public final static java.lang.String KEYNAME = "keyName";
   public final static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public final static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
@@ -33,10 +33,9 @@ public abstract class LabeledPropertyGraphTypeBase extends com.runwaysdk.busines
   public final static java.lang.String STRATEGYCONFIGURATION = "strategyConfiguration";
   public final static java.lang.String STRATEGYTYPE = "strategyType";
   public final static java.lang.String TYPE = "type";
-  public final static java.lang.String TYPES = "types";
   public final static java.lang.String VALID = "valid";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 1875119716;
+  private static final long serialVersionUID = 2015432371;
   
   public LabeledPropertyGraphTypeBase()
   {
@@ -201,31 +200,31 @@ public abstract class LabeledPropertyGraphTypeBase extends com.runwaysdk.busines
     }
   }
   
-  public String getHierarchies()
+  public String getHierarchy()
   {
-    return getValue(HIERARCHIES);
+    return getValue(HIERARCHY);
   }
   
-  public void validateHierarchies()
+  public void validateHierarchy()
   {
-    this.validateAttribute(HIERARCHIES);
+    this.validateAttribute(HIERARCHY);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getHierarchiesMd()
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getHierarchyMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.LabeledPropertyGraphType.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(HIERARCHIES);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(HIERARCHY);
   }
   
-  public void setHierarchies(String value)
+  public void setHierarchy(String value)
   {
     if(value == null)
     {
-      setValue(HIERARCHIES, "");
+      setValue(HIERARCHY, "");
     }
     else
     {
-      setValue(HIERARCHIES, value);
+      setValue(HIERARCHY, value);
     }
   }
   
@@ -499,34 +498,6 @@ public abstract class LabeledPropertyGraphTypeBase extends com.runwaysdk.busines
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.LabeledPropertyGraphType.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(TYPE);
-  }
-  
-  public String getTypes()
-  {
-    return getValue(TYPES);
-  }
-  
-  public void validateTypes()
-  {
-    this.validateAttribute(TYPES);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getTypesMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.LabeledPropertyGraphType.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(TYPES);
-  }
-  
-  public void setTypes(String value)
-  {
-    if(value == null)
-    {
-      setValue(TYPES, "");
-    }
-    else
-    {
-      setValue(TYPES, value);
-    }
   }
   
   public Boolean getValid()

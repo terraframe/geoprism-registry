@@ -21,6 +21,7 @@ package net.geoprism.registry;
 import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 import com.google.gson.JsonArray;
@@ -61,6 +62,20 @@ import net.geoprism.registry.ws.NotificationFacade;
 
 public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVersionBase implements LabeledVersion
 {
+  private static class StackItem
+  {
+    private GeoObjectTypeSnapshot parent;
+
+    private ServerGeoObjectType   type;
+
+    public StackItem(ServerGeoObjectType type, GeoObjectTypeSnapshot parent)
+    {
+      this.type = type;
+      this.parent = parent;
+    }
+
+  }
+
   private static final long  serialVersionUID = -351397872;
 
   public static final String PREFIX           = "g_";
@@ -93,10 +108,14 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     }
 
     this.getHierarchies().forEach(e -> HierarchyTypeSnapshot.get(e.getOid()).delete());
-    
+
     // Delete the non-root snapshots first
-    this.getTypes().stream().filter(v -> !v.isRoot()).forEach(v -> GeoObjectTypeSnapshot.get(v.getOid()).delete());
-    
+    this.getTypes().stream().filter(v -> !v.getIsAbstract()).forEach(v -> GeoObjectTypeSnapshot.get(v.getOid()).delete());
+
+    // Delete the abstract snapshots after all the sub snapshots have been
+    // deleted
+    this.getTypes().stream().filter(v -> !v.getIsRoot()).forEach(v -> GeoObjectTypeSnapshot.get(v.getOid()).delete());
+
     // Delete the root snapshots after all the sub snapshots have been deleted
     this.getTypes().stream().filter(v -> v.isRoot()).forEach(v -> GeoObjectTypeSnapshot.get(v.getOid()).delete());
 
@@ -126,6 +145,11 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
     query.setParameter("uid", uid);
 
     return query.getSingleResult();
+  }
+
+  public GeoObjectTypeSnapshot getRootType()
+  {
+    return GeoObjectTypeSnapshot.getRoot(this);
   }
 
   public List<GeoObjectTypeSnapshot> getTypes()
@@ -298,17 +322,19 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
       JsonArray types = new JsonArray();
 
       List<GeoObjectTypeSnapshot> vertices = this.getTypes();
-      vertices.stream().filter(type -> !type.isRoot()).forEach(type -> {
+      vertices.stream().sorted((a, b) -> b.getIsAbstract().compareTo(a.getIsAbstract())).filter(type -> !type.isRoot()).forEach(type -> {
         types.add(type.toJSON());
       });
 
       object.add("types", types);
 
       JsonArray hierarchies = new JsonArray();
+      
+      GeoObjectTypeSnapshot root = this.getRootType();
 
       this.getHierarchies().forEach(hierarchy -> {
 
-        hierarchies.add(hierarchy.toJSON());
+        hierarchies.add(hierarchy.toJSON(root));
       });
 
       object.add("hierarchies", hierarchies);
@@ -331,10 +357,18 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
 
     GeoObjectTypeSnapshot root = GeoObjectTypeSnapshot.createRoot(version);
 
-    List<ServerGeoObjectType> types = listType.getGeoObjectTypes();
+    ServerHierarchyType hierarchy = listType.getHierarchyType();
 
-    for (ServerGeoObjectType type : types)
+    HierarchyTypeSnapshot.create(version, hierarchy, root);
+
+    Stack<StackItem> stack = new Stack<StackItem>();
+
+    hierarchy.getDirectRootNodes().forEach(type -> stack.push(new StackItem(type, root)));
+
+    while (!stack.isEmpty())
     {
+      StackItem item = stack.pop();
+      ServerGeoObjectType type = item.type;
 
       // if (type.getIsPrivate() && (
       // version.getListVisibility().equals(LabeledPropertyGraphType.PUBLIC) ||
@@ -345,24 +379,24 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
       // public if the Geo-Object Type is private");
       // }
 
-      GeoObjectTypeSnapshot.create(version, type, root);
-    }
+      GeoObjectTypeSnapshot parent = GeoObjectTypeSnapshot.create(version, type, root);
 
-    List<ServerHierarchyType> hierarchies = listType.getHierarchyTypes();
+      if (type.getIsAbstract())
+      {
+        type.getSubtypes().forEach(subtype -> {
+          GeoObjectTypeSnapshot.create(version, subtype, parent);
+        });
+      }
 
-    for (ServerHierarchyType hierarchy : hierarchies)
-    {
+      if (item.parent != null)
+      {
+        item.parent.addChildSnapshot(parent).apply();
+      }
 
-      // if (type.getIsPrivate() && (
-      // version.getListVisibility().equals(LabeledPropertyGraphType.PUBLIC) ||
-      // version.getGeospatialVisibility().equals(LabeledPropertyGraphType.PUBLIC)
-      // ))
-      // {
-      // throw new UnsupportedOperationException("A list version cannot be
-      // public if the Geo-Object Type is private");
-      // }
+      hierarchy.getChildren(type).forEach(child -> {
+        stack.push(new StackItem(child, parent));
+      });
 
-      HierarchyTypeSnapshot.create(version, hierarchy, root);
     }
 
     return version;
@@ -386,7 +420,7 @@ public class LabeledPropertyGraphTypeVersion extends LabeledPropertyGraphTypeVer
 
     for (JsonElement element : types)
     {
-      GeoObjectTypeSnapshot.create(version, element.getAsJsonObject(), root);
+      GeoObjectTypeSnapshot.create(version, element.getAsJsonObject());
     }
 
     JsonArray hierarchies = json.get("hierarchies").getAsJsonArray();

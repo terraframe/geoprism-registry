@@ -26,8 +26,7 @@
           <localChar name="displayLabel" label="Label" required="true" />
           <localText name="description"/>          
           <char name="code" label="Code" size="255" required="true" indexType="unique index" />
-          <text name="types" label="Types" />
-          <text name="hierarchies" label="Hierarchies" />
+          <text name="hierarchy" label="Hierarchy" />
           <boolean name="valid" label="Valid" />
           <char name="strategyType" label="Strategy Type" size="255" required="true" />          
           <text name="strategyConfiguration" label="Strategy Configuration" />          
@@ -95,11 +94,20 @@
           <localText name="description"/>          
           <text name="geometryType" label="Geometry Type" />
           <boolean name="isPrivate" label="Is Private" />          
+          <boolean name="isRoot" label="Is Root" />          
+          <boolean name="isAbstract" label="Is Abstract" />          
           <boolean name="isGeometryEditable" label="Is Geometry Editable" />          
           <reference name="graphMdVertex" type="com.runwaysdk.system.metadata.MdVertex" required="true" label="MdVertex" />
           <reference name="version" type="net.geoprism.registry.LabeledPropertyGraphTypeVersion" required="true" label="Version" />                
+          <reference name="parent" type="net.geoprism.registry.GeoObjectTypeSnapshot" required="false" label="Parent" />                
         </attributes>
       </mdBusiness>      
+      
+      <mdRelationship name="net.geoprism.registry.action.SnapshotHierarchy" label="Snapshot Hierarchy" generateController="false" exported="false" publish="false">
+        <parent cardinality="1" name="net.geoprism.registry.GeoObjectTypeSnapshot" method="ParentSnapshot" />
+        <child cardinality="*" name="net.geoprism.registry.GeoObjectTypeSnapshot" method="ChildSnapshot" />
+      </mdRelationship>
+      
       
       <mdBusiness name="net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false">
         <attributes>
@@ -151,6 +159,9 @@
           <mdBusinessPermission type="net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob">
             <operation name="ALL" />
           </mdBusinessPermission>                  
+          <mdRelationshipPermission type="net.geoprism.registry.action.SnapshotHierarchy">
+            <operation name="ALL" />
+          </mdRelationshipPermission>                  
         </grant>
       </role>
       <role roleName="cgr.RegistryMaintainer">
@@ -182,6 +193,9 @@
           <mdBusinessPermission type="net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob">
             <operation name="ALL" />
           </mdBusinessPermission>                            
+          <mdRelationshipPermission type="net.geoprism.registry.action.SnapshotHierarchy">
+            <operation name="ALL" />
+          </mdRelationshipPermission>                            
         </grant>
       </role>
       <role roleName="cgr.RegistryContributor">
@@ -206,6 +220,11 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.action.SnapshotHierarchy">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                  
+          
         </grant>
       </role>
       <role roleName="cgr.APIConsumer">
@@ -230,6 +249,10 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.action.SnapshotHierarchy">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                            
         </grant>
       </role>
     </permissions>
@@ -248,11 +271,11 @@
           <attribute name="defaultLocale" value="Types" />
         </attributeStruct>
       </object>                        
-      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.hierarchies">
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.hierarchy">
         <attribute name="storeTag" value="UIText" />
-        <attribute name="storeKey" value="lpg.hierarchies" />
+        <attribute name="storeKey" value="lpg.hierarchy" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Hierarchies" />
+          <attribute name="defaultLocale" value="Hierarchy" />
         </attributeStruct>
       </object>                        
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.root">
@@ -267,6 +290,7 @@
   </doIt>
   <undoIt>
     <delete>
+      <object key="net.geoprism.registry.action.SnapshotHierarchy" type="com.runwaysdk.system.metadata.MdRelationship"></object>
       <object key="net.geoprism.registry.HierarchyTypeSnapshot" type="com.runwaysdk.system.metadata.MdBusiness"></object>
       <object key="net.geoprism.registry.GeoObjectTypeSnapshot" type="com.runwaysdk.system.metadata.MdBusiness"></object>    
       <object key="net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob" type="com.runwaysdk.system.metadata.MdBusiness"></object>

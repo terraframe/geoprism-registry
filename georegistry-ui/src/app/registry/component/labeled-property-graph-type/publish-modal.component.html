@@ -236,73 +236,28 @@
                 <div class="row-holder">
                     <div class="label-holder">
                         <label>
-                            <localize key="lpg.types"></localize>
+                            <localize key="lpg.hierarchy"></localize>
                         </label>
                     </div>
                     <div class="holder">
                         <div class="row" *ngIf="!(readonly || !isNew)">
                             <div class="col-md-12">
 
-                                <select class="select-area" name="type" [disabled]="readonly || !isNew"
-                                    (change)="onSetType($event)">
-                                    <option></option>
-                                    <ng-container *ngFor="let t of types">
-                                        <option *ngIf="type.types.indexOf(t.code) === -1" [value]="t.code">
-                                            {{t.label.localizedValue}}
-                                        </option>
-                                    </ng-container>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row" *ngFor="let t of type.types; let i = index;">
-                            <div class="col-md-5">
-                                {{t}}
-                            </div>
-                            <div class="col-md-2">
-                                <i class="fa fa-times delete-btn clickable" *ngIf="(isNew)" (click)="removeType(i)"
-                                    [title]="'button.delete.helptext' | localize">
-                                </i>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="row-holder">
-                    <div class="label-holder">
-                        <label>
-                            <localize key="lpg.hierarchies"></localize>
-                        </label>
-                    </div>
-                    <div class="holder">
-                        <div class="row" *ngIf="!(readonly || !isNew)">
-                            <div class="col-md-12">
-
-                                <select class="select-area" name="hierarchy" [disabled]="readonly || !isNew"
-                                    (change)="onSetHierarchy($event)">
+                                <select class="select-area" name="hierarchy" [(ngModel)]="type.hierarchy"
+                                    [disabled]="readonly || !isNew" (change)="onSetHierarchy($event)">
                                     <option></option>
                                     <ng-container *ngFor="let t of hierarchies">
-                                        <option *ngIf="type.types.indexOf(t.code) === -1" [value]="t.code">
+                                        <option [value]="t.code">
                                             {{t.label.localizedValue}}
                                         </option>
                                     </ng-container>
                                 </select>
                             </div>
                         </div>
-                        <div class="row" *ngFor="let t of type.hierarchies; let i = index;">
-                            <div class="col-md-5">
-                                {{t}}
-                            </div>
-                            <div class="col-md-2">
-                                <i class="fa fa-times delete-btn clickable" *ngIf="(isNew)" (click)="removeHierarchy(i)"
-                                    [title]="'button.delete.helptext' | localize">
-                                </i>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
-                <ng-container *ngIf="type.types.length > 0">
+                <ng-container *ngIf="type.hierarchy.length > 0">
                     <div class="row-holder">
                         <div class="label-holder">
                             <label>
@@ -317,7 +272,7 @@
                                         [(ngModel)]="type.strategyConfiguration.typeCode"
                                         [disabled]="readonly || !isNew" required>
                                         <option></option>
-                                        <option *ngFor="let t of type.types" [value]="t">
+                                        <option *ngFor="let t of types" [value]="t">
                                             {{t}}
                                         </option>
                                     </select>
@@ -329,13 +284,9 @@
                                         <div class="holder" style="width:300px;">
                                             <input name="root" [(ngModel)]="entityLabel" [typeaheadAsync]="true"
                                                 [typeahead]="dataSource" (typeaheadOnSelect)="typeaheadOnSelect($event)"
-                                                [typeaheadOptionsLimit]="7" 
-                                                typeaheadOptionField="name" 
-                                                [typeaheadMinLength]="0"
-                                                [typeaheadWaitMs]="300"
-                                                [container]="null"
-                                                [disabled]="readonly || !isNew"
-                                                class="form-control">
+                                                [typeaheadOptionsLimit]="7" typeaheadOptionField="name"
+                                                [typeaheadMinLength]="0" [typeaheadWaitMs]="300" [container]="null"
+                                                [disabled]="readonly || !isNew" class="form-control">
                                         </div>
                                     </ng-container>
                                 </div>

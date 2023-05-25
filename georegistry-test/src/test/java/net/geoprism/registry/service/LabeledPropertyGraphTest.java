@@ -58,7 +58,6 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
-import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
@@ -168,8 +167,7 @@ public class LabeledPropertyGraphTest
   public void testSingleLabeledPropertyGraphTypeSerialization()
   {
     SingleLabeledPropertyGraphType type = new SingleLabeledPropertyGraphType();
-    type.setGeoObjectTypes(USATestData.COUNTRY.getServerObject(), USATestData.STATE.getServerObject(), USATestData.COUNTY.getServerObject(), USATestData.SCHOOL_ZONE.getServerObject());
-    type.setHierarchyTypes(USATestData.HIER_ADMIN.getServerObject(), USATestData.HIER_SCHOOL.getServerObject());
+    type.setHierarchyType(USATestData.HIER_ADMIN.getServerObject());
     type.getDisplayLabel().setValue("Test List");
     type.setCode("TEST_CODE");
     type.getDescription().setValue("My Overal Description");
@@ -182,8 +180,7 @@ public class LabeledPropertyGraphTest
     Assert.assertEquals(type.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
     Assert.assertEquals(type.getDescription().getValue(), test.getDescription().getValue());
     Assert.assertEquals(type.getCode(), test.getCode());
-    Assert.assertEquals(type.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
-    Assert.assertEquals(type.getTypesAsJson().toString(), test.getTypesAsJson().toString());
+    Assert.assertEquals(type.getHierarchy(), test.getHierarchy());
     Assert.assertEquals(type.getValidOn(), test.getValidOn());
   }
 
@@ -201,8 +198,7 @@ public class LabeledPropertyGraphTest
     IntervalLabeledPropertyGraphType type = new IntervalLabeledPropertyGraphType();
     type.getDisplayLabel().setValue("Test List");
     type.setCode("TEST_CODE");
-    type.setGeoObjectTypes(USATestData.COUNTRY.getServerObject(), USATestData.STATE.getServerObject(), USATestData.COUNTY.getServerObject(), USATestData.SCHOOL_ZONE.getServerObject());
-    type.setHierarchyTypes(USATestData.HIER_ADMIN.getServerObject(), USATestData.HIER_SCHOOL.getServerObject());
+    type.setHierarchyType(USATestData.HIER_ADMIN.getServerObject());
     type.getDescription().setValue("My Overal Description");
     type.setIntervalJson(intervalJson.toString());
     type.setStrategyType(SingleLabeledPropertyGraphType.TREE);
@@ -213,8 +209,7 @@ public class LabeledPropertyGraphTest
     Assert.assertEquals(type.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
     Assert.assertEquals(type.getDescription().getValue(), test.getDescription().getValue());
     Assert.assertEquals(type.getCode(), test.getCode());
-    Assert.assertEquals(type.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
-    Assert.assertEquals(type.getTypesAsJson().toString(), test.getTypesAsJson().toString());
+    Assert.assertEquals(type.getHierarchy(), test.getHierarchy());
     Assert.assertEquals(type.getIntervalJson(), test.getIntervalJson());
   }
 
@@ -225,8 +220,7 @@ public class LabeledPropertyGraphTest
     IncrementalLabeledPropertyGraphType type = new IncrementalLabeledPropertyGraphType();
     type.getDisplayLabel().setValue("Test List");
     type.setCode("TEST_CODE");
-    type.setGeoObjectTypes(USATestData.COUNTRY.getServerObject(), USATestData.STATE.getServerObject(), USATestData.COUNTY.getServerObject(), USATestData.SCHOOL_ZONE.getServerObject());
-    type.setHierarchyTypes(USATestData.HIER_ADMIN.getServerObject(), USATestData.HIER_SCHOOL.getServerObject());
+    type.setHierarchyType(USATestData.HIER_ADMIN.getServerObject());
     type.getDescription().setValue("My Overal Description");
     type.setPublishingStartDate(USATestData.DEFAULT_OVER_TIME_DATE);
     type.addFrequency(ChangeFrequency.ANNUAL);
@@ -238,8 +232,7 @@ public class LabeledPropertyGraphTest
     Assert.assertEquals(type.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
     Assert.assertEquals(type.getDescription().getValue(), test.getDescription().getValue());
     Assert.assertEquals(type.getCode(), test.getCode());
-    Assert.assertEquals(type.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
-    Assert.assertEquals(type.getTypesAsJson().toString(), test.getTypesAsJson().toString());
+    Assert.assertEquals(type.getHierarchy(), test.getHierarchy());
     Assert.assertEquals(type.getFrequency().get(0), test.getFrequency().get(0));
     Assert.assertEquals(type.getPublishingStartDate(), test.getPublishingStartDate());
   }
@@ -248,7 +241,7 @@ public class LabeledPropertyGraphTest
   @Request
   public void testCreate()
   {
-    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.COUNTY });
+    JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN);
 
     LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
 
@@ -268,7 +261,7 @@ public class LabeledPropertyGraphTest
 
       List<GeoObjectTypeSnapshot> vertices = version.getTypes();
 
-      Assert.assertEquals(4, vertices.size());
+      Assert.assertEquals(11, vertices.size());
 
       List<HierarchyTypeSnapshot> edges = version.getHierarchies();
 
@@ -284,7 +277,7 @@ public class LabeledPropertyGraphTest
   @Request
   public void testPublish()
   {
-    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.COUNTY });
+    JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN);
 
     LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
 
@@ -333,7 +326,7 @@ public class LabeledPropertyGraphTest
   @Request
   public void testPublishJob()
   {
-    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.COUNTY });
+    JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN);
 
     LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
 
@@ -389,58 +382,9 @@ public class LabeledPropertyGraphTest
 
   @Test
   @Request
-  public void testPublishMultipleHierarchies()
-  {
-    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN, USATestData.HIER_SCHOOL }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT, USATestData.SCHOOL_ZONE });
-
-    LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
-
-    try
-    {
-      List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
-
-      Assert.assertEquals(1, entries.size());
-
-      LabeledPropertyGraphTypeEntry entry = entries.get(0);
-
-      List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
-
-      Assert.assertEquals(1, versions.size());
-
-      LabeledPropertyGraphTypeVersion version = versions.get(0);
-      version.publishNoAuth();
-
-      GeoObjectTypeSnapshot graphVertex = version.getSnapshot(USATestData.COUNTRY.getServerObject());
-      MdVertex mdVertex = graphVertex.getGraphMdVertex();
-
-      HierarchyTypeSnapshot graphEdge = version.getSnapshot(USATestData.HIER_ADMIN.getServerObject());
-      MdEdge mdEdge = graphEdge.getGraphMdEdge();
-
-      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
-      List<VertexObject> results = query.getResults();
-
-      Assert.assertEquals(1, results.size());
-
-      VertexObject result = results.get(0);
-
-      Assert.assertEquals(USATestData.USA.getCode(), result.getObjectValue(DefaultAttribute.CODE.getName()));
-
-      List<VertexObject> children = result.getChildren(mdEdge.definesType(), VertexObject.class);
-
-      Assert.assertEquals(2, children.size());
-
-    }
-    finally
-    {
-      test1.delete();
-    }
-  }
-
-  @Test
-  @Request
   public void testLabeledPropertyGraphJsonExporter()
   {
-    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT });
+    JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN);
 
     LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
 
@@ -505,7 +449,7 @@ public class LabeledPropertyGraphTest
   @Test
   public void testServiceApply()
   {
-    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN, USATestData.HIER_SCHOOL }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT, USATestData.SCHOOL_ZONE });
+    JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN);
 
     LabeledPropertyGraphTypeService service = new LabeledPropertyGraphTypeService();
     JsonObject result = service.apply(testData.clientRequest.getSessionId(), json);
@@ -526,7 +470,7 @@ public class LabeledPropertyGraphTest
   @Request
   public void testJsonExportAndImport()
   {
-    JsonObject json = getJson(USATestData.USA, new TestHierarchyTypeInfo[] { USATestData.HIER_ADMIN }, new TestGeoObjectTypeInfo[] { USATestData.COUNTRY, USATestData.STATE, USATestData.COUNTY });
+    JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN);
 
     LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
 
@@ -555,7 +499,7 @@ public class LabeledPropertyGraphTest
 
       List<GeoObjectTypeSnapshot> vertices = version.getTypes();
 
-      Assert.assertEquals(4, vertices.size());
+      Assert.assertEquals(11, vertices.size());
 
       List<HierarchyTypeSnapshot> edges = version.getHierarchies();
 
@@ -569,11 +513,10 @@ public class LabeledPropertyGraphTest
   }
 
   @Request
-  public static JsonObject getJson(TestGeoObjectInfo root, TestHierarchyTypeInfo[] ht, TestGeoObjectTypeInfo[] types)
+  public static JsonObject getJson(TestGeoObjectInfo root, TestHierarchyTypeInfo ht)
   {
     LabeledPropertyGraphTypeBuilder builder = new LabeledPropertyGraphTypeBuilder();
-    builder.setHts(ht);
-    builder.setTypes(types);
+    builder.setHt(ht);
     builder.setConfiguration(new TreeStrategyConfiguration(root.getCode(), root.getGeoObjectType().getCode()));
 
     return builder.buildJSON();
