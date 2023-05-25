@@ -244,7 +244,7 @@
                             <div class="col-md-12">
 
                                 <select class="select-area" name="hierarchy" [(ngModel)]="type.hierarchy"
-                                    [disabled]="readonly || !isNew" (change)="onSetHierarchy($event)">
+                                    [disabled]="readonly || !isNew" (change)="onSetHierarchy()" required>
                                     <option></option>
                                     <ng-container *ngFor="let t of hierarchies">
                                         <option [value]="t.code">
@@ -272,8 +272,8 @@
                                         [(ngModel)]="type.strategyConfiguration.typeCode"
                                         [disabled]="readonly || !isNew" required>
                                         <option></option>
-                                        <option *ngFor="let t of types" [value]="t">
-                                            {{t}}
+                                        <option *ngFor="let t of types" [value]="t.code">
+                                            {{t.label.localizedValue}}
                                         </option>
                                     </select>
                                 </div>

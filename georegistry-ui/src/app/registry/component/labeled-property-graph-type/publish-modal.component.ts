@@ -33,7 +33,7 @@ import { LabeledPropertyGraphTypeService } from "@registry/service/labeled-prope
 import { GeoObjectType } from "@registry/model/registry";
 import Utils from "@registry/utility/Utils";
 import { PRESENT } from "@shared/model/date";
-import { HierarchyType } from "@registry/model/hierarchy";
+import { HierarchyNode, HierarchyType } from "@registry/model/hierarchy";
 import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 
 @Component({
@@ -103,7 +103,7 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
                     displayLabel: this.lService.create(),
                     description: this.lService.create(),
                     code: "graph_" + Math.floor(Math.random() * 999999),
-                    hierarchy: null,
+                    hierarchy: '',
                     strategyType: "TREE",
                     strategyConfiguration: {
                         code: null,
@@ -151,13 +151,22 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
     }
 
 
-    onSetHierarchy(event): void {
+    onSetHierarchy(): void {
         const hierarchy = this.hierarchies.find(h => h.code === this.type.hierarchy);
 
-        console.log(hierarchy);
-        
-        this.types = hierarchy.rootGeoObjectTypes.map(node => this.objectTypes.find(t => t.code == node.geoObjectType));
+        const types = []
 
+        hierarchy.rootGeoObjectTypes.forEach(node => this.processNode(types, node));
+
+        this.types = types;
+    }
+
+    processNode(types: GeoObjectType[], node: HierarchyNode): void {
+        const type = this.objectTypes.find(t => t.code == node.geoObjectType);
+
+        types.push(type);
+
+        node.children.forEach(node => this.processNode(types, node));
     }
 
     onNewInterval(): void {

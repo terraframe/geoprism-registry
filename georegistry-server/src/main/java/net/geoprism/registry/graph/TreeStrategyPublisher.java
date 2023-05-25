@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.graph.GraphQuery;
@@ -81,6 +82,11 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
 
       ServerHierarchyType hierarchyType = type.getHierarchyType();
       List<ServerGeoObjectType> geoObjectTypes = hierarchyType.getAllTypes(false);
+      
+      geoObjectTypes.stream().filter(t -> t.getIsAbstract()).collect(Collectors.toList()).forEach(t -> {
+        geoObjectTypes.addAll(t.getSubtypes());
+      });
+      
 
       Date forDate = version.getForDate();
 
