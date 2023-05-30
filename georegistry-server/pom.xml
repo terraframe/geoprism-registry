@@ -33,7 +33,7 @@
 	<description>The back-end database server for the georegistry project</description>
 
 	<properties>
-		<hapifhir_version>6.4.4</hapifhir_version>
+		<hapifhir_version>6.6.0</hapifhir_version>
 		<cgr.adapter.version>1.2.0</cgr.adapter.version>
 	</properties>
 
