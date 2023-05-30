@@ -1,9 +1,9 @@
-package net.geoprism.registry.etl;
+package net.geoprism.graph;
 
 public class PublishLabeledPropertyGraphTypeVersionJobDTO extends PublishLabeledPropertyGraphTypeVersionJobDTOBase
 {
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 849640095;
+  private static final long serialVersionUID = -610239400;
   
   public PublishLabeledPropertyGraphTypeVersionJobDTO(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {

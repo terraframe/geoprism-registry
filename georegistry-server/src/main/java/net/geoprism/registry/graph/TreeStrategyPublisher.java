@@ -15,12 +15,15 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
 
+import net.geoprism.graph.AbstractGraphVersionPublisher;
+import net.geoprism.graph.GeoObjectTypeSnapshot;
+import net.geoprism.graph.HierarchyTypeSnapshot;
+import net.geoprism.graph.LabeledPropertyGraphType;
+import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
+import net.geoprism.graph.StrategyPublisher;
+import net.geoprism.graph.TreeStrategyConfiguration;
+import net.geoprism.graph.registry.RegistryConstants;
 import net.geoprism.registry.InvalidMasterListException;
-import net.geoprism.registry.HierarchyTypeSnapshot;
-import net.geoprism.registry.LabeledPropertyGraphType;
-import net.geoprism.registry.LabeledPropertyGraphTypeVersion;
-import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.GeoObjectTypeSnapshot;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -80,13 +83,12 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
         throw new InvalidMasterListException();
       }
 
-      ServerHierarchyType hierarchyType = type.getHierarchyType();
+      ServerHierarchyType hierarchyType = ServerHierarchyType.get(type.getHierarchy());
       List<ServerGeoObjectType> geoObjectTypes = hierarchyType.getAllTypes(false);
-      
+
       geoObjectTypes.stream().filter(t -> t.getIsAbstract()).collect(Collectors.toList()).forEach(t -> {
         geoObjectTypes.addAll(t.getSubtypes());
       });
-      
 
       Date forDate = version.getForDate();
 
@@ -107,14 +109,14 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
       {
         Snapshot snapshot = stack.pop();
 
-        GeoObjectTypeSnapshot graphVertex = version.getSnapshot(snapshot.node.getType());
+        GeoObjectTypeSnapshot graphVertex = GeoObjectTypeSnapshot.get(version, snapshot.node.getType().getCode());
         MdVertex mdVertex = graphVertex.getGraphMdVertex();
 
         VertexObject vertex = null;
 
         if (!this.uids.contains(snapshot.node.getUid()))
         {
-          vertex = this.publish(snapshot.node, mdVertex, forDate);
+          vertex = this.publish(mdVertex, snapshot.node.toGeoObject(forDate));
 
           final VertexObject parent = vertex;
 
@@ -123,7 +125,7 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
 
           if (children.size() > 0)
           {
-            HierarchyTypeSnapshot graphEdge = version.getSnapshot(hierarchyType);
+            HierarchyTypeSnapshot graphEdge = HierarchyTypeSnapshot.get(version, hierarchyType.getCode());
             MdEdge mdEdge = graphEdge.getGraphMdEdge();
 
             for (ServerChildTreeNode childNode : children)

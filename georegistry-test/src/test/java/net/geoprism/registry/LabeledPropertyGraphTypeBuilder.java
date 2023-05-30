@@ -6,7 +6,9 @@ package net.geoprism.registry;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 
-import net.geoprism.registry.graph.StrategyConfiguration;
+import net.geoprism.graph.LabeledPropertyGraphType;
+import net.geoprism.graph.SingleLabeledPropertyGraphType;
+import net.geoprism.graph.StrategyConfiguration;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.USATestData;
 

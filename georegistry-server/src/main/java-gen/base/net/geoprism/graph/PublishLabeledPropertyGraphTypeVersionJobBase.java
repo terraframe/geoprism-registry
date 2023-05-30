@@ -1,6 +1,6 @@
-package net.geoprism.registry.etl;
+package net.geoprism.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = -1726050148)
+@com.runwaysdk.business.ClassSignature(hash = 153744388)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -10,18 +10,18 @@ package net.geoprism.registry.etl;
  */
 public abstract class PublishLabeledPropertyGraphTypeVersionJobBase extends com.runwaysdk.system.scheduler.ExecutableJob
 {
-  public final static String CLASS = "net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob";
+  public final static String CLASS = "net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob";
   public final static java.lang.String GRAPHTYPE = "graphType";
   public final static java.lang.String VERSION = "version";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1726050148;
+  private static final long serialVersionUID = 153744388;
   
   public PublishLabeledPropertyGraphTypeVersionJobBase()
   {
     super();
   }
   
-  public net.geoprism.registry.LabeledPropertyGraphType getGraphType()
+  public net.geoprism.graph.LabeledPropertyGraphType getGraphType()
   {
     if (getValue(GRAPHTYPE).trim().equals(""))
     {
@@ -29,7 +29,7 @@ public abstract class PublishLabeledPropertyGraphTypeVersionJobBase extends com.
     }
     else
     {
-      return net.geoprism.registry.LabeledPropertyGraphType.get(getValue(GRAPHTYPE));
+      return net.geoprism.graph.LabeledPropertyGraphType.get(getValue(GRAPHTYPE));
     }
   }
   
@@ -45,11 +45,11 @@ public abstract class PublishLabeledPropertyGraphTypeVersionJobBase extends com.
   
   public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getGraphTypeMd()
   {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob.CLASS);
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(GRAPHTYPE);
   }
   
-  public void setGraphType(net.geoprism.registry.LabeledPropertyGraphType value)
+  public void setGraphType(net.geoprism.graph.LabeledPropertyGraphType value)
   {
     if(value == null)
     {
@@ -73,7 +73,7 @@ public abstract class PublishLabeledPropertyGraphTypeVersionJobBase extends com.
     }
   }
   
-  public net.geoprism.registry.LabeledPropertyGraphTypeVersion getVersion()
+  public net.geoprism.graph.LabeledPropertyGraphTypeVersion getVersion()
   {
     if (getValue(VERSION).trim().equals(""))
     {
@@ -81,7 +81,7 @@ public abstract class PublishLabeledPropertyGraphTypeVersionJobBase extends com.
     }
     else
     {
-      return net.geoprism.registry.LabeledPropertyGraphTypeVersion.get(getValue(VERSION));
+      return net.geoprism.graph.LabeledPropertyGraphTypeVersion.get(getValue(VERSION));
     }
   }
   
@@ -97,11 +97,11 @@ public abstract class PublishLabeledPropertyGraphTypeVersionJobBase extends com.
   
   public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getVersionMd()
   {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob.CLASS);
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(VERSION);
   }
   
-  public void setVersion(net.geoprism.registry.LabeledPropertyGraphTypeVersion value)
+  public void setVersion(net.geoprism.graph.LabeledPropertyGraphTypeVersion value)
   {
     if(value == null)
     {

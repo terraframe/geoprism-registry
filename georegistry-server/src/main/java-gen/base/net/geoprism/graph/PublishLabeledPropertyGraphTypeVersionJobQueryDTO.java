@@ -1,6 +1,6 @@
-package net.geoprism.registry.etl;
+package net.geoprism.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = 1839027301)
+@com.runwaysdk.business.ClassSignature(hash = 57392539)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,7 +11,7 @@ package net.geoprism.registry.etl;
 public class PublishLabeledPropertyGraphTypeVersionJobQueryDTO extends com.runwaysdk.system.scheduler.ExecutableJobQueryDTO
 {
 @SuppressWarnings("unused")
-private static final long serialVersionUID = 1839027301;
+private static final long serialVersionUID = 57392539;
 
   protected PublishLabeledPropertyGraphTypeVersionJobQueryDTO(String type)
   {
@@ -19,8 +19,8 @@ private static final long serialVersionUID = 1839027301;
   }
 
 @SuppressWarnings("unchecked")
-public java.util.List<? extends net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobDTO> getResultSet()
+public java.util.List<? extends net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobDTO> getResultSet()
 {
-  return (java.util.List<? extends net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobDTO>)super.getResultSet();
+  return (java.util.List<? extends net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobDTO>)super.getResultSet();
 }
 }

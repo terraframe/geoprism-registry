@@ -39,8 +39,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
-import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.registry.service.LabeledPropertyGraphTypeService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 

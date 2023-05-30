@@ -396,6 +396,14 @@ public class GeoObject implements Serializable
     return builder.create().fromJson(sJson, GeoObject.class);
   }
 
+  public static GeoObject fromJSON(GeoObjectType type, String sJson)
+  {
+    GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(GeoObject.class, new GeoObjectJsonAdapters.BasicGeoObjectDeserializer(type));
+    
+    return builder.create().fromJson(sJson, GeoObject.class);
+  }
+  
   public JsonObject toJSON()
   {
     return toJSON(new DefaultSerializer());

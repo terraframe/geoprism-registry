@@ -19,10 +19,13 @@
 package org.commongeoregistry.adapter.dataaccess;
 
 import java.lang.reflect.Type;
+import java.util.Map;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.DefaultSerializer;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
@@ -60,15 +63,16 @@ public class GeoObjectJsonAdapters
     {
       JsonObject jo = JsonParser.parseString(goJson).getAsJsonObject();
       
-      JsonObject properties = jo.get(GeoObjectJsonAdapters.JSON_PROPERTIES).getAsJsonObject();
-      
-      return properties.get(GeoObjectJsonAdapters.JSON_TYPE).getAsString();
+      return getTypeCode(jo);
     }
     
     public static String getTypeCode(String goJson)
     {
-      JsonObject jo = JsonParser.parseString(goJson).getAsJsonObject();
-      
+      return getTypeCode(JsonParser.parseString(goJson).getAsJsonObject());
+    }
+
+    public static String getTypeCode(JsonObject jo)
+    {
       JsonObject properties = jo.get(GeoObjectJsonAdapters.JSON_PROPERTIES).getAsJsonObject();
       
       return properties.get(GeoObjectJsonAdapters.JSON_TYPE).getAsString();
@@ -121,6 +125,60 @@ public class GeoObjectJsonAdapters
     }
   }
 
+  public static class BasicGeoObjectDeserializer implements JsonDeserializer<GeoObject>
+  {
+    private GeoObjectType type;
+    
+    public BasicGeoObjectDeserializer(GeoObjectType type)
+    {
+      this.type = type;
+    }
+    
+    @Override
+    public GeoObject deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+    {
+      JsonObject oJson = json.getAsJsonObject();
+      JsonObject oJsonProps = oJson.getAsJsonObject(JSON_PROPERTIES);
+      
+      Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(this.type);
+      
+      GeoObject geoObj = new GeoObject(this.type, this.type.getGeometryType(), attributeMap);
+
+      geoObj.getAttribute(DefaultAttribute.EXISTS.getName()).setValue(true);
+      
+      geoObj.getAttribute(DefaultAttribute.INVALID.getName()).setValue(false);
+
+      JsonElement oGeom = oJson.get(JSON_GEOMETRY);
+      if (oGeom != null)
+      {
+        GeoJsonReader reader = new GeoJsonReader();
+        Geometry jtsGeom;
+        try
+        {
+          jtsGeom = reader.read(oGeom.toString());
+        }
+        catch (ParseException e)
+        {
+          throw new RuntimeException(e);
+        }
+        
+        geoObj.setGeometry(jtsGeom);
+      }
+      
+      for (String key : geoObj.attributeMap.keySet())
+      {
+        Attribute attr = geoObj.attributeMap.get(key);
+        
+        if (oJsonProps.has(key) && !oJsonProps.get(key).isJsonNull())
+        {
+          attr.fromJSON(oJsonProps.get(key), null);
+        }
+      }
+      
+      return geoObj;
+    }
+  }
+  
   public static class GeoObjectSerializer implements JsonSerializer<GeoObject>
   {
     private CustomSerializer serializer;

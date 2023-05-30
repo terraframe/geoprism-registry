@@ -1,11 +1,11 @@
-package net.geoprism.registry.etl;
+package net.geoprism.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = -1274097124)
+@com.runwaysdk.business.ClassSignature(hash = -1251130748)
 public abstract class PublishLabeledPropertyGraphTypeVersionJobDTOBase extends com.runwaysdk.system.scheduler.ExecutableJobDTO
 {
-  public final static String CLASS = "net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob";
+  public final static String CLASS = "net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1274097124;
+  private static final long serialVersionUID = -1251130748;
   
   protected PublishLabeledPropertyGraphTypeVersionJobDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -45,7 +45,7 @@ public abstract class PublishLabeledPropertyGraphTypeVersionJobDTOBase extends c
     return isModified(GRAPHTYPE);
   }
   
-  public net.geoprism.registry.LabeledPropertyGraphTypeVersionDTO getVersion()
+  public net.geoprism.graph.LabeledPropertyGraphTypeVersionDTO getVersion()
   {
     if(getValue(VERSION) == null || getValue(VERSION).trim().equals(""))
     {
@@ -53,7 +53,7 @@ public abstract class PublishLabeledPropertyGraphTypeVersionJobDTOBase extends c
     }
     else
     {
-      return net.geoprism.registry.LabeledPropertyGraphTypeVersionDTO.get(getRequest(), getValue(VERSION));
+      return net.geoprism.graph.LabeledPropertyGraphTypeVersionDTO.get(getRequest(), getValue(VERSION));
     }
   }
   
@@ -62,7 +62,7 @@ public abstract class PublishLabeledPropertyGraphTypeVersionJobDTOBase extends c
     return getValue(VERSION);
   }
   
-  public void setVersion(net.geoprism.registry.LabeledPropertyGraphTypeVersionDTO value)
+  public void setVersion(net.geoprism.graph.LabeledPropertyGraphTypeVersionDTO value)
   {
     if(value == null)
     {
@@ -94,11 +94,11 @@ public abstract class PublishLabeledPropertyGraphTypeVersionJobDTOBase extends c
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(VERSION).getAttributeMdDTO();
   }
   
-  public static net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)
+  public static net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)
   {
     com.runwaysdk.business.EntityDTO dto = (com.runwaysdk.business.EntityDTO)clientRequest.get(oid);
     
-    return (net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobDTO) dto;
+    return (net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobDTO) dto;
   }
   
   public void apply()
@@ -117,9 +117,9 @@ public abstract class PublishLabeledPropertyGraphTypeVersionJobDTOBase extends c
     getRequest().delete(this.getOid());
   }
   
-  public static net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobQueryDTO getAllInstances(com.runwaysdk.constants.ClientRequestIF clientRequest, String sortAttribute, Boolean ascending, Integer pageSize, Integer pageNumber)
+  public static net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobQueryDTO getAllInstances(com.runwaysdk.constants.ClientRequestIF clientRequest, String sortAttribute, Boolean ascending, Integer pageSize, Integer pageNumber)
   {
-    return (net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobQueryDTO) clientRequest.getAllInstances(net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobDTO.CLASS, sortAttribute, ascending, pageSize, pageNumber);
+    return (net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobQueryDTO) clientRequest.getAllInstances(net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobDTO.CLASS, sortAttribute, ascending, pageSize, pageNumber);
   }
   
   public void lock()
@@ -127,12 +127,12 @@ public abstract class PublishLabeledPropertyGraphTypeVersionJobDTOBase extends c
     getRequest().lock(this);
   }
   
-  public static net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobDTO lock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
+  public static net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobDTO lock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
   {
     String[] _declaredTypes = new String[]{"java.lang.String"};
     Object[] _parameters = new Object[]{oid};
-    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobDTO.CLASS, "lock", _declaredTypes);
-    return (net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobDTO.CLASS, "lock", _declaredTypes);
+    return (net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
   public void unlock()
@@ -140,12 +140,12 @@ public abstract class PublishLabeledPropertyGraphTypeVersionJobDTOBase extends c
     getRequest().unlock(this);
   }
   
-  public static net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobDTO unlock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
+  public static net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobDTO unlock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
   {
     String[] _declaredTypes = new String[]{"java.lang.String"};
     Object[] _parameters = new Object[]{oid};
-    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobDTO.CLASS, "unlock", _declaredTypes);
-    return (net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobDTO.CLASS, "unlock", _declaredTypes);
+    return (net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
 }

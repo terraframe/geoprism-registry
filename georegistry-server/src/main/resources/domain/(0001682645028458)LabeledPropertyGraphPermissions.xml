@@ -1,0 +1,162 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness name="net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob" extends="com.runwaysdk.system.scheduler.ExecutableJob" exported="false">
+        <attributes>
+          <reference name="graphType" type="net.geoprism.graph.LabeledPropertyGraphType" required="true" label="Graph Type" />                
+          <reference name="version" type="net.geoprism.graph.LabeledPropertyGraphTypeVersion" label="Graph Type Version" required="true"/>
+        </attributes>
+      </mdBusiness>
+        
+    </create>
+    <permissions>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphType">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphTypeEntry">
+            <operation name="ALL" />
+            <mdMethodPermission methodName="publish">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>                        
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphTypeVersion">
+            <operation name="ALL" />
+            <mdMethodPermission methodName="publish">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>                        
+            <mdMethodPermission methodName="remove">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>                                    
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.GeoObjectTypeSnapshot">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.HierarchyTypeSnapshot">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>                            
+          <mdRelationshipPermission type="net.geoprism.graph.SnapshotHierarchy">
+            <operation name="ALL" />
+          </mdRelationshipPermission>                            
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphTypeEntry">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphTypeVersion">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.GeoObjectTypeSnapshot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.HierarchyTypeSnapshot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.graph.SnapshotHierarchy">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                  
+          
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphTypeEntry">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphTypeVersion">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.GeoObjectTypeSnapshot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.HierarchyTypeSnapshot">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.graph.SnapshotHierarchy">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdRelationshipPermission>                            
+        </grant>
+      </role>
+    </permissions>
+    <createOrUpdate>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.menu">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.menu" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Labeled Property Graphs" />
+        </attributeStruct>
+      </object>                        
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.types">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.types" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Types" />
+        </attributeStruct>
+      </object>                        
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.hierarchy">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.hierarchy" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hierarchy" />
+        </attributeStruct>
+      </object>                        
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.root">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.root" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Root Geo Object" />
+        </attributeStruct>
+      </object>                        
+      
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob" type="com.runwaysdk.system.metadata.MdBusiness"></object>
+    </delete>
+  </undoIt>
+</version>

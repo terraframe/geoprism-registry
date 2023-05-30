@@ -1,4 +1,4 @@
-package net.geoprism.registry.etl;
+package net.geoprism.graph;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -17,13 +17,13 @@ import net.geoprism.registry.ws.NotificationFacade;
 public class PublishLabeledPropertyGraphTypeVersionJob extends PublishLabeledPropertyGraphTypeVersionJobBase implements JsonSerializable
 {
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 397687071;
-
+  private static final long serialVersionUID = 555765208;
+  
   public PublishLabeledPropertyGraphTypeVersionJob()
   {
     super();
   }
-
+  
   @Override
   protected QuartzRunwayJob createQuartzRunwayJob()
   {
@@ -74,5 +74,6 @@ public class PublishLabeledPropertyGraphTypeVersionJob extends PublishLabeledPro
 
     return jo;
   }
+
 
 }

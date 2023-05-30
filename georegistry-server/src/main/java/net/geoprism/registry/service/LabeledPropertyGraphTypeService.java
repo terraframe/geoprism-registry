@@ -36,13 +36,13 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
 
+import net.geoprism.graph.LabeledPropertyGraphType;
+import net.geoprism.graph.LabeledPropertyGraphTypeEntry;
+import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
+import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
+import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobQuery;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InvalidMasterListException;
-import net.geoprism.registry.LabeledPropertyGraphType;
-import net.geoprism.registry.LabeledPropertyGraphTypeEntry;
-import net.geoprism.registry.LabeledPropertyGraphTypeVersion;
-import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJob;
-import net.geoprism.registry.etl.PublishLabeledPropertyGraphTypeVersionJobQuery;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
@@ -136,7 +136,7 @@ public class LabeledPropertyGraphTypeService
 
     try (OIterator<? extends PublishLabeledPropertyGraphTypeVersionJob> it = query.getIterator())
     {
-      List<JsonSerializable> results = new LinkedList<>(it.getAll());
+      List<JsonSerializable> results = new LinkedList<JsonSerializable>(it.getAll());
 
       return new Page<JsonSerializable>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
     }
@@ -159,7 +159,7 @@ public class LabeledPropertyGraphTypeService
   public JsonObject publishVersion(String sessionId, String oid)
   {
     LabeledPropertyGraphTypeVersion version = LabeledPropertyGraphTypeVersion.get(oid);
-    JobHistory history = version.createPublishJob();
+    JobHistory history = new ServerLabeledPropertyGraphService().createPublishJob(version);
 
     JsonObject resp = new JsonObject();
     resp.addProperty("jobOid", history.getOid());
