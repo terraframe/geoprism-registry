@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -23,8 +22,6 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.ClientProtocolException;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.instance.model.api.IIdType;
 import org.hl7.fhir.r4.model.Attachment;
@@ -43,7 +40,6 @@ import org.hl7.fhir.r4.model.Enumerations.SearchParamType;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.HealthcareService;
 import org.hl7.fhir.r4.model.IdType;
-import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Location.LocationMode;
 import org.hl7.fhir.r4.model.Location.LocationPositionComponent;
@@ -52,18 +48,16 @@ import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
 import org.hl7.fhir.r4.model.SearchParameter;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.geojson.GeoJsonWriter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import com.runwaysdk.business.graph.GraphQuery;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.session.Request;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.io.geojson.GeoJsonWriter;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.primitive.IdDt;
@@ -72,13 +66,11 @@ import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.api.IRestfulClientFactory;
-import net.geoprism.registry.etl.FhirSyncImportConfig;
-import net.geoprism.registry.etl.fhir.AbstractFhirResourceProcessor;
 import net.geoprism.registry.etl.fhir.BasicFhirResourceProcessor;
-import net.geoprism.registry.etl.fhir.Facility;
 import net.geoprism.registry.etl.fhir.FhirConnection;
 import net.geoprism.registry.etl.fhir.FhirConnectionFactory;
 import net.geoprism.registry.etl.fhir.FhirResourceImporter;
+import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -227,8 +219,8 @@ public class Sandbox
 
   public static void testImport(String url) throws Exception
   {
-    List<FhirExternalSystem> systems = FhirExternalSystem.getAll();
-    final FhirExternalSystem system = systems.get(0);
+    List<ExternalSystem> systems = FhirExternalSystem.getAll();
+    final FhirExternalSystem system = (FhirExternalSystem) systems.get(0);
 
     try (FhirConnection connection = FhirConnectionFactory.get(system))
     {

@@ -39,7 +39,7 @@ import {
 import { HttpErrorResponse } from "@angular/common/http";
 import { GeoObjectType, AttributeType, HierarchyOverTime } from "@registry/model/registry";
 import { SummaryKey } from "@registry/model/crtable";
-import { LocalizedValue } from "@core/model/core";
+import { ExternalId, LocalizedValue } from "@core/model/core";
 import { GovernanceStatus } from "@registry/model/constants";
 import { AuthService } from "@shared/service/auth.service";
 
@@ -209,7 +209,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
     hasLocalizationChanged(viewModel: VersionDiffView, locale: string): boolean {
         return viewModel.editor.oldValue != null && this.getValueAtLocale(viewModel.editor.oldValue, locale) !== this.getValueAtLocale(viewModel.editor.value, locale);
     }
-
+    
     onDateChange(): any {
         setTimeout(() => {
             this.isValid = this.changeRequestAttributeEditor.validate() && this.checkDateFieldValidity();
@@ -254,7 +254,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
 
         this.viewModels.push(new VersionDiffView(this, editor));
     }
-
+    
     getValueAtLocale(lv: LocalizedValue, locale: string) {
         return lv == null ? null : new LocalizedValue(lv.localizedValue, lv.localeValues).getValue(locale);
     }

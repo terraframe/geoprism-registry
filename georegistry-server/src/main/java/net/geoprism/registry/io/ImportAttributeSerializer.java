@@ -81,6 +81,8 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     {
       this.filter.add(DefaultAttribute.UID.getName());
     }
+    
+    this.filter.add(DefaultAttribute.ALT_IDS.getName());
   }
 
   public Set<String> getFilter()

@@ -107,14 +107,15 @@ public class ETLService
 //    final String historyId = config.getHistoryId();
     
     JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
-    final String vaultId = jo.get(GeoObjectImportConfiguration.VAULT_FILE_ID).getAsString();
-    final String historyId = jo.get(GeoObjectImportConfiguration.HISTORY_ID).getAsString();
+    final String vaultId = jo.has(GeoObjectImportConfiguration.VAULT_FILE_ID) ? jo.get(GeoObjectImportConfiguration.VAULT_FILE_ID).getAsString() : null;
+    final String historyId = jo.has(GeoObjectImportConfiguration.HISTORY_ID) ? jo.get(GeoObjectImportConfiguration.HISTORY_ID).getAsString() : null;
 
     if (StringUtils.isNotEmpty(vaultId))
     {
       VaultFile.get(vaultId).delete();
     }
 
+    // This code is also invoked when they hit "cancel" on the import modal, at which point it won't have a historyId.
     if (StringUtils.isNotEmpty(historyId))
     {
       ImportHistory hist = ImportHistory.get(historyId);
@@ -155,10 +156,6 @@ public class ETLService
       hist.addStatus(AllJobStatus.CANCELED);
       hist.setImportedRecords(0L);
       hist.apply();
-    }
-    else
-    {
-      throw new UnsupportedOperationException();
     }
   }
 
@@ -668,7 +665,7 @@ public class ETLService
       {
         ServerGeoObjectService service = new ServerGeoObjectService();
 
-        ServerGeoObjectIF serverGO = service.apply(go, isNew, false);
+        ServerGeoObjectIF serverGO = service.apply(go, isNew, true);
         final ServerGeoObjectType type = serverGO.getType();
 
         ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, parentTreeNode);

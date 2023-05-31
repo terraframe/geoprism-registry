@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.model.graph;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
@@ -48,6 +49,11 @@ public class ExternalId
     this.edge.setValue(KEY, this.buildKey());
     
     this.edge.apply();
+  }
+  
+  public void delete()
+  {
+    this.edge.delete();
   }
   
   public String buildKey()
@@ -82,5 +88,17 @@ public class ExternalId
   public void setExternalId(String id)
   {
     this.edge.setValue(ID, id);
+  }
+  
+  public org.commongeoregistry.adapter.dataaccess.ExternalId toDTO()
+  {
+    final ExternalSystem es = this.getParent();
+    final org.commongeoregistry.adapter.dataaccess.ExternalId dto = new org.commongeoregistry.adapter.dataaccess.ExternalId();
+    
+    dto.setId(this.getExternalId());
+    dto.setExternalSystemId(es.getOid());
+    dto.setExternalSystemLabel(es.getDisplayLabel().getValue());
+    
+    return dto;
   }
 }

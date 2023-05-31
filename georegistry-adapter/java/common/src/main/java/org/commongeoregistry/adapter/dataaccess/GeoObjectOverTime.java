@@ -19,29 +19,24 @@
 package org.commongeoregistry.adapter.dataaccess;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
-import org.commongeoregistry.adapter.RequiredParameterException;
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.AttributeGeometryType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.DefaultSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.locationtech.jts.geom.Geometry;
 
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import org.locationtech.jts.geom.Geometry;
 
 public class GeoObjectOverTime implements Serializable
 {
@@ -441,6 +436,41 @@ public class GeoObjectOverTime implements Serializable
     builder.registerTypeAdapter(GeoObjectOverTime.class, new GeoObjectOverTimeJsonAdapters.GeoObjectSerializer());
 
     return (JsonObject) builder.create().toJsonTree(this);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public void setAlternateIds(List<AlternateId> ids)
+  {
+    AttributeList<AlternateId> attr = (AttributeList<AlternateId>) this.attributeMap.get(DefaultAttribute.ALT_IDS.getName());
+    
+    attr.setValue(ids);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public List<AlternateId> getAlternateIds()
+  {
+    return (List<AlternateId>) this.attributeMap.get(DefaultAttribute.ALT_IDS.getName()).getValue();
+  }
+
+  @SuppressWarnings("unchecked")
+  public void addAlternateId(AlternateId id)
+  {
+    AttributeList<AlternateId> attr = (AttributeList<AlternateId>) this.attributeMap.get(DefaultAttribute.ALT_IDS.getName());
+    
+    List<AlternateId> ids = attr.getValue();
+    
+    if (ids == null)
+    {
+      ids = new ArrayList<AlternateId>();
+      attr.setValue(ids);
+    }
+    
+    ids.add(id);
+  }
+
+  public java.util.Optional<ExternalId> getExternalId(String externalSystemId)
+  {
+    return this.getAlternateIds().stream().filter(id -> id instanceof ExternalId).map(ExternalId.class::cast).filter(id -> id.getExternalSystemId().equals(externalSystemId)).findAny();
   }
   
 }

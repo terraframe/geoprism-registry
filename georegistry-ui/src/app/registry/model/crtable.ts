@@ -44,7 +44,7 @@ export class Geometry {
 
 export class ValueOverTimeDiff {
     oid: string;
-    action: string; // Can be one of DELETE, UPDATE, CREATE
+    action: "DELETE" | "UPDATE" | "CREATE";
     oldValue: any;
     newValue: any;
     newStartDate: string;

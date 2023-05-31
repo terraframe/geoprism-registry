@@ -52,6 +52,7 @@ import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeListType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -290,6 +291,11 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       return false;
     }
+    
+    if (attributeType.getName().equals(DefaultAttribute.ALT_IDS.getName()))
+    {
+      return false;
+    }
 
     return true;
   }
@@ -385,7 +391,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   {
     MdBusiness mdBusiness = metadata.getMdBusiness();
 
-    if (! ( attributeType instanceof AttributeTermType || attributeType instanceof AttributeClassificationType || attributeType instanceof AttributeLocalType ))
+    if (! ( attributeType instanceof AttributeTermType || attributeType instanceof AttributeClassificationType || attributeType instanceof AttributeLocalType || attributeType instanceof AttributeListType ))
     {
       MdAttributeConcrete mdAttribute = null;
 

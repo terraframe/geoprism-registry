@@ -19,8 +19,10 @@
 package org.commongeoregistry.adapter.dataaccess;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -438,5 +440,40 @@ public class GeoObject implements Serializable
     GeoObject go = (GeoObject) obj;
 
     return this.getCode().equals(go.getCode()) && this.getType().getCode().equals(go.getType().getCode());
+  }
+  
+  @SuppressWarnings("unchecked")
+  public void setAlternateIds(List<AlternateId> ids)
+  {
+    AttributeList<AlternateId> attr = (AttributeList<AlternateId>) this.attributeMap.get(DefaultAttribute.ALT_IDS.getName());
+    
+    attr.setValue(ids);
+  }
+  
+  @SuppressWarnings("unchecked")
+  public List<AlternateId> getAlternateIds()
+  {
+    return (List<AlternateId>) this.attributeMap.get(DefaultAttribute.ALT_IDS.getName()).getValue();
+  }
+
+  @SuppressWarnings("unchecked")
+  public void addAlternateId(ExternalId id)
+  {
+    AttributeList<AlternateId> attr = (AttributeList<AlternateId>) this.attributeMap.get(DefaultAttribute.ALT_IDS.getName());
+    
+    List<AlternateId> ids = attr.getValue();
+    
+    if (ids == null)
+    {
+      ids = new ArrayList<AlternateId>();
+      attr.setValue(ids);
+    }
+    
+    ids.add(id);
+  }
+  
+  public java.util.Optional<ExternalId> getExternalId(String externalSystemId)
+  {
+    return this.getAlternateIds().stream().filter(id -> id instanceof ExternalId).map(ExternalId.class::cast).filter(id -> id.getExternalSystemId().equals(externalSystemId)).findAny();
   }
 }

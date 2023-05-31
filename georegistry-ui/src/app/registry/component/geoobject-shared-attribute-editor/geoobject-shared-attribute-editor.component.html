@@ -100,7 +100,7 @@
                         name="mod-{{attr.code}}" [disabled]="(attr.code === 'code' && !canEditCode()) || (attr.code !== 'code' && readOnly)" [style]="(readOnly || (attr.code === 'code' && !isNew)) ? '' : 'color:#333'" [required]="!(isNew && !isMaintainer)">
 
                     <div *ngIf="attr.code !== 'code'">
-                        <standard-attribute-editor [changeRequestEditor]="changeRequestEditor" [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="attr" [geoObject]="changeRequestEditor.geoObject"
+                        <standard-attribute-editor [systems]="systems" [changeRequestEditor]="changeRequestEditor" [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="attr" [geoObject]="changeRequestEditor.geoObject"
                           [readonly]="readOnly" [isNew]="isNew"></standard-attribute-editor>
                     </div>
                   </div>

@@ -45,6 +45,19 @@ export class ExternalSystemService {
             }))
             .toPromise();
     }
+    
+    getAllRead(): Promise<ExternalSystem[]> {
+        let params: HttpParams = new HttpParams();
+
+        this.eventService.start();
+
+        return this.http
+            .get<ExternalSystem[]>(environment.apiUrl + "/api/external-system/get-all-read", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
     getExternalSystem(oid: string): Promise<ExternalSystem> {
         let params: HttpParams = new HttpParams();

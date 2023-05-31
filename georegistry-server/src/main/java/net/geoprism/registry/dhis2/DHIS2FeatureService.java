@@ -154,7 +154,7 @@ public class DHIS2FeatureService
 
     List<Attribute> dhis2Attrs = getDHIS2Attributes(dhis2);
 
-    final String[] skipAttrs = new String[] { DefaultAttribute.GEOMETRY.getName(), DefaultAttribute.SEQUENCE.getName(), DefaultAttribute.TYPE.getName() };
+    final String[] skipAttrs = new String[] { DefaultAttribute.GEOMETRY.getName(), DefaultAttribute.SEQUENCE.getName(), DefaultAttribute.TYPE.getName(), DefaultAttribute.ALT_IDS.getName() };
 
     for (AttributeType cgrAttr : cgrAttrs.values())
     {

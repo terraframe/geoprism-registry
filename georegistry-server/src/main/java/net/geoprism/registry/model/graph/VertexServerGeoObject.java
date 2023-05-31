@@ -28,11 +28,13 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -44,6 +46,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
+import org.commongeoregistry.adapter.dataaccess.AlternateId;
 import org.commongeoregistry.adapter.dataaccess.Attribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
@@ -52,10 +55,10 @@ import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
+import org.commongeoregistry.adapter.metadata.AttributeListType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.locationtech.jts.geom.Envelope;
@@ -413,6 +416,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return lv.getValue(locale);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public void setValue(String attributeName, Object value)
   {
@@ -429,6 +433,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     if (at instanceof AttributeLocalType)
     {
       LocalizedValueConverter.populate(this.vertex, attributeName, (LocalizedValue) value, this.date, null);
+    }
+    else if (at instanceof AttributeListType && at.getName().equals(DefaultAttribute.ALT_IDS.getName()))
+    {
+      this.setAlternateIds((List<AlternateId>) value);
     }
     else
     {
@@ -475,7 +483,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     Map<String, AttributeType> attributes = geoObject.getType().getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
-      if (attributeName.equals(DefaultAttribute.INVALID.getName()) || attributeName.equals(DefaultAttribute.EXISTS.getName()) || attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()) || attributeName.equals(GeoVertex.LASTUPDATEDATE) || attributeName.equals(GeoVertex.CREATEDATE))
+      if (attributeName.equals(DefaultAttribute.INVALID.getName()) || attributeName.equals(DefaultAttribute.EXISTS.getName()) || attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()) || attributeName.equals(GeoVertex.LASTUPDATEDATE) || attributeName.equals(GeoVertex.CREATEDATE) || attributeName.equals(DefaultAttribute.ALT_IDS.getName()))
       {
         // Ignore the attributes
       }
@@ -550,7 +558,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     Map<String, AttributeType> attributes = goTime.getType().getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
-      if (attributeName.equals(DefaultAttribute.INVALID.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()) || attributeName.equals(GeoVertex.LASTUPDATEDATE) || attributeName.equals(GeoVertex.CREATEDATE))
+      if (attributeName.equals(DefaultAttribute.INVALID.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()) || attributeName.equals(GeoVertex.LASTUPDATEDATE) || attributeName.equals(GeoVertex.CREATEDATE) || attributeName.equals(DefaultAttribute.ALT_IDS.getName()))
       {
         // Ignore the attributes
       }
@@ -651,7 +659,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     this.setCode(goTime.getCode());
     this.setInvalid(goTime.getInvalid());
   }
-
+  
   public String getGeometryAttributeName()
   {
     GeometryType geometryType = this.type.getGeometryType();
@@ -1465,6 +1473,52 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       }
     }
   }
+  
+  public void setAlternateIds(List<AlternateId> alternateIds)
+  {
+    if (alternateIds == null)
+    {
+      alternateIds = new ArrayList<>();
+    }
+    
+    final List<ExternalId> olds = this.getAllExternalIds();
+    final Map<String, ExternalSystem> esMap = ExternalSystem.getAll().stream().collect(Collectors.toMap(es -> es.getOid(), es -> es));
+    final Set<Integer> newMatched = new HashSet<Integer>();
+    
+    for (ExternalId oldId : olds)
+    {
+      boolean matched = false;
+      
+      for (int i = 0; i < alternateIds.size(); ++i)
+      {
+        org.commongeoregistry.adapter.dataaccess.ExternalId newId = (org.commongeoregistry.adapter.dataaccess.ExternalId) alternateIds.get(i);
+        
+        if (!newMatched.contains(i) && oldId.getExternalId().equals(newId.getId()))
+        {
+          oldId.setExternalId(newId.getId());
+          oldId.apply();
+          
+          matched = true;
+          newMatched.add(i);
+          break;
+        }
+      }
+      
+      if (!matched)
+      {
+        oldId.delete();
+      }
+    }
+    for (int i = 0; i < alternateIds.size(); ++i)
+    {
+      org.commongeoregistry.adapter.dataaccess.ExternalId newId = (org.commongeoregistry.adapter.dataaccess.ExternalId) alternateIds.get(i);
+      
+      if (!newMatched.contains(i))
+      {
+        this.createExternalId(esMap.get(newId.getExternalSystemId()), newId.getId(), ImportStrategy.NEW_ONLY);
+      }
+    }
+  }
 
   @Override
   public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
@@ -1748,7 +1802,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       geoObj.setUid(RegistryIdService.getInstance().next());
     }
-
+    
+    for (ExternalId id : this.getAllExternalIds())
+    {
+      geoObj.addAlternateId(id.toDTO());
+    }
+    
     return geoObj;
   }
 
@@ -1989,6 +2048,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     geoObj.setValueCollection(DefaultAttribute.GEOMETRY.getName(), votcDTO);
 
     geoObj.setCode(vertex.getObjectValue(DefaultAttribute.CODE.getName()));
+    
+    for (ExternalId id : this.getAllExternalIds())
+    {
+      geoObj.addAlternateId(id.toDTO());
+    }
 
     return geoObj;
   }
@@ -2215,6 +2279,19 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       return new ExternalId(edge);
     }
+  }
+  
+  public List<ExternalId> getAllExternalIds()
+  {
+    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
+
+    String statement = "SELECT expand(inE('" + mdEdge.getDBClassName() + "'))";
+    statement += " FROM :child";
+
+    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
+    query.setParameter("child", this.getVertex().getRID());
+
+    return query.getResults().stream().map(edge -> new ExternalId(edge)).collect(Collectors.toList());
   }
 
   @Override

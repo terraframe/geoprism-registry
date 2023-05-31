@@ -48,8 +48,11 @@ import { DateService } from "@shared/service/date.service";
 import { LocalizationService } from "@shared/service/localization.service";
 
 import { ControlContainer, NgForm } from "@angular/forms";
-import { StandardAttributeCRModel } from "./StandardAttributeCRModel";
+import { StandardAttributeCRModel, StandardDiffView, ListDiffView } from "./StandardAttributeCRModel";
 import { ChangeRequestEditor } from "./change-request-editor";
+import { ExternalId } from "@core/model/core";
+import { ExternalSystemService } from "@shared/service";
+import { ExternalSystem } from "@shared/model/core";
 
 @Component({
     selector: "standard-attribute-editor",
@@ -84,6 +87,8 @@ export class StandardAttributeEditorComponent implements OnInit {
     @Input() isNew: boolean = false;
 
     message: string = null;
+    
+    @Input() systems: ExternalSystem[];
 
     isValid: boolean = true;
     @Output() isValidChange = new EventEmitter<boolean>();
@@ -100,13 +105,7 @@ export class StandardAttributeEditorComponent implements OnInit {
 
     @Input() isNewGeoObject: boolean = false;
 
-    view: {
-        summaryKey: SummaryKey;
-        summaryKeyLocalized: string;
-        oldValue?: any;
-        value: any;
-        attributeCode: string;
-    };
+    view: StandardDiffView;
 
     @Input() changeRequestEditor: ChangeRequestEditor;
 
@@ -115,7 +114,8 @@ export class StandardAttributeEditorComponent implements OnInit {
     // eslint-disable-next-line no-useless-constructor
     constructor(public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService,
         public changeDetectorRef: ChangeDetectorRef, public dateService: DateService, private authService: AuthService,
-        private requestService: ChangeRequestService, private modalService: BsModalService, private elementRef: ElementRef) { }
+        private requestService: ChangeRequestService, private modalService: BsModalService, private elementRef: ElementRef,
+        private externalSystemService: ExternalSystemService) { }
 
     ngOnInit(): void {
         this.changeRequestAttributeEditor = this.changeRequestEditor.getEditorForAttribute(this.attributeType, null) as StandardAttributeCRModel;
@@ -126,28 +126,59 @@ export class StandardAttributeEditorComponent implements OnInit {
     }
 
     calculateView(): void {
-        let diff = this.changeRequestAttributeEditor.diff;
-
-        if (diff != null) {
-            let newVal = diff.newValue == null ? null : JSON.parse(JSON.stringify(diff.newValue));
-            this.view = {
-                value: newVal,
-                summaryKey: SummaryKey.VALUE_CHANGE,
-                summaryKeyLocalized: this.lService.decode("changeovertime.manageVersions.summaryKey." + SummaryKey.VALUE_CHANGE),
-                attributeCode: this.changeRequestAttributeEditor.attribute.code
-            };
-
-            if (diff.oldValue !== null && diff.oldValue !== undefined) {
-                this.view.oldValue = JSON.parse(JSON.stringify(diff.oldValue));
-            }
+       if (this.attributeType.type === 'list' && this.attributeType.code === 'altIds') {
+            this.view = new ListDiffView(this.lService, this.changeRequestAttributeEditor);
         } else {
-            this.view = {
-                value: this.changeRequestAttributeEditor.value,
-                summaryKey: SummaryKey.UNMODIFIED,
-                summaryKeyLocalized: this.lService.decode("changeovertime.manageVersions.summaryKey." + SummaryKey.UNMODIFIED),
-                attributeCode: this.changeRequestAttributeEditor.attribute.code
-            };
+            this.view = new StandardDiffView(this.changeRequestAttributeEditor, this.lService);
         }
+    }
+    
+    getExternalSystemLabel(externalSystemId: string): string {
+        let matches = this.systems.filter(system => externalSystemId === system.oid);
+        
+        if (matches.length > 0) {
+            return matches[0].label.localizedValue;
+        } else {
+            return externalSystemId;
+        }
+    }
+    
+    getAvailableSystems(externalSystemId: string): ExternalSystem[] {
+        let usedSystems: string[] = this.view.value.map((id: ExternalId) => id.externalSystemId);
+        return this.systems.filter(system => (externalSystemId && externalSystemId === system.oid) || usedSystems.indexOf(system.oid) === -1);
+    }
+    
+    removeAltId(externalId: ExternalId): void {
+      let i = this.view.value.findIndex((id: ExternalId) => id.id === externalId.id && id.externalSystemId === externalId.externalSystemId);
+      
+      if (i !== -1) {
+        this.view.value.splice(i,1);
+      }
+    }
+    
+    onAddNewId(): void {
+        let es = this.getAvailableSystems(null)[0];
+        
+        (this.view as ListDiffView).add({
+            id: "",
+            externalSystemId: es.oid,
+            externalSystemLabel: es.label.localizedValue,
+            type: "EXTERNAL_ID"
+        });
+    }
+    
+    getExternalId(alternateIds: ExternalId[], externalSystemId: string): ExternalId {
+        let ids = alternateIds.filter(id => id.externalSystemId === externalSystemId);
+        
+        if (ids.length >= 0) {
+          return ids[0];
+        } else {
+          return null;
+        }
+    }
+    
+    hasAlternateIdChanged(viewModel: StandardDiffView, externalSystemId: string): boolean {
+        return viewModel.oldValue != null && this.getExternalId(viewModel.oldValue, externalSystemId).id !== this.getExternalId(viewModel.value, externalSystemId).id;
     }
 
     onValueChange(): void {

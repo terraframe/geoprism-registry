@@ -1,0 +1,53 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.attr.altIds">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObjectType.attr.altIds" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="External Ids" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="common.loading">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="common.loading" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Loading..." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.alternateIds.none">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.alternateIds.none" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="No external ids have been created" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.alternateIds.new">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.alternateIds.new" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="New External Id" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.alternateIds.id">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.alternateIds.id" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="External Id" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.alternateIds.externalSystem">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.alternateIds.externalSystem" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="External System" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
