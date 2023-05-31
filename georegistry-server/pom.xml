@@ -34,7 +34,6 @@
 
 	<properties>
 		<hapifhir_version>6.4.4</hapifhir_version>
-		<cgr.adapter.version>1.2.0</cgr.adapter.version>
 	</properties>
 
 	<dependencies>
@@ -123,7 +122,7 @@
 		<dependency>
 			<groupId>net.geoprism</groupId>
 			<artifactId>georegistry-adapter</artifactId>
-			<version>${project.version}</version>
+			<version>${geoprism.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
