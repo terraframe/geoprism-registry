@@ -69,7 +69,9 @@ import net.geoprism.registry.test.USATestData;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class LabeledPropertyGraphTest
 {
-  private static String                      CODE = "Test Term";
+  private static boolean                     isSetup = false;
+
+  private static String                      CODE    = "Test Term";
 
   private static ClassificationType          type;
 
@@ -79,9 +81,9 @@ public class LabeledPropertyGraphTest
 
   private static AttributeClassificationType testClassification;
 
-  @BeforeClass
-  public static void setUpClass()
+  public static void setupClasses()
   {
+
     testData = USATestData.newTestData();
     testData.setUpMetadata();
 
@@ -91,6 +93,8 @@ public class LabeledPropertyGraphTest
     {
       SchedulerManager.start();
     }
+    
+    isSetup = true;
   }
 
   @Request
@@ -145,6 +149,13 @@ public class LabeledPropertyGraphTest
   @Before
   public void setUp()
   {
+    // This is a hack to allow for spring injection of classification tasks
+    if (!isSetup)
+    {
+      setupClasses();
+    }
+    
+    
     cleanUpExtra();
 
     testData.setUpInstanceData();
@@ -442,7 +453,7 @@ public class LabeledPropertyGraphTest
 
         if (code.equals(USATestData.COLORADO.getCode()))
         {
-//          Assert.assertNotNull(child.getObjectValue(testTerm.getName()));
+          Assert.assertNotNull(child.getObjectValue(testClassification.getName()));
         }
       });
     }

@@ -20,12 +20,6 @@
 -->
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
-  <create>
-      <mdException name="net.geoprism.registry.CannotDeleteClassificationWithChildrenException" 
-                   label="CannotDeleteClassificationWithChildrenException" 
-                   message="Unable to delete. The classification has children">
-      </mdException>  
-  </create>
   <createOrUpdate>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.type.label.classification">
         <attribute name="storeTag" value="UIText" />
