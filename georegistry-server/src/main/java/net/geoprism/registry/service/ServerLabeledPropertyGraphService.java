@@ -37,7 +37,6 @@ import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
-import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.graph.GeoObjectTypeSnapshot;
@@ -133,7 +132,14 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
     return jobs;
   }
 
-  public JobHistory createPublishJob(LabeledPropertyGraphTypeVersion version)
+  @Override
+  public void postSynchronization(LabeledPropertyGraphTypeVersion version)
+  {
+    // Do nothing
+  }
+
+  @Override
+  public void createPublishJob(LabeledPropertyGraphTypeVersion version)
   {
     QueryFactory factory = new QueryFactory();
 
@@ -159,7 +165,7 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
 
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
 
-    return job.start();
+    job.start();
   }
 
   @Override

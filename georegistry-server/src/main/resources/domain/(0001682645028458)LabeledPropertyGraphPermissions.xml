@@ -61,7 +61,10 @@
           </mdBusinessPermission>                            
           <mdRelationshipPermission type="net.geoprism.graph.SnapshotHierarchy">
             <operation name="ALL" />
-          </mdRelationshipPermission>                            
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphSynchronization">
+            <operation name="ALL" />
+          </mdBusinessPermission>                                      
         </grant>
       </role>
       <role roleName="cgr.RegistryContributor">
@@ -90,6 +93,10 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdRelationshipPermission>                  
+          <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphSynchronization">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
           
         </grant>
       </role>
@@ -118,7 +125,11 @@
           <mdRelationshipPermission type="net.geoprism.graph.SnapshotHierarchy">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
-          </mdRelationshipPermission>                            
+          </mdRelationshipPermission>  
+          <mdBusinessPermission type="net.geoprism.graph.LabeledPropertyGraphSynchronization">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>                                    
         </grant>
       </role>
     </permissions>

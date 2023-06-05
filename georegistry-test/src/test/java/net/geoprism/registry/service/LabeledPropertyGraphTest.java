@@ -15,9 +15,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -43,6 +43,7 @@ import net.geoprism.graph.IncrementalLabeledPropertyGraphType;
 import net.geoprism.graph.IntervalLabeledPropertyGraphType;
 import net.geoprism.graph.JsonGraphVersionPublisher;
 import net.geoprism.graph.LabeledPropertyGraphJsonExporter;
+import net.geoprism.graph.LabeledPropertyGraphSynchronization;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeEntry;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
@@ -50,9 +51,12 @@ import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobQuery;
 import net.geoprism.graph.SingleLabeledPropertyGraphType;
 import net.geoprism.graph.TreeStrategyConfiguration;
+import net.geoprism.graph.adapter.RegistryConnectorFactory;
+import net.geoprism.graph.service.LabeledPropertyGraphTypeServiceIF;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.LabeledPropertyGraphTypeBuilder;
+import net.geoprism.registry.LocalRegistryConnectorBuilder;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.conversion.TermConverter;
@@ -81,6 +85,9 @@ public class LabeledPropertyGraphTest
 
   private static AttributeClassificationType testClassification;
 
+  @Autowired
+  private LabeledPropertyGraphTypeServiceIF  service;
+
   public static void setupClasses()
   {
 
@@ -93,7 +100,7 @@ public class LabeledPropertyGraphTest
     {
       SchedulerManager.start();
     }
-    
+
     isSetup = true;
   }
 
@@ -154,8 +161,7 @@ public class LabeledPropertyGraphTest
     {
       setupClasses();
     }
-    
-    
+
     cleanUpExtra();
 
     testData.setUpInstanceData();
@@ -468,7 +474,6 @@ public class LabeledPropertyGraphTest
   {
     JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN);
 
-    LabeledPropertyGraphTypeService service = new LabeledPropertyGraphTypeService();
     JsonObject result = service.apply(testData.clientRequest.getSessionId(), json);
 
     String oid = result.get(ComponentInfo.OID).getAsString();
@@ -527,6 +532,66 @@ public class LabeledPropertyGraphTest
     {
       test1.delete();
     }
+  }
+
+  @Test
+  public void testSynchronization()
+  {
+    TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
+      JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN);
+
+      LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
+
+      try
+      {
+        List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
+
+        Assert.assertEquals(1, entries.size());
+
+        LabeledPropertyGraphTypeEntry entry = entries.get(0);
+
+        List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
+
+        Assert.assertEquals(1, versions.size());
+
+        LabeledPropertyGraphTypeVersion version = versions.get(0);
+
+        RegistryConnectorFactory.setBuilder(new LocalRegistryConnectorBuilder());
+
+        LabeledPropertyGraphSynchronization synchronization = new LabeledPropertyGraphSynchronization();
+        synchronization.setUrl("localhost");
+        synchronization.setRemoteType(test1.getOid());
+        synchronization.setRemoteEntry(entry.getOid());
+        synchronization.setRemoteVersion(version.getOid());
+        synchronization.setVersionNumber(version.getVersionNumber());
+        synchronization.apply();
+
+        try
+        {
+          synchronization.execute();
+
+          version = synchronization.getVersion();
+
+          List<GeoObjectTypeSnapshot> vertices = version.getTypes();
+
+          Assert.assertEquals(11, vertices.size());
+
+          List<HierarchyTypeSnapshot> edges = version.getHierarchies();
+
+          Assert.assertEquals(1, edges.size());
+        }
+        finally
+        {
+
+          synchronization.delete();
+        }
+
+      }
+      finally
+      {
+        test1.delete();
+      }
+    });
   }
 
   @Request
