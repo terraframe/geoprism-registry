@@ -69,7 +69,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.etl.ListTypeJobQuery;
@@ -323,8 +323,8 @@ public abstract class ListType extends ListTypeBase
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
     this.setUniversal(type.getUniversal());
-    LocalizedValueConverter.populate(this.getDisplayLabel(), LocalizedValue.fromJSON(object.get(ListType.DISPLAYLABEL).getAsJsonObject()));
-    LocalizedValueConverter.populate(this.getDescription(), LocalizedValue.fromJSON(object.get(ListType.DESCRIPTION).getAsJsonObject()));
+    RegistryLocalizedValueConverter.populate(this.getDisplayLabel(), LocalizedValue.fromJSON(object.get(ListType.DISPLAYLABEL).getAsJsonObject()));
+    RegistryLocalizedValueConverter.populate(this.getDescription(), LocalizedValue.fromJSON(object.get(ListType.DESCRIPTION).getAsJsonObject()));
     this.setCode(object.get(ListType.CODE).getAsString());
     this.setHierarchies(object.get(ListType.HIERARCHIES).getAsJsonArray().toString());
     this.setOrganization(Organization.getByCode(object.get(ListType.ORGANIZATION).getAsString()));
@@ -425,8 +425,8 @@ public abstract class ListType extends ListTypeBase
     object.addProperty("typeLabel", type.getLabel().getValue());
     object.addProperty("typePrivate", type.getIsPrivate());
     object.addProperty(ListType.TYPE_CODE, type.getCode());
-    object.add(ListType.DISPLAYLABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON(serializer));
-    object.add(ListType.DESCRIPTION, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescription()).toJSON(serializer));
+    object.add(ListType.DISPLAYLABEL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON(serializer));
+    object.add(ListType.DESCRIPTION, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDescription()).toJSON(serializer));
     object.addProperty(ListType.CODE, this.getCode());
     object.add(ListType.HIERARCHIES, this.getHierarchiesAsJson());
     object.add(ListType.SUBTYPEHIERARCHIES, this.getSubtypeHierarchiesAsJson());
@@ -470,14 +470,14 @@ public abstract class ListType extends ListTypeBase
   protected final JsonObject toMetadataJSON(String prefix, CustomSerializer serializer)
   {
     JsonObject object = new JsonObject();
-    object.add("label", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Label")).toJSON(serializer));
-    object.add("description", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Description")).toJSON(serializer));
-    object.add("process", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Process")).toJSON(serializer));
-    object.add("progress", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Progress")).toJSON(serializer));
-    object.add("accessConstraints", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "AccessConstraints")).toJSON(serializer));
-    object.add("useConstraints", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "UseConstraints")).toJSON(serializer));
-    object.add("acknowledgements", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Acknowledgements")).toJSON(serializer));
-    object.add("disclaimer", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Disclaimer")).toJSON(serializer));
+    object.add("label", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Label")).toJSON(serializer));
+    object.add("description", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Description")).toJSON(serializer));
+    object.add("process", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Process")).toJSON(serializer));
+    object.add("progress", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Progress")).toJSON(serializer));
+    object.add("accessConstraints", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "AccessConstraints")).toJSON(serializer));
+    object.add("useConstraints", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "UseConstraints")).toJSON(serializer));
+    object.add("acknowledgements", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Acknowledgements")).toJSON(serializer));
+    object.add("disclaimer", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Disclaimer")).toJSON(serializer));
     object.addProperty("collectionDate", GeoRegistryUtil.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(getValue(prefix + "CollectionDate")), false));
     object.addProperty("organization", this.getValue(prefix + "Organization"));
     object.addProperty("contactName", this.getValue(prefix + "ContactName"));

@@ -29,7 +29,7 @@ import com.runwaysdk.localization.SupportedLocaleIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.masterlist.ListAttribute;
 import net.geoprism.registry.masterlist.ListColumn;
 
@@ -96,7 +96,7 @@ public class ListTypeAttribute extends ListTypeAttributeBase
       attribute.setLocale(locale.getLocale().toString());
     }
 
-    LocalizedValueConverter.populate(attribute.getLabel(), label);
+    RegistryLocalizedValueConverter.populate(attribute.getLabel(), label);
 
     attribute.apply();
   }

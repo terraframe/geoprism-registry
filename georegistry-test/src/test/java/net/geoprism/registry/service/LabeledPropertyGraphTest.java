@@ -561,7 +561,9 @@ public class LabeledPropertyGraphTest
         LabeledPropertyGraphSynchronization synchronization = new LabeledPropertyGraphSynchronization();
         synchronization.setUrl("localhost");
         synchronization.setRemoteType(test1.getOid());
+        synchronization.getDisplayLabel().setValue("Test");
         synchronization.setRemoteEntry(entry.getOid());
+        synchronization.setForDate(entry.getForDate());
         synchronization.setRemoteVersion(version.getOid());
         synchronization.setVersionNumber(version.getVersionNumber());
         synchronization.apply();

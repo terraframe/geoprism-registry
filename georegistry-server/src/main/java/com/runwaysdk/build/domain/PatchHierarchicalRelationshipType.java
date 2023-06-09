@@ -46,8 +46,8 @@ import net.geoprism.registry.HierarchyMetadata;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.InheritedHierarchyAnnotationQuery;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.conversion.AttributeTypeConverter;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryAttributeTypeConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.model.ServerHierarchyType;
 
 public class PatchHierarchicalRelationshipType
@@ -113,11 +113,11 @@ public class PatchHierarchicalRelationshipType
         try
         {
           MdTermRelationship entityRelationship = MdTermRelationship.getByKey(geoEntityKey);
-          LocalizedValue displayLabel = AttributeTypeConverter.convert(entityRelationship.getDisplayLabel());
-          LocalizedValue description = AttributeTypeConverter.convert(entityRelationship.getDescription());
+          LocalizedValue displayLabel = RegistryAttributeTypeConverter.convert(entityRelationship.getDisplayLabel());
+          LocalizedValue description = RegistryAttributeTypeConverter.convert(entityRelationship.getDescription());
 
-          LocalizedValueConverter.populate(hierarchicalRelationship.getDisplayLabel(), displayLabel);
-          LocalizedValueConverter.populate(hierarchicalRelationship.getDescription(), description);
+          RegistryLocalizedValueConverter.populate(hierarchicalRelationship.getDisplayLabel(), displayLabel);
+          RegistryLocalizedValueConverter.populate(hierarchicalRelationship.getDescription(), description);
 
           entityRelationship.delete();
         }
@@ -125,11 +125,11 @@ public class PatchHierarchicalRelationshipType
         {
           logger.debug("The entity geo relationship was not found defaulting to the mdTermRel displayLabel and description");
 
-          LocalizedValue displayLabel = AttributeTypeConverter.convert(mdTermRel.getDisplayLabel());
-          LocalizedValue description = AttributeTypeConverter.convert(mdTermRel.getDescription());
+          LocalizedValue displayLabel = RegistryAttributeTypeConverter.convert(mdTermRel.getDisplayLabel());
+          LocalizedValue description = RegistryAttributeTypeConverter.convert(mdTermRel.getDescription());
 
-          LocalizedValueConverter.populate(hierarchicalRelationship.getDisplayLabel(), displayLabel);
-          LocalizedValueConverter.populate(hierarchicalRelationship.getDescription(), description);
+          RegistryLocalizedValueConverter.populate(hierarchicalRelationship.getDisplayLabel(), displayLabel);
+          RegistryLocalizedValueConverter.populate(hierarchicalRelationship.getDescription(), description);
         }
 
         try

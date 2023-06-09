@@ -122,7 +122,7 @@ import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.RequiredAttributeException;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.upload.ClassifierCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
@@ -324,13 +324,13 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setDisplayLabel(LocalizedValue value)
   {
-    LocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value, this.date, null);
+    RegistryLocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value, this.date, null);
   }
 
   @Override
   public void setDisplayLabel(LocalizedValue value, Date startDate, Date endDate)
   {
-    LocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value, startDate, endDate);
+    RegistryLocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value, startDate, endDate);
   }
 
   public boolean existsAtRange(Date startDate, Date endDate)
@@ -432,7 +432,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     if (at instanceof AttributeLocalType)
     {
-      LocalizedValueConverter.populate(this.vertex, attributeName, (LocalizedValue) value, this.date, null);
+      RegistryLocalizedValueConverter.populate(this.vertex, attributeName, (LocalizedValue) value, this.date, null);
     }
     else if (at instanceof AttributeListType && at.getName().equals(DefaultAttribute.ALT_IDS.getName()))
     {
@@ -459,7 +459,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     if (at instanceof AttributeLocalType)
     {
-      LocalizedValueConverter.populate(this.vertex, attributeName, (LocalizedValue) value, startDate, endDate);
+      RegistryLocalizedValueConverter.populate(this.vertex, attributeName, (LocalizedValue) value, startDate, endDate);
     }
     else
     {
@@ -900,7 +900,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
       List<Map<String, Object>> displayLabelRaw = (List<Map<String, Object>>) result.get("label");
 
-      LocalizedValue localized = LocalizedValueConverter.convert(displayLabelRaw, this.date);
+      LocalizedValue localized = RegistryLocalizedValueConverter.convert(displayLabelRaw, this.date);
 
       ServerGeoObjectType type = null;
       for (ServerGeoObjectType parent : parents)
@@ -2099,7 +2099,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       return new LocalizedValue(null, new HashMap<String, String>());
     }
 
-    return LocalizedValueConverter.convert(embeddedObjectDAO);
+    return RegistryLocalizedValueConverter.convert(embeddedObjectDAO);
   }
 
   public LocalizedValue getDisplayLabel(Date date)
@@ -2116,7 +2116,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       return null;
     }
 
-    return LocalizedValueConverter.convert(graphObject);
+    return RegistryLocalizedValueConverter.convert(graphObject);
   }
 
   public Geometry getGeometry(Date date)

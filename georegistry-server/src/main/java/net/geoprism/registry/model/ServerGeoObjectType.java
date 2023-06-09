@@ -96,9 +96,9 @@ import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.TypeInUseException;
-import net.geoprism.registry.conversion.AttributeTypeConverter;
+import net.geoprism.registry.conversion.RegistryAttributeTypeConverter;
 import net.geoprism.registry.conversion.GeometryTypeFactory;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertex;
@@ -148,8 +148,8 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
 
     org.commongeoregistry.adapter.constants.GeometryType cgrGeometryType = GeometryTypeFactory.get(geoPrismgeometryType);
     
-    LocalizedValue label = LocalizedValueConverter.convert(universal.getDisplayLabel());
-    LocalizedValue description = LocalizedValueConverter.convert(universal.getDescription());
+    LocalizedValue label = RegistryLocalizedValueConverter.convert(universal.getDisplayLabel());
+    LocalizedValue description = RegistryLocalizedValueConverter.convert(universal.getDescription());
     
     String ownerActerOid = universal.getOwnerOid();
 
@@ -460,8 +460,8 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
     this.universal.lock();
 
     this.universal.setIsGeometryEditable(geoObjectType.isGeometryEditable());
-    LocalizedValueConverter.populate(universal.getDisplayLabel(), geoObjectType.getLabel());
-    LocalizedValueConverter.populate(universal.getDescription(), geoObjectType.getDescription());
+    RegistryLocalizedValueConverter.populate(universal.getDisplayLabel(), geoObjectType.getLabel());
+    RegistryLocalizedValueConverter.populate(universal.getDescription(), geoObjectType.getDescription());
 
     this.universal.apply();
 
@@ -505,7 +505,7 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
   {
     MdAttributeConcrete mdAttribute = this.createMdAttributeFromAttributeType(attributeType);
 
-    attributeType = new AttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
+    attributeType = new RegistryAttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
 
     this.type.addAttribute(attributeType);
 
@@ -653,7 +653,7 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
     AttributeType attrType = AttributeType.parse(attrObj);
 
     MdAttributeConcrete mdAttribute = ServerGeoObjectType.updateMdAttributeFromAttributeType(this.mdBusiness, attrType);
-    attrType = new AttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
+    attrType = new RegistryAttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
 
     this.type.addAttribute(attrType);
 
@@ -1235,8 +1235,8 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
       mdAttribute.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
     }
 
-    LocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-    LocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
+    RegistryLocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+    RegistryLocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
 
     mdAttribute.setDefiningMdClass(mdClass);
     mdAttribute.apply();
@@ -1256,7 +1256,7 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
 
       AttributeTermType attributeTermType = (AttributeTermType) attributeType;
 
-      LocalizedValue label = LocalizedValueConverter.convert(attributeTermRoot.getDisplayLabel());
+      LocalizedValue label = RegistryLocalizedValueConverter.convert(attributeTermRoot.getDisplayLabel());
 
       org.commongeoregistry.adapter.Term term = new org.commongeoregistry.adapter.Term(attributeTermRoot.getClassifierId(), label, new LocalizedValue(""));
       attributeTermType.setRootTerm(term);
@@ -1292,8 +1292,8 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
       {
         // The name cannot be updated
         // mdAttribute.setAttributeName(attributeType.getName());
-        LocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-        LocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
+        RegistryLocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+        RegistryLocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
 
         if (attributeType instanceof AttributeFloatType)
         {

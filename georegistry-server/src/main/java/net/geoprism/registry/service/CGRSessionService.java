@@ -56,6 +56,14 @@ public class CGRSessionService extends SessionService
     endpoints.add("api/forgotpassword/initiate");
     endpoints.add("api/forgotpassword/complete");
     endpoints.add("api/master-list/tile");
+    
+    endpoints.add("api/labeled-property-graph-type/get-all");
+    endpoints.add("api/labeled-property-graph-type/get");
+    endpoints.add("api/labeled-property-graph-type/entries");
+    endpoints.add("api/labeled-property-graph-type/entry");
+    endpoints.add("api/labeled-property-graph-type/versions");
+    endpoints.add("api/labeled-property-graph-type/version");
+    endpoints.add("api/labeled-property-graph-type/data");
     return endpoints;
   }
 

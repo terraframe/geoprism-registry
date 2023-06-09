@@ -53,7 +53,7 @@ import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
@@ -76,7 +76,7 @@ import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
 import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 
 @Component
-public class ServerGeoObjectService extends LocalizedValueConverter
+public class ServerGeoObjectService extends RegistryLocalizedValueConverter
 {
   private GeoObjectPermissionServiceIF permissionService;
 

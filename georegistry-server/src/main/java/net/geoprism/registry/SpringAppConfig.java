@@ -58,7 +58,7 @@ import net.geoprism.userinvite.service.UserInviteService;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = { "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.spring", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" })
+@ComponentScan(basePackages = { "net.geoprism.spring", "net.geoprism.graph", "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.spring", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" })
 public class SpringAppConfig extends WebMvcConfigurationSupport
 {
 

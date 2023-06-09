@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry;
 
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.model.ServerHierarchyType;
 
 public class ListTypeHierarchyGroup extends ListTypeHierarchyGroupBase
@@ -43,7 +43,7 @@ public class ListTypeHierarchyGroup extends ListTypeHierarchyGroupBase
     group.setHierarchy(hierarchy.getHierarchicalRelationshipType());
     group.setParent(parent);
 
-    LocalizedValueConverter.populate(group.getLabel(), hierarchy.getLabel());
+    RegistryLocalizedValueConverter.populate(group.getLabel(), hierarchy.getLabel());
 
     group.apply();
 

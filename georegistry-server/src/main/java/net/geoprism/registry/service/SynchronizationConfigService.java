@@ -52,7 +52,7 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnitGroup;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.etl.FhirSyncExportConfig;
@@ -216,7 +216,7 @@ public class SynchronizationConfigService
       {
         if (system.isExportSupported())
         {
-          LocalizedValue label = LocalizedValueConverter.convert(system.getEmbeddedComponent(ExternalSystem.LABEL));
+          LocalizedValue label = RegistryLocalizedValueConverter.convert(system.getEmbeddedComponent(ExternalSystem.LABEL));
 
           JsonObject object = new JsonObject();
           object.addProperty("label", label.getValue());

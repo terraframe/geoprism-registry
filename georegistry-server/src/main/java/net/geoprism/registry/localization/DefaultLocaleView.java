@@ -29,7 +29,7 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.LocalizedValueIF;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 
 public class DefaultLocaleView extends LocaleView
 {
@@ -48,7 +48,7 @@ public class DefaultLocaleView extends LocaleView
   public DefaultLocaleView()
   {
     LocalizedValueIF sessionLabel = LocalizationFacade.localizeAll(LABEL);
-    this.label = LocalizedValueConverter.convert(sessionLabel.getValue(), sessionLabel.getLocaleMap());
+    this.label = RegistryLocalizedValueConverter.convert(sessionLabel.getValue(), sessionLabel.getLocaleMap());
     
     this.languageLabel = LocalizationFacade.localizeAll(DISPLAY_LANGUAGE);
     this.countryLabel = LocalizationFacade.localizeAll(DISPLAY_COUNTRY);

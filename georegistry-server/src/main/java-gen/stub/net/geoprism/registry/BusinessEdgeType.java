@@ -37,7 +37,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdEdge;
 
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.view.JsonSerializable;
@@ -62,7 +62,7 @@ public class BusinessEdgeType extends BusinessEdgeTypeBase implements JsonSerial
 
   public LocalizedValue getLabel()
   {
-    return LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel());
+    return RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel());
   }
 
   public MdEdgeDAOIF getMdEdgeDAO()
@@ -91,14 +91,14 @@ public class BusinessEdgeType extends BusinessEdgeTypeBase implements JsonSerial
       {
         LocalizedValue label = LocalizedValue.fromJSON(object.getAsJsonObject(BusinessEdgeType.DISPLAYLABEL));
 
-        LocalizedValueConverter.populate(this.getDisplayLabel(), label);
+        RegistryLocalizedValueConverter.populate(this.getDisplayLabel(), label);
       }
 
       if (object.has(BusinessEdgeType.DESCRIPTION))
       {
         LocalizedValue description = LocalizedValue.fromJSON(object.getAsJsonObject(BusinessEdgeType.DESCRIPTION));
 
-        LocalizedValueConverter.populate(this.getDescription(), description);
+        RegistryLocalizedValueConverter.populate(this.getDescription(), description);
       }
 
       this.apply();
@@ -130,8 +130,8 @@ public class BusinessEdgeType extends BusinessEdgeTypeBase implements JsonSerial
     object.addProperty(BusinessEdgeType.ORGANIZATION, this.getOrganization().getCode());
     object.addProperty(BusinessEdgeType.PARENTTYPE, this.getParentType().getTypeName());
     object.addProperty(BusinessEdgeType.CHILDTYPE, this.getChildType().getTypeName());
-    object.add(BusinessEdgeType.JSON_LABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
-    object.add(BusinessEdgeType.DESCRIPTION, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescription()).toJSON());
+    object.add(BusinessEdgeType.JSON_LABEL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
+    object.add(BusinessEdgeType.DESCRIPTION, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDescription()).toJSON());
 
     return object;
   }
@@ -197,8 +197,8 @@ public class BusinessEdgeType extends BusinessEdgeTypeBase implements JsonSerial
       mdEdgeDAO.setValue(MdEdgeInfo.NAME, code);
       mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, parentType.getMdVertexOid());
       mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, childType.getMdVertexOid());
-      LocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, label);
-      LocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, description);
+      RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, label);
+      RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, description);
       mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
       mdEdgeDAO.apply();
 
@@ -214,8 +214,8 @@ public class BusinessEdgeType extends BusinessEdgeTypeBase implements JsonSerial
       businessEdgeType.setMdEdgeId(mdEdgeDAO.getOid());
       businessEdgeType.setParentTypeId(parentType.getMdVertexOid());
       businessEdgeType.setChildTypeId(childType.getMdVertexOid());
-      LocalizedValueConverter.populate(businessEdgeType.getDisplayLabel(), label);
-      LocalizedValueConverter.populate(businessEdgeType.getDescription(), description);
+      RegistryLocalizedValueConverter.populate(businessEdgeType.getDisplayLabel(), label);
+      RegistryLocalizedValueConverter.populate(businessEdgeType.getDescription(), description);
       businessEdgeType.apply();
 
       return businessEdgeType;

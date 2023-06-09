@@ -28,7 +28,7 @@ import com.runwaysdk.localization.LocalizedValueIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.masterlist.ListAttributeGroup;
 import net.geoprism.registry.masterlist.ListColumn;
 
@@ -159,7 +159,7 @@ public class ListTypeGroup extends ListTypeGroupBase
 
     if (label != null)
     {
-      LocalizedValueConverter.populate(group.getLabel(), label);
+      RegistryLocalizedValueConverter.populate(group.getLabel(), label);
     }
 
     group.apply();

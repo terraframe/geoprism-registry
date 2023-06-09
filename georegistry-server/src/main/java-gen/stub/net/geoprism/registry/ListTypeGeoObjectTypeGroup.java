@@ -26,7 +26,7 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.masterlist.ListAttributeGroup;
 import net.geoprism.registry.masterlist.ListColumn;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -88,7 +88,7 @@ public class ListTypeGeoObjectTypeGroup extends ListTypeGeoObjectTypeGroupBase
     group.setLevel(level);
     group.setParent(parent);
 
-    LocalizedValueConverter.populate(group.getLabel(), type.getLabel());
+    RegistryLocalizedValueConverter.populate(group.getLabel(), type.getLabel());
 
     group.apply();
 

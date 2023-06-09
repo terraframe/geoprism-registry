@@ -12,9 +12,11 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeTermInfo;
+import com.runwaysdk.constants.UserInfo;
 import com.runwaysdk.constants.graph.MdEdgeInfo;
 import com.runwaysdk.constants.graph.MdVertexInfo;
 import com.runwaysdk.dataaccess.BusinessDAO;
@@ -51,7 +53,7 @@ import net.geoprism.graph.TreeStrategyConfiguration;
 import net.geoprism.graph.service.LabeledPropertyGraphServiceIF;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.graph.TreeStrategyPublisher;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -238,8 +240,8 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
     mdEdgeDAO.setValue(MdEdgeInfo.DB_CLASS_NAME, viewName);
     mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, root.getGraphMdVertexOid());
     mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, root.getGraphMdVertexOid());
-    LocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, type.getLabel());
-    LocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, LocalizedValueConverter.convertNoAutoCoalesce(type.getDescription()));
+    RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, type.getLabel());
+    RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, RegistryLocalizedValueConverter.convertNoAutoCoalesce(type.getDescription()));
     mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
     mdEdgeDAO.apply();
 
@@ -251,8 +253,8 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
     snapshot.setVersion(version);
     snapshot.setGraphMdEdge(mdEdge);
     snapshot.setCode(type.getCode());
-    LocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
-    LocalizedValueConverter.populate(snapshot.getDescription(), type.getDescription());
+    RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
+    RegistryLocalizedValueConverter.populate(snapshot.getDescription(), type.getDescription());
     snapshot.apply();
 
     return snapshot;
@@ -268,8 +270,8 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
     mdVertexDAO.setValue(MdVertexInfo.NAME, viewName);
     mdVertexDAO.setValue(MdVertexInfo.PACKAGE, RegistryConstants.TABLE_PACKAGE);
     mdVertexDAO.setValue(MdVertexInfo.ABSTRACT, type.getIsAbstract());
-    LocalizedValueConverter.populate(mdVertexDAO, MdVertexInfo.DISPLAY_LABEL, type.getLabel());
-    LocalizedValueConverter.populate(mdVertexDAO, MdVertexInfo.DESCRIPTION, type.getDescription());
+    RegistryLocalizedValueConverter.populate(mdVertexDAO, MdVertexInfo.DISPLAY_LABEL, type.getLabel());
+    RegistryLocalizedValueConverter.populate(mdVertexDAO, MdVertexInfo.DESCRIPTION, type.getDescription());
     mdVertexDAO.setValue(MdVertexInfo.DB_CLASS_NAME, viewName);
     mdVertexDAO.setValue(MdVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
     mdVertexDAO.setValue(MdVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
@@ -323,8 +325,8 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
     snapshot.setIsRoot(false);
     snapshot.setIsPrivate(type.getIsPrivate());
     snapshot.setParent(parent);
-    LocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
-    LocalizedValueConverter.populate(snapshot.getDescription(), type.getDescription());
+    RegistryLocalizedValueConverter.populate(snapshot.getDisplayLabel(), type.getLabel());
+    RegistryLocalizedValueConverter.populate(snapshot.getDescription(), type.getDescription());
     snapshot.apply();
 
     assignPermissions(mdVertexDAO);
@@ -353,6 +355,10 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
     RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
     contributor.grantPermission(Operation.READ, component.getOid());
     contributor.grantPermission(Operation.READ_ALL, component.getOid());
+    
+    UserDAO publicRole = UserDAO.findUser(UserInfo.PUBLIC_USER_NAME).getBusinessDAO();
+    publicRole.grantPermission(Operation.READ, component.getOid());
+    publicRole.grantPermission(Operation.READ_ALL, component.getOid());
   }
 
 }

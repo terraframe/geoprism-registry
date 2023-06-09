@@ -37,7 +37,7 @@ import com.runwaysdk.session.SessionIF;
 import net.geoprism.registry.ObjectHasDataException;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
@@ -57,7 +57,7 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
   public LocalizedValue getLocalizedLabel()
   {
-    return LocalizedValueConverter.convert(this.getEmbeddedComponent(ExternalSystem.LABEL));
+    return RegistryLocalizedValueConverter.convert(this.getEmbeddedComponent(ExternalSystem.LABEL));
   }
 
   @Override
@@ -129,8 +129,8 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     LocalizedValue label = LocalizedValue.fromJSON(json.get(ExternalSystem.LABEL).getAsJsonObject());
     LocalizedValue description = LocalizedValue.fromJSON(json.get(ExternalSystem.DESCRIPTION).getAsJsonObject());
 
-    LocalizedValueConverter.populate(this, ExternalSystem.LABEL, label);
-    LocalizedValueConverter.populate(this, ExternalSystem.DESCRIPTION, description);
+    RegistryLocalizedValueConverter.populate(this, ExternalSystem.LABEL, label);
+    RegistryLocalizedValueConverter.populate(this, ExternalSystem.DESCRIPTION, description);
   }
 
   @Override
@@ -141,15 +141,15 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     object.addProperty(ExternalSystem.OID, this.getOid());
     object.addProperty(ExternalSystem.ID, this.getId());
     object.addProperty(ExternalSystem.ORGANIZATION, this.getOrganization().getCode());
-    object.add(ExternalSystem.LABEL, LocalizedValueConverter.convert(this.getEmbeddedComponent(LABEL)).toJSON());
-    object.add(ExternalSystem.DESCRIPTION, LocalizedValueConverter.convert(this.getEmbeddedComponent(DESCRIPTION)).toJSON());
+    object.add(ExternalSystem.LABEL, RegistryLocalizedValueConverter.convert(this.getEmbeddedComponent(LABEL)).toJSON());
+    object.add(ExternalSystem.DESCRIPTION, RegistryLocalizedValueConverter.convert(this.getEmbeddedComponent(DESCRIPTION)).toJSON());
 
     return object;
   }
 
   public LocalizedValue getDisplayLabel()
   {
-    return LocalizedValueConverter.convert(this.getEmbeddedComponent(ExternalSystem.LABEL));
+    return RegistryLocalizedValueConverter.convert(this.getEmbeddedComponent(ExternalSystem.LABEL));
   }
   
   public static List<ExternalSystem> getAll()

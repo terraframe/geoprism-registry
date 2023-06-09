@@ -71,7 +71,7 @@ public class TermConverter
 
   public static Term buildTermFromClassifier(Classifier classifier)
   {
-    LocalizedValue label = AttributeTypeConverter.convert(classifier.getDisplayLabel());
+    LocalizedValue label = RegistryAttributeTypeConverter.convert(classifier.getDisplayLabel());
 
     Term term = new Term(classifier.getClassifierId(), label, new LocalizedValue(""));
 
@@ -96,7 +96,7 @@ public class TermConverter
     classifier.setClassifierPackage(parent.getKey());
     // This will set the value of the display label to the locale of the user
     // performing the action.
-    LocalizedValueConverter.populate(classifier.getDisplayLabel(), term.getLabel());
+    RegistryLocalizedValueConverter.populate(classifier.getDisplayLabel(), term.getLabel());
 
     classifier.apply();
 
@@ -120,7 +120,7 @@ public class TermConverter
     classifier.lock();
     classifier.setClassifierId(termCode);
 
-    LocalizedValueConverter.populate(classifier.getDisplayLabel(), value);
+    RegistryLocalizedValueConverter.populate(classifier.getDisplayLabel(), value);
 
     classifier.apply();
 

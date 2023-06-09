@@ -49,7 +49,7 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationUser;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.UserInfo;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
@@ -124,8 +124,8 @@ public class AccountService
       {
         registryRole.setAssigned(true);
 
-        LocalizedValueConverter.populateOrganizationDisplayLabel(registryRole);
-        LocalizedValueConverter.populateGeoObjectTypeLabel(registryRole);
+        RegistryLocalizedValueConverter.populateOrganizationDisplayLabel(registryRole);
+        RegistryLocalizedValueConverter.populateGeoObjectTypeLabel(registryRole);
 
         registryRoles.add(registryRole);
         roleNameSet.add(registryRole.getName());
@@ -229,7 +229,7 @@ public class AccountService
 
   private void addRolesForOrganization(List<RegistryRole> registryRoleList, Organization organization)
   {
-    LocalizedValue orgDisplayLabel = LocalizedValueConverter.convert(organization.getDisplayLabel());
+    LocalizedValue orgDisplayLabel = RegistryLocalizedValueConverter.convert(organization.getDisplayLabel());
 
     // Add the RA role
     Roles adminRole = organization.getRegistryAdminiRole();

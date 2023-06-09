@@ -29,7 +29,7 @@ import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.model.Classification;
 
 public class GeoObjectUtil
@@ -82,7 +82,7 @@ public class GeoObjectUtil
   {
     if (value instanceof VertexObject)
     {
-      LocalizedValue localized = LocalizedValueConverter.convert( ( (VertexObject) value ).getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
+      LocalizedValue localized = RegistryLocalizedValueConverter.convert( ( (VertexObject) value ).getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
       return localized.getValue();
     }
     else if (value instanceof String)

@@ -45,7 +45,7 @@ import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.GeoprismUser;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.RolePermissionService;
@@ -403,7 +403,7 @@ public class Organization extends OrganizationBase
 
   public OrganizationDTO toDTO()
   {
-    return new OrganizationDTO(this.getCode(), LocalizedValueConverter.convert(this.getDisplayLabel()), LocalizedValueConverter.convert(this.getContactInfo()));
+    return new OrganizationDTO(this.getCode(), RegistryLocalizedValueConverter.convert(this.getDisplayLabel()), RegistryLocalizedValueConverter.convert(this.getContactInfo()));
   }
 
   public static List<Organization> getUserAdminOrganizations()

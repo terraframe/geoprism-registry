@@ -24,7 +24,7 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.graph.ExternalSystem;
 
 public abstract class ExternalSystemSyncConfig
@@ -91,7 +91,7 @@ public abstract class ExternalSystemSyncConfig
 
   public void populate(SynchronizationConfig config)
   {
-    this.setLabel(LocalizedValueConverter.convert(config.getLabel()));
+    this.setLabel(RegistryLocalizedValueConverter.convert(config.getLabel()));
     this.setOrganization(config.getOrganization());
   }
 

@@ -58,7 +58,7 @@ import net.geoprism.email.service.EmailService;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -306,7 +306,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
         LocalizedValueStore lvs = new LocalizedValueStore();
         lvs.getStoreValue().setLocaleMap(goTime.getDisplayLabel(null).getLocaleMap());
         
-        return LocalizedValueConverter.convertNoAutoCoalesce(lvs.getStoreValue());
+        return RegistryLocalizedValueConverter.convertNoAutoCoalesce(lvs.getStoreValue());
       }
       catch (Exception e)
       {

@@ -87,7 +87,7 @@ import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
+public class ServerGeoObjectTypeConverter extends RegistryLocalizedValueConverter
 {
   /**
    * Adds default attributes to the given {@link MdBusinessDAO} according to the
@@ -527,7 +527,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
       // Standard attributes are defined by default on the GeoObjectType
 
-      AttributeTypeConverter builder = new AttributeTypeConverter();
+      RegistryAttributeTypeConverter builder = new RegistryAttributeTypeConverter();
 
       List<? extends MdAttributeConcreteDAOIF> definedMdAttributeList = mdBusinessDAOIF.getAllDefinedMdAttributes();
 

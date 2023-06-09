@@ -130,7 +130,7 @@ import com.runwaysdk.system.scheduler.ExecutableJob;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.PublishMasterListVersionJob;
 import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
@@ -378,8 +378,8 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
       mdAttribute.setAttributeName(attributeType.getName());
 
-      LocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-      LocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
+      RegistryLocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+      RegistryLocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
 
       mdAttribute.setDefiningMdClass(mdBusiness);
       mdAttribute.apply();
@@ -390,8 +390,8 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       cloneAttribute.setValue(MdAttributeConcreteInfo.NAME, attributeType.getName());
       cloneAttribute.setValue(MdAttributeCharacterInfo.SIZE, "255");
       cloneAttribute.addIndexType(MdAttributeIndices.NON_UNIQUE_INDEX);
-      LocalizedValueConverter.populate(cloneAttribute.getDisplayLabel(), attributeType.getLabel());
-      LocalizedValueConverter.populate(cloneAttribute.getDescription(), attributeType.getDescription());
+      RegistryLocalizedValueConverter.populate(cloneAttribute.getDisplayLabel(), attributeType.getLabel());
+      RegistryLocalizedValueConverter.populate(cloneAttribute.getDescription(), attributeType.getDescription());
       cloneAttribute.setDefiningMdClass(mdBusiness);
       cloneAttribute.apply();
 
@@ -399,8 +399,8 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + DEFAULT_LOCALE);
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
       mdAttributeDefaultLocale.setDefiningMdClass(mdBusiness);
-      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), attributeType.getLabel(), " (defaultLocale)");
-      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (defaultLocale)");
+      RegistryLocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), attributeType.getLabel(), " (defaultLocale)");
+      RegistryLocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (defaultLocale)");
       mdAttributeDefaultLocale.apply();
 
       for (Locale locale : locales)
@@ -409,8 +409,8 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + locale.toString());
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
         mdAttributeLocale.setDefiningMdClass(mdBusiness);
-        LocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), attributeType.getLabel(), " (" + locale.toString() + ")");
-        LocalizedValueConverter.populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
+        RegistryLocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), attributeType.getLabel(), " (" + locale.toString() + ")");
+        RegistryLocalizedValueConverter.populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
         mdAttributeLocale.apply();
       }
 
@@ -432,8 +432,8 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + DEFAULT_LOCALE);
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
       mdAttributeDefaultLocale.setDefiningMdClass(mdBusiness);
-      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (defaultLocale)");
-      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (defaultLocale)");
+      RegistryLocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (defaultLocale)");
+      RegistryLocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (defaultLocale)");
       mdAttributeDefaultLocale.apply();
 
       for (Locale locale : locales)
@@ -442,8 +442,8 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + locale.toString());
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
         mdAttributeLocale.setDefiningMdClass(mdBusiness);
-        LocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (" + locale.toString() + ")");
-        LocalizedValueConverter.populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
+        RegistryLocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (" + locale.toString() + ")");
+        RegistryLocalizedValueConverter.populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
         mdAttributeLocale.apply();
       }
     }
@@ -944,7 +944,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
             VertexObject classification = VertexObject.get(mdVertexDAO, (String) value);
 
-            LocalizedValue label = LocalizedValueConverter.convert(classification.getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
+            LocalizedValue label = RegistryLocalizedValueConverter.convert(classification.getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
 
             this.setValue(business, name, classification.getObjectValue(AbstractClassification.CODE));
             this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));

@@ -52,7 +52,7 @@ public class VertexTermConverter
 
   private Term buildTermFromClassifier(VertexObject classification)
   {
-    LocalizedValue label = AttributeTypeConverter.convert(classification.getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
+    LocalizedValue label = RegistryAttributeTypeConverter.convert(classification.getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
 
     Term term = new Term(classification.getObjectValue(AbstractClassification.CODE), label, new LocalizedValue(""));
 

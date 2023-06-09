@@ -43,7 +43,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class BusinessObject
@@ -110,7 +110,7 @@ public class BusinessObject
 
     if (at instanceof AttributeLocalType)
     {
-      LocalizedValueConverter.populate(this.vertex, attributeName, (LocalizedValue) value);
+      RegistryLocalizedValueConverter.populate(this.vertex, attributeName, (LocalizedValue) value);
     }
     else
     {
@@ -140,7 +140,7 @@ public class BusinessObject
       return null;
     }
 
-    return LocalizedValueConverter.convert(graphObject);
+    return RegistryLocalizedValueConverter.convert(graphObject);
   }
 
   public JsonObject toJSON()

@@ -40,7 +40,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdEdge;
 
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.GraphType;
@@ -74,7 +74,7 @@ public class UndirectedGraphType extends UndirectedGraphTypeBase implements Json
   @Override
   public LocalizedValue getLabel()
   {
-    return LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel());
+    return RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel());
   }
 
   @Transaction
@@ -88,14 +88,14 @@ public class UndirectedGraphType extends UndirectedGraphTypeBase implements Json
       {
         LocalizedValue label = LocalizedValue.fromJSON(object.getAsJsonObject(UndirectedGraphType.JSON_LABEL));
 
-        LocalizedValueConverter.populate(this.getDisplayLabel(), label);
+        RegistryLocalizedValueConverter.populate(this.getDisplayLabel(), label);
       }
 
       if (object.has(UndirectedGraphType.DESCRIPTION))
       {
         LocalizedValue description = LocalizedValue.fromJSON(object.getAsJsonObject(UndirectedGraphType.DESCRIPTION));
 
-        LocalizedValueConverter.populate(this.getDescription(), description);
+        RegistryLocalizedValueConverter.populate(this.getDescription(), description);
       }
 
       this.apply();
@@ -124,8 +124,8 @@ public class UndirectedGraphType extends UndirectedGraphTypeBase implements Json
     object.addProperty(UndirectedGraphType.OID, this.getOid());
     object.addProperty(UndirectedGraphType.TYPE, "UndirectedGraphType");
     object.addProperty(UndirectedGraphType.CODE, this.getCode());
-    object.add(UndirectedGraphType.JSON_LABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
-    object.add(UndirectedGraphType.DESCRIPTION, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescription()).toJSON());
+    object.add(UndirectedGraphType.JSON_LABEL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
+    object.add(UndirectedGraphType.DESCRIPTION, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDescription()).toJSON());
 
     return object;
   }
@@ -192,8 +192,8 @@ public class UndirectedGraphType extends UndirectedGraphTypeBase implements Json
       mdEdgeDAO.setValue(MdEdgeInfo.NAME, code);
       mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, mdBusGeoEntity.getOid());
       mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, mdBusGeoEntity.getOid());
-      LocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, label);
-      LocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, description);
+      RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, label);
+      RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, description);
       mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
       mdEdgeDAO.apply();
 
@@ -220,8 +220,8 @@ public class UndirectedGraphType extends UndirectedGraphTypeBase implements Json
       UndirectedGraphType graphType = new UndirectedGraphType();
       graphType.setCode(code);
       graphType.setMdEdgeId(mdEdgeDAO.getOid());
-      LocalizedValueConverter.populate(graphType.getDisplayLabel(), label);
-      LocalizedValueConverter.populate(graphType.getDescription(), description);
+      RegistryLocalizedValueConverter.populate(graphType.getDisplayLabel(), label);
+      RegistryLocalizedValueConverter.populate(graphType.getDescription(), description);
       graphType.apply();
 
       return graphType;

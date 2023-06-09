@@ -59,7 +59,7 @@ import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.RootNodeCannotBeInheritedException;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.geoobjecttype.AssignPublicChildOfPrivateType;
 import net.geoprism.registry.graph.CantRemoveInheritedGOT;
 import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
@@ -287,7 +287,7 @@ public class ServerHierarchyType implements ServerElement, GraphType
 
   public LocalizedValue getLabel()
   {
-    return LocalizedValueConverter.convert(this.getDisplayLabel());
+    return RegistryLocalizedValueConverter.convert(this.getDisplayLabel());
   }
 
   public String getUniversalType()
@@ -482,7 +482,7 @@ public class ServerHierarchyType implements ServerElement, GraphType
 
   public HierarchyType toHierarchyType(boolean includePrivateTypes)
   {
-    LocalizedValue description = LocalizedValueConverter.convert(this.getDescription());
+    LocalizedValue description = RegistryLocalizedValueConverter.convert(this.getDescription());
 
     final HierarchyType hierarchyType = new HierarchyType(this.getCode(), getLabel(), description, this.getOrganizationCode());
     hierarchyType.setAbstractDescription(this.hierarchicalRelationship.getAbstractDescription());

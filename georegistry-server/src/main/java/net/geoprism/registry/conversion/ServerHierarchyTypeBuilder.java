@@ -58,7 +58,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerHierarchyType;
 
-public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
+public class ServerHierarchyTypeBuilder extends RegistryLocalizedValueConverter
 {
   @Transaction
   public ServerHierarchyType createHierarchyType(HierarchyType hierarchyType)

@@ -56,7 +56,7 @@ import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.ListTypeVersionQuery;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.etl.ListTypeJobQuery;
@@ -564,7 +564,7 @@ public class ListTypeService
 
       joOrg.addProperty("orgCode", orgCode);
 
-      joOrg.add("orgLabel", LocalizedValueConverter.convertNoAutoCoalesce(org.getDisplayLabel()).toJSON());
+      joOrg.add("orgLabel", RegistryLocalizedValueConverter.convertNoAutoCoalesce(org.getDisplayLabel()).toJSON());
 
       JsonArray jaTypes = new JsonArray();
 

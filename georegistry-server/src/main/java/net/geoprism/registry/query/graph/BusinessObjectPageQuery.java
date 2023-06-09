@@ -47,7 +47,7 @@ import com.runwaysdk.session.Session;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
@@ -100,7 +100,7 @@ public class BusinessObjectPageQuery extends AbstractGraphPageQuery<HashMap<Stri
           }
           else if (mdAttribute instanceof MdAttributeLocalEmbeddedDAOIF || mdAttribute instanceof MdAttributeClassificationDAOIF)
           {
-            LocalizedValue localizedValue = LocalizedValueConverter.convert((HashMap<String, ?>) value);
+            LocalizedValue localizedValue = RegistryLocalizedValueConverter.convert((HashMap<String, ?>) value);
 
             object.addProperty(mdAttribute.definesAttribute(), localizedValue.getValue());
           }

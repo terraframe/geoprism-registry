@@ -36,7 +36,7 @@ import net.geoprism.registry.ListTypeGeoObjectTypeGroup;
 import net.geoprism.registry.ListTypeGroup;
 import net.geoprism.registry.ListTypeHierarchyGroup;
 import net.geoprism.registry.ListTypeVersion;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.model.LocalizedValueContainer;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -237,14 +237,14 @@ public class TableMetadata
     public Attribute(MdAttributeDAOIF mdAttribute)
     {
       this.mdAttribute = mdAttribute;
-      this.label = new LocalizedValueContainer(LocalizedValueConverter.convert(mdAttribute.getDisplayLabels()));
+      this.label = new LocalizedValueContainer(RegistryLocalizedValueConverter.convert(mdAttribute.getDisplayLabels()));
     }
 
     public Attribute(MdAttributeDAOIF mdAttribute, int rowspan)
     {
       this.mdAttribute = mdAttribute;
       this.rowspan = rowspan;
-      this.label = new LocalizedValueContainer(LocalizedValueConverter.convert(mdAttribute.getDisplayLabels()));
+      this.label = new LocalizedValueContainer(RegistryLocalizedValueConverter.convert(mdAttribute.getDisplayLabels()));
     }
 
     public Attribute(MdAttributeDAOIF mdAttribute, LocalizedValue label)

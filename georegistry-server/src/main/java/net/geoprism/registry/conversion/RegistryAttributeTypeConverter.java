@@ -59,15 +59,15 @@ import com.runwaysdk.session.Session;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 
-public class AttributeTypeConverter extends LocalizedValueConverter
+public class RegistryAttributeTypeConverter extends RegistryLocalizedValueConverter
 {
   public AttributeType build(MdAttributeConcreteDAOIF mdAttribute)
   {
     Locale locale = Session.getCurrentLocale();
 
     String attributeName = mdAttribute.definesAttribute();
-    LocalizedValue displayLabel = AttributeTypeConverter.convert(mdAttribute.getDisplayLabel(locale), mdAttribute.getDisplayLabels());
-    LocalizedValue description = AttributeTypeConverter.convert(mdAttribute.getDescription(locale), mdAttribute.getDescriptions());
+    LocalizedValue displayLabel = RegistryAttributeTypeConverter.convert(mdAttribute.getDisplayLabel(locale), mdAttribute.getDisplayLabels());
+    LocalizedValue description = RegistryAttributeTypeConverter.convert(mdAttribute.getDescription(locale), mdAttribute.getDescriptions());
     boolean required = mdAttribute.isRequired();
     boolean unique = mdAttribute.isUnique();
 

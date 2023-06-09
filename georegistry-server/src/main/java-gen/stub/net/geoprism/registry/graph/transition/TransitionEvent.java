@@ -49,7 +49,7 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.graph.transition.Transition.TransitionImpact;
 import net.geoprism.registry.graph.transition.Transition.TransitionType;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -138,7 +138,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-    LocalizedValue localizedValue = LocalizedValueConverter.convert(this.getEmbeddedComponent(TransitionEvent.DESCRIPTION));
+    LocalizedValue localizedValue = RegistryLocalizedValueConverter.convert(this.getEmbeddedComponent(TransitionEvent.DESCRIPTION));
     ServerGeoObjectType beforeType = ServerGeoObjectType.get(this.getBeforeTypeCode());
     ServerGeoObjectType afterType = ServerGeoObjectType.get(this.getAfterTypeCode());
 
@@ -196,7 +196,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
 
       LocalizedValue description = LocalizedValue.fromJSON(json.get(TransitionEvent.DESCRIPTION).getAsJsonObject());
       TransitionEvent event = json.has(OID) ? TransitionEvent.get(json.get(OID).getAsString()) : new TransitionEvent();
-      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, description);
+      RegistryLocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, description);
       event.setEventDate(format.parse(json.get(TransitionEvent.EVENTDATE).getAsString()));
       event.setBeforeTypeCode(beforeTypeCode);
       event.setAfterTypeCode(afterTypeCode);

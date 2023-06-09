@@ -40,7 +40,7 @@ import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.ListTypeVersionQuery;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.geoobjecttype.PrivateTypeHasPublicChildren;
 import net.geoprism.registry.geoobjecttype.PrivateTypeIsReferencedInPublicMasterLists;
 import net.geoprism.registry.geoobjecttype.TypeHasPrivateParents;
@@ -69,7 +69,7 @@ public class GeoObjectTypeMetadata extends GeoObjectTypeMetadataBase
         
         if (val != null)
         {
-          attr.setLabel(LocalizedValueConverter.convert(val));
+          attr.setLabel(RegistryLocalizedValueConverter.convert(val));
         }
       }
     }

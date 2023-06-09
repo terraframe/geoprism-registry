@@ -32,7 +32,7 @@ import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.RegistryIdService;
 
-public class VertexGeoObjectStrategy extends LocalizedValueConverter implements ServerGeoObjectStrategyIF
+public class VertexGeoObjectStrategy extends RegistryLocalizedValueConverter implements ServerGeoObjectStrategyIF
 {
   private ServerGeoObjectType type;
 

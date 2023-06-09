@@ -136,7 +136,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.command.GeoserverCreateWMSCommand;
 import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.curation.ListCurationHistory;
 import net.geoprism.registry.etl.PublishListTypeVersionJob;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
@@ -428,8 +428,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
       mdAttribute.setAttributeName(attributeType.getName());
 
-      LocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-      LocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
+      RegistryLocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+      RegistryLocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
 
       mdAttribute.setDefiningMdClass(mdBusiness);
       mdAttribute.apply();
@@ -447,8 +447,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       cloneAttribute.setValue(MdAttributeConcreteInfo.NAME, attributeType.getName());
       cloneAttribute.setValue(MdAttributeCharacterInfo.SIZE, "255");
       cloneAttribute.addIndexType(MdAttributeIndices.NON_UNIQUE_INDEX);
-      LocalizedValueConverter.populate(cloneAttribute.getDisplayLabel(), attributeType.getLabel());
-      LocalizedValueConverter.populate(cloneAttribute.getDescription(), attributeType.getDescription());
+      RegistryLocalizedValueConverter.populate(cloneAttribute.getDisplayLabel(), attributeType.getLabel());
+      RegistryLocalizedValueConverter.populate(cloneAttribute.getDescription(), attributeType.getDescription());
       cloneAttribute.setDefiningMdClass(mdBusiness);
       cloneAttribute.apply();
 
@@ -458,8 +458,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + DEFAULT_LOCALE);
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
       mdAttributeDefaultLocale.setDefiningMdClass(mdBusiness);
-      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), attributeType.getLabel(), " (" + defaultLocaleLabel.getValue() + ")");
-      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (" + defaultLocaleLabel.getValue() + ")");
+      RegistryLocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), attributeType.getLabel(), " (" + defaultLocaleLabel.getValue() + ")");
+      RegistryLocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (" + defaultLocaleLabel.getValue() + ")");
       mdAttributeDefaultLocale.apply();
 
       attributeGroup.addChild(new Attribute(mdAttributeDefaultLocale, defaultLocaleLabel));
@@ -470,8 +470,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + locale.getLocale().toString());
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
         mdAttributeLocale.setDefiningMdClass(mdBusiness);
-        LocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), attributeType.getLabel(), " (" + locale.getDisplayLabel().getValue() + ")");
-        LocalizedValueConverter.populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
+        RegistryLocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), attributeType.getLabel(), " (" + locale.getDisplayLabel().getValue() + ")");
+        RegistryLocalizedValueConverter.populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
         mdAttributeLocale.apply();
 
         attributeGroup.addChild(new Attribute(mdAttributeLocale, locale));
@@ -497,8 +497,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + DEFAULT_LOCALE);
       mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
       mdAttributeDefaultLocale.setDefiningMdClass(mdBusiness);
-      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (" + defaultLocaleLabel + ")");
-      LocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (" + defaultLocaleLabel + ")");
+      RegistryLocalizedValueConverter.populate(mdAttributeDefaultLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (" + defaultLocaleLabel + ")");
+      RegistryLocalizedValueConverter.populate(mdAttributeDefaultLocale.getDescription(), attributeType.getDescription(), " (" + defaultLocaleLabel + ")");
       mdAttributeDefaultLocale.apply();
 
       attributeGroup.addChild(new Attribute(mdAttributeDefaultLocale, defaultLocaleLabel));
@@ -509,8 +509,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeType.getName() + locale.getLocale().toString());
         mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
         mdAttributeLocale.setDefiningMdClass(mdBusiness);
-        LocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (" + locale.getDisplayLabel().getValue() + ")");
-        LocalizedValueConverter.populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
+        RegistryLocalizedValueConverter.populate(mdAttributeLocale.getDisplayLabel(), isDisplayLabel ? type.getLabel() : attributeType.getLabel(), " (" + locale.getDisplayLabel().getValue() + ")");
+        RegistryLocalizedValueConverter.populate(mdAttributeLocale.getDescription(), attributeType.getDescription());
         mdAttributeLocale.apply();
 
         attributeGroup.addChild(new Attribute(mdAttributeLocale, locale));
@@ -1493,14 +1493,14 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     JsonObject object = new JsonObject();
     object.addProperty("visibility", this.getValue(prefix + "Visibility"));
     object.addProperty("master", Boolean.parseBoolean(this.getValue(prefix + "Master")));
-    object.add("label", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Label")).toJSON());
-    object.add("description", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Description")).toJSON());
-    object.add("process", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Process")).toJSON());
-    object.add("progress", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Progress")).toJSON());
-    object.add("accessConstraints", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "AccessConstraints")).toJSON());
-    object.add("useConstraints", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "UseConstraints")).toJSON());
-    object.add("acknowledgements", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Acknowledgements")).toJSON());
-    object.add("disclaimer", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Disclaimer")).toJSON());
+    object.add("label", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Label")).toJSON());
+    object.add("description", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Description")).toJSON());
+    object.add("process", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Process")).toJSON());
+    object.add("progress", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Progress")).toJSON());
+    object.add("accessConstraints", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "AccessConstraints")).toJSON());
+    object.add("useConstraints", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "UseConstraints")).toJSON());
+    object.add("acknowledgements", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Acknowledgements")).toJSON());
+    object.add("disclaimer", RegistryLocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Disclaimer")).toJSON());
     object.addProperty("collectionDate", GeoRegistryUtil.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(getValue(prefix + "CollectionDate")), false));
     object.addProperty("organization", this.getValue(prefix + "Organization"));
     object.addProperty("contactName", this.getValue(prefix + "ContactName"));
@@ -1870,7 +1870,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     record.addProperty("recordType", "LIST");
     record.addProperty("version", this.getOid());
     record.addProperty("edit", this.getWorking() && listType.doesActorHaveExploratoryPermission());
-    record.add("typeLabel", LocalizedValueConverter.convertNoAutoCoalesce(listType.getDisplayLabel()).toJSON());
+    record.add("typeLabel", RegistryLocalizedValueConverter.convertNoAutoCoalesce(listType.getDisplayLabel()).toJSON());
     record.add("attributes", this.getAttributesAsJson());
 
     // We can't return the type of the list here because the front-end needs

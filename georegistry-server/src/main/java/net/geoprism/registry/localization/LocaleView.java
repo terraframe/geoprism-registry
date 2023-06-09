@@ -28,7 +28,7 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.SupportedLocaleIF;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 
 public class LocaleView
 {
@@ -84,7 +84,7 @@ public class LocaleView
   {
     this.setLocale(supportedLocale.getLocale());
     
-    this.label = LocalizedValueConverter.convert(supportedLocale.getDisplayLabel().getValue(), supportedLocale.getDisplayLabel().getLocaleMap());
+    this.label = RegistryLocalizedValueConverter.convert(supportedLocale.getDisplayLabel().getValue(), supportedLocale.getDisplayLabel().getLocaleMap());
   }
   
   public JsonObject toJson()

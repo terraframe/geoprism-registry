@@ -51,7 +51,7 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.configuration.GeoprismProperties;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -465,16 +465,16 @@ public class MasterList extends MasterListBase
     object.addProperty("exploratory", this.doesActorHaveExploratoryPermission());
     object.add("typeLabel", type.getLabel().toJSON(serializer));
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
-    object.add(MasterList.DISPLAYLABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON(serializer));
+    object.add(MasterList.DISPLAYLABEL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON(serializer));
     object.addProperty(MasterList.CODE, this.getCode());
-    object.add(MasterList.DESCRIPTIONLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescriptionLocal()).toJSON(serializer));
-    object.add(MasterList.DESCRIPTIONLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescriptionLocal()).toJSON(serializer));
-    object.add(MasterList.PROCESSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getProcessLocal()).toJSON(serializer));
-    object.add(MasterList.PROGRESSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getProgressLocal()).toJSON(serializer));
-    object.add(MasterList.ACCESSCONSTRAINTSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getAccessConstraintsLocal()).toJSON(serializer));
-    object.add(MasterList.USECONSTRAINTSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getUseConstraintsLocal()).toJSON(serializer));
-    object.add(MasterList.ACKNOWLEDGEMENTSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getAcknowledgementsLocal()).toJSON(serializer));
-    object.add(MasterList.DISCLAIMERLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisclaimerLocal()).toJSON(serializer));
+    object.add(MasterList.DESCRIPTIONLOCAL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDescriptionLocal()).toJSON(serializer));
+    object.add(MasterList.DESCRIPTIONLOCAL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDescriptionLocal()).toJSON(serializer));
+    object.add(MasterList.PROCESSLOCAL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getProcessLocal()).toJSON(serializer));
+    object.add(MasterList.PROGRESSLOCAL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getProgressLocal()).toJSON(serializer));
+    object.add(MasterList.ACCESSCONSTRAINTSLOCAL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getAccessConstraintsLocal()).toJSON(serializer));
+    object.add(MasterList.USECONSTRAINTSLOCAL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getUseConstraintsLocal()).toJSON(serializer));
+    object.add(MasterList.ACKNOWLEDGEMENTSLOCAL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getAcknowledgementsLocal()).toJSON(serializer));
+    object.add(MasterList.DISCLAIMERLOCAL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDisclaimerLocal()).toJSON(serializer));
     object.addProperty(MasterList.CONTACTNAME, this.getContactName());
     object.addProperty(MasterList.TELEPHONENUMBER, this.getTelephoneNumber());
     object.addProperty(MasterList.EMAIL, this.getEmail());
@@ -671,7 +671,7 @@ public class MasterList extends MasterListBase
       }
 
       list.setUniversal(type.getUniversal());
-      LocalizedValueConverter.populate(list.getDisplayLabel(), label);
+      RegistryLocalizedValueConverter.populate(list.getDisplayLabel(), label);
       list.setCode(object.get(MasterList.CODE).getAsString());
       list.getDescriptionLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.DESCRIPTIONLOCAL).getAsJsonObject()).getLocaleMap());
       list.getProcessLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.PROCESSLOCAL).getAsJsonObject()).getLocaleMap());

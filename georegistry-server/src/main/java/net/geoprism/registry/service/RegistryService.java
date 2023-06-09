@@ -84,8 +84,8 @@ import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
-import net.geoprism.registry.conversion.AttributeTypeConverter;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryAttributeTypeConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.OrganizationConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
@@ -282,7 +282,7 @@ public class RegistryService
         {
           JsonObject json = new JsonObject();
 
-          json.add("label", LocalizedValueConverter.convert(server.getDisplayLabel()).toJSON());
+          json.add("label", RegistryLocalizedValueConverter.convert(server.getDisplayLabel()).toJSON());
           json.addProperty("url", buildOauthServerUrl(server));
 
           ja.add(json);
@@ -295,7 +295,7 @@ public class RegistryService
 
       JsonObject json = new JsonObject();
 
-      json.add("label", LocalizedValueConverter.convert(server.getDisplayLabel()).toJSON());
+      json.add("label", RegistryLocalizedValueConverter.convert(server.getDisplayLabel()).toJSON());
       json.addProperty("url", buildOauthServerUrl(server));
 
       ja.add(json);
@@ -909,7 +909,7 @@ public class RegistryService
       {
         ServerGeoObjectType geoObjectType = optional.get();
 
-        AttributeType attributeType = new AttributeTypeConverter().build((MdAttributeConcreteDAOIF) BusinessFacade.getEntityDAO(mdAttribute));
+        AttributeType attributeType = new RegistryAttributeTypeConverter().build((MdAttributeConcreteDAOIF) BusinessFacade.getEntityDAO(mdAttribute));
 
         geoObjectType.getType().addAttribute(attributeType);
 

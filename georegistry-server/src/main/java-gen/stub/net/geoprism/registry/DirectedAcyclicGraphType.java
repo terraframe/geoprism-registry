@@ -40,7 +40,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdEdge;
 
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.GraphType;
@@ -69,7 +69,7 @@ public class DirectedAcyclicGraphType extends DirectedAcyclicGraphTypeBase imple
   @Override
   public LocalizedValue getLabel()
   {
-    return LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel());
+    return RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel());
   }
 
   public MdEdgeDAOIF getMdEdgeDAO()
@@ -88,14 +88,14 @@ public class DirectedAcyclicGraphType extends DirectedAcyclicGraphTypeBase imple
       {
         LocalizedValue label = LocalizedValue.fromJSON(object.getAsJsonObject(DirectedAcyclicGraphType.DISPLAYLABEL));
 
-        LocalizedValueConverter.populate(this.getDisplayLabel(), label);
+        RegistryLocalizedValueConverter.populate(this.getDisplayLabel(), label);
       }
 
       if (object.has(DirectedAcyclicGraphType.DESCRIPTION))
       {
         LocalizedValue description = LocalizedValue.fromJSON(object.getAsJsonObject(DirectedAcyclicGraphType.DESCRIPTION));
 
-        LocalizedValueConverter.populate(this.getDescription(), description);
+        RegistryLocalizedValueConverter.populate(this.getDescription(), description);
       }
 
       this.apply();
@@ -124,8 +124,8 @@ public class DirectedAcyclicGraphType extends DirectedAcyclicGraphTypeBase imple
     object.addProperty(DirectedAcyclicGraphType.OID, this.getOid());
     object.addProperty(DirectedAcyclicGraphType.TYPE, "DirectedAcyclicGraphType");
     object.addProperty(DirectedAcyclicGraphType.CODE, this.getCode());
-    object.add(DirectedAcyclicGraphType.JSON_LABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
-    object.add(DirectedAcyclicGraphType.DESCRIPTION, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescription()).toJSON());
+    object.add(DirectedAcyclicGraphType.JSON_LABEL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
+    object.add(DirectedAcyclicGraphType.DESCRIPTION, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDescription()).toJSON());
 
     return object;
   }
@@ -191,8 +191,8 @@ public class DirectedAcyclicGraphType extends DirectedAcyclicGraphTypeBase imple
       mdEdgeDAO.setValue(MdEdgeInfo.NAME, code);
       mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, mdBusGeoEntity.getOid());
       mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, mdBusGeoEntity.getOid());
-      LocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, label);
-      LocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, description);
+      RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, label);
+      RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, description);
       mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
       mdEdgeDAO.apply();
 
@@ -219,8 +219,8 @@ public class DirectedAcyclicGraphType extends DirectedAcyclicGraphTypeBase imple
       DirectedAcyclicGraphType graphType = new DirectedAcyclicGraphType();
       graphType.setCode(code);
       graphType.setMdEdgeId(mdEdgeDAO.getOid());
-      LocalizedValueConverter.populate(graphType.getDisplayLabel(), label);
-      LocalizedValueConverter.populate(graphType.getDescription(), description);
+      RegistryLocalizedValueConverter.populate(graphType.getDisplayLabel(), label);
+      RegistryLocalizedValueConverter.populate(graphType.getDescription(), description);
       graphType.apply();
 
       return graphType;

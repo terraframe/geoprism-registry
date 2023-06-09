@@ -67,8 +67,8 @@ import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.conversion.AttributeTypeConverter;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryAttributeTypeConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.localization.DefaultLocaleView;
@@ -131,7 +131,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
     }
 
-    return new AttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
+    return new RegistryAttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
   }
 
   public AttributeType createAttributeType(JsonObject attrObj)
@@ -159,7 +159,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
   public AttributeType updateAttributeType(AttributeType attrType)
   {
     MdAttributeConcrete mdAttribute = ServerGeoObjectType.updateMdAttributeFromAttributeType(this.getMdVertex(), attrType);
-    return new AttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
+    return new RegistryAttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
   }
 
   public void removeAttribute(String attributeName)
@@ -209,7 +209,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
 
   public Map<String, AttributeType> getAttributeMap()
   {
-    AttributeTypeConverter converter = new AttributeTypeConverter();
+    RegistryAttributeTypeConverter converter = new RegistryAttributeTypeConverter();
 
     MdVertexDAOIF mdVertex = this.getMdVertexDAO();
 
@@ -220,7 +220,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
 
   public AttributeType getAttribute(String name)
   {
-    AttributeTypeConverter converter = new AttributeTypeConverter();
+    RegistryAttributeTypeConverter converter = new RegistryAttributeTypeConverter();
 
     MdVertexDAOIF mdVertex = this.getMdVertexDAO();
     MdAttributeConcreteDAOIF mdAttribute = (MdAttributeConcreteDAOIF) mdVertex.definesAttribute(name);
@@ -230,7 +230,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
 
   public LocalizedValue getLabel()
   {
-    return LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel());
+    return RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel());
   }
 
   @Override
@@ -247,7 +247,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
     object.addProperty(BusinessType.CODE, this.getCode());
     object.addProperty(BusinessType.ORGANIZATION, organization.getCode());
     object.addProperty("organizationLabel", organization.getDisplayLabel().getValue());
-    object.add(BusinessType.DISPLAYLABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
+    object.add(BusinessType.DISPLAYLABEL, RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON());
 
     if (this.getLabelAttributeOid() != null && this.getLabelAttributeOid().length() > 0)
     {
@@ -344,7 +344,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
     BusinessType businessType = ( object.has(OID) && !object.get(OID).isJsonNull() ) ? BusinessType.get(object.get(OID).getAsString()) : new BusinessType();
     businessType.setCode(code);
     businessType.setOrganization(organization);
-    LocalizedValueConverter.populate(businessType.getDisplayLabel(), localizedValue);
+    RegistryLocalizedValueConverter.populate(businessType.getDisplayLabel(), localizedValue);
 
     boolean isNew = businessType.isNew();
 
@@ -355,7 +355,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
       mdVertex.setValue(MdGeoVertexInfo.NAME, code);
       mdVertex.setValue(MdGeoVertexInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
       mdVertex.setValue(MdGeoVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-      LocalizedValueConverter.populate(mdVertex, MdVertexInfo.DISPLAY_LABEL, localizedValue);
+      RegistryLocalizedValueConverter.populate(mdVertex, MdVertexInfo.DISPLAY_LABEL, localizedValue);
       mdVertex.apply();
 
       // TODO CREATE the edge between this class and GeoVertex??
@@ -366,7 +366,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
       mdEdge.setValue(MdEdgeInfo.NAME, code + "Edge");
       mdEdge.setValue(MdEdgeInfo.PARENT_MD_VERTEX, mdVertex.getOid());
       mdEdge.setValue(MdEdgeInfo.CHILD_MD_VERTEX, mdGeoVertexDAO.getOid());
-      LocalizedValueConverter.populate(mdEdge, MdEdgeInfo.DISPLAY_LABEL, localizedValue);
+      RegistryLocalizedValueConverter.populate(mdEdge, MdEdgeInfo.DISPLAY_LABEL, localizedValue);
       mdEdge.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
       mdEdge.apply();
 

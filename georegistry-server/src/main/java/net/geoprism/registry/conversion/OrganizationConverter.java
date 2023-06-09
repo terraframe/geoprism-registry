@@ -26,7 +26,7 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class OrganizationConverter extends LocalizedValueConverter
+public class OrganizationConverter extends RegistryLocalizedValueConverter
 {
 
   public OrganizationDTO build(Organization organization)

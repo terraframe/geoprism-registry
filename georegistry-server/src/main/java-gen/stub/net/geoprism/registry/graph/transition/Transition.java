@@ -36,7 +36,7 @@ import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.Roles;
 
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -129,7 +129,7 @@ public class Transition extends TransitionBase
 
   public void createTask(VertexServerGeoObject source, VertexServerGeoObject target, Date eventDate)
   {
-    LocalizedValue dateValue = LocalizedValueConverter.convert(eventDate);
+    LocalizedValue dateValue = RegistryLocalizedValueConverter.convert(eventDate);
 
     TransitionType transitionType = this.toTransitionType();
     ServerGeoObjectType sourceType = source.getType();

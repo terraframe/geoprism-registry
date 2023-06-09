@@ -36,7 +36,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
 
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
@@ -123,7 +123,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
 
     LocalizedValue label = LocalizedValue.fromJSON(json.get(SynchronizationConfig.LABEL).getAsJsonObject());
 
-    LocalizedValueConverter.populate(this.getLabel(), label);
+    RegistryLocalizedValueConverter.populate(this.getLabel(), label);
   }
 
   @Override
@@ -141,7 +141,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     object.addProperty(SynchronizationConfig.OID, this.getOid());
     object.addProperty(SynchronizationConfig.ORGANIZATION, this.getOrganization().getCode());
     object.addProperty(SynchronizationConfig.SYSTEM, this.getSystem());
-    object.add(SynchronizationConfig.LABEL, LocalizedValueConverter.convert(this.getLabel()).toJSON());
+    object.add(SynchronizationConfig.LABEL, RegistryLocalizedValueConverter.convert(this.getLabel()).toJSON());
     object.addProperty(SynchronizationConfig.ISIMPORT, this.getIsImport() != null ? this.getIsImport() : false);
 
     ExternalSystemSyncConfig config = this.buildConfiguration();
@@ -151,7 +151,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
 
     if (system != null)
     {
-      LocalizedValue label = LocalizedValueConverter.convert(system.getEmbeddedComponent(ExternalSystem.LABEL));
+      LocalizedValue label = RegistryLocalizedValueConverter.convert(system.getEmbeddedComponent(ExternalSystem.LABEL));
 
       object.addProperty(SynchronizationConfig.TYPE, system.getClass().getSimpleName());
       object.addProperty(SynchronizationConfig.SYSTEM_LABEL, label.getValue());

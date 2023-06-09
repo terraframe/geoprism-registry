@@ -38,7 +38,7 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.ontology.ImmutableRootException;
 import com.runwaysdk.system.ontology.TermUtil;
 
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
 import net.geoprism.registry.graph.MultipleHierarchyRootsException;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -63,8 +63,8 @@ public class HierarchicalRelationshipType extends HierarchicalRelationshipTypeBa
   {
     this.lock();
 
-    LocalizedValueConverter.populate(this.getDisplayLabel(), hierarchyType.getLabel());
-    LocalizedValueConverter.populate(this.getDescription(), hierarchyType.getDescription());
+    RegistryLocalizedValueConverter.populate(this.getDisplayLabel(), hierarchyType.getLabel());
+    RegistryLocalizedValueConverter.populate(this.getDescription(), hierarchyType.getDescription());
 
     this.setAbstractDescription(hierarchyType.getAbstractDescription());
     this.setProgress(hierarchyType.getProgress());

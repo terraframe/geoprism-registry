@@ -98,7 +98,7 @@ public class RegistryRoleConverter
    */
   private RegistryRole buildSRA_Role(Roles sraRole)
   {
-    LocalizedValue localizedValue = LocalizedValueConverter.convert(sraRole.getDisplayLabel());
+    LocalizedValue localizedValue = RegistryLocalizedValueConverter.convert(sraRole.getDisplayLabel());
 
     return RegistryRole.createSRA(localizedValue);
   }
@@ -114,7 +114,7 @@ public class RegistryRoleConverter
    */
   private RegistryRole buildRA_Role(Roles raRole)
   {
-    LocalizedValue localizedValue = LocalizedValueConverter.convert(raRole.getDisplayLabel());
+    LocalizedValue localizedValue = RegistryLocalizedValueConverter.convert(raRole.getDisplayLabel());
     
     String[] strArray = raRole.getRoleName().split("\\.");
     
@@ -134,7 +134,7 @@ public class RegistryRoleConverter
    */
   private RegistryRole buildRM_Role(Roles raRole)
   {
-    LocalizedValue localizedValue = LocalizedValueConverter.convert(raRole.getDisplayLabel());
+    LocalizedValue localizedValue = RegistryLocalizedValueConverter.convert(raRole.getDisplayLabel());
     
     String[] strArray = raRole.getRoleName().split("\\.");
     
@@ -157,7 +157,7 @@ public class RegistryRoleConverter
    */
   private RegistryRole buildRC_Role(Roles raRole)
   {
-    LocalizedValue localizedValue = LocalizedValueConverter.convert(raRole.getDisplayLabel());
+    LocalizedValue localizedValue = RegistryLocalizedValueConverter.convert(raRole.getDisplayLabel());
     
     String[] strArray = raRole.getRoleName().split("\\.");
     
@@ -179,7 +179,7 @@ public class RegistryRoleConverter
    */
   private RegistryRole buildAC_Role(Roles raRole)
   {
-    LocalizedValue localizedValue = LocalizedValueConverter.convert(raRole.getDisplayLabel());
+    LocalizedValue localizedValue = RegistryLocalizedValueConverter.convert(raRole.getDisplayLabel());
     
     String[] strArray = raRole.getRoleName().split("\\.");
     

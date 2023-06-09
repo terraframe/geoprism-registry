@@ -37,7 +37,7 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.localization.LocalizationFacade;
 
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.excel.HistoricalReportExcelExporter;
 import net.geoprism.registry.graph.transition.Transition;
@@ -227,7 +227,7 @@ public class HistoricalRow implements JsonSerializable
     ret.setEventId((Long) row.get(EVENT_ID));
     ret.setEventDate(eventDate);
     ret.setEventType((String) row.get(EVENT_TYPE));
-    ret.setDescription(LocalizedValueConverter.convert((Map<String, Object>) row.get(DESCRIPTION)));
+    ret.setDescription(RegistryLocalizedValueConverter.convert((Map<String, Object>) row.get(DESCRIPTION)));
     ret.setBeforeLabel(parseLabel(row, eventDate, BEFORE_LABEL));
     ret.setBeforeCode((String) row.get(BEFORE_CODE));
     ret.setBeforeType((String) row.get(BEFORE_TYPE));
@@ -243,7 +243,7 @@ public class HistoricalRow implements JsonSerializable
   {
     List<Map<String, Object>> labels = (List<Map<String, Object>>) row.get(attributeName);
 
-    return LocalizedValueConverter.convert(labels, date);
+    return RegistryLocalizedValueConverter.convert(labels, date);
   }
 
   public static Long getCount(ServerGeoObjectType type, Date startDate, Date endDate)
