@@ -563,13 +563,13 @@ public class GeoObjectImporter implements ObjectImporterIF
         Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
 
         geometry = convertGeometry(geometry);
-
-        if (code.equals("1005"))
-        {
-          System.out.println("Length: " + geometry.getLength());
-
-          throw new IgnoreRowException();
-        }
+//
+//        if (code.equals("1005"))
+//        {
+//          System.out.println("Length: " + geometry.getLength());
+//
+//          throw new IgnoreRowException();
+//        }
 
         if (geometry != null)
         {
