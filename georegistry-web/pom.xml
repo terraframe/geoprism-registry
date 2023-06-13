@@ -119,6 +119,7 @@
 										-Dbirt-server=true
 										-Denvcfg=${project.basedir}/../envcfg
 										-Dproject.basedir=${project.basedir}
+										-Dnetwork.binary.maxLength=56384
 									</cargo.jvmargs>
 								</properties>
 							</configuration>

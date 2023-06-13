@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.graph;
 
@@ -659,7 +659,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     this.setCode(goTime.getCode());
     this.setInvalid(goTime.getInvalid());
   }
-  
+
   public String getGeometryAttributeName()
   {
     GeometryType geometryType = this.type.getGeometryType();
@@ -709,15 +709,15 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public List<VertexServerGeoObject> getAncestors(ServerHierarchyType hierarchy, boolean includeNonExist, boolean includeInherited)
   {
     List<VertexServerGeoObject> list = new LinkedList<VertexServerGeoObject>();
-    
+
     if (includeInherited)
     {
       List<ServerGeoObjectType> typeAncestors = this.getType().getTypeAncestors(hierarchy, true);
-      
+
       GraphQuery<VertexObject> query = buildAncestorVertexQueryFast(hierarchy, typeAncestors);
-      
+
       List<VertexObject> results = query.getResults();
-      
+
       results.forEach(result -> {
         list.add(new VertexServerGeoObject(type, result, this.date));
       });
@@ -725,17 +725,17 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     else
     {
       GraphQuery<VertexObject> query = buildAncestorQuery(hierarchy, includeNonExist);
-  
+
       List<VertexObject> results = query.getResults();
-  
+
       results.forEach(result -> {
         list.add(new VertexServerGeoObject(type, result, this.date));
       });
     }
-    
+
     return list;
   }
-  
+
   /**
    * 
    * @param hierarchy
@@ -1473,37 +1473,37 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       }
     }
   }
-  
+
   public void setAlternateIds(List<AlternateId> alternateIds)
   {
     if (alternateIds == null)
     {
       alternateIds = new ArrayList<>();
     }
-    
+
     final List<ExternalId> olds = this.getAllExternalIds();
     final Map<String, ExternalSystem> esMap = ExternalSystem.getAll().stream().collect(Collectors.toMap(es -> es.getOid(), es -> es));
     final Set<Integer> newMatched = new HashSet<Integer>();
-    
+
     for (ExternalId oldId : olds)
     {
       boolean matched = false;
-      
+
       for (int i = 0; i < alternateIds.size(); ++i)
       {
         org.commongeoregistry.adapter.dataaccess.ExternalId newId = (org.commongeoregistry.adapter.dataaccess.ExternalId) alternateIds.get(i);
-        
+
         if (!newMatched.contains(i) && oldId.getExternalId().equals(newId.getId()))
         {
           oldId.setExternalId(newId.getId());
           oldId.apply();
-          
+
           matched = true;
           newMatched.add(i);
           break;
         }
       }
-      
+
       if (!matched)
       {
         oldId.delete();
@@ -1512,7 +1512,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     for (int i = 0; i < alternateIds.size(); ++i)
     {
       org.commongeoregistry.adapter.dataaccess.ExternalId newId = (org.commongeoregistry.adapter.dataaccess.ExternalId) alternateIds.get(i);
-      
+
       if (!newMatched.contains(i))
       {
         this.createExternalId(esMap.get(newId.getExternalSystemId()), newId.getId(), ImportStrategy.NEW_ONLY);
@@ -1802,12 +1802,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       geoObj.setUid(RegistryIdService.getInstance().next());
     }
-    
+
     for (ExternalId id : this.getAllExternalIds())
     {
       geoObj.addAlternateId(id.toDTO());
     }
-    
+
     return geoObj;
   }
 
@@ -2048,7 +2048,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     geoObj.setValueCollection(DefaultAttribute.GEOMETRY.getName(), votcDTO);
 
     geoObj.setCode(vertex.getObjectValue(DefaultAttribute.CODE.getName()));
-    
+
     for (ExternalId id : this.getAllExternalIds())
     {
       geoObj.addAlternateId(id.toDTO());
@@ -2280,7 +2280,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       return new ExternalId(edge);
     }
   }
-  
+
   public List<ExternalId> getAllExternalIds()
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
@@ -2698,7 +2698,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         if (isCodeAttribute(attr))
         {
           DuplicateGeoObjectCodeException ex = new DuplicateGeoObjectCodeException();
-          ex.setGeoObjectType(findTypeLabelFromGeoObjectCode(e.getValues().get(0)));
+          ex.setGeoObjectType(findTypeLabelFromGeoObjectCode(e.getValues().get(0), type));
           ex.setValue(e.getValues().get(0));
           throw ex;
         }
@@ -2727,13 +2727,13 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
   }
 
-  private static String findTypeLabelFromGeoObjectCode(String code)
+  private static String findTypeLabelFromGeoObjectCode(String code, ServerGeoObjectType rootType)
   {
     ServerGeoObjectType type = null;
 
     try
     {
-      type = findTypeOfGeoObjectCode(code);
+      type = findTypeOfGeoObjectCode(code, rootType);
     }
     catch (Throwable t)
     {
@@ -2754,12 +2754,17 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
    * Finds the ServerGeoObjectType associated with the particular Geo-Object
    * code.
    * 
+   * @param rootType
+   *          TODO
+   * 
    * @return
    */
-  public static ServerGeoObjectType findTypeOfGeoObjectCode(String code)
+  public static ServerGeoObjectType findTypeOfGeoObjectCode(String code, ServerGeoObjectType rootType)
   {
+    MdVertexDAOIF rootVertex = rootType.getMdVertex();
+
     StringBuilder statement = new StringBuilder();
-    statement.append("SELECT @class FROM geo_vertex WHERE code=:code");
+    statement.append("SELECT @class FROM " + rootVertex.getDBClassName() + " WHERE code=:code");
 
     GraphQuery<String> query = new GraphQuery<String>(statement.toString());
     query.setParameter("code", code);
@@ -2929,7 +2934,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return results;
   }
-  
+
   public static JsonArray getGeoObjectSuggestions(String text, String typeCode, String parentCode, String parentTypeCode, String hierarchyCode, Date startDate, Date endDate)
   {
     final ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
@@ -3054,6 +3059,5 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return array;
   }
-
 
 }
