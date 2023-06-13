@@ -119,6 +119,7 @@ import net.geoprism.registry.DuplicateGeoObjectException;
 import net.geoprism.registry.DuplicateGeoObjectMultipleException;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeometryTypeException;
+import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.RequiredAttributeException;
@@ -263,6 +264,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
       throw ex;
     }
+    
+    if (geometry.getNumPoints() > GeoregistryProperties.getMaxNumberOfPoints())
+    {
+      throw new ProgrammingErrorException("Geometry is too big to store");
+    }
 
     // Populate the correct geom field
     String geometryAttribute = this.getGeometryAttributeName();
@@ -280,6 +286,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       ex.setExpectedType(this.getType().getGeometryType().name());
 
       throw ex;
+    }
+    
+    if (geometry.getNumPoints() > GeoregistryProperties.getMaxNumberOfPoints())
+    {
+      throw new ProgrammingErrorException("Geometry is too big to store");
     }
 
     // Populate the correct geom field
