@@ -554,20 +554,6 @@ public class GeoObjectImporter implements ObjectImporterIF
 
         geometry = convertGeometry(geometry);
 
-//        System.out.println();
-//        System.out.println(code + " - Num of points: " + geometry.getNumPoints());
-//
-//
-//        //
-//        if (code.equals("1005"))
-//        {
-//          System.out.println("BAD GEOMETRY");
-//          System.out.println("Length: " + geometry.getLength());
-//
-////          throw new IgnoreRowException();
-//          geometry = null;
-//        }
-
         if (geometry != null)
         {
           serverGo.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
