@@ -1,0 +1,15 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <mdException name="net.geoprism.registry.DuplicateGeoObjectCodeException"
+        message="A Geo-Object with the code [{value}] already exists with Geo-Object Type [{geoObjectType}]. Geo-Object codes must be unqiue for the type. Please choose a different value."
+      >
+      </mdException>
+    
+    </createOrUpdate>
+
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
