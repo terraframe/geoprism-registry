@@ -265,7 +265,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       throw ex;
     }
     
-    if (geometry.getNumPoints() > GeoregistryProperties.getMaxNumberOfPoints())
+    if (geometry != null && geometry.getNumPoints() > GeoregistryProperties.getMaxNumberOfPoints())
     {
       throw new ProgrammingErrorException("Geometry is too big to store");
     }
@@ -288,7 +288,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       throw ex;
     }
     
-    if (geometry.getNumPoints() > GeoregistryProperties.getMaxNumberOfPoints())
+    if (geometry != null && geometry.getNumPoints() > GeoregistryProperties.getMaxNumberOfPoints())
     {
       throw new ProgrammingErrorException("Geometry is too big to store");
     }
