@@ -83,7 +83,6 @@ public class GeoregistryProperties
     return Singleton.INSTANCE.props.getInteger("max.geometry.points", 400000);
 //    return Singleton.INSTANCE.props.getInteger("max.geometry.points", 1200000);
   }
-
   
   public static List<String> getCorsWhitelist()
   {
