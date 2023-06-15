@@ -78,9 +78,9 @@ public class RemoteDHIS2APITest
    */
   private static final Integer API_VERSION = 40;
   
-  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".1-SNAPSHOT";
+  private static final String VERSION = "2.40.0";
   
-  private static final String URL = "https://play.dhis2.org/2.40dev/";
+  private static final String URL = "https://play.dhis2.org/40.0.0/";
   
   /*
    * Constants that reference expected data in the remote system
