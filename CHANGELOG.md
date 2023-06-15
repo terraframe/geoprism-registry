@@ -17,6 +17,7 @@
    - **synchronization** null pointer when syncing translations with dhis2  ([#898](https://github.com/terraframe/geoprism-registry/issues/898)) ([73492](https://github.com/terraframe/geoprism-registry/commit/734927b15605ab9e7c3926f48a0a0879ae7c7972))
    - **synchronization** too many codes in a sync error makes page unreadable  ([#898](https://github.com/terraframe/geoprism-registry/issues/898)) ([4620e](https://github.com/terraframe/geoprism-registry/commit/4620ec4848b6a12fcd83645d626503d59ffd0563))
    - **explorer** validity 'Yes' and 'No' labels for Geo-Objects swapped  ([#908](https://github.com/terraframe/geoprism-registry/issues/908)) ([94404](https://github.com/terraframe/geoprism-registry/commit/94404591278dfabf56a47e6593e5c3c8749618f9))
+   - **importer** Large geometries causing issues
    - georegistry-server/pom.xml to reduce vulnerabilities The following vulnerabilities are fixed with an upgrade:- https://snyk.io/vuln/SNYK-JAVA-ORGSPRINGFRAMEWORK-5422217  ([7474c](https://github.com/terraframe/geoprism-registry/commit/7474c4b4fbc6c9a8e2dfee3f952da7e9687bb355))
 
 
