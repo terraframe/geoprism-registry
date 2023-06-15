@@ -12,6 +12,7 @@ import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
 
@@ -28,6 +29,8 @@ import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.progress.Progress;
+import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.service.ServerGeoObjectService;
 
 public class TreeStrategyPublisher extends AbstractGraphVersionPublisher implements StrategyPublisher
@@ -72,92 +75,127 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
   @Override
   public void publish(LabeledPropertyGraphTypeVersion version)
   {
+    // long startTime = System.currentTimeMillis();
+    //
+    // System.out.println("Started publishing");
+
     version.lock();
+
+    long count = 0;
 
     try
     {
       LabeledPropertyGraphType type = version.getGraphType();
 
-      if (!type.isValid())
+      ProgressService.put(type.getOid(), new Progress(0L, 1L, version.getOid()));
+
+      try
       {
-        throw new InvalidMasterListException();
-      }
 
-      ServerHierarchyType hierarchyType = ServerHierarchyType.get(type.getHierarchy());
-      List<ServerGeoObjectType> geoObjectTypes = hierarchyType.getAllTypes(false);
-
-      geoObjectTypes.stream().filter(t -> t.getIsAbstract()).collect(Collectors.toList()).forEach(t -> {
-        geoObjectTypes.addAll(t.getSubtypes());
-      });
-
-      Date forDate = version.getForDate();
-
-      ServerGeoObjectService service = new ServerGeoObjectService();
-      ServerGeoObjectIF root = service.getGeoObjectByCode(configuration.getCode(), configuration.getTypeCode());
-
-      if (root != null && geoObjectTypes.contains(root.getType()))
-      {
-        root.setDate(forDate);
-
-        if (!root.getInvalid() && root.getExists(forDate))
+        if (!type.isValid())
         {
-          stack.push(new Snapshot(root));
+          throw new InvalidMasterListException();
         }
-      }
 
-      while (!stack.isEmpty())
-      {
-        Snapshot snapshot = stack.pop();
+        ServerHierarchyType hierarchyType = ServerHierarchyType.get(type.getHierarchy());
+        HierarchyTypeSnapshot graphEdge = HierarchyTypeSnapshot.get(version, hierarchyType.getCode());
+        MdEdge mdEdge = graphEdge.getGraphMdEdge();
 
-        GeoObjectTypeSnapshot graphVertex = GeoObjectTypeSnapshot.get(version, snapshot.node.getType().getCode());
-        MdVertex mdVertex = graphVertex.getGraphMdVertex();
+        List<ServerGeoObjectType> geoObjectTypes = hierarchyType.getAllTypes(false);
 
-        VertexObject vertex = null;
+        geoObjectTypes.stream().filter(t -> t.getIsAbstract()).collect(Collectors.toList()).forEach(t -> {
+          geoObjectTypes.addAll(t.getSubtypes());
+        });
 
-        if (!this.uids.contains(snapshot.node.getUid()))
+        Date forDate = version.getForDate();
+
+        ServerGeoObjectService service = new ServerGeoObjectService();
+        ServerGeoObjectIF root = service.getGeoObjectByCode(configuration.getCode(), configuration.getTypeCode());
+
+        if (root != null && geoObjectTypes.contains(root.getType()))
         {
-          vertex = this.publish(mdVertex, snapshot.node.toGeoObject(forDate));
+          root.setDate(forDate);
 
-          final VertexObject parent = vertex;
-
-          ServerChildTreeNode node = snapshot.node.getChildGeoObjects(hierarchyType, null, false, forDate);
-          List<ServerChildTreeNode> children = node.getChildren();
-
-          if (children.size() > 0)
+          if (!root.getInvalid() && root.getExists(forDate))
           {
-            HierarchyTypeSnapshot graphEdge = HierarchyTypeSnapshot.get(version, hierarchyType.getCode());
-            MdEdge mdEdge = graphEdge.getGraphMdEdge();
-
-            for (ServerChildTreeNode childNode : children)
-            {
-              ServerGeoObjectIF child = childNode.getGeoObject();
-              child.setDate(forDate);
-
-              if (child.getExists(forDate) && !child.getInvalid() && geoObjectTypes.contains(child.getType()))
-              {
-                stack.push(new Snapshot(child, mdEdge, parent));
-              }
-            }
+            stack.push(new Snapshot(root));
           }
-
-          this.uids.add(snapshot.node.getUid());
         }
-        else
+
+        while (!stack.isEmpty())
         {
-          vertex = this.get(mdVertex, snapshot.node.getUid());
+          publish(version, hierarchyType, mdEdge, geoObjectTypes, forDate);
+
+          count++;
+
+          ProgressService.put(type.getOid(), new Progress(count, ( count + stack.size() ), version.getOid()));
         }
 
-        if (snapshot.parent != null && snapshot.hierarchy != null)
-        {
-
-          snapshot.parent.addChild(vertex, snapshot.hierarchy.definesType()).apply();
-        }
+        ProgressService.put(type.getOid(), new Progress(1L, 1L, version.getOid()));
+      }
+      finally
+      {
+        ProgressService.remove(type.getOid());
       }
     }
     finally
     {
       version.unlock();
     }
+
+    // System.out.println("Finished publishing: " + ( (
+    // System.currentTimeMillis() - startTime ) / 1000 ) + " sec");
+  }
+
+  @Transaction
+  protected void publish(LabeledPropertyGraphTypeVersion version, ServerHierarchyType hierarchyType, MdEdge mdEdge, List<ServerGeoObjectType> geoObjectTypes, Date forDate)
+  {
+    Snapshot snapshot = stack.pop();
+
+    long startTime = System.currentTimeMillis();
+    GeoObjectTypeSnapshot graphVertex = GeoObjectTypeSnapshot.get(version, snapshot.node.getType().getCode());
+    MdVertex mdVertex = graphVertex.getGraphMdVertex();
+
+    VertexObject vertex = null;
+
+    if (!this.uids.contains(snapshot.node.getUid()))
+    {
+      vertex = this.publish(mdVertex, snapshot.node.toGeoObject(forDate, false));
+
+      final VertexObject parent = vertex;
+
+      ServerChildTreeNode node = snapshot.node.getChildGeoObjects(hierarchyType, null, false, forDate);
+      List<ServerChildTreeNode> children = node.getChildren();
+
+      if (children.size() > 0)
+      {
+
+        for (ServerChildTreeNode childNode : children)
+        {
+          ServerGeoObjectIF child = childNode.getGeoObject();
+          child.setDate(forDate);
+
+          if (child.getExists(forDate) && !child.getInvalid() && geoObjectTypes.contains(child.getType()))
+          {
+            stack.push(new Snapshot(child, mdEdge, parent));
+          }
+        }
+      }
+
+      this.uids.add(snapshot.node.getUid());
+    }
+    else
+    {
+      vertex = this.get(mdVertex, snapshot.node.getUid());
+    }
+
+    if (snapshot.parent != null && snapshot.hierarchy != null)
+    {
+
+      snapshot.parent.addChild(vertex, snapshot.hierarchy.definesType()).apply();
+    }
+
+    System.out.println("Items remaining: " + stack.size() + " - Row time: " + ( System.currentTimeMillis() - startTime ) + " ms");
   }
 
   private VertexObject get(MdVertex mdVertex, String uid)

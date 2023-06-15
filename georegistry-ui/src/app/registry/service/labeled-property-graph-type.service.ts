@@ -164,5 +164,14 @@ export class LabeledPropertyGraphTypeService {
             .toPromise();
     }
 
+    data(oid: string): Promise<any> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("oid", oid)
+
+        return this.http
+            .get<any>(environment.apiUrl + "/api/labeled-property-graph-type/data", { params: params })
+            .toPromise();
+    }
+
 
 }

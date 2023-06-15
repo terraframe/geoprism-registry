@@ -265,7 +265,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
       throw ex;
     }
-    
+
     if (geometry != null && geometry.getNumPoints() > GeoregistryProperties.getMaxNumberOfPoints())
     {
       throw new GeometrySizeException();
@@ -288,7 +288,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
       throw ex;
     }
-    
+
     if (geometry != null && geometry.getNumPoints() > GeoregistryProperties.getMaxNumberOfPoints())
     {
       throw new GeometrySizeException();
@@ -1743,6 +1743,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public GeoObject toGeoObject(Date date)
   {
+    return this.toGeoObject(date, true);
+  }
+
+  @Override
+  public GeoObject toGeoObject(Date date, boolean includeExternalIds)
+  {
     Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(type.getType());
 
     GeoObject geoObj = new GeoObject(type.getType(), type.getGeometryType(), attributeMap);
@@ -1815,9 +1821,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       geoObj.setUid(RegistryIdService.getInstance().next());
     }
 
-    for (ExternalId id : this.getAllExternalIds())
+    if (includeExternalIds)
     {
-      geoObj.addAlternateId(id.toDTO());
+      for (ExternalId id : this.getAllExternalIds())
+      {
+        geoObj.addAlternateId(id.toDTO());
+      }
     }
 
     return geoObj;
