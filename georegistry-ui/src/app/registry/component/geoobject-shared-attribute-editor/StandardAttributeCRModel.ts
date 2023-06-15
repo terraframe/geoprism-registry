@@ -36,6 +36,7 @@ export class StandardDiffView {
     constructor(editor: StandardAttributeCRModel, lService: LocalizationService, summaryKey: SummaryKey = null) {
         this.editor = editor;
         this.lService = lService;
+        this.attributeCode = editor.attribute.code;
       
         let diff = this.editor.diff;
       
