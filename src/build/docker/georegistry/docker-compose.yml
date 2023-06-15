@@ -5,7 +5,7 @@ services:
     image: 'orientdb:3.2'
     environment:
       ORIENTDB_ROOT_PASSWORD: "root"
-      ORIENTDB_OPTS_MEMORY: "-Xms512M -Xmx2G"
+      ORIENTDB_OPTS_MEMORY: "-Xms512M -Xmx2G -Dnetwork.binary.maxLength=16384"
     volumes:
       - "/data/orientdb/databases:/orientdb/databases"
       - "/data/orientdb/backup:/orientdb/backup"
