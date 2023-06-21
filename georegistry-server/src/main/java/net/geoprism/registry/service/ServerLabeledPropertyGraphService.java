@@ -43,6 +43,7 @@ import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
+import net.geoprism.graph.LabeledPropertyGraphSynchronization;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
@@ -132,12 +133,6 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
     }
 
     return jobs;
-  }
-
-  @Override
-  public void postSynchronization(LabeledPropertyGraphTypeVersion version)
-  {
-    // Do nothing
   }
 
   @Override
@@ -360,5 +355,10 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
     publicRole.grantPermission(Operation.READ, component.getOid());
     publicRole.grantPermission(Operation.READ_ALL, component.getOid());
   }
-
+  
+  @Override
+  public void postSynchronization(LabeledPropertyGraphSynchronization synchronization)
+  {
+    // Do nothing
+  }
 }

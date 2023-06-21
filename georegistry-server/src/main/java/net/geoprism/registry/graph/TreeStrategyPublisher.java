@@ -75,9 +75,9 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
   @Override
   public void publish(LabeledPropertyGraphTypeVersion version)
   {
-    // long startTime = System.currentTimeMillis();
-    //
-    // System.out.println("Started publishing");
+    long startTime = System.currentTimeMillis();
+
+    System.out.println("Started publishing");
 
     version.lock();
 
@@ -128,7 +128,10 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
 
           count++;
 
-          ProgressService.put(type.getOid(), new Progress(count, ( count + stack.size() ), version.getOid()));
+          if (count % 10 == 0)
+          {
+            ProgressService.put(type.getOid(), new Progress(count, ( count + stack.size() ), version.getOid()));
+          }
         }
 
         ProgressService.put(type.getOid(), new Progress(1L, 1L, version.getOid()));
@@ -143,8 +146,7 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
       version.unlock();
     }
 
-    // System.out.println("Finished publishing: " + ( (
-    // System.currentTimeMillis() - startTime ) / 1000 ) + " sec");
+    System.out.println("Finished publishing: " + ( ( System.currentTimeMillis() - startTime ) / 1000 ) + " sec");
   }
 
   @Transaction
@@ -195,7 +197,8 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
       snapshot.parent.addChild(vertex, snapshot.hierarchy.definesType()).apply();
     }
 
-    System.out.println("Items remaining: " + stack.size() + " - Row time: " + ( System.currentTimeMillis() - startTime ) + " ms");
+    // System.out.println("Items remaining: " + stack.size() + " - Row time: " +
+    // ( System.currentTimeMillis() - startTime ) + " ms");
   }
 
   private VertexObject get(MdVertex mdVertex, String uid)
