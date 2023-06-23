@@ -167,7 +167,7 @@
                                     <i (click)="deleteMapping(levelRow, mappingIndex)" class="fa fa-times"></i>
                                   </td>
                                   <td style="width:23%">
-                                    <select style="width:95%" [(ngModel)]="mapping.cgrAttrName" (change)="mapCgrAttrEvent($event, levelRow, mapping)" [name]="'sourceAttrSelect' + i + '-' + mappingIndex + (mapping.cgrAttrName ? mapping.cgrAttrName : '')">
+                                    <select style="width:95%" [(ngModel)]="mapping.cgrAttrName" (change)="mapCgrAttrEvent($event, levelRow, mapping)" [name]="'sourceAttrSelect' + i + '-' + mappingIndex + (mapping.cgrAttrName ? mapping.cgrAttrName : '')" required>
                                       <option [ngValue]="null"></option>
                                       <option *ngFor="let info of levelRow.attrCfg.attrConfigInfos" [ngValue]="info.cgrAttr.name">
                                         <label style="color:#999;">{{info.cgrAttr.label}}</label>
