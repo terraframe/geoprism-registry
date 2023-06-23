@@ -2,6 +2,26 @@
 # Release Notes
 
 
+## [1.2.2](https://github.com/terraframe/geoprism-registry/releases/tag/1.2.2) (2023-06-23)
+
+### Features
+
+ - ability to edit external ids in explorer and change requests  ([#872](https://github.com/terraframe/geoprism-registry/issues/872)) ([67bac](https://github.com/terraframe/geoprism-registry/commit/67bacc93754a69946596a775125ecf28bdd0bf11))
+ - **dhis2** support for dhis2 v2.40.0  ([#897](https://github.com/terraframe/geoprism-registry/issues/897)) ([face8](https://github.com/terraframe/geoprism-registry/commit/face88989995c23731b026307fd4fa38073a825a))
+ - improve system logging   ([10c71](https://github.com/terraframe/geoprism-registry/commit/10c71d978ce708da52d933513a3456b1324c316d))
+
+### Bug Fixes
+
+   - **explorer** removed autocomplete behaviour when searching  ([#895](https://github.com/terraframe/geoprism-registry/issues/895)) ([a0004](https://github.com/terraframe/geoprism-registry/commit/a0004ed3dc94f4d23dde1e8289c77d01ce078e6f))
+   - **synchronization** inherited types displaying duplicate or extra values  ([#896](https://github.com/terraframe/geoprism-registry/issues/896)) ([c45c7](https://github.com/terraframe/geoprism-registry/commit/c45c72aaa0ffca1bbba2577779fc61ba3eff40bf))
+   - **synchronization** null pointer when syncing translations with dhis2  ([#898](https://github.com/terraframe/geoprism-registry/issues/898)) ([73492](https://github.com/terraframe/geoprism-registry/commit/734927b15605ab9e7c3926f48a0a0879ae7c7972))
+   - **synchronization** too many codes in a sync error makes page unreadable  ([#898](https://github.com/terraframe/geoprism-registry/issues/898)) ([4620e](https://github.com/terraframe/geoprism-registry/commit/4620ec4848b6a12fcd83645d626503d59ffd0563))
+   - **explorer** validity 'Yes' and 'No' labels for Geo-Objects swapped  ([#908](https://github.com/terraframe/geoprism-registry/issues/908)) ([94404](https://github.com/terraframe/geoprism-registry/commit/94404591278dfabf56a47e6593e5c3c8749618f9))
+   - **dhis2-sync** better error handling and form validation  ([#910](https://github.com/terraframe/geoprism-registry/issues/910)) ([8e69b](https://github.com/terraframe/geoprism-registry/commit/8e69bec2f7d57f2b3e37fc8c3909bd82c7c1c492))
+   - georegistry-server/pom.xml to reduce vulnerabilities The following vulnerabilities are fixed with an upgrade:- https://snyk.io/vuln/SNYK-JAVA-ORGSPRINGFRAMEWORK-5422217  ([7474c](https://github.com/terraframe/geoprism-registry/commit/7474c4b4fbc6c9a8e2dfee3f952da7e9687bb355))
+
+
+
 ## [1.2.1](https://github.com/terraframe/geoprism-registry/releases/tag/1.2.1) (2023-06-15)
 
 ### Features
