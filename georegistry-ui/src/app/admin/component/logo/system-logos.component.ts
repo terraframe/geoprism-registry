@@ -83,10 +83,9 @@ export class SystemLogosComponent implements OnInit {
     this.service.getIcons().then(resp => {
       var filtered = resp.icons.filter(function (el) { return el.oid != "banner"; });
       this.icons = filtered;
-    })
-      .catch((err: HttpErrorResponse) => {
-        this.error(err);
-      });
+    }).catch((err: HttpErrorResponse) => {
+      this.error(err);
+    });
   }
 
   edit(icon: SystemLogo): void {
@@ -102,6 +101,7 @@ export class SystemLogosComponent implements OnInit {
 
     bsModalRef.content.onSuccess.subscribe(data => {
 
+      /*
       this.icons.forEach(ico => {
 
         // Setting a random number at the end of the url is a hack to change 
@@ -112,16 +112,18 @@ export class SystemLogosComponent implements OnInit {
       })
 
       this.changeDetectorRef.detectChanges();
-    })
+      */
+     window.location.reload();
+    });
   }
 
   remove(icon: SystemLogo): void {
     this.service.remove(icon.oid).then(response => {
       icon.custom = false;
-    })
-      .catch((err: HttpErrorResponse) => {
-        this.error(err);
-      });
+      window.location.reload();
+    }).catch((err: HttpErrorResponse) => {
+      this.error(err);
+    });
   }
 
   error(err: HttpErrorResponse): void {

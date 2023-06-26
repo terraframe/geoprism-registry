@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
@@ -100,17 +101,33 @@ public class ETLService
   @Transaction
   private void cancelImportInTrans(String sessionId, String json)
   {
-    ImportConfiguration config = ImportConfiguration.build(json);
+    // This code can fail if it references a GeoObjectType which no longer exists
+//    ImportConfiguration config = ImportConfiguration.build(json);
+//    final String vaultId = config.getVaultFileId();
+//    final String historyId = config.getHistoryId();
+    
+    JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
+    final String vaultId = jo.has(GeoObjectImportConfiguration.VAULT_FILE_ID) ? jo.get(GeoObjectImportConfiguration.VAULT_FILE_ID).getAsString() : null;
+    final String historyId = jo.has(GeoObjectImportConfiguration.HISTORY_ID) ? jo.get(GeoObjectImportConfiguration.HISTORY_ID).getAsString() : null;
 
-    String id = config.getVaultFileId();
-
-    VaultFile.get(id).delete();
-
-    if (config.getHistoryId() != null && config.getHistoryId().length() > 0)
+    if (StringUtils.isNotEmpty(vaultId))
     {
-      String historyId = config.getHistoryId();
+      VaultFile.get(vaultId).delete();
+    }
+
+    // This code is also invoked when they hit "cancel" on the import modal, at which point it won't have a historyId.
+    if (StringUtils.isNotEmpty(historyId))
+    {
       ImportHistory hist = ImportHistory.get(historyId);
-      hist.getConfig().enforceExecutePermissions();
+      
+      try
+      {
+        hist.getConfig().enforceExecutePermissions();
+      }
+      catch (net.geoprism.registry.DataNotFoundException ex)
+      {
+        // If we can't construct (because the type no longer exists), just ignore it and allow delete since it's corrupt anyway.
+      }
 
       if (!hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
       {
@@ -648,7 +665,7 @@ public class ETLService
       {
         ServerGeoObjectService service = new ServerGeoObjectService();
 
-        ServerGeoObjectIF serverGO = service.apply(go, isNew, false);
+        ServerGeoObjectIF serverGO = service.apply(go, isNew, true);
         final ServerGeoObjectType type = serverGO.getType();
 
         ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, parentTreeNode);

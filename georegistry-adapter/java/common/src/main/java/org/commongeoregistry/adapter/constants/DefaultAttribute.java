@@ -18,14 +18,15 @@
  */
 package org.commongeoregistry.adapter.constants;
 
+import org.commongeoregistry.adapter.dataaccess.AlternateId;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeGeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeListType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
 public enum DefaultAttribute {
@@ -36,6 +37,8 @@ public enum DefaultAttribute {
   INVALID("invalid", "Invalid", "This Geo-Object is no longer valid.", AttributeBooleanType.TYPE, true, true, false, false),
 
   DISPLAY_LABEL("displayLabel", "Display Label", "Label of the location", AttributeLocalType.TYPE, true, false, false, true),
+  
+  ALT_IDS("altIds", "Alternate Ids", "A list of alternate ids for this object.", AttributeListType.TYPE, true, false, false, false),
 
   TYPE("type", "Type", "The type of the GeoObject", AttributeCharacterType.TYPE, true, false, false, false),
 
@@ -51,6 +54,8 @@ public enum DefaultAttribute {
   
 //  ORGANIZATION("organization", "Organization", "The responsible organization", AttributeCharacterType.TYPE, true, false, false, false);
 
+  public static final String ALTERNATE_ID_ELEMENT_TYPE = AlternateId.class.getName();
+  
   private String  name;
 
   private String  defaultLabel;
@@ -154,6 +159,13 @@ public enum DefaultAttribute {
     LocalizedValue label = new LocalizedValue(this.getDefaultLocalizedName());
     LocalizedValue description = new LocalizedValue(this.getDefaultDescription());
 
-    return AttributeType.factory(this.getName(), label, description, this.getType(), this.isRequired(), this.isUnique(), this.isChangeOverTime());
+    AttributeType at = AttributeType.factory(this.getName(), label, description, this.getType(), this.isRequired(), this.isUnique(), this.isChangeOverTime());
+    
+    if (this == ALT_IDS)
+    {
+      ((AttributeListType) at).setElementType(ALTERNATE_ID_ELEMENT_TYPE);
+    }
+    
+    return at;
   }
 }

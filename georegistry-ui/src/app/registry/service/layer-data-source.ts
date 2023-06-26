@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { AnySourceData, LngLatBounds, LngLatBoundsLike } from "mapbox-gl";
+import { LngLatBounds, LngLatBoundsLike, Source, SourceSpecification } from "maplibre-gl";
 import { ListTypeService } from "./list-type.service";
 import { RegistryService } from "./registry.service";
 
@@ -70,7 +70,7 @@ export abstract class LayerDataSource {
 
     public abstract getKey(): string;
 
-    public abstract buildMapboxSource(): AnySourceData;
+    public abstract buildMapboxSource(): SourceSpecification;
 
     public abstract getGeometryType(): string;
 
@@ -84,7 +84,7 @@ export abstract class GeoJsonLayerDataSource extends LayerDataSource {
     public abstract getLayerData(): Promise<GeoJSON.GeoJSON>;
     public abstract setLayerData(data: GeoJSON.GeoJSON): void;
 
-    public buildMapboxSource(): AnySourceData {
+    public buildMapboxSource(): SourceSpecification {
         return {
             type: "geojson",
             data: GeometryService.createEmptyGeometryValue(this.getGeometryType())
@@ -230,7 +230,7 @@ export class GeoObjectLayerDataSource extends LayerDataSource {
         return "MIXED";
     }
 
-    buildMapboxSource(): AnySourceData {
+    buildMapboxSource(): SourceSpecification {
         let params: HttpParams = new HttpParams();
         params = params.set("code", this.code);
         params = params.set("typeCode", this.typeCode);
@@ -295,7 +295,7 @@ export class ListVectorLayerDataSource extends LayerDataSource {
         return new ListVectorLayer(this, legendLabel, rendered, color);
     }
 
-    buildMapboxSource(): AnySourceData {
+    buildMapboxSource(): SourceSpecification {
         let protocol = window.location.protocol;
         let host = window.location.host;
 

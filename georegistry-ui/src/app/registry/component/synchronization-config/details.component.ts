@@ -64,13 +64,13 @@ export class SyncDetailsComponent implements OnInit {
 
     ngOnDestroy() {
     }
+    
+    formatGeoObjectCode(codes: string) {
+        return codes.replace(/,/g, ", ");
+    }
 
     formatAffectedRows(rows: string) {
         return rows.replace(/,/g, ", ");
-    }
-
-    formatValidationResolve(obj: any) {
-        return JSON.stringify(obj);
     }
 
     onPageChange(pageNumber: any): void {

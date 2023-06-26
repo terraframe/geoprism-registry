@@ -20,7 +20,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, HostListener, Injector, ApplicationRef, ComponentFactoryResolver } from "@angular/core";
 import { Location } from "@angular/common";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Map, NavigationControl, AttributionControl, IControl, LngLatBounds } from "mapbox-gl";
+import { Map, NavigationControl, AttributionControl, IControl, LngLatBounds } from "maplibre-gl";
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
@@ -54,7 +54,6 @@ import { ListTypeVersion } from "@registry/model/list-type";
 
 import { ConfigurationService } from "@core/service/configuration.service";
 import EnvironmentUtil from "@core/utility/environment-util";
-import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 import { FeatureCollection } from "@turf/turf";
 
 class SelectedObject {
@@ -200,8 +199,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     graphVisualizerEnabled: boolean = false;
 
-    typeahead: Observable<any> = null;
-
     typeCache: GeoObjectTypeCache;
 
     public layersPanelSize: number = PANEL_SIZE_STATE.MINIMIZED;
@@ -256,12 +253,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         this.geomService.dumpLayers();
 
-        this.typeahead = new Observable((observer: Observer<any>) => {
-            this.mapService.labels(this.searchFieldText, this.dateFieldValue, false).then(results => {
-                observer.next(results);
-            });
-        });
-
 
         // const version = this.route.snapshot.queryParamMap.get("version");
 
@@ -298,9 +289,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 },
                 sources: {
                     mapbox: {
-                        type: "raster",
-                        url: layer.url,
-                        tileSize: 256
+                        'type': 'raster',
+                        'tiles': [
+                            'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}@2x.jpg90?access_token=' + this.configuration.getMapboxAccessToken()
+                        ],
+                        'tileSize': 512,
                     }
                 },
                 sprite: layer.sprite,
@@ -309,7 +302,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     {
                         id: layer.id,
                         type: "raster",
-                        source: "mapbox"
+                        source: "mapbox",
+                        'minzoom': 0,
+                        'maxzoom': 22
                         // "source-layer": "mapbox_satellite_full"
                     }
                 ]
@@ -1010,15 +1005,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     isAttributePanelOpen(): boolean {
         return (this.state.attrPanelOpen && ((this.mode === this.MODE.VIEW && this.current != null) || (this.mode === this.MODE.SEARCH && this.searchEnabled && this.data.length > 0)));
     }
-
-    typeaheadOnSelect(match: TypeaheadMatch): void {
-        if (match != null) {
-            this.searchFieldText = match.item.name;
-
-            this.search();
-        }
-    }
-
 
 
     error(err: HttpErrorResponse): void {

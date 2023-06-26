@@ -20,7 +20,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
-import * as mapboxgl from "mapbox-gl";
+import * as mapboxgl from "maplibre-gl";
 
 import { LocationInformation } from "@registry/model/location-manager";
 import { EventService } from "@shared/service";

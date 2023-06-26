@@ -18,6 +18,11 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
+
+<ng-template #customItemTemplate let-model="item" let-index="index">
+  <h5>{{model.name }} : {{ model.code }}</h5>
+</ng-template>
+
 <div class="container">
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
@@ -120,8 +125,8 @@
 	                      [typeahead]="getTypeAheadObservable(problem.typeCode, problem)"
 	                      (typeaheadOnSelect)="typeaheadOnSelect($event, problem)"
 	                      [typeaheadOptionsLimit]="7"
-	                      typeaheadOptionField="name"
-	                      [typeaheadMinLength]="0"
+	                      [typeaheadMinLength]="1"
+                        [typeaheadItemTemplate]="customItemTemplate"
 	                      [typeaheadWaitMs]="300">
                     </div>
                   </div>

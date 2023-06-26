@@ -157,28 +157,29 @@ public class ServerGeoObjectType implements ServerElement, AttributedType
     
     MdVertexDAOIF superType = mdVertex.getSuperClass();
     
-    GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsGeometryEditable(), organizationCode, ServiceFactory.getAdapter());
-    geoObjType.setIsAbstract(mdBusiness.getIsAbstract());
+    this.type = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsGeometryEditable(), organizationCode, ServiceFactory.getAdapter());
+    this.type.setIsAbstract(mdBusiness.getIsAbstract());
 
+    this.type = new ServerGeoObjectTypeConverter().convertAttributeTypes(universal, this.type, mdBusiness);
+    
     try
     {
       GeoObjectTypeMetadata metadata = GeoObjectTypeMetadata.getByKey(universal.getKey());
-      geoObjType.setIsPrivate(metadata.getIsPrivate());
+      this.type.setIsPrivate(metadata.getIsPrivate());
+      metadata.injectDisplayLabels(type);
     }
     catch (DataNotFoundException | AttributeDoesNotExistException e)
     {
-      geoObjType.setIsPrivate(false);
+      this.type.setIsPrivate(false);
     }
 
     if (superType != null && !superType.definesType().equals(GeoVertex.CLASS))
     {
       String parentCode = superType.getTypeName();
 
-      geoObjType.setSuperTypeCode(parentCode);
+      this.type.setSuperTypeCode(parentCode);
     }
 
-    this.type = new ServerGeoObjectTypeConverter().convertAttributeTypes(universal, geoObjType, mdBusiness);
-    
     return this.type;
   }
 

@@ -163,6 +163,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     try
     {
       geoObject.apply(isImport);
+      
+      if (!isImport)
+      {
+        ( (VertexServerGeoObject) geoObject ).setAlternateIds(object.getAlternateIds());
+      }
 
       // Return the refreshed copy of the geoObject
       return this.build(type, geoObject.getRunwayId());
@@ -208,6 +213,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     try
     {
       goServer.apply(isImport);
+      
+      if (!isImport)
+      {
+        ( (VertexServerGeoObject) goServer ).setAlternateIds(goTime.getAlternateIds());
+      }
 
       // Return the refreshed copy of the geoObject
       return this.build(type, goServer.getRunwayId());

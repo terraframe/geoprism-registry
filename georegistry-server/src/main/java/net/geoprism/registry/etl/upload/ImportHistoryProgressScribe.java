@@ -33,6 +33,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.session.CloseableReentrantLock;
+import com.runwaysdk.business.SmartException;
+import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.system.scheduler.JobHistory;
 
 import net.geoprism.registry.etl.ImportError;
@@ -326,6 +328,11 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
     this.history.appLock();
     this.history.setErrorCount(this.history.getErrorCount() + 1);
     this.history.apply();
+    
+    if (!(ex instanceof SmartException || ex instanceof SmartExceptionDTO))
+    {
+      logger.error("Unlocalized exception thrown during import on row [" + rowNum + "] with objectType [" + objectType + "] and objectJson [" + objectJson + "].", ex);
+    }
 
     this.recordedErrors++;
   }

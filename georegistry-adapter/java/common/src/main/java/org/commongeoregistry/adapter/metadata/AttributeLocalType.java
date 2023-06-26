@@ -20,7 +20,7 @@ package org.commongeoregistry.adapter.metadata;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
-public class AttributeLocalType extends AttributePrimitiveType
+public class AttributeLocalType extends AttributeStructType
 {
   /**
    * 

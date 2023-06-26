@@ -101,10 +101,20 @@
                       </select>
                     </td>
                     <td style="width:17%" *ngIf="levelRow.isAttributeEditor === false && orgUnitGroups.length > 0">
-                      <select type="text" [(ngModel)]="levelRow.level.orgUnitGroupId" [name]="'group' + levelRow.levelNum">
-                        <option></option>
-                        <option *ngFor="let group of orgUnitGroups" [value]="group.id">{{group.name}}</option>
-                      </select>
+                      <!-- Custom Multi-Select widget built ontop of Bootstrap Dropdown component
+                           - ngx-bootstrap-multiselect was investigated as a potential solution and found to have lots of styling issues and as such was intentionally decided against.                      
+                       -->
+                      <div class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="true" container="#select-root">
+											  <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+											    {{buildOrgUnitButtonLabel(levelRow.level.orgUnitGroupIds)}} <span class="caret"></span>
+											  </button>
+											  <ul id="dropdown-triggers-manual" *dropdownMenu class="dropdown-menu orgUnit-ul"
+											      role="menu" aria-labelledby="button-triggers-manual">
+											    <li *ngFor="let group of orgUnitGroups" (click)="clickOrgUnitOption($event, levelRow.level, group)" role="menuitem" [ngClass]="{'orgUnit-listitem-selected': (levelRow.level.orgUnitGroupIds != null && levelRow.level.orgUnitGroupIds.indexOf(group.id) !== -1)}">
+											      <a class="dropdown-item">{{group.name}}</a>
+											    </li>
+											  </ul>
+											</div>
                     </td>
                     <td style="width:25%" *ngIf="levelRow.isAttributeEditor === false">
                       <div>
@@ -157,7 +167,7 @@
                                     <i (click)="deleteMapping(levelRow, mappingIndex)" class="fa fa-times"></i>
                                   </td>
                                   <td style="width:23%">
-                                    <select style="width:95%" [(ngModel)]="mapping.cgrAttrName" (change)="mapCgrAttrEvent($event, levelRow, mapping)" [name]="'sourceAttrSelect' + i + '-' + mappingIndex + (mapping.cgrAttrName ? mapping.cgrAttrName : '')">
+                                    <select style="width:95%" [(ngModel)]="mapping.cgrAttrName" (change)="mapCgrAttrEvent($event, levelRow, mapping)" [name]="'sourceAttrSelect' + i + '-' + mappingIndex + (mapping.cgrAttrName ? mapping.cgrAttrName : '')" required>
                                       <option [ngValue]="null"></option>
                                       <option *ngFor="let info of levelRow.attrCfg.attrConfigInfos" [ngValue]="info.cgrAttr.name">
                                         <label style="color:#999;">{{info.cgrAttr.label}}</label>

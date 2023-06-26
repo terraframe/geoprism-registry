@@ -316,7 +316,7 @@ public class ShapefileImporter implements FormatSpecificImporterIF
     }
     catch (Throwable t)
     {
-      t.printStackTrace();
+      throw new ProgrammingErrorException(t);
     }
     finally
     {

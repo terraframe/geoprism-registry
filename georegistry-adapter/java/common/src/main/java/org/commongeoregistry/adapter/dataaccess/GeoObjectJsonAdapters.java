@@ -161,7 +161,7 @@ public class GeoObjectJsonAdapters
         Attribute attr = go.attributeMap.get(key);
 
         JsonElement value = attr.toJSON(serializer);
-        if (!value.isJsonNull())
+        if (value != null && !value.isJsonNull())
         {
           props.add(attr.getName(), value);
         }

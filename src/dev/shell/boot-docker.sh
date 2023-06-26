@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+#
+#
+
 
 # This script is designed to build and deploy the CGR to a local docker instance.
 # Arg $1 can be "clean", at which point it rebuilds the database and runs maven with clean

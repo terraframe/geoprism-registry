@@ -25,6 +25,7 @@ import { SynchronizationConfig, OrgSyncInfo, GeoObjectType } from "@registry/mod
 import { SynchronizationConfigService } from "@registry/service";
 import { AttributeConfigInfo, DHIS2AttributeMapping, SyncLevel } from "@registry/model/sync";
 import { LocalizationService } from "@shared/service/localization.service";
+import { ControlContainer, NgForm } from "@angular/forms";
 
 let DEFAULT_MAPPING_STRATEGY = "net.geoprism.registry.etl.DHIS2AttributeMapping";
 let END_DATE_MAPPING = "net.geoprism.registry.etl.DHIS2EndDateAttributeMapping";
@@ -48,7 +49,8 @@ export interface LevelRow {
 
     selector: "dhis2-synchronization-config",
     templateUrl: "./dhis2-synchronization-config.component.html",
-    styleUrls: []
+    styleUrls: ["dhis2-synchronization-config.css"],
+    viewProviders: [ { provide: ControlContainer, useExisting: NgForm } ]
 })
 export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
 
@@ -119,10 +121,6 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
 
   onChangeHierarchy(): void {
       this.clearMappingData();
-  }
-
-  stringify(obj: any): string {
-      return obj == null ? "null" : JSON.stringify(obj);
   }
 
   buildDefaultMappings(): DHIS2AttributeMapping[] {
@@ -202,10 +200,34 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
           geoObjectType: null,
           level: 0,
           mappings: [],
-          orgUnitGroupId: null
+          orgUnitGroupIds: []
       };
       this.config.configuration["levels"] = [lvl];
       this.levelRows.push({ level: lvl, levelNum: 0, isAttributeEditor: false });
+  }
+  
+  buildOrgUnitButtonLabel(orgUnitGroupIds: string[]): string {
+    if (orgUnitGroupIds == null || orgUnitGroupIds.length == 0) {
+      return this.localizationService.decode("sync.dhis2.orgUnit.noneSelected");
+    } else if (orgUnitGroupIds.length > 2) {
+      return this.localizationService.decode("sync.dhis2.orgUnit.multipleSelected");
+    } else {
+      return orgUnitGroupIds.flatMap(id => this.orgUnitGroups.find(group => group.id === id).name).join(", ");
+    }
+  }
+  
+  clickOrgUnitOption(event: any, level: SyncLevel, group: any): void {
+    if (level.orgUnitGroupIds == null) {
+      level.orgUnitGroupIds = [];
+    }
+    
+    if (level.orgUnitGroupIds.indexOf(group.id) !== -1) {
+      level.orgUnitGroupIds.splice(level.orgUnitGroupIds.indexOf(group.id), 1);
+    } else {
+      level.orgUnitGroupIds.push(group.id);
+    }
+    
+    event.stopPropagation();
   }
 
   onSelectLevelType(levelRow: LevelRow): void {
@@ -259,7 +281,7 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
           geoObjectType: null,
           level: this.config.configuration.levels.length,
           mappings: [],
-          orgUnitGroupId: null
+          orgUnitGroupIds: []
       };
       let len = this.config.configuration["levels"].push(lvl);
       this.levelRows.push({ level: lvl, levelNum: len - 1, isAttributeEditor: false });

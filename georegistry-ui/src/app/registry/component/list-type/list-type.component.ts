@@ -28,7 +28,7 @@ import { ListTypePublishModalComponent } from "./publish-modal.component";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { PublishVersionComponent } from "./publish-version.component";
 import { Router } from "@angular/router";
-import { LngLatBounds } from "mapbox-gl";
+import { LngLatBounds } from "maplibre-gl";
 import * as ColorGen from "color-generator";
 import { ListVectorLayerDataSource } from "@registry/service/layer-data-source";
 import { GeometryService } from "@registry/service/geometry.service";

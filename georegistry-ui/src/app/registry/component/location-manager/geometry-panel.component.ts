@@ -35,7 +35,7 @@ import {
 } from "@angular/animations";
 import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime } from "@registry/model/registry";
 import { DateService } from "@shared/service/date.service";
-import * as moment from "moment";
+import moment, { Moment } from "moment";
 import { VotService } from "@registry/service/vot.service";
 import { PRESENT } from "@shared/model/date";
 import { DateFieldComponent } from "@shared/component";
@@ -240,7 +240,7 @@ export class GeometryPanelComponent implements OnInit {
 
     sort(votArr: ValueOverTime[]): void {
         // Sort the data by start date
-        votArr.sort(function(a, b) {
+        votArr.sort(function (a, b) {
             if (a.startDate == null || a.startDate === "") {
                 return 1;
             } else if (b.startDate == null || b.startDate === "") {

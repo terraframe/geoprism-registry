@@ -23,13 +23,13 @@ import { v4 as uuid } from "uuid";
 // eslint-disable-next-line camelcase
 import turf_booleanequal from "@turf/boolean-equal";
 import bbox from "@turf/bbox";
-import { LocalizedValue } from "@core/model/core";
+import { AlternateId, LocalizedValue } from "@core/model/core";
 import { GeometryService, RegistryService } from "@registry/service";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { Subject } from "rxjs";
 import { ChangeType } from "@registry/model/constants";
 import { ListTypeService } from "@registry/service/list-type.service";
-import { LngLatBoundsLike } from "mapbox-gl";
+import { LngLatBoundsLike } from "maplibre-gl";
 import { GeoJsonLayer, Layer } from "@registry/service/layer-data-source";
 import { ConflictMessage } from "@shared/model/message";
 
@@ -153,7 +153,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
         return null;
     }
 
-    constructNewDiff(action: string): void {
+    constructNewDiff(action: "DELETE" | "UPDATE" | "CREATE"): void {
         this.diff = new ValueOverTimeDiff();
         this.diff.action = action;
         (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
@@ -389,6 +389,10 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
 
     public setLocalizedValue(localizedValue: LocalizedValue) {
         this.value = JSON.parse(JSON.stringify(localizedValue));
+    }
+    
+    public setAlternateIds(ids: AlternateId[]) {
+        this.value = JSON.parse(JSON.stringify(ids));
     }
 
     removeEmptyDiff(): void {

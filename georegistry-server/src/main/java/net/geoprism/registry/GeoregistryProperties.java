@@ -78,6 +78,12 @@ public class GeoregistryProperties
     return Singleton.INSTANCE.props.getBoolean("cgr.graph.visualizer.enabled", false);
   }
   
+  public static int getMaxNumberOfPoints()
+  {
+    return Singleton.INSTANCE.props.getInteger("max.geometry.points", 400000);
+//    return Singleton.INSTANCE.props.getInteger("max.geometry.points", 1200000);
+  }
+  
   public static List<String> getCorsWhitelist()
   {
     String whitelist = Singleton.INSTANCE.props.getString("cgr.cors.whitelist", "");

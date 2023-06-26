@@ -22,7 +22,7 @@ import { Injectable, Output, EventEmitter, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import * as MapboxDraw from "@mapbox/mapbox-gl-draw";
-import { Map, LngLat, LngLatBounds, AnySourceData, LngLatBoundsLike } from "mapbox-gl";
+import { Map, LngLat, LngLatBounds, LngLatBoundsLike, SourceSpecification } from "maplibre-gl";
 import { Subscription } from "rxjs";
 
 import { RelationshipVisualizationService } from "./relationship-visualization.service";
@@ -879,7 +879,7 @@ export class GeometryService implements OnDestroy {
     private mapboxMapLayer(layer: Layer, otherLayer?: Layer): void {
         if (!this.map) { return; }
 
-        let mapboxSource: AnySourceData = layer.dataSource.buildMapboxSource();
+        let mapboxSource: SourceSpecification = layer.dataSource.buildMapboxSource();
 
         if (this.map.getSource(layer.dataSource.getId()) == null) {
             this.map.addSource(layer.dataSource.getId(), mapboxSource);

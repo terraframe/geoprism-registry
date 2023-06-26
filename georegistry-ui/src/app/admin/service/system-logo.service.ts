@@ -53,7 +53,7 @@ export class SystemLogoService {
 		this.eventService.start();
 
 		return this.http
-			.post<void>(environment.apiUrl + '/api/asset/get-all', JSON.stringify({ oid: oid }), { headers: headers })
+			.post<void>(environment.apiUrl + '/api/asset/remove', JSON.stringify({ oid: oid }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))

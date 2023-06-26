@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -65,7 +66,7 @@ public class DHIS2FeatureService
 {
   public static final List<String> OAUTH_INCOMPATIBLE_VERSIONS   = Collections.unmodifiableList(Arrays.asList("2.35.0", "2.35.1", "2.39.0.0-rc", "2.39.0.0", "2.39.0.1", "2.39.0.1-rc", "2.39.1.0", "2.39.1.1"));
 
-  public static final int          LAST_TESTED_DHIS2_API_VERSION = 39;
+  public static final int          LAST_TESTED_DHIS2_API_VERSION = 40;
 
   private static final Logger      logger                        = LoggerFactory.getLogger(DHIS2FeatureService.class);
 
@@ -153,7 +154,7 @@ public class DHIS2FeatureService
 
     List<Attribute> dhis2Attrs = getDHIS2Attributes(dhis2);
 
-    final String[] skipAttrs = new String[] { DefaultAttribute.GEOMETRY.getName(), DefaultAttribute.SEQUENCE.getName(), DefaultAttribute.TYPE.getName() };
+    final String[] skipAttrs = new String[] { DefaultAttribute.GEOMETRY.getName(), DefaultAttribute.SEQUENCE.getName(), DefaultAttribute.TYPE.getName(), DefaultAttribute.ALT_IDS.getName() };
 
     for (AttributeType cgrAttr : cgrAttrs.values())
     {
@@ -335,14 +336,22 @@ public class DHIS2FeatureService
     for (int i = 0; i < current.size(); ++i)
     {
       JsonObject existingTranslation = current.get(i).getAsJsonObject();
-      mergedMap.put(existingTranslation.get("locale").getAsString() + "-" + existingTranslation.get("property").getAsString(), existingTranslation);
+      
+      // DHIS2 is pretty bad with validating this data. We can't make any assumptions here about their data.
+      final String locale = (existingTranslation.get("locale") == null || existingTranslation.get("locale").isJsonNull() || StringUtils.isEmpty(existingTranslation.get("locale").getAsString())) ? "null" : existingTranslation.get("locale").getAsString();
+      final String property = (existingTranslation.get("property") == null || existingTranslation.get("property").isJsonNull() || StringUtils.isEmpty(existingTranslation.get("property").getAsString())) ? "null" : existingTranslation.get("property").getAsString();
+      
+      mergedMap.put(locale + "-" + property, existingTranslation);
     }
 
     for (int i = 0; i < update.size(); ++i)
     {
       JsonObject translation = update.get(i).getAsJsonObject();
 
-      mergedMap.put(translation.get("locale").getAsString() + "-" + translation.get("property").getAsString(), translation);
+      final String locale = translation.get("locale").getAsString();
+      final String property = translation.get("property").getAsString();
+      
+      mergedMap.put(locale + "-" + property, translation);
     }
 
     for (JsonObject translation : mergedMap.values())
@@ -370,7 +379,16 @@ public class DHIS2FeatureService
     for (int i = 0; i < current.size(); ++i)
     {
       JsonObject av = current.get(i).getAsJsonObject();
-      mergedMap.put(av.get("attribute").getAsJsonObject().get("id").getAsString(), av);
+      
+      try
+      {
+        mergedMap.put(av.get("attribute").getAsJsonObject().get("id").getAsString(), av);
+      }
+      catch (NullPointerException ex)
+      {
+        // DHIS2 is pretty bad with validating this data. We can't make any assumptions here about their data.
+        logger.error("Encountered invalid DHIS2 data when merging attribute values. There exists an attribute value without an attribute name or id.", ex);
+      }
     }
 
     for (int i = 0; i < update.size(); ++i)

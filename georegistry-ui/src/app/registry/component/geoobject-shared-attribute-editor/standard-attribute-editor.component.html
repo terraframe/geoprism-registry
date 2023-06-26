@@ -18,8 +18,91 @@
     License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 
 -->
-<div>
-  <div @fadeInOut class="value-box">
+<div class="row">
+  <!-- 
+     Alternate Ids
+   -->
+  <ng-container *ngIf="systems && systems.length == 0">
+    <table class="table table-striped">
+      <tbody class="attribute-element-wrapper" >
+        <p class="warning-text"><localize key="shared.noSystems"></localize></p>
+      </tbody>
+    </table>
+  </ng-container>
+  <ng-container *ngIf="systems && systems.length > 0 && attributeType.type === 'list' && attributeType.code === 'altIds' && view && view.value">
+	  <table class="table table-striped">
+	    <tbody class="attribute-element-wrapper" >
+	      <p *ngIf="$any(view).listElements.length == 0" class="message"><localize key="changeovertime.manageVersions.alternateIds.none"></localize></p>
+	      
+	      <tr *ngFor="let eleView of $any(view).listElements; let idx = index;" class="attribute-value-row">
+	        <td colspan="2" class="value-box-wrapper attribute-version-wrapper" [ngClass]="{'error-border': eleView.hasError(),
+	                            'warning-border': eleView.hasWarning(),
+	                            'warning' : !isNew && eleView.summaryKey && eleView.summaryKey !== 'UNMODIFIED'}" >
+	          <div *ngIf="!isNew && eleView.summaryKey && eleView.summaryKey !== 'UNMODIFIED'" class="value-box-indicator">
+			        {{eleView.summaryKeyLocalized}}
+			      </div>
+	          
+	          <table>
+	            <tr><td>
+			          <h5><localize key="changeovertime.manageVersions.alternateIds.externalSystem"></localize></h5>
+			          <select style="float:initial;" [ngClass]="{'has-changed': (eleView.oldExternalSystemId && !isNew)}" id="mod-{{attributeType.code}}" [name]="'altId-' + idx + '-system'" class="select-area" [(ngModel)]="eleView.externalSystemId" (ngModelChange)="eleView.updateModel()" [disabled]="readonly || eleView.summaryKey === 'DELETE'">
+			            <option *ngFor="let system of getAvailableSystems(eleView.externalSystemId)" [value]="system.oid">{{system.label.localizedValue}}</option>
+			          </select>
+			          <div *ngIf="(eleView.summaryKey === 'UPDATE' || eleView.summaryKey === 'VALUE_CHANGE') && eleView.oldExternalSystemId && !isNew">
+	                <p class="warning-text display-current-value" style="padding: 5px 0;margin-bottom:0;">
+	                  <localize key="change.request.changed.value.prefix"></localize>
+	                  {{ getExternalSystemLabel(eleView.oldExternalSystemId) }}
+	                </p>
+	              </div>
+			          <div class="form-input-validation-error-message-wrapper">
+		              <p *ngIf="!eleView.externalSystemId" class="error-message">
+		                <localize key="manage.versions.value.required.message"></localize>
+		              </p>
+		            </div>
+	            </td></tr>
+		          
+		          <tr><td>
+			          <h5><localize key="changeovertime.manageVersions.alternateIds.id"></localize></h5>
+			          <input [ngClass]="{'has-changed': (eleView.oldValue && !isNew)}" [disabled]="readonly || eleView.summaryKey === 'DELETE'" type="text" class="form-control" [name]="'altid-' + idx" [(ngModel)]="eleView.value" (ngModelChange)="eleView.updateModel()" required>
+			          <div *ngIf="(eleView.summaryKey === 'UPDATE' || eleView.summaryKey === 'VALUE_CHANGE') && eleView.oldValue && !isNew">
+                  <p class="warning-text display-current-value" style="padding: 5px 0;margin-bottom:0;">
+                    <localize key="change.request.changed.value.prefix"></localize>
+                    {{ eleView.oldValue }}
+                  </p>
+                </div>
+			          <div class="form-input-validation-error-message-wrapper">
+			            <p *ngIf="!eleView.value" class="error-message">
+			              <localize key="manage.versions.value.required.message"></localize>
+			            </p>
+			          </div>
+		          </td></tr>
+	          </table>
+	        </td>
+	        
+	        <!-- Remove button -->
+	        <td *ngIf="!readonly && (isNew || (!isNew && eleView.summaryKey === 'UNMODIFIED'))"
+	            [attr.disabled]="false" 
+	            (click)="eleView.revert()" class="manage-version-button clickable" 
+	            [title]="'changeovertime.manageVersions.remove.version' | localize">
+	            <i class="fa" class="fa fa-times" ></i> 
+	        </td>
+	        <!-- Revert button -->
+	        <td *ngIf="!readonly && (!isNew) && eleView.summaryKey !== 'UNMODIFIED'"
+	            (click)="eleView.revert()" class="manage-version-button clickable" 
+	            [title]="'changeovertime.manageVersions.revert.version' | localize">
+	            <i class="fa" class="fa fa-undo" ></i> 
+	        </td>
+	      </tr>
+	    </tbody>
+	  </table>
+	  <li *ngIf="!readonly && view.value.length < systems.length" class="list-group-item" style="text-align: left;">
+      <i class="fa fa-plus clickable" (click)="onAddNewId()"> 
+        <localize key="changeovertime.manageVersions.alternateIds.new"></localize>
+      </i>
+    </li>
+  </ng-container>
+
+  <div *ngIf="attributeType.type != 'list' && attributeType.code != 'altIds'" @fadeInOut class="value-box">
     <div *ngIf="view" class="value-box-wrapper" [ngClass]="{'warning' : view.summaryKey && view.summaryKey !== 'UNMODIFIED'}" >
       <div *ngIf="view.summaryKey && view.summaryKey !== 'UNMODIFIED'" class="value-box-indicator">
         {{view.summaryKeyLocalized}}
