@@ -29,7 +29,6 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import com.runwaysdk.constants.VaultProperties;
-import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 

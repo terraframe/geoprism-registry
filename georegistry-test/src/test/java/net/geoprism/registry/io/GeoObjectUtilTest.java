@@ -3,11 +3,9 @@
  */
 package net.geoprism.registry.io;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;

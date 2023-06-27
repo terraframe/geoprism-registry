@@ -26,12 +26,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.locationtech.jts.io.geojson.GeoJsonWriter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.GsonBuilder;
 import com.runwaysdk.session.Request;
-import org.locationtech.jts.io.geojson.GeoJsonWriter;
 
 import ca.uhn.fhir.context.FhirContext;
 import net.geoprism.registry.ListType;

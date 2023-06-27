@@ -26,7 +26,7 @@
         <a class="navbar-brand" [href]="context + '#/menu'"><img [src]="context + 'api/asset/view?oid=logo'" /></a>
         <a class="navbar-brand" [href]="context + '#/menu'"><localize key="cgr.standard.title"></localize></a>
       </div>
-       <ul *ngIf="loggedIn" class="nav navbar-nav navbar-right"> 
+       <ul *ngIf="!isPublic" class="nav navbar-nav navbar-right"> 
          <li class="hidden-xs">
             
            <a (click)="account()" class="navbar-username">

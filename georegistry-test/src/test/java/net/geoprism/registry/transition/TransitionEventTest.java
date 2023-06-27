@@ -448,7 +448,7 @@ public class TransitionEventTest
       Assert.assertEquals("After Label", header.getCell(9).getStringCellValue());
 
       Row row = sheet.getRow(1);
-      Assert.assertEquals(event.getEventId(), new Long((long) row.getCell(0).getNumericCellValue()));
+      Assert.assertEquals(event.getEventId(), Long.valueOf((long) row.getCell(0).getNumericCellValue()));
       Assert.assertEquals("2020-04-04", row.getCell(1).getStringCellValue());
       Assert.assertEquals("Reassign", row.getCell(2).getStringCellValue());
       Assert.assertEquals("Test", row.getCell(3).getStringCellValue());
@@ -495,7 +495,7 @@ public class TransitionEventTest
       Assert.assertEquals(1, results.size());
 
       JsonObject result = results.get(0).getAsJsonObject();
-      Assert.assertEquals(event.getEventId(), new Long(result.get(HistoricalRow.EVENT_ID).getAsLong()));
+      Assert.assertEquals(event.getEventId(), Long.valueOf(result.get(HistoricalRow.EVENT_ID).getAsLong()));
       Assert.assertEquals("Reassign", result.get(HistoricalRow.EVENT_TYPE).getAsString());
     }
     finally
@@ -524,7 +524,7 @@ public class TransitionEventTest
 
       Page<HistoricalRow> page = HistoricalRow.getHistoricalReport(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, 2, 10);
 
-      Assert.assertEquals(new Long(1L), page.getCount());
+      Assert.assertEquals(Long.valueOf(1L), page.getCount());
       Assert.assertEquals(0, page.getResults().size());
     }
     catch (Exception e)
@@ -642,9 +642,9 @@ public class TransitionEventTest
 
       Page<TransitionEvent> page = TransitionEvent.page(10, 1, null);
 
-      Assert.assertEquals(new Long(1), page.getCount());
-      Assert.assertEquals(new Integer(1), page.getPageNumber());
-      Assert.assertEquals(new Integer(10), page.getPageSize());
+      Assert.assertEquals(Long.valueOf(1), page.getCount());
+      Assert.assertEquals(Integer.valueOf(1), page.getPageNumber());
+      Assert.assertEquals(Integer.valueOf(10), page.getPageSize());
       Assert.assertEquals(event.getOid(), page.getResults().get(0).getOid());
     }
     finally
@@ -680,9 +680,9 @@ public class TransitionEventTest
   {
     Page<TransitionEvent> page = TransitionEvent.page(10, 1, null);
 
-    Assert.assertEquals(new Long(1), page.getCount());
-    Assert.assertEquals(new Integer(1), page.getPageNumber());
-    Assert.assertEquals(new Integer(10), page.getPageSize());
+    Assert.assertEquals(Long.valueOf(1), page.getCount());
+    Assert.assertEquals(Integer.valueOf(1), page.getPageNumber());
+    Assert.assertEquals(Integer.valueOf(10), page.getPageSize());
     Assert.assertEquals(event.getOid(), page.getResults().get(0).getOid());
   }
 

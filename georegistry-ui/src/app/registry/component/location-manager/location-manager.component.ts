@@ -144,6 +144,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     isEdit: boolean = false;
 
     /*
+     * Flag denoting if the current user is a public user
+     */
+    isPublic: boolean = false;
+
+    /*
      * mapbox-gl map
      */
     map: Map;
@@ -231,6 +236,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         private location: Location,
     ) {
         this.location = location;
+        this.isPublic = authService.isPublic();
     }
 
     ngOnInit(): void {
@@ -240,8 +246,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         // this.subscription = this.route.queryParams.subscribe(state => { this.handleStateChange(state); });
         this.subscription = this.geomService.stateChange$.subscribe(state => this.handleStateChange(state));
 
-        this.searchEnabled = this.configuration.isSearchEnabled() && (this.authService.isRC(false) || this.authService.isRM() || this.authService.isRA());
-        this.graphVisualizerEnabled = this.configuration.isGraphVisualizerEnabled() || false;
+        this.searchEnabled = !this.isPublic && (this.configuration.isSearchEnabled() && (this.authService.isRC(false) || this.authService.isRM() || this.authService.isRA()));
+        this.graphVisualizerEnabled = !this.isPublic && (this.configuration.isGraphVisualizerEnabled() || false);
 
         this.typeCache = this.cacheService.getTypeCache();
 

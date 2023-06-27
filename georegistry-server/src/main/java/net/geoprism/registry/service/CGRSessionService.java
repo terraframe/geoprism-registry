@@ -57,6 +57,29 @@ public class CGRSessionService extends SessionService
     endpoints.add("api/forgotpassword/complete");
     endpoints.add("api/master-list/tile");
     
+    // Public list management support
+    endpoints.add("api/cgr/init");
+    endpoints.add("api/list-type/entries");
+    endpoints.add("api/list-type/list-for-type");    
+    
+    // Public list support
+    endpoints.add("api/list-type/version");
+    endpoints.add("api/list-type/data");
+    endpoints.add("api/list-type/export-shapefile");
+    endpoints.add("api/list-type/export-spreadsheet");
+    endpoints.add("api/geoobjecttype/get-all");
+    endpoints.add("websocket/notify");
+    endpoints.add("websocket/progress");
+    
+    // Public explorer support
+    endpoints.add("api/list-type/fetchVersionsAsListVersion");
+    endpoints.add("api/list-type/record");
+    endpoints.add("api/list-type/tile");
+    endpoints.add("api/list-type/bounds");
+    endpoints.add("api/list-type/get-geospatial-versions");
+    endpoints.add("glyphs/NotoSansRegular");
+
+    // Public labeled property graph support
     endpoints.add("api/labeled-property-graph-type/get-all");
     endpoints.add("api/labeled-property-graph-type/get");
     endpoints.add("api/labeled-property-graph-type/entries");
@@ -64,6 +87,7 @@ public class CGRSessionService extends SessionService
     endpoints.add("api/labeled-property-graph-type/versions");
     endpoints.add("api/labeled-property-graph-type/version");
     endpoints.add("api/labeled-property-graph-type/data");
+    
     return endpoints;
   }
 

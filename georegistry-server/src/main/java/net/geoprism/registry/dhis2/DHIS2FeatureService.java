@@ -66,7 +66,7 @@ public class DHIS2FeatureService
 {
   public static final List<String> OAUTH_INCOMPATIBLE_VERSIONS   = Collections.unmodifiableList(Arrays.asList("2.35.0", "2.35.1", "2.39.0.0-rc", "2.39.0.0", "2.39.0.1", "2.39.0.1-rc", "2.39.1.0", "2.39.1.1"));
 
-  public static final int          LAST_TESTED_DHIS2_API_VERSION = 39;
+  public static final int          LAST_TESTED_DHIS2_API_VERSION = 40;
 
   private static final Logger      logger                        = LoggerFactory.getLogger(DHIS2FeatureService.class);
 

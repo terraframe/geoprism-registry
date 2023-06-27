@@ -135,7 +135,11 @@ public class DataImportJob extends DataImportJobBase
       ImportStage stage = history.getStage().get(0);
       ImportConfiguration config = ImportConfiguration.build(history.getConfigJson());
 
+      long startTime = System.currentTimeMillis();
+
       process(executionContext, history, stage, config);
+
+      System.out.println("Import finished total time: " + ( ( System.currentTimeMillis() - startTime ) ));
     }
     finally
     {
@@ -187,6 +191,7 @@ public class DataImportJob extends DataImportJobBase
         history.addStage(ImportStage.IMPORT);
         history.setConfigJson(config.toJSON().toString());
         history.setWorkProgress(0L);
+        history.setCompletedRowsJson("");
         history.setImportedRecords(0L);
         history.apply();
 
@@ -270,27 +275,12 @@ public class DataImportJob extends DataImportJobBase
 
     FormatSpecificImporterIF formatImporter = FormatSpecificImporterFactory.getImporter(config.getFormatType(), history.getImportFile(), config, progressListener);
 
-    ObjectImporterIF objectImporter = ObjectImporterFactory.getImporter(config.getObjectType(), config, progressListener);
-
-    formatImporter.setObjectImporter(objectImporter);
-    objectImporter.setFormatSpecificImporter(formatImporter);
-
-    if (history.getWorkProgress() > 0)
+    try (ObjectImporterIF objectImporter = ObjectImporterFactory.getImporter(config.getObjectType(), config, progressListener))
     {
-      formatImporter.setStartIndex(history.getWorkProgress() + 1); // We add one
-                                                                   // because
-                                                                   // the
-                                                                   // previous
-                                                                   // import
-                                                                   // failed at
-                                                                   // one row
-                                                                   // after
-                                                                   // where we
-                                                                   // were.
-    }
 
-    try
-    {
+      formatImporter.setObjectImporter(objectImporter);
+      objectImporter.setFormatSpecificImporter(formatImporter);
+
       formatImporter.run(stage);
     }
     finally
@@ -363,6 +353,7 @@ public class DataImportJob extends DataImportJobBase
         hist.clearStage();
         hist.addStage(ImportStage.VALIDATE);
         hist.setWorkProgress(0L);
+        hist.setCompletedRowsJson("");
         hist.setImportedRecords(0L);
         hist.apply();
       }
@@ -396,6 +387,7 @@ public class DataImportJob extends DataImportJobBase
     history.addStatus(AllJobStatus.NEW);
     history.addStage(ImportStage.VALIDATE);
     history.setWorkProgress(0L);
+    history.setCompletedRowsJson("");
     history.setImportedRecords(0L);
     history.apply();
 

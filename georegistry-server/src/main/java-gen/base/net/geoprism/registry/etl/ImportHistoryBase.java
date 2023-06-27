@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -254919921)
+@com.runwaysdk.business.ClassSignature(hash = 1368599953)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -29,19 +11,49 @@ package net.geoprism.registry.etl;
 public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.JobHistory
 {
   public final static String CLASS = "net.geoprism.registry.etl.ImportHistory";
-  public static final java.lang.String CONFIGJSON = "configJson";
-  public static final java.lang.String ERRORCOUNT = "errorCount";
-  public static final java.lang.String ERRORRESOLVEDCOUNT = "errorResolvedCount";
-  public static final java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
-  public static final java.lang.String IMPORTFILE = "importFile";
-  public static final java.lang.String IMPORTEDRECORDS = "importedRecords";
-  public static final java.lang.String ORGANIZATION = "organization";
-  public static final java.lang.String STAGE = "stage";
-  private static final long serialVersionUID = -254919921;
+  public final static java.lang.String COMPLETEDROWSJSON = "completedRowsJson";
+  public final static java.lang.String CONFIGJSON = "configJson";
+  public final static java.lang.String ERRORCOUNT = "errorCount";
+  public final static java.lang.String ERRORRESOLVEDCOUNT = "errorResolvedCount";
+  public final static java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
+  public final static java.lang.String IMPORTFILE = "importFile";
+  public final static java.lang.String IMPORTEDRECORDS = "importedRecords";
+  public final static java.lang.String ORGANIZATION = "organization";
+  public final static java.lang.String STAGE = "stage";
+  @SuppressWarnings("unused")
+  private static final long serialVersionUID = 1368599953;
   
   public ImportHistoryBase()
   {
     super();
+  }
+  
+  public String getCompletedRowsJson()
+  {
+    return getValue(COMPLETEDROWSJSON);
+  }
+  
+  public void validateCompletedRowsJson()
+  {
+    this.validateAttribute(COMPLETEDROWSJSON);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getCompletedRowsJsonMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportHistory.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(COMPLETEDROWSJSON);
+  }
+  
+  public void setCompletedRowsJson(String value)
+  {
+    if(value == null)
+    {
+      setValue(COMPLETEDROWSJSON, "");
+    }
+    else
+    {
+      setValue(COMPLETEDROWSJSON, value);
+    }
   }
   
   public String getConfigJson()
@@ -288,7 +300,7 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
     }
   }
   
-  
+  @SuppressWarnings("unchecked")
   public java.util.List<net.geoprism.registry.etl.ImportStage> getStage()
   {
     return (java.util.List<net.geoprism.registry.etl.ImportStage>) getEnumValues(STAGE);

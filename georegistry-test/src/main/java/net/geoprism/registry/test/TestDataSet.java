@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -39,7 +38,6 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ValueObject;
-import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -94,20 +92,19 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.SerializedListTypeCache;
-import net.geoprism.registry.test.TestDataSet.ClientRequestExecutor;
 
 abstract public class TestDataSet
 {
   public static interface ClientRequestExecutor
   {
-    public void execute(ClientRequestIF request) throws Exception;
+    public void execute(ClientRequestIF request) throws Throwable;
   }
 
   public static interface RequestExecutor
   {
-    public void execute() throws Exception;
+    public void execute() throws Throwable;
   }
-  
+
   public static final String                 ADMIN_USER_NAME                 = "admin";
 
   public static final String                 ADMIN_PASSWORD                  = "_nm8P4gfdWxGqNRQ#8";
@@ -267,21 +264,21 @@ abstract public class TestDataSet
     {
       this.clientSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
       this.clientRequest = clientSession.getRequest();
-      
-//      this.adapter.setClientRequest(this.clientRequest);
+
+      // this.adapter.setClientRequest(this.clientRequest);
     }
     else
     {
       this.clientSession = ClientSession.createUserSession(user.getUsername(), user.getPassword(), new Locale[] { CommonProperties.getDefaultLocale() });
       this.clientRequest = clientSession.getRequest();
-//      this.adapter.setClientRequest(this.clientRequest);
+      // this.adapter.setClientRequest(this.clientRequest);
     }
-    
+
     MockHttpServletRequest.setClientRequest(clientRequest);
 
-//    adapter.refreshMetadataCache();
+    // adapter.refreshMetadataCache();
 
-//    TestDataSet.populateAdapterIds(user, null);
+    // TestDataSet.populateAdapterIds(user, null);
   }
 
   public void logOut()
@@ -289,7 +286,7 @@ abstract public class TestDataSet
     if (clientSession != null && clientRequest != null && clientRequest.isLoggedIn())
     {
       MockHttpServletRequest.setClientRequest(null);
-      
+
       clientSession.logout();
     }
   }
@@ -354,13 +351,13 @@ abstract public class TestDataSet
     setUpRelationships();
 
     RegistryService.getInstance().refreshMetadataCache();
-    
+
     SerializedListTypeCache.getInstance().clear();
 
     setUpAfterApply();
   }
 
-//  @Transaction
+  // @Transaction
   protected void setUpTestInTrans()
   {
     for (TestGeoObjectInfo geo : managedGeoObjectInfos)
@@ -562,7 +559,7 @@ abstract public class TestDataSet
       it.next().delete();
     }
   }
-  
+
   @Request
   public static void deleteAllSchedulerData()
   {
@@ -574,9 +571,9 @@ abstract public class TestDataSet
     {
       it.next().delete();
     }
-    
+
     ExecutableJobQuery ejq = new ExecutableJobQuery(new QueryFactory());
-    
+
     try (OIterator<? extends ExecutableJob> jobit = ejq.getIterator())
     {
       while (jobit.hasNext())
@@ -585,7 +582,7 @@ abstract public class TestDataSet
       }
     }
   }
-  
+
   @Request
   public static void deleteAllListData()
   {
@@ -605,7 +602,7 @@ abstract public class TestDataSet
       it.close();
     }
   }
-  
+
   @Request
   public static void deleteAllVaultFiles()
   {
@@ -1015,28 +1012,29 @@ abstract public class TestDataSet
       edge.delete();
     }
   }
-  
+
   @Request
   public static void deleteAllTransitionData()
   {
-//    final MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
-//
-//    StringBuilder builder = new StringBuilder();
-//    builder.append("SELECT FROM " + mdEdge.getDBClassName());
-//
-//    final GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(builder.toString());
-//
-//    if (system != null)
-//    {
-//      query.setParameter("system", system.getRID());
-//    }
-//
-//    List<EdgeObject> edges = query.getResults();
-//
-//    for (EdgeObject edge : edges)
-//    {
-//      edge.delete();
-//    }
+    // final MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
+    //
+    // StringBuilder builder = new StringBuilder();
+    // builder.append("SELECT FROM " + mdEdge.getDBClassName());
+    //
+    // final GraphQuery<EdgeObject> query = new
+    // GraphQuery<EdgeObject>(builder.toString());
+    //
+    // if (system != null)
+    // {
+    // query.setParameter("system", system.getRID());
+    // }
+    //
+    // List<EdgeObject> edges = query.getResults();
+    //
+    // for (EdgeObject edge : edges)
+    // {
+    // edge.delete();
+    // }
   }
 
   @Request
@@ -1106,7 +1104,7 @@ abstract public class TestDataSet
   public static void runAsUser(TestUserInfo user, ClientRequestExecutor executor)
   {
     ClientSession session = null;
-    
+
     ClientRequestIF original = MockHttpServletRequest.getClientRequest();
 
     try
@@ -1114,11 +1112,11 @@ abstract public class TestDataSet
       session = ClientSession.createUserSession(user.getUsername(), user.getPassword(), new Locale[] { CommonProperties.getDefaultLocale() });
 
       ClientRequestIF request = session.getRequest();
-      
+
       MockHttpServletRequest.setClientRequest(request);
 
-//      TestRegistryAdapter adapter = new TestRegistryAdapter();
-//      adapter.refreshMetadataCache();
+      // TestRegistryAdapter adapter = new TestRegistryAdapter();
+      // adapter.refreshMetadataCache();
 
       try
       {
@@ -1128,7 +1126,7 @@ abstract public class TestDataSet
       {
         throw e;
       }
-      catch (Exception e)
+      catch (Throwable e)
       {
         throw new RuntimeException(e);
       }
@@ -1139,7 +1137,7 @@ abstract public class TestDataSet
       {
         session.logout();
       }
-      
+
       MockHttpServletRequest.setClientRequest(original);
     }
   }
@@ -1149,19 +1147,19 @@ abstract public class TestDataSet
     runAsUser(user, new ClientRequestExecutor()
     {
       @Override
-      public void execute(ClientRequestIF request) throws Exception
+      public void execute(ClientRequestIF request) throws Throwable
       {
         execute(request.getSessionId());
       }
 
       @Request(RequestType.SESSION)
-      public void execute(String sessionId) throws Exception
+      public void execute(String sessionId) throws Throwable
       {
         executor.execute();
       }
     });
   }
-  
+
   public static boolean populateAdapterIds(TestUserInfo user, TestRegistryAdapter adapter)
   {
     boolean isRAorRM = false;

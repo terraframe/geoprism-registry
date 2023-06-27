@@ -29,7 +29,5 @@ public interface FormatSpecificImporterIF
 
   public void setObjectImporter(ObjectImporterIF objectImporter);
 
-  public void setStartIndex(Long workProgress);
-
   public void run(ImportStage stage);
 }

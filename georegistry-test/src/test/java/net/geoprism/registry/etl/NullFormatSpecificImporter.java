@@ -23,11 +23,6 @@ public class NullFormatSpecificImporter implements FormatSpecificImporterIF
   }
 
   @Override
-  public void setStartIndex(Long workProgress)
-  {
-  }
-
-  @Override
   public void run(ImportStage stage)
   {
   }

@@ -85,7 +85,7 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
         });
 
         if (this.typesByOrg.length === 0) {
-            this.registryService.init().then(response => {
+            this.registryService.init(this.authService.isPublic()).then(response => {
                 this.typesByOrg = [];
 
                 //

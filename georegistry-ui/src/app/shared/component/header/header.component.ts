@@ -44,6 +44,7 @@ export class CgrHeaderComponent {
     isAdmin: boolean;
     isMaintainer: boolean;
     isContributor: boolean;
+    isPublic: boolean = true;
     bsModalRef: BsModalRef;
 
     defaultLocaleView: LocaleView;
@@ -66,6 +67,7 @@ export class CgrHeaderComponent {
         this.isAdmin = service.isAdmin();
         this.isMaintainer = this.isAdmin || service.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
+        this.isPublic = service.isPublic();
 
         this.enableBusinessData = configuration.isEnableBusinessData() || false;
 
@@ -143,9 +145,13 @@ export class CgrHeaderComponent {
                 // Ignore errors
                 sessionStorage.removeItem("locales");
 
+                this.service.clear();
+
                 this.router.navigate(['/login']);
             }).then(response => {
                 sessionStorage.removeItem("locales");
+
+                this.service.clear();
 
                 this.router.navigate(['/login']);
             });

@@ -24,7 +24,7 @@
 	<parent>
 		<groupId>net.geoprism</groupId>
 		<artifactId>georegistry</artifactId>
-    <version>1.2.1-SNAPSHOT</version>
+		<version>1.2.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>georegistry-server</artifactId>
 	<packaging>jar</packaging>
@@ -276,7 +276,7 @@
 									<mainClass>com.runwaysdk.dataaccess.io.UndoAll</mainClass>
 									<arguments>
 										<argument>${project.basedir}/src/main/working</argument>
-										<argument/>
+										<argument />
 										<argument>false</argument>
 									</arguments>
 									<systemProperties>
@@ -321,7 +321,7 @@
 									<mainClass>net.geoprism.ImportSchema</mainClass>
 									<arguments>
 										<argument>${project.basedir}/src/main/working</argument>
-										<argument/>
+										<argument />
 										<argument>false</argument>
 									</arguments>
 									<systemProperties>
@@ -499,7 +499,7 @@
 		                </goals>
 		              </pluginExecutionFilter>
 		              <action>
-		                <ignore/>
+		                <ignore />
 		              </action>
 		            </pluginExecution>
 		          </pluginExecutions>

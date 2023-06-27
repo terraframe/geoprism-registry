@@ -35,6 +35,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -89,6 +90,12 @@ public class SynchronizationConfigService
 
   @Request(RequestType.SESSION)
   public JsonObject apply(String sessionId, JsonObject element) throws JSONException
+  {
+    return applyInTrans(sessionId, element);
+  }
+  
+  @Transaction
+  public JsonObject applyInTrans(String sessionId, JsonObject element) throws JSONException
   {
     SynchronizationConfig config = SynchronizationConfig.deserialize(element, true);
     config.apply();

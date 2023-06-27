@@ -5,25 +5,19 @@ package net.geoprism.registry.service;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.test.FastTestDataset;

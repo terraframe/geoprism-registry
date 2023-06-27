@@ -35,7 +35,6 @@ import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
-import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 

@@ -73,12 +73,12 @@ const routes: Routes = [
     {
         path: "master-lists",
         component: ListTypeManagerComponent,
-        canActivate: [AuthGuard]
+        // canActivate: [AuthGuard]
     },
     {
         path: "master-list/:oid",
         component: ListComponent,
-        canActivate: [AuthGuard]
+        // canActivate: [AuthGuard]
     },
     {
         path: "scheduled-jobs",
@@ -113,7 +113,7 @@ const routes: Routes = [
     {
         path: "location-manager",
         component: LocationManagerComponent,
-        canActivate: [AuthGuard]
+        // canActivate: [AuthGuard]
     },
     {
         path: "sync/details/:config/:oid",

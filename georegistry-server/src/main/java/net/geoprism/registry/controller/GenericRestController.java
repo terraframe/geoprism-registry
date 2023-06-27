@@ -41,6 +41,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -92,9 +93,18 @@ public class GenericRestController extends RunwaySpringController
 
   @Autowired
   private RegistryComponentService service;
-  
+
   @Autowired
-  private RoleServiceIF roleService;
+  private OrganizationService      orgService;
+
+  @Autowired
+  private ExternalSystemService    systemService;
+
+  @Autowired
+  private AccountService           accountService;
+
+  @Autowired
+  private RoleServiceIF            roleService;
 
   /**
    * Create the {@link HierarchyType} from the given JSON.
@@ -125,24 +135,20 @@ public class GenericRestController extends RunwaySpringController
    * @return
    */
   @GetMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/init")
-  public ResponseEntity<String> init()
+  public ResponseEntity<String> init(@RequestParam(defaultValue = "false", required = false) Boolean publicOnly)
   {
-    JsonObject response = this.service.initHierarchyManager(this.getSessionId());
+    JsonObject response = this.service.initHierarchyManager(this.getSessionId(), publicOnly);
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 
   @GetMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/init-settings")
   public ResponseEntity<String> initSettings()
   {
-    OrganizationDTO[] orgs = new OrganizationService().getOrganizations(this.getSessionId(), null); // TODO
-                                                                                                    // :
-                                                                                                    // This
-                                                                                                    // violates
-                                                                                                    // autowiring
-                                                                                                    // principles
+    OrganizationDTO[] orgs = this.orgService.getOrganizations(this.getSessionId(), null);
+
     JsonArray jaLocales = this.service.getLocales(this.getSessionId());
-    JsonObject esPage = new ExternalSystemService().page(this.getSessionId(), 1, 10);
-    JsonObject sraPage = JsonParser.parseString(AccountService.getInstance().getSRAs(this.getSessionId(), 1, 10)).getAsJsonObject();
+    JsonObject esPage = this.systemService.page(this.getSessionId(), 1, 10);
+    JsonObject sraPage = JsonParser.parseString(this.accountService.getSRAs(this.getSessionId(), 1, 10)).getAsJsonObject();
     CustomSerializer serializer = this.service.serializer(this.getSessionId());
 
     JsonObject settingsView = new JsonObject();
@@ -223,7 +229,7 @@ public class GenericRestController extends RunwaySpringController
     try
     {
       Set<RoleView> roles = this.roleService.getCurrentRoles(this.getClientRequest().getSessionId(), true);
-      
+
       return roles.stream().map(roleView -> roleView.getRoleName()).collect(Collectors.toSet());
     }
     catch (JSONException e)

@@ -41,6 +41,7 @@ import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.sort.SortedFeatureReader;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.referencing.CRS;
+import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.FilterFactory;
@@ -55,11 +56,6 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
@@ -108,12 +104,6 @@ public class ShapefileImporter implements FormatSpecificImporterIF
   public void setObjectImporter(ObjectImporterIF objectImporter)
   {
     this.objectImporter = objectImporter;
-  }
-
-  @Override
-  public void setStartIndex(Long startIndex)
-  {
-    this.startIndex = startIndex - 1; // Subtract 1 because we're zero indexed
   }
 
   public Long getStartIndex()
@@ -306,18 +296,22 @@ public class ShapefileImporter implements FormatSpecificImporterIF
 
     try (SimpleFeatureReader sr = new SortedFeatureReader(fr, sortBy.toArray(new SortBy[sortBy.size()]), 5000))
     {
+      long rowNum = 1;
+
       while (sr.hasNext())
       {
         SimpleFeature feature = sr.next();
 
         if (stage.equals(ImportStage.VALIDATE))
         {
-          this.objectImporter.validateRow(new SimpleFeatureRow(feature));
+          this.objectImporter.validateRow(new SimpleFeatureRow(feature, rowNum));
         }
         else
         {
-          this.objectImporter.importRow(new SimpleFeatureRow(feature));
+          this.objectImporter.importRow(new SimpleFeatureRow(feature, rowNum));
         }
+
+        rowNum++;
       }
     }
     catch (Throwable t)

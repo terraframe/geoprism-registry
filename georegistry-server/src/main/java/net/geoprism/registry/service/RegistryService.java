@@ -86,6 +86,7 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
 import net.geoprism.registry.conversion.RegistryAttributeTypeConverter;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
+import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.conversion.OrganizationConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
@@ -305,52 +306,56 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject initHierarchyManager(String sessionId)
+  public JsonObject initHierarchyManager(String sessionId, Boolean publicOnly)
   {
-    GeoObjectType[] gots = this.getGeoObjectTypes(sessionId, null, PermissionContext.READ);
-    HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(sessionId, null, PermissionContext.READ);
-    OrganizationDTO[] orgDtos = new OrganizationService().getOrganizations(sessionId, null); // TODO
-                                                                                             // :
-                                                                                             // This
-                                                                                             // violates
-                                                                                             // autowiring
-                                                                                             // principles
-    CustomSerializer serializer = this.serializer(sessionId);
+    final JsonArray types = new JsonArray();
+    final JsonArray hierarchies = new JsonArray();
+    final JsonArray organizations = new JsonArray();
+    final CustomSerializer serializer = this.serializer(sessionId);
 
-    JsonArray types = new JsonArray();
+    OrganizationDTO[] orgDtos = new OrganizationService().getOrganizations(sessionId, null);
 
-    for (GeoObjectType got : gots)
+    if (publicOnly && UserInfo.isPublicUser())
     {
-      JsonObject joGot = got.toJSON(serializer);
+      ServiceFactory.getAdapter().getMetadataCache().getAllGeoObjectTypes().stream().filter(got -> !got.getIsPrivate()).forEach(got -> {
+        types.add(got.toJSON(serializer));
+      });
+    }
+    else
+    {
+      GeoObjectType[] gots = this.getGeoObjectTypes(sessionId, null, PermissionContext.READ);
+      HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(sessionId, null, PermissionContext.READ);
 
-      JsonArray relatedHiers = new JsonArray();
+      for (GeoObjectType got : gots)
+      {
+        JsonObject joGot = got.toJSON(serializer);
+
+        JsonArray relatedHiers = new JsonArray();
+
+        for (HierarchyType ht : hts)
+        {
+          List<HierarchyNode> hns = ht.getRootGeoObjectTypes();
+
+          for (HierarchyNode hn : hns)
+          {
+            if (hn.hierarchyHasGeoObjectType(got.getCode(), true))
+            {
+              relatedHiers.add(ht.getCode());
+            }
+          }
+        }
+
+        joGot.add("relatedHierarchies", relatedHiers);
+
+        types.add(joGot);
+      }
 
       for (HierarchyType ht : hts)
       {
-        List<HierarchyNode> hns = ht.getRootGeoObjectTypes();
-
-        for (HierarchyNode hn : hns)
-        {
-          if (hn.hierarchyHasGeoObjectType(got.getCode(), true))
-          {
-            relatedHiers.add(ht.getCode());
-          }
-        }
+        hierarchies.add(ht.toJSON(serializer));
       }
 
-      joGot.add("relatedHierarchies", relatedHiers);
-
-      types.add(joGot);
     }
-
-    JsonArray hierarchies = new JsonArray();
-
-    for (HierarchyType ht : hts)
-    {
-      hierarchies.add(ht.toJSON(serializer));
-    }
-
-    JsonArray organizations = new JsonArray();
 
     for (OrganizationDTO dto : orgDtos)
     {
@@ -457,7 +462,7 @@ public class RegistryService
     {
       object.setDate(date);
     }
-    
+
     ServerHierarchyType sht = null;
     if (!StringUtils.isEmpty(hierarchyCode))
     {
@@ -478,7 +483,7 @@ public class RegistryService
     {
       object.setDate(date);
     }
-    
+
     ServerHierarchyType sht = null;
     if (!StringUtils.isEmpty(hierarchyCode))
     {
@@ -626,8 +631,8 @@ public class RegistryService
   }
 
   /**
-   * Returns the {@link GeoObjectType}s with
-   * the given codes or all {@link GeoObjectType}s if no codes are provided.
+   * Returns the {@link GeoObjectType}s with the given codes or all
+   * {@link GeoObjectType}s if no codes are provided.
    * 
    * @param sessionId
    * @param codes

@@ -4,28 +4,32 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Term;
@@ -37,7 +41,6 @@ import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
@@ -45,6 +48,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
 import com.runwaysdk.business.graph.VertexObject;
@@ -52,8 +56,11 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestState;
+import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.AbstractClassification;
@@ -90,6 +97,55 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class BusinessObjectImporter implements ObjectImporterIF
 {
+  private static enum Action {
+    VALIDATE, IMPORT
+  }
+
+  private class Task implements Runnable
+  {
+    private FeatureRow row;
+
+    private Action     action;
+
+    private String     sessionId;
+
+    public Task(FeatureRow row, Action action, String sessionId)
+    {
+      super();
+      this.row = row;
+      this.action = action;
+      this.sessionId = sessionId;
+    }
+
+    @Override
+    public void run()
+    {
+      try
+      {
+        runInRequest(sessionId);
+      }
+      catch (InterruptedException e)
+      {
+        // Do nothing
+        e.printStackTrace();
+      }
+    }
+
+    @Request(RequestType.SESSION)
+    public void runInRequest(String sessionId) throws InterruptedException
+    {
+      if (action.equals(Action.VALIDATE))
+      {
+        BusinessObjectImporter.this.performValidationTask(this.row);
+      }
+      else if (action.equals(Action.IMPORT))
+      {
+        BusinessObjectImporter.this.performImportTask(this.row);
+      }
+    }
+
+  }
+
   private static class RowData
   {
     private String                goJson;
@@ -119,11 +175,14 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
   protected static final String               ERROR_OBJECT_TYPE          = GeoObjectOverTime.class.getName();
 
+  protected static final String               parentConcatToken          = "&";
+
+  // Refresh the user's session every X amount of records
+  private static final long                   refreshSessionRecordCount  = GeoregistryProperties.getRefreshSessionRecordCount();
+
   protected BusinessObjectImportConfiguration configuration;
 
   protected Map<String, ServerGeoObjectIF>    cache;
-
-  protected static final String               parentConcatToken          = "&";
 
   protected ImportProgressListenerIF          progressListener;
 
@@ -133,26 +192,30 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
   private long                                lastImportSessionRefresh   = 0;
 
-  // Refresh the user's session every X amount of records
-  private static final long                   refreshSessionRecordCount  = GeoregistryProperties.getRefreshSessionRecordCount();
+  private BlockingQueue<Runnable>             blockingQueue;
+
+  private ThreadPoolExecutor                  executor;
 
   public BusinessObjectImporter(BusinessObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.configuration = configuration;
     this.progressListener = progressListener;
-    this.cache = new HashMap<String, ServerGeoObjectIF>();
 
     final int MAX_ENTRIES = 10000; // The size of our parentCache
-    this.cache = new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES + 1, .75F, true)
+    this.cache = Collections.synchronizedMap(new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES + 1, .75F, true)
     {
       private static final long serialVersionUID = 1L;
 
-      public boolean removeEldestEntry(@SuppressWarnings("rawtypes")
-      Map.Entry eldest)
+      public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
       {
         return size() > MAX_ENTRIES;
       }
-    };
+    });
+
+    this.blockingQueue = new LinkedBlockingDeque<Runnable>(50);
+
+    this.executor = new ThreadPoolExecutor(10, 20, 5, TimeUnit.SECONDS, blockingQueue);
+    this.executor.prestartAllCoreThreads();
   }
 
   protected class GeoObjectErrorBuilder
@@ -253,17 +316,21 @@ public class BusinessObjectImporter implements ObjectImporterIF
     return this.configuration;
   }
 
-  @Transaction
   public void validateRow(FeatureRow row) throws InterruptedException
+  {
+    this.blockingQueue.put(new Task(row, Action.VALIDATE, Session.getCurrentSession().getOid()));
+  }
+
+  @Transaction
+  private void performValidationTask(FeatureRow row) throws InterruptedException
   {
     try
     {
       // Refresh the session because it might expire on long imports
-      final long curRowNumber = this.progressListener.getRowNumber();
-      if ( ( this.lastValidateSessionRefresh + BusinessObjectImporter.refreshSessionRecordCount ) < curRowNumber)
+      if ( ( this.lastValidateSessionRefresh + BusinessObjectImporter.refreshSessionRecordCount ) < row.getRowNumber())
       {
         SessionFacade.renewSession(Session.getCurrentSession().getOid());
-        this.lastValidateSessionRefresh = curRowNumber;
+        this.lastValidateSessionRefresh = row.getRowNumber();
       }
 
       try
@@ -308,7 +375,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
               {
                 AttributeType attributeType = entry.getValue();
 
-                this.setValue(entity, attributeType, attributeName, value);
+                this.setValue(entity, attributeType, attributeName, value, row);
               }
             }
           }
@@ -321,13 +388,13 @@ public class BusinessObjectImporter implements ObjectImporterIF
       catch (Throwable t)
       {
         RowValidationProblem problem = new RowValidationProblem(t);
-        problem.addAffectedRowNumber(curRowNumber + 1);
+        problem.addAffectedRowNumber(row.getRowNumber());
         problem.setHistoryId(this.configuration.historyId);
 
         this.progressListener.addRowValidationProblem(problem);
       }
 
-      this.progressListener.setRowNumber(curRowNumber + 1);
+      this.progressListener.setCompletedRow(row.getRowNumber());
 
       if (Thread.interrupted())
       {
@@ -352,6 +419,14 @@ public class BusinessObjectImporter implements ObjectImporterIF
     return false;
   }
 
+  public void importRow(FeatureRow row) throws InterruptedException
+  {
+    if (!this.progressListener.isComplete(row.getRowNumber()))
+    {
+      this.blockingQueue.put(new Task(row, Action.IMPORT, Session.getCurrentSession().getOid()));
+    }
+  }
+
   /**
    * Imports a GeoObject based on the given SimpleFeature.
    * 
@@ -359,7 +434,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
    * @throws InterruptedException
    * @throws Exception
    */
-  public void importRow(FeatureRow row) throws InterruptedException
+  private void performImportTask(FeatureRow row) throws InterruptedException
   {
     RowData data = new RowData();
 
@@ -367,11 +442,36 @@ public class BusinessObjectImporter implements ObjectImporterIF
     {
       try
       {
-        boolean imported = this.importRowInTrans(row, data);
+        boolean imported = false;
+
+        /*
+         * In a multi-threaded import it is likely to get an
+         * OCurrentModificationException because adding a link to the parent geo
+         * object adds a pointer to the parent vertex and causes an optimistic
+         * lock check on the parent vertex. So if multiple geo-objects are
+         * assigned to the same parent at the same time the system will throw a
+         * OConcurrentModificationException. Retry the commit again.
+         */
+        for (int i = 0; i < 100; i++)
+        {
+          try
+          {
+            imported = this.importRowInTrans(row, data);
+
+            break;
+          }
+          catch (ProgrammingErrorException e)
+          {
+            if (! ( e.getCause() instanceof OConcurrentModificationException ))
+            {
+              throw e;
+            }
+          }
+        }
 
         if (imported)
         {
-          this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
+          this.progressListener.incrementImportedRecords();
         }
       }
       catch (DuplicateDataException e)
@@ -381,10 +481,10 @@ public class BusinessObjectImporter implements ObjectImporterIF
     }
     catch (BusinessObjectRecordedErrorException e)
     {
-      this.recordError(e);
+      this.recordError(e, row);
     }
 
-    this.progressListener.setRowNumber(this.progressListener.getRowNumber() + 1);
+    this.progressListener.setCompletedRow(row.getRowNumber());
 
     if (Thread.interrupted())
     {
@@ -395,7 +495,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
   }
 
   @Transaction
-  private void recordError(BusinessObjectRecordedErrorException e)
+  private void recordError(BusinessObjectRecordedErrorException e, FeatureRow row)
   {
     JSONObject obj = new JSONObject(e.getObjectJson());
 
@@ -405,7 +505,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
       obj.put("parents", parentBuilder.build());
     }
 
-    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getRowNumber());
+    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), row.getRowNumber());
     this.getConfiguration().addException(e);
   }
 
@@ -415,11 +515,10 @@ public class BusinessObjectImporter implements ObjectImporterIF
     boolean imported = false;
 
     // Refresh the session because it might expire on long imports
-    final long curRowNum = this.progressListener.getRowNumber();
-    if ( ( this.lastImportSessionRefresh + BusinessObjectImporter.refreshSessionRecordCount ) < curRowNum)
+    if ( ( this.lastImportSessionRefresh + BusinessObjectImporter.refreshSessionRecordCount ) < row.getRowNumber())
     {
       SessionFacade.renewSession(Session.getCurrentSession().getOid());
-      this.lastImportSessionRefresh = curRowNum;
+      this.lastImportSessionRefresh = row.getRowNumber();
     }
 
     BusinessObject businessObject = null;
@@ -482,11 +581,11 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
           if (value != null && !this.isEmptyString(value))
           {
-            this.setValue(businessObject, attributeType, attributeName, value);
+            this.setValue(businessObject, attributeType, attributeName, value, row);
           }
           else if (this.configuration.getCopyBlank())
           {
-            this.setValue(businessObject, attributeType, attributeName, null);
+            this.setValue(businessObject, attributeType, attributeName, null, row);
           }
         }
       }
@@ -761,7 +860,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
             String parentCode = ( parent == null ) ? null : parent.getCode();
 
             ParentReferenceProblem prp = new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context.toString());
-            prp.addAffectedRowNumber(this.progressListener.getRowNumber());
+            prp.addAffectedRowNumber(feature.getRowNumber());
             prp.setHistoryId(this.configuration.historyId);
 
             this.progressListener.addReferenceProblem(prp);
@@ -781,7 +880,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
     return function.getValue(feature);
   }
 
-  protected void setTermValue(BusinessObject entity, AttributeType attributeType, String attributeName, Object value)
+  protected void setTermValue(BusinessObject entity, AttributeType attributeType, String attributeName, Object value, FeatureRow row)
   {
     if (!this.configuration.isExclusion(attributeName, value.toString()))
     {
@@ -798,7 +897,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
           Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
 
           TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
-          trp.addAffectedRowNumber(this.progressListener.getRowNumber());
+          trp.addAffectedRowNumber(row.getRowNumber());
           trp.setHistoryId(this.configuration.getHistoryId());
 
           this.progressListener.addReferenceProblem(trp);
@@ -851,7 +950,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
     }
   }
 
-  protected void setValue(BusinessObject entity, AttributeType attributeType, String attributeName, Object value)
+  protected void setValue(BusinessObject entity, AttributeType attributeType, String attributeName, Object value, FeatureRow row)
   {
     if (attributeType instanceof AttributeClassificationType)
     {
@@ -868,7 +967,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
     {
       if (value != null)
       {
-        this.setTermValue(entity, attributeType, attributeName, value);
+        this.setTermValue(entity, attributeType, attributeName, value, row);
       }
       else
       {
@@ -902,7 +1001,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
       }
       else if (value instanceof String)
       {
-        entity.setValue(attributeName, new Double((String) value));
+        entity.setValue(attributeName, Double.valueOf((String) value));
       }
       else if (value instanceof Number)
       {
@@ -927,6 +1026,21 @@ public class BusinessObjectImporter implements ObjectImporterIF
     else
     {
       entity.setValue(attributeName, value);
+    }
+  }
+
+  @Override
+  public void close()
+  {
+    executor.shutdown();
+    try
+    {
+      executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+    }
+    catch (InterruptedException e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
   }
 }

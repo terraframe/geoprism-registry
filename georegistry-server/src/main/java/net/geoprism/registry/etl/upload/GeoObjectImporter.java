@@ -19,14 +19,18 @@
 package net.geoprism.registry.etl.upload;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Term;
@@ -51,6 +55,7 @@ import org.locationtech.jts.geom.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
 import com.runwaysdk.business.graph.VertexObject;
@@ -63,7 +68,9 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.attributes.AttributeClassification;
 import com.runwaysdk.dataaccess.graph.attributes.ClassificationValidationException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestState;
+import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.AbstractClassification;
@@ -108,6 +115,55 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class GeoObjectImporter implements ObjectImporterIF
 {
+  private static enum Action {
+    VALIDATE, IMPORT
+  }
+
+  private class Task implements Runnable
+  {
+    private FeatureRow row;
+
+    private Action     action;
+
+    private String     sessionId;
+
+    public Task(FeatureRow row, Action action, String sessionId)
+    {
+      super();
+      this.row = row;
+      this.action = action;
+      this.sessionId = sessionId;
+    }
+
+    @Override
+    public void run()
+    {
+      try
+      {
+        runInRequest(sessionId);
+      }
+      catch (InterruptedException e)
+      {
+        // Do nothing
+        e.printStackTrace();
+      }
+    }
+
+    @Request(RequestType.SESSION)
+    public void runInRequest(String sessionId) throws InterruptedException
+    {
+      if (action.equals(Action.VALIDATE))
+      {
+        GeoObjectImporter.this.performValidationTask(this.row);
+      }
+      else if (action.equals(Action.IMPORT))
+      {
+        GeoObjectImporter.this.performImportTask(this.row);
+      }
+    }
+
+  }
+
   private static class RowData
   {
     private String                      goJson;
@@ -137,6 +193,9 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   protected static final String            ERROR_OBJECT_TYPE          = GeoObjectOverTime.class.getName();
 
+  // Refresh the user's session every X amount of records
+  private static final long                refreshSessionRecordCount  = GeoregistryProperties.getRefreshSessionRecordCount();
+
   protected GeoObjectImportConfiguration   configuration;
 
   protected ServerGeoObjectService         service;
@@ -155,18 +214,18 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   private long                             lastImportSessionRefresh   = 0;
 
-  // Refresh the user's session every X amount of records
-  private static final long                refreshSessionRecordCount  = GeoregistryProperties.getRefreshSessionRecordCount();
+  private BlockingQueue<Runnable>          blockingQueue;
+
+  private ThreadPoolExecutor               executor;
 
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.configuration = configuration;
     this.progressListener = progressListener;
     this.service = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService());
-    this.parentCache = new HashMap<String, ServerGeoObjectIF>();
 
     final int MAX_ENTRIES = 10000; // The size of our parentCache
-    this.parentCache = new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES + 1, .75F, true)
+    this.parentCache = Collections.synchronizedMap(new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES + 1, .75F, true)
     {
       private static final long serialVersionUID = 1L;
 
@@ -174,7 +233,12 @@ public class GeoObjectImporter implements ObjectImporterIF
       {
         return size() > MAX_ENTRIES;
       }
-    };
+    });
+
+    this.blockingQueue = new LinkedBlockingDeque<Runnable>(50);
+
+    this.executor = new ThreadPoolExecutor(10, 20, 5, TimeUnit.SECONDS, blockingQueue);
+    this.executor.prestartAllCoreThreads();
   }
 
   protected class GeoObjectParentErrorBuilder
@@ -263,13 +327,18 @@ public class GeoObjectImporter implements ObjectImporterIF
     return configuration;
   }
 
-  @Transaction
   public void validateRow(FeatureRow row) throws InterruptedException
+  {
+      this.blockingQueue.put(new Task(row, Action.VALIDATE, Session.getCurrentSession().getOid()));
+  }
+
+  @Transaction
+  private void performValidationTask(FeatureRow row) throws InterruptedException
   {
     try
     {
       // Refresh the session because it might expire on long imports
-      final long curRowNumber = this.progressListener.getRowNumber();
+      final long curRowNumber = row.getRowNumber().longValue();
       if ( ( this.lastValidateSessionRefresh + GeoObjectImporter.refreshSessionRecordCount ) < curRowNumber)
       {
         if (Session.getCurrentSession() != null)
@@ -347,7 +416,7 @@ public class GeoObjectImporter implements ObjectImporterIF
                 {
                   AttributeType attributeType = entry.getValue();
 
-                  this.setValue(entity, attributeType, attributeName, value);
+                  this.setValue(entity, attributeType, attributeName, value, row);
                 }
               }
             }
@@ -380,13 +449,13 @@ public class GeoObjectImporter implements ObjectImporterIF
       catch (Throwable t)
       {
         RowValidationProblem problem = new RowValidationProblem(t);
-        problem.addAffectedRowNumber(curRowNumber + 1);
+        problem.addAffectedRowNumber(curRowNumber);
         problem.setHistoryId(this.configuration.historyId);
 
         this.progressListener.addRowValidationProblem(problem);
       }
 
-      this.progressListener.setRowNumber(curRowNumber + 1);
+      this.progressListener.setCompletedRow(curRowNumber);
 
       if (Thread.interrupted())
       {
@@ -411,6 +480,14 @@ public class GeoObjectImporter implements ObjectImporterIF
     return false;
   }
 
+  public void importRow(FeatureRow row) throws InterruptedException
+  {
+    if (!this.progressListener.isComplete(row.getRowNumber()))
+    {
+      this.blockingQueue.put(new Task(row, Action.IMPORT, Session.getCurrentSession().getOid()));
+    }
+  }
+
   /**
    * Imports a GeoObject based on the given SimpleFeature.
    * 
@@ -418,7 +495,7 @@ public class GeoObjectImporter implements ObjectImporterIF
    * @throws InterruptedException
    * @throws Exception
    */
-  public void importRow(FeatureRow row) throws InterruptedException
+  private void performImportTask(FeatureRow row) throws InterruptedException
   {
     RowData data = new RowData();
 
@@ -426,11 +503,39 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       try
       {
-        boolean imported = this.importRowInTrans(row, data);
+        boolean imported = false;
+
+        /*
+         * In a multi-threaded import it is likely to get an
+         * OCurrentModificationException because adding a link to the parent geo
+         * object adds a pointer to the parent vertex and causes an optimistic
+         * lock check on the parent vertex. So if multiple geo-objects are
+         * assigned to the same parent at the same time the system will throw a
+         * OConcurrentModificationException. Retry the commit again.
+         */
+        for (int i = 0; i < 100; i++)
+        {
+          try
+          {
+            imported = this.importRowInTrans(row, data);
+
+            break;
+          }
+          catch (ProgrammingErrorException e)
+          {
+            if (! ( e.getCause() instanceof OConcurrentModificationException ))
+            {
+              throw e;
+            }
+          }
+        }
 
         if (imported)
         {
-          this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
+          // System.out.println("Executed " + (
+          // ++GeoObjectImporter.this.executeCount ));
+
+          this.progressListener.incrementImportedRecords();
         }
       }
       catch (DuplicateDataException e)
@@ -447,10 +552,10 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
     catch (GeoObjectRecordedErrorException e)
     {
-      this.recordError(e);
+      this.recordError(e, row.getRowNumber());
     }
 
-    this.progressListener.setRowNumber(this.progressListener.getRowNumber() + 1);
+    this.progressListener.setCompletedRow(row.getRowNumber());
 
     if (Thread.interrupted())
     {
@@ -461,7 +566,7 @@ public class GeoObjectImporter implements ObjectImporterIF
   }
 
   @Transaction
-  private void recordError(GeoObjectRecordedErrorException e)
+  private void recordError(GeoObjectRecordedErrorException e, Long rowNumber)
   {
     JSONObject obj = new JSONObject(e.getObjectJson());
 
@@ -471,7 +576,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       obj.put("parents", parentBuilder.build());
     }
 
-    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getRowNumber());
+    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), rowNumber);
     this.getConfiguration().addException(e);
   }
 
@@ -481,7 +586,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     boolean imported = false;
 
     // Refresh the session because it might expire on long imports
-    final long curRowNum = this.progressListener.getRowNumber();
+    final long curRowNum = row.getRowNumber().longValue();
     if ( ( this.lastImportSessionRefresh + GeoObjectImporter.refreshSessionRecordCount ) < curRowNum)
     {
       if (Session.getCurrentSession() != null)
@@ -589,7 +694,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         // defaultExists.getStartDate(), defaultExists.getEndDate());
         // }
         // }
-        this.setValue(serverGo, this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(), DefaultAttribute.EXISTS.getName(), true);
+        this.setValue(serverGo, this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(), DefaultAttribute.EXISTS.getName(), true, row);
 
         Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
         Set<Entry<String, AttributeType>> entries = attributes.entrySet();
@@ -642,11 +747,11 @@ public class GeoObjectImporter implements ObjectImporterIF
                 // }
                 // }
 
-                this.setValue(serverGo, attributeType, attributeName, value);
+                this.setValue(serverGo, attributeType, attributeName, value, row);
               }
               else if (this.configuration.getCopyBlank())
               {
-                this.setValue(serverGo, attributeType, attributeName, null);
+                this.setValue(serverGo, attributeType, attributeName, null, row);
               }
             }
           }
@@ -1059,7 +1164,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             String parentCode = ( parent == null ) ? null : parent.getCode();
 
             ParentReferenceProblem prp = new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context.toString());
-            prp.addAffectedRowNumber(this.progressListener.getRowNumber());
+            prp.addAffectedRowNumber(feature.getRowNumber());
             prp.setHistoryId(this.configuration.historyId);
 
             this.progressListener.addReferenceProblem(prp);
@@ -1141,7 +1246,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     return null;
   }
 
-  protected void setTermValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value, Date startDate, Date endDate)
+  protected void setTermValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value, Date startDate, Date endDate, FeatureRow feature)
   {
     if (!this.configuration.isExclusion(attributeName, value.toString()))
     {
@@ -1163,7 +1268,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
 
           TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
-          trp.addAffectedRowNumber(this.progressListener.getRowNumber());
+          trp.addAffectedRowNumber(feature.getRowNumber());
           trp.setHistoryId(this.configuration.getHistoryId());
 
           this.progressListener.addReferenceProblem(trp);
@@ -1274,7 +1379,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
   }
 
-  protected void setValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value)
+  protected void setValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value, FeatureRow row)
   {
     if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
@@ -1295,7 +1400,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       if (value != null)
       {
-        this.setTermValue(entity, attributeType, attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
+        this.setTermValue(entity, attributeType, attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate(), row);
       }
       else
       {
@@ -1329,7 +1434,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
       else if (value instanceof String)
       {
-        entity.setValue(attributeName, new Double((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
+        entity.setValue(attributeName, Double.valueOf((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
       }
       else if (value instanceof Number)
       {
@@ -1354,6 +1459,21 @@ public class GeoObjectImporter implements ObjectImporterIF
     else
     {
       entity.setValue(attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
+    }
+  }
+
+  @Override
+  public void close()
+  {
+    executor.shutdown();
+    try
+    {
+      executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+    }
+    catch (InterruptedException e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
   }
 }

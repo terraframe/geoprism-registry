@@ -56,10 +56,12 @@ export class ListComponent implements OnInit, OnDestroy {
 
     list: ListTypeVersion = null;
     current: string = "";
+
     isRefreshing: boolean = false;
     isWritable: boolean = false;
     isRM: boolean = false;
     isSRA: boolean = false;
+    isPublic: boolean = false;
 
     orgCode: string;
     userOrgCodes: string[];
@@ -114,6 +116,7 @@ export class ListComponent implements OnInit, OnDestroy {
             this.orgCode = this.list.orgCode;
             const typeCode = this.list.superTypeCode != null ? this.list.superTypeCode : this.list.typeCode;
 
+            this.isPublic = this.authService.isPublic();
             this.isWritable = this.authService.isGeoObjectTypeRC(this.orgCode, typeCode);
             this.isRM = this.authService.isGeoObjectTypeRM(this.orgCode, typeCode);
             this.isSRA = this.authService.isSRA();

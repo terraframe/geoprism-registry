@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 1689524280)
+@com.runwaysdk.business.ClassSignature(hash = -1829172152)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -55,6 +37,23 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public String getClassType()
   {
     return net.geoprism.registry.etl.ImportHistory.CLASS;
+  }
+  public com.runwaysdk.query.SelectableChar getCompletedRowsJson()
+  {
+    return getCompletedRowsJson(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getCompletedRowsJson(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.COMPLETEDROWSJSON, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getCompletedRowsJson(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.COMPLETEDROWSJSON, alias, displayLabel);
+
   }
   public com.runwaysdk.query.SelectableChar getConfigJson()
   {
@@ -274,6 +273,9 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public interface ImportHistoryQueryReferenceIF extends com.runwaysdk.system.scheduler.JobHistoryQuery.JobHistoryQueryReferenceIF
   {
 
+    public com.runwaysdk.query.SelectableChar getCompletedRowsJson();
+    public com.runwaysdk.query.SelectableChar getCompletedRowsJson(String alias);
+    public com.runwaysdk.query.SelectableChar getCompletedRowsJson(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getConfigJson();
     public com.runwaysdk.query.SelectableChar getConfigJson(String alias);
     public com.runwaysdk.query.SelectableChar getConfigJson(String alias, String displayLabel);
@@ -333,6 +335,23 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
       return this.NE(importHistory.getOid());
     }
 
+  public com.runwaysdk.query.SelectableChar getCompletedRowsJson()
+  {
+    return getCompletedRowsJson(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getCompletedRowsJson(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.COMPLETEDROWSJSON, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getCompletedRowsJson(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.COMPLETEDROWSJSON, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getConfigJson()
   {
     return getConfigJson(null);
@@ -510,6 +529,9 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public interface ImportHistoryQueryMultiReferenceIF extends com.runwaysdk.system.scheduler.JobHistoryQuery.JobHistoryQueryMultiReferenceIF
   {
 
+    public com.runwaysdk.query.SelectableChar getCompletedRowsJson();
+    public com.runwaysdk.query.SelectableChar getCompletedRowsJson(String alias);
+    public com.runwaysdk.query.SelectableChar getCompletedRowsJson(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getConfigJson();
     public com.runwaysdk.query.SelectableChar getConfigJson(String alias);
     public com.runwaysdk.query.SelectableChar getConfigJson(String alias, String displayLabel);
@@ -617,6 +639,23 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
       }
 
       return this.containsExactly(itemIdArray);
+  }
+  public com.runwaysdk.query.SelectableChar getCompletedRowsJson()
+  {
+    return getCompletedRowsJson(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getCompletedRowsJson(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.COMPLETEDROWSJSON, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getCompletedRowsJson(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.COMPLETEDROWSJSON, alias, displayLabel);
+
   }
   public com.runwaysdk.query.SelectableChar getConfigJson()
   {

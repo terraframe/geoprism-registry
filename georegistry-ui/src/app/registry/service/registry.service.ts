@@ -35,6 +35,7 @@ import { EventService } from "@shared/service";
 
 import { environment } from 'src/environments/environment';
 import { LocaleView } from "@core/model/core";
+import { firstValueFrom } from "rxjs";
 
 export interface AttributeTypeService {
     addAttributeType(geoObjTypeId: string, attribute: AttributeType): Promise<AttributeType>;
@@ -50,9 +51,16 @@ export class RegistryService implements AttributeTypeService {
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    init(): Promise<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }> {
-        return this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }>(environment.apiUrl + "/api/cgr/init")
-            .toPromise();
+    init(publicOnly?: boolean): Promise<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }> {
+        let params: HttpParams = new HttpParams();
+
+        if (publicOnly) {
+            params = params.set("publicOnly", publicOnly);
+        }
+
+        return firstValueFrom(
+            this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }>(environment.apiUrl + "/api/cgr/init", { params: params })
+        );
     }
     
     
