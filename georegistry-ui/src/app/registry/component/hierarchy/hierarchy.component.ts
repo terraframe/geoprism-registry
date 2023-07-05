@@ -23,7 +23,6 @@ import { debounceTime, distinctUntilChanged, filter, tap } from "rxjs/operators"
 import { fromEvent } from "rxjs";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
-import { ContextMenuService, ContextMenuComponent } from "ngx-contextmenu";
 import * as d3 from "d3";
 
 import { CreateHierarchyTypeModalComponent } from "./modals/create-hierarchy-type-modal.component";
@@ -105,16 +104,6 @@ export class HierarchyComponent implements OnInit {
   private bsModalRef: BsModalRef;
 
   /*
-   * Template for tree node menu
-   */
-  @ViewChild("nodeMenu") public nodeMenuComponent: ContextMenuComponent;
-
-  /*
-   * Template for leaf menu
-   */
-  @ViewChild("leafMenu") public leafMenuComponent: ContextMenuComponent;
-
-  /*
    * Currently clicked on id for delete confirmation modal
    */
   current: any;
@@ -125,34 +114,7 @@ export class HierarchyComponent implements OnInit {
 
   localizeService: LocalizationService;
 
-  options = {
-    //      allowDrag: (any) => node.isLeaf,
-    //      allowDrop: (element:Element, { parent, index }: {parent:TreeNode,index:number}) => {
-    // return true / false based on element, to.parent, to.index. e.g.
-    //          return parent.hasChildren;
-    //        },
-      displayField: "label",
-      actionMapping: {
-          mouse: {
-              click: (tree: any, node: any, $event: any) => {
-                  this.treeNodeOnClick(node, $event);
-              },
-              contextMenu: (tree: any, node: any, $event: any) => {
-                  this.handleOnMenu(node, $event);
-              }
-          }
-      },
-      mouse: {
-      //              drop: (tree: any, node: TreeNode, $event: any, {from, to}: {from:TreeNode, to:TreeNode}) => {
-      //                console.log('drag', from, to); // from === {name: 'first'}
-      //                // Add a node to `to.parent` at `to.index` based on the data in `from`
-      //                // Then call tree.update()
-      //              }
-      }
-  };
-
   constructor(hierarchyService: HierarchyService, private modalService: BsModalService,
-    private contextMenuService: ContextMenuService,
     localizeService: LocalizationService, private registryService: RegistryService, private authService: AuthService) {
       this.isSRA = authService.isSRA();
 
@@ -1065,31 +1027,6 @@ export class HierarchyComponent implements OnInit {
       });
 
       return label;
-  }
-
-  public handleOnMenu(node: any, $event: any): void {
-      if (this.isOrganizationRA(this.currentHierarchy.organizationCode)) {
-          this.contextMenuService.show.next({
-              contextMenu: (node.data.childType !== null ? this.nodeMenuComponent : this.leafMenuComponent),
-              event: $event,
-              item: node
-          });
-          $event.preventDefault();
-          $event.stopPropagation();
-      } else {
-          $event.preventDefault();
-          $event.stopPropagation();
-      }
-  }
-
-  public treeNodeOnClick(node: any, $event: any): void {
-      node.treeModel.setFocusedNode(node);
-
-      if (node.treeModel.isExpanded(node)) {
-          node.collapse();
-      } else {
-          node.treeModel.expandAll();
-      }
   }
 
   public hierarchyOnClick(event: any, item: HierarchyType) {

@@ -19,13 +19,13 @@
 
 -->
 <context-menu #nodeMenu>
-    <ng-template contextMenuItem let-item (execute)="onEdit($event.item)">
+    <ng-template contextMenuItem let-item (execute)="onEdit($event.value)">
         <localize key="modal.button.edit"></localize>
     </ng-template>
-    <ng-template contextMenuItem let-item (execute)="onRemove($event.item)">
+    <ng-template contextMenuItem let-item (execute)="onRemove($event.value)">
         <localize key="modal.button.delete"></localize>
     </ng-template>
-    <ng-template contextMenuItem let-item (execute)="onCreate($event.item)">
+    <ng-template contextMenuItem let-item (execute)="onCreate($event.value)">
         <localize key="hierarchy.content.addChild"></localize>
     </ng-template>
 </context-menu>

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
@@ -360,5 +361,17 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
   public void postSynchronization(LabeledPropertyGraphSynchronization synchronization)
   {
     // Do nothing
+  }
+  
+  @Override
+  public void postSynchronization(LabeledPropertyGraphSynchronization synchronization, VertexObject node)
+  {
+    // TODO Auto-generated method stub    
+  }
+  
+  @Override
+  public void postTruncate(LabeledPropertyGraphSynchronization synchronization)
+  {
+    // TODO Auto-generated method stub   
   }
 }

@@ -22,7 +22,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { Subscription } from "rxjs";
 import { TreeComponent, TreeModel, TreeNode, TREE_ACTIONS } from "@circlon/angular-tree-component";
-import { ContextMenuComponent, ContextMenuService } from "ngx-contextmenu";
+import { ContextMenuComponent, ContextMenuService } from "@perfectmemory/ngx-contextmenu";
 
 import { ConfirmModalComponent, ErrorHandler } from "@shared/component";
 import { Classification, ClassificationType } from "@registry/model/classification-type";
@@ -81,7 +81,7 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
     /*
      * Template for tree node menu
      */
-    @ViewChild("nodeMenu") public nodeMenuComponent: ContextMenuComponent;
+    @ViewChild("nodeMenu") public nodeMenuComponent: ContextMenuComponent<TreeNode>;
 
     options = {
         idField: "code",
@@ -127,7 +127,7 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
     }
 
     constructor(
-        private contextMenuService: ContextMenuService,
+        private contextMenuService: ContextMenuService<TreeNode>,
         private modalService: BsModalService,
         private service: ClassificationService,
         private lService: LocalizationService
@@ -202,11 +202,13 @@ export class ClassificationTypeComponent implements OnInit, OnDestroy {
     }
 
     handleOnMenu(node: TreeNode, $event: any): void {
-        this.contextMenuService.show.next({
-            contextMenu: this.nodeMenuComponent,
-            event: $event,
-            item: node
+        
+        this.contextMenuService.show(this.nodeMenuComponent, {
+            value: node,
+            x: $event.x,
+            y: $event.y,
         });
+
         $event.preventDefault();
         $event.stopPropagation();
     }

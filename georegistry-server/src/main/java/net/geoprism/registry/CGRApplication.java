@@ -26,7 +26,6 @@ import java.util.TreeSet;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.localization.LocalizationFacade;
 
 import net.geoprism.rbac.RoleConstants;
@@ -137,7 +136,7 @@ public class CGRApplication
     return object;
   }
   
-  public static List<CGRApplication> getApplications(ClientRequestIF request)
+  public static List<CGRApplication> getApplications()
   {
     List<CGRApplication> applications = new LinkedList<CGRApplication>();
     

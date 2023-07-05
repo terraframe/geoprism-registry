@@ -296,7 +296,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         'tileSize': 512,
                     }
                 },
-                sprite: layer.sprite,
                 glyphs: window.location.protocol + "//" + window.location.host + EnvironmentUtil.getApiUrl() + "/glyphs/{fontstack}/{range}.pbf",
                 layers: [
                     {

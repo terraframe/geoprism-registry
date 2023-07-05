@@ -22,7 +22,6 @@ import { BrowserModule } from "@angular/platform-browser";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
 import { TreeModule } from "@circlon/angular-tree-component";
-import { ContextMenuModule } from "ngx-contextmenu";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { ButtonsModule } from "ngx-bootstrap/buttons";
 import { TypeaheadModule } from "ngx-bootstrap/typeahead";
@@ -64,7 +63,6 @@ import { PhetsarathFontComponent } from "@core/component/phetsarath-font/phetsar
         FileUploadModule,
         //        ModalModule.forRoot(),
         TreeModule,
-        ContextMenuModule.forRoot(),
         BsDropdownModule.forRoot(),
         ButtonsModule.forRoot(),
         TypeaheadModule.forRoot(),

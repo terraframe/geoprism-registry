@@ -19,7 +19,7 @@
 
 -->
 <context-menu #nodeMenu menuClass="top-level">
-    <ng-template contextMenuItem let-item (execute)="onSelect($event.item)">
+    <ng-template contextMenuItem let-item (execute)="onSelect($event.value)">
         Select
     </ng-template>
 </context-menu>

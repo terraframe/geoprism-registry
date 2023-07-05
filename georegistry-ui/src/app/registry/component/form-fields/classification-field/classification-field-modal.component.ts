@@ -19,16 +19,15 @@
 
 import { Component, OnDestroy, ViewChild } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
-import { NextObserver, Observer, Subject, Subscription } from "rxjs";
+import { Observer, Subject, Subscription } from "rxjs";
 import { TreeComponent, TreeNode } from "@circlon/angular-tree-component";
-import { ContextMenuComponent, ContextMenuService } from "ngx-contextmenu";
+import { ContextMenuComponent, ContextMenuService } from "@perfectmemory/ngx-contextmenu";
 
 import { ErrorHandler } from "@shared/component";
 import { Classification, ClassificationNode } from "@registry/model/classification-type";
 import { ClassificationService } from "@registry/service/classification.service";
 import { PageResult } from "@shared/model/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
-import { timeout } from "d3";
 
 const PAGE_SIZE: number = 100;
 
@@ -78,7 +77,7 @@ export class ClassificationFieldModalComponent implements OnDestroy {
     /*
      * Template for tree node menu
      */
-    @ViewChild("nodeMenu") public nodeMenuComponent: ContextMenuComponent;
+    @ViewChild("nodeMenu") public nodeMenuComponent: ContextMenuComponent<TreeNode>;
 
     options = {
         idField: "code",
@@ -105,7 +104,7 @@ export class ClassificationFieldModalComponent implements OnDestroy {
 
     constructor(
         private bsModalRef: BsModalRef,
-        private contextMenuService: ContextMenuService,
+        private contextMenuService: ContextMenuService<TreeNode>,
         private service: ClassificationService
     ) { }
 
@@ -118,7 +117,7 @@ export class ClassificationFieldModalComponent implements OnDestroy {
             this.service.getAncestorTree(this.classificationType, this.rootCode, value.code, PAGE_SIZE).then(ancestor => {
                 this.nodes = [this.build(null, ancestor)];
 
-                timeout(() => {
+                window.setTimeout(() => {
                     const node: TreeNode = this.tree.treeModel.getNodeById(value.code);
 
                     if (node != null) {
@@ -231,10 +230,10 @@ export class ClassificationFieldModalComponent implements OnDestroy {
 
     handleOnMenu(node: TreeNode, $event: any): void {
         if (!this.disabled) {
-            this.contextMenuService.show.next({
-                contextMenu: this.nodeMenuComponent,
-                event: $event,
-                item: node
+            this.contextMenuService.show(this.nodeMenuComponent, {
+                value: node,
+                x: $event.x,
+                y: $event.y
             });
             $event.preventDefault();
             $event.stopPropagation();

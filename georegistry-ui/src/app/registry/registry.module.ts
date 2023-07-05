@@ -22,7 +22,7 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { TreeModule } from "@circlon/angular-tree-component";
-import { ContextMenuModule } from "ngx-contextmenu";
+import { ContextMenuModule } from "@perfectmemory/ngx-contextmenu";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { ButtonsModule } from "ngx-bootstrap/buttons";
 import { TypeaheadModule } from "ngx-bootstrap/typeahead";

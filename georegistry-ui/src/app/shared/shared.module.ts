@@ -22,7 +22,6 @@ import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { TreeModule } from "@circlon/angular-tree-component";
-import { ContextMenuModule } from "ngx-contextmenu";
 import { ModalModule } from "ngx-bootstrap/modal";
 import { BsDropdownModule } from "ngx-bootstrap/dropdown";
 import { ButtonsModule } from "ngx-bootstrap/buttons";
@@ -89,7 +88,6 @@ import { LocalizationService } from "./service";
         FileUploadModule,
         ModalModule.forRoot(),
         TreeModule,
-        ContextMenuModule,
         BsDropdownModule,
         ButtonsModule,
         TypeaheadModule,

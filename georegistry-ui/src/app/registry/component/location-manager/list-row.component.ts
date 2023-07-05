@@ -23,7 +23,6 @@ import { GenericTableConfig, TableColumnSetup } from "@shared/model/generic-tabl
 import { ListTypeService } from "@registry/service/list-type.service";
 import { HttpErrorResponse } from "@angular/common/http";
 import { LazyLoadEvent } from "primeng/api";
-import { timeout } from "d3";
 import Utils from "@registry/utility/Utils";
 
 @Component({
@@ -63,7 +62,7 @@ export class ListRowComponent implements OnInit, OnDestroy, OnChanges {
         } else if (changes["uid"] != null) {
             this.tableState = null;
 
-            timeout(() => {
+            window.setTimeout(() => {
                 this.tableState = {
                     filters: {
                         uid: {

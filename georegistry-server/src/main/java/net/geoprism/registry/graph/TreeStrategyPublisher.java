@@ -162,7 +162,7 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
 
     if (!this.uids.contains(snapshot.node.getUid()))
     {
-      vertex = this.publish(mdVertex, snapshot.node.toGeoObject(forDate, false));
+      vertex = this.publish(null, mdVertex, snapshot.node.toGeoObject(forDate, false));
 
       final VertexObject parent = vertex;
 
