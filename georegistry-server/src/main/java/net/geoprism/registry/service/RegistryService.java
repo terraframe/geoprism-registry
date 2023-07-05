@@ -79,6 +79,7 @@ import net.geoprism.account.OauthServerIF;
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.gis.geoserver.GeoserverProperties;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.CGRApplication;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.HierarchicalRelationshipType;
@@ -1243,6 +1244,12 @@ public class RegistryService
     config.addProperty("customFont", GeoregistryProperties.getCustomFont());
 
     return config;
+  }
+  
+  @Request(RequestType.SESSION)
+  public List<CGRApplication> getApplications(String sessionId)
+  {
+    return CGRApplication.getApplications();
   }
 
   public static RegistryService getInstance()
