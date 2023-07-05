@@ -55,6 +55,7 @@ import org.locationtech.jts.geom.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
@@ -235,9 +236,9 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
     });
 
-    this.blockingQueue = new LinkedBlockingDeque<Runnable>(50);
+    this.blockingQueue = new LinkedBlockingDeque<Runnable>(5);
 
-    this.executor = new ThreadPoolExecutor(10, 20, 5, TimeUnit.SECONDS, blockingQueue);
+    this.executor = new ThreadPoolExecutor(1, 4, 5, TimeUnit.SECONDS, blockingQueue);
     this.executor.prestartAllCoreThreads();
   }
 
@@ -329,7 +330,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   public void validateRow(FeatureRow row) throws InterruptedException
   {
-      this.blockingQueue.put(new Task(row, Action.VALIDATE, Session.getCurrentSession().getOid()));
+    this.blockingQueue.put(new Task(row, Action.VALIDATE, Session.getCurrentSession().getOid()));
   }
 
   @Transaction
@@ -513,7 +514,10 @@ public class GeoObjectImporter implements ObjectImporterIF
          * assigned to the same parent at the same time the system will throw a
          * OConcurrentModificationException. Retry the commit again.
          */
-        for (int i = 0; i < 100; i++)
+
+        ProgrammingErrorException ex = null;
+
+        for (int i = 0; i < 10; i++)
         {
           try
           {
@@ -523,7 +527,9 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
           catch (ProgrammingErrorException e)
           {
-            if (! ( e.getCause() instanceof OConcurrentModificationException ))
+            ex = e;
+
+            if (! ( ( e.getCause() instanceof OConcurrentModificationException ) || ( e.getCause() instanceof OIOException ) ))
             {
               throw e;
             }
@@ -536,6 +542,10 @@ public class GeoObjectImporter implements ObjectImporterIF
           // ++GeoObjectImporter.this.executeCount ));
 
           this.progressListener.incrementImportedRecords();
+        }
+        else if (ex != null)
+        {
+          throw ex;
         }
       }
       catch (DuplicateDataException e)
