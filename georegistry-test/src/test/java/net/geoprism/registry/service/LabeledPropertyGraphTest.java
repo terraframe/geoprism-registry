@@ -433,7 +433,7 @@ public class LabeledPropertyGraphTest
 
       version.truncate();
 
-      new JsonGraphVersionPublisher(version).publish(export);
+      new JsonGraphVersionPublisher(null, version).publish(export);
 
       GeoObjectTypeSnapshot graphVertex = GeoObjectTypeSnapshot.get(version, USATestData.COUNTRY.getCode());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
