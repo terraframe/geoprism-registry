@@ -2997,7 +2997,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     statement.append("let $dateLabel = first(displayLabel_cot");
     if (startDate != null && endDate != null)
     {
-      statement.append("[(:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate)]");
+      statement.append("[(:startDate BETWEEN startDate AND endDate)]"); // Intentionally do not filter on end date as per #913
     }
     statement.append("), ");
     statement.append("$filteredLabel = " + AbstractVertexRestriction.localize("$dateLabel.value") + " ");
@@ -3030,7 +3030,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
       if (startDate != null && endDate != null)
       {
-        textCondition.append("  (:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate) AND ");
+        textCondition.append("  (:startDate BETWEEN startDate AND endDate) AND "); // Intentionally do not filter on end date as per #913
       }
 
       textCondition.append(AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
