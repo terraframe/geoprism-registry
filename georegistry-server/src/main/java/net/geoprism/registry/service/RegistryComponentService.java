@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.CGRApplication;
 import net.geoprism.registry.permission.PermissionContext;
 
 @Component
@@ -271,6 +272,11 @@ public class RegistryComponentService
   public JsonObject configuration(String sessionId, String contextPath)
   {
     return service.configuration(sessionId, contextPath);
+  }
+
+  public List<CGRApplication> getApplications(String sessionId)
+  {
+    return service.getApplications(sessionId);
   }
 
 }
