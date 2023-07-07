@@ -219,7 +219,7 @@ public class ValueOverTimeParentTest
     go.apply(false);
     
     go = TEST_GO.getServerObject();
-    ServerParentTreeNode node = go.getParentsForHierarchy(FastTestDataset.HIER_ADMIN.getServerObject(), false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+    ServerParentTreeNode node = go.getParentsForHierarchy(FastTestDataset.HIER_ADMIN.getServerObject(), false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
     Assert.assertEquals(1, node.getParents().size());
     
     ServerGeoObjectIF value = node.getParents().get(0).getGeoObject();

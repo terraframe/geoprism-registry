@@ -36,6 +36,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+import net.geoprism.registry.HierarchicalRelationshipType;
+import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -230,8 +232,6 @@ public class UpdateAttributeViewJsonAdapters
       if (newParent == null)
       {
         newParent = cr.getGeoObject();
-        
-        sptns = newParent.getParentsForHierarchy(sht, true, startDate);
       }
       else
       {
@@ -239,11 +239,22 @@ public class UpdateAttributeViewJsonAdapters
         parent.addProperty(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENT_TEXT, newParent.getDisplayLabel().getValue() + " : " + newParent.getCode());
         parent.add(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENT_GEOOBJECT, newParent.toGeoObject(startDate).toJSON());
         parents.add(newParent.getType().getCode(), parent);
-        
-        sptns = newParent.getParentsForHierarchy(sht, true, startDate);
       }
       
-      List<ServerGeoObjectType> parentTypes = cType.getTypeAncestors(sht, false);
+      ServerHierarchyType newParentHier = sht;
+      if (newParent.getType().isRoot(sht))
+      {
+        InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.getByForHierarchical(sht.getHierarchicalRelationshipType());
+        
+        if (anno != null)
+        {
+          HierarchicalRelationshipType hrtInherited = anno.getInheritedHierarchicalRelationshipType();
+          newParentHier = ServerHierarchyType.get(hrtInherited);
+        }
+      }
+      sptns = newParent.getParentsForHierarchy(newParentHier, true, true, startDate);
+      
+      List<ServerGeoObjectType> parentTypes = cType.getTypeAncestors(sht, true);
       
       for (ServerParentTreeNode node : sptns.getParents())
       {

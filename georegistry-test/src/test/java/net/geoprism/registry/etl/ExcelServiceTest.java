@@ -629,7 +629,7 @@ public class ExcelServiceTest
 
     Assert.assertEquals("0001", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getCode(), config.getType().getCode(), null, new String[] { USATestData.STATE.getCode() }, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getCode(), config.getType().getCode(), null, new String[] { USATestData.STATE.getCode() }, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -703,7 +703,7 @@ public class ExcelServiceTest
 
     Assert.assertEquals("0001", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getCode(), config.getType().getCode(), null, new String[] { USATestData.STATE.getCode() }, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getCode(), config.getType().getCode(), null, new String[] { USATestData.STATE.getCode() }, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
 

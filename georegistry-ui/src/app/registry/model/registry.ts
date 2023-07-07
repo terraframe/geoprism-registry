@@ -394,6 +394,7 @@ export class HierarchyOverTime {
     types: {
         code: string;
         label: string;
+        inherited: string;
     }[];
 
     entries: HierarchyOverTimeEntry[];

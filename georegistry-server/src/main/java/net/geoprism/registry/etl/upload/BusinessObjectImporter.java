@@ -208,7 +208,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
           ServerParentTreeNode tnParent = new ServerParentTreeNode(geoObject, hierarchy, BusinessObjectImporter.this.getConfiguration().getDate(), BusinessObjectImporter.this.getConfiguration().getDate(), null);
 
-          ServerParentTreeNodeOverTime grandParentsOverTime = geoObject.getParentsOverTime(null, true);
+          ServerParentTreeNodeOverTime grandParentsOverTime = geoObject.getParentsOverTime(null, true, true);
 
           if (grandParentsOverTime != null && grandParentsOverTime.hasEntries(hierarchy))
           {

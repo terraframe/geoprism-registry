@@ -470,7 +470,7 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public ParentTreeNode getParentGeoObjects(String sessionId, String childCode, String childGeoObjectTypeCode, String hierarchyCode, String[] parentTypes, boolean recursive, Date date)
+  public ParentTreeNode getParentGeoObjects(String sessionId, String childCode, String childGeoObjectTypeCode, String hierarchyCode, String[] parentTypes, boolean recursive, boolean includeInherited, Date date)
   {
     ServerGeoObjectIF object = this.service.getGeoObjectByCode(childCode, childGeoObjectTypeCode, true);
 
@@ -485,7 +485,7 @@ public class RegistryService
       sht = ServerHierarchyType.get(hierarchyCode);
     }
 
-    return object.getParentGeoObjects(sht, parentTypes, recursive, date).toNode(true);
+    return object.getParentGeoObjects(sht, parentTypes, recursive, includeInherited, date).toNode(true);
   }
 
   public ServerGeoObjectQuery createQuery(String typeCode)
@@ -1047,7 +1047,7 @@ public class RegistryService
     go.setInvalid(false);
 
     final GeoObjectOverTime goot = go.toGeoObjectOverTime();
-    ServerParentTreeNodeOverTime pot = go.getParentsOverTime(null, true);
+    ServerParentTreeNodeOverTime pot = go.getParentsOverTime(null, true, true);
 
     HierarchyService.filterHierarchiesFromPermissions(type, pot);
 

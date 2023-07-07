@@ -122,6 +122,7 @@ import net.geoprism.registry.GeometrySizeException;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.HierarchicalRelationshipType;
+import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.RequiredAttributeException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
@@ -1436,21 +1437,21 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Override
-  public ServerParentTreeNode getParentGeoObjects(ServerHierarchyType hierarchy, String[] parentTypes, Boolean recursive, Date date)
+  public ServerParentTreeNode getParentGeoObjects(ServerHierarchyType hierarchy, String[] parentTypes, Boolean recursive, Boolean includeInherited, Date date)
   {
-    return internalGetParentGeoObjects(this, parentTypes, recursive, hierarchy, date);
+    return internalGetParentGeoObjects(this, parentTypes, recursive, includeInherited, hierarchy, date);
   }
 
   @Override
-  public ServerParentTreeNode getParentsForHierarchy(ServerHierarchyType hierarchy, Boolean recursive, Date date)
+  public ServerParentTreeNode getParentsForHierarchy(ServerHierarchyType hierarchy, Boolean recursive, Boolean includeInherited, Date date)
   {
-    return internalGetParentGeoObjects(this, null, recursive, hierarchy, date);
+    return internalGetParentGeoObjects(this, null, recursive, includeInherited, hierarchy, date);
   }
 
   @Override
-  public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive)
+  public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive, Boolean includeInherited)
   {
-    return internalGetParentOverTime(this, parentTypes, recursive);
+    return internalGetParentOverTime(this, parentTypes, recursive, includeInherited);
   }
 
   @Override
@@ -2448,7 +2449,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return tnRoot;
   }
 
-  protected static ServerParentTreeNode internalGetParentGeoObjects(VertexServerGeoObject child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn, Date date)
+  protected static ServerParentTreeNode internalGetParentGeoObjects(VertexServerGeoObject child, String[] parentTypes, boolean recursive, boolean includeInherited, ServerHierarchyType htIn, Date date)
   {
     ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn, date, null, null);
 
@@ -2527,7 +2528,26 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
         if (recursive)
         {
-          tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, ht, date);
+          if (includeInherited && parentType.isRoot(ht))
+          {
+            InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.getByForHierarchical(ht.getHierarchicalRelationshipType());
+            
+            if (anno != null)
+            {
+              HierarchicalRelationshipType hrtInherited = anno.getInheritedHierarchicalRelationshipType();
+              ServerHierarchyType shtInherited = ServerHierarchyType.get(hrtInherited);
+              
+              tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, includeInherited, shtInherited, date);
+            }
+            else
+            {
+              tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, includeInherited, ht, date);
+            }
+          }
+          else
+          {
+            tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, includeInherited, ht, date);
+          }
         }
         else
         {
@@ -2541,7 +2561,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return tnRoot;
   }
 
-  protected static ServerParentTreeNodeOverTime internalGetParentOverTime(VertexServerGeoObject child, String[] parentTypes, boolean recursive)
+  protected static ServerParentTreeNodeOverTime internalGetParentOverTime(VertexServerGeoObject child, String[] parentTypes, boolean recursive, boolean includeInherited)
   {
     final ServerGeoObjectType cType = child.getType();
     final List<ServerHierarchyType> hierarchies = cType.getHierarchies();
@@ -2615,7 +2635,26 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
         if (recursive)
         {
-          tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, ht, date);
+          if (includeInherited && parentType.isRoot(ht))
+          {
+            InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.getByForHierarchical(ht.getHierarchicalRelationshipType());
+            
+            if (anno != null)
+            {
+              HierarchicalRelationshipType hrtInherited = anno.getInheritedHierarchicalRelationshipType();
+              ServerHierarchyType shtInherited = ServerHierarchyType.get(hrtInherited);
+              
+              tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, includeInherited, shtInherited, date);
+            }
+            else
+            {
+              tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, includeInherited, ht, date);
+            }
+          }
+          else
+          {
+            tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, includeInherited, ht, date);
+          }
         }
         else
         {

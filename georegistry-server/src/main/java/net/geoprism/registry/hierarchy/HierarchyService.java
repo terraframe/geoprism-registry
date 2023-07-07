@@ -227,7 +227,7 @@ public class HierarchyService
   public JsonArray getHierarchiesForGeoObjectOverTimeInReq(String code, String typeCode)
   {
     ServerGeoObjectIF geoObject = ServiceFactory.getGeoObjectService().getGeoObjectByCode(code, typeCode);
-    ServerParentTreeNodeOverTime pot = geoObject.getParentsOverTime(null, true);
+    ServerParentTreeNodeOverTime pot = geoObject.getParentsOverTime(null, true, true);
 
     filterHierarchiesFromPermissions(geoObject.getType(), pot);
 

@@ -21,7 +21,9 @@ package net.geoprism.registry.view;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,7 +35,6 @@ import java.util.TreeMap;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectJsonAdapters;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -45,6 +46,8 @@ import com.google.gson.JsonParseException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.HierarchicalRelationshipType;
+import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -67,6 +70,8 @@ public class ServerParentTreeNodeOverTime
   public static final String JSON_TYPE_CODE = "code";
   
   public static final String JSON_TYPE_LABEL = "label";
+  
+  public static final String JSON_TYPE_INHERITED = "inherited";
   
   public static final String JSON_ENTRY_STARTDATE = "startDate";
   
@@ -230,10 +235,12 @@ public class ServerParentTreeNodeOverTime
       final Hierarchy hierarchy = entry.getValue();
       final ServerHierarchyType ht = hierarchy.getType();
 
-      List<ServerGeoObjectType> parentTypes = this.type.getTypeAncestors(ht, false);
+      List<ServerGeoObjectType> parentTypes = this.type.getTypeAncestors(ht, true);
+      Collections.reverse(parentTypes);
 
       // Populate a "types" array with all ancestors of the GOT they passed us
-      JsonArray types = new JsonArray();
+      ServerHierarchyType inherited = ht;
+      List<JsonObject> rTypes = new ArrayList<JsonObject>();
       for (ServerGeoObjectType pType : parentTypes)
       {
         if (!pType.getCode().equals(this.type.getCode()))
@@ -241,10 +248,29 @@ public class ServerParentTreeNodeOverTime
           JsonObject pObject = new JsonObject();
           pObject.addProperty(JSON_TYPE_CODE, pType.getCode());
           pObject.addProperty(JSON_TYPE_LABEL, pType.getLabel().getValue());
+          
+          if (inherited != ht)
+          {
+            pObject.addProperty(JSON_TYPE_INHERITED, inherited.getCode());
+          }
 
-          types.add(pObject);
+          rTypes.add(pObject);
+          
+          if (pType.isRoot(inherited))
+          {
+            InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.getByForHierarchical(ht.getHierarchicalRelationshipType());
+            
+            if (anno != null)
+            {
+              HierarchicalRelationshipType hrtInherited = anno.getInheritedHierarchicalRelationshipType();
+              inherited = ServerHierarchyType.get(hrtInherited);
+            }
+          }
         }
       }
+      Collections.reverse(rTypes);
+      JsonArray types = new JsonArray();
+      rTypes.stream().forEach(t -> types.add(t));
 
       // Populate an "entries" array with all the parents per time period
       final JsonArray entries = new JsonArray();
