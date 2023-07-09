@@ -50,7 +50,7 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
         // Note: Ordered ancestors always includes self
         Collection<?> uniParents = GeoEntityUtil.getOrderedAncestors(root, geoObjectType.getUniversal(), sType.getUniversalType());
 
-        ParentTreeNode ptnAncestors = this.getParentGeoObjects(sType, null, true, date).toNode(true);
+        ParentTreeNode ptnAncestors = this.getParentGeoObjects(sType, null, true, true, date).toNode(true);
 
         if (uniParents.size() > 1)
         {

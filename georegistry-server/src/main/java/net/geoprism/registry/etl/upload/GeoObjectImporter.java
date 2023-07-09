@@ -284,7 +284,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
           ServerParentTreeNode tnParent = new ServerParentTreeNode(parent, hierarchy, GeoObjectImporter.this.configuration.getStartDate(), GeoObjectImporter.this.configuration.getEndDate(), null);
 
-          ServerParentTreeNodeOverTime grandParentsOverTime = parent.getParentsOverTime(null, true);
+          ServerParentTreeNodeOverTime grandParentsOverTime = parent.getParentsOverTime(null, true, true);
 
           if (grandParentsOverTime != null && grandParentsOverTime.hasEntries(hierarchy))
           {

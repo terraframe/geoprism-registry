@@ -135,7 +135,7 @@
                                        <div class="input-group">
                                           <input style="width:100%;" type="text" class="form-control" autocomplete="off"
                                             [name]="type.code + '-' + i"
-                                            [disabled]="readonly || viewModel.summaryKey === 'DELETE' || viewModel.startDate == null || viewModel.startDate === ''"
+                                            [disabled]="readonly || type.inherited || viewModel.summaryKey === 'DELETE' || viewModel.startDate == null || viewModel.startDate === ''"
                                             [(ngModel)]="viewModel.value.parents[type.code].text" 
                                             [typeaheadAsync]="true"
                                             [typeahead]="getTypeAheadObservable(viewModel.editor, viewModel.startDate, viewModel.endDate, type, viewModel.value, j)"
@@ -147,12 +147,12 @@
                                             [typeaheadMinLength]="0"
                                             [typeaheadWaitMs]="300">
                                           
-                                            <span *ngIf="!readonly" class="input-group-addon clickable addon-alert" (click)="viewModel.editor.removeType(type)"> 
+                                            <span *ngIf="!readonly && type.inherited == null" class="input-group-addon clickable addon-alert" (click)="viewModel.editor.removeType(type)"> 
                                               <i class="fa fa-times" aria-hidden="true"></i>
                                             </span>
                                                   
                                             <!-- Hack: This is needed for formatting  -->
-                                            <span *ngIf="readonly" class="input-group-addon addon-alert"> 
+                                            <span *ngIf="readonly || type.inherited != null" class="input-group-addon addon-alert" style="visibility:hidden;"> 
                                             </span>
                                         </div>
                                      </div>

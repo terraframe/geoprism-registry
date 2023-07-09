@@ -66,11 +66,11 @@ export class SyncDetailsComponent implements OnInit {
     }
     
     formatGeoObjectCode(codes: string) {
-        return codes.replace(/,/g, ", ");
+        return codes == null ? "" : codes.replace(/,/g, ", ");
     }
 
     formatAffectedRows(rows: string) {
-        return rows.replace(/,/g, ", ");
+        return rows == null ? "" : rows.replace(/,/g, ", ");
     }
 
     onPageChange(pageNumber: any): void {

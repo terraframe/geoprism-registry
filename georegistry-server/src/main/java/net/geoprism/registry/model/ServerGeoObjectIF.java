@@ -110,11 +110,11 @@ public interface ServerGeoObjectIF
 
   public ServerChildTreeNode getChildGeoObjects(ServerHierarchyType hierarchy, String[] childrenTypes, Boolean recursive, Date date);
 
-  public ServerParentTreeNode getParentGeoObjects(ServerHierarchyType hierarchy, String[] parentTypes, Boolean recursive, Date date);
+  public ServerParentTreeNode getParentGeoObjects(ServerHierarchyType hierarchy, String[] parentTypes, Boolean recursive, Boolean includeInherited, Date date);
 
-  public ServerParentTreeNode getParentsForHierarchy(ServerHierarchyType hierarchy, Boolean recursive, Date date);
+  public ServerParentTreeNode getParentsForHierarchy(ServerHierarchyType hierarchy, Boolean recursive, Boolean includeInherited, Date date);
 
-  public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive);
+  public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive, Boolean includeInherited);
 
   public void setParents(ServerParentTreeNodeOverTime parentsOverTime);
 
