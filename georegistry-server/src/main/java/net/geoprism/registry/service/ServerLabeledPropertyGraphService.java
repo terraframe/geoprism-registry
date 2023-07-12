@@ -2,6 +2,7 @@ package net.geoprism.registry.service;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
@@ -358,20 +359,20 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
   }
   
   @Override
-  public void postSynchronization(LabeledPropertyGraphSynchronization synchronization)
+  public void postSynchronization(LabeledPropertyGraphSynchronization synchronization, Map<String, Object> cache)
   {
     // Do nothing
   }
   
   @Override
-  public void postSynchronization(LabeledPropertyGraphSynchronization synchronization, VertexObject node)
+  public void postSynchronization(LabeledPropertyGraphSynchronization synchronization, VertexObject node, Map<String, Object> cache)
   {
-    // TODO Auto-generated method stub    
+    // Do nothing
   }
   
   @Override
   public void postTruncate(LabeledPropertyGraphSynchronization synchronization)
   {
-    // TODO Auto-generated method stub   
+    // Do nothing
   }
 }
