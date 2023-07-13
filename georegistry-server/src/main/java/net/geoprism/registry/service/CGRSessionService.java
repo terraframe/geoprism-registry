@@ -143,6 +143,9 @@ public class CGRSessionService extends SessionService
     extensions.add(".otf");
     extensions.add(".mp4");
     extensions.add(".ico");
+    extensions.add(".woff2");
+    extensions.add(".woff");
+    extensions.add(".ttf");
 
     extensions.add(".js");
 
