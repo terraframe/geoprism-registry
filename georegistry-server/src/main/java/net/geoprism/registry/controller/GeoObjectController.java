@@ -501,7 +501,7 @@ public class GeoObjectController extends RunwaySpringController
       }
     }
 
-    TreeNode tn = this.service.getParentGeoObjects(this.getSessionId(), childCode, childTypeCode, hierarchyCode, aParentTypes, recursive, date);
+    TreeNode tn = this.service.getParentGeoObjects(this.getSessionId(), childCode, childTypeCode, hierarchyCode, aParentTypes, recursive, recursive, date);
 
     return new ResponseEntity<String>(tn.toJSON().toString(), HttpStatus.OK);
   }

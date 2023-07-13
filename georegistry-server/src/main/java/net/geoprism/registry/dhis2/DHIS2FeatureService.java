@@ -337,11 +337,15 @@ public class DHIS2FeatureService
     {
       JsonObject existingTranslation = current.get(i).getAsJsonObject();
       
-      // DHIS2 is pretty bad with validating this data. We can't make any assumptions here about their data.
-      final String locale = (existingTranslation.get("locale") == null || existingTranslation.get("locale").isJsonNull() || StringUtils.isEmpty(existingTranslation.get("locale").getAsString())) ? "null" : existingTranslation.get("locale").getAsString();
-      final String property = (existingTranslation.get("property") == null || existingTranslation.get("property").isJsonNull() || StringUtils.isEmpty(existingTranslation.get("property").getAsString())) ? "null" : existingTranslation.get("property").getAsString();
-      
-      mergedMap.put(locale + "-" + property, existingTranslation);
+      // DHIS2 is pretty bad with validating this data. If there's missing required fields, we can't resubmit that corrupt data or it will cause an error.
+      if ((existingTranslation.get("locale") != null && !existingTranslation.get("locale").isJsonNull() && StringUtils.isNotEmpty(existingTranslation.get("locale").getAsString())) &&
+          (existingTranslation.get("property") != null && !existingTranslation.get("property").isJsonNull() && StringUtils.isNotEmpty(existingTranslation.get("property").getAsString())))
+      {
+        final String locale = existingTranslation.get("locale").getAsString();
+        final String property = existingTranslation.get("property").getAsString();
+        
+        mergedMap.put(locale + "-" + property, existingTranslation);
+      }
     }
 
     for (int i = 0; i < update.size(); ++i)

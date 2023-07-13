@@ -58,14 +58,14 @@ public class HierarchyChangeTest
     String cd1TypeCode = USATestData.CO_D_ONE.getCode();
 
     ServerGeoObjectIF geoobject = new VertexGeoObjectStrategy(USATestData.DISTRICT.getServerObject()).getGeoObjectByCode(cd1TypeCode);
-    ServerParentTreeNode parents = geoobject.getParentGeoObjects(null, null, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+    ServerParentTreeNode parents = geoobject.getParentGeoObjects(null, null, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertEquals(1, parents.getParents().size());
 
     ServiceFactory.getHierarchyService().removeFromHierarchy(sessionId, hierarchyCode, countryTypeCode, stateTypeCode, true);
 
     ServerGeoObjectIF test = new VertexGeoObjectStrategy(USATestData.DISTRICT.getServerObject()).getGeoObjectByCode(cd1TypeCode);
-    ServerParentTreeNode tParents = test.getParentGeoObjects(null, null, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+    ServerParentTreeNode tParents = test.getParentGeoObjects(null, null, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertEquals(0, tParents.getParents().size());
   }

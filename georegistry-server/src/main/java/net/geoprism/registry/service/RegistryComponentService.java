@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.CGRApplication;
 import net.geoprism.registry.permission.PermissionContext;
 
 @Component
@@ -103,9 +104,9 @@ public class RegistryComponentService
     return service.getChildGeoObjects(sessionId, parentCode, parentGeoObjectTypeCode, hierarchyCode, childrenTypes, recursive, date);
   }
 
-  public ParentTreeNode getParentGeoObjects(String sessionId, String childCode, String childGeoObjectTypeCode, String hierarchyCode, String[] parentTypes, boolean recursive, Date date)
+  public ParentTreeNode getParentGeoObjects(String sessionId, String childCode, String childGeoObjectTypeCode, String hierarchyCode, String[] parentTypes, boolean recursive, boolean includeInherited, Date date)
   {
-    return service.getParentGeoObjects(sessionId, childCode, childGeoObjectTypeCode, hierarchyCode, parentTypes, recursive, date);
+    return service.getParentGeoObjects(sessionId, childCode, childGeoObjectTypeCode, hierarchyCode, parentTypes, recursive, includeInherited, date);
   }
 
   public OrganizationDTO[] getOrganizations(String sessionId, String[] codes)
@@ -271,6 +272,11 @@ public class RegistryComponentService
   public JsonObject configuration(String sessionId, String contextPath)
   {
     return service.configuration(sessionId, contextPath);
+  }
+
+  public List<CGRApplication> getApplications(String sessionId)
+  {
+    return service.getApplications(sessionId);
   }
 
 }

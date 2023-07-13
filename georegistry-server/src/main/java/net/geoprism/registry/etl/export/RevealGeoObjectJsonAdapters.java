@@ -142,7 +142,7 @@ public class RevealGeoObjectJsonAdapters
 
     public static ServerGeoObjectIF getParent(ServerGeoObjectIF serverGo, ServerHierarchyType hierarchy)
     {
-      ServerParentTreeNode sptn = serverGo.getParentGeoObjects(hierarchy, null, false, null);
+      ServerParentTreeNode sptn = serverGo.getParentGeoObjects(hierarchy, null, false, false, null);
 
       List<ServerParentTreeNode> parents = sptn.getParents();
 

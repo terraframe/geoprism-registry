@@ -365,7 +365,7 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
             const parent = entry.parents[pType.code];
 
             if (parent.geoObject != null && parent.geoObject.properties.code != null) {
-                hierarchyCode = editor.changeRequestAttributeEditor.hierarchy.code;
+                hierarchyCode = (pType.inherited == null) ? editor.changeRequestAttributeEditor.hierarchy.code : pType.inherited;
                 parentCode = parent.geoObject.properties.code;
                 parentTypeCode = parent.geoObject.properties.type;
             }
@@ -379,15 +379,16 @@ export class ManageVersionsComponent implements OnInit, OnDestroy {
                     loopI = loopI - 1;
 
                     let parent = entry.parents[editor.changeRequestAttributeEditor.hierarchy.types[loopI].code];
+                    let parentInherited = editor.changeRequestAttributeEditor.hierarchy.types[loopI].inherited;
 
                     if (parent != null) {
                         if (parent.geoObject != null && parent.geoObject.properties.code != null) {
                             parentCode = parent.geoObject.properties.code;
-                            hierarchyCode = editor.changeRequestAttributeEditor.hierarchy.code;
+                            hierarchyCode = (parentInherited == null) ? editor.changeRequestAttributeEditor.hierarchy.code : parentInherited;
                             parentTypeCode = editor.changeRequestAttributeEditor.hierarchy.types[loopI].code;
                         } else if (parent.goCode != null) {
                             parentCode = parent.goCode;
-                            hierarchyCode = editor.changeRequestAttributeEditor.hierarchy.code;
+                            hierarchyCode = (parentInherited == null) ? editor.changeRequestAttributeEditor.hierarchy.code : parentInherited;
                             parentTypeCode = editor.changeRequestAttributeEditor.hierarchy.types[loopI].code;
                         }
                     }
