@@ -235,9 +235,9 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
     });
 
-    this.blockingQueue = new LinkedBlockingDeque<Runnable>(50);
+    this.blockingQueue = new LinkedBlockingDeque<Runnable>(10);
 
-    this.executor = new ThreadPoolExecutor(10, 20, 5, TimeUnit.SECONDS, blockingQueue);
+    this.executor = new ThreadPoolExecutor(1, 5, 5, TimeUnit.SECONDS, blockingQueue);
     this.executor.prestartAllCoreThreads();
   }
 
