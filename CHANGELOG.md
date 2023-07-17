@@ -2,6 +2,24 @@
 # Release Notes
 
 
+## [1.3.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.3.0) (2023-07-17)
+
+### Features
+
+ - **explorer** include parents from inherited hierarchies in parents tab  ([#911](https://github.com/terraframe/geoprism-registry/issues/911)) ([4b8fe](https://github.com/terraframe/geoprism-registry/commit/4b8fe158c604d6b085cc90679a84fb239fac48a5))
+ - **importer** multithreaded importing   ([982e9](https://github.com/terraframe/geoprism-registry/commit/982e9bfeeef10d39cfb55dd839627a39502c6b8b))
+ - **lists** allow public access to the list version page   ([37d10](https://github.com/terraframe/geoprism-registry/commit/37d1068bfaea34f4531fc9ac1f74772cd5bacd42))
+
+### Bug Fixes
+
+   - fixed application labels not being localized. #900  ([#900](https://github.com/terraframe/geoprism-registry/issues/900)) ([08718](https://github.com/terraframe/geoprism-registry/commit/0871862570219c8b7a4e7a4354d6454400d15fd5))
+   - changed the initial explorer bounds of an object to use the most recent geometry  ([#902](https://github.com/terraframe/geoprism-registry/issues/902)) ([c7545](https://github.com/terraframe/geoprism-registry/commit/c75457047dbdaa5d1a54585e5820d9e20fee3c75))
+   - **dhis2-sync** error message details empty for external system synchronization  ([#909](https://github.com/terraframe/geoprism-registry/issues/909)) ([11d82](https://github.com/terraframe/geoprism-registry/commit/11d826852de34ffa0a4c3b1d270532604c9164df))
+   - **explorer** parent auto-complete dropdown missing labels  ([#913](https://github.com/terraframe/geoprism-registry/issues/913)) ([75742](https://github.com/terraframe/geoprism-registry/commit/75742fea70fad2c3bae8490a50bfb09a95b8627a))
+   - georegistry-server/pom.xml to reduce vulnerabilities The following vulnerabilities are fixed with an upgrade:- https://snyk.io/vuln/SNYK-JAVA-ORGSPRINGFRAMEWORK-3369749- https://snyk.io/vuln/SNYK-JAVA-ORGSPRINGFRAMEWORK-3369852  ([bd27f](https://github.com/terraframe/geoprism-registry/commit/bd27f788da406e6ba77a64d845691aa850afd73d))
+
+
+
 ## [1.2.2](https://github.com/terraframe/geoprism-registry/releases/tag/1.2.2) (2023-06-23)
 
 ### Features
