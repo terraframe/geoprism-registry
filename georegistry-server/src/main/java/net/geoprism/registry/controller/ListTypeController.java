@@ -23,6 +23,7 @@ import java.text.ParseException;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -218,13 +219,26 @@ public class ListTypeController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
-  @GetMapping(API_PATH + "/data")                      
+  @GetMapping(API_PATH + "/data")
   public ResponseEntity<String> data(
-      @NotEmpty @RequestParam String oid, 
-      @RequestParam(required = false) String criteria, 
-      @RequestParam Boolean showInvalid,      
+      @NotEmpty @RequestParam String oid,
+      @RequestParam(required = false) String criteria,
+      @RequestParam(required = false) Boolean showInvalid,
       @RequestParam(required = false) Boolean includeGeometries)
   {
+    if (StringUtils.isEmpty(criteria))
+    {
+      criteria = "{}";
+    }
+    if (showInvalid == null)
+    {
+      showInvalid = Boolean.FALSE;
+    }
+    if (includeGeometries == null)
+    {
+      includeGeometries = Boolean.FALSE;
+    }
+    
     JsonObject response = this.service.data(this.getSessionId(), oid, criteria, showInvalid, includeGeometries);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
