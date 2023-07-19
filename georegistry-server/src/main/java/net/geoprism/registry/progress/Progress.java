@@ -45,6 +45,11 @@ public class Progress
   {
     return current;
   }
+  
+  public Long getTotal()
+  {
+    return total;
+  }
 
   public JsonObject toJson()
   {

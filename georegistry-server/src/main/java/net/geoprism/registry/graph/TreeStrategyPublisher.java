@@ -128,10 +128,7 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
 
           count++;
 
-          if (count % 10 == 0)
-          {
-            ProgressService.put(type.getOid(), new Progress(count, ( count + stack.size() ), version.getOid()));
-          }
+          ProgressService.put(type.getOid(), new Progress(count, ( count + stack.size() ), version.getOid()));
         }
 
         ProgressService.put(type.getOid(), new Progress(1L, 1L, version.getOid()));

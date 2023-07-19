@@ -21,11 +21,17 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angu
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 
+import { Subscription } from "rxjs";
+import { webSocket, WebSocketSubject } from "rxjs/webSocket";
+import { WebSockets } from "@shared/component/web-sockets/web-sockets";
+
 import { ConfirmModalComponent } from "@shared/component";
-import { DateService, LocalizationService } from "@shared/service";
+import { DateService, LocalizationService, ProgressService } from "@shared/service";
 import { LabeledPropertyGraphType, LabeledPropertyGraphTypeEntry, LabeledPropertyGraphTypeVersion } from "@registry/model/labeled-property-graph-type";
 import { LabeledPropertyGraphTypeService } from "@registry/service/labeled-property-graph-type.service";
 import { LabeledPropertyGraphTypePublishModalComponent } from "./publish-modal.component";
+import { Progress } from "@shared/model/progress";
+
 
 @Component({
     selector: "labeled-property-graph-type",
@@ -42,11 +48,17 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
     */
     bsModalRef: BsModalRef;
 
+    progressNotifier: WebSocketSubject<any>;
+    progressSubscription: Subscription = null;
+
+    isRefreshing: boolean = false;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private service: LabeledPropertyGraphTypeService,
         private modalService: BsModalService,
         private localizeService: LocalizationService,
+        private pService: ProgressService,
         private dateService: DateService) { }
 
     ngOnInit(): void {
@@ -56,9 +68,25 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
         }).forEach(entry => {
             entry.versions[0].collapsed = true;
         });
+
+        let baseUrl = WebSockets.buildBaseUrl();
+        this.progressNotifier = webSocket(baseUrl + "/websocket/progress/" + this.type.oid);
+        this.progressSubscription = this.progressNotifier.subscribe(message => {
+            if (message.content != null) {
+                this.handleProgressChange(message.content);
+            } else {
+                this.handleProgressChange(message);
+            }
+        });
+
     }
 
     ngOnDestroy() {
+        if (this.progressSubscription != null) {
+            this.progressSubscription.unsubscribe();
+        }
+
+        this.progressNotifier.complete();
     }
 
     toggleVersions(entry: LabeledPropertyGraphTypeEntry) {
@@ -133,6 +161,15 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
                 this.error.emit(err);
             });
         });
+    }
+
+    handleProgressChange(progress: Progress): void {
+        console.log(progress)
+
+        this.isRefreshing = (progress.current < progress.total);
+        progress.description = '';
+
+        this.pService.progress(progress);
     }
 
 }

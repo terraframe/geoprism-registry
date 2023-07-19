@@ -33,7 +33,7 @@ public class ProgressService
   {
     PROGRESS_MAP.put(key, progress);
 
-    if (progress.getCurrent() % 200 == 0)
+    if (progress.getCurrent() % 50 == 0 || progress.getCurrent().equals(progress.getTotal()))
     {
       NotificationFacade.queue(new ProgressMessage(key, progress));
     }
