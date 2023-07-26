@@ -46,7 +46,7 @@ public class RelationshipVisualizationController extends RunwaySpringController
 
   @GetMapping(API_PATH + "/tree")
   public ResponseEntity<String> tree( 
-      @NotEmpty @RequestParam String relationshipType,
+      @RequestParam(required = false) String relationshipType,
       @NotEmpty @RequestParam String graphTypeCode,
       @NotEmpty @RequestParam String sourceVertex, 
       @RequestParam(required = false) Date date, 
@@ -59,7 +59,7 @@ public class RelationshipVisualizationController extends RunwaySpringController
   
   @GetMapping(API_PATH + "/treeAsGeoJson")
   public ResponseEntity<String> treeAsGeoJson(
-      @NotEmpty @RequestParam String relationshipType,
+      @RequestParam(required = false) String relationshipType,
       @NotEmpty @RequestParam String graphTypeCode,
       @NotEmpty @RequestParam String sourceVertex, 
       @RequestParam(required = false) Date date, 
