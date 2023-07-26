@@ -50,7 +50,7 @@ import { BooleanFieldComponent } from "./component/form-fields/boolean-field/boo
 import { LoadingBarComponent } from "./component/loading-bar/loading-bar.component";
 import { PasswordStrengthBarComponent } from "./component/password-strength-bar/password-strength-bar.component";
 
-import { AdminGuard, MaintainerGuard, ContributerGuard, AuthGuard } from "./service/guard.service";
+import { AdminGuard, MaintainerGuard, ContributerGuard, AuthGuard, LabeledPropertyGraphGuard, BusinessDataGuard } from "./service/guard.service";
 import { PendingChangesGuard } from "./service/pending-changes-guard";
 
 import { AuthService } from "./service/auth.service";
@@ -183,6 +183,8 @@ export class SharedModule {
                 ContributerGuard,
                 AuthGuard,
                 PendingChangesGuard,
+                LabeledPropertyGraphGuard,
+                BusinessDataGuard,
                 DateService
             ]
         };

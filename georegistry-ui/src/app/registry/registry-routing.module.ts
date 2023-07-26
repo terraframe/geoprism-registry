@@ -33,7 +33,7 @@ import { SynchronizationConfigComponent } from "./component/synchronization-conf
 import { SyncDetailsComponent } from "./component/synchronization-config/details.component";
 import { LocationManagerComponent } from "./component/location-manager/location-manager.component";
 
-import { MaintainerGuard, ContributerGuard, AuthGuard } from "../shared/service/guard.service";
+import { MaintainerGuard, ContributerGuard, AuthGuard, LabeledPropertyGraphGuard, BusinessDataGuard } from "../shared/service/guard.service";
 import { BusinessTypeManagerComponent } from "./component/business-type/business-type-manager.component";
 import { BusinessImporterComponent } from "./component/business-importer/business-importer.component";
 import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
@@ -133,17 +133,17 @@ const routes: Routes = [
     {
         path: "business-types",
         component: BusinessTypeManagerComponent,
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard, BusinessDataGuard]
     },
     {
         path: "business-importer",
         component: BusinessImporterComponent,
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard, BusinessDataGuard]
     },
     {
         path: "business-type/:oid",
         component: BusinessTableComponent,
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard, BusinessDataGuard]
     },
     {
         path: "classification-type",
@@ -153,7 +153,7 @@ const routes: Routes = [
     {
         path: "labeled-property-graph-type",
         component: LabeledPropertyGraphTypeManagerComponent,
-        canActivate: [AuthGuard]
+        canActivate: [AuthGuard, LabeledPropertyGraphGuard]
     }
 ];
 

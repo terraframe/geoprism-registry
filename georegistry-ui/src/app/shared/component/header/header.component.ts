@@ -109,6 +109,8 @@ export class CgrHeaderComponent {
             } else {
                 return false;
             }
+        } else if (item === "LPG") {
+            return this.configuration.isEnableLabeledPropertyGraph();
         } else if (this.service.hasExactRole(RegistryRoleType.SRA)) {
             return true;
         } else if (item === "IMPORT") {

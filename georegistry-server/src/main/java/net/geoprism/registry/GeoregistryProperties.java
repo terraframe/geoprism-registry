@@ -55,6 +55,12 @@ public class GeoregistryProperties
 
     return token;
   }
+  
+  public static Boolean isLabeledPropertyGraphEnabled()
+  {
+    return Singleton.INSTANCE.props.getBoolean("enable.labeled.property.graph", false);
+  }
+
 
   public static Boolean isBusinessDataEnabled()
   {
@@ -138,5 +144,6 @@ public class GeoregistryProperties
     
     return Singleton.INSTANCE.mapBounds;
   }
+
 
 }

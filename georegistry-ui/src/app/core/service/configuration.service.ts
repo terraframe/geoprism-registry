@@ -52,6 +52,10 @@ export class ConfigurationService {
         return this.getConfiguration().enableBusinessData;
     }
 
+    isEnableLabeledPropertyGraph(): boolean {
+        return this.getConfiguration().enableLabeledPropertyGraph;
+    }
+
     isGraphVisualizerEnabled(): boolean {
         return this.getConfiguration().graphVisualizerEnabled;
     }

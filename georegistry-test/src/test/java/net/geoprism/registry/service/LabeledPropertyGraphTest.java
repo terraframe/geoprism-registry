@@ -498,12 +498,16 @@ public class LabeledPropertyGraphTest
 
     try
     {
+      System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(test1.toJSON()));
+
       List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
 
       Assert.assertEquals(1, entries.size());
 
       LabeledPropertyGraphTypeEntry entry = entries.get(0);
       JsonObject entryJson = entry.toJSON();
+      
+//      System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(entryJson));
 
       List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
 
@@ -512,7 +516,7 @@ public class LabeledPropertyGraphTest
       LabeledPropertyGraphTypeVersion version = versions.get(0);
       JsonObject versionJson = version.toJSON(true);
 
-      System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(versionJson));
+//      System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(versionJson));
 
       entry.delete();
 
@@ -520,7 +524,7 @@ public class LabeledPropertyGraphTest
       version = LabeledPropertyGraphTypeVersion.create(entry, versionJson);
 
       List<GeoObjectTypeSnapshot> vertices = version.getTypes();
-
+      
       Assert.assertEquals(11, vertices.size());
 
       List<HierarchyTypeSnapshot> edges = version.getHierarchies();

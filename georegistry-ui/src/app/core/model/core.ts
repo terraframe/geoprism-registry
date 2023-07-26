@@ -127,6 +127,7 @@ export class GeoRegistryConfiguration {
     searchEnabled: boolean;
     graphVisualizerEnabled: boolean;
     enableBusinessData: boolean;
+    enableLabeledPropertyGraph: boolean;
     defaultMapBounds: [[number]];
     localization: any;
     mapboxAccessToken: string;

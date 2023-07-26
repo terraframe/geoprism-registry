@@ -1242,6 +1242,7 @@ public class RegistryService
     config.addProperty("searchEnabled", GeoregistryProperties.isSearchEnabled());
     config.addProperty("graphVisualizerEnabled", GeoregistryProperties.isGraphVisualizerEnabled());
     config.addProperty("enableBusinessData", GeoregistryProperties.isBusinessDataEnabled());
+    config.addProperty("enableLabeledPropertyGraph", GeoregistryProperties.isLabeledPropertyGraphEnabled());
     config.addProperty("mapboxAccessToken", GeoserverProperties.getMapboxglAccessToken());
     config.add("defaultMapBounds", JsonParser.parseString(GeoregistryProperties.getDefaultMapBounds()));
     config.add("localization", JsonParser.parseString(getLocalizationMap(sessionId)));

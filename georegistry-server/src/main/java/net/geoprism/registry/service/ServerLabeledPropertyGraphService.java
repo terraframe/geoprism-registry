@@ -55,12 +55,14 @@ import net.geoprism.graph.StrategyPublisher;
 import net.geoprism.graph.TreeStrategyConfiguration;
 import net.geoprism.graph.service.LabeledPropertyGraphServiceIF;
 import net.geoprism.rbac.RoleConstants;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.graph.TreeStrategyPublisher;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -167,54 +169,58 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
     job.start();
   }
 
+  
   @Override
-  public void postCreate(LabeledPropertyGraphTypeVersion version)
+  public void postCreate(LabeledPropertyGraphTypeVersion version, boolean createTypes)
   {
-    GeoObjectTypeSnapshot root = GeoObjectTypeSnapshot.createRoot(version);
-
-    LabeledPropertyGraphType listType = version.getGraphType();
-
-    ServerHierarchyType hierarchy = ServerHierarchyType.get(listType.getHierarchy());
-
-    this.create(version, hierarchy, root);
-
-    Stack<StackItem> stack = new Stack<StackItem>();
-
-    hierarchy.getDirectRootNodes().forEach(type -> stack.push(new StackItem(type, root)));
-
-    while (!stack.isEmpty())
+    if (createTypes)
     {
-      StackItem item = stack.pop();
-      ServerGeoObjectType type = item.type;
+      LabeledPropertyGraphType listType = version.getGraphType();
+      ServerHierarchyType hierarchy = ServerHierarchyType.get(listType.getHierarchy());
 
-      // if (type.getIsPrivate() && (
-      // version.getListVisibility().equals(LabeledPropertyGraphType.PUBLIC) ||
-      //
-      // version.getGeospatialVisibility().equals(LabeledPropertyGraphType.PUBLIC)
-      // ))
-      // {
-      // throw new UnsupportedOperationException("A list version cannot be
-      // public if the Geo-Object Type is private");
-      // }
+      GeoObjectTypeSnapshot root = GeoObjectTypeSnapshot.createRoot(version);
 
-      GeoObjectTypeSnapshot parent = this.create(version, type, root);
+      this.create(version, hierarchy, root);
 
-      if (type.getIsAbstract())
+      Stack<StackItem> stack = new Stack<StackItem>();
+
+      hierarchy.getDirectRootNodes().forEach(type -> stack.push(new StackItem(type, root)));
+
+      while (!stack.isEmpty())
       {
-        type.getSubtypes().forEach(subtype -> {
-          this.create(version, subtype, parent);
+        StackItem item = stack.pop();
+        ServerGeoObjectType type = item.type;
+
+        // if (type.getIsPrivate() && (
+        // version.getListVisibility().equals(LabeledPropertyGraphType.PUBLIC)
+        // ||
+        //
+        // version.getGeospatialVisibility().equals(LabeledPropertyGraphType.PUBLIC)
+        // ))
+        // {
+        // throw new UnsupportedOperationException("A list version cannot be
+        // public if the Geo-Object Type is private");
+        // }
+
+        GeoObjectTypeSnapshot parent = this.create(version, type, root);
+
+        if (type.getIsAbstract())
+        {
+          type.getSubtypes().forEach(subtype -> {
+            this.create(version, subtype, parent);
+          });
+        }
+
+        if (item.parent != null)
+        {
+          item.parent.addChildSnapshot(parent).apply();
+        }
+
+        hierarchy.getChildren(type).forEach(child -> {
+          stack.push(new StackItem(child, parent));
         });
+
       }
-
-      if (item.parent != null)
-      {
-        item.parent.addChildSnapshot(parent).apply();
-      }
-
-      hierarchy.getChildren(type).forEach(child -> {
-        stack.push(new StackItem(child, parent));
-      });
-
     }
   }
 
@@ -352,27 +358,38 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
     RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
     contributor.grantPermission(Operation.READ, component.getOid());
     contributor.grantPermission(Operation.READ_ALL, component.getOid());
-    
+
     UserDAO publicRole = UserDAO.findUser(UserInfo.PUBLIC_USER_NAME).getBusinessDAO();
     publicRole.grantPermission(Operation.READ, component.getOid());
     publicRole.grantPermission(Operation.READ_ALL, component.getOid());
   }
-  
+
   @Override
   public void postSynchronization(LabeledPropertyGraphSynchronization synchronization, Map<String, Object> cache)
   {
     // Do nothing
   }
-  
+
   @Override
   public void postSynchronization(LabeledPropertyGraphSynchronization synchronization, VertexObject node, Map<String, Object> cache)
   {
     // Do nothing
   }
-  
+
   @Override
   public void postTruncate(LabeledPropertyGraphSynchronization synchronization)
   {
     // Do nothing
+  }
+
+  @Override
+  public void preApply(LabeledPropertyGraphType type)
+  {
+    ServerHierarchyType hierarchy = ServerHierarchyType.get(type.getHierarchy());
+
+    // Ensure the user has permissions to create
+    Organization organization = hierarchy.getOrganization();
+
+    new RolePermissionService().enforceRA(organization.getCode());
   }
 }

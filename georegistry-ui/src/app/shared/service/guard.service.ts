@@ -19,6 +19,7 @@
 
 import { Injectable } from "@angular/core";
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from "@angular/router";
+import { ConfigurationService } from "@core/service/configuration.service";
 import { AuthService } from "./auth.service";
 
 @Injectable()
@@ -93,3 +94,36 @@ export class AuthGuard implements CanActivate {
 
 }
 
+@Injectable()
+export class LabeledPropertyGraphGuard implements CanActivate {
+
+    // eslint-disable-next-line no-useless-constructor
+    constructor(private configuration: ConfigurationService, private router: Router) { }
+
+    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+        if (this.configuration.isEnableLabeledPropertyGraph()) {
+            return true;
+        }
+
+        this.router.navigate(["/"]);
+
+        return false;
+    }
+}
+
+@Injectable()
+export class BusinessDataGuard implements CanActivate {
+
+    // eslint-disable-next-line no-useless-constructor
+    constructor(private configuration: ConfigurationService, private router: Router) { }
+
+    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+        if (this.configuration.isEnableBusinessData()) {
+            return true;
+        }
+
+        this.router.navigate(["/"]);
+
+        return false;
+    }
+}
