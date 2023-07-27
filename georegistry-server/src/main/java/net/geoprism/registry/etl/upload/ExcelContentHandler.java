@@ -80,6 +80,8 @@ public class ExcelContentHandler implements SheetHandler
   ImportStage                    stage;
 
   protected Long                 startIndex;
+  
+  private boolean rowHasData;
 
   public ExcelContentHandler(ObjectImporterIF objectImporter, ImportStage stage, Long startIndex)
   {
@@ -114,6 +116,7 @@ public class ExcelContentHandler implements SheetHandler
   {
     if (this.isFirstSheet)
     {
+      this.rowHasData = false;
       this.rowNum = rowNum;
       this.row = new HashMap<String, Object>();
     }
@@ -122,7 +125,7 @@ public class ExcelContentHandler implements SheetHandler
   @Override
   public void endRow()
   {
-    if (this.isFirstSheet)
+    if (this.isFirstSheet && rowHasData)
     {
       try
       {
@@ -205,6 +208,8 @@ public class ExcelContentHandler implements SheetHandler
           {
             this.row.put(columnName, formattedValue);
           }
+          
+          rowHasData = true;
         }
       }
       catch (Exception e)

@@ -271,6 +271,9 @@ public class DataImportJob extends DataImportJobBase
 
   private ImportProgressListenerIF runImport(ImportHistory history, ImportStage stage, ImportConfiguration config) throws MalformedURLException, InvocationTargetException
   {
+    config.enforceCreatePermissions();
+    
+    
     ImportHistoryProgressScribe progressListener = new ImportHistoryProgressScribe(history);
 
     FormatSpecificImporterIF formatImporter = FormatSpecificImporterFactory.getImporter(config.getFormatType(), history.getImportFile(), config, progressListener);
