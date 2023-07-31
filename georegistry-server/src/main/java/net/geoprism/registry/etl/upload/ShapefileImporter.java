@@ -211,12 +211,6 @@ public class ShapefileImporter implements FormatSpecificImporterIF
   @Request
   private void process(ImportStage stage, File shp) throws InvocationTargetException, IOException, InterruptedException
   {
-    /*
-     * Check permissions
-     */
-    ImportConfiguration config = this.getObjectImporter().getConfiguration();
-    config.enforceCreatePermissions();
-
     FileDataStore myData = FileDataStoreFinder.getDataStore(shp);
 
     SimpleFeatureSource source = myData.getFeatureSource();

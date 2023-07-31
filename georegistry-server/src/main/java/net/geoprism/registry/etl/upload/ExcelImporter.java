@@ -207,14 +207,6 @@ public class ExcelImporter implements FormatSpecificImporterIF
   {
     try
     {
-      /*
-       * Check permissions
-       */
-      ImportConfiguration config = this.getObjectImporter().getConfiguration();
-      config.enforceCreatePermissions();
-
-      // TODO Determine permissions for
-
       this.progressListener.setWorkTotal(this.getWorkTotal(file));
 
       if (this.config.isExternalImport() && this.config.getExternalSystem() instanceof RevealExternalSystem && this.config instanceof GeoObjectImportConfiguration)
