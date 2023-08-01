@@ -86,17 +86,7 @@ public class ClassificationTypeTest
     ClassificationType type = ClassificationType.apply(createMock());
     type.delete();
 
-    try
-    {
-      ClassificationType.getByCode(type.getCode());
-
-      Assert.fail("Able to get type which should have been deleted");
-    }
-    catch (DataNotFoundException ex)
-    {
-      // Expected
-    }
-
+    Assert.assertNull(ClassificationType.getByCode(type.getCode()));
   }
 
   @Test
