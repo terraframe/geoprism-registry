@@ -8,16 +8,22 @@ import java.util.List;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationNode;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.view.Page;
 
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringJUnit4ClassRunner.class)
 public class ClassificationTest
 {
   private static String             GRANDPARENT_CODE = "GRANDPARENT_OBJ";
@@ -28,8 +34,9 @@ public class ClassificationTest
 
   private static ClassificationType type;
 
-  @BeforeClass
-  public static void setUpClass()
+  private static boolean            isSetup          = false;
+
+  public static void setupClasses()
   {
     setUpClassInRequest();
   }
@@ -38,6 +45,8 @@ public class ClassificationTest
   private static void setUpClassInRequest()
   {
     type = ClassificationType.apply(ClassificationTypeTest.createMock());
+    
+    isSetup = true;
   }
 
   @AfterClass
@@ -52,6 +61,18 @@ public class ClassificationTest
     if (type != null)
     {
       type.delete();
+    }
+    
+    isSetup = false;
+  }
+
+  @Before
+  public void setUp()
+  {
+    // This is a hack to allow for spring injection of classification tasks
+    if (!isSetup)
+    {
+      setupClasses();
     }
   }
 

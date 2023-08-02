@@ -65,6 +65,14 @@ public class LocalRegistryConnectorBuilder implements RegistryConnectorBuilderIF
       {
         return new RegistryResponse(service.getData(sessionId, params[0].getValue()).toString(), 200);
       }
+      else if (url.endsWith("geo-objects"))
+      {
+        return new RegistryResponse(service.getGeoObjects(sessionId, params[0].getValue(), Long.valueOf(params[1].getValue()), Integer.valueOf(params[2].getValue())).toString(), 200);
+      }
+      else if (url.endsWith("edges"))
+      {
+        return new RegistryResponse(service.getEdges(sessionId, params[0].getValue(), Long.valueOf(params[1].getValue()), Integer.valueOf(params[2].getValue())).toString(), 200);
+      }
 
       throw new BadServerUriException();
     }

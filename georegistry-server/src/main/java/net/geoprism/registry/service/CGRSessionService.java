@@ -91,6 +91,8 @@ public class CGRSessionService extends SessionService
     endpoints.add("api/labeled-property-graph-type/versions");
     endpoints.add("api/labeled-property-graph-type/version");
     endpoints.add("api/labeled-property-graph-type/data");
+    endpoints.add("api/labeled-property-graph-type/geo-objects");
+    endpoints.add("api/labeled-property-graph-type/edges");
     
     return endpoints;
   }

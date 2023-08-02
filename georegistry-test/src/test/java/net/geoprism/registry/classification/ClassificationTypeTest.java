@@ -7,15 +7,21 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.view.Page;
 
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringJUnit4ClassRunner.class)
 public class ClassificationTypeTest
 {
   @Test
@@ -86,7 +92,16 @@ public class ClassificationTypeTest
     ClassificationType type = ClassificationType.apply(createMock());
     type.delete();
 
-    Assert.assertNull(ClassificationType.getByCode(type.getCode()));
+    try
+    {
+      ClassificationType.getByCode(type.getCode());
+
+      Assert.fail("Able to get type which should have been deleted");
+    }
+    catch (DataNotFoundException ex)
+    {
+      // Expected
+    }
   }
 
   @Test

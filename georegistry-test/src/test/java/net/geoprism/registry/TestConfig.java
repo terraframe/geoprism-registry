@@ -25,6 +25,7 @@ import net.geoprism.registry.account.ForgotPasswordCGRService;
 import net.geoprism.registry.session.ExternalProfileCGRService;
 import net.geoprism.registry.test.MockHttpServletRequest;
 import net.geoprism.registry.test.MockHttpServletResponse;
+import net.geoprism.session.LoginBruteForceGuardService;
 import net.geoprism.session.SessionController;
 import net.geoprism.userinvite.controller.UserInviteController;
 import net.geoprism.userinvite.service.UserInviteService;
@@ -34,74 +35,93 @@ import net.geoprism.userinvite.service.UserInviteService;
 public class TestConfig
 {
 
-  
   @Bean
-  HttpServletRequest request(){
+  HttpServletRequest request()
+  {
     return new MockHttpServletRequest();
   }
-  
+
   @Bean
-  HttpServletResponse response(){
+  HttpServletResponse response()
+  {
     return new MockHttpServletResponse();
   }
-  
+
   @Bean
-  ForgotPasswordController forgotPasswordController() {
+  ForgotPasswordController forgotPasswordController()
+  {
     return new ForgotPasswordController();
   }
-  
+
   @Bean
-  ForgotPasswordServiceIF forgotPasswordServiceIF() {
+  ForgotPasswordServiceIF forgotPasswordServiceIF()
+  {
     return new ForgotPasswordService();
   }
-  
+
   @Bean
-  ForgotPasswordBusinessServiceIF forgotPasswordBusinessServiceIF() {
+  ForgotPasswordBusinessServiceIF forgotPasswordBusinessServiceIF()
+  {
     return new ForgotPasswordCGRService();
   }
-  
+
   @Bean
-  SessionController sessionController() {
+  SessionController sessionController()
+  {
     return new SessionController();
   }
-  
+
   @Bean
-  ExternalProfileController externalProfileController() {
+  ExternalProfileController externalProfileController()
+  {
     return new ExternalProfileController();
   }
-  
+
   @Bean
-  ExternalProfileServiceIF externalProfileServiceIF() {
+  ExternalProfileServiceIF externalProfileServiceIF()
+  {
     return new ExternalProfileService();
   }
-  
+
   @Bean
-  ExternalProfileBusinessServiceIF externalProfileBusinessServiceIF() {
+  ExternalProfileBusinessServiceIF externalProfileBusinessServiceIF()
+  {
     return new ExternalProfileCGRService();
   }
-  
+
   @Bean
-  UserInviteController userInviteController() {
+  UserInviteController userInviteController()
+  {
     return new UserInviteController();
   }
-  
+
   @Bean
-  UserInviteService userInviteService() {
+  UserInviteService userInviteService()
+  {
     return new UserInviteService();
   }
-  
+
   @Bean
-  PatchingContextListener patchContextListener() {
+  PatchingContextListener patchContextListener()
+  {
     return new PatchingContextListener();
   }
-  
+
   @Bean
-  RMIContextListener rmiContextListener() {
+  RMIContextListener rmiContextListener()
+  {
     return new RMIContextListener();
   }
-  
+
   @Bean
-  SchedulerContextListener schedulerContextListener() {
+  SchedulerContextListener schedulerContextListener()
+  {
     return new SchedulerContextListener();
+  }
+
+  @Bean
+  LoginBruteForceGuardService loginBruteForceGuard()
+  {
+    return new LoginBruteForceGuardService();
   }
 }
