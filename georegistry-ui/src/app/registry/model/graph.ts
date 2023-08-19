@@ -20,32 +20,33 @@
 import { LocalizedValue } from "@core/model/core";
 
 export interface Relationship {
-    oid: string,
-    label: LocalizedValue,
-    layout: "VERTICAL" | "HORIZONTAL",
-    code: string,
-    type?: string
+  oid: string,
+  label: LocalizedValue,
+  layout: "VERTICAL" | "HORIZONTAL",
+  code: string,
+  type?: string
 }
 
 export class ObjectReference {
 
-    code: string;
-    typeCode: string;
-    objectType: "BUSINESS" | "GEOOBJECT";
+  code: string;
+  typeCode: string;
+  objectType: "BUSINESS" | "GEOOBJECT";
 
 }
 
 export interface Vertex extends ObjectReference {
-    id: string,
-    label: string,
-    relation: "PARENT" | "CHILD" | "SELECTED"
+  id: string;
+  label: string;
+  relation: "PARENT" | "CHILD" | "SELECTED";
+  readable: boolean;
 }
 
 export interface Edge {
-    id: string,
-    label: string,
-    source: string,
-    target: string
+  id: string,
+  label: string,
+  source: string,
+  target: string
 }
 
 export interface RelatedType {
