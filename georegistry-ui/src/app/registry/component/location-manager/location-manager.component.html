@@ -110,7 +110,7 @@
                   [ngClass]="{'full-height-sidebar' : current != null, 'max-height' : !searchEnabled }">
                   <feature-panel *ngIf="current.objectType === 'GEOOBJECT' && typeCache.ready()" #FeaturePanel
                     [type]="typeCache.getTypeByCode(state.type)" [code]="current.code" [forDate]="current.forDate"
-                    (forDateChange)="featurePanelForDateChange($event)" [readOnly]="false"
+                    (forDateChange)="featurePanelForDateChange($event)"
                     (modeChange)="onModeChange($event)" (panelCancel)="clearRecord()"
                     (panelSubmit)="onPanelSubmit($event)">
                   </feature-panel>
