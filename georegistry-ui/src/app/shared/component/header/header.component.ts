@@ -98,6 +98,10 @@ export class CgrHeaderComponent {
     }
 
     shouldShowMenuItem(item: string): boolean {
+        if (this.isPublic) {
+            return false;
+        }
+
         if (item === "HIERARCHIES") {
             return true;
         } else if (item === "LISTS") {
