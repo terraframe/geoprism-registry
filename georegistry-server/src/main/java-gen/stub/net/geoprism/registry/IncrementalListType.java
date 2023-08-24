@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -45,61 +45,70 @@ public class IncrementalListType extends IncrementalListTypeBase
   {
     JsonObject object = new JsonObject();
 
-//    List<ChangeFrequency> frequency = this.getFrequency();
-//
-//    if (frequency.contains(ChangeFrequency.ANNUAL))
-//    {
-//      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-//      calendar.setTime(version.getForDate());
-//
-//      object.addProperty("type", "text");
-//      object.addProperty("value", Integer.toString(calendar.get(Calendar.YEAR)));
-//    }
-//    else if (frequency.contains(ChangeFrequency.BIANNUAL))
-//    {
-//      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-//      calendar.setTime(version.getForDate());
-//
-//      int halfYear = ( calendar.get(Calendar.MONTH) / 6 ) + 1;
-//
-//      object.addProperty("type", "text");
-//      object.addProperty("value", "H" + halfYear + " " + Integer.toString(calendar.get(Calendar.YEAR)));
-//    }
-//    else if (frequency.contains(ChangeFrequency.QUARTER))
-//    {
-//      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-//      calendar.setTime(version.getForDate());
-//
-//      int quarter = ( calendar.get(Calendar.MONTH) / 3 ) + 1;
-//
-//      object.addProperty("type", "text");
-//      object.addProperty("value", "Q" + quarter + " " + Integer.toString(calendar.get(Calendar.YEAR)));
-//    }
-//    else if (frequency.contains(ChangeFrequency.MONTHLY))
-//    {
-//      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-//      calendar.setTime(version.getForDate());
-//      calendar.set(Calendar.DAY_OF_MONTH, 1);
-//
-//      Date startOfWeek = calendar.getTime();
-//
-//      calendar.add(Calendar.MONTH, 1);
-//      calendar.add(Calendar.DAY_OF_YEAR, -1);
-//
-//      Date endOfWeek = calendar.getTime();
-//
-//      JsonObject range = new JsonObject();
-//      range.addProperty("startDate", GeoRegistryUtil.formatDate(startOfWeek, false));
-//      range.addProperty("endDate", GeoRegistryUtil.formatDate(endOfWeek, false));
-//
-//      object.addProperty("type", "range");
-//      object.add("value", range);
-//    }
-//    else
-//    {
-      object.addProperty("type", "date");
-      object.addProperty("value", GeoRegistryUtil.formatDate(version.getForDate(), false));
-//    }
+    // List<ChangeFrequency> frequency = this.getFrequency();
+    //
+    // if (frequency.contains(ChangeFrequency.ANNUAL))
+    // {
+    // Calendar calendar =
+    // Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    // calendar.setTime(version.getForDate());
+    //
+    // object.addProperty("type", "text");
+    // object.addProperty("value",
+    // Integer.toString(calendar.get(Calendar.YEAR)));
+    // }
+    // else if (frequency.contains(ChangeFrequency.BIANNUAL))
+    // {
+    // Calendar calendar =
+    // Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    // calendar.setTime(version.getForDate());
+    //
+    // int halfYear = ( calendar.get(Calendar.MONTH) / 6 ) + 1;
+    //
+    // object.addProperty("type", "text");
+    // object.addProperty("value", "H" + halfYear + " " +
+    // Integer.toString(calendar.get(Calendar.YEAR)));
+    // }
+    // else if (frequency.contains(ChangeFrequency.QUARTER))
+    // {
+    // Calendar calendar =
+    // Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    // calendar.setTime(version.getForDate());
+    //
+    // int quarter = ( calendar.get(Calendar.MONTH) / 3 ) + 1;
+    //
+    // object.addProperty("type", "text");
+    // object.addProperty("value", "Q" + quarter + " " +
+    // Integer.toString(calendar.get(Calendar.YEAR)));
+    // }
+    // else if (frequency.contains(ChangeFrequency.MONTHLY))
+    // {
+    // Calendar calendar =
+    // Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    // calendar.setTime(version.getForDate());
+    // calendar.set(Calendar.DAY_OF_MONTH, 1);
+    //
+    // Date startOfWeek = calendar.getTime();
+    //
+    // calendar.add(Calendar.MONTH, 1);
+    // calendar.add(Calendar.DAY_OF_YEAR, -1);
+    //
+    // Date endOfWeek = calendar.getTime();
+    //
+    // JsonObject range = new JsonObject();
+    // range.addProperty("startDate", GeoRegistryUtil.formatDate(startOfWeek,
+    // false));
+    // range.addProperty("endDate", GeoRegistryUtil.formatDate(endOfWeek,
+    // false));
+    //
+    // object.addProperty("type", "range");
+    // object.add("value", range);
+    // }
+    // else
+    // {
+    object.addProperty("type", "date");
+    object.addProperty("value", GeoRegistryUtil.formatDate(version.getForDate(), false));
+    // }
 
     return object;
   }
@@ -289,6 +298,11 @@ public class IncrementalListType extends IncrementalListTypeBase
       }
     }
 
+    if (range == null && this.getPublishingStartDate() !=  null)
+    {
+      range = new Pair<Date, Date>(this.getPublishingStartDate(), this.getPublishingStartDate());
+    }
+
     if (range != null)
     {
       Date endDate = range.getSecond();
@@ -308,7 +322,7 @@ public class IncrementalListType extends IncrementalListTypeBase
     else
     {
       throw new EmptyListException();
-    }
+    }    
   }
 
   @Override
