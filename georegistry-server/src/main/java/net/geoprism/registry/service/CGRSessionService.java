@@ -94,6 +94,9 @@ public class CGRSessionService extends SessionService
     endpoints.add("api/labeled-property-graph-type/geo-objects");
     endpoints.add("api/labeled-property-graph-type/edges");
     
+    // Public endpoint for changing locale
+    endpoints.add("api/localization/set-locale");
+    
     return endpoints;
   }
   
