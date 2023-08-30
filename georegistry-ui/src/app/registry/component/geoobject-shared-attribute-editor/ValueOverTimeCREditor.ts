@@ -19,6 +19,7 @@
 
 import { ValueOverTime, AttributeType, TimeRangeEntry } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeOverTimeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
+import { debounce } from 'lodash';
 import { v4 as uuid } from "uuid";
 // eslint-disable-next-line camelcase
 import turf_booleanequal from "@turf/boolean-equal";
@@ -32,6 +33,7 @@ import { ListTypeService } from "@registry/service/list-type.service";
 import { LngLatBoundsLike } from "maplibre-gl";
 import { GeoJsonLayer, Layer } from "@registry/service/layer-data-source";
 import { ConflictMessage } from "@shared/model/message";
+import { HttpErrorResponse } from "@angular/common/http";
 
 export class ValueOverTimeCREditor implements TimeRangeEntry {
 
@@ -42,14 +44,20 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     attr: AttributeType;
     conflictMessages: Set<ConflictMessage>;
 
-    onChangeSubject : Subject<any> = new Subject<any>();
+    onChangeSubject: Subject<any> = new Subject<any>();
 
     _isValid: boolean = true;
+
+    // Flag denoting if the value has changed
+    // Used to prevent multiple validation calls
+    // to the server if the value is the same
+    isValueChanged: boolean = false;
 
     constructor(changeRequestAttributeEditor: ChangeRequestChangeOverTimeAttributeEditor, attr: AttributeType, action: AbstractAction) {
         this.attr = attr;
         this.changeRequestAttributeEditor = changeRequestAttributeEditor;
         this.action = action;
+        this.validateDisplayLabel = debounce(this.validateDisplayLabel, 1000)
     }
 
     public removeType(type): void {
@@ -59,6 +67,10 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     onChange(type: ChangeType) {
         this.changeRequestAttributeEditor.onChange(type);
         this.onChangeSubject.next(type);
+
+        if (type === ChangeType.VALUE) {
+            this.isValueChanged = true;
+        }
     }
 
     getGeoObjectTimeRangeStorage(): TimeRangeEntry {
@@ -85,7 +97,37 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
 
         this.validateUpdateReference();
 
+        if (this._isValid && this.isValueChanged && this.attr.code === 'displayLabel') {
+            this.isValueChanged = false;
+
+            if (this.valueOverTime != null && this.valueOverTime.value != null) {
+                this.validateDisplayLabel();
+            }
+
+        }
+
         return this._isValid;
+    }
+
+    validateDisplayLabel() : void {
+        const service = this.changeRequestAttributeEditor.changeRequestEditor.registryService;
+        const type = this.changeRequestAttributeEditor.changeRequestEditor.geoObjectType;
+        const code = this.changeRequestAttributeEditor.changeRequestEditor.geoObject.attributes.code || '';
+        const value = this.diff != null ? this.diff.newValue : this.valueOverTime.value;
+
+        service.hasDuplicateLabel(this.startDate, type.code, code, value).then(resp => {
+            let message = this.changeRequestAttributeEditor.changeRequestEditor.dateService.duplicateLabelMessage;
+
+            if (resp.labelInUse) {
+                this.conflictMessages.add(message);
+            }
+            else {
+                this.conflictMessages.delete(message);
+            }
+        }).catch((err: HttpErrorResponse) => {
+            // eslint-disable-next-line no-console
+            console.log(err);
+        });
     }
 
     /**
@@ -390,7 +432,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     public setLocalizedValue(localizedValue: LocalizedValue) {
         this.value = JSON.parse(JSON.stringify(localizedValue));
     }
-    
+
     public setAlternateIds(ids: AlternateId[]) {
         this.value = JSON.parse(JSON.stringify(ids));
     }

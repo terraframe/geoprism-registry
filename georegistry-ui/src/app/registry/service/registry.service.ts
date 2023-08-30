@@ -62,8 +62,8 @@ export class RegistryService implements AttributeTypeService {
             this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }>(environment.apiUrl + "/api/cgr/init", { params: params })
         );
     }
-    
-    
+
+
 
     // param types: array of GeoObjectType codes. If empty array then all GeoObjectType objects are returned.
     getGeoObjectTypes(types: string[]): Promise<GeoObjectType[]> {
@@ -120,6 +120,24 @@ export class RegistryService implements AttributeTypeService {
             .get<{ exists: boolean, invalid: boolean }>(environment.apiUrl + "/api/geoobject/exists-at-range", { params: params })
             .toPromise();
     }
+
+    hasDuplicateLabel(date: string, typeCode: string, code: string, label: string): Promise<{ labelInUse: boolean }> {
+        let params: HttpParams = new HttpParams();
+
+        params = params.set("date", date);
+        params = params.set("typeCode", typeCode);
+        params = params.set("label", JSON.stringify(label));
+
+        if (code != null) {
+            params = params.set("code", code);
+        }
+
+        return this.http
+            .get<{ labelInUse: boolean }>(environment.apiUrl + "/api/geoobject/has-duplicate-label", { params: params })
+            .toPromise();
+    }
+
+
 
     newGeoObjectInstance(typeCode: string): Promise<any> {
         let headers = new HttpHeaders({

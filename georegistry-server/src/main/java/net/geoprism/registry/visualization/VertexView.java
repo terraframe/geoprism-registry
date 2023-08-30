@@ -24,7 +24,7 @@ import com.google.gson.JsonObject;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
+import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class VertexView
@@ -70,9 +70,9 @@ public class VertexView
   {
     final ServerGeoObjectType type = go.getType();
 
-    final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
+    final GeoObjectPermissionServiceIF typePermissions = ServiceFactory.getGeoObjectPermissionService();
 
-    boolean readable = typePermissions.canRead(type.getOrganization().getCode(), type, type.getIsPrivate());
+    boolean readable = typePermissions.canRead(type.getOrganization().getCode(), type);
 
     String label = go.getDisplayLabel().getValue();
 

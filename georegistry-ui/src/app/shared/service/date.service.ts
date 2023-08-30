@@ -43,6 +43,12 @@ export class DateService {
         type: ConflictType.TIME_RANGE
     }
 
+    public duplicateLabelMessage: ConflictMessage = {
+        severity: "WARNING",
+        message: this.localizationService.decode("manage.versions.duplicateLabel.message"),
+        type: ConflictType.MISSING_REFERENCE
+    }
+    
     public outsideExistsMessage: ConflictMessage = {
         severity: "ERROR",
         message: this.localizationService.decode("manage.versions.outsideExists.message"),
@@ -72,6 +78,7 @@ export class DateService {
         message: this.localizationService.decode("changeovertime.manageVersions.invalidParent"),
         type: ConflictType.MISSING_REFERENCE
     }
+
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private localizationService: LocalizationService) { }

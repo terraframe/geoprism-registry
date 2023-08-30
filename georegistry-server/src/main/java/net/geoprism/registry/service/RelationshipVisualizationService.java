@@ -51,6 +51,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.visualization.EdgeView;
@@ -62,17 +63,17 @@ public class RelationshipVisualizationService
 {
   // Usability really degrades past 500 or so. Past 1000 the browser falls over,
   // even on good computers. @rrowlands
-  public static final long                 maxResults                              = 500;
+  public static final long             maxResults                              = 500;
 
-  public static final String               SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE = "BUSINESS";
+  public static final String           SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE = "BUSINESS";
 
-  public static final String               SHOW_GEOOBJECTS_RELATIONSHIP_TYPE       = "GEOOBJECT";
+  public static final String           SHOW_GEOOBJECTS_RELATIONSHIP_TYPE       = "GEOOBJECT";
 
-  private GeoObjectTypePermissionServiceIF typePermissions;
+  private GeoObjectPermissionServiceIF permissions;
 
   public RelationshipVisualizationService()
   {
-    this.typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
+    this.permissions = ServiceFactory.getGeoObjectPermissionService();
   }
 
   @Request(RequestType.SESSION)
@@ -195,7 +196,7 @@ public class RelationshipVisualizationService
     {
       final ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(sourceView.getTypeCode()).get();
 
-      if (typePermissions.canRead(type.getOrganization().getCode(), type, type.getIsPrivate()))
+      if (permissions.canRead(type.getOrganization().getCode(), type))
       {
         VertexServerGeoObject selected = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(sourceView.getCode(), type);
 

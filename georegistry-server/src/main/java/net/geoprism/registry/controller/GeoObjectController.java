@@ -256,6 +256,18 @@ public class GeoObjectController extends RunwaySpringController
     return new ResponseEntity<String>(stats.toString(), HttpStatus.OK);
   }
   
+  @GetMapping(API_PATH + "/has-duplicate-label")
+  public ResponseEntity<String> hasDuplicateLabel(
+      @RequestParam Date date, 
+      @NotEmpty @RequestParam String typeCode, 
+      @RequestParam(required = false) String code, 
+      @NotEmpty @RequestParam String label)
+  {
+    JsonObject stats = ServiceFactory.getGeoObjectService().hasDuplicateLabel(this.getSessionId(), date, typeCode, code, label);
+    
+    return new ResponseEntity<String>(stats.toString(), HttpStatus.OK);
+  }
+  
   /**
    * Returns an array of (label, entityId) pairs that under the given
    * parent/hierarchy and have the given label.

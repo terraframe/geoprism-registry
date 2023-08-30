@@ -1,0 +1,17 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.duplicateLabel.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="manage.versions.duplicateLabel.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="The display label is used by another Geo-Object in this Geo-Object Type" />
+        </attributeStruct>
+      </object>
+
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

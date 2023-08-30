@@ -643,6 +643,17 @@ public class ServerGeoObjectService extends RegistryLocalizedValueConverter
   }
 
   @Request(RequestType.SESSION)
+  public JsonObject hasDuplicateLabel(String sessionId, Date date, String typeCode, String code, String label)
+  {
+    boolean inUse = VertexServerGeoObject.hasDuplicateLabel(date, typeCode, code, label);
+    
+    JsonObject jo = new JsonObject();   
+    jo.addProperty("labelInUse", inUse);
+    
+    return jo;
+  }
+  
+  @Request(RequestType.SESSION)
   public JsonArray getBusinessObjects(String sessionId, String typeCode, String code, String businessTypeCode)
   {
     VertexServerGeoObject vsgo = (VertexServerGeoObject) new ServerGeoObjectService().getGeoObjectByCode(code, typeCode);

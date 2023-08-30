@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -74,6 +75,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.Pair;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
@@ -1385,7 +1387,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public String bbox(Date date)
   {
     Geometry geometry = this.getGeometry(date);
-    
+
     if (geometry != null)
     {
       try
@@ -2540,12 +2542,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           if (includeInherited && parentType.isRoot(ht))
           {
             InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.getByForHierarchical(ht.getHierarchicalRelationshipType());
-            
+
             if (anno != null)
             {
               HierarchicalRelationshipType hrtInherited = anno.getInheritedHierarchicalRelationshipType();
               ServerHierarchyType shtInherited = ServerHierarchyType.get(hrtInherited);
-              
+
               tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, includeInherited, shtInherited, date);
             }
             else
@@ -2647,12 +2649,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           if (includeInherited && parentType.isRoot(ht))
           {
             InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.getByForHierarchical(ht.getHierarchicalRelationshipType());
-            
+
             if (anno != null)
             {
               HierarchicalRelationshipType hrtInherited = anno.getInheritedHierarchicalRelationshipType();
               ServerHierarchyType shtInherited = ServerHierarchyType.get(hrtInherited);
-              
+
               tnParent = internalGetParentGeoObjects(parent, parentTypes, recursive, includeInherited, shtInherited, date);
             }
             else
@@ -3011,7 +3013,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     statement.append("let $dateLabel = first(displayLabel_cot");
     if (startDate != null && endDate != null)
     {
-      statement.append("[(:startDate BETWEEN startDate AND endDate)]"); // Intentionally do not filter on end date as per #913
+      statement.append("[(:startDate BETWEEN startDate AND endDate)]"); // Intentionally
+                                                                        // do
+                                                                        // not
+                                                                        // filter
+                                                                        // on
+                                                                        // end
+                                                                        // date
+                                                                        // as
+                                                                        // per
+                                                                        // #913
     }
     statement.append("), ");
     statement.append("$filteredLabel = " + AbstractVertexRestriction.localize("$dateLabel.value") + " ");
@@ -3044,7 +3055,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
       if (startDate != null && endDate != null)
       {
-        textCondition.append("  (:startDate BETWEEN startDate AND endDate) AND "); // Intentionally do not filter on end date as per #913
+        textCondition.append("  (:startDate BETWEEN startDate AND endDate) AND "); // Intentionally
+                                                                                   // do
+                                                                                   // not
+                                                                                   // filter
+                                                                                   // on
+                                                                                   // end
+                                                                                   // date
+                                                                                   // as
+                                                                                   // per
+                                                                                   // #913
       }
 
       textCondition.append(AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
@@ -3118,6 +3138,59 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
 
     return array;
+  }
+
+  public static boolean hasDuplicateLabel(Date date, String typeCode, String code, String label)
+  {
+    LocalizedValue localizedValue = LocalizedValue.fromJSON(JsonParser.parseString(label).getAsJsonObject());
+
+    ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+    MdVertexDAOIF mdVertex = type.getMdVertex();
+
+    String dbClassName = mdVertex.getDBClassName();
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT COUNT(*) FROM " + dbClassName);
+    statement.append(" WHERE displayLabel_cot CONTAINS ((");
+
+    List<Entry<String, String>> entrySet = new ArrayList<Entry<String, String>>(localizedValue.getLocaleMap().entrySet());
+
+    for (int i = 0; i < entrySet.size(); i++)
+    {
+      Entry<String, String> entry = entrySet.get(i);
+      String locale = entry.getKey();
+
+      if (i != 0)
+      {
+        statement.append(" OR ");
+      }
+
+      statement.append("value." + locale + " = :" + locale);
+    }
+
+    statement.append(") AND :date BETWEEN startDate AND endDate)");
+
+    if (code != null && code.length() > 0)
+    {
+      statement.append(" AND code != :code");
+    }
+
+    GraphQuery<Long> query = new GraphQuery<Long>(statement.toString());
+    query.setParameter("date", date);
+
+    entrySet.forEach(entry -> {
+      String value = entry.getValue();
+      String locale = entry.getKey();
+
+      query.setParameter(locale, value);
+    });
+
+    if (code != null && code.length() > 0)
+    {
+      query.setParameter("code", code);
+    }
+
+    return query.getSingleResult() > 0;
   }
 
 }
