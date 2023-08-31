@@ -39,6 +39,8 @@ import { PageResult } from "@shared/model/core";
 import { Subscription } from "rxjs";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
 import { environment } from 'src/environments/environment';
+import { ShapefileModalComponent } from "../importer/modals/shapefile-modal.component";
+import { ConfigurationModalComponent } from "./configuration-modal.component";
 
 @Component({
     selector: "job",
@@ -303,6 +305,13 @@ export class JobComponent implements OnInit, OnDestroy {
                 this.error(err);
             });
         });
+    }
+
+    onConfiguration(): void {
+        console.log(this.job.configuration);
+
+        this.bsModalRef = this.modalService.show(ConfigurationModalComponent, { backdrop: true, ignoreBackdropClick: true });
+        this.bsModalRef.content.init(this.job.configuration);
     }
 
     error(err: any): void {

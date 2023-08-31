@@ -167,6 +167,7 @@ import { LabeledPropertyGraphTypeManagerComponent } from "./component/labeled-pr
 import { LabeledPropertyGraphTypeComponent } from "./component/labeled-property-graph-type/labeled-property-graph-type.component";
 import { LabeledPropertyGraphTypeService } from "./service/labeled-property-graph-type.service";
 import { LabeledPropertyGraphTypePublishModalComponent } from "./component/labeled-property-graph-type/publish-modal.component";
+import { ConfigurationModalComponent } from "./component/scheduled-jobs/configuration-modal.component";
 
 @NgModule({
     imports: [
@@ -252,6 +253,7 @@ import { LabeledPropertyGraphTypePublishModalComponent } from "./component/label
         StepIndicatorComponent,
         ImportProblemWidgetComponent,
         TaskViewerComponent,
+        ConfigurationModalComponent,
         // Synchronization Config
         SynchronizationConfigManagerComponent,
         SynchronizationConfigModalComponent,
@@ -364,7 +366,8 @@ import { LabeledPropertyGraphTypePublishModalComponent } from "./component/label
         ClassificationFieldModalComponent,
         ListModalComponent,
         RecordPopupComponent,
-        LabeledPropertyGraphTypePublishModalComponent
+        LabeledPropertyGraphTypePublishModalComponent,
+        ConfigurationModalComponent
     ]
 })
 export class RegistryModule { }

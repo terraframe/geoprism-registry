@@ -189,7 +189,7 @@ export class ScheduledJobsComponent implements OnInit {
     }
 
     onView(code: string): void {
-        this.router.navigate(["/registry/master-list-history/", code]);
+        this.router.navigate(["/registry/job/", code]);
     }
 
     onActiveJobsPageChange(pageNumber: any): void {

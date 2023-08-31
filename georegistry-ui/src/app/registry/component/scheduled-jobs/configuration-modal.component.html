@@ -1,0 +1,160 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<form class="modal-form">
+
+  <div class="modal-body">
+    <div *ngIf="configuration != null && configuration">
+      <div class="text-center">
+        <h2>
+          <localize *ngIf="configuration.formatType === 'EXCEL'" key="spreadsheet.title"></localize>
+          <localize *ngIf="configuration.formatType === 'SHAPEFILE'" key="shapefile.title"></localize>
+        </h2>
+      </div>
+
+      <div class="form-group row">
+        <label class="col-md-2 text-right" for="file">
+          <localize *ngIf="configuration.formatType === 'EXCEL'" key="io.spreadsheet"></localize>
+          <localize *ngIf="configuration.formatType === 'SHAPEFILE'" key="io.shapefile"></localize>
+        </label>
+        <div class="col-md-8">
+          {{configuration.fileName}}
+        </div>
+        <div class="col-md-2"></div>
+      </div>
+
+
+      <div class="form-group row" *ngIf="type != null">
+        <label class="col-md-2 text-right" for="code">
+          <localize key="io.geoObjectType"></localize>
+        </label>
+        <div class="col-md-8">
+          {{type.label.localizedValue}}
+        </div>
+        <div class="col-md-2"></div>
+      </div>
+
+      <div class="form-group row">
+        <label class="col-md-2 text-right" for="strategy">
+          <localize *ngIf="configuration.formatType === 'EXCEL'" key="spreadsheet.import.import.strategy"></localize>
+          <localize *ngIf="configuration.formatType === 'SHAPEFILE'" key="shapefile.import.import.strategy"></localize>
+        </label>
+        <div class="col-md-8">
+          {{strategy.label}}
+        </div>
+        <div class="col-md-2"></div>
+      </div>
+      <div class="form-group row">
+        <label class="col-md-2 text-right" for="startDate">
+          <localize key="io.startDate"></localize>
+        </label>
+        <div class="col-md-8">
+          <date-text [date]="configuration.startDate"></date-text>
+        </div>
+
+        <div class="col-md-2"></div>
+      </div>
+      <div class="form-group row">
+        <label class="col-md-2 text-right" for="endDate">
+          <localize key="io.endDate"></localize>
+        </label>
+        <div class="col-md-8">
+          <date-text [date]="configuration.endDate"></date-text>
+        </div>
+
+        <div class="col-md-2"></div>
+      </div>
+
+      <hr>
+
+      <div class="text-center">
+        <h2>
+          <localize key="io.attributes.title"></localize>
+        </h2>
+      </div>
+
+      <ng-container *ngFor="let attribute of configuration.type.attributes">
+        <div class="form-group row" *ngIf="attribute.target != null">
+          <label class="col-md-2 text-right">
+            {{attribute.label.localizedValue}}
+          </label>
+          <div class="col-md-8">
+            {{attribute.target}}
+          </div>
+        </div>
+      </ng-container>
+
+      <hr>
+
+      <div class="text-center">
+        <h2>
+          <localize key="io.location.title"></localize>
+        </h2>
+      </div>
+
+      <ng-container *ngFor="let location of configuration.locations">
+
+        <div class="form-group" *ngIf="location.target != null">
+          <div class="row-holder">
+            <div class="panel panel-default">
+              <div class="panel-heading"><label> {{location.label}} </label></div>
+              <div class="panel-body">
+                <div class="form-group row">
+                  <label class="col-md-2 text-right">
+                    <localize key="io.import.modal.parent.source"></localize>
+                  </label>
+                  <div class="col-md-8">
+                    {{location.target}}
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label class="col-md-2 text-right">
+                    <localize key="io.import.modal.parent.matchStrategy"></localize>
+                  </label>
+                  <div class="col-md-8">
+                    <localize *ngIf="location.matchStrategy === 'ALL'" key="io.modal.all"></localize>
+                    <localize *ngIf="location.matchStrategy === 'CODE'" key="io.modal.code"></localize>
+                    <localize *ngIf="location.matchStrategy === 'EXTERNAL'" key="io.modal.external"></localize>
+                    <localize *ngIf="location.matchStrategy === 'DHIS2_PATH'" key="io.modal.dhis2path"></localize>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="button-holder">
+            <button type="button" class="btn btn-primary" role="button" (click)="this.bsModalRef.hide()"
+              aria-disabled="false">
+              <span>
+                <localize key="modal.button.close"></localize>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
