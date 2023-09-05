@@ -35,7 +35,10 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,6 +55,8 @@ import com.google.gson.JsonParser;
 import net.geoprism.rbac.RoleServiceIF;
 import net.geoprism.rbac.RoleView;
 import net.geoprism.registry.CGRApplication;
+import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.AccountService;
 import net.geoprism.registry.service.ExternalSystemService;
@@ -124,6 +129,17 @@ public class GenericRestController extends RunwaySpringController
 
       return new ResponseEntity<Void>(HttpStatus.OK);
     }
+  }
+  
+  @GetMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/export-types")
+  public ResponseEntity<InputStreamResource> exportTypes(@NotEmpty @RequestParam String code)
+  {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_XML);
+    headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + code + ".xml");
+
+    InputStreamResource isr = new InputStreamResource(this.service.exportTypes(this.getSessionId(), code));
+    return new ResponseEntity<InputStreamResource>(isr, headers, HttpStatus.OK);
   }
 
   /**

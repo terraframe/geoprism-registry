@@ -279,4 +279,9 @@ public class RegistryComponentService
     return service.getApplications(sessionId);
   }
 
+  public InputStream exportTypes(String sessionId, String code)
+  {
+    return service.exportTypes(sessionId, code);
+  }
+
 }

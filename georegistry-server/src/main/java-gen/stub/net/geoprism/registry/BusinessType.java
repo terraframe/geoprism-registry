@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -403,7 +403,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
       roleDAO.grantPermission(Operation.DELETE, mdVertex.getOid());
       roleDAO.grantPermission(Operation.WRITE, mdVertex.getOid());
       roleDAO.grantPermission(Operation.WRITE_ALL, mdVertex.getOid());
-      
+
       // Assign edge permissions
       roleDAO.grantPermission(Operation.CREATE, mdEdge.getOid());
       roleDAO.grantPermission(Operation.DELETE, mdEdge.getOid());
@@ -550,6 +550,18 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
     });
 
     return response;
+  }
+
+  public static List<BusinessType> getForOrganization(Organization organization)
+  {
+    BusinessTypeQuery query = new BusinessTypeQuery(new QueryFactory());
+    query.WHERE(query.getOrganization().EQ(organization));
+    query.ORDER_BY_DESC(query.getDisplayLabel().localize());
+
+    try (OIterator<? extends BusinessType> it = query.getIterator())
+    {
+      return it.getAll().stream().map(type -> (BusinessType) type).collect(Collectors.toList());
+    }
   }
 
   public static boolean isEdgeABusinessType(MdEdgeDAOIF mdEdge)

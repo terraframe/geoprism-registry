@@ -168,6 +168,7 @@ import { LabeledPropertyGraphTypeComponent } from "./component/labeled-property-
 import { LabeledPropertyGraphTypeService } from "./service/labeled-property-graph-type.service";
 import { LabeledPropertyGraphTypePublishModalComponent } from "./component/labeled-property-graph-type/publish-modal.component";
 import { ConfigurationModalComponent } from "./component/scheduled-jobs/configuration-modal.component";
+import { ExportTypesModalComponent } from "./component/hierarchy/modals/export-types-modal.component";
 
 @NgModule({
     imports: [
@@ -198,6 +199,7 @@ import { ConfigurationModalComponent } from "./component/scheduled-jobs/configur
         RelationshipVisualizerComponent,
         RequestTableComponent,
         ImportTypesModalComponent,
+        ExportTypesModalComponent,
         FhirExportSynchronizationConfigComponent,
         FhirImportSynchronizationConfigComponent,
         Dhis2SynchronizationConfigComponent,
@@ -330,6 +332,7 @@ import { ConfigurationModalComponent } from "./component/scheduled-jobs/configur
         VotService
     ],
     entryComponents: [
+        ExportTypesModalComponent,
         AddChildToHierarchyModalComponent,
         CreateGeoObjTypeModalComponent,
         ManageAttributesModalComponent,

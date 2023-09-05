@@ -3,11 +3,13 @@
  */
 package net.geoprism.registry.xml;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
@@ -18,8 +20,11 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
@@ -27,6 +32,7 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
@@ -35,6 +41,8 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.RegistryService;
 
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringJUnit4ClassRunner.class)
 public class XMLImporterTest
 {
 
@@ -42,9 +50,25 @@ public class XMLImporterTest
 
   private static String             ROOT_CODE = "Test_Classification";
 
+  private static boolean            isSetup   = false;
+
+  @Before
+  public void setUp()
+  {
+    // This is a hack to allow for spring injection of classification tasks
+    if (!isSetup)
+    {
+      setupClasses();
+    }
+  }
+  
+  public static void setupClasses()
+  {
+    setUpClassInRequest();
+  }
+
   @Request
-  @BeforeClass
-  public static void classSetUp()
+  private static void setUpClassInRequest()
   {
     type = ClassificationType.apply(ClassificationTypeTest.createMock());
 
@@ -52,7 +76,10 @@ public class XMLImporterTest
     root.setCode(ROOT_CODE);
     root.setDisplayLabel(new LocalizedValue("Test Classification"));
     root.apply(null);
+    
+    isSetup = true;
   }
+
 
   @AfterClass
   @Request
@@ -68,7 +95,7 @@ public class XMLImporterTest
 
   @Request
   @Test
-  public void testImport() throws IOException
+  public void testImportAndExport() throws IOException
   {
     Organization organization = new Organization();
     organization.setCode("TEST_ORG");
@@ -208,6 +235,23 @@ public class XMLImporterTest
 
         BusinessEdgeType businessEdge = BusinessEdgeType.getByCode(results.get(6).getCode());
         Assert.assertEquals("BUS_EDGE", businessEdge.getCode());
+
+        XMLExporter exporter = new XMLExporter(organization);
+        exporter.build();
+
+        File file = File.createTempFile("test", ".xml");
+
+        try
+        {
+          exporter.write(file);
+
+          System.out.println(FileUtils.readFileToString(file, "UTF-8"));
+        }
+        finally
+        {
+          FileUtils.deleteQuietly(file);
+        }
+
       }
       finally
       {

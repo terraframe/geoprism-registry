@@ -1,0 +1,57 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<div class="modal-body">
+    <div class="heading text-center">
+      <h1> <localize key="hierarchy.sidebar.exportTypes"></localize> </h1>
+    </div> 
+    <form #form="ngForm" class="modal-form" autocomplete="off">
+      <fieldset>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label> <localize key="attribute.organization.label"></localize> </label>
+          </div>
+          <div class="holder">
+            <select (change)="onSelect($event)" required>
+              <option></option>
+              <option *ngFor="let organization of organizations" value={{organization.code}}>{{organization.label.localizedValue}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="row-holder">
+          <div class="label-holder"></div>
+          <div class="holder">
+            <div class="button-holder">
+              <button type="button" (click)="bsModalRef.hide()" class="btn btn-default" role="button" aria-disabled="false">
+                <span>
+                  <localize key="modal.button.cancel"></localize>
+                </span>
+              </button>
+              <button type="submit" (click)="onClick()" class="btn btn-primary" role="button" aria-disabled="false">
+                <span>
+                  <localize key="modal.button.ok"></localize>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+</div>

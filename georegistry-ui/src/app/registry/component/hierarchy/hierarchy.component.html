@@ -52,45 +52,49 @@
 										<label>{{typeByOrg.org.label.localizedValue}}</label>
 									</div>
 
-									<div *ngIf="isSRA || typeByOrg.org.code === userOrganization" style="text-align: center;padding: 10px 0;">
-										<button (click)="createGeoObjectType(null, false, typeByOrg.org)" type="button" class="btn btn-primary"
-											style="margin-bottom:20px;min-width:45%;">
+									<div *ngIf="isSRA || typeByOrg.org.code === userOrganization"
+										style="text-align: center;padding: 10px 0;">
+										<button (click)="createGeoObjectType(null, false, typeByOrg.org)" type="button"
+											class="btn btn-primary" style="margin-bottom:20px;min-width:45%;">
 											<localize key="hierarchy.sidebar.newGeoObjectType"></localize>
 										</button>
-                                        
-                                        <button (click)="createGeoObjectType(null, true, typeByOrg.org)" type="button" class="btn btn-primary"
-                                            style="margin-bottom:20px;margin-left:10px;min-width:45%;">
-                                            <localize key="hierarchies.add.group.button.label"></localize>
-                                        </button>
+
+										<button (click)="createGeoObjectType(null, true, typeByOrg.org)" type="button"
+											class="btn btn-primary"
+											style="margin-bottom:20px;margin-left:10px;min-width:45%;">
+											<localize key="hierarchies.add.group.button.label"></localize>
+										</button>
 									</div>
 
 									<li class="list-group-item got-li-item"
-									                  [attr.data-superTypeCode]="(type.superTypeCode && type.superTypeCode.length > 0) ? type.superTypeCode : null"
-									                  *ngFor="let type of typeByOrg.types" [id]="type.code"
-									                  [attr.data-canDrag]="type.canDrag"
-                                    [ngClass]="{'got-group-parent' : (type.isAbstract), 'got-group-child' : type.superTypeCode && type.superTypeCode.length > 0}" >
+										[attr.data-superTypeCode]="(type.superTypeCode && type.superTypeCode.length > 0) ? type.superTypeCode : null"
+										*ngFor="let type of typeByOrg.types" [id]="type.code"
+										[attr.data-canDrag]="type.canDrag"
+										[ngClass]="{'got-group-parent' : (type.isAbstract), 'got-group-child' : type.superTypeCode && type.superTypeCode.length > 0}">
 										{{type.label.localizedValue}}
 
-										<span *ngIf="type.permissions.includes('WRITE')" style="position:absolute;right:10px;background:rgba(255,255,255,.7);top:50%;transform:translateY(-50%);">
-                                            
+										<span *ngIf="type.permissions.includes('WRITE')"
+											style="position:absolute;right:10px;background:rgba(255,255,255,.7);top:50%;transform:translateY(-50%);">
+
 											<i class="fa fa-times delete-btn clickable pull-right"
 												*ngIf="!excludeGeoObjectTypeDeletes(type)"
 												(click)="deleteGeoObjectType(type)"
 												[title]="'button.delete.helptext' | localize">
-                                            </i>
-                                                
+											</i>
+
 											<i class="fa fa-pencil clickable pull-right"
 												(click)="manageGeoObjectType(type, false)"
 												[title]="'button.edit.helptext' | localize">
-                                            </i>
-                                            
-                                            <i *ngIf="(type.isAbstract)" class="fa fa-plus clickable pull-right"
-                                                (click)="createGeoObjectType(type, false, typeByOrg.org)"
-                                                title="add">
-                                            </i>
+											</i>
+
+											<i *ngIf="(type.isAbstract)" class="fa fa-plus clickable pull-right"
+												(click)="createGeoObjectType(type, false, typeByOrg.org)" title="add">
+											</i>
 										</span>
 
-										<span *ngIf="!type.permissions.includes('WRITE') && type.permissions.includes('READ')" style="position:absolute;right:10px;background:rgba(255,255,255,.7);top:50%;transform:translateY(-50%);">
+										<span
+											*ngIf="!type.permissions.includes('WRITE') && type.permissions.includes('READ')"
+											style="position:absolute;right:10px;background:rgba(255,255,255,.7);top:50%;transform:translateY(-50%);">
 											<i class="fa fa-eye clickable pull-right"
 												(click)="manageGeoObjectType(type, true)"
 												[title]="'button.view.helptext' | localize"> </i>
@@ -100,7 +104,8 @@
 							</ul>
 						</div>
 					</accordion-group>
-					<accordion-group [isOpen]='true' class="sidebar-section" style="border-radius: 0;" [panelClass]="'hierarchy-sidebar-content'">
+					<accordion-group [isOpen]='true' class="sidebar-section" style="border-radius: 0;"
+						[panelClass]="'hierarchy-sidebar-content'">
 						<div accordion-heading style="padding: 10px 15px;">
 							<span>
 								<i class="fa fa-sitemap"></i>
@@ -115,7 +120,8 @@
 										<label>{{hierarchyByOrg.org.label.localizedValue}}</label>
 									</div>
 
-									<div *ngIf="isSRA || hierarchyByOrg.org.code === userOrganization" style="text-align: center;padding: 10px 0;">
+									<div *ngIf="isSRA || hierarchyByOrg.org.code === userOrganization"
+										style="text-align: center;padding: 10px 0;">
 										<button (click)="createHierarchy()" type="button" class="btn btn-primary"
 											style="margin-bottom:20px;min-width:45%;">
 											<localize key="hierarchy.sidebar.newHierarchy"></localize>
@@ -128,7 +134,8 @@
 										(click)="hierarchyOnClick($event,hierarchy)">
 										<i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}}
 
-										<span *ngIf="isOrganizationRA(hierarchy.organizationCode)" style="position:absolute;right:10px;background:inherit;top:50%;transform:translateY(-50%);">
+										<span *ngIf="isOrganizationRA(hierarchy.organizationCode)"
+											style="position:absolute;right:10px;background:inherit;top:50%;transform:translateY(-50%);">
 											<i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)"
 												class="fa fa-times delete-btn clickable pull-right"
 												(click)="deleteHierarchyType(hierarchy)"
@@ -138,7 +145,8 @@
 												[title]="'button.edit.helptext' | localize"> </i>
 										</span>
 
-										<span *ngIf="!isOrganizationRA(hierarchy.organizationCode)" style="position:absolute;right:10px;background:inherit;top:50%;transform:translateY(-50%);">
+										<span *ngIf="!isOrganizationRA(hierarchy.organizationCode)"
+											style="position:absolute;right:10px;background:inherit;top:50%;transform:translateY(-50%);">
 											<i class="fa fa-eye pull-right clickable"
 												(click)="editHierarchyType(hierarchy, true)"
 												[title]="'button.view.helptext' | localize"> </i>
@@ -149,92 +157,99 @@
 						</div>
 					</accordion-group>
 				</accordion>
-        <div *ngIf="isSRA" style="text-align: center;padding: 10px 0;">
-          <button (click)="importTypes()" type="button" class="btn btn-primary" style="margin-bottom:20px;min-width:45%;">
-            <localize key="hierarchy.sidebar.importTypes"></localize>
-          </button>                
-        </div>                
+				<div *ngIf="isSRA" style="text-align: center;padding: 10px 0;">
+					<button (click)="importTypes()" type="button" class="btn btn-primary"
+						style="margin-bottom:20px;min-width:45%;">
+						<localize key="hierarchy.sidebar.importTypes"></localize>
+					</button>
+					<button (click)="exportTypes()" type="button" class="btn btn-primary"
+						style="margin-bottom:20px;margin-left:5px;min-width:45%;">
+						<localize key="hierarchy.sidebar.exportTypes"></localize>
+					</button>
+				</div>
 			</nav>
 
 			<div class="col-md-9 hierarchy-content">
 				<div id="overflow-div">
 
-					<div *ngIf="currentHierarchy != null && (currentHierarchy.rootGeoObjectTypes == null || currentHierarchy.rootGeoObjectTypes.length == 0)">
-                      <div *ngIf="isOrganizationRA(currentHierarchy.organizationCode, true)" id="emptyHierarchyDropzone" class="drop-box-container">
-						<div class="hierarchy-drop-box">
-							<div class="inner-drop-box">
-								<p class="upload-text">
-									<localize key="hierarchy.content.dragGotToHierarchy"></localize>
-								</p>
+					<div
+						*ngIf="currentHierarchy != null && (currentHierarchy.rootGeoObjectTypes == null || currentHierarchy.rootGeoObjectTypes.length == 0)">
+						<div *ngIf="isOrganizationRA(currentHierarchy.organizationCode, true)"
+							id="emptyHierarchyDropzone" class="drop-box-container">
+							<div class="hierarchy-drop-box">
+								<div class="inner-drop-box">
+									<p class="upload-text">
+										<localize key="hierarchy.content.dragGotToHierarchy"></localize>
+									</p>
+								</div>
 							</div>
 						</div>
-                      </div>
-                      <div *ngIf="!isOrganizationRA(currentHierarchy.organizationCode, true)">
-                          <p class="upload-text">
-                              <localize key="hierarchy.content.emptyHierarchy"></localize>
-                          </p>
-                      </div>
-                    </div>
+						<div *ngIf="!isOrganizationRA(currentHierarchy.organizationCode, true)">
+							<p class="upload-text">
+								<localize key="hierarchy.content.emptyHierarchy"></localize>
+							</p>
+						</div>
+					</div>
 
 					<div id="svgHolder">
 						<!-- <svg id="graph" style="width:1200px; height:750px"></svg> -->
 					</div>
 					<div id="NodeTooltip" class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-form">
-                  <div class="row-holder">
-                    <div class="label-holder">
-                       <label>
-                         <localize key="hierarchy.nodeTooltip.geoObjectTypeCode"></localize>
-                       </label>
-                     </div>
-                     <div class="holder">
-                       <label id="geoObjectTypeCodeLabel"></label>
-                     </div>
-                  </div>
-                  <div class="row-holder">
-                    <div class="label-holder">
-                       <label>
-                         <localize key="hierarchy.nodeTooltip.geoObjectTypeOrganization"></localize>
-                       </label>
-                     </div>
-                     <div class="holder">
-                       <label id="geoObjectTypeOrganizationLabel"></label>
-                     </div>
-                  </div>
-                  <div class="row-holder">
-                    <div class="label-holder">
-                      <label>
-                        <localize key="hierarchy.nodeTooltip.hierarchy"></localize>
-                      </label>
-                    </div>
-                    <div class="holder">
-                      <label id="hierarchyLabel"></label>
-                    </div>
-                  </div>
-                  <div class="row-holder">
-                    <div class="label-holder">
-                       <label>
-                         <localize key="hierarchy.nodeTooltip.hierarchyCode"></localize>
-                       </label>
-                     </div>
-                     <div class="holder">
-                       <label id="hierarchyCodeLabel"></label>
-                     </div>
-                  </div>
-                  <div class="row-holder">
-                    <div class="label-holder">
-                       <label>
-                         <localize key="hierarchy.nodeTooltip.hierarchyOrganization"></localize>
-                       </label>
-                     </div>
-                     <div class="holder">
-                       <label id="hierarchyOrganizationLabel"></label>
-                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+						<div class="modal-content">
+							<div class="modal-form">
+								<div class="row-holder">
+									<div class="label-holder">
+										<label>
+											<localize key="hierarchy.nodeTooltip.geoObjectTypeCode"></localize>
+										</label>
+									</div>
+									<div class="holder">
+										<label id="geoObjectTypeCodeLabel"></label>
+									</div>
+								</div>
+								<div class="row-holder">
+									<div class="label-holder">
+										<label>
+											<localize key="hierarchy.nodeTooltip.geoObjectTypeOrganization"></localize>
+										</label>
+									</div>
+									<div class="holder">
+										<label id="geoObjectTypeOrganizationLabel"></label>
+									</div>
+								</div>
+								<div class="row-holder">
+									<div class="label-holder">
+										<label>
+											<localize key="hierarchy.nodeTooltip.hierarchy"></localize>
+										</label>
+									</div>
+									<div class="holder">
+										<label id="hierarchyLabel"></label>
+									</div>
+								</div>
+								<div class="row-holder">
+									<div class="label-holder">
+										<label>
+											<localize key="hierarchy.nodeTooltip.hierarchyCode"></localize>
+										</label>
+									</div>
+									<div class="holder">
+										<label id="hierarchyCodeLabel"></label>
+									</div>
+								</div>
+								<div class="row-holder">
+									<div class="label-holder">
+										<label>
+											<localize key="hierarchy.nodeTooltip.hierarchyOrganization"></localize>
+										</label>
+									</div>
+									<div class="holder">
+										<label id="hierarchyOrganizationLabel"></label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
