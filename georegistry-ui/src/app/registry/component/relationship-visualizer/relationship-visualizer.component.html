@@ -63,7 +63,7 @@
 
             <!-- Node Template -->
             <ng-template #nodeTemplate let-node>
-              <svg:g (click)="onClickNode(node)" class="node" [style.cursor]="node.relation === 'SELECTED' ? 'default' : 'pointer'" >
+              <svg:g (click)=" onClickNode(node)" class="node" [style.cursor]="node.relation === 'SELECTED' || !node.readable  ? 'default' : 'pointer'" >
                 <svg:polygon *ngIf="node.objectType === 'GEOOBJECT'" [attr.points]="getHexagonPoints(node)"
                   [attr.fill]="state.code == null ? node.data.color : this.typeLegend[node.typeCode].color"
                   ></polygon>

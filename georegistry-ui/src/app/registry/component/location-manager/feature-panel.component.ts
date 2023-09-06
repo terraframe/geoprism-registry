@@ -55,7 +55,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
 
     @Output() forDateChange = new EventEmitter<string>();
 
-    @Input() readOnly: boolean = false;
+    readOnly: boolean = false;
 
     @Input() code: string;
 
@@ -105,6 +105,7 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
     ngOnInit(): void {
         this.isMaintainer = this.authService.isSRA() || this.authService.isOrganizationRA(this.type.organizationCode) || this.authService.isGeoObjectTypeOrSuperRM(this.type);
         this.mode = "ATTRIBUTES";
+
 
         //        this.isEdit = !this.readOnly;
     }
@@ -171,6 +172,12 @@ export class FeaturePanelComponent implements OnInit, OnChanges {
                     this.spinner.hide(this.CONSTANTS.OVERLAY);
                 });
             }
+
+            this.readOnly = !this.authService.isGeoObjectTypeOrSuperRC({
+                organizationCode: this.type.organizationCode,
+                code: this.type.code,
+                superTypeCode: this.type.superTypeCode
+            });    
         }
     }
 

@@ -249,7 +249,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         }
     }
 
-    onSelectRelationship() :void {
+    onSelectRelationship(): void {
         this.relationship = this.relationships[this.relationships.findIndex(rel => rel.oid === this.graphOid)];
 
         //   this.fetchData();
@@ -299,7 +299,7 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         layers = layers.filter(layer => layer.getPinned() ||
             layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE ||
             ((layer.dataSource as RelationshipVisualizionDataSource).getRelationshipCode() === this.relationship.code && (layer.dataSource as RelationshipVisualizionDataSource).getRelationshipType() === this.relationship.type &&
-              (relatedTypes.map(relatedType => relatedType.code).indexOf((layer as RelationshipVisualizionLayer).getRelatedTypeFilter()) !== -1)));
+                (relatedTypes.map(relatedType => relatedType.code).indexOf((layer as RelationshipVisualizionLayer).getRelatedTypeFilter()) !== -1)));
 
         // If the type is already rendered at a specific position in the layer stack, we want to preserve that positioning and overwrite any layer currently in that position
         let existingRelatedTypes: { [key: string]: { index: number, layer: Layer } } = {};
@@ -316,8 +316,8 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
                 let layer: RelationshipVisualizionLayer = dataSource.createLayer(this.relationship.label.localizedValue + " " + relatedType.label, true, this.typeLegend[relatedType.code].color) as RelationshipVisualizionLayer;
                 layer.setRelatedTypeFilter(relatedType.code);
 
-                 if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
-                //if (layers.findIndex(l => l.legendLabel === layer.legendLabel) === -1) {
+                if (layers.findIndex(l => l.getKey() === layer.getKey()) === -1) {
+                    //if (layers.findIndex(l => l.legendLabel === layer.legendLabel) === -1) {
                     let existingRelatedType = existingRelatedTypes[relatedType.code];
 
                     if (existingRelatedType == null || existingRelatedType.layer.getPinned()) {
@@ -506,15 +506,23 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
     */
 
     public onClickNode(node: any): void {
-        if (node.code !== this.state.code ||
-            node.typeCode !== this.state.type) {
+        if ((node.code !== this.state.code ||
+            node.typeCode !== this.state.type) && node.readable) {
             let doIt = (resolve) => {
                 this.collapseAnimation(node.id).then(() => {
                     resolve();
                 });
             };
 
-            this.nodeSelect.emit({ objectType: node.objectType, id: node.id.substring(2), code: node.code, typeCode: node.typeCode, label: node.label, selectAnimation: doIt } as any);
+            this.nodeSelect.emit({
+                objectType: node.objectType,
+                id: node.id.substring(2),
+                code: node.code,
+                typeCode: node.typeCode,
+                label: node.label,
+                readable: node.readable,
+                selectAnimation: doIt
+            } as any);
         }
     }
 

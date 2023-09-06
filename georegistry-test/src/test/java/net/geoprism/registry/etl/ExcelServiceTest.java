@@ -35,13 +35,15 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.session.Request;
@@ -55,6 +57,7 @@ import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
@@ -85,6 +88,8 @@ import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringJUnit4ClassRunner.class)
 public class ExcelServiceTest
 {
   private static ClassificationType          type;
@@ -103,11 +108,12 @@ public class ExcelServiceTest
 
   private static AttributeClassificationType testClassification;
 
+  private static boolean                     isSetup   = false;
+
   private final Integer                      ROW_COUNT = 2;
 
-  @BeforeClass
   @Request
-  public static void classSetUp()
+  public static void setupClasses()
   {
     type = ClassificationType.apply(ClassificationTypeTest.createMock());
 
@@ -137,6 +143,8 @@ public class ExcelServiceTest
 
     ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.DISTRICT.getCode());
     testClassification = (AttributeClassificationType) got.createAttributeType(testClassification.toJSON().toString());
+
+    isSetup = true;
   }
 
   @AfterClass
@@ -150,6 +158,12 @@ public class ExcelServiceTest
   @Before
   public void setUp()
   {
+    // This is a hack to allow for spring injection of classification tasks
+    if (!isSetup)
+    {
+      setupClasses();
+    }
+
     clearData();
 
     testData.logIn(USATestData.USER_NPS_RA);

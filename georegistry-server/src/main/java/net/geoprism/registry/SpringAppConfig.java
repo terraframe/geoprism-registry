@@ -50,6 +50,7 @@ import net.geoprism.forgotpassword.service.ForgotPasswordServiceIF;
 import net.geoprism.registry.account.ForgotPasswordCGRService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.session.ExternalProfileCGRService;
+import net.geoprism.session.LoginBruteForceGuardService;
 import net.geoprism.session.SessionController;
 import net.geoprism.session.SessionFilter;
 import net.geoprism.spring.JsonExceptionHandler;
@@ -178,5 +179,11 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
   @Bean
   UserInviteService userInviteService() {
     return new UserInviteService();
+  }
+  
+  @Bean
+  LoginBruteForceGuardService loginBruteForceGuard()
+  {
+    return new LoginBruteForceGuardService();
   }
 }

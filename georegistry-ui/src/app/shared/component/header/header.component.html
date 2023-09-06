@@ -26,15 +26,15 @@
         <a class="navbar-brand" [href]="context + '#/menu'"><img [src]="context + 'api/asset/view?oid=logo'" /></a>
         <a class="navbar-brand" [href]="context + '#/menu'"><localize key="cgr.standard.title"></localize></a>
       </div>
-       <ul *ngIf="!isPublic" class="nav navbar-nav navbar-right"> 
-         <li class="hidden-xs">
+       <ul class="nav navbar-nav navbar-right"> 
+         <li *ngIf="!isPublic" class="hidden-xs">
             
            <a (click)="account()" class="navbar-username">
            <!-- <div>Logged in as</div> -->
              <div>{{getUsername()}}</div>
            </a>                      
          </li>
-         <li dropdown> 
+         <li dropdown *ngIf="!isPublic || locales.length > 0"> 
              <!-- <localize key="hierarchy-management.menu"></localize> -->
            <a class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle> 
              <span class="glyphicon glyphicon-menu-hamburger"></span> 
@@ -60,11 +60,11 @@
                 </ng-container>
                 <li *ngIf="shouldShowMenuItem('LPG')" role="menuitem"><a class="dropdown-item" routerLink="/registry/labeled-property-graph-type" routerLinkActive="active"><localize key="lpg.menu"></localize> </a></li>
                 
-                <hr>
+                <hr *ngIf="!isPublic">
                 <li *ngIf="shouldShowMenuItem('SETTINGS')" role="menuitem"><a class="dropdown-item" routerLink="/admin/settings" routerLinkActive="active"><localize key="settings.menu"></localize> </a></li>
                 
                 <div *ngIf="locales.length > 0" style="padding: 0 20px;">
-                  <hr>
+                  <hr *ngIf="!isPublic">
 <!--                     <span><localize key="userDashboards.setLocale"></localize></span> -->
 
                     <label class="radio" style="font-weight: inherit;">
@@ -85,8 +85,8 @@
                 </li>
                 <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/admin/email" routerLinkActive="active"><i></i><localize key="email.link"></localize></a></li> -->
   
-                <hr>
-                <li role="menuitem"><a class="user-command-link" (click)="logout()"><localize key="userDashboards.logout"></localize></a></li>
+                <hr *ngIf="!isPublic">
+                <li *ngIf="!isPublic" role="menuitem"><a class="user-command-link" (click)="logout()"><localize key="userDashboards.logout"></localize></a></li>
             
               </ul>
          </li> 
