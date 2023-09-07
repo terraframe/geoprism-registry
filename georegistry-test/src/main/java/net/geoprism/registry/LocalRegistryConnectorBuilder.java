@@ -1,3 +1,6 @@
+/**
+ *
+ */
 package net.geoprism.registry;
 
 import org.apache.http.NameValuePair;
