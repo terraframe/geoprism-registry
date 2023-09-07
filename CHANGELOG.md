@@ -6,28 +6,12 @@
 
 ### Features
 
- - ability to edit external ids in explorer and change requests  ([#872](https://github.com/terraframe/geoprism-registry/issues/872)) ([67bac](https://github.com/terraframe/geoprism-registry/commit/67bacc93754a69946596a775125ecf28bdd0bf11))
- - **explorer** include parents from inherited hierarchies in parents tab  ([#911](https://github.com/terraframe/geoprism-registry/issues/911)) ([4b8fe](https://github.com/terraframe/geoprism-registry/commit/4b8fe158c604d6b085cc90679a84fb239fac48a5))
  - ability to publish empty frequest lists   ([099e7](https://github.com/terraframe/geoprism-registry/commit/099e7532df923d63375c0132cdf6ad88770ebacf))
- - improve system logging   ([10c71](https://github.com/terraframe/geoprism-registry/commit/10c71d978ce708da52d933513a3456b1324c316d))
- - **importer** multithreaded importing   ([982e9](https://github.com/terraframe/geoprism-registry/commit/982e9bfeeef10d39cfb55dd839627a39502c6b8b))
- - **lists** allow public access to the list version page   ([37d10](https://github.com/terraframe/geoprism-registry/commit/37d1068bfaea34f4531fc9ac1f74772cd5bacd42))
 
 ### Bug Fixes
 
-   - **explorer** removed autocomplete behaviour when searching  ([#895](https://github.com/terraframe/geoprism-registry/issues/895)) ([a0004](https://github.com/terraframe/geoprism-registry/commit/a0004ed3dc94f4d23dde1e8289c77d01ce078e6f))
-   - **synchronization** inherited types displaying duplicate or extra values  ([#896](https://github.com/terraframe/geoprism-registry/issues/896)) ([c45c7](https://github.com/terraframe/geoprism-registry/commit/c45c72aaa0ffca1bbba2577779fc61ba3eff40bf))
-   - **synchronization** null pointer when syncing translations with dhis2  ([#898](https://github.com/terraframe/geoprism-registry/issues/898)) ([73492](https://github.com/terraframe/geoprism-registry/commit/734927b15605ab9e7c3926f48a0a0879ae7c7972))
-   - **synchronization** too many codes in a sync error makes page unreadable  ([#898](https://github.com/terraframe/geoprism-registry/issues/898)) ([4620e](https://github.com/terraframe/geoprism-registry/commit/4620ec4848b6a12fcd83645d626503d59ffd0563))
-   - fixed application labels not being localized. #900  ([#900](https://github.com/terraframe/geoprism-registry/issues/900)) ([08718](https://github.com/terraframe/geoprism-registry/commit/0871862570219c8b7a4e7a4354d6454400d15fd5))
-   - changed the initial explorer bounds of an object to use the most recent geometry  ([#902](https://github.com/terraframe/geoprism-registry/issues/902)) ([c7545](https://github.com/terraframe/geoprism-registry/commit/c75457047dbdaa5d1a54585e5820d9e20fee3c75))
-   - changed the initial explorer bounds of an object to use the most recent geometry  ([#902](https://github.com/terraframe/geoprism-registry/issues/902)) ([095c8](https://github.com/terraframe/geoprism-registry/commit/095c8c3c9fe8382062497079697a7294968137c6))
-   - **dhis2-sync** error message details empty for external system synchronization  ([#909](https://github.com/terraframe/geoprism-registry/issues/909)) ([11d82](https://github.com/terraframe/geoprism-registry/commit/11d826852de34ffa0a4c3b1d270532604c9164df))
-   - **explorer** parent auto-complete dropdown missing labels  ([#913](https://github.com/terraframe/geoprism-registry/issues/913)) ([75742](https://github.com/terraframe/geoprism-registry/commit/75742fea70fad2c3bae8490a50bfb09a95b8627a))
    - **importer** importer running for too long on staging  ([#914](https://github.com/terraframe/geoprism-registry/issues/914)) ([af0b3](https://github.com/terraframe/geoprism-registry/commit/af0b32229c75146615cb34b4d549e5b70595834e))
    - **api** list-type/data should not require criteria or showInvalid   ([2ca4d](https://github.com/terraframe/geoprism-registry/commit/2ca4d4885d0663533e2e950bab136ddf1b21e977))
-   - georegistry-server/pom.xml to reduce vulnerabilities The following vulnerabilities are fixed with an upgrade:- https://snyk.io/vuln/SNYK-JAVA-ORGSPRINGFRAMEWORK-5422217  ([7474c](https://github.com/terraframe/geoprism-registry/commit/7474c4b4fbc6c9a8e2dfee3f952da7e9687bb355))
-   - georegistry-server/pom.xml to reduce vulnerabilities The following vulnerabilities are fixed with an upgrade:- https://snyk.io/vuln/SNYK-JAVA-ORGSPRINGFRAMEWORK-3369749- https://snyk.io/vuln/SNYK-JAVA-ORGSPRINGFRAMEWORK-3369852  ([bd27f](https://github.com/terraframe/geoprism-registry/commit/bd27f788da406e6ba77a64d845691aa850afd73d))
 
 
 
