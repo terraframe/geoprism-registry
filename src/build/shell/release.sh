@@ -169,14 +169,15 @@ if [ "$release_github" == "true" ]; then
   gh config set prompt disabled
   
   if [ "$dry_run" == "false" ]; then
-    # TODO : We really should be using the artifacts we compiled earlier.
-    sleep 300 # Cloudsmith takes a little bit to process the artifact before its downloadable.
+    # TODO : Use the artifacts we compiled earlier?
+    sleep 180 # Cloudsmith takes a little bit to process the artifact before its downloadable.
     wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O georegistry-web-$CGR_RELEASE_VERSION.war
-    wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-adapter/$CGR_RELEASE_VERSION/georegistry-adapter-$CGR_RELEASE_VERSION.jar -O georegistry-adapter-$CGR_RELEASE_VERSION.jar
+    #wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-adapter/$CGR_RELEASE_VERSION/georegistry-adapter-$CGR_RELEASE_VERSION.jar -O georegistry-adapter-$CGR_RELEASE_VERSION.jar
     #wget https://dl.cloudsmith.io/public/terraframe/geoprism-registry/maven/net/geoprism/georegistry-adapter-android/$CGR_RELEASE_VERSION/georegistry-adapter-android-$CGR_RELEASE_VERSION.aar -O georegistry-adapter-android-$CGR_RELEASE_VERSION.aar
   
     #gh release create $CGR_RELEASE_VERSION "georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp" "georegistry-adapter-$CGR_RELEASE_VERSION.jar#CGR Java Adapter" "georegistry-adapter-android-$CGR_RELEASE_VERSION.aar#CGR Android Adapter"
-    gh release create $CGR_RELEASE_VERSION --notes-file CHANGELOG2.md "georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp" "georegistry-adapter-$CGR_RELEASE_VERSION.jar#CGR Java Adapter"
+    #gh release create $CGR_RELEASE_VERSION --notes-file CHANGELOG2.md "georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp" "georegistry-adapter-$CGR_RELEASE_VERSION.jar#CGR Java Adapter"
+    gh release create $CGR_RELEASE_VERSION --notes-file CHANGELOG2.md "georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp"
   fi
   
   
