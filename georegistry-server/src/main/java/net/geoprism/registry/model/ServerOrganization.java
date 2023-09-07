@@ -4,19 +4,19 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry;
+package net.geoprism.registry.model;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,18 +26,18 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.business.graph.GraphQuery;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.dataaccess.EntityDAOIF;
 import com.runwaysdk.dataaccess.cache.ObjectCache;
-import com.runwaysdk.query.OIterator;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
@@ -47,55 +47,113 @@ import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.GeoprismUser;
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.OrganizationContactInfo;
+import net.geoprism.registry.OrganizationDisplayLabel;
+import net.geoprism.registry.OrganizationQuery;
+import net.geoprism.registry.OrganizationUser;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
-import net.geoprism.registry.model.Classification;
-import net.geoprism.registry.model.ClassificationNode;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.graph.GraphOrganization;
 import net.geoprism.registry.permission.RolePermissionService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
-public class Organization extends OrganizationBase
+public class ServerOrganization implements JsonSerializable
 {
-  private static final long serialVersionUID = -640706555;
+  private Organization      organization;
 
-  public Organization()
+  private GraphOrganization graphOrganization;
+
+  public ServerOrganization()
   {
-    super();
+    this(new Organization(), new GraphOrganization());
   }
 
-  /**
-   * Builds the this object's key name.
-   */
-  @Override
-  public String buildKey()
+  public ServerOrganization(Organization organization, GraphOrganization graphOrganization)
   {
-    return this.getCode();
+    this.organization = organization;
+    this.graphOrganization = graphOrganization;
   }
 
-  /**
-   * Returns the [@link Organization} with the given code
-   * 
-   * @return
-   */
-  public static Organization getByCode(String code)
+  public GraphOrganization getGraphOrganization()
   {
-    return getByKey(code);
+    return graphOrganization;
+  }
+
+  public Organization getOrganization()
+  {
+    return organization;
+  }
+
+  public OrganizationDisplayLabel getDisplayLabel()
+  {
+    return this.organization.getDisplayLabel();
+  }
+
+  public String getCode()
+  {
+    return this.organization.getCode();
+  }
+
+  public OrganizationContactInfo getContactInfo()
+  {
+    return this.organization.getContactInfo();
+  }
+
+  public void setCode(String code)
+  {
+    this.organization.setCode(code);
+    this.graphOrganization.setCode(code);
+  }
+
+  public void setDisplayLabel(LocalizedValue label)
+  {
+    LocalizedValueConverter.populate(this.organization.getDisplayLabel(), label);
+    LocalizedValueConverter.populate(this.graphOrganization, GraphOrganization.DISPLAYLABEL, label);
+  }
+
+  public void setContactInfo(LocalizedValue contactInfo)
+  {
+    LocalizedValueConverter.populate(this.organization.getContactInfo(), contactInfo);
+    LocalizedValueConverter.populate(this.graphOrganization, GraphOrganization.CONTACTINFO, contactInfo);
+  }
+
+  public void lock()
+  {
+    this.organization.lock();
+  }
+
+  public void unlock()
+  {
+    this.organization.unlock();
   }
 
   /**
    * Creates a {@link RoleDAO} for this {@link Organization} and a Registry
    * Administrator {@link RoleDAO} for this {@link Organization}.
    */
+  @Transaction
   public void apply()
   {
-    super.apply();
+    this.organization.apply();
 
-    if (this.isNew())
+    if (this.graphOrganization.getOrganizationOid() == null || !this.graphOrganization.getOrganizationOid().equals(this.organization.getOid()))
     {
-      this.createOrganizationRole();
-      this.createRegistryAdminOrganizationRole();
+      this.graphOrganization.setOrganization(this.organization);
+    }
+
+    this.graphOrganization.apply();
+  }
+
+  @Transaction
+  public void apply(ServerOrganization parent)
+  {
+    this.apply();
+
+    if (parent != null)
+    {
+      parent.addChild(this);
     }
   }
 
@@ -103,39 +161,11 @@ public class Organization extends OrganizationBase
    * Removes the {@link RoleDAO}s for this {@link Organization} and Registry
    * Administrator for this {@link Organization}.
    */
+  @Transaction
   public void delete()
   {
-    // Can't delete if there's existing data
-    List<ServerHierarchyType> hierarchyTypes = ServiceFactory.getMetadataCache().getAllHierarchyTypes();
-
-    for (ServerHierarchyType ht : hierarchyTypes)
-    {
-      if (ht.getOrganizationCode().equals(this.getCode()))
-      {
-        throw new ObjectHasDataException();
-      }
-    }
-
-    try
-    {
-      Roles raOrgRole = this.getRegistryAdminiRole();
-      raOrgRole.delete();
-    }
-    // Heads up: clean up
-    catch (com.runwaysdk.dataaccess.cache.DataNotFoundException e)
-    {
-    }
-    try
-    {
-      Roles orgRole = this.getRole();
-      orgRole.delete();
-    }
-    // Heads up: clean up
-    catch (com.runwaysdk.dataaccess.cache.DataNotFoundException e)
-    {
-    }
-
-    super.delete();
+    this.graphOrganization.delete();
+    this.organization.delete();
   }
 
   /**
@@ -242,57 +272,145 @@ public class Organization extends OrganizationBase
     return typeCodeMap;
   }
 
-  /**
-   * Creates a {@link RoleDAOIF} for this {@link Organization}.
-   * 
-   * Precondition: a {@link RoleDAOIF} does not exist for this
-   * {@link Organization}. Precondition: the display label for the default
-   * locale has a value for this {@link Organization}
-   * 
-   */
-  private void createOrganizationRole()
+  public void addChild(ServerOrganization child)
   {
-    String roleName = this.getRoleName();
-
-    String defaultDisplayLabel = this.getDisplayLabel().getDefaultValue();
-
-    RoleDAO orgRole = RoleDAO.createRole(roleName, defaultDisplayLabel);
-
-    RoleDAO rootOrgRole = (RoleDAO) RoleDAO.findRole(RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE);
-
-    rootOrgRole.addInheritance(orgRole);
+    this.graphOrganization.addChild(child.graphOrganization);
   }
 
-  /**
-   * Creates a Registry Administrator {@link RoleDAOIF} for this
-   * {@link Organization}.
-   * 
-   * Precondition: a {@link RoleDAOIF} does not exist for this
-   * {@link Organization}. Precondition: the display label for the default
-   * locale has a value for this {@link Organization}
-   * 
-   */
-  private void createRegistryAdminOrganizationRole()
+  public void removeChild(ServerOrganization child)
   {
-    String registryAdminRoleName = this.getRegistryAdminRoleName();
+    this.graphOrganization.removeChild(child.graphOrganization);
+  }
 
-    String defaultDisplayLabel = this.getDisplayLabel().getDefaultValue() + " Registry Administrator";
+  public void addParent(ServerOrganization parent)
+  {
+    this.graphOrganization.addParent(parent.graphOrganization);
+  }
 
-    // Heads up: clean up move to Roles.java?
-    Roles raOrgRole = new Roles();
-    raOrgRole.setRoleName(registryAdminRoleName);
-    raOrgRole.getDisplayLabel().setDefaultValue(defaultDisplayLabel);
-    raOrgRole.apply();
+  public void removeParent(ServerOrganization parent)
+  {
+    this.graphOrganization.removeParent(parent.graphOrganization);
+  }
 
-    Roles orgRole = (Roles) this.getRole();
-    RoleDAO orgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(orgRole);
+  @Transaction
+  public void removeAllParents()
+  {
+    this.getParents().forEach(parent -> {
+      this.removeParent(parent);
+    });
 
-    RoleDAO raOrgRoleDAO = (RoleDAO) BusinessFacade.getEntityDAO(raOrgRole);
-    orgRoleDAO.addInheritance(raOrgRoleDAO);
+  }
 
-    // Inherit the permissions from the root RA role
-    RoleDAO rootRA_DAO = (RoleDAO) BusinessFacade.getEntityDAO(Roles.findRoleByName(RegistryConstants.REGISTRY_ADMIN_ROLE));
-    rootRA_DAO.addInheritance(raOrgRoleDAO);
+  public List<ServerOrganization> getParents()
+  {
+    List<GraphOrganization> parents = this.graphOrganization.getParents();
+
+    List<ServerOrganization> results = parents.stream().map(vertex -> {
+      return new ServerOrganization(vertex.getOrganization(), vertex);
+    }).collect(Collectors.toList());
+
+    return results;
+  }
+
+  public Page<ServerOrganization> getChildren()
+  {
+    return this.getChildren(20, 1);
+  }
+
+  public Page<ServerOrganization> getChildren(Integer pageSize, Integer pageNumber)
+  {
+    Integer count = this.graphOrganization.getCount();
+
+    List<GraphOrganization> children = this.graphOrganization.getChildren(pageSize, pageNumber);
+
+    List<ServerOrganization> results = children.stream().map(vertex -> {
+      return new ServerOrganization(vertex.getOrganization(), vertex);
+    }).collect(Collectors.toList());
+
+    return new Page<ServerOrganization>(count, pageNumber, pageSize, results);
+  }
+
+  public List<ServerOrganization> getAncestors(String code)
+  {
+    List<GraphOrganization> ancestors = this.graphOrganization.getAncestors(code);
+
+    List<ServerOrganization> results = ancestors.stream().map(vertex -> {
+      return new ServerOrganization(vertex.getOrganization(), vertex);
+    }).collect(Collectors.toList());
+
+    return results;
+  }
+
+  public GraphNode<ServerOrganization> getAncestorTree(String code, Integer pageSize)
+  {
+    List<GraphOrganization> ancestors = this.graphOrganization.getAncestors(code);
+    Integer count = this.graphOrganization.getCount();
+
+    GraphNode<ServerOrganization> prev = null;
+
+    for (GraphOrganization ancestor : ancestors)
+    {
+      List<GraphOrganization> results = ancestor.getChildren(pageSize, 1);
+
+      List<GraphNode<ServerOrganization>> transform = results.stream().map(r -> {
+        ServerOrganization object = new ServerOrganization(r.getOrganization(), r);
+        return new GraphNode<ServerOrganization>(object);
+      }).collect(Collectors.toList());
+
+      if (prev != null)
+      {
+        int index = transform.indexOf(prev);
+
+        if (index != -1)
+        {
+          transform.set(index, prev);
+        }
+        else
+        {
+          transform.add(prev);
+        }
+      }
+
+      Page<GraphNode<ServerOrganization>> page = new Page<GraphNode<ServerOrganization>>(count, 1, pageSize, transform);
+
+      GraphNode<ServerOrganization> node = new GraphNode<ServerOrganization>();
+      node.setObject(new ServerOrganization(ancestor.getOrganization(), ancestor));
+      node.setChildren(page);
+
+      prev = node;
+    }
+
+    return prev;
+  }
+
+  public void move(ServerOrganization newParent)
+  {
+    this.graphOrganization.move(newParent.graphOrganization);
+  }
+
+  public OrganizationDTO toDTO()
+  {
+    LocalizedValue label = RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel());
+    LocalizedValue info = RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getContactInfo());
+
+    List<ServerOrganization> parents = this.getParents();
+
+    if (parents.size() > 0)
+    {
+      ServerOrganization parent = parents.get(0);
+      String parentCode = parent.getCode();
+      LocalizedValue parentLabel = RegistryLocalizedValueConverter.convertNoAutoCoalesce(parent.getDisplayLabel());
+
+      return new OrganizationDTO(this.getCode(), label, info, parentCode, parentLabel);
+    }
+
+    return new OrganizationDTO(this.getCode(), label, info);
+  }
+
+  @Override
+  public JsonObject toJSON()
+  {
+    return this.toDTO().toJSON();
   }
 
   /**
@@ -310,7 +428,7 @@ public class Organization extends OrganizationBase
    */
   public static String getRootOrganizationCode(String actorOid)
   {
-    Organization organization = getRootOrganization(actorOid);
+    ServerOrganization organization = getRootOrganization(actorOid);
 
     if (organization == null)
     {
@@ -335,7 +453,7 @@ public class Organization extends OrganizationBase
    * 
    * @return the corresponding {@link Organization} or NULL otherwise.
    */
-  public static Organization getRootOrganization(String actorOid)
+  public static ServerOrganization getRootOrganization(String actorOid)
   {
     Actor actor = null;
 
@@ -368,7 +486,7 @@ public class Organization extends OrganizationBase
 
     try
     {
-      return Organization.getByCode(organizationCode);
+      return ServerOrganization.getByCode(organizationCode);
     }
     catch (com.runwaysdk.dataaccess.cache.DataNotFoundException e)
     {
@@ -376,12 +494,19 @@ public class Organization extends OrganizationBase
     }
   }
 
-  public static List<? extends Organization> getOrganizations()
+  public static ServerOrganization get(Organization orginzation)
+  {
+    GraphOrganization graphOrganization = GraphOrganization.get(orginzation);
+
+    return new ServerOrganization(orginzation, graphOrganization);
+  }
+
+  public static List<ServerOrganization> getOrganizations()
   {
     OrganizationQuery query = new OrganizationQuery(new QueryFactory());
     query.ORDER_BY_ASC(query.getDisplayLabel().localize());
 
-    return query.getIterator().getAll();
+    return query.getIterator().getAll().stream().map(org -> ServerOrganization.get(org)).collect(Collectors.toList());
   }
 
   /**
@@ -390,61 +515,31 @@ public class Organization extends OrganizationBase
    * 
    * @return
    */
-  public static List<Organization> getOrganizationsFromCache()
+  public static List<ServerOrganization> getOrganizationsFromCache()
   {
     // For performance, get all of the universals defined
     List<? extends EntityDAOIF> organizationDAOs = ObjectCache.getCachedEntityDAOs(Organization.CLASS);
 
-    List<Organization> organizationList = new LinkedList<Organization>();
+    List<ServerOrganization> organizationList = new LinkedList<ServerOrganization>();
 
     for (EntityDAOIF entityDAOIF : organizationDAOs)
     {
-      Organization organization = (Organization) BusinessFacade.get(entityDAOIF);
-      organizationList.add(organization);
+      organizationList.add(ServerOrganization.get((Organization) BusinessFacade.get(entityDAOIF)));
     }
 
     return organizationList;
   }
 
-  public OrganizationDTO toDTO()
+  public static List<ServerOrganization> getUserAdminOrganizations()
   {
-    return new OrganizationDTO(this.getCode(), RegistryLocalizedValueConverter.convert(this.getDisplayLabel()), RegistryLocalizedValueConverter.convert(this.getContactInfo()));
+    return Organization.getUserAdminOrganizations().stream().map(org -> ServerOrganization.get(org)).collect(Collectors.toList());
   }
 
-  public static List<Organization> getUserAdminOrganizations()
+  public static List<ServerOrganization> getUserOrganizations()
   {
-    OrganizationQuery query = new OrganizationQuery(new QueryFactory());
-    query.ORDER_BY_ASC(query.getDisplayLabel().localize());
-
-    try (final OIterator<? extends Organization> iterator = query.getIterator())
-    {
-      final List<? extends Organization> orgs = iterator.getAll();
-
-      List<Organization> result = orgs.stream().filter(o -> {
-        return Organization.isRegistryAdmin(o);
-      }).collect(Collectors.toList());
-
-      return result;
-    }
+    return Organization.getUserOrganizations().stream().map(org -> ServerOrganization.get(org)).collect(Collectors.toList());
   }
 
-  public static List<Organization> getUserOrganizations()
-  {
-    OrganizationQuery query = new OrganizationQuery(new QueryFactory());
-    query.ORDER_BY_ASC(query.getDisplayLabel().localize());
-    
-    try (final OIterator<? extends Organization> iterator = query.getIterator())
-    {
-      final List<? extends Organization> orgs = iterator.getAll();
-      
-      List<Organization> result = orgs.stream().filter(o -> {
-        return Organization.isMember(o);
-      }).collect(Collectors.toList());
-      
-      return result;
-    }
-  }
-  
   /**
    * @param org
    * @return If the current user is part of the registry admin role for the
@@ -530,94 +625,25 @@ public class Organization extends OrganizationBase
     return false;
   }
 
-//  public void removeChild(Organization child)
-//  {
-//    // TODO Auto-generated method stub
-//    
-//  }
-//
-//  public OrganizationDTO getChildren(Integer pageSize, Integer pageNumber)
-//  {
-//    // TODO Auto-generated method stub
-//    return null;
-//  }
-//
-//  public static List<Organization> getRoots()
-//  {
-//    // TODO Auto-generated method stub
-//    return null;
-//  }
-//  
-//  public List<Organization> getAncestors(String rootCode)
-//  {
-//    GraphQuery<VertexObject> query = null;
-//
-//    if (rootCode != null && rootCode.length() > 0)
-//    {
-//      StringBuilder statement = new StringBuilder();
-//      statement.append("SELECT expand($res)");
-//      statement.append(" LET $a = (TRAVERSE in(\"" + this.type.getMdEdge().getDBClassName() + "\") FROM :rid WHILE (code != :code))");
-//      statement.append(", $b = (SELECT FROM " + this.type.getMdVertex().getDBClassName() + " WHERE code = :code)");
-//      statement.append(", $res = (UNIONALL($a,$b))");
-//
-//      query = new GraphQuery<VertexObject>(statement.toString());
-//      query.setParameter("rid", this.vertex.getRID());
-//      query.setParameter("code", rootCode);
-//    }
-//    else
-//    {
-//      StringBuilder statement = new StringBuilder();
-//      statement.append("TRAVERSE in(\"" + this.type.getMdEdge().getDBClassName() + "\") FROM :rid");
-//
-//      query = new GraphQuery<VertexObject>(statement.toString());
-//      query.setParameter("rid", this.vertex.getRID());
-//    }
-//
-//    List<Classification> results = query.getResults().stream().map(vertex -> {
-//      return new Classification(this.type, vertex);
-//    }).collect(Collectors.toList());
-//
-//    return results;
-//  }
-//
-//
-//
-//  public ClassificationNode getAncestorTree(String code, Integer pageSize)
-//  {
-//    List<Classification> ancestors = this.getAncestors(rootCode);
-//
-//    ClassificationNode prev = null;
-//
-//    for (Classification ancestor : ancestors)
-//    {
-//      Page<Classification> page = ancestor.getChildren(pageSize, 1);
-//
-//      List<ClassificationNode> transform = page.getResults().stream().map(r -> {
-//        return new ClassificationNode(r);
-//      }).collect(Collectors.toList());
-//
-//      if (prev != null)
-//      {
-//        int index = transform.indexOf(prev);
-//
-//        if (index != -1)
-//        {
-//          transform.set(index, prev);
-//        }
-//        else
-//        {
-//          transform.add(prev);
-//        }
-//      }
-//
-//      ClassificationNode node = new ClassificationNode();
-//      node.setClassification(ancestor);
-//      node.setChildren(new Page<ClassificationNode>(page.getCount(), page.getPageNumber(), page.getPageSize(), transform));
-//
-//      prev = node;
-//    }
-//
-//    return prev;
-//  }
-//
+  /**
+   * Returns the [@link Organization} with the given code
+   * 
+   * @return
+   */
+  public static ServerOrganization getByCode(String code)
+  {
+    return ServerOrganization.get(Organization.getByCode(code));
+  }
+
+  public static List<ServerOrganization> getRoots()
+  {
+    List<GraphOrganization> children = GraphOrganization.getRoots();
+
+    List<ServerOrganization> results = children.stream().map(vertex -> {
+      return new ServerOrganization(vertex.getOrganization(), vertex);
+    }).collect(Collectors.toList());
+
+    return results;
+  }
+
 }

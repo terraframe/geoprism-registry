@@ -18,13 +18,13 @@
 ///
 
 import { Injectable } from "@angular/core";
-import { HttpHeaders, HttpClient } from "@angular/common/http";
+import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
 
 import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
 
-import { Organization } from "@shared/model/core";
+import { Organization, OrganizationNode, PageResult } from "@shared/model/core";
 
 import { environment } from 'src/environments/environment';
 
@@ -90,4 +90,70 @@ export class OrganizationService {
             .toPromise();
     }
 
+    move(code: string, parentCode: string): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        const params = {
+            code: code,
+            parentCode: parentCode
+        };
+
+        this.eventService.start();
+
+        return this.http
+            .post<void>(environment.apiUrl + "/api/organization/move", JSON.stringify(params), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+    removeParent(code: string): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        const params = {
+            code: code
+        };
+
+        this.eventService.start();
+
+        return this.http
+            .post<void>(environment.apiUrl + "/api/organization/remove-parent", JSON.stringify(params), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+
+
+    getChildren(code: string, pageNumber: number, pageSize: number): Promise<PageResult<Organization>> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("pageNumber", pageNumber.toString());
+        params = params.set("pageSize", pageSize.toString());
+
+        if (code != null) {
+            params = params.set("code", code);
+        }
+
+        return this.http.get<PageResult<Organization>>(environment.apiUrl + "/api/organization/get-children", { params: params })
+            .toPromise();
+    }
+
+    getAncestorTree(rootCode: string, code: string, pageSize: number): Promise<OrganizationNode> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("code", code);
+        params = params.set("pageSize", pageSize.toString());
+
+        if (rootCode != null) {
+            params = params.set("rootCode", rootCode);
+        }
+
+        return this.http.get<OrganizationNode>(environment.apiUrl + "/api/organization/get-ancestor-tree", { params: params })
+            .toPromise();
+    }
 }

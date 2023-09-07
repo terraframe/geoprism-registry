@@ -21,7 +21,6 @@ import com.runwaysdk.session.Request;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.etl.fhir.BasicFhirConnection;
 import net.geoprism.registry.etl.fhir.BasicFhirResourceProcessor;
@@ -32,6 +31,7 @@ import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.TestDataSet;
@@ -97,7 +97,7 @@ public class FhirImportTest
   {
     // Define reusable objects
     final ServerHierarchyType ht = USATestData.HIER_ADMIN.getServerObject();
-    final Organization org = USATestData.ORG_NPS.getServerObject();
+    final ServerOrganization org = USATestData.ORG_NPS.getServerObject();
 
     // Create DHIS2 Sync Config
     FhirSyncImportConfig sourceConfig = new FhirSyncImportConfig();

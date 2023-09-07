@@ -14,12 +14,12 @@ import com.google.gson.GsonBuilder;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.account.OauthServer;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.etl.fhir.BasicFhirResourceProcessor;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
@@ -96,7 +96,7 @@ public class FhirOauthImportTest
   {
     // Define reusable objects
     final ServerHierarchyType ht = FastTestDataset.HIER_ADMIN.getServerObject();
-    final Organization org = FastTestDataset.ORG_CGOV.getServerObject();
+    final ServerOrganization org = FastTestDataset.ORG_CGOV.getServerObject();
 
     // Create DHIS2 Sync Config
     FhirSyncImportConfig sourceConfig = new FhirSyncImportConfig();

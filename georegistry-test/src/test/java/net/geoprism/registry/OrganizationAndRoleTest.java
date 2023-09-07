@@ -16,6 +16,7 @@ import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 
@@ -50,7 +51,7 @@ public class OrganizationAndRoleTest
   @Request
   public void testRoles()
   {
-    Organization organization = FastTestDataset.ORG_CGOV.getServerObject();
+    ServerOrganization organization = FastTestDataset.ORG_CGOV.getServerObject();
 
     Roles orgRole = organization.getRole();
     Assert.assertEquals(RegistryRole.Type.REGISTRY_ROOT_ORG_ROLE + "." + FastTestDataset.ORG_CGOV.getCode(), orgRole.getRoleName());

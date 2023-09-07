@@ -72,7 +72,7 @@ public class ClassificationController extends RunwaySpringController
     }
   }
 
-  public static class MoveBody
+  public static class MoveClassificationBody
   {
     @NotEmpty
     String classificationCode;
@@ -205,7 +205,7 @@ public class ClassificationController extends RunwaySpringController
 
   @PostMapping(API_PATH + "/move")
   public ResponseEntity<Void> move(@Valid
-  @RequestBody MoveBody body)
+  @RequestBody MoveClassificationBody body)
   {
     this.service.move(this.getSessionId(), body.classificationCode, body.code, body.parentCode);
 

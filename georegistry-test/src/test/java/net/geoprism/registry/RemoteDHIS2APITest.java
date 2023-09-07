@@ -59,6 +59,7 @@ import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.AllAttributesDataset;
 import net.geoprism.registry.test.TestAttributeTypeInfo;
@@ -342,7 +343,7 @@ public class RemoteDHIS2APITest
   {
     // Define reusable objects
     final ServerHierarchyType ht = AllAttributesDataset.HIER.getServerObject();
-    final Organization org = AllAttributesDataset.ORG.getServerObject();
+    final ServerOrganization org = AllAttributesDataset.ORG.getServerObject();
 
     // Create DHIS2 Sync Config
     DHIS2SyncConfig dhis2Config = new DHIS2SyncConfig();

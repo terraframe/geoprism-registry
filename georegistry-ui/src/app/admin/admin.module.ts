@@ -53,6 +53,9 @@ import { AdminRoutingModule } from './admin-routing.module';
 import { SharedModule } from '../shared/shared.module';
 
 import '../rxjs-extensions';
+import { TreeModule } from '@circlon/angular-tree-component';
+import { OrganizationHierarchyModalComponent } from './component/organization/organization-hierarchy-modal.component';
+import { ContextMenuModule } from '@perfectmemory/ngx-contextmenu';
 
 @NgModule({
 	imports: [
@@ -62,7 +65,9 @@ import '../rxjs-extensions';
 		FileUploadModule,
 		NgxPaginationModule,
 		SharedModule,
-		AdminRoutingModule
+		AdminRoutingModule,
+		TreeModule,
+		ContextMenuModule
 	],
 	declarations: [
 		// Global components
@@ -81,12 +86,13 @@ import '../rxjs-extensions';
 		RoleManagementComponent,
 		ExternalSystemModalComponent,
 		ImportLocalizationModalComponent,
-    LocalizationFeedbackModalComponent
+		LocalizationFeedbackModalComponent,
+		OrganizationHierarchyModalComponent
 	],
 	exports: [
 		SystemLogoComponent,
 		SystemLogosComponent,
-    LocalizationFeedbackModalComponent
+		LocalizationFeedbackModalComponent
 	],
 	providers: [
 		SystemLogoService,
@@ -103,7 +109,8 @@ import '../rxjs-extensions';
 		RoleManagementComponent,
 		ExternalSystemModalComponent,
 		ImportLocalizationModalComponent,
-    LocalizationFeedbackModalComponent
+		LocalizationFeedbackModalComponent,
+		OrganizationHierarchyModalComponent
 	]
 })
 

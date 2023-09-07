@@ -15,28 +15,29 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
 import net.geoprism.registry.conversion.OrganizationConverter;
+import net.geoprism.registry.model.ServerOrganization;
 
 public class TestOrganizationInfo
 {
-  private String                  code;
-  
-  private String                  displayLabel;
-  
-  private String                  oid;
-  
-  private Organization            serverObj;
-  
+  private String             code;
+
+  private String             displayLabel;
+
+  private String             oid;
+
+  private ServerOrganization serverObj;
+
   public TestOrganizationInfo(String code)
   {
     initialize(code);
   }
-  
+
   public TestOrganizationInfo(String code, String displayLabel)
   {
     this.code = code;
     this.displayLabel = displayLabel;
   }
-  
+
   private void initialize(String code)
   {
     this.code = code;
@@ -72,28 +73,28 @@ public class TestOrganizationInfo
   {
     this.oid = oid;
   }
-  
-  public Organization getServerObject()
+
+  public ServerOrganization getServerObject()
   {
     return this.getServerObject(false);
   }
-  
-  public Organization getServerObject(boolean forceFetch)
+
+  public ServerOrganization getServerObject(boolean forceFetch)
   {
     if (this.serverObj != null && !forceFetch)
     {
       return this.serverObj;
     }
-    
+
     OrganizationQuery query = new OrganizationQuery(new QueryFactory());
-    
+
     query.WHERE(query.getCode().EQ(this.getCode()));
-    
+
     List<? extends Organization> orgs = query.getIterator().getAll();
-    
+
     if (orgs.size() > 0)
     {
-      this.serverObj = orgs.get(0);
+      this.serverObj = ServerOrganization.get(orgs.get(0));
       return this.serverObj;
     }
     else
@@ -101,31 +102,31 @@ public class TestOrganizationInfo
       return null;
     }
   }
-  
+
   @Request
   public void delete()
   {
     deleteInTrans();
   }
-  
+
   @Transaction
   private void deleteInTrans()
   {
-    Organization org = getServerObject(true);
-    
+    ServerOrganization org = getServerObject(true);
+
     if (org != null)
     {
       org.delete();
     }
   }
-  
+
   public OrganizationDTO toDTO()
   {
     LocalizedValue displayLabel = new LocalizedValue(this.displayLabel);
     LocalizedValue contactInfo = new LocalizedValue(this.displayLabel);
-    
+
     OrganizationDTO dto = new OrganizationDTO(this.code, displayLabel, contactInfo);
-    
+
     return dto;
   }
 
@@ -136,7 +137,7 @@ public class TestOrganizationInfo
     {
       return;
     }
-    
+
     this.serverObj = new OrganizationConverter().create(this.toDTO());
   }
 }

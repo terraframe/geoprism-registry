@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -44,24 +44,30 @@ import net.geoprism.registry.etl.FhirSyncLevel;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 
 public class SynchronizationConfig extends SynchronizationConfigBase implements JsonSerializable
 {
-  private static final long   serialVersionUID          = -1221759231;
+  private static final long   serialVersionUID    = -1221759231;
 
-  private static final String SYSTEM_LABEL              = "systemLabel";
-  
-  public static final String FIELD_DATE                 = "date";
-  
-  public static final String FIELD_SYNC_NONEXIST        = "syncNonExistent";
-  
+  private static final String SYSTEM_LABEL        = "systemLabel";
+
+  public static final String  FIELD_DATE          = "date";
+
+  public static final String  FIELD_SYNC_NONEXIST = "syncNonExistent";
+
   public SynchronizationConfig()
   {
     super();
   }
-  
+
+  public void setOrganization(ServerOrganization value)
+  {
+    this.setOrganization(value.getOrganization());
+  }
+
   @Override
   @Transaction
   public void apply()
@@ -111,7 +117,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     this.setOrganization(Organization.getByCode(orgCode));
     this.setSystem(json.get(SynchronizationConfig.SYSTEM).getAsString());
     this.setConfiguration(json.get(SynchronizationConfig.CONFIGURATION).getAsJsonObject().toString());
-    
+
     if (json.has(SynchronizationConfig.ISIMPORT))
     {
       this.setIsImport(json.get(SynchronizationConfig.ISIMPORT).getAsBoolean());
@@ -179,14 +185,14 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     ExternalSystemSyncConfig config = system.configuration(this.getIsImport());
     config.setSystem(system);
     config.populate(this);
-    
+
     JsonObject json = this.getConfigurationJson();
-    
+
     if (json.has(FIELD_DATE) && !json.get(FIELD_DATE).isJsonNull())
     {
       config.setDate(JsonDateUtil.parse(json.get(FIELD_DATE).getAsString()));
     }
-    
+
     if (json.has(FIELD_SYNC_NONEXIST) && !json.get(FIELD_SYNC_NONEXIST).isJsonNull())
     {
       config.setSyncNonExistent(json.get(FIELD_SYNC_NONEXIST).getAsBoolean());
@@ -195,10 +201,10 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     {
       config.setSyncNonExistent(true);
     }
-    
+
     if (config instanceof DHIS2SyncConfig && json.has(DHIS2SyncConfig.PREFERRED_LOCALE) && !json.get(DHIS2SyncConfig.PREFERRED_LOCALE).isJsonNull())
     {
-      ((DHIS2SyncConfig)config).setPreferredLocale(json.get(DHIS2SyncConfig.PREFERRED_LOCALE).getAsString());
+      ( (DHIS2SyncConfig) config ).setPreferredLocale(json.get(DHIS2SyncConfig.PREFERRED_LOCALE).getAsString());
     }
 
     return config;
@@ -249,7 +255,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
 
     return new LinkedList<SynchronizationConfig>();
   }
-  
+
   public static SynchronizationConfig deserialize(JsonObject json)
   {
     return deserialize(json, false);
@@ -259,7 +265,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   {
     String oid = json.has(SynchronizationConfig.OID) ? json.get(SynchronizationConfig.OID).getAsString() : null;
 
-    SynchronizationConfig config = ( oid != null ? (lock ? SynchronizationConfig.lock(oid) : SynchronizationConfig.get(oid)) : new SynchronizationConfig() );
+    SynchronizationConfig config = ( oid != null ? ( lock ? SynchronizationConfig.lock(oid) : SynchronizationConfig.get(oid) ) : new SynchronizationConfig() );
     config.populate(json);
 
     return config;

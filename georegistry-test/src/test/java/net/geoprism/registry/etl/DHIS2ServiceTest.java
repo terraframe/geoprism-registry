@@ -88,6 +88,7 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.AttributeTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.AllAttributesDataset;
@@ -288,7 +289,7 @@ public class DHIS2ServiceTest
     
     // Define reusable objects
     final ServerHierarchyType ht = AllAttributesDataset.HIER.getServerObject();
-    final Organization org = AllAttributesDataset.ORG.getServerObject();
+    final ServerOrganization org = AllAttributesDataset.ORG.getServerObject();
 
     // Create DHIS2 Sync Config
     DHIS2SyncConfig dhis2Config = new DHIS2SyncConfig();
@@ -1180,7 +1181,7 @@ public class DHIS2ServiceTest
   {
     // Define reusable objects
     final ServerHierarchyType ht = FastTestDataset.HIER_SPLIT_CHILD.getServerObject();
-    final Organization org = AllAttributesDataset.ORG.getServerObject();
+    final ServerOrganization org = AllAttributesDataset.ORG.getServerObject();
 
     // Create DHIS2 Sync Config
     DHIS2SyncConfig dhis2Config = new DHIS2SyncConfig();

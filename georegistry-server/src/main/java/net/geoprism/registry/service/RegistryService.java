@@ -102,6 +102,7 @@ import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.permission.PermissionContext;
@@ -182,7 +183,7 @@ public class RegistryService
     try
     {
       // This is, unfortunately, a big hack. Some patch items need to occur
-      // before the organizaiton class is defined
+      // before the organization class is defined
       MdClassDAO.getMdClassDAO(Organization.CLASS);
 
       OrganizationQuery oQ = new OrganizationQuery(qf);
@@ -194,7 +195,7 @@ public class RegistryService
         {
           Organization organization = it3.next();
 
-          ServiceFactory.getMetadataCache().addOrganization(organization);
+          ServiceFactory.getMetadataCache().addOrganization(ServerOrganization.get(organization));
         }
       }
       finally
@@ -577,7 +578,7 @@ public class RegistryService
   {
     OrganizationDTO organizationDTO = OrganizationDTO.fromJSON(json);
 
-    final Organization org = new OrganizationConverter().create(organizationDTO);
+    final ServerOrganization org = new OrganizationConverter().create(organizationDTO);
 
     // If this did not error out then add to the cache
     ServiceFactory.getMetadataCache().addOrganization(org);
@@ -600,7 +601,7 @@ public class RegistryService
   {
     OrganizationDTO organizationDTO = OrganizationDTO.fromJSON(json);
 
-    final Organization org = new OrganizationConverter().update(organizationDTO);
+    final ServerOrganization org = new OrganizationConverter().update(organizationDTO);
 
     // If this did not error out then add to the cache
     ServiceFactory.getMetadataCache().addOrganization(org);

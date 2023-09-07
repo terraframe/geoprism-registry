@@ -29,10 +29,18 @@ export interface MessageContainer {
 export class Organization {
 
     code: string;
-    label: any;
-    contactInfo: any;
-
+    label: LocalizedValue;
+    contactInfo: LocalizedValue;
+    parentCode?: string;
+    parentLabel?: LocalizedValue
 }
+
+export class OrganizationNode {
+
+    classification: Organization;
+    children: PageResult<OrganizationNode>;
+}
+
 
 export class ExternalSystem {
 

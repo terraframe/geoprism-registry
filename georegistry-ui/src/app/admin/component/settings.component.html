@@ -20,7 +20,7 @@
 -->
 <div class="new-admin-design-main">
     <cgr-header></cgr-header>
-    
+
     <div *ngIf="!view" class="standby-overlay" style="width:100%; height:100%; font-size:4em; color:black;"></div>
 
     <div id="app-container" class="container">
@@ -34,35 +34,52 @@
 
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div *ngIf="view" style="padding-bottom: 30px;"> 
+        <div *ngIf="view" style="padding-bottom: 30px;">
             <div class="row">
                 <div class="col-md-12">
-                    <h3><localize key="settings.information.heading"></localize></h3>
+                    <h3>
+                        <localize key="settings.information.heading"></localize>
+                    </h3>
 
                     <div class="content-wrapper">
-                        <h4><localize key="settings.version.label"></localize> {{getCGRVersion()}}</h4>
+                        <h4>
+                            <localize key="settings.version.label"></localize> {{getCGRVersion()}}
+                        </h4>
                     </div>
                 </div>
             </div>
-            
+
             <div class="row">
                 <div class="col-md-12">
-                    <h3><localize key="settings.administrators.heading"></localize></h3>
+                    <h3>
+                        <localize key="settings.administrators.heading"></localize>
+                    </h3>
 
                     <div class="content-wrapper">
                         <div class="list-table-wrapper">
                             <table id="manage-systems-table" class="list-table table table-bordered table-striped">
                                 <thead>
                                     <tr>
-                                        <th class="label-column"><localize key='account.username'></localize></th>
-                                        <th class="label-column"><localize key='account.firstname'></localize></th>
-                                        <th class="label-column"><localize key='account.lastname'></localize></th>
-                                        <th class="label-column"><localize key='account.phonenumber'></localize></th>
-                                        <th class="label-column"><localize key='account.email'></localize></th>
+                                        <th class="label-column">
+                                            <localize key='account.username'></localize>
+                                        </th>
+                                        <th class="label-column">
+                                            <localize key='account.firstname'></localize>
+                                        </th>
+                                        <th class="label-column">
+                                            <localize key='account.lastname'></localize>
+                                        </th>
+                                        <th class="label-column">
+                                            <localize key='account.phonenumber'></localize>
+                                        </th>
+                                        <th class="label-column">
+                                            <localize key='account.email'></localize>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let account of sRAs.resultSet | paginate: { itemsPerPage: sRAs.pageSize, currentPage: sRAs.pageNumber, totalItems: sRAs.count }" class="fade-ngRepeat-item">
+                                    <tr *ngFor="let account of sRAs.resultSet | paginate: { itemsPerPage: sRAs.pageSize, currentPage: sRAs.pageNumber, totalItems: sRAs.count }"
+                                        class="fade-ngRepeat-item">
                                         <td class="label-column username-col">{{ account.username }}</td>
                                         <td class="label-column firstname-col">{{ account.firstName }}</td>
                                         <td class="label-column lastname-col">{{ account.lastName }}</td>
@@ -72,21 +89,28 @@
                                 </tbody>
                             </table>
                             <pagination-controls (pageChange)="onSRAPageChange($event)"></pagination-controls>
-                            
+
                         </div>
                     </div>
 
                 </div>
             </div>
-            
+
 
             <div *ngIf="isAdmin" class="row">
                 <div class="col-md-12">
-                    <h3><localize key="settings.organizations.heading"></localize></h3>
+                    <h3>
+                        <localize key="settings.organizations.heading"></localize>
+
+                        <span style="float: right;">
+                            <a class="fa fa-sitemap" (click)="onManageHierarchy()" title="Manage Hierarchy"></a>
+                        </span>
+                    </h3>
 
                     <div class="content-wrapper">
                         <div class="list-table-wrapper">
-                            <table id="manage-organizations-table" class="list-table table table-bordered table-striped">
+                            <table id="manage-organizations-table"
+                                class="list-table table table-bordered table-striped">
                                 <thead>
                                     <tr>
                                         <th *ngIf="isSRA"></th>
@@ -99,21 +123,33 @@
                                         <th>
                                             <localize key="settings.manage.orgs.table.contact.header"></localize>
                                         </th>
+                                        <th>
+                                            <localize key="settings.manage.orgs.table.parent.header"></localize>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr *ngFor="let org of organizations">
                                         <td *ngIf="isSRA" class="button-column">
-                                            <a class="fa fa-pencil ico-edit" (click)="onEditOrganization(org)"  [title]="'account.editTooltip' | localize"></a> 
-                                            <a class="fa fa-trash-o ico-remove" (click)="onRemoveOrganization(org.code, org.code)" [title]="'account.removeTooltip' | localize" ></a>
+                                            <a class="fa fa-pencil ico-edit" (click)="onEditOrganization(org)"
+                                                [title]="'account.editTooltip' | localize"></a>
+                                            <a class="fa fa-trash-o ico-remove"
+                                                (click)="onRemoveOrganization(org.code, org.code)"
+                                                [title]="'account.removeTooltip' | localize"></a>
                                         </td>
                                         <td class="label-column">{{org.code}}</td>
                                         <td class="label-column">{{org.label.localizedValue}}</td>
                                         <td class="label-column">{{org.contactInfo.localizedValue}}</td>
+                                        <td class="label-column">
+                                            <ng-container *ngIf="org.parentLabel != null">
+                                                {{org.parentLabel.localizedValue}}
+                                            </ng-container>
+                                        </td>
                                     </tr>
                                     <tr *ngIf="isSRA">
                                         <td class="button-column">
-                                            <a class="fa fa-plus" (click)="newOrganization()" [title]="'account.newTooltip' | localize"></a>
+                                            <a class="fa fa-plus" (click)="newOrganization()"
+                                                [title]="'account.newTooltip' | localize"></a>
                                         </td>
                                     </tr>
 
@@ -125,9 +161,12 @@
                 </div>
             </div>
 
+
             <div class="row">
                 <div class="col-md-12">
-                    <h3><localize key="settings.accounts.heading"></localize></h3>
+                    <h3>
+                        <localize key="settings.accounts.heading"></localize>
+                    </h3>
 
                     <div class="content-wrapper">
 
@@ -138,12 +177,13 @@
                                         <localize key="settings.manage.accounts.button"></localize>
                                     </button>
                                 </a>
-                          </div>
+                            </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-12" *ngIf="isSRA || isRA">
-                                <input class="btn btn-primary" style="margin-top:10px;" type="submit" [value]="'accounts.inviteUser' | localize" (click)="inviteUsers()">
+                                <input class="btn btn-primary" style="margin-top:10px;" type="submit"
+                                    [value]="'accounts.inviteUser' | localize" (click)="inviteUsers()">
                             </div>
                         </div>
                     </div>
@@ -152,7 +192,9 @@
 
             <div *ngIf="isSRA && installedLocales" class="row">
                 <div class="col-md-12">
-                    <h3><localize key="settings.localization.heading"></localize></h3>
+                    <h3>
+                        <localize key="settings.localization.heading"></localize>
+                    </h3>
 
                     <div class="content-wrapper">
                         <div class="list-table-wrapper">
@@ -162,7 +204,7 @@
                                         <th>
                                         </th>
                                         <th>
-                                          <localize key="settings.localization.locale.displayLabel"></localize>
+                                            <localize key="settings.localization.locale.displayLabel"></localize>
                                         </th>
                                         <th>
                                             <localize key="settings.manage.lang.table.language.header"></localize>
@@ -174,30 +216,35 @@
                                 </thead>
                                 <tbody>
                                     <tr *ngFor="let loc of installedLocales">
-	                                    <td *ngIf="isSRA" class="button-column">
-	                                        <a class="fa fa-pencil ico-edit" (click)="onEditLocale(loc)" ></a> 
-	                                        <a *ngIf="!loc.isDefaultLocale" class="fa fa-trash-o ico-remove" (click)="onRemoveLocale(loc)" ></a>
-	                                    </td>
-	                                    <td class="label-column">{{loc.label.localizedValue}}</td>
-	                                    <td class="label-column">{{loc.language.label}}</td>
-	                                    <td class="label-column">{{loc.country.label}}</td>
+                                        <td *ngIf="isSRA" class="button-column">
+                                            <a class="fa fa-pencil ico-edit" (click)="onEditLocale(loc)"></a>
+                                            <a *ngIf="!loc.isDefaultLocale" class="fa fa-trash-o ico-remove"
+                                                (click)="onRemoveLocale(loc)"></a>
+                                        </td>
+                                        <td class="label-column">{{loc.label.localizedValue}}</td>
+                                        <td class="label-column">{{loc.language.label}}</td>
+                                        <td class="label-column">{{loc.country.label}}</td>
                                     </tr>
                                     <tr>
-                                        <td class="button-column"><a class="fa fa-plus" (click)="newLocalization()" [title]="'account.newTooltip' | localize"></a></td>
+                                        <td class="button-column"><a class="fa fa-plus" (click)="newLocalization()"
+                                                [title]="'account.newTooltip' | localize"></a></td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-12">
-                               <input class="btn btn-primary" type="submit" (click)="exportLocalization()" [value]="'localization-manager.exportButton' | localize">
+                                <input class="btn btn-primary" type="submit" (click)="exportLocalization()"
+                                    [value]="'localization-manager.exportButton' | localize">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-12">
-                               <input class="btn btn-primary" style="margin-top:10px;" type="submit" (click)="importLocalization()" [value]="'localization-manager.importButton' | localize">
+                                <input class="btn btn-primary" style="margin-top:10px;" type="submit"
+                                    (click)="importLocalization()"
+                                    [value]="'localization-manager.importButton' | localize">
                             </div>
                         </div>
                     </div>
@@ -206,7 +253,9 @@
 
             <div *ngIf="isSRA" class="row">
                 <div class="col-md-12">
-                    <h3><localize key="settings.branding.heading"></localize></h3>
+                    <h3>
+                        <localize key="settings.branding.heading"></localize>
+                    </h3>
 
                     <div class="content-wrapper">
                         <system-logos></system-logos>
@@ -216,19 +265,26 @@
 
             <div *ngIf="isSRA" class="row" style="margin-bottom: 30px;">
                 <div class="col-md-12">
-                    <h3><localize key="settings.email.heading"></localize></h3>
-                     
-                    <div class="content-wrapper">
-                        <input class="btn btn-primary" type="submit" (click)="configureEmail()" [value]="'settings.email.configure' | localize">
+                    <h3>
+                        <localize key="settings.email.heading"></localize>
+                    </h3>
 
-                        <i *ngIf="settings.email.isConfigured" class="fa fa-check" aria-hidden="true"><localize key="settings.email.configured"></localize></i>
+                    <div class="content-wrapper">
+                        <input class="btn btn-primary" type="submit" (click)="configureEmail()"
+                            [value]="'settings.email.configure' | localize">
+
+                        <i *ngIf="settings.email.isConfigured" class="fa fa-check" aria-hidden="true">
+                            <localize key="settings.email.configured"></localize>
+                        </i>
                     </div>
                 </div>
             </div>
-            
+
             <div *ngIf="isRA && organizations.length > 0" class="row">
                 <div class="col-md-12">
-                    <h3><localize key="settings.external.system.heading"></localize></h3>
+                    <h3>
+                        <localize key="settings.external.system.heading"></localize>
+                    </h3>
 
                     <div class="content-wrapper">
                         <div class="list-table-wrapper">
@@ -248,28 +304,35 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let system of systems.resultSet | paginate: { itemsPerPage: systems.pageSize, currentPage: systems.pageNumber, totalItems: systems.count }">
+                                    <tr
+                                        *ngFor="let system of systems.resultSet | paginate: { itemsPerPage: systems.pageSize, currentPage: systems.pageNumber, totalItems: systems.count }">
                                         <td class="button-column">
-                                          <a class="fa fa-pencil ico-edit" (click)="onEditSystem(system)"  [title]="'account.editTooltip' | localize"></a> 
-                                          <a class="fa fa-trash-o ico-remove" (click)="onRemoveSystem(system)" [title]="'account.removeTooltip' | localize" ></a>
+                                            <a class="fa fa-pencil ico-edit" (click)="onEditSystem(system)"
+                                                [title]="'account.editTooltip' | localize"></a>
+                                            <a class="fa fa-trash-o ico-remove" (click)="onRemoveSystem(system)"
+                                                [title]="'account.removeTooltip' | localize"></a>
                                         </td>
                                         <td class="label-column">
-                                          <localize *ngIf="system.type === 'DHIS2ExternalSystem'" key="external.system.dhis2"></localize>
-                                          <localize *ngIf="system.type === 'RevealExternalSystem'" key="external.system.reveal"></localize>                                        
-                                          <localize *ngIf="system.type === 'FhirExternalSystem'" key="external.system.fhir"></localize>                                        
+                                            <localize *ngIf="system.type === 'DHIS2ExternalSystem'"
+                                                key="external.system.dhis2"></localize>
+                                            <localize *ngIf="system.type === 'RevealExternalSystem'"
+                                                key="external.system.reveal"></localize>
+                                            <localize *ngIf="system.type === 'FhirExternalSystem'"
+                                                key="external.system.fhir"></localize>
                                         </td>
                                         <td class="label-column">{{system.label.localizedValue}}</td>
                                         <td class="label-column">{{system.description.localizedValue}}</td>
                                     </tr>
                                     <tr>
                                         <td class="button-column">
-                                            <a class="fa fa-plus" (click)="newSystem()" [title]="'account.newTooltip' | localize"></a>
+                                            <a class="fa fa-plus" (click)="newSystem()"
+                                                [title]="'account.newTooltip' | localize"></a>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <pagination-controls (pageChange)="onSystemPageChange($event)"></pagination-controls>
-                            
+
                         </div>
                     </div>
 
@@ -281,9 +344,9 @@
                     <h3>
                         <localize key="settings.external.synchronization.heading"></localize>
                     </h3>
-            
+
                     <div class="content-wrapper">
-            
+
                         <div class="row">
                             <div class="col-md-12">
                                 <a [routerLink]="'/registry/synchronization-configs'" routerLinkActive="active">
@@ -293,11 +356,11 @@
                                 </a>
                             </div>
                         </div>
-            
+
                     </div>
                 </div>
             </div>
-            
+
         </div>
     </div>
 </div>

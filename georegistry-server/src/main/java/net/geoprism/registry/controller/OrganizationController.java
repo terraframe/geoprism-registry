@@ -20,24 +20,26 @@ package net.geoprism.registry.controller;
 
 import java.text.ParseException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonArray;
-import com.runwaysdk.ClientRequest;
-import com.runwaysdk.constants.ClientConstants;
+import com.google.gson.JsonObject;
 
+import net.geoprism.registry.controller.DirectedAcyclicGraphTypeController.CodeBody;
 import net.geoprism.registry.service.OrganizationService;
 import net.geoprism.registry.service.RegistryComponentService;
 
@@ -50,9 +52,40 @@ import net.geoprism.registry.service.RegistryComponentService;
  * 
  * @author rrowlands
  */
-@Controller
-public class OrganizationController
+@RestController
+@Validated
+public class OrganizationController  extends RunwaySpringController
 {
+  public static class MoveOrganizationBody
+  {
+    @NotEmpty
+    String code;
+
+    @NotEmpty
+    String parentCode;
+
+    public String getCode()
+    {
+      return code;
+    }
+
+    public void setCode(String code)
+    {
+      this.code = code;
+    }
+
+    public String getParentCode()
+    {
+      return parentCode;
+    }
+
+    public void setParentCode(String parentCode)
+    {
+      this.parentCode = parentCode;
+    }
+  }
+  
+  
   public static final String API_PATH = "organization";
   
   @Autowired
@@ -60,9 +93,6 @@ public class OrganizationController
   
   @Autowired
   private RegistryComponentService registryService = new RegistryComponentService();
-  
-  @Autowired
-  private HttpServletRequest request;
   
   /**
    * Returns an array of (label, entityId) pairs that under the given
@@ -77,12 +107,10 @@ public class OrganizationController
    **/
   @ResponseBody
   @GetMapping(API_PATH + "/get-all")
-  public ResponseEntity<String> getOrganizations(HttpSession session) throws ParseException
+  public ResponseEntity<String> getOrganizations() throws ParseException
   {
-    String sessionId = ((ClientRequest) request.getAttribute(ClientConstants.CLIENTREQUEST)).getSessionId();
-    
-    OrganizationDTO[] orgs = this.service.getOrganizations(sessionId, null);
-    CustomSerializer serializer = this.registryService.serializer(sessionId);
+    OrganizationDTO[] orgs = this.service.getOrganizations(this.getSessionId(), null);
+    CustomSerializer serializer = this.registryService.serializer(this.getSessionId());
 
     JsonArray orgsJson = new JsonArray();
     for (OrganizationDTO org : orgs)
@@ -101,9 +129,9 @@ public class OrganizationController
    */
   @ResponseBody
   @PostMapping(API_PATH + "/create")
-  public ResponseEntity<String> submitNewOrganization(HttpSession session, @RequestBody String json)
+  public ResponseEntity<String> submitNewOrganization( @RequestBody String json)
   {
-    String sessionId = ((ClientRequest) request.getAttribute(ClientConstants.CLIENTREQUEST)).getSessionId();
+    String sessionId = this.getSessionId();
     
     OrganizationDTO org = this.service.createOrganization(sessionId, json);
     CustomSerializer serializer = this.registryService.serializer(sessionId);
@@ -118,11 +146,9 @@ public class OrganizationController
    * @param json
    */
   @PostMapping(API_PATH + "/delete")
-  public ResponseEntity<Void> removeOrganization(HttpSession session, @RequestBody String code)
+  public ResponseEntity<Void> removeOrganization( @RequestBody String code)
   {
-    String sessionId = ((ClientRequest) request.getAttribute(ClientConstants.CLIENTREQUEST)).getSessionId();
-    
-    this.service.deleteOrganization(sessionId, code);
+    this.service.deleteOrganization(this.getSessionId(), code);
     
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
@@ -135,13 +161,52 @@ public class OrganizationController
    */
   @ResponseBody
   @PostMapping(API_PATH + "/update")
-  public ResponseEntity<String> updateOrganization(HttpSession session, @RequestBody String json)
+  public ResponseEntity<String> updateOrganization(@RequestBody String json)
   {
-    String sessionId = ((ClientRequest) request.getAttribute(ClientConstants.CLIENTREQUEST)).getSessionId();
+    String sessionId = this.getSessionId();
     
     OrganizationDTO org = this.service.updateOrganization(sessionId, json);
     CustomSerializer serializer = this.registryService.serializer(sessionId);
 
     return new ResponseEntity<String>(org.toJSON(serializer).toString(), HttpStatus.OK);
   }
+  
+  @PostMapping(API_PATH + "/move")
+  public ResponseEntity<Void> move(@Valid @RequestBody MoveOrganizationBody body)
+  {
+    this.service.move(this.getSessionId(), body.code, body.parentCode);
+
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+  }
+
+  @PostMapping(API_PATH + "/remove-parent")
+  public ResponseEntity<Void> move(@Valid @RequestBody CodeBody body)
+  {
+    this.service.removeAllParents(this.getSessionId(), body.getCode());
+    
+    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+  }
+  
+  @GetMapping(API_PATH + "/get-children")
+  public ResponseEntity<String> getChildren(
+      @RequestParam(required = false) String code, 
+      @RequestParam(required = false) Integer pageSize, 
+      @RequestParam(required = false) Integer pageNumber)
+  {
+    JsonObject page = this.service.getChildren(this.getSessionId(), code, pageSize, pageNumber);
+
+    return new ResponseEntity<String>(page.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/get-ancestor-tree")
+  public ResponseEntity<String> getAncestorTree(
+      @RequestParam(required = false) String rootCode,
+      @NotEmpty @RequestParam String code, 
+      @RequestParam(required = false) Integer pageSize)
+  {
+    JsonObject page = this.service.getAncestorTree(this.getSessionId(), rootCode, code, pageSize);
+
+    return new ResponseEntity<String>(page.toString(), HttpStatus.OK);
+  }
+
 }

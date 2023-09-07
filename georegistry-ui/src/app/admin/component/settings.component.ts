@@ -43,6 +43,7 @@ import { LocalizationManagerService } from '@admin/service/localization-manager.
 import { environment } from 'src/environments/environment';
 import { LocaleView } from '@core/model/core';
 import { ConfigurationService } from '@core/service/configuration.service';
+import { OrganizationHierarchyModalComponent } from './organization/organization-hierarchy-modal.component';
 
 @Component({
 	selector: 'settings',
@@ -58,7 +59,7 @@ export class SettingsComponent implements OnInit {
 	isSRA: boolean;
 	isRA: boolean;
 	settings: Settings = { email: { isConfigured: false } }
-	
+
 	view: SettingsInitView;
 
 	sRAs: PageResult<User> = {
@@ -85,6 +86,7 @@ export class SettingsComponent implements OnInit {
 		private accountService: AccountService,
 		private settingsService: SettingsService,
 		private localizationManagerService: LocalizationManagerService
+
 	) {
 		this.isAdmin = authService.isAdmin();
 		this.isSRA = authService.isSRA();
@@ -99,8 +101,8 @@ export class SettingsComponent implements OnInit {
 		//     this.error( err );
 		// } );
 
-		this.settingsService.getInitView().then( (view: SettingsInitView) => {
-		  this.view = view;
+		this.settingsService.getInitView().then((view: SettingsInitView) => {
+			this.view = view;
 			this.organizations = view.organizations;
 			this.systems = view.externalSystems;
 			this.sRAs = view.sras;
@@ -108,6 +110,7 @@ export class SettingsComponent implements OnInit {
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
+
 
 		//this.onSRAPageChange(1);
 		//this.onSystemPageChange(1);
@@ -135,19 +138,19 @@ export class SettingsComponent implements OnInit {
 		});
 	}
 
-  public newOrganization(): void {
-    let bsModalRef = this.modalService.show(OrganizationModalComponent, {
-      animated: true,
-      backdrop: true,
-      ignoreBackdropClick: true,
-    });
+	public newOrganization(): void {
+		let bsModalRef = this.modalService.show(OrganizationModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
 
-    bsModalRef.content.isNewOrganization = true;
+		bsModalRef.content.isNewOrganization = true;
 
-    bsModalRef.content.onSuccess.subscribe(data => {
-      this.organizations.push(data);
-    })
-  }
+		bsModalRef.content.onSuccess.subscribe(data => {
+			this.organizations.push(data);
+		})
+	}
 
 	public onEditOrganization(org: Organization): void {
 		let bsModalRef = this.modalService.show(OrganizationModalComponent, {
@@ -199,66 +202,63 @@ export class SettingsComponent implements OnInit {
 
 		});
 	}
-	
+
 	public onEditLocale(locale: LocaleView) {
-	  let bsModalRef = this.modalService.show(NewLocaleModalComponent, {
-      animated: true,
-      backdrop: true,
-      ignoreBackdropClick: true,
-    });
+		let bsModalRef = this.modalService.show(NewLocaleModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
 
-    bsModalRef.content.locale = locale;
-    bsModalRef.content.isNew = false;
-    
-    bsModalRef.content.onSuccess.subscribe(data => {
-      const index = this.installedLocales.findIndex(x => (x.tag === data.tag));
-      
-      if (index !== -1) {
-        this.installedLocales[index] = data;
-      }
-      else {
-        this.installedLocales.push(data);
-      }
-      
-      this.localizeService.addLocale(locale);
-    });
+		bsModalRef.content.locale = locale;
+		bsModalRef.content.isNew = false;
+
+		bsModalRef.content.onSuccess.subscribe(data => {
+			const index = this.installedLocales.findIndex(x => (x.tag === data.tag));
+
+			if (index !== -1) {
+				this.installedLocales[index] = data;
+			}
+			else {
+				this.installedLocales.push(data);
+			}
+
+			this.localizeService.addLocale(locale);
+		});
 	}
-	
-	public onRemoveLocale(locale: LocaleView) {
-    this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-      animated: true,
-      backdrop: true,
-      ignoreBackdropClick: true,
-    });
-    this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + ' [' + locale.label.localizedValue + ']';
-    this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
-    this.bsModalRef.content.type = ModalTypes.danger;
 
-    this.bsModalRef.content.onConfirm.subscribe(data => {
-      this.localizationManagerService.uninstallLocale(locale).then(response => {
-        this.localizeService.remove(locale);
-        
-        let removeIndex = -1;
-        let len = this.installedLocales.length;
-        for (let i = 0; i < len; ++i)
-        {
-          let myLocale: LocaleView = this.installedLocales[i];
-        
-          if (myLocale.tag === locale.tag)
-          {
-            removeIndex = i;
-          }
-        }
-        
-        if (removeIndex != -1)
-        {
-          this.installedLocales.splice(removeIndex,1);
-        }
-      }).catch((err: HttpErrorResponse) => {
-        this.error(err);
-      });
-    });
-  }
+	public onRemoveLocale(locale: LocaleView) {
+		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+		this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + ' [' + locale.label.localizedValue + ']';
+		this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
+		this.bsModalRef.content.type = ModalTypes.danger;
+
+		this.bsModalRef.content.onConfirm.subscribe(data => {
+			this.localizationManagerService.uninstallLocale(locale).then(response => {
+				this.localizeService.remove(locale);
+
+				let removeIndex = -1;
+				let len = this.installedLocales.length;
+				for (let i = 0; i < len; ++i) {
+					let myLocale: LocaleView = this.installedLocales[i];
+
+					if (myLocale.tag === locale.tag) {
+						removeIndex = i;
+					}
+				}
+
+				if (removeIndex != -1) {
+					this.installedLocales.splice(removeIndex, 1);
+				}
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+		});
+	}
 
 	public newLocalization(): void {
 
@@ -361,6 +361,20 @@ export class SettingsComponent implements OnInit {
 				this.onSystemPageChange(this.systems.pageNumber);
 			}).catch((err: HttpErrorResponse) => {
 				this.error(err);
+			});
+		});
+	}
+
+	onManageHierarchy(): void {
+		this.bsModalRef = this.modalService.show(OrganizationHierarchyModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+
+		this.bsModalRef.content.onConfirm.subscribe(() => {
+			this.orgService.getOrganizations().then(organizations => {
+				this.organizations = organizations
 			});
 		});
 	}

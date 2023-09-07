@@ -47,6 +47,7 @@ import net.geoprism.registry.etl.fhir.MCSDFhirDataPopulator;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
@@ -179,7 +180,7 @@ public class FhirExportTest
   {
     // Define reusable objects
     final ServerHierarchyType ht = USATestData.HIER_ADMIN.getServerObject();
-    final Organization org = USATestData.ORG_NPS.getServerObject();
+    final ServerOrganization org = USATestData.ORG_NPS.getServerObject();
 
     // Create the FHIR Sync Config
     FhirSyncExportConfig sourceConfig = new FhirSyncExportConfig();

@@ -28,9 +28,9 @@ import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 
 /**
  * This is a singleton instance that caches {@link ServerGeoObjectType} objects
@@ -46,7 +46,7 @@ public class ServerMetadataCache
    */
   private static final long                serialVersionUID = -8829469298178067536L;
 
-  private Map<String, Organization>        organizationMap;
+  private Map<String, ServerOrganization>        organizationMap;
 
   private Map<String, ServerGeoObjectType> geoGeoObjectTypeMap;
 
@@ -64,7 +64,7 @@ public class ServerMetadataCache
    */
   public void rebuild()
   {
-    this.organizationMap = new ConcurrentHashMap<String, Organization>();
+    this.organizationMap = new ConcurrentHashMap<String, ServerOrganization>();
     this.geoGeoObjectTypeMap = new ConcurrentHashMap<String, ServerGeoObjectType>();
     this.hierarchyTypeMap = new ConcurrentHashMap<String, ServerHierarchyType>();
 
@@ -86,24 +86,24 @@ public class ServerMetadataCache
     return getAdapter().getMetadataCache().getTerm(code);
   }
 
-  public void addOrganization(Organization organization)
+  public void addOrganization(ServerOrganization organization)
   {
     this.organizationMap.put(organization.getCode(), organization);
 
     getAdapter().getMetadataCache().addOrganization(organization.toDTO());
   }
 
-  public Optional<Organization> getOrganization(String code)
+  public Optional<ServerOrganization> getOrganization(String code)
   {
     return Optional.of(this.organizationMap.get(code));
   }
 
-  public List<Organization> getAllOrganizations()
+  public List<ServerOrganization> getAllOrganizations()
   {
     // return this.organizationMap.values().toArray(new
     // Organization[this.organizationMap.values().size()]);
 
-    return new ArrayList<Organization>(this.organizationMap.values());
+    return new ArrayList<ServerOrganization>(this.organizationMap.values());
   }
 
   public void removeOrganization(String code)
@@ -190,17 +190,17 @@ public class ServerMetadataCache
     getAdapter().getMetadataCache().removeHierarchyType(code);
   }
 
-  public List<Organization> getAllOrganizationsTypes()
+  public List<ServerOrganization> getAllOrganizationsTypes()
   {
     // return this.organizationMap.values().toArray(new
     // Organization[this.organizationMap.values().size()]);
 
-    return new ArrayList<Organization>(this.organizationMap.values());
+    return new ArrayList<ServerOrganization>(this.organizationMap.values());
   }
 
   public List<String> getAllOrganizationCodes()
   {
-    List<Organization> organizations = this.getAllOrganizationsTypes();
+    List<ServerOrganization> organizations = this.getAllOrganizationsTypes();
 
     List<String> codes = new ArrayList<String>(organizations.size());
 

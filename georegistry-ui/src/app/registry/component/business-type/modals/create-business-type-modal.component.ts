@@ -66,7 +66,7 @@ export class CreateBusinessTypeModalComponent implements OnInit {
         this.organization = organization;
 
         this.type.organization = this.organization.code;
-        this.type.organizationLabel = this.organization.label;
+        this.type.organizationLabel = this.organization.label.localizedValue;
     }
 
     handleOnSubmit(): void {

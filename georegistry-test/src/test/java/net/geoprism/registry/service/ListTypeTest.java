@@ -15,10 +15,12 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -44,13 +46,14 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeBuilder;
 import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.SingleListType;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
@@ -60,9 +63,11 @@ import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringJUnit4ClassRunner.class)
 public class ListTypeTest
 {
-  private static String                      CODE = "Test Term";
+  private static String                      CODE    = "Test Term";
 
   private static ClassificationType          type;
 
@@ -72,8 +77,15 @@ public class ListTypeTest
 
   private static AttributeClassificationType testClassification;
 
-  @BeforeClass
-  public static void setUpClass()
+  private static boolean                     isSetup = false;
+  
+  public static void setupClasses()
+  {
+    setUpClassInRequest();
+  }
+
+  @Request
+  private static void setUpClassInRequest()
   {
     testData = USATestData.newTestData();
     testData.setUpMetadata();
@@ -84,6 +96,8 @@ public class ListTypeTest
     {
       SchedulerManager.start();
     }
+    
+    isSetup = true;
   }
 
   @Request
@@ -125,16 +139,26 @@ public class ListTypeTest
     {
       type.delete();
     }
+    
+    isSetup = false;
   }
+
 
   @Before
   public void setUp()
   {
+    // This is a hack to allow for spring injection of classification tasks
+    if (!isSetup)
+    {
+      setupClasses();
+    }
+    
     cleanUpExtra();
 
     testData.setUpInstanceData();
 
     testData.logIn(USATestData.USER_NPS_RA);
+    
   }
 
   @After
@@ -900,7 +924,7 @@ public class ListTypeTest
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
 
     Assert.assertEquals(2, dates.size());
-    
+
     for (int i = 0; i < dates.size(); i++)
     {
       calendar.clear();
@@ -931,7 +955,7 @@ public class ListTypeTest
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
 
     Assert.assertEquals(10, dates.size());
-    
+
     for (int i = 0; i < dates.size(); i++)
     {
       calendar.clear();
@@ -1045,7 +1069,7 @@ public class ListTypeTest
   }
 
   @Request
-  public static JsonObject getJson(Organization org, TestHierarchyTypeInfo ht, TestGeoObjectTypeInfo info, TestGeoObjectTypeInfo... parents)
+  public static JsonObject getJson(ServerOrganization org, TestHierarchyTypeInfo ht, TestGeoObjectTypeInfo info, TestGeoObjectTypeInfo... parents)
   {
     ListTypeBuilder.Hierarchy hierarchy = new ListTypeBuilder.Hierarchy();
     hierarchy.setType(ht);

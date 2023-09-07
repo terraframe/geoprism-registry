@@ -9,6 +9,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 
@@ -39,7 +40,7 @@ public class ListTypeBuilder
 
   }
 
-  private Organization          org;
+  private ServerOrganization    org;
 
   private Hierarchy[]           hts;
 
@@ -59,7 +60,7 @@ public class ListTypeBuilder
     return this;
   }
 
-  public ListTypeBuilder setOrg(Organization org)
+  public ListTypeBuilder setOrg(ServerOrganization org)
   {
     this.org = org;
 

@@ -65,6 +65,7 @@ import net.geoprism.registry.etl.ListTypeJobQuery;
 import net.geoprism.registry.etl.PublishListTypeVersionJob;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.view.JsonSerializable;
@@ -572,7 +573,7 @@ public class ListTypeService
     {
       String orgCode = entry.getKey();
 
-      Organization org = ServiceFactory.getMetadataCache().getOrganization(orgCode).get();
+      ServerOrganization org = ServiceFactory.getMetadataCache().getOrganization(orgCode).get();
 
       JsonObject joOrg = new JsonObject();
 
