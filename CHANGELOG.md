@@ -2,6 +2,19 @@
 # Release Notes
 
 
+## [1.3.1](https://github.com/terraframe/geoprism-registry/releases/tag/1.3.1) (2023-09-07)
+
+### Features
+
+ - ability to publish empty frequest lists   ([099e7](https://github.com/terraframe/geoprism-registry/commit/099e7532df923d63375c0132cdf6ad88770ebacf))
+
+### Bug Fixes
+
+   - **importer** importer running for too long on staging  ([#914](https://github.com/terraframe/geoprism-registry/issues/914)) ([af0b3](https://github.com/terraframe/geoprism-registry/commit/af0b32229c75146615cb34b4d549e5b70595834e))
+   - **api** list-type/data should not require criteria or showInvalid   ([2ca4d](https://github.com/terraframe/geoprism-registry/commit/2ca4d4885d0663533e2e950bab136ddf1b21e977))
+
+
+
 ## [1.3.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.3.0) (2023-07-17)
 
 ### Features

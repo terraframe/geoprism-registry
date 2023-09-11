@@ -57,17 +57,21 @@ ln -s $WORKSPACE/geoprism-platform/ansible/inventory ./inventory
 [ -h ../permissions ] && unlink ../permissions
 ln -s $WORKSPACE/geoprism-platform/permissions ../permissions
 
-if [ ! -z "$geoprism_lib_extension_artifact_name" ]; then
-  # As far as I can tell Cloudsmith doesn't support fetching the latest version of an artifact from their REST API. So we're using Maven dependency:copy plugin.
-  mkdir -p $WORKSPACE/georegistry/georegistry-web/target/artifact-download
-  cp $WORKSPACE/georegistry/src/build/shell/artifact-download.pom.xml $WORKSPACE/georegistry/georegistry-web/target/artifact-download/pom.xml
-  cd $WORKSPACE/georegistry/georegistry-web/target/artifact-download
-  mvn dependency:copy -Dartifact=$geoprism_lib_extension_artifact_package:$geoprism_lib_extension_artifact_name:$geoprism_lib_extension_artifact_version:jar -DoutputDirectory=../ -Dmdep.stripVersion=true
-  cd $WORKSPACE/geoprism-cloud/ansible
-  
-  ansible-playbook georegistry.yml -vv -i inventory/georegistry/$environment.ini --extra-vars "geoprism_lib_extension=$WORKSPACE/georegistry/georegistry-web/target/$geoprism_lib_extension_artifact_name.jar clean_db=$clean_db clean_orientdb=$clean_db webserver_docker_image_tag=$tag docker_image_path=../../georegistry/src/build/docker/georegistry/target/georegistry.dimg.gz"
+if [ "$environment" != "idm-alpha" ]; then
+	if [ ! -z "$geoprism_lib_extension_artifact_name" ]; then
+	  # As far as I can tell Cloudsmith doesn't support fetching the latest version of an artifact from their REST API. So we're using Maven dependency:copy plugin.
+	  mkdir -p $WORKSPACE/georegistry/georegistry-web/target/artifact-download
+	  cp $WORKSPACE/georegistry/src/build/shell/artifact-download.pom.xml $WORKSPACE/georegistry/georegistry-web/target/artifact-download/pom.xml
+	  cd $WORKSPACE/georegistry/georegistry-web/target/artifact-download
+	  mvn dependency:copy -Dartifact=$geoprism_lib_extension_artifact_package:$geoprism_lib_extension_artifact_name:$geoprism_lib_extension_artifact_version:jar -DoutputDirectory=../ -Dmdep.stripVersion=true
+	  cd $WORKSPACE/geoprism-cloud/ansible
+	  
+	  ansible-playbook georegistry.yml -vv -i inventory/georegistry/$environment.ini --extra-vars "geoprism_lib_extension=$WORKSPACE/georegistry/georegistry-web/target/$geoprism_lib_extension_artifact_name.jar clean_db=$clean_db clean_orientdb=$clean_db webserver_docker_image_tag=$tag docker_image_path=../../georegistry/src/build/docker/georegistry/target/georegistry.dimg.gz"
+	else
+	  ansible-playbook georegistry.yml -vv -i inventory/georegistry/$environment.ini --extra-vars "clean_db=$clean_db clean_orientdb=$clean_db webserver_docker_image_tag=$tag docker_image_path=../../georegistry/src/build/docker/georegistry/target/georegistry.dimg.gz"
+	fi
 else
-  ansible-playbook georegistry.yml -vv -i inventory/georegistry/$environment.ini --extra-vars "clean_db=$clean_db clean_orientdb=$clean_db webserver_docker_image_tag=$tag docker_image_path=../../georegistry/src/build/docker/georegistry/target/georegistry.dimg.gz"
+	ansible-playbook georegistry-ol7.yml -vv -i inventory/georegistry/$environment.ini --extra-vars "clean_db=$clean_db clean_orientdb=$clean_db webserver_docker_image_tag=$tag docker_image_path=../../georegistry/src/build/docker/georegistry/target/georegistry.dimg.gz"
 fi
 
 if [ "$environment" == "demo" ]; then
