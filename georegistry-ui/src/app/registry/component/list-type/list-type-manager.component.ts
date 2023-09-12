@@ -88,22 +88,6 @@ export class ListTypeManagerComponent implements OnInit, OnDestroy {
             this.registryService.init(this.authService.isPublic()).then(response => {
                 this.typesByOrg = [];
 
-                //
-                // Order alphabetically
-                // TODO: sort these on the server
-                //
-                response.organizations.sort((a, b) => {
-                    if (a.label.localizedValue < b.label.localizedValue) {
-                        return -1;
-                    }
-                    if (a.label.localizedValue > b.label.localizedValue) {
-                        return 1;
-                    }
-                    return 0;
-                });
-                //
-                // End sort
-
                 // put org of the user on top
                 if (!this.authService.isSRA()) {
                     let pos = null;

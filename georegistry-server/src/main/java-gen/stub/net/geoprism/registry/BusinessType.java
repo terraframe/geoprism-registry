@@ -75,6 +75,7 @@ import net.geoprism.registry.localization.DefaultLocaleView;
 import net.geoprism.registry.model.AttributedType;
 import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.query.graph.BusinessObjectPageQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
@@ -491,14 +492,14 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
   {
     JsonArray response = new JsonArray();
 
-    final List<? extends Organization> orgs = Organization.getOrganizations();
+    List<ServerOrganization> organizations = ServerOrganization.getSortedOrganizations();
 
-    for (Organization org : orgs)
+    for (ServerOrganization org : organizations)
     {
-      final boolean isMember = Organization.isMember(org);
+      final boolean isMember = ServerOrganization.isMember(org);
 
       BusinessTypeQuery query = new BusinessTypeQuery(new QueryFactory());
-      query.WHERE(query.getOrganization().EQ(org));
+      query.WHERE(query.getOrganization().EQ(org.getOrganization()));
       query.ORDER_BY_DESC(query.getDisplayLabel().localize());
 
       JsonArray types = new JsonArray();
@@ -520,7 +521,7 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
       object.addProperty("oid", org.getOid());
       object.addProperty("code", org.getCode());
       object.addProperty("label", org.getDisplayLabel().getValue());
-      object.addProperty("write", Organization.isRegistryAdmin(org));
+      object.addProperty("write", ServerOrganization.isRegistryAdmin(org));
       object.add("types", types);
 
       response.add(object);
@@ -533,10 +534,10 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
   {
     JsonArray response = new JsonArray();
 
-    Organization.getOrganizations().stream().filter(o -> Organization.isMember(o)).forEach(org -> {
+    ServerOrganization.getSortedOrganizations().stream().filter(o -> ServerOrganization.isMember(o)).forEach(org -> {
 
       BusinessTypeQuery query = new BusinessTypeQuery(new QueryFactory());
-      query.WHERE(query.getOrganization().EQ(org));
+      query.WHERE(query.getOrganization().EQ(org.getOrganization()));
       query.ORDER_BY_DESC(query.getDisplayLabel().localize());
 
       try (OIterator<? extends BusinessType> it = query.getIterator())

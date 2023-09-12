@@ -81,9 +81,12 @@ public class GraphOrganization extends GraphOrganizationBase
   @Transaction
   public void move(GraphOrganization newParent)
   {
-    this.getParents().forEach(parent -> {
-      this.removeParent(parent);
-    });
+    GraphOrganization oldParent = this.getParent();
+
+    if (oldParent != null)
+    {
+      this.removeParent(oldParent);
+    }
 
     this.addParent(newParent);
   }
@@ -145,7 +148,7 @@ public class GraphOrganization extends GraphOrganizationBase
     return query.getResults();
   }
 
-  public List<GraphOrganization> getParents()
+  public GraphOrganization getParent()
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(EDGE_CLASS);
 
@@ -156,7 +159,7 @@ public class GraphOrganization extends GraphOrganizationBase
     GraphQuery<GraphOrganization> query = new GraphQuery<GraphOrganization>(statement.toString());
     query.setParameter("rid", this.getRID());
 
-    return query.getResults();
+    return query.getSingleResult();
   }
 
   public List<GraphOrganization> getAncestors(String code)

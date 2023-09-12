@@ -56,6 +56,7 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.graph.GraphOrganization;
 import net.geoprism.registry.permission.RolePermissionService;
+import net.geoprism.registry.service.OrganizationService.OrganizationUtil;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
@@ -89,6 +90,11 @@ public class ServerOrganization implements JsonSerializable
   public OrganizationDisplayLabel getDisplayLabel()
   {
     return this.organization.getDisplayLabel();
+  }
+
+  public String getOid()
+  {
+    return this.organization.getOid();
   }
 
   public String getCode()
@@ -295,21 +301,25 @@ public class ServerOrganization implements JsonSerializable
   @Transaction
   public void removeAllParents()
   {
-    this.getParents().forEach(parent -> {
+    ServerOrganization parent = this.getParent();
+
+    if (parent != null)
+    {
       this.removeParent(parent);
-    });
+    }
 
   }
 
-  public List<ServerOrganization> getParents()
+  public ServerOrganization getParent()
   {
-    List<GraphOrganization> parents = this.graphOrganization.getParents();
+    GraphOrganization parent = this.graphOrganization.getParent();
 
-    List<ServerOrganization> results = parents.stream().map(vertex -> {
-      return new ServerOrganization(vertex.getOrganization(), vertex);
-    }).collect(Collectors.toList());
-
-    return results;
+    if (parent != null)
+    {
+      return new ServerOrganization(parent.getOrganization(), parent);
+    }
+    
+    return null;
   }
 
   public Page<ServerOrganization> getChildren()
@@ -393,11 +403,10 @@ public class ServerOrganization implements JsonSerializable
     LocalizedValue label = RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel());
     LocalizedValue info = RegistryLocalizedValueConverter.convertNoAutoCoalesce(this.getContactInfo());
 
-    List<ServerOrganization> parents = this.getParents();
+    ServerOrganization parent = this.getParent();
 
-    if (parents.size() > 0)
+    if (parent != null)
     {
-      ServerOrganization parent = parents.get(0);
       String parentCode = parent.getCode();
       LocalizedValue parentLabel = RegistryLocalizedValueConverter.convertNoAutoCoalesce(parent.getDisplayLabel());
 
@@ -501,6 +510,14 @@ public class ServerOrganization implements JsonSerializable
     return new ServerOrganization(orginzation, graphOrganization);
   }
 
+  public static List<ServerOrganization> getSortedOrganizations()
+  {
+    OrganizationQuery query = new OrganizationQuery(new QueryFactory());
+    query.ORDER_BY_ASC(query.getDisplayLabel().localize());
+
+    return OrganizationUtil.sort(query.getIterator().getAll().stream().map(org -> ServerOrganization.get(org)).collect(Collectors.toList()));
+  }
+
   public static List<ServerOrganization> getOrganizations()
   {
     OrganizationQuery query = new OrganizationQuery(new QueryFactory());
@@ -545,7 +562,7 @@ public class ServerOrganization implements JsonSerializable
    * @return If the current user is part of the registry admin role for the
    *         given organization
    */
-  public static boolean isRegistryAdmin(Organization org)
+  public static boolean isRegistryAdmin(ServerOrganization org)
   {
     if (new RolePermissionService().isSRA())
     {
@@ -606,7 +623,7 @@ public class ServerOrganization implements JsonSerializable
    * @param org
    * @return If the current user is a member of the given organization
    */
-  public static boolean isMember(Organization org)
+  public static boolean isMember(ServerOrganization org)
   {
     if (new RolePermissionService().isSRA())
     {
@@ -619,7 +636,7 @@ public class ServerOrganization implements JsonSerializable
     {
       final SingleActor user = GeoprismUser.getCurrentUser();
 
-      return OrganizationUser.exists(org, user);
+      return OrganizationUser.exists(org.getOrganization(), user);
     }
 
     return false;

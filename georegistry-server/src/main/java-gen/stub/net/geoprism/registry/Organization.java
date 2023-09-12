@@ -31,8 +31,6 @@ import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.business.graph.GraphQuery;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.dataaccess.EntityDAOIF;
@@ -48,13 +46,11 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
-import net.geoprism.registry.model.Classification;
-import net.geoprism.registry.model.ClassificationNode;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.view.Page;
 
 public class Organization extends OrganizationBase
 {
@@ -506,11 +502,7 @@ public class Organization extends OrganizationBase
 
     return true;
   }
-
-  /**
-   * @param org
-   * @return If the current user is a member of the given organization
-   */
+  
   public static boolean isMember(Organization org)
   {
     if (new RolePermissionService().isSRA())

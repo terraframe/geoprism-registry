@@ -140,11 +140,11 @@ public class OrganizationHierarchyTest
       {
         child.addParent(parent);
 
-        Assert.assertEquals(1, child.getParents().size());
+        Assert.assertNotNull(child.getParent());
 
         child.removeParent(parent);
 
-        Assert.assertEquals(0, child.getParents().size());
+        Assert.assertNull(child.getParent());
       }
       finally
       {
@@ -202,11 +202,9 @@ public class OrganizationHierarchyTest
       {
         child.addParent(parent);
 
-        List<ServerOrganization> parents = child.getParents();
+        ServerOrganization result = child.getParent();
 
-        Assert.assertEquals(1, parents.size());
-
-        ServerOrganization result = parents.get(0);
+        Assert.assertNotNull(result);
 
         Assert.assertEquals(parent.getCode(), result.getCode());
       }
