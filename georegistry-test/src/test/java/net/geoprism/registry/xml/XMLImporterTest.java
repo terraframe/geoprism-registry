@@ -39,6 +39,7 @@ import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.RegistryService;
 
 @ContextConfiguration(classes = { TestConfig.class })
@@ -97,7 +98,7 @@ public class XMLImporterTest
   @Test
   public void testImportAndExport() throws IOException
   {
-    Organization organization = new Organization();
+    ServerOrganization organization = new ServerOrganization();
     organization.setCode("TEST_ORG");
     organization.getDisplayLabel().setValue("Test Org");
     organization.apply();

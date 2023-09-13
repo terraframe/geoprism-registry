@@ -54,6 +54,7 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.masterlist.ListColumn;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
@@ -331,7 +332,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   @Authenticate
   public static void importTypes(String orgCode, InputStream istream)
   {
-    Organization organization = Organization.getByCode(orgCode);
+    ServerOrganization organization = ServerOrganization.getByCode(orgCode);
 
     XMLImporter xmlImporter = new XMLImporter();
     xmlImporter.importXMLDefinitions(organization, new StreamResource(istream, "domain.xml"));
@@ -339,7 +340,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
   public static void importTypes(String orgCode, ApplicationResource resource)
   {
-    Organization organization = Organization.getByCode(orgCode);
+    ServerOrganization organization = ServerOrganization.getByCode(orgCode);
 
     XMLImporter xmlImporter = new XMLImporter();
     xmlImporter.importXMLDefinitions(organization, resource);

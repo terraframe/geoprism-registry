@@ -47,11 +47,11 @@ import com.runwaysdk.system.metadata.MdAttribute;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DirectedAcyclicGraphType;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.cache.ServerMetadataCache;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -69,7 +69,7 @@ public class XMLExporter
    */
   private Element       root;
 
-  private Organization  orginzation;
+  private ServerOrganization  orginzation;
 
   private Set<String>   businessEdgeTypes;
 
@@ -78,7 +78,7 @@ public class XMLExporter
    * element, and parses the <code>schema</code>.
    * 
    */
-  public XMLExporter(Organization orginzation)
+  public XMLExporter(ServerOrganization orginzation)
   {
     this.orginzation = orginzation;
     this.businessEdgeTypes = new TreeSet<>();

@@ -58,7 +58,6 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DirectedAcyclicGraphType;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
@@ -68,6 +67,7 @@ import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class XMLImporter
@@ -83,7 +83,7 @@ public class XMLImporter
   }
 
   @Transaction
-  public List<ServerElement> importXMLDefinitions(Organization organization, ApplicationResource resource)
+  public List<ServerElement> importXMLDefinitions(ServerOrganization organization, ApplicationResource resource)
   {
     TransactionState state = TransactionState.getCurrentTransactionState();
     state.putTransactionObject("transaction-state", this.cache);
@@ -111,7 +111,7 @@ public class XMLImporter
     return list;
   }
 
-  private List<ServerElement> createHierarchies(Organization organization, Document doc)
+  private List<ServerElement> createHierarchies(ServerOrganization organization, Document doc)
   {
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
 
@@ -136,7 +136,7 @@ public class XMLImporter
     return list;
   }
 
-  private List<ServerElement> createBusinessEdgeTypes(Organization organization, Document doc)
+  private List<ServerElement> createBusinessEdgeTypes(ServerOrganization organization, Document doc)
   {
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
 
@@ -201,7 +201,7 @@ public class XMLImporter
     return list;
   }
 
-  private List<ServerElement> createTypes(Organization organization, Document doc)
+  private List<ServerElement> createTypes(ServerOrganization organization, Document doc)
   {
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
 
@@ -228,7 +228,7 @@ public class XMLImporter
     return list;
   }
 
-  private List<ServerElement> createBusinessTypes(Organization organization, Document doc)
+  private List<ServerElement> createBusinessTypes(ServerOrganization organization, Document doc)
   {
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
 
@@ -437,7 +437,7 @@ public class XMLImporter
     return type;
   }
 
-  private ServerHierarchyType createServerHierarchyType(Organization organization, Element elem)
+  private ServerHierarchyType createServerHierarchyType(ServerOrganization organization, Element elem)
   {
     String code = elem.getAttribute("code");
     LocalizedValue label = this.getLabel(elem);
@@ -460,7 +460,7 @@ public class XMLImporter
     return new ServerHierarchyTypeBuilder().createHierarchyType(type);
   }
 
-  private BusinessEdgeType createBusinessEdgeType(Organization organization, Element elem)
+  private BusinessEdgeType createBusinessEdgeType(ServerOrganization organization, Element elem)
   {
     String code = elem.getAttribute("code");
     LocalizedValue label = this.getLabel(elem);
@@ -475,7 +475,7 @@ public class XMLImporter
     return type;
   }
 
-  private ServerGeoObjectType createServerGeoObjectType(Organization organization, Element elem)
+  private ServerGeoObjectType createServerGeoObjectType(ServerOrganization organization, Element elem)
   {
     String code = elem.getAttribute("code");
     LocalizedValue label = this.getLabel(elem);
@@ -494,7 +494,7 @@ public class XMLImporter
     return new ServerGeoObjectTypeConverter().create(type);
   }
 
-  private BusinessType createBusinessType(Organization organization, Element elem)
+  private BusinessType createBusinessType(ServerOrganization organization, Element elem)
   {
     String code = elem.getAttribute("code");
     LocalizedValue label = this.getLabel(elem);

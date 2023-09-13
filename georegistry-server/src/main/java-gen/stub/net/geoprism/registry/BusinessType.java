@@ -553,6 +553,11 @@ public class BusinessType extends BusinessTypeBase implements JsonSerializable, 
     return response;
   }
 
+  public static List<BusinessType> getForOrganization(ServerOrganization organization)
+  {
+    return BusinessType.getForOrganization(organization.getOrganization());
+  }
+
   public static List<BusinessType> getForOrganization(Organization organization)
   {
     BusinessTypeQuery query = new BusinessTypeQuery(new QueryFactory());

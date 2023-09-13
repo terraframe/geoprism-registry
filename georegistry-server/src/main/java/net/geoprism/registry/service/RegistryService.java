@@ -1263,7 +1263,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public InputStream exportTypes(String sessionId, String code)
   {
-    Organization organization = Organization.getByCode(code);
+    ServerOrganization organization = ServerOrganization.getByCode(code);
 
     XMLExporter exporter = new XMLExporter(organization);
     exporter.build();
