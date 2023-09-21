@@ -39,17 +39,6 @@
           <text name="context" label="Context" />
         </attributes>
       </mdException>
-    
-      <mdException name="net.geoprism.registry.io.TermValueException" 
-                   label="Ambiguous Parent exception" 
-                   description="Thrown when trying to import a geo object with multiple parents of the same name" 
-                   message="The term code [{code}] does not correspond to a known term for attribute [{attributeLabel}]">
-        <attributes>
-          <text name="attributeLabel" label="Attribute label" />
-          <text name="code" label="Code" />
-        </attributes>
-      </mdException>
-    
     </create>
   </doIt>
   <undoIt>

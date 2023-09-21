@@ -26,7 +26,6 @@
           <char name="dhis2Response" label="DHIS2 Response" required="true" size="1000"/>
         </attributes>
       </mdException>
-      <mdException name="net.geoprism.dashboard.GeometryUpdateException" label="Geometry Update Exception" message="You cannot update a geometry for this Geo Object Type"></mdException>
     </create>
     <update></update>
     <permissions>

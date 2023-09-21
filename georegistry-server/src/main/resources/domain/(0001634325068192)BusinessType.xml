@@ -23,34 +23,6 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <create>
-      <mdBusiness
-        name="net.geoprism.registry.BusinessType"
-        label="Business Type"
-        generateController="false"
-        cacheAlgorithm="everything">
-        <attributes>
-          <char
-            name="code"
-            size="32"
-            required="true"
-            indexType="unique index"
-            label="Code" />
-          <reference
-            name="mdVertex"
-            type="com.runwaysdk.system.metadata.MdVertex"
-            required="true"
-            label="MdVertex" />
-          <localChar
-            name="displayLabel"
-            label="Label"
-            required="true" />
-          <reference
-            name="organization"
-            label="Organization"
-            required="false"
-            type="net.geoprism.registry.Organization" />
-        </attributes>
-      </mdBusiness>
     </create>
     <createOrUpdate>
       <object
@@ -191,13 +163,6 @@
       
     </createOrUpdate>    
     <permissions>
-      <role roleName="geoprism.admin.Administrator">
-        <grant>
-          <mdBusinessPermission type="net.geoprism.registry.BusinessType">
-            <operation name="ALL" />
-          </mdBusinessPermission>
-        </grant>
-      </role>
       <role roleName="cgr.RegistryMaintainer">
         <grant>
           <mdBusinessPermission type="net.geoprism.registry.BusinessType">
@@ -208,10 +173,5 @@
     </permissions>    
   </doIt>
   <undoIt>
-    <delete>
-      <object
-        key="net.geoprism.registry.BusinessType"
-        type="com.runwaysdk.system.metadata.MdBusiness"></object>
-    </delete>
   </undoIt>
 </version>

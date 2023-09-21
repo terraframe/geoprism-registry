@@ -1,94 +1,43 @@
-<!--
-
-    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
-
-    This file is part of Geoprism Registry(tm).
-
-    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as
-    published by the Free Software Foundation, either version 3 of the
-    License, or (at your option) any later version.
-
-    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
-
-    You should have received a copy of the GNU Lesser General Public
-    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
-
--->
-<version
-  xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <create>
-      <mdVertex
-        name="net.geoprism.registry.graph.transition.TransitionEvent"
-        label="Transition">
-        <attributes>
-          <long
-            name="eventId"
-            label="Event Id"
-            required="true" />        
-          <date
-            name="eventDate"
-            label="Event Date"
-            required="true" />
-          <text
-            name="beforeTypeCode"
-            label="Before Type Code"
-            required="true" />
-          <text
-            name="beforeTypeOrgCode"
-            label="Before Type Organization Code"
-            required="true" />
-          <text
-            name="afterTypeCode"
-            label="After Type Code"
-            required="true" />
-          <text
-            name="afterTypeOrgCode"
-            label="After Type Organization Code"
-            required="true" />
-          <localCharEmbedded
-            name="description"
-            label="Label"
-            required="false" />
-        </attributes>
-      </mdVertex>
-      <mdVertex
-        name="net.geoprism.registry.graph.transition.Transition"
-        label="Transition">
-        <attributes>
-          <text
-            name="transitionType"
-            label="Transition Type"
-            required="true" />
-          <text
-            name="impact"
-            label="Transition Impact (Partial / Full)"
-            required="true" />
-          <graphReference
-            name="source"
-            label="Source"
-            required="true"
-            type="net.geoprism.registry.graph.GeoVertex" />
-          <graphReference
-            name="target"
-            label="Target"
-            required="true"
-            type="net.geoprism.registry.graph.GeoVertex" />
-          <graphReference
-            name="event"
-            label="Event"
-            required="true"
-            type="net.geoprism.registry.graph.transition.TransitionEvent" />
-          <integer name="order"></integer>
-        </attributes>
-      </mdVertex>
     </create>
     <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.inherited">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.inherited" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Inherited" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.intersectChild">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.intersectChild" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Intersect Child" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.intersectParent">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.intersectParent" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Intersect Parent" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="georegistry.geometry.mixed">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="georegistry.geometry.mixed" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Mixed Geometries" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.problem.type.datanotfound">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="scheduledjobs.job.problem.type.datanotfound" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Data Not Found" />
+        </attributeStruct>
+      </object>
       <object
         type="com.runwaysdk.localization.LocalizedValueStore"
         key="header.transitionEvents">
@@ -632,14 +581,62 @@
         </attributeStruct>
       </object>
     </createOrUpdate>
+    <update></update>
     <permissions>
-      <role roleName="geoprism.admin.Administrator">
+      <role roleName="cgr.RegistryMaintainer">
         <grant>
-          <mdBusinessPermission type="net.geoprism.registry.graph.transition.TransitionEvent">
+          <mdBusinessPermission type="net.geoprism.registry.HierarchicalRelationshipType">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.transition.Transition">
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.HierarchicalRelationshipType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.HierarchicalRelationshipType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.DirectedAcyclicGraphType">
             <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.UndirectedGraphType">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.DirectedAcyclicGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.UndirectedGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.DirectedAcyclicGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.UndirectedGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
         </grant>
       </role>
@@ -653,16 +650,33 @@
           </mdBusinessPermission>
         </grant>
       </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.InheritedHierarchyAnnotation">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.InheritedHierarchyAnnotation">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.InheritedHierarchyAnnotation">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
     </permissions>
   </doIt>
   <undoIt>
-    <delete>
-      <object
-        key="net.geoprism.registry.graph.transition.Transition"
-        type="com.runwaysdk.system.metadata.MdVertex" />
-      <object
-        key="net.geoprism.registry.graph.transition.TransitionEvent"
-        type="com.runwaysdk.system.metadata.MdVertex" />
-    </delete>
+    <delete></delete>
   </undoIt>
 </version>

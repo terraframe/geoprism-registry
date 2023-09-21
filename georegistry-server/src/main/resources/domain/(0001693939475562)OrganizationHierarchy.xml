@@ -21,17 +21,7 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version_gis.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <create>
-      <mdVertex name="net.geoprism.registry.graph.GraphOrganization" label="Organization" cacheAlgorithm="everything" generateController="false" publish="false">
-        <attributes>
-          <char name="code" size="32" required="true" indexType="unique index" label="Code" />
-          <localCharEmbedded name="displayLabel" label="Label" required="true" />        
-          <localCharEmbedded name="contactInfo" label="Contact Information" required="false" />        
-          <reference name="organization" label="Organization" required="false" type="net.geoprism.registry.Organization" />           
-        </attributes>
-      </mdVertex>
-    
-      <mdEdge name="net.geoprism.registry.graph.OrganizationHierarchy" label="Organization Hierarchy" parent="net.geoprism.registry.graph.GraphOrganization" child="net.geoprism.registry.graph.GraphOrganization" generateSource="false">
-      </mdEdge>
+      
     </create>
     <createOrUpdate>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.manage.orgs.table.parent.header">
@@ -51,16 +41,6 @@
     </createOrUpdate>
     
     <permissions>
-      <role roleName="geoprism.admin.Administrator">
-        <grant>      
-          <mdBusinessPermission type="net.geoprism.registry.graph.GraphOrganization">
-            <operation name="ALL" />
-          </mdBusinessPermission>          
-          <mdRelationshipPermission type="net.geoprism.registry.graph.OrganizationHierarchy">
-            <operation name="ALL" />
-          </mdRelationshipPermission>          
-        </grant>
-      </role>
       <role roleName="cgr.RegistryMaintainer">
         <grant>      
           <mdBusinessPermission type="net.geoprism.registry.graph.GraphOrganization">
@@ -98,10 +78,6 @@
     </permissions>        
   </doIt>
   <undoIt>
-    <delete>
-      <object type="com.runwaysdk.system.metadata.MdEdge" key="net.geoprism.registry.graph.OrganizationHierarchy"/>    
-      <object type="com.runwaysdk.system.metadata.MdVertex" key="net.geoprism.registry.graph.GraphOrganization"/>    
-      
-    </delete>
+    
   </undoIt>
 </version>
