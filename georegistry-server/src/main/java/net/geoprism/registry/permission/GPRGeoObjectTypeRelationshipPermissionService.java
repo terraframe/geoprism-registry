@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.business.rbac.RoleDAOIF;
@@ -30,12 +31,16 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
+import net.geoprism.graphrepo.permission.GeoObjectTypeRelationshipPermissionServiceIF;
+import net.geoprism.graphrepo.permission.RepoPermissionActionIF;
+import net.geoprism.graphrepo.permission.UserPermissionService;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.roles.HierarchyRelationshipPermissionException;
 
-public class GeoObjectTypeRelationshipPermissionService extends UserPermissionService implements GeoObjectTypeRelationshipPermissionServiceIF
+@Service
+public class GPRGeoObjectTypeRelationshipPermissionService extends UserPermissionService implements GeoObjectTypeRelationshipPermissionServiceIF
 {
   public enum RelationshipAction {
 
@@ -127,7 +132,7 @@ public class GeoObjectTypeRelationshipPermissionService extends UserPermissionSe
   }
 
   @Override
-  public Collection<CGRPermissionActionIF> getPermissions(ServerGeoObjectType serverGeoObjectType)
+  public Collection<RepoPermissionActionIF> getPermissions(ServerGeoObjectType serverGeoObjectType)
   {
     // TODO
     throw new UnsupportedOperationException();

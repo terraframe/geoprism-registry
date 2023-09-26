@@ -23,43 +23,49 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 
+import net.geoprism.graphrepo.permission.HierarchyTypePermissionServiceIF;
+import net.geoprism.graphrepo.permission.RepoPermissionActionIF;
+import net.geoprism.graphrepo.permission.UserPermissionService;
+import net.geoprism.graphrepo.permission.UserPermissionService.RepoPermissionAction;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.roles.CreateHierarchyPermissionException;
 import net.geoprism.registry.roles.DeleteHierarchyPermissionException;
 import net.geoprism.registry.roles.ReadHierarchyPermissionException;
 import net.geoprism.registry.roles.UpdateHierarchyPermissionException;
 
-public class HierarchyTypePermissionService extends UserPermissionService implements HierarchyTypePermissionServiceIF
+@Service
+public class GPRHierarchyTypePermissionService extends UserPermissionService implements HierarchyTypePermissionServiceIF
 {
-  public void enforceActorHasPermission(String orgCode, CGRPermissionAction action)
+  public void enforceActorHasPermission(String orgCode, RepoPermissionAction action)
   {
     if (!this.getPermissions(orgCode).contains(action))
     {
       Organization org = Organization.getByCode(orgCode);
 
-      if (action.equals(CGRPermissionAction.WRITE))
+      if (action.equals(RepoPermissionAction.WRITE))
       {
         UpdateHierarchyPermissionException ex = new UpdateHierarchyPermissionException();
         ex.setOrganization(org.getDisplayLabel().getValue());
         throw ex;
       }
-      else if (action.equals(CGRPermissionAction.READ))
+      else if (action.equals(RepoPermissionAction.READ))
       {
         ReadHierarchyPermissionException ex = new ReadHierarchyPermissionException();
         ex.setOrganization(org.getDisplayLabel().getValue());
         throw ex;
       }
-      else if (action.equals(CGRPermissionAction.DELETE))
+      else if (action.equals(RepoPermissionAction.DELETE))
       {
         DeleteHierarchyPermissionException ex = new DeleteHierarchyPermissionException();
         ex.setOrganization(org.getDisplayLabel().getValue());
         throw ex;
       }
-      else if (action.equals(CGRPermissionAction.CREATE))
+      else if (action.equals(RepoPermissionAction.CREATE))
       {
         CreateHierarchyPermissionException ex = new CreateHierarchyPermissionException();
         ex.setOrganization(org.getDisplayLabel().getValue());
@@ -68,18 +74,18 @@ public class HierarchyTypePermissionService extends UserPermissionService implem
     }
   }
   
-  public Set<CGRPermissionActionIF> getPermissions(String orgCode)
+  public Set<RepoPermissionActionIF> getPermissions(String orgCode)
   {
     if (!this.hasSessionUser()) // null actor is assumed to be SYSTEM
     {
-      return new HashSet<CGRPermissionActionIF>(Arrays.asList(CGRPermissionAction.values()));
+      return new HashSet<RepoPermissionActionIF>(Arrays.asList(RepoPermissionAction.values()));
     }
     
 //    final String orgCode = sht.getOrganization().getCode();
     
-    HashSet<CGRPermissionActionIF> actions = new HashSet<CGRPermissionActionIF>();
+    HashSet<RepoPermissionActionIF> actions = new HashSet<RepoPermissionActionIF>();
     
-    actions.add(CGRPermissionAction.READ);
+    actions.add(RepoPermissionAction.READ);
     
     if (orgCode != null)
     {
@@ -98,17 +104,17 @@ public class HierarchyTypePermissionService extends UserPermissionService implem
           {
             if (RegistryRole.Type.isRA_Role(roleName))
             {
-              actions.add(CGRPermissionAction.WRITE);
-              actions.add(CGRPermissionAction.CREATE);
-              actions.add(CGRPermissionAction.DELETE);
+              actions.add(RepoPermissionAction.WRITE);
+              actions.add(RepoPermissionAction.CREATE);
+              actions.add(RepoPermissionAction.DELETE);
             }
           }
         }
         else if (RegistryRole.Type.isSRA_Role(roleName))
         {
-          actions.add(CGRPermissionAction.WRITE);
-          actions.add(CGRPermissionAction.CREATE);
-          actions.add(CGRPermissionAction.DELETE);
+          actions.add(RepoPermissionAction.WRITE);
+          actions.add(RepoPermissionAction.CREATE);
+          actions.add(RepoPermissionAction.DELETE);
         }
       }
     }
@@ -119,49 +125,49 @@ public class HierarchyTypePermissionService extends UserPermissionService implem
   @Override
   public boolean canRead(String orgCode)
   {
-    return this.getPermissions(orgCode).contains(CGRPermissionAction.READ);
+    return this.getPermissions(orgCode).contains(RepoPermissionAction.READ);
   }
 
   @Override
   public void enforceCanRead(String orgCode)
   {
-    this.enforceActorHasPermission(orgCode, CGRPermissionAction.READ);
+    this.enforceActorHasPermission(orgCode, RepoPermissionAction.READ);
   }
 
   @Override
   public boolean canWrite(String orgCode)
   {
-    return this.getPermissions(orgCode).contains(CGRPermissionAction.WRITE);
+    return this.getPermissions(orgCode).contains(RepoPermissionAction.WRITE);
   }
 
   @Override
   public void enforceCanWrite(String orgCode)
   {
-    this.enforceActorHasPermission(orgCode, CGRPermissionAction.WRITE);
+    this.enforceActorHasPermission(orgCode, RepoPermissionAction.WRITE);
   }
 
   @Override
   public boolean canCreate(String orgCode)
   {
-    return this.getPermissions(orgCode).contains(CGRPermissionAction.CREATE);
+    return this.getPermissions(orgCode).contains(RepoPermissionAction.CREATE);
   }
 
   @Override
   public void enforceCanCreate(String orgCode)
   {
-    this.enforceActorHasPermission(orgCode, CGRPermissionAction.CREATE);
+    this.enforceActorHasPermission(orgCode, RepoPermissionAction.CREATE);
   }
 
   @Override
   public boolean canDelete(String orgCode)
   {
-    return this.getPermissions(orgCode).contains(CGRPermissionAction.DELETE);
+    return this.getPermissions(orgCode).contains(RepoPermissionAction.DELETE);
   }
 
   @Override
   public void enforceCanDelete(String orgCode)
   {
-    this.enforceActorHasPermission(orgCode, CGRPermissionAction.DELETE);
+    this.enforceActorHasPermission(orgCode, RepoPermissionAction.DELETE);
   }
 
 }

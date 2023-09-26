@@ -38,7 +38,7 @@ import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.ChangeRequestPermissionService;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
+import net.geoprism.registry.permission.GPRGeoObjectPermissionService;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -74,7 +74,7 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
 
     ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
 
-    GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
+    GeoObjectPermissionServiceIF geoObjectPermissionService = new GPRGeoObjectPermissionService();
     geoObjectPermissionService.enforceCanWriteCR(type.getOrganization().getCode(), type);
 
     super.apply();

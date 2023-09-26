@@ -49,6 +49,7 @@ import net.geoprism.forgotpassword.service.ForgotPasswordService;
 import net.geoprism.forgotpassword.service.ForgotPasswordServiceIF;
 import net.geoprism.registry.account.ForgotPasswordCGRService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.session.ExternalProfileCGRService;
 import net.geoprism.session.LoginBruteForceGuardService;
 import net.geoprism.session.SessionController;
@@ -59,7 +60,7 @@ import net.geoprism.userinvite.service.UserInviteService;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = { "net.geoprism.spring", "net.geoprism.graph", "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.spring", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" })
+@ComponentScan(basePackages = { "net.geoprism.spring", "net.geoprism.graph", "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.permission", "net.geoprism.registry.spring", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" })
 public class SpringAppConfig extends WebMvcConfigurationSupport
 {
 
@@ -185,5 +186,11 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
   LoginBruteForceGuardService loginBruteForceGuard()
   {
     return new LoginBruteForceGuardService();
+  }
+  
+  @Bean
+  ServiceFactory serviceFactory()
+  {
+    return new ServiceFactory();
   }
 }

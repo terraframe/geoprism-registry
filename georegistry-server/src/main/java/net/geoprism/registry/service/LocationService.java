@@ -41,7 +41,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
+import net.geoprism.registry.permission.GPRGeoObjectPermissionService;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.view.LocationInformation;
 
@@ -54,7 +54,7 @@ public class LocationService
   @Request(RequestType.SESSION)
   public List<GeoObject> search(String sessionId, String text, Date date)
   {
-    final GeoObjectPermissionService pService = new GeoObjectPermissionService();
+    final GPRGeoObjectPermissionService pService = new GPRGeoObjectPermissionService();
 
     List<ServerGeoObjectIF> results = new SearchService().search(text, date, 20L);
 

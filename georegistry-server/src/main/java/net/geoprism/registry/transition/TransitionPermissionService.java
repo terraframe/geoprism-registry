@@ -30,7 +30,7 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public class TransitionPermissionService extends UserPermissionService
 {
-  public Set<CGRPermissionAction> getPermissions(TransitionEvent event)
+  public Set<RepoPermissionAction> getPermissions(TransitionEvent event)
   {
     final RolePermissionService perms = ServiceFactory.getRolePermissionService();
 
@@ -40,7 +40,7 @@ public class TransitionPermissionService extends UserPermissionService
     final String afterOrgCode = event.getAfterTypeOrgCode();
     final String afterGotCode = event.getAfterTypeCode();
 
-    HashSet<CGRPermissionAction> actions = new HashSet<CGRPermissionAction>();
+    HashSet<RepoPermissionAction> actions = new HashSet<RepoPermissionAction>();
     
     if (beforeOrgCode == null || beforeGotCode == null)
     {
@@ -52,19 +52,19 @@ public class TransitionPermissionService extends UserPermissionService
 
     if (perms.isSRA())
     {
-      actions.addAll(Arrays.asList(CGRPermissionAction.values()));
+      actions.addAll(Arrays.asList(RepoPermissionAction.values()));
     }
     else if (perms.isRA(beforeOrgCode))
     {
-      actions.addAll(Arrays.asList(CGRPermissionAction.values()));
+      actions.addAll(Arrays.asList(RepoPermissionAction.values()));
     }
     else if (perms.isRM(beforeOrgCode, beforeType))
     {
-      actions.addAll(Arrays.asList(CGRPermissionAction.values()));
+      actions.addAll(Arrays.asList(RepoPermissionAction.values()));
     }
     else if ( (!beforeType.getIsPrivate() && !afterType.getIsPrivate()) || perms.isRA(afterOrgCode) || perms.isRM(afterOrgCode, afterType) )
     {
-      actions.add(CGRPermissionAction.READ);
+      actions.add(RepoPermissionAction.READ);
     }
 
     return actions;

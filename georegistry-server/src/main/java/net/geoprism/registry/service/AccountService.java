@@ -60,7 +60,7 @@ public class AccountService
 
   public static AccountService getInstance()
   {
-    return ServiceFactory.getAccountService();
+    return GPRServiceFactory.getAccountService();
   }
 
   @Request(RequestType.SESSION)

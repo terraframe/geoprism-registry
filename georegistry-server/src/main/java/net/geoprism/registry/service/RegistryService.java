@@ -106,7 +106,7 @@ import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.permission.PermissionContext;
-import net.geoprism.registry.permission.UserPermissionService.CGRPermissionAction;
+import net.geoprism.registry.permission.UserPermissionService.RepoPermissionAction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -886,7 +886,7 @@ public class RegistryService
 
     Classifier parent = Classifier.getByKey(parentClassifierKey);
 
-    TermConverter.enforceTermPermissions(parent, CGRPermissionAction.DELETE);
+    TermConverter.enforceTermPermissions(parent, RepoPermissionAction.DELETE);
 
     String classifierKey = Classifier.buildKey(parent.getKey(), termCode);
 

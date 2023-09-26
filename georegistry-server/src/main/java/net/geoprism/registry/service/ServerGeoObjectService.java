@@ -21,11 +21,14 @@ package net.geoprism.registry.service;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.constants.CGRAdapterProperties;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.ExternalId;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -36,6 +39,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.DuplicateDataException;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.MdClassDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
@@ -45,6 +50,9 @@ import com.runwaysdk.session.Session;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.DuplicateGeoObjectCodeException;
+import net.geoprism.registry.DuplicateGeoObjectException;
+import net.geoprism.registry.DuplicateGeoObjectMultipleException;
 import net.geoprism.registry.InvalidRegistryIdException;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
@@ -58,14 +66,17 @@ import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
 import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
+import net.geoprism.registry.exception.DuplicateExternalIdException;
+import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.model.graph.GPRVertexServerGeoObject;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
+import net.geoprism.registry.permission.GPRGeoObjectPermissionService;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
@@ -82,7 +93,7 @@ public class ServerGeoObjectService extends RegistryLocalizedValueConverter
 
   public ServerGeoObjectService()
   {
-    this(new GeoObjectPermissionService());
+    this(new GPRGeoObjectPermissionService());
   }
 
   public ServerGeoObjectService(GeoObjectPermissionServiceIF permissionService)
@@ -166,7 +177,7 @@ public class ServerGeoObjectService extends RegistryLocalizedValueConverter
       
       if (!isImport)
       {
-        ( (VertexServerGeoObject) geoObject ).setAlternateIds(object.getAlternateIds());
+        ( (GPRVertexServerGeoObject) geoObject ).setAlternateIds(object.getAlternateIds());
       }
 
       // Return the refreshed copy of the geoObject
@@ -174,9 +185,66 @@ public class ServerGeoObjectService extends RegistryLocalizedValueConverter
     }
     catch (DuplicateDataException e)
     {
-      VertexServerGeoObject.handleDuplicateDataException(type, e);
+      ServerGeoObjectService.handleDuplicateDataException(type, e);
 
       throw e;
+    }
+  }
+  
+  public static void handleDuplicateDataException(ServerGeoObjectType type, DuplicateDataException e)
+  {
+    MdClassDAOIF mdClass = e.getMdClassDAOIF();
+
+    if (mdClass.definesType().equals(ExternalId.CLASS))
+    {
+      String key = e.getValues().get(0);
+      String externalId = key.split(ExternalId.KEY_SEPARATOR)[0];
+      String externalSystem = ExternalSystem.get(key.split(ExternalId.KEY_SEPARATOR)[1]).getDisplayLabel().getValue();
+
+      DuplicateExternalIdException ex = new DuplicateExternalIdException();
+      ex.setExternalId(externalId);
+      ex.setExternalSystem(externalSystem);
+      throw ex;
+    }
+    else
+    {
+      if (e.getAttributes().size() == 0)
+      {
+        throw e;
+      }
+      else if (e.getAttributes().size() == 1)
+      {
+        MdAttributeDAOIF attr = e.getAttributes().get(0);
+
+        if (isCodeAttribute(attr))
+        {
+          DuplicateGeoObjectCodeException ex = new DuplicateGeoObjectCodeException();
+          ex.setGeoObjectType(findTypeLabelFromGeoObjectCode(e.getValues().get(0), type));
+          ex.setValue(e.getValues().get(0));
+          throw ex;
+        }
+        else
+        {
+          DuplicateGeoObjectException ex = new DuplicateGeoObjectException();
+          ex.setGeoObjectType(type.getLabel().getValue());
+          ex.setValue(e.getValues().get(0));
+          ex.setAttributeName(getAttributeLabel(type, attr));
+          throw ex;
+        }
+      }
+      else
+      {
+        List<String> attrLabels = new ArrayList<String>();
+
+        for (MdAttributeDAOIF attr : e.getAttributes())
+        {
+          attrLabels.add(getAttributeLabel(type, attr));
+        }
+
+        DuplicateGeoObjectMultipleException ex = new DuplicateGeoObjectMultipleException();
+        ex.setAttributeLabels(StringUtils.join(attrLabels, ", "));
+        throw ex;
+      }
     }
   }
 
@@ -224,7 +292,7 @@ public class ServerGeoObjectService extends RegistryLocalizedValueConverter
     }
     catch (DuplicateDataException e)
     {
-      VertexServerGeoObject.handleDuplicateDataException(type, e);
+      ServerGeoObjectService.handleDuplicateDataException(type, e);
 
       throw e;
     }
@@ -390,7 +458,7 @@ public class ServerGeoObjectService extends RegistryLocalizedValueConverter
 
     ServerGeoObjectType serverGOT = ServerGeoObjectType.get(timeGO.getType());
 
-    RolePermissionService perms = ServiceFactory.getRolePermissionService();
+    RolePermissionService perms = GPRServiceFactory.getRolePermissionService();
 
     final String orgCode = serverGOT.getOrganization().getCode();
 
@@ -420,7 +488,7 @@ public class ServerGeoObjectService extends RegistryLocalizedValueConverter
 
       return resp;
     }
-    else if (ServiceFactory.getRolePermissionService().isRC(orgCode, serverGOT))
+    else if (GPRServiceFactory.getRolePermissionService().isRC(orgCode, serverGOT))
     {
       Instant base = Instant.now();
       int sequence = 0;
@@ -468,7 +536,7 @@ public class ServerGeoObjectService extends RegistryLocalizedValueConverter
   {
     LocaleSerializer serializer = new LocaleSerializer(Session.getCurrentLocale());
 
-    final RolePermissionService perms = ServiceFactory.getRolePermissionService();
+    final RolePermissionService perms = GPRServiceFactory.getRolePermissionService();
     final ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectTypeCode);
     final String orgCode = type.getOrganization().getCode();
     final VertexServerGeoObject go = (VertexServerGeoObject) new ServerGeoObjectService().getGeoObjectByCode(geoObjectCode, geoObjectTypeCode);
@@ -491,7 +559,7 @@ public class ServerGeoObjectService extends RegistryLocalizedValueConverter
 
       return resp;
     }
-    else if (ServiceFactory.getRolePermissionService().isRC(orgCode, type))
+    else if (GPRServiceFactory.getRolePermissionService().isRC(orgCode, type))
     {
       ChangeRequest request = createChangeRequest(geoObjectCode, geoObjectTypeCode, notes, orgCode, jaActions);
 

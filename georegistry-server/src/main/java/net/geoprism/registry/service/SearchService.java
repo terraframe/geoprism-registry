@@ -65,7 +65,7 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
+import net.geoprism.registry.permission.GPRGeoObjectPermissionService;
 import net.geoprism.registry.permission.RolePermissionService;
 
 public class SearchService
@@ -391,7 +391,7 @@ public class SearchService
 
     if (!service.isSRA() && service.hasSessionUser())
     {
-      List<String> vertexTypes = new GeoObjectPermissionService().getMandateTypes(service.getOrganization());
+      List<String> vertexTypes = new GPRGeoObjectPermissionService().getMandateTypes(service.getOrganization());
       query.setParameter("vertexTypes", vertexTypes);
     }
 
@@ -495,7 +495,7 @@ public class SearchService
 
     if (!service.isSRA() && service.hasSessionUser())
     {
-      List<String> vertexTypes = new GeoObjectPermissionService().getMandateTypes(service.getOrganization());
+      List<String> vertexTypes = new GPRGeoObjectPermissionService().getMandateTypes(service.getOrganization());
       query.setParameter("vertexTypes", vertexTypes);
     }
 

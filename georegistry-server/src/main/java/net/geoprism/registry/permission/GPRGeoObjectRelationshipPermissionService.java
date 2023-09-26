@@ -21,18 +21,22 @@ package net.geoprism.registry.permission;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 
+import net.geoprism.graphrepo.permission.GeoObjectRelationshipPermissionServiceIF;
+import net.geoprism.graphrepo.permission.UserPermissionService;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.roles.GeoObjectAddChildPermissionException;
 import net.geoprism.registry.roles.GeoObjectRemoveChildPermissionException;
 import net.geoprism.registry.roles.GeoObjectViewRelationshipPermissionException;
 
-public class GeoObjectRelationshipPermissionService extends UserPermissionService implements GeoObjectRelationshipPermissionServiceIF
+@Service
+public class GPRGeoObjectRelationshipPermissionService extends UserPermissionService implements GeoObjectRelationshipPermissionServiceIF
 {
   protected void enforceActorHasPermission(String orgCode, ServerGeoObjectType parentType, ServerGeoObjectType childType, Operation op, boolean isChangeRequest)
   {

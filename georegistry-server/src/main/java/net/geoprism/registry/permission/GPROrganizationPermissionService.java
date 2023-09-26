@@ -18,41 +18,46 @@
  */
 package net.geoprism.registry.permission;
 
+import org.springframework.stereotype.Service;
+
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.graphrepo.permission.OrganizationPermissionServiceIF;
+import net.geoprism.graphrepo.permission.UserPermissionService;
+import net.geoprism.registry.service.GPRServiceFactory;
 
-public class OrganizationPermissionService extends UserPermissionService
+@Service
+public class GPROrganizationPermissionService extends UserPermissionService implements OrganizationPermissionServiceIF
 {
 
   public void enforceActorCanCreate()
   {
-    ServiceFactory.getRolePermissionService().enforceSRA();
+    GPRServiceFactory.getRolePermissionService().enforceSRA();
   }
 
   public void enforceActorCanUpdate()
   {
-    ServiceFactory.getRolePermissionService().enforceSRA();
+    GPRServiceFactory.getRolePermissionService().enforceSRA();
   }
 
   public boolean canActorCreate()
   {
-    return ServiceFactory.getRolePermissionService().isSRA();
+    return GPRServiceFactory.getRolePermissionService().isSRA();
   }
 
   public boolean canActorUpdate()
   {
-    return ServiceFactory.getRolePermissionService().isSRA();
+    return GPRServiceFactory.getRolePermissionService().isSRA();
   }
 
   public void enforceActorCanDelete()
   {
-    ServiceFactory.getRolePermissionService().enforceSRA();
+    GPRServiceFactory.getRolePermissionService().enforceSRA();
   }
 
   public boolean canActorDelete()
   {
-    return ServiceFactory.getRolePermissionService().isSRA();
+    return GPRServiceFactory.getRolePermissionService().isSRA();
   }
 
   public boolean canActorRead(String orgCode)

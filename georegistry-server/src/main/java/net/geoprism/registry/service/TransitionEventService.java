@@ -30,7 +30,7 @@ import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
+import net.geoprism.registry.permission.GPRGeoObjectPermissionService;
 import net.geoprism.registry.view.HistoricalRow;
 
 @Component
@@ -65,7 +65,7 @@ public class TransitionEventService
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-    new GeoObjectPermissionService().enforceCanRead(type.getOrganization().getCode(), type);
+    new GPRGeoObjectPermissionService().enforceCanRead(type.getOrganization().getCode(), type);
 
     return HistoricalRow.getHistoricalReport(type, startDate, endDate, pageSize, pageNumber).toJSON();
   }
@@ -75,7 +75,7 @@ public class TransitionEventService
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-    new GeoObjectPermissionService().enforceCanRead(type.getOrganization().getCode(), type);
+    new GPRGeoObjectPermissionService().enforceCanRead(type.getOrganization().getCode(), type);
 
     return HistoricalRow.exportToExcel(type, startDate, endDate);
   }

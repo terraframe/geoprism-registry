@@ -23,11 +23,14 @@ import java.util.List;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 
+import net.geoprism.graphrepo.permission.GeoObjectPermissionServiceIF;
+import net.geoprism.graphrepo.permission.UserPermissionService;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
@@ -36,7 +39,8 @@ import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class GeoObjectPermissionService extends UserPermissionService implements GeoObjectPermissionServiceIF
+@Service
+public class GPRGeoObjectPermissionService extends UserPermissionService implements GeoObjectPermissionServiceIF
 {
   /**
    * Operation must be one of: - WRITE (Update) - READ - DELETE - CREATE
@@ -237,7 +241,7 @@ public class GeoObjectPermissionService extends UserPermissionService implements
     List<ServerGeoObjectType> types = ServiceFactory.getMetadataCache().getAllGeoObjectTypes();
 
     return types.stream().filter(type -> {
-      return GeoObjectPermissionService.this.canRead(orgCode, type);
+      return GPRGeoObjectPermissionService.this.canRead(orgCode, type);
     }).collect(() -> new LinkedList<String>(), (list, element) -> list.add(element.getCode()), (listA, listB) -> {
     });
   }
@@ -247,7 +251,7 @@ public class GeoObjectPermissionService extends UserPermissionService implements
     List<ServerGeoObjectType> types = ServiceFactory.getMetadataCache().getAllGeoObjectTypes();
 
     return types.stream().filter(type -> {
-      return GeoObjectPermissionService.this.canWriteCR(orgCode, type);
+      return GPRGeoObjectPermissionService.this.canWriteCR(orgCode, type);
     }).collect(() -> new LinkedList<String>(), (list, element) -> list.add(element.getCode()), (listA, listB) -> {
     });
   }

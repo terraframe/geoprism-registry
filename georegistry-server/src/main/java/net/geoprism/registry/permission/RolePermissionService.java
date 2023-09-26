@@ -28,6 +28,7 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 
+import net.geoprism.graphrepo.permission.UserPermissionService;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationRAException;
 import net.geoprism.registry.OrganizationRMException;
