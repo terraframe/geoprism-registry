@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.service;
 
+import java.io.InputStream;
+
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.springframework.stereotype.Component;
@@ -33,10 +35,22 @@ import com.runwaysdk.system.Roles;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.xml.XMLExporter;
 
 @Component
 public class GPROrganizationService extends OrganizationService implements OrganizationServiceIF
 {
+  @Request(RequestType.SESSION)
+  public InputStream exportTypes(String sessionId, String code)
+  {
+    ServerOrganization organization = ServerOrganization.getByCode(code);
+
+    XMLExporter exporter = new XMLExporter(organization);
+    exporter.build();
+
+    return exporter.write();
+  }
+  
   @Override
   @Transaction
   protected ServerOrganization createInTrans(OrganizationDTO organizationDTO)
