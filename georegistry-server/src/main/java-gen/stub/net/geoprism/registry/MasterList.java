@@ -57,6 +57,7 @@ import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
@@ -1073,7 +1074,7 @@ public class MasterList extends MasterListBase
 
     for (Organization org : orgs)
     {
-      final boolean isMember = Organization.isMember(org);
+      final boolean isMember = GPROrganizationPermissionService.isMemberOrSRA(org);
 
       MasterListQuery query = new MasterListQuery(new QueryFactory());
       query.WHERE(query.getOrganization().EQ(org));

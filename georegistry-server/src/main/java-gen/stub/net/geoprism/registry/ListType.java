@@ -79,6 +79,7 @@ import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.query.graph.AttributeValueRestriction;
 import net.geoprism.registry.query.graph.BasicVertexRestriction;
@@ -962,7 +963,7 @@ public abstract class ListType extends ListTypeBase
 
     Organization org = type.getOrganization();
 
-    final boolean isMember = Organization.isMember(org);
+    final boolean isMember = GPROrganizationPermissionService.isMemberOrSRA(org);
 
     ListTypeQuery query = new ListTypeQuery(new QueryFactory());
     query.WHERE(query.getUniversal().EQ(type.getUniversal()));

@@ -40,7 +40,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.controller.DirectedAcyclicGraphTypeController.CodeBody;
-import net.geoprism.registry.service.OrganizationService;
+import net.geoprism.registry.service.OrganizationServiceIF;
 import net.geoprism.registry.service.RegistryComponentService;
 
 /**
@@ -89,7 +89,7 @@ public class OrganizationController  extends RunwaySpringController
   public static final String API_PATH = "organization";
   
   @Autowired
-  private OrganizationService service;
+  private OrganizationServiceIF service;
   
   @Autowired
   private RegistryComponentService registryService = new RegistryComponentService();

@@ -55,6 +55,7 @@ import net.geoprism.registry.masterlist.ListColumn;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
@@ -273,7 +274,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     }
     
     // If the list isn't public and the user isn't a member of the organization the remove all non code and display label attributes
-    if(version.getListVisibility().equals(ListType.PRIVATE) && !Organization.isMember(version.getListType().getOrganization())) {
+    if(version.getListVisibility().equals(ListType.PRIVATE) && !GPROrganizationPermissionService.isMemberOrSRA(version.getListType().getOrganization())) {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> {
         String attributeName = mdAttribute.definesAttribute();
         
@@ -308,7 +309,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     }
     
     // If the list isn't public and the user isn't a member of the organization the remove all non code and display label attributes
-    if(version.getListVisibility().equals(ListType.PRIVATE) && !Organization.isMember(version.getListType().getOrganization())) {
+    if(version.getListVisibility().equals(ListType.PRIVATE) && !GPROrganizationPermissionService.isMemberOrSRA(version.getListType().getOrganization())) {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> {
         String attributeName = mdAttribute.definesAttribute();
         

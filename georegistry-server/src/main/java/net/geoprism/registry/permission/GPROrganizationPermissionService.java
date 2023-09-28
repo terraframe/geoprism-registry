@@ -18,12 +18,27 @@
  */
 package net.geoprism.registry.permission;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.Set;
+
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.Session;
+import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.graphrepo.permission.OrganizationPermissionServiceIF;
 import net.geoprism.graphrepo.permission.UserPermissionService;
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.OrganizationQuery;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.GPRServiceFactory;
 
 @Service
@@ -78,5 +93,132 @@ public class GPROrganizationPermissionService extends UserPermissionService impl
   {
     return;
   }
+  
+  /**
+   * @param org
+   * @return If the current user is part of the registry admin role for the
+   *         given organization
+   */
+  public static boolean isRegistryAdmin(ServerOrganization org)
+  {
+    if (new RolePermissionService().isSRA())
+    {
+      return true;
+    }
 
+    String roleName = RegistryRole.Type.getRA_RoleName( ( org.getCode() ));
+
+    final SessionIF session = Session.getCurrentSession();
+
+    if (session != null)
+    {
+      return session.userHasRole(roleName);
+    }
+
+    return true;
+  }
+
+  /**
+   * @param org
+   * @return If the current user is part of the registry admin role for the
+   *         given organization
+   */
+  public static boolean isRegistryMaintainer(Organization org)
+  {
+    if (new RolePermissionService().isSRA())
+    {
+      return true;
+    }
+
+    final SessionIF session = Session.getCurrentSession();
+
+    if (session != null)
+    {
+      Map<String, ServerGeoObjectType> types = org.getGeoObjectTypes();
+
+      Set<Entry<String, ServerGeoObjectType>> entries = types.entrySet();
+
+      for (Entry<String, ServerGeoObjectType> entry : entries)
+      {
+        String roleName = RegistryRole.Type.getRM_RoleName(org.getCode(), entry.getKey());
+
+        boolean hasRole = session.userHasRole(roleName);
+
+        if (hasRole)
+        {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    return true;
+  }
+
+  public static boolean isMemberOrSRA(ServerOrganization org)
+  {
+    if (new RolePermissionService().isSRA())
+    {
+      return true;
+    }
+
+    return ServerOrganization.isMember(org);
+  }
+  
+  public static boolean isMemberOrSRA(Organization org)
+  {
+    if (new RolePermissionService().isSRA())
+    {
+      return true;
+    }
+
+    return Organization.isMember(org);
+  }
+  
+  /**
+   * @param org
+   * @return If the current user is part of the registry admin role for the
+   *         given organization
+   */
+  public static boolean isRegistryAdmin(Organization org)
+  {
+    if (new RolePermissionService().isSRA())
+    {
+      return true;
+    }
+
+    String roleName = RegistryRole.Type.getRA_RoleName( ( org.getCode() ));
+
+    final SessionIF session = Session.getCurrentSession();
+
+    if (session != null)
+    {
+      return session.userHasRole(roleName);
+    }
+
+    return true;
+  }
+  
+  public static List<Organization> getUserAdminOrganizations()
+  {
+    OrganizationQuery query = new OrganizationQuery(new QueryFactory());
+    query.ORDER_BY_ASC(query.getDisplayLabel().localize());
+
+    try (final OIterator<? extends Organization> iterator = query.getIterator())
+    {
+      final List<? extends Organization> orgs = iterator.getAll();
+
+      List<Organization> result = orgs.stream().filter(o -> {
+        return isRegistryAdmin(o);
+      }).collect(Collectors.toList());
+
+      return result;
+    }
+  }
+  
+  public static List<ServerOrganization> getUserAdminServerOrganizations()
+  {
+    return getUserAdminOrganizations().stream().map(org -> ServerOrganization.get(org)).collect(Collectors.toList());
+  }
 }

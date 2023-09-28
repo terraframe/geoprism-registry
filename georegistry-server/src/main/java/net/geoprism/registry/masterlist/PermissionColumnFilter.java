@@ -24,7 +24,7 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeAttribute;
 import net.geoprism.registry.ListTypeVersion;
-import net.geoprism.registry.Organization;
+import net.geoprism.registry.permission.GPROrganizationPermissionService;
 
 public class PermissionColumnFilter implements ColumnFilter
 {
@@ -32,7 +32,7 @@ public class PermissionColumnFilter implements ColumnFilter
 
   public PermissionColumnFilter(ListTypeVersion version)
   {
-    this.isPrivate = version.getListVisibility().equals(ListType.PRIVATE) && !Organization.isMember(version.getListType().getOrganization());
+    this.isPrivate = version.getListVisibility().equals(ListType.PRIVATE) && !GPROrganizationPermissionService.isMemberOrSRA(version.getListType().getOrganization());
   }
 
   @Override

@@ -161,6 +161,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.ListTypeVersionPageQuery;
@@ -1414,7 +1415,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     final File file = new File(directory, filename);
 
     ServerGeoObjectType type = masterlist.getGeoObjectType();
-    boolean isMember = Organization.isMember(masterlist.getOrganization());
+    boolean isMember = GPROrganizationPermissionService.isMemberOrSRA(masterlist.getOrganization());
 
     JsonObject object = new JsonObject();
 
@@ -1557,7 +1558,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
       // If the list isn't public and the user isn't a member of the
       // organization the remove all non code and display label attributes
-      if (this.getListVisibility().equals(ListType.PRIVATE) && !Organization.isMember(this.getListType().getOrganization()))
+      if (this.getListVisibility().equals(ListType.PRIVATE) && !GPROrganizationPermissionService.isMemberOrSRA(this.getListType().getOrganization()))
       {
         mdAttributes = mdAttributes.stream().filter(mdAttribute -> {
           String attributeName = mdAttribute.definesAttribute();

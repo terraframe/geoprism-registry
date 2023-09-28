@@ -66,6 +66,7 @@ import net.geoprism.registry.etl.PublishListTypeVersionJob;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.view.JsonSerializable;
@@ -474,7 +475,7 @@ public class ListTypeService
     JsonArray response = new JsonArray();
 
     ListType listType = ListType.get(listOid);
-    final boolean isMember = Organization.isMember(listType.getOrganization());
+    final boolean isMember = GPROrganizationPermissionService.isMemberOrSRA(listType.getOrganization());
 
     ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
     query.WHERE(query.getListType().EQ(listType));
@@ -531,7 +532,7 @@ public class ListTypeService
       {
         ListTypeVersion version = it.next();
         ListType listType = version.getListType();
-        final boolean isMember = Organization.isMember(listType.getOrganization());
+        final boolean isMember = GPROrganizationPermissionService.isMemberOrSRA(listType.getOrganization());
 
         if ( ( version.getWorking() && listType.doesActorHaveExploratoryPermission() ) || ( isMember || version.getGeospatialVisibility().equals(ListType.PUBLIC) ))
         {

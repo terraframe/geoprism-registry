@@ -40,6 +40,7 @@ import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 
@@ -172,7 +173,7 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
   public static List<ExternalSystem> getExternalSystemsForOrg(Integer pageNumber, Integer pageSize)
   {
-    List<Organization> organizations = Organization.getUserAdminOrganizations();
+    List<Organization> organizations = GPROrganizationPermissionService.getUserAdminOrganizations();
 
     if (organizations.size() > 0)
     {
@@ -214,7 +215,7 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
   public static long getCount()
   {
-    List<Organization> organizations = Organization.getUserAdminOrganizations();
+    List<Organization> organizations = GPROrganizationPermissionService.getUserAdminOrganizations();
 
     if (organizations.size() > 0)
     {

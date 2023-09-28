@@ -31,6 +31,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.SerializedListTypeCache;
 
 public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
@@ -103,7 +104,7 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
     {
       // Only include the versions the user has access to
 
-      if (version.getListVisibility().equals(ListType.PUBLIC) || version.getGeospatialVisibility().equals(ListType.PUBLIC) || Organization.isMember(organization))
+      if (version.getListVisibility().equals(ListType.PUBLIC) || version.getGeospatialVisibility().equals(ListType.PUBLIC) || GPROrganizationPermissionService.isMemberOrSRA(organization))
       {
         jVersions.add(version.toJSON(false));
       }

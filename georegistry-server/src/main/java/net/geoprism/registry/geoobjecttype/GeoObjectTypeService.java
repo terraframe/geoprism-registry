@@ -26,15 +26,22 @@ import java.util.stream.Collectors;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
+import com.runwaysdk.session.Request;
+import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 public class GeoObjectTypeService
 {
@@ -43,6 +50,150 @@ public class GeoObjectTypeService
   public GeoObjectTypeService(RegistryAdapter adapter)
   {
     this.adapter = adapter;
+  }
+  
+  /**
+   * Deletes the {@link GeoObjectType} with the given code. Do nothing if the
+   * type does not exist.
+   * 
+   * @param sessionId
+   * @param code
+   *          code of the {@link GeoObjectType} to delete.
+   */
+  @Request(RequestType.SESSION)
+  public void deleteGeoObjectType(String sessionId, String code)
+  {
+    ServerGeoObjectType type = ServerGeoObjectType.get(code);
+
+    if (type != null)
+    {
+      ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(type.getOrganization().getCode(), type, type.getIsPrivate());
+
+      type.delete();
+    }
+  }
+  
+  /**
+   * Adds an attribute to the given {@link GeoObjectType}.
+   * 
+   * @pre given {@link GeoObjectType} must already exist.
+   * 
+   * @param sessionId
+   *
+   * @param geoObjectTypeCode
+   *          string of the {@link GeoObjectType} to be updated.
+   * @param attributeTypeJSON
+   *          AttributeType to be added to the GeoObjectType
+   * @return updated {@link GeoObjectType}
+   */
+  @Request(RequestType.SESSION)
+  public AttributeType createAttributeType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
+  {
+    ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
+
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got, got.getIsPrivate());
+
+    AttributeType attrType = got.createAttributeType(attributeTypeJSON);
+
+    return attrType;
+  }
+
+  /**
+   * Updates an attribute in the given {@link GeoObjectType}.
+   * 
+   * @pre given {@link GeoObjectType} must already exist.
+   * 
+   * @param sessionId
+   * @param geoObjectTypeCode
+   *          string of the {@link GeoObjectType} to be updated.
+   * @param attributeTypeJSON
+   *          AttributeType to be added to the GeoObjectType
+   * @return updated {@link AttributeType}
+   */
+  @Request(RequestType.SESSION)
+  public AttributeType updateAttributeType(String sessionId, String geoObjectTypeCode, String attributeTypeJSON)
+  {
+    ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
+
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got, got.getIsPrivate());
+
+    AttributeType attrType = got.updateAttributeType(attributeTypeJSON);
+
+    return attrType;
+  }
+
+  /**
+   * Deletes an attribute from the given {@link GeoObjectType}.
+   * 
+   * @pre given {@link GeoObjectType} must already exist.
+   * @pre given {@link GeoObjectType} must already exist.
+   * 
+   * @param sessionId
+   * @param gtId
+   *          string of the {@link GeoObjectType} to be updated.
+   * @param attributeName
+   *          Name of the attribute to be removed from the GeoObjectType
+   * @return updated {@link GeoObjectType}
+   */
+  @Request(RequestType.SESSION)
+  public void deleteAttributeType(String sessionId, String gtId, String attributeName)
+  {
+    ServerGeoObjectType got = ServerGeoObjectType.get(gtId);
+
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got, got.getIsPrivate());
+
+    got.removeAttribute(attributeName);
+  }
+  
+  /**
+   * Updates the given {@link GeoObjectType} represented as JSON.
+   * 
+   * @pre given {@link GeoObjectType} must already exist.
+   * 
+   * @param sessionId
+   * @param gtJSON
+   *          JSON of the {@link GeoObjectType} to be updated.
+   * @return updated {@link GeoObjectType}
+   */
+  @Request(RequestType.SESSION)
+  public GeoObjectType updateGeoObjectType(String sessionId, String gtJSON)
+  {
+    GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, ServiceFactory.getAdapter());
+    ServerGeoObjectType serverGeoObjectType = ServerGeoObjectType.get(geoObjectType.getCode());
+
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(geoObjectType.getOrganizationCode(), serverGeoObjectType, geoObjectType.getIsPrivate());
+
+    serverGeoObjectType.update(geoObjectType);
+
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
+
+    return serverGeoObjectType.getType();
+  }
+  
+  /**
+   * Creates a {@link GeoObjectType} from the given JSON.
+   * 
+   * @param sessionId
+   * @param gtJSON
+   *          JSON of the {@link GeoObjectType} to be created.
+   * @return newly created {@link GeoObjectType}
+   */
+  @Request(RequestType.SESSION)
+  public GeoObjectType createGeoObjectType(String sessionId, String gtJSON)
+  {
+    ServerGeoObjectType type = null;
+
+    type = new ServerGeoObjectTypeConverter().create(gtJSON);
+
+    // Refresh the users session
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
+    // If this did not error out then add to the cache
+    ServiceFactory.getMetadataCache().addGeoObjectType(type);
+
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
+
+    return type.getType();
   }
 
   /**

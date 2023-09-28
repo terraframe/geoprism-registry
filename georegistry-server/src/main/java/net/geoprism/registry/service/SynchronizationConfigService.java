@@ -70,6 +70,7 @@ import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 
@@ -117,7 +118,7 @@ public class SynchronizationConfigService
     SynchronizationConfig config = SynchronizationConfig.get(oid);
     Organization organization = config.getOrganization();
 
-    ServiceFactory.getRolePermissionService().enforceRA(organization.getCode());
+    GPRServiceFactory.getRolePermissionService().enforceRA(organization.getCode());
 
     config.delete();
   }
@@ -198,7 +199,7 @@ public class SynchronizationConfigService
 
     JsonArray orgs = new JsonArray();
 
-    List<Organization> organizations = Organization.getUserAdminOrganizations();
+    List<Organization> organizations = GPROrganizationPermissionService.getUserAdminOrganizations();
 
     for (Organization organization : organizations)
     {
@@ -259,7 +260,7 @@ public class SynchronizationConfigService
   {
     SynchronizationConfig synchorinzation = SynchronizationConfig.get(oid);
 
-    ServiceFactory.getRolePermissionService().enforceRA(synchorinzation.getOrganization().getCode());
+    GPRServiceFactory.getRolePermissionService().enforceRA(synchorinzation.getOrganization().getCode());
 
     ExternalSystemSyncConfig config = synchorinzation.buildConfiguration();
 
@@ -284,7 +285,7 @@ public class SynchronizationConfigService
   {
     SynchronizationConfig config = SynchronizationConfig.get(oid);
 
-    ServiceFactory.getRolePermissionService().enforceRA(config.getOrganization().getCode());
+    GPRServiceFactory.getRolePermissionService().enforceRA(config.getOrganization().getCode());
 
     List<? extends DataExportJob> jobs = config.getJobs();
 

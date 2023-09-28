@@ -45,7 +45,8 @@ import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.permission.GPROrganizationPermissionService;
+import net.geoprism.registry.service.GPRServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 
 public class SynchronizationConfig extends SynchronizationConfigBase implements JsonSerializable
@@ -78,7 +79,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
 
     if (session != null && organization != null)
     {
-      ServiceFactory.getRolePermissionService().enforceRA(organization.getCode());
+      GPRServiceFactory.getRolePermissionService().enforceRA(organization.getCode());
     }
 
     super.apply();
@@ -212,7 +213,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
 
   public static long getCount()
   {
-    List<Organization> organizations = Organization.getUserAdminOrganizations();
+    List<Organization> organizations = GPROrganizationPermissionService.getUserAdminOrganizations();
 
     if (organizations.size() > 0)
     {
@@ -232,7 +233,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
 
   public static List<SynchronizationConfig> getSynchronizationConfigsForOrg(Integer pageNumber, Integer pageSize)
   {
-    List<Organization> organizations = Organization.getUserAdminOrganizations();
+    List<Organization> organizations = GPROrganizationPermissionService.getUserAdminOrganizations();
 
     if (organizations.size() > 0)
     {
