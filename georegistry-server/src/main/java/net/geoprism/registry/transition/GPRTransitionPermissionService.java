@@ -22,18 +22,18 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.geoprism.graphrepo.permission.TransitionPermissionServiceIF;
 import net.geoprism.graphrepo.permission.UserPermissionService;
-import net.geoprism.registry.business.TransitionPermissionServiceIF;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.GPRServiceFactory;
 
 public class GPRTransitionPermissionService extends UserPermissionService implements TransitionPermissionServiceIF
 {
   public Set<RepoPermissionAction> getPermissions(TransitionEvent event)
   {
-    final RolePermissionService perms = ServiceFactory.getRolePermissionService();
+    final RolePermissionService perms = GPRServiceFactory.getRolePermissionService();
 
     final String beforeOrgCode = event.getBeforeTypeOrgCode();
     final String beforeGotCode = event.getBeforeTypeCode();

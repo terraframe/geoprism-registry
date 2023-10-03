@@ -318,6 +318,18 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
     return gprOrgService.getRegistryAdminRoleName(sgot.getOrganization());
   }
   
+  public String getMaintainerRoleName(ServerGeoObjectType sgot)
+  {
+    ServerGeoObjectType superType = sgot.getSuperType();
+
+    if (superType != null)
+    {
+      return getMaintainerRoleName(superType);
+    }
+
+    return RegistryRole.Type.getRM_RoleName(sgot.getOrganization().getCode(), sgot.getCode());
+  }
+  
   private void create_AC_GeoObjectTypeRole(MdGeoVertexDAO mdGeoVertexDAO, String organizationCode, String geoObjectTypeCode)
   {
     if (organizationCode != null && !organizationCode.trim().equals(""))
