@@ -3,9 +3,12 @@ package net.geoprism.registry.service;
 import java.io.InputStream;
 import java.util.Locale;
 
+import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.runwaysdk.business.BusinessFacade;
@@ -28,6 +31,7 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
+import com.runwaysdk.system.metadata.MdAttributeConcrete;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdBusiness;
 
@@ -55,6 +59,9 @@ import net.geoprism.registry.ws.NotificationFacade;
 @Component
 public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessService implements GeoObjectTypeBusinessServiceIF
 {
+  @Autowired
+  private GPROrganizationService gprOrgService;
+  
   @Override
   protected void delete(ServerGeoObjectType type)
   {
@@ -280,6 +287,32 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
     return serverGeoObjectType;
   }
   
+  @Transaction
+  @Override
+  public void deleteMdAttributeFromAttributeType(ServerGeoObjectType serverType, String attributeName)
+  {
+    Optional<AttributeType> optional = serverType.getType().getAttribute(attributeName);
+
+    super.deleteMdAttributeFromAttributeType(serverType, attributeName);
+    
+    if (optional.isPresent())
+    {
+      ListType.deleteMdAttribute(serverType.getUniversal(), optional.get());
+    }
+  }
+  
+  public String getAdminRoleName(ServerGeoObjectType sgot)
+  {
+    ServerGeoObjectType superType = sgot.getSuperType();
+
+    if (superType != null)
+    {
+      return gprOrgService.getRegistryAdminRoleName(superType.getOrganization());
+    }
+
+    return gprOrgService.getRegistryAdminRoleName(sgot.getOrganization());
+  }
+  
   private void create_AC_GeoObjectTypeRole(MdGeoVertexDAO mdGeoVertexDAO, String organizationCode, String geoObjectTypeCode)
   {
     if (organizationCode != null && !organizationCode.trim().equals(""))
@@ -413,6 +446,17 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
       this.assignAllPermissions(mdGeoVertexDAO, rmRole);
     }
   }
+  
+  @Transaction
+  @Override
+  public MdAttributeConcrete createMdAttributeFromAttributeType(ServerGeoObjectType serverType, AttributeType attributeType)
+  {
+    MdAttributeConcrete mdAttribute = super.createMdAttributeFromAttributeType(serverType, attributeType);
+
+    ListType.createMdAttribute(serverType, attributeType);
+
+    return mdAttribute;
+  }
 
   /**
    * Assigns all permissions to the Organization's RA
@@ -426,7 +470,7 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
     if (organizationCode != null && !organizationCode.trim().equals(""))
     {
       Organization organization = Organization.getByKey(organizationCode);
-      Roles raRole = organization.getRegistryAdminiRole();
+      Roles raRole = gprOrgService.getRegistryAdminRole(organization);
 
       this.assignAllPermissions(mdBusiness, raRole);
       this.assignAllPermissions(mdGeoVertexDAO, raRole);

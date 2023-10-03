@@ -116,7 +116,7 @@ public class GPROrganizationService extends OrganizationService implements Organ
    * @return the Registry Administrator {@link Roles} for this
    *         {@link Organization}.
    */
-  public Roles getRegistryAdminiRole(Organization org)
+  public Roles getRegistryAdminRole(Organization org)
   {
     return Roles.findRoleByName(this.getRegistryAdminRoleName(org));
   }
@@ -130,7 +130,7 @@ public class GPROrganizationService extends OrganizationService implements Organ
    * @return the Registry Administrator {@link Roles} for this
    *         {@link Organization}.
    */
-  public static Roles getRegistryAdminiRole(String organizationCode)
+  public static Roles getRegistryAdminRole(String organizationCode)
   {
     return Roles.findRoleByName(RegistryRole.Type.getRA_RoleName(organizationCode));
   }
