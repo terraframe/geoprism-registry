@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.service;
+package net.geoprism.registry.service.business;
 
 import java.io.InputStream;
 
@@ -34,11 +34,14 @@ import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.business.OrganizationBusinessService;
+import net.geoprism.registry.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.SerializedListTypeCache;
 import net.geoprism.registry.xml.XMLExporter;
 
 @Component
-public class GPROrganizationService extends OrganizationService implements OrganizationServiceIF
+public class GPROrganizationBusinessService extends OrganizationBusinessService implements OrganizationBusinessServiceIF
 {
   @Request(RequestType.SESSION)
   public InputStream exportTypes(String sessionId, String code)
@@ -168,6 +171,19 @@ public class GPROrganizationService extends OrganizationService implements Organ
     super.deleteOrganization(sessionId, code);
 
     SerializedListTypeCache.getInstance().clear();
+  }
+  
+  @Override
+  protected void deleteRoles(ServerOrganization sorg)
+  {
+    try
+    {
+      Roles raOrgRole = this.getRegistryAdminRole(sorg.getOrganization());
+      raOrgRole.delete();
+    }
+    catch (com.runwaysdk.dataaccess.cache.DataNotFoundException e)
+    {
+    }
   }
 
 }
