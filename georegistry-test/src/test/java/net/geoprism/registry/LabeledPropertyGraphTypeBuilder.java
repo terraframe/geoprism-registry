@@ -8,7 +8,8 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.SingleLabeledPropertyGraphType;
-import net.geoprism.graph.StrategyConfiguration;
+import net.geoprism.graph.lpg.StrategyConfiguration;
+import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeBusinessServiceIF;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
@@ -65,10 +66,10 @@ public class LabeledPropertyGraphTypeBuilder
   }
 
   @Request
-  public LabeledPropertyGraphType build()
+  public LabeledPropertyGraphType build(LabeledPropertyGraphTypeBusinessServiceIF service)
   {
     JsonObject json = this.buildJSON();
 
-    return LabeledPropertyGraphType.apply(json);
+    return service.apply(json);
   }
 }

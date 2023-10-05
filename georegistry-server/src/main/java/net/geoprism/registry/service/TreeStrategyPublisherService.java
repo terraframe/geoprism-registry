@@ -4,19 +4,19 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.graph;
+package net.geoprism.registry.service;
 
 import java.util.Date;
 import java.util.List;
@@ -24,6 +24,9 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.graph.GraphQuery;
@@ -34,13 +37,16 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
 
-import net.geoprism.graph.AbstractGraphVersionPublisher;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
+import net.geoprism.graph.LabeledPropertyGraphSynchronization;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
-import net.geoprism.graph.StrategyPublisher;
-import net.geoprism.graph.TreeStrategyConfiguration;
+import net.geoprism.graph.lpg.StrategyConfiguration;
+import net.geoprism.graph.lpg.TreeStrategyConfiguration;
+import net.geoprism.graph.lpg.business.GeoObjectTypeSnapshotBusinessServiceIF;
+import net.geoprism.graph.lpg.business.HierarchyTypeSnapshotBusinessServiceIF;
+import net.geoprism.graph.lpg.service.AbstractGraphVersionPublisherService;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.model.ServerChildTreeNode;
@@ -49,9 +55,9 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
-import net.geoprism.registry.service.ServerGeoObjectService;
 
-public class TreeStrategyPublisher extends AbstractGraphVersionPublisher implements StrategyPublisher
+@Repository
+public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherService
 {
   private static class Snapshot
   {
@@ -76,23 +82,32 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
 
   }
 
-  private TreeStrategyConfiguration configuration;
-
-  private Set<String>               uids;
-
-  private Stack<Snapshot>           stack;
-
-  public TreeStrategyPublisher(TreeStrategyConfiguration configuration)
+  private static class TreeState extends State
   {
-    this.configuration = configuration;
+    private Set<String>     uids;
 
-    this.uids = new TreeSet<String>();
-    this.stack = new Stack<Snapshot>();
+    private Stack<Snapshot> stack;
+
+    public TreeState(LabeledPropertyGraphSynchronization synchronization, LabeledPropertyGraphTypeVersion version)
+    {
+      super(synchronization, version);
+
+      this.uids = new TreeSet<String>();
+      this.stack = new Stack<Snapshot>();
+    }
+
   }
 
-  @Override
-  public void publish(LabeledPropertyGraphTypeVersion version)
+  @Autowired
+  private GeoObjectTypeSnapshotBusinessServiceIF objectService;
+
+  @Autowired
+  private HierarchyTypeSnapshotBusinessServiceIF hierarchyService;
+
+  public void publish(TreeStrategyConfiguration configuration, LabeledPropertyGraphTypeVersion version)
   {
+    TreeState state = new TreeState(null, version);
+
     long startTime = System.currentTimeMillis();
 
     System.out.println("Started publishing");
@@ -116,7 +131,7 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
         }
 
         ServerHierarchyType hierarchyType = ServerHierarchyType.get(type.getHierarchy());
-        HierarchyTypeSnapshot graphEdge = HierarchyTypeSnapshot.get(version, hierarchyType.getCode());
+        HierarchyTypeSnapshot graphEdge = this.hierarchyService.get(version, hierarchyType.getCode());
         MdEdge mdEdge = graphEdge.getGraphMdEdge();
 
         List<ServerGeoObjectType> geoObjectTypes = hierarchyType.getAllTypes(false);
@@ -136,17 +151,17 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
 
           if (!root.getInvalid() && root.getExists(forDate))
           {
-            stack.push(new Snapshot(root));
+            state.stack.push(new Snapshot(root));
           }
         }
 
-        while (!stack.isEmpty())
+        while (!state.stack.isEmpty())
         {
-          publish(version, hierarchyType, mdEdge, geoObjectTypes, forDate);
+          publish(state, hierarchyType, mdEdge, geoObjectTypes, forDate);
 
           count++;
 
-          ProgressService.put(type.getOid(), new Progress(count, ( count + stack.size() ), version.getOid()));
+          ProgressService.put(type.getOid(), new Progress(count, ( count + state.stack.size() ), version.getOid()));
         }
 
         ProgressService.put(type.getOid(), new Progress(1L, 1L, version.getOid()));
@@ -165,19 +180,19 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
   }
 
   @Transaction
-  protected void publish(LabeledPropertyGraphTypeVersion version, ServerHierarchyType hierarchyType, MdEdge mdEdge, List<ServerGeoObjectType> geoObjectTypes, Date forDate)
+  protected void publish(TreeState state, ServerHierarchyType hierarchyType, MdEdge mdEdge, List<ServerGeoObjectType> geoObjectTypes, Date forDate)
   {
-    Snapshot snapshot = stack.pop();
+    Snapshot snapshot = state.stack.pop();
 
     long startTime = System.currentTimeMillis();
-    GeoObjectTypeSnapshot graphVertex = GeoObjectTypeSnapshot.get(version, snapshot.node.getType().getCode());
+    GeoObjectTypeSnapshot graphVertex = this.objectService.get(state.version, snapshot.node.getType().getCode());
     MdVertex mdVertex = graphVertex.getGraphMdVertex();
 
     VertexObject vertex = null;
 
-    if (!this.uids.contains(snapshot.node.getUid()))
+    if (!state.uids.contains(snapshot.node.getUid()))
     {
-      vertex = this.publish(null, mdVertex, snapshot.node.toGeoObject(forDate, false));
+      vertex = this.publish(state, mdVertex, snapshot.node.toGeoObject(forDate, false));
 
       final VertexObject parent = vertex;
 
@@ -194,12 +209,12 @@ public class TreeStrategyPublisher extends AbstractGraphVersionPublisher impleme
 
           if (child.getExists(forDate) && !child.getInvalid() && geoObjectTypes.contains(child.getType()))
           {
-            stack.push(new Snapshot(child, mdEdge, parent));
+            state.stack.push(new Snapshot(child, mdEdge, parent));
           }
         }
       }
 
-      this.uids.add(snapshot.node.getUid());
+      state.uids.add(snapshot.node.getUid());
     }
     else
     {

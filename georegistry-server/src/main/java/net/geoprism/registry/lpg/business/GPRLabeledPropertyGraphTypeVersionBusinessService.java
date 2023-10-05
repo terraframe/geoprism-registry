@@ -1,34 +1,14 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
-package net.geoprism.registry.service;
+package net.geoprism.registry.lpg.business;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
@@ -63,30 +43,29 @@ import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
-import net.geoprism.graph.LabeledPropertyGraphSynchronization;
 import net.geoprism.graph.LabeledPropertyGraphType;
+import net.geoprism.graph.LabeledPropertyGraphTypeEntry;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobQuery;
-import net.geoprism.graph.StrategyConfiguration;
-import net.geoprism.graph.StrategyPublisher;
-import net.geoprism.graph.TreeStrategyConfiguration;
-import net.geoprism.graph.service.LabeledPropertyGraphServiceIF;
+import net.geoprism.graph.lpg.StrategyConfiguration;
+import net.geoprism.graph.lpg.TreeStrategyConfiguration;
+import net.geoprism.graph.lpg.business.GeoObjectTypeSnapshotBusinessServiceIF;
+import net.geoprism.graph.lpg.business.HierarchyTypeSnapshotBusinessServiceIF;
+import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeVersionBusinessService;
+import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeVersionBusinessServiceIF;
 import net.geoprism.rbac.RoleConstants;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
-import net.geoprism.registry.graph.TreeStrategyPublisher;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.permission.RolePermissionService;
+import net.geoprism.registry.service.TreeStrategyPublisherService;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
 
-@Component
-public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphServiceIF
+public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPropertyGraphTypeVersionBusinessService implements LabeledPropertyGraphTypeVersionBusinessServiceIF
 {
   private class StackItem
   {
@@ -102,30 +81,18 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
 
   }
 
-  public StrategyPublisher getPublisher(StrategyConfiguration configuration)
-  {
-    if (configuration instanceof TreeStrategyConfiguration)
-    {
-      return new TreeStrategyPublisher((TreeStrategyConfiguration) configuration);
-    }
+  @Autowired
+  private GeoObjectTypeSnapshotBusinessServiceIF objectService;
 
-    throw new UnsupportedOperationException();
-  }
+  @Autowired
+  private HierarchyTypeSnapshotBusinessServiceIF hierarchyService;
 
-  @Override
-  public String publish(LabeledPropertyGraphTypeVersion version)
-  {
-    LabeledPropertyGraphType type = version.getGraphType();
-    StrategyConfiguration configuration = type.toStrategyConfiguration();
-    StrategyPublisher publisher = this.getPublisher(configuration);
-
-    publisher.publish(version);
-
-    return null;
-  }
+  @Autowired
+  private TreeStrategyPublisherService           publisherService;
 
   @Override
-  public void preDelete(LabeledPropertyGraphTypeVersion version)
+  @Transaction
+  public void delete(LabeledPropertyGraphTypeVersion version)
   {
     // Delete all jobs
     List<ExecutableJob> jobs = this.getJobs(version);
@@ -134,29 +101,19 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
     {
       job.delete();
     }
+
+    super.delete(version);
   }
 
   @Override
-  public void postDelete(LabeledPropertyGraphTypeVersion version)
+  public void publish(LabeledPropertyGraphTypeVersion version)
   {
-    // Do nothing
+    LabeledPropertyGraphType type = version.getGraphType();
+    StrategyConfiguration configuration = type.toStrategyConfiguration();
+
+    this.publisherService.publish((TreeStrategyConfiguration) configuration, version);
   }
-
-  public List<ExecutableJob> getJobs(LabeledPropertyGraphTypeVersion version)
-  {
-    LinkedList<ExecutableJob> jobs = new LinkedList<ExecutableJob>();
-
-    PublishLabeledPropertyGraphTypeVersionJobQuery pmlvj = new PublishLabeledPropertyGraphTypeVersionJobQuery(new QueryFactory());
-    pmlvj.WHERE(pmlvj.getVersion().EQ(version));
-
-    try (OIterator<? extends PublishLabeledPropertyGraphTypeVersionJob> it = pmlvj.getIterator())
-    {
-      jobs.addAll(it.getAll());
-    }
-
-    return jobs;
-  }
-
+  
   @Override
   public void createPublishJob(LabeledPropertyGraphTypeVersion version)
   {
@@ -187,59 +144,64 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
     job.start();
   }
 
-  
-  @Override
-  public void postCreate(LabeledPropertyGraphTypeVersion version, boolean createTypes)
+  public List<ExecutableJob> getJobs(LabeledPropertyGraphTypeVersion version)
   {
-    if (createTypes)
+    LinkedList<ExecutableJob> jobs = new LinkedList<ExecutableJob>();
+
+    PublishLabeledPropertyGraphTypeVersionJobQuery pmlvj = new PublishLabeledPropertyGraphTypeVersionJobQuery(new QueryFactory());
+    pmlvj.WHERE(pmlvj.getVersion().EQ(version));
+
+    try (OIterator<? extends PublishLabeledPropertyGraphTypeVersionJob> it = pmlvj.getIterator())
     {
-      LabeledPropertyGraphType listType = version.getGraphType();
-      ServerHierarchyType hierarchy = ServerHierarchyType.get(listType.getHierarchy());
-
-      GeoObjectTypeSnapshot root = GeoObjectTypeSnapshot.createRoot(version);
-
-      this.create(version, hierarchy, root);
-
-      Stack<StackItem> stack = new Stack<StackItem>();
-
-      hierarchy.getDirectRootNodes().forEach(type -> stack.push(new StackItem(type, root)));
-
-      while (!stack.isEmpty())
-      {
-        StackItem item = stack.pop();
-        ServerGeoObjectType type = item.type;
-
-        // if (type.getIsPrivate() && (
-        // version.getListVisibility().equals(LabeledPropertyGraphType.PUBLIC)
-        // ||
-        //
-        // version.getGeospatialVisibility().equals(LabeledPropertyGraphType.PUBLIC)
-        // ))
-        // {
-        // throw new UnsupportedOperationException("A list version cannot be
-        // public if the Geo-Object Type is private");
-        // }
-
-        GeoObjectTypeSnapshot parent = this.create(version, type, root);
-
-        if (type.getIsAbstract())
-        {
-          type.getSubtypes().forEach(subtype -> {
-            this.create(version, subtype, parent);
-          });
-        }
-
-        if (item.parent != null)
-        {
-          item.parent.addChildSnapshot(parent).apply();
-        }
-
-        hierarchy.getChildren(type).forEach(child -> {
-          stack.push(new StackItem(child, parent));
-        });
-
-      }
+      jobs.addAll(it.getAll());
     }
+
+    return jobs;
+  }
+
+  @Override
+  @Transaction
+  public LabeledPropertyGraphTypeVersion create(LabeledPropertyGraphTypeEntry listEntry, boolean working, int versionNumber)
+  {
+    LabeledPropertyGraphTypeVersion version = super.create(listEntry, working, versionNumber);
+
+    LabeledPropertyGraphType listType = version.getGraphType();
+    ServerHierarchyType hierarchy = ServerHierarchyType.get(listType.getHierarchy());
+
+    GeoObjectTypeSnapshot root = this.objectService.createRoot(version);
+
+    this.create(version, hierarchy, root);
+
+    Stack<StackItem> stack = new Stack<StackItem>();
+
+    hierarchy.getDirectRootNodes().forEach(type -> stack.push(new StackItem(type, root)));
+
+    while (!stack.isEmpty())
+    {
+      StackItem item = stack.pop();
+      ServerGeoObjectType type = item.type;
+
+      GeoObjectTypeSnapshot parent = this.create(version, type, root);
+
+      if (type.getIsAbstract())
+      {
+        type.getSubtypes().forEach(subtype -> {
+          this.create(version, subtype, parent);
+        });
+      }
+
+      if (item.parent != null)
+      {
+        item.parent.addChildSnapshot(parent).apply();
+      }
+
+      hierarchy.getChildren(type).forEach(child -> {
+        stack.push(new StackItem(child, parent));
+      });
+
+    }
+
+    return version;
   }
 
   private String getEdgeName(ServerHierarchyType type)
@@ -248,7 +210,7 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
 
     String className = mdEdge.getDBClassName();
 
-    return HierarchyTypeSnapshot.getTableName(className);
+    return this.hierarchyService.getTableName(className);
   }
 
   public HierarchyTypeSnapshot create(LabeledPropertyGraphTypeVersion version, ServerHierarchyType type, GeoObjectTypeSnapshot root)
@@ -284,7 +246,7 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
   @Transaction
   public GeoObjectTypeSnapshot create(LabeledPropertyGraphTypeVersion version, ServerGeoObjectType type, GeoObjectTypeSnapshot parent)
   {
-    String viewName = GeoObjectTypeSnapshot.getTableName(type.getMdVertex().getDBClassName());
+    String viewName = this.objectService.getTableName(type.getMdVertex().getDBClassName());
 
     // Create the MdTable
     MdVertexDAO mdVertexDAO = MdVertexDAO.newInstance();
@@ -301,7 +263,7 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
 
     if (!type.getIsAbstract())
     {
-      GeoObjectTypeSnapshot.createGeometryAttribute(type.getGeometryType(), mdVertexDAO);
+      this.objectService.createGeometryAttribute(type.getGeometryType(), mdVertexDAO);
     }
 
     List<String> existingAttributes = mdVertexDAO.getAllDefinedMdAttributes().stream().map(attribute -> attribute.definesAttribute()).collect(Collectors.toList());
@@ -382,32 +344,4 @@ public class ServerLabeledPropertyGraphService implements LabeledPropertyGraphSe
     publicRole.grantPermission(Operation.READ_ALL, component.getOid());
   }
 
-  @Override
-  public void postSynchronization(LabeledPropertyGraphSynchronization synchronization, Map<String, Object> cache)
-  {
-    // Do nothing
-  }
-
-  @Override
-  public void postSynchronization(LabeledPropertyGraphSynchronization synchronization, VertexObject node, Map<String, Object> cache)
-  {
-    // Do nothing
-  }
-
-  @Override
-  public void postTruncate(LabeledPropertyGraphSynchronization synchronization)
-  {
-    // Do nothing
-  }
-
-  @Override
-  public void preApply(LabeledPropertyGraphType type)
-  {
-    ServerHierarchyType hierarchy = ServerHierarchyType.get(type.getHierarchy());
-
-    // Ensure the user has permissions to create
-    Organization organization = hierarchy.getOrganization();
-
-    new RolePermissionService().enforceRA(organization.getCode());
-  }
 }

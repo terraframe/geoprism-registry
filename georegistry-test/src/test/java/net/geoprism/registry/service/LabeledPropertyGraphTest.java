@@ -41,8 +41,6 @@ import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
 import net.geoprism.graph.IncrementalLabeledPropertyGraphType;
 import net.geoprism.graph.IntervalLabeledPropertyGraphType;
-import net.geoprism.graph.JsonGraphVersionPublisher;
-import net.geoprism.graph.LabeledPropertyGraphJsonExporter;
 import net.geoprism.graph.LabeledPropertyGraphSynchronization;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeEntry;
@@ -50,9 +48,17 @@ import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobQuery;
 import net.geoprism.graph.SingleLabeledPropertyGraphType;
-import net.geoprism.graph.TreeStrategyConfiguration;
-import net.geoprism.graph.adapter.RegistryConnectorFactory;
-import net.geoprism.graph.service.LabeledPropertyGraphTypeServiceIF;
+import net.geoprism.graph.lpg.TreeStrategyConfiguration;
+import net.geoprism.graph.lpg.adapter.RegistryConnectorFactory;
+import net.geoprism.graph.lpg.business.GeoObjectTypeSnapshotBusinessServiceIF;
+import net.geoprism.graph.lpg.business.HierarchyTypeSnapshotBusinessServiceIF;
+import net.geoprism.graph.lpg.business.LabeledPropertyGraphSynchronizationBusinessServiceIF;
+import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeBusinessServiceIF;
+import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeEntryBusinessServiceIF;
+import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeVersionBusinessServiceIF;
+import net.geoprism.graph.lpg.service.JsonGraphVersionPublisherService;
+import net.geoprism.graph.lpg.service.LabeledPropertyGraphJsonExporterService;
+import net.geoprism.graph.lpg.service.LabeledPropertyGraphTypeServiceIF;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.LabeledPropertyGraphTypeBuilder;
@@ -73,20 +79,44 @@ import net.geoprism.registry.test.USATestData;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class LabeledPropertyGraphTest
 {
-  private static boolean                     isSetup = false;
+  private static boolean                                       isSetup = false;
 
-  private static String                      CODE    = "Test Term";
+  private static String                                        CODE    = "Test Term";
 
-  private static ClassificationType          type;
+  private static ClassificationType                            type;
 
-  private static USATestData                 testData;
+  private static USATestData                                   testData;
 
-  private static AttributeTermType           testTerm;
+  private static AttributeTermType                             testTerm;
 
-  private static AttributeClassificationType testClassification;
+  private static AttributeClassificationType                   testClassification;
 
   @Autowired
-  private LabeledPropertyGraphTypeServiceIF  service;
+  private LabeledPropertyGraphTypeServiceIF                    service;
+
+  @Autowired
+  private LabeledPropertyGraphTypeVersionBusinessServiceIF     versionService;
+
+  @Autowired
+  private LabeledPropertyGraphTypeBusinessServiceIF            typeService;
+
+  @Autowired
+  private LabeledPropertyGraphTypeEntryBusinessServiceIF       entryService;
+
+  @Autowired
+  private LabeledPropertyGraphSynchronizationBusinessServiceIF synchronizationService;
+
+  @Autowired
+  private GeoObjectTypeSnapshotBusinessServiceIF               objectService;
+
+  @Autowired
+  private HierarchyTypeSnapshotBusinessServiceIF               hierarchyService;
+
+  @Autowired
+  private JsonGraphVersionPublisherService                     publisherService;
+
+  @Autowired
+  private LabeledPropertyGraphJsonExporterService              exporterService;
 
   public static void setupClasses()
   {
@@ -198,7 +228,7 @@ public class LabeledPropertyGraphTest
     type.setStrategyType(SingleLabeledPropertyGraphType.TREE);
 
     JsonObject json = type.toJSON();
-    SingleLabeledPropertyGraphType test = (SingleLabeledPropertyGraphType) LabeledPropertyGraphType.fromJSON(json);
+    SingleLabeledPropertyGraphType test = (SingleLabeledPropertyGraphType) this.typeService.fromJSON(json);
 
     Assert.assertEquals(type.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
     Assert.assertEquals(type.getDescription().getValue(), test.getDescription().getValue());
@@ -227,7 +257,7 @@ public class LabeledPropertyGraphTest
     type.setStrategyType(SingleLabeledPropertyGraphType.TREE);
 
     JsonObject json = type.toJSON();
-    IntervalLabeledPropertyGraphType test = (IntervalLabeledPropertyGraphType) LabeledPropertyGraphType.fromJSON(json);
+    IntervalLabeledPropertyGraphType test = (IntervalLabeledPropertyGraphType) this.typeService.fromJSON(json);
 
     Assert.assertEquals(type.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
     Assert.assertEquals(type.getDescription().getValue(), test.getDescription().getValue());
@@ -250,7 +280,7 @@ public class LabeledPropertyGraphTest
     type.setStrategyType(SingleLabeledPropertyGraphType.TREE);
 
     JsonObject json = type.toJSON();
-    IncrementalLabeledPropertyGraphType test = (IncrementalLabeledPropertyGraphType) LabeledPropertyGraphType.fromJSON(json);
+    IncrementalLabeledPropertyGraphType test = (IncrementalLabeledPropertyGraphType) this.typeService.fromJSON(json);
 
     Assert.assertEquals(type.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
     Assert.assertEquals(type.getDescription().getValue(), test.getDescription().getValue());
@@ -266,33 +296,33 @@ public class LabeledPropertyGraphTest
   {
     JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN);
 
-    LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
+    LabeledPropertyGraphType test1 = this.typeService.apply(json);
 
     try
     {
-      List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
+      List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
       Assert.assertEquals(1, entries.size());
 
       LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
-      List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
+      List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
       Assert.assertEquals(1, versions.size());
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
 
-      List<GeoObjectTypeSnapshot> vertices = version.getTypes();
+      List<GeoObjectTypeSnapshot> vertices = this.versionService.getTypes(version);
 
       Assert.assertEquals(11, vertices.size());
 
-      List<HierarchyTypeSnapshot> edges = version.getHierarchies();
+      List<HierarchyTypeSnapshot> edges = this.versionService.getHierarchies(version);
 
       Assert.assertEquals(1, edges.size());
     }
     finally
     {
-      test1.delete();
+      this.typeService.delete(test1);
     }
   }
 
@@ -302,27 +332,27 @@ public class LabeledPropertyGraphTest
   {
     JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN);
 
-    LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
+    LabeledPropertyGraphType test1 = this.typeService.apply(json);
 
     try
     {
-      List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
+      List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
       Assert.assertEquals(1, entries.size());
 
       LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
-      List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
+      List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
       Assert.assertEquals(1, versions.size());
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
-      version.publishNoAuth();
+      this.versionService.publish(version);
 
-      GeoObjectTypeSnapshot graphVertex = GeoObjectTypeSnapshot.get(version, USATestData.COUNTRY.getCode());
+      GeoObjectTypeSnapshot graphVertex = this.objectService.get(version, USATestData.COUNTRY.getCode());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
 
-      HierarchyTypeSnapshot graphEdge = HierarchyTypeSnapshot.get(version, USATestData.HIER_ADMIN.getCode());
+      HierarchyTypeSnapshot graphEdge = this.hierarchyService.get(version, USATestData.HIER_ADMIN.getCode());
       MdEdge mdEdge = graphEdge.getGraphMdEdge();
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
@@ -341,7 +371,7 @@ public class LabeledPropertyGraphTest
     }
     finally
     {
-      test1.delete();
+      this.typeService.delete(test1);
     }
   }
 
@@ -351,17 +381,17 @@ public class LabeledPropertyGraphTest
   {
     JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN);
 
-    LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
+    LabeledPropertyGraphType test1 = this.typeService.apply(json);
 
     try
     {
-      List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
+      List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
       Assert.assertEquals(1, entries.size());
 
       LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
-      List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
+      List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
       Assert.assertEquals(1, versions.size());
 
@@ -377,10 +407,10 @@ public class LabeledPropertyGraphTest
 
       LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
 
-      GeoObjectTypeSnapshot graphVertex = GeoObjectTypeSnapshot.get(version, USATestData.COUNTRY.getCode());
+      GeoObjectTypeSnapshot graphVertex = this.objectService.get(version, USATestData.COUNTRY.getCode());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
 
-      HierarchyTypeSnapshot graphEdge = HierarchyTypeSnapshot.get(version, USATestData.HIER_ADMIN.getCode());
+      HierarchyTypeSnapshot graphEdge = this.hierarchyService.get(version, USATestData.HIER_ADMIN.getCode());
       MdEdge mdEdge = graphEdge.getGraphMdEdge();
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
@@ -399,7 +429,7 @@ public class LabeledPropertyGraphTest
     }
     finally
     {
-      test1.delete();
+      this.typeService.delete(test1);
     }
   }
 
@@ -409,36 +439,35 @@ public class LabeledPropertyGraphTest
   {
     JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN);
 
-    LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
+    LabeledPropertyGraphType test1 = this.typeService.apply(json);
 
     try
     {
-      List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
+      List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
       Assert.assertEquals(1, entries.size());
 
       LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
-      List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
+      List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
       Assert.assertEquals(1, versions.size());
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
-      version.publishNoAuth();
+      this.versionService.publish(version);
 
-      LabeledPropertyGraphJsonExporter exporter = new LabeledPropertyGraphJsonExporter(version);
-      JsonObject export = exporter.export();
+      JsonObject export = this.exporterService.export(version);
 
       System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(export));
 
-      version.truncate();
+      this.versionService.truncate(version);
 
-      new JsonGraphVersionPublisher(null, version).publish(export);
+      this.publisherService.publish(null, version, export);
 
-      GeoObjectTypeSnapshot graphVertex = GeoObjectTypeSnapshot.get(version, USATestData.COUNTRY.getCode());
+      GeoObjectTypeSnapshot graphVertex = this.objectService.get(version, USATestData.COUNTRY.getCode());
       MdVertex mdVertex = graphVertex.getGraphMdVertex();
 
-      HierarchyTypeSnapshot graphEdge = HierarchyTypeSnapshot.get(version, USATestData.HIER_ADMIN.getCode());
+      HierarchyTypeSnapshot graphEdge = this.hierarchyService.get(version, USATestData.HIER_ADMIN.getCode());
       MdEdge mdEdge = graphEdge.getGraphMdEdge();
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>("SELECT FROM " + mdVertex.getDbClassName());
@@ -465,7 +494,7 @@ public class LabeledPropertyGraphTest
     }
     finally
     {
-      test1.delete();
+      this.typeService.delete(test1);
     }
   }
 
@@ -494,47 +523,49 @@ public class LabeledPropertyGraphTest
   {
     JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN);
 
-    LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
+    LabeledPropertyGraphType test1 = this.typeService.apply(json);
 
     try
     {
       System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(test1.toJSON()));
 
-      List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
+      List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
       Assert.assertEquals(1, entries.size());
 
       LabeledPropertyGraphTypeEntry entry = entries.get(0);
       JsonObject entryJson = entry.toJSON();
-      
-//      System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(entryJson));
 
-      List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
+      // System.out.println(new
+      // GsonBuilder().setPrettyPrinting().create().toJson(entryJson));
+
+      List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
       Assert.assertEquals(1, versions.size());
 
       LabeledPropertyGraphTypeVersion version = versions.get(0);
-      JsonObject versionJson = version.toJSON(true);
+      JsonObject versionJson = this.versionService.toJSON(version, true);
 
-//      System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(versionJson));
+      // System.out.println(new
+      // GsonBuilder().setPrettyPrinting().create().toJson(versionJson));
 
-      entry.delete();
+      this.entryService.delete(entry);
 
-      entry = LabeledPropertyGraphTypeEntry.create(test1, entryJson);
-      version = LabeledPropertyGraphTypeVersion.create(entry, versionJson);
+      entry = this.entryService.create(test1, entryJson);
+      version = this.versionService.create(entry, versionJson);
 
-      List<GeoObjectTypeSnapshot> vertices = version.getTypes();
-      
+      List<GeoObjectTypeSnapshot> vertices = this.versionService.getTypes(version);
+
       Assert.assertEquals(11, vertices.size());
 
-      List<HierarchyTypeSnapshot> edges = version.getHierarchies();
+      List<HierarchyTypeSnapshot> edges = this.versionService.getHierarchies(version);
 
       Assert.assertEquals(1, edges.size());
 
     }
     finally
     {
-      test1.delete();
+      this.typeService.delete(test1);
     }
   }
 
@@ -544,23 +575,23 @@ public class LabeledPropertyGraphTest
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
       JsonObject json = getJson(USATestData.USA, USATestData.HIER_ADMIN);
 
-      LabeledPropertyGraphType test1 = LabeledPropertyGraphType.apply(json);
+      LabeledPropertyGraphType test1 = this.typeService.apply(json);
 
       try
       {
-        List<LabeledPropertyGraphTypeEntry> entries = test1.getEntries();
+        List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
 
         Assert.assertEquals(1, entries.size());
 
         LabeledPropertyGraphTypeEntry entry = entries.get(0);
 
-        List<LabeledPropertyGraphTypeVersion> versions = entry.getVersions();
+        List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
 
         Assert.assertEquals(1, versions.size());
 
         LabeledPropertyGraphTypeVersion version = versions.get(0);
 
-        RegistryConnectorFactory.setBuilder(new LocalRegistryConnectorBuilder());
+        RegistryConnectorFactory.setBuilder(new LocalRegistryConnectorBuilder(this.service));
 
         LabeledPropertyGraphSynchronization synchronization = new LabeledPropertyGraphSynchronization();
         synchronization.setUrl("localhost");
@@ -574,28 +605,29 @@ public class LabeledPropertyGraphTest
 
         try
         {
-          synchronization.execute();
+          this.synchronizationService.execute(synchronization);
+
+          synchronization = this.synchronizationService.get(synchronization.getOid());
 
           version = synchronization.getVersion();
 
-          List<GeoObjectTypeSnapshot> vertices = version.getTypes();
+          List<GeoObjectTypeSnapshot> vertices = this.versionService.getTypes(version);
 
           Assert.assertEquals(11, vertices.size());
 
-          List<HierarchyTypeSnapshot> edges = version.getHierarchies();
+          List<HierarchyTypeSnapshot> edges = this.versionService.getHierarchies(version);
 
           Assert.assertEquals(1, edges.size());
         }
         finally
         {
-
-          synchronization.delete();
+          this.synchronizationService.delete(synchronization);
         }
 
       }
       finally
       {
-        test1.delete();
+        this.typeService.delete(test1);
       }
     });
   }

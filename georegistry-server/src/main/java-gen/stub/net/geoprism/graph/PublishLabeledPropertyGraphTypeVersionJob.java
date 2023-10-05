@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.graph;
 
@@ -27,6 +27,7 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.QuartzRunwayJob;
 import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
+import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeVersionBusinessServiceIF;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
@@ -36,12 +37,12 @@ public class PublishLabeledPropertyGraphTypeVersionJob extends PublishLabeledPro
 {
   @SuppressWarnings("unused")
   private static final long serialVersionUID = 555765208;
-  
+
   public PublishLabeledPropertyGraphTypeVersionJob()
   {
     super();
   }
-  
+
   @Override
   protected QuartzRunwayJob createQuartzRunwayJob()
   {
@@ -50,7 +51,9 @@ public class PublishLabeledPropertyGraphTypeVersionJob extends PublishLabeledPro
 
   public JsonObject toJSON()
   {
-    return this.getVersion().toJSON();
+    LabeledPropertyGraphTypeVersionBusinessServiceIF service = LabeledPropertyGraphTypeVersionBusinessServiceIF.getInstance();
+
+    return service.toJSON(getVersion());
   }
 
   @Override
@@ -64,13 +67,15 @@ public class PublishLabeledPropertyGraphTypeVersionJob extends PublishLabeledPro
   @Override
   public void execute(ExecutionContext executionContext) throws Throwable
   {
+    LabeledPropertyGraphTypeVersionBusinessServiceIF service = LabeledPropertyGraphTypeVersionBusinessServiceIF.getInstance();
+
     if (this.getRunAsUser() == null)
     {
-      this.getVersion().publishNoAuth();
+      service.publishNoAuth(getVersion());
     }
     else
     {
-      this.getVersion().publish();
+      service.publish(getVersion());
     }
   }
 
@@ -92,6 +97,5 @@ public class PublishLabeledPropertyGraphTypeVersionJob extends PublishLabeledPro
 
     return jo;
   }
-
 
 }

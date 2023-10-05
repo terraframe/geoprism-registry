@@ -13,15 +13,25 @@ import org.springframework.context.annotation.Configuration;
 import net.geoprism.PatchingContextListener;
 import net.geoprism.RMIContextListener;
 import net.geoprism.SchedulerContextListener;
-import net.geoprism.externalprofile.business.ExternalProfileBusinessServiceIF;
+import net.geoprism.externalprofile.business.ExternalProfileBusinessService;
 import net.geoprism.externalprofile.controller.ExternalProfileController;
 import net.geoprism.externalprofile.service.ExternalProfileService;
-import net.geoprism.externalprofile.service.ExternalProfileServiceIF;
-import net.geoprism.forgotpassword.business.ForgotPasswordBusinessServiceIF;
+import net.geoprism.externalprofile.service.ExternalProfileService;
+import net.geoprism.forgotpassword.business.ForgotPasswordBusinessService;
 import net.geoprism.forgotpassword.controller.ForgotPasswordController;
 import net.geoprism.forgotpassword.service.ForgotPasswordService;
-import net.geoprism.forgotpassword.service.ForgotPasswordServiceIF;
+import net.geoprism.forgotpassword.service.ForgotPasswordService;
+import net.geoprism.graph.lpg.business.GeoObjectTypeSnapshotBusinessService;
+import net.geoprism.graph.lpg.business.HierarchyTypeSnapshotBusinessService;
+import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeBusinessService;
+import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeEntryBusinessService;
+import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeVersionBusinessService;
 import net.geoprism.registry.account.ForgotPasswordCGRService;
+import net.geoprism.registry.lpg.business.GPRGeoObjectTypeSnapshotBusinessService;
+import net.geoprism.registry.lpg.business.GPRHierarchyTypeSnapshotBusinessService;
+import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeBusinessService;
+import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeEntryBusinessService;
+import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeVersionBusinessService;
 import net.geoprism.registry.session.ExternalProfileCGRService;
 import net.geoprism.registry.test.MockHttpServletRequest;
 import net.geoprism.registry.test.MockHttpServletResponse;
@@ -54,13 +64,13 @@ public class TestConfig
   }
 
   @Bean
-  ForgotPasswordServiceIF forgotPasswordServiceIF()
+  ForgotPasswordService forgotPasswordService()
   {
     return new ForgotPasswordService();
   }
 
   @Bean
-  ForgotPasswordBusinessServiceIF forgotPasswordBusinessServiceIF()
+  ForgotPasswordBusinessService forgotPasswordBusinessService()
   {
     return new ForgotPasswordCGRService();
   }
@@ -78,13 +88,13 @@ public class TestConfig
   }
 
   @Bean
-  ExternalProfileServiceIF externalProfileServiceIF()
+  ExternalProfileService externalProfileService()
   {
     return new ExternalProfileService();
   }
 
   @Bean
-  ExternalProfileBusinessServiceIF externalProfileBusinessServiceIF()
+  ExternalProfileBusinessService externalProfileBusinessService()
   {
     return new ExternalProfileCGRService();
   }
@@ -124,4 +134,35 @@ public class TestConfig
   {
     return new LoginBruteForceGuardService();
   }
+
+  @Bean
+  GeoObjectTypeSnapshotBusinessService geoObjectTypeSnapshotBusinessService()
+  {
+    return new GPRGeoObjectTypeSnapshotBusinessService();
+  }
+
+  @Bean
+  HierarchyTypeSnapshotBusinessService hierarchyTypeSnapshotBusinessService()
+  {
+    return new GPRHierarchyTypeSnapshotBusinessService();
+  }
+
+  @Bean
+  LabeledPropertyGraphTypeBusinessService labeledPropertyGraphTypeBusinessService()
+  {
+    return new GPRLabeledPropertyGraphTypeBusinessService();
+  }
+
+  @Bean
+  LabeledPropertyGraphTypeEntryBusinessService labeledPropertyGraphTypeEntryBusinessService()
+  {
+    return new GPRLabeledPropertyGraphTypeEntryBusinessService();
+  }
+
+  @Bean
+  LabeledPropertyGraphTypeVersionBusinessService labeledPropertyGraphTypeVersionBusinessService()
+  {
+    return new GPRLabeledPropertyGraphTypeVersionBusinessService();
+  }
+
 }
