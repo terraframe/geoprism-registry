@@ -10,17 +10,23 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.graph.LabeledPropertyGraphType;
-import net.geoprism.graph.adapter.RegistryConnectorBuilderIF;
-import net.geoprism.graph.adapter.RegistryConnectorIF;
-import net.geoprism.graph.adapter.exception.BadServerUriException;
-import net.geoprism.graph.adapter.exception.HTTPException;
-import net.geoprism.graph.adapter.response.RegistryResponse;
-import net.geoprism.graph.service.LabeledPropertyGraphTypeService;
+import net.geoprism.graph.lpg.adapter.RegistryConnectorBuilderIF;
+import net.geoprism.graph.lpg.adapter.RegistryConnectorIF;
+import net.geoprism.graph.lpg.adapter.exception.BadServerUriException;
+import net.geoprism.graph.lpg.adapter.exception.HTTPException;
+import net.geoprism.graph.lpg.adapter.response.RegistryResponse;
+import net.geoprism.graph.lpg.service.LabeledPropertyGraphTypeServiceIF;
 
 public class LocalRegistryConnectorBuilder implements RegistryConnectorBuilderIF
 {
   public static class LocalRegistryConnector implements RegistryConnectorIF
   {
+    private LabeledPropertyGraphTypeServiceIF service;
+
+    public LocalRegistryConnector(LabeledPropertyGraphTypeServiceIF service)
+    {
+      this.service = service;
+    }
 
     @Override
     public String getServerUrl()
@@ -32,7 +38,6 @@ public class LocalRegistryConnectorBuilder implements RegistryConnectorBuilderIF
     @Request
     public RegistryResponse httpGet(String url, NameValuePair... params) throws HTTPException, BadServerUriException
     {
-      LabeledPropertyGraphTypeService service = new LabeledPropertyGraphTypeService();
       String sessionId = Session.getCurrentSession().getOid();
 
       if (url.endsWith("get-all"))
@@ -43,9 +48,9 @@ public class LocalRegistryConnectorBuilder implements RegistryConnectorBuilderIF
       {
         JsonObject object = service.get(sessionId, params[0].getValue());
         String code = object.get(LabeledPropertyGraphType.CODE).getAsString();
-        
+
         object.addProperty(LabeledPropertyGraphType.CODE, code + "_L");
-        
+
         return new RegistryResponse(object.toString(), 200);
       }
       else if (url.endsWith("entry"))
@@ -88,10 +93,17 @@ public class LocalRegistryConnectorBuilder implements RegistryConnectorBuilderIF
 
   }
 
+  private LabeledPropertyGraphTypeServiceIF service;
+
+  public LocalRegistryConnectorBuilder(LabeledPropertyGraphTypeServiceIF service)
+  {
+    this.service = service;
+  }
+
   @Override
   public RegistryConnectorIF build(String url)
   {
-    return new LocalRegistryConnector();
+    return new LocalRegistryConnector(this.service);
   }
 
 }

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -47,9 +47,18 @@ import net.geoprism.forgotpassword.business.ForgotPasswordBusinessServiceIF;
 import net.geoprism.forgotpassword.controller.ForgotPasswordController;
 import net.geoprism.forgotpassword.service.ForgotPasswordService;
 import net.geoprism.forgotpassword.service.ForgotPasswordServiceIF;
+import net.geoprism.graph.lpg.business.GeoObjectTypeSnapshotBusinessService;
+import net.geoprism.graph.lpg.business.HierarchyTypeSnapshotBusinessService;
+import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeBusinessService;
+import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeEntryBusinessService;
+import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeVersionBusinessService;
 import net.geoprism.registry.account.ForgotPasswordCGRService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.lpg.business.GPRGeoObjectTypeSnapshotBusinessService;
+import net.geoprism.registry.lpg.business.GPRHierarchyTypeSnapshotBusinessService;
+import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeBusinessService;
+import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeEntryBusinessService;
+import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeVersionBusinessService;
 import net.geoprism.registry.session.ExternalProfileCGRService;
 import net.geoprism.session.LoginBruteForceGuardService;
 import net.geoprism.session.SessionController;
@@ -96,92 +105,109 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
     return conversionService;
   }
 
-//  @Override
-//  public void configureMessageConverters(List<HttpMessageConverter<?>> converters)
-//  {
-    // GsonHttpMessageConverter msgConverter = new GsonHttpMessageConverter();
-    // Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    // msgConverter.setGson(gson);
-    // converters.add(msgConverter);
-//  }
+  // @Override
+  // public void configureMessageConverters(List<HttpMessageConverter<?>>
+  // converters)
+  // {
+  // GsonHttpMessageConverter msgConverter = new GsonHttpMessageConverter();
+  // Gson gson = new GsonBuilder().setPrettyPrinting().create();
+  // msgConverter.setGson(gson);
+  // converters.add(msgConverter);
+  // }
 
-//  @Override
-//  public void addResourceHandlers(ResourceHandlerRegistry registry)
-//  {
-//    registry.addResourceHandler("index.html").addResourceLocations("/index.html    ");
-//    registry.addResourceHandler("/index.html").addResourceLocations("/index.html    ");
-//  }
-  
+  // @Override
+  // public void addResourceHandlers(ResourceHandlerRegistry registry)
+  // {
+  // registry.addResourceHandler("index.html").addResourceLocations("/index.html
+  // ");
+  // registry.addResourceHandler("/index.html").addResourceLocations("/index.html
+  // ");
+  // }
+
   @Bean
-  public BeanNameViewResolver beanNameViewResolver(){
-      return new BeanNameViewResolver();
+  public BeanNameViewResolver beanNameViewResolver()
+  {
+    return new BeanNameViewResolver();
   }
-  
+
   @Bean
-  public View index() {
-      return new JstlView("../index.html");
+  public View index()
+  {
+    return new JstlView("../index.html");
   }
-  
+
   @Bean
-  Filter sessionFilter() {
+  Filter sessionFilter()
+  {
     return new SessionFilter();
   }
-  
+
   @Bean
-  JsonExceptionHandler exceptionHandler() {
+  JsonExceptionHandler exceptionHandler()
+  {
     return new JsonExceptionHandler();
   }
-  
+
   @Bean
-  EncodingFilter encodingFilter() {
+  EncodingFilter encodingFilter()
+  {
     return new EncodingFilter();
   }
-  
+
   @Bean
-  ForgotPasswordController forgotPasswordController() {
+  ForgotPasswordController forgotPasswordController()
+  {
     return new ForgotPasswordController();
   }
-  
+
   @Bean
-  ForgotPasswordServiceIF forgotPasswordServiceIF() {
+  ForgotPasswordServiceIF forgotPasswordServiceIF()
+  {
     return new ForgotPasswordService();
   }
-  
+
   @Bean
-  ForgotPasswordBusinessServiceIF forgotPasswordBusinessServiceIF() {
+  ForgotPasswordBusinessServiceIF forgotPasswordBusinessServiceIF()
+  {
     return new ForgotPasswordCGRService();
   }
-  
+
   @Bean
-  SessionController sessionController() {
+  SessionController sessionController()
+  {
     return new SessionController();
   }
-  
+
   @Bean
-  ExternalProfileController externalProfileController() {
+  ExternalProfileController externalProfileController()
+  {
     return new ExternalProfileController();
   }
-  
+
   @Bean
-  ExternalProfileServiceIF externalProfileServiceIF() {
+  ExternalProfileServiceIF externalProfileServiceIF()
+  {
     return new ExternalProfileService();
   }
-  
+
   @Bean
-  ExternalProfileBusinessServiceIF externalProfileBusinessServiceIF() {
+  ExternalProfileBusinessServiceIF externalProfileBusinessServiceIF()
+  {
     return new ExternalProfileCGRService();
   }
-  
+
   @Bean
-  UserInviteController userInviteController() {
+  UserInviteController userInviteController()
+  {
     return new UserInviteController();
   }
-  
+
   @Bean
-  UserInviteService userInviteService() {
+  UserInviteService userInviteService()
+  {
     return new UserInviteService();
   }
-  
+
   @Bean
   LoginBruteForceGuardService loginBruteForceGuard()
   {
@@ -192,5 +218,35 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
   ServiceFactory serviceFactory()
   {
     return new ServiceFactory();
+  }
+
+  @Bean
+  GeoObjectTypeSnapshotBusinessService geoObjectTypeSnapshotBusinessService()
+  {
+    return new GPRGeoObjectTypeSnapshotBusinessService();
+  }
+
+  @Bean
+  HierarchyTypeSnapshotBusinessService hierarchyTypeSnapshotBusinessService()
+  {
+    return new GPRHierarchyTypeSnapshotBusinessService();
+  }
+
+  @Bean
+  LabeledPropertyGraphTypeBusinessService labeledPropertyGraphTypeBusinessService()
+  {
+    return new GPRLabeledPropertyGraphTypeBusinessService();
+  }
+
+  @Bean
+  LabeledPropertyGraphTypeEntryBusinessService labeledPropertyGraphTypeEntryBusinessService()
+  {
+    return new GPRLabeledPropertyGraphTypeEntryBusinessService();
+  }
+
+  @Bean
+  LabeledPropertyGraphTypeVersionBusinessService labeledPropertyGraphTypeVersionBusinessService()
+  {
+    return new GPRLabeledPropertyGraphTypeVersionBusinessService();
   }
 }
