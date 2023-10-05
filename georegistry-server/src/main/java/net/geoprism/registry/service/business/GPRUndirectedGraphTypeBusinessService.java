@@ -8,12 +8,11 @@ import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.business.UndirectedGraphTypeBusinessService;
 import net.geoprism.registry.business.UndirectedGraphTypeBusinessServiceIF;
-import net.geoprism.registry.hierarchy.GPRHierarchyBusinessService;
 
 public class GPRUndirectedGraphTypeBusinessService extends UndirectedGraphTypeBusinessService implements UndirectedGraphTypeBusinessServiceIF
 {
   @Autowired
-  protected GPRHierarchyBusinessService htService;
+  protected GPRHierarchyTypeBusinessService htService;
   
   @Override
   protected void createPermissions(MdEdgeDAO mdEdgeDAO)

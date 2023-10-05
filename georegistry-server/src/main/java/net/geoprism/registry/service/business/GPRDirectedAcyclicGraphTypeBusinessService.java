@@ -7,12 +7,11 @@ import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.business.DirectedAcyclicGraphTypeBusinessService;
-import net.geoprism.registry.hierarchy.GPRHierarchyBusinessService;
 
 public class GPRDirectedAcyclicGraphTypeBusinessService extends DirectedAcyclicGraphTypeBusinessService
 {
   @Autowired
-  protected GPRHierarchyBusinessService htService;
+  protected GPRHierarchyTypeBusinessService htService;
   
   @Override
   protected void createPermissions(MdEdgeDAO mdEdgeDAO)
