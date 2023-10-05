@@ -53,7 +53,6 @@ import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ChangeRequestService;
-import net.geoprism.registry.service.GPROrganizationService;
 import net.geoprism.registry.service.SearchService;
 import net.geoprism.registry.service.SerializedListTypeCache;
 import net.geoprism.registry.service.ServiceFactory;
@@ -65,7 +64,7 @@ import net.geoprism.registry.ws.NotificationFacade;
 public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessService implements GeoObjectTypeBusinessServiceIF
 {
   @Autowired
-  private GPROrganizationService gprOrgService;
+  private GPROrganizationBusinessService gprOrgService;
   
   @Override
   protected void delete(ServerGeoObjectType type)
