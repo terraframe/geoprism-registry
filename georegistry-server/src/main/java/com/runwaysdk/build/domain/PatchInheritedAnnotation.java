@@ -30,9 +30,10 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.InheritedHierarchyAnnotationQuery;
-import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class PatchInheritedAnnotation
 {
@@ -77,9 +78,9 @@ public class PatchInheritedAnnotation
           ServerGeoObjectType inheritedNode = ServerGeoObjectType.get(annotation.getUniversal());
           HierarchicalRelationshipType inheritedHierarchicalType = annotation.getInheritedHierarchicalRelationshipType();
 
-          ServerHierarchyType inheritedHierarchy = new ServerHierarchyTypeBuilder().get(inheritedHierarchicalType);
+          ServerHierarchyType inheritedHierarchy = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class).get(inheritedHierarchicalType);
 
-          Set<String> rootCodes = inheritedHierarchy.getRootGeoObjectTypes().stream().map(type -> type.getGeoObjectType().getCode()).collect(Collectors.toSet());
+          Set<String> rootCodes = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class).getRootGeoObjectTypes(inheritedHierarchy).stream().map(type -> type.getGeoObjectType().getCode()).collect(Collectors.toSet());
 
           if (rootCodes.contains(inheritedNode.getCode()))
           {

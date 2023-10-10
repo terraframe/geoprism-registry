@@ -1,4 +1,4 @@
-package net.geoprism.registry.hierarchy;
+package net.geoprism.registry.service;
 
 import java.util.List;
 
@@ -17,11 +17,9 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.RolePermissionService;
-import net.geoprism.registry.service.GPRServiceFactory;
-import net.geoprism.registry.service.ServiceFactory;
 
 @Component
-public class GPRHierarchyService extends HierarchyService implements HierarchyServiceIF
+public class GPRHierarchyTypeService extends HierarchyTypeService implements HierarchyTypeServiceIF
 {
   @Request(RequestType.SESSION)
   public JsonArray getHierarchyGroupedTypes(String sessionId)
@@ -48,7 +46,7 @@ public class GPRHierarchyService extends HierarchyService implements HierarchySe
 
         JsonArray allHierTypes = new JsonArray();
 
-        List<ServerGeoObjectType> types = sht.getAllTypes(false);
+        List<ServerGeoObjectType> types = service.getAllTypes(sht, false);
 
         for (ServerGeoObjectType type : types)
         {
@@ -64,7 +62,7 @@ public class GPRHierarchyService extends HierarchyService implements HierarchySe
               superView.addProperty("orgCode", type.getOrganizationCode());
               superView.addProperty("isAbstract", true);
 
-              List<ServerGeoObjectType> subtypes = type.getSubtypes();
+              List<ServerGeoObjectType> subtypes = gotServ.getSubtypes(type);
 
               for (ServerGeoObjectType subtype : subtypes)
               {

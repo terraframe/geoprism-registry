@@ -37,6 +37,7 @@ import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ServiceFactory;
@@ -84,7 +85,7 @@ public class PatchCodeMetadata
   // @Transaction
   public void create(ServerGeoObjectType type)
   {
-    List<ServerGeoObjectType> subtypes = type.getSubtypes();
+    List<ServerGeoObjectType> subtypes = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).getSubtypes(type);
 
     for (ServerGeoObjectType subtype : subtypes)
     {

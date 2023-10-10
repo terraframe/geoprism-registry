@@ -20,9 +20,7 @@ package com.runwaysdk.build.domain;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
@@ -32,8 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.business.graph.GraphQuery;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.IndexTypes;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
@@ -62,12 +58,12 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.MasterListVersionQuery;
-import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.etl.PublishMasterListVersionJob;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class PatchExistsAndInvalid
 {
@@ -113,7 +109,7 @@ public class PatchExistsAndInvalid
     
     for (Universal uni : unis)
     {
-      ServerGeoObjectType type = new ServerGeoObjectTypeConverter().build(uni);
+      ServerGeoObjectType type = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).build(uni);
       
       MdGraphClassDAOIF mdClass = type.getMdVertex();
       
@@ -162,7 +158,7 @@ public class PatchExistsAndInvalid
 
     for (Universal uni : unis)
     {
-      ServerGeoObjectType type = new ServerGeoObjectTypeConverter().build(uni);
+      ServerGeoObjectType type = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).build(uni);
       
       MdGraphClassDAOIF mdClass = type.getMdVertex();
       
