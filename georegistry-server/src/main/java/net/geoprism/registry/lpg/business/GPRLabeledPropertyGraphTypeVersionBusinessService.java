@@ -104,13 +104,13 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
     super.delete(version);
   }
-
+  
   @Override
-  public void publish(LabeledPropertyGraphTypeVersion version)
+  public void publishNoAuth(LabeledPropertyGraphTypeVersion version)
   {
     LabeledPropertyGraphType type = version.getGraphType();
     StrategyConfiguration configuration = type.toStrategyConfiguration();
-
+    
     this.publisherService.publish((TreeStrategyConfiguration) configuration, version);
   }
   
