@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -31,7 +31,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.LocaleUtils;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.runwaysdk.MessageExceptionDTO;
@@ -67,10 +68,16 @@ import com.runwaysdk.system.metadata.SupportedLocale;
 import net.geoprism.registry.localization.DefaultLocaleView;
 import net.geoprism.registry.localization.LocaleView;
 import net.geoprism.registry.localization.LocalizationImportMessagesException;
+import net.geoprism.registry.permission.RolePermissionService;
 
-@Component
+@Repository
 public class CGRLocalizationService extends net.geoprism.localization.LocalizationService
 {
+  @Autowired
+  private RolePermissionService permissions;
+
+  @Autowired
+  private GraphRepoServiceIF    repoService;
 
   public void importSpreadsheet(String sessionId, MultipartFile file)
   {
@@ -83,7 +90,7 @@ public class CGRLocalizationService extends net.geoprism.localization.Localizati
       throwMessageError(sessionId, e);
     }
   }
-  
+
   @Request(RequestType.SESSION)
   private void throwMessageError(String sessionId, MessageExceptionDTO e)
   {
@@ -91,60 +98,60 @@ public class CGRLocalizationService extends net.geoprism.localization.Localizati
     ex.setMessages(StringUtils.join(e.getMessageStrings(), "\\n"));
     throw ex;
   }
-  
+
   @Request(RequestType.SESSION)
   public void importSpreadsheetInRequest(String sessionId, MultipartFile file)
   {
-    ServiceFactory.getRolePermissionService().enforceSRA();
+    permissions.enforceSRA();
 
     try
     {
       LocalizationExcelImporter importer = new LocalizationExcelImporter(buildConfig(), file.getInputStream());
       importer.doImport();
-      
+
     }
     catch (IOException e)
     {
       throw new RuntimeException(e);
     }
   }
-  
+
   private void refreshCaches(boolean refreshWMS)
   {
     if (refreshWMS)
     {
       new WMSService().createAllWMSLayers(true);
     }
-    
+
     // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
     // Refresh the entire metadata cache
-    ServiceFactory.getRegistryService().refreshMetadataCache();
+    this.repoService.refreshMetadataCache();
     SerializedListTypeCache.getInstance().clear();
   }
-  
+
   @Request(RequestType.SESSION)
   public LocaleView editLocaleInRequest(String sessionId, String json)
   {
-    ServiceFactory.getRolePermissionService().enforceSRA();
-    
+    permissions.enforceSRA();
+
     LocaleView view = LocaleView.fromJson(json);
 
     if (view.isDefaultLocale())
     {
       LocaleView lv = editDefaultLocaleInTransaction(view);
-      
+
       refreshCaches(false);
-      
+
       return lv;
     }
     else
     {
       SupportedLocaleIF supportedLocale = editLocaleInTransaction(view);
-      
+
       refreshCaches(false);
-      
+
       return LocaleView.fromSupportedLocale(supportedLocale);
     }
   }
@@ -153,49 +160,52 @@ public class CGRLocalizationService extends net.geoprism.localization.Localizati
   private LocaleView editDefaultLocaleInTransaction(LocaleView view)
   {
     LocalizedValueStore lvs = LocalizedValueStore.getByKey(DefaultLocaleView.LABEL);
-    
+
     lvs.lock();
     lvs.getStoreValue().setLocaleMap(view.getLabel().getLocaleMap());
     lvs.apply();
-    
+
     view.getLabel().setValue(lvs.getStoreValue().getValue());
-    
+
     return view;
   }
-  
+
   @Transaction
   private SupportedLocaleIF editLocaleInTransaction(LocaleView view)
   {
     SupportedLocaleIF supportedLocale = (SupportedLocale) com.runwaysdk.localization.LocalizationFacade.getSupportedLocale(view.getLocale());
-    
+
     supportedLocale.appLock();
     view.populate(supportedLocale);
     supportedLocale.apply();
-    
-    // Be careful what you put here. We definitely don't want to refresh any caches until after the transaction is over, especially given that we are holding onto a lot of database locks and such right now.
-  
-    // Don't build the view inside the transaction either. Unless you like deadlocks
-//      return LocaleView.fromSupportedLocale(supportedLocale);
-      
+
+    // Be careful what you put here. We definitely don't want to refresh any
+    // caches until after the transaction is over, especially given that we are
+    // holding onto a lot of database locks and such right now.
+
+    // Don't build the view inside the transaction either. Unless you like
+    // deadlocks
+    // return LocaleView.fromSupportedLocale(supportedLocale);
+
     return supportedLocale;
   }
 
   @Request(RequestType.SESSION)
   public LocaleView installLocaleInRequest(String sessionId, String json)
   {
-    ServiceFactory.getRolePermissionService().enforceSRA();
-    
+    permissions.enforceSRA();
+
     LocaleView view = LocaleView.fromJson(json);
-    
+
     if (view.isDefaultLocale())
     {
       return view;
     }
 
     SupportedLocaleIF supportedLocale = installLocaleInTransaction(view);
-    
+
     refreshCaches(true);
-    
+
     return LocaleView.fromSupportedLocale(supportedLocale);
   }
 
@@ -203,43 +213,48 @@ public class CGRLocalizationService extends net.geoprism.localization.Localizati
   private SupportedLocaleIF installLocaleInTransaction(LocaleView view)
   {
     SupportedLocaleIF supportedLocale = (SupportedLocale) com.runwaysdk.localization.LocalizationFacade.install(view.getLocale());
-    
+
     supportedLocale.appLock();
     view.populate(supportedLocale);
     supportedLocale.apply();
-    
-    // Be careful what you put here. We definitely don't want to refresh any caches until after the transaction is over, especially given that we are holding onto a lot of database locks and such right now.
 
-    // Don't build the view inside the transaction either. Unless you like deadlocks
-//    return LocaleView.fromSupportedLocale(supportedLocale);
-    
+    // Be careful what you put here. We definitely don't want to refresh any
+    // caches until after the transaction is over, especially given that we are
+    // holding onto a lot of database locks and such right now.
+
+    // Don't build the view inside the transaction either. Unless you like
+    // deadlocks
+    // return LocaleView.fromSupportedLocale(supportedLocale);
+
     return supportedLocale;
   }
-  
+
   @Request(RequestType.SESSION)
   public void uninstallLocaleInRequest(String sessionId, String json)
   {
-    ServiceFactory.getRolePermissionService().enforceSRA();
-    
+    permissions.enforceSRA();
+
     LocaleView view = LocaleView.fromJson(json);
 
     uninstallLocaleInTransaction(view);
-    
+
     refreshCaches(true);
   }
-  
+
   @Transaction
   private void uninstallLocaleInTransaction(LocaleView view)
   {
     com.runwaysdk.localization.LocalizationFacade.uninstall(view.getLocale());
-    
-    // Be careful what you put here. We definitely don't want to refresh any caches until after the transaction is over, especially given that we are holding onto a lot of database locks and such right now.
+
+    // Be careful what you put here. We definitely don't want to refresh any
+    // caches until after the transaction is over, especially given that we are
+    // holding onto a lot of database locks and such right now.
   }
 
   @Request(RequestType.SESSION)
   public InputStream exportSpreadsheet(String sessionId)
   {
-    ServiceFactory.getRolePermissionService().enforceSRA();
+    permissions.enforceSRA();
 
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     BufferedOutputStream buffer = new BufferedOutputStream(bytes);
@@ -273,13 +288,13 @@ public class CGRLocalizationService extends net.geoprism.localization.Localizati
     }
 
   }
-  
+
   public static synchronized Set<String> getLocaleNames()
   {
     Set<Locale> locales = LocalizationFacade.getInstalledLocales();
 
     Set<String> list = new HashSet<String>();
-    
+
     list.add(MdAttributeLocalInfo.DEFAULT_LOCALE);
 
     for (Locale locale : locales)

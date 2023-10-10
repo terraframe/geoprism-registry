@@ -20,17 +20,14 @@ package net.geoprism.registry.permission;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.stereotype.Repository;
 
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
-import com.runwaysdk.session.Session;
-import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.graphrepo.permission.UserPermissionService;
 import net.geoprism.registry.Organization;
@@ -38,9 +35,9 @@ import net.geoprism.registry.OrganizationRAException;
 import net.geoprism.registry.OrganizationRMException;
 import net.geoprism.registry.SRAException;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.roles.RAException;
 
+@Repository
 public class RolePermissionService extends UserPermissionService
 {
   public boolean isSRA()

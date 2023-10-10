@@ -18,18 +18,14 @@
  */
 package net.geoprism.registry.service.business;
 
-import java.io.InputStream;
-
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.session.Request;
-import com.runwaysdk.session.RequestType;
 import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.Organization;
@@ -37,29 +33,16 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.business.OrganizationBusinessService;
 import net.geoprism.registry.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.SerializedListTypeCache;
-import net.geoprism.registry.xml.XMLExporter;
 
-@Component
+@Repository
 public class GPROrganizationBusinessService extends OrganizationBusinessService implements OrganizationBusinessServiceIF
 {
-  @Request(RequestType.SESSION)
-  public InputStream exportTypes(String sessionId, String code)
-  {
-    ServerOrganization organization = ServerOrganization.getByCode(code);
-
-    XMLExporter exporter = new XMLExporter(organization);
-    exporter.build();
-
-    return exporter.write();
-  }
-  
   @Override
   @Transaction
-  protected ServerOrganization createInTrans(OrganizationDTO organizationDTO)
+  public ServerOrganization create(OrganizationDTO organizationDTO)
   {
-    final ServerOrganization organization = super.createInTrans(organizationDTO);
-    
+    final ServerOrganization organization = super.create(organizationDTO);
+
     if (organization.getOrganization().isNew())
     {
       this.createRegistryAdminOrganizationRole(organization.getOrganization());
@@ -67,7 +50,7 @@ public class GPROrganizationBusinessService extends OrganizationBusinessService 
 
     return organization;
   }
-  
+
   /**
    * Creates a Registry Administrator {@link RoleDAOIF} for this
    * {@link Organization}.
@@ -99,7 +82,7 @@ public class GPROrganizationBusinessService extends OrganizationBusinessService 
     RoleDAO rootRA_DAO = (RoleDAO) BusinessFacade.getEntityDAO(Roles.findRoleByName(RegistryConstants.REGISTRY_ADMIN_ROLE));
     rootRA_DAO.addInheritance(raOrgRoleDAO);
   }
-  
+
   /**
    * Returns the {@link RoleDAOIF} name for the Registry Administrator for this
    * {@link Organization}.
@@ -138,41 +121,6 @@ public class GPROrganizationBusinessService extends OrganizationBusinessService 
     return Roles.findRoleByName(RegistryRole.Type.getRA_RoleName(organizationCode));
   }
 
-  /**
-   * Updates the given {@link OrganizationDTO} represented as JSON.
-   * 
-   * @pre given {@link OrganizationDTO} must already exist.
-   * 
-   * @param sessionId
-   * @param json
-   *          JSON of the {@link OrganizationDTO} to be updated.
-   * @return updated {@link OrganizationDTO}
-   */
-  @Request(RequestType.SESSION)
-  public OrganizationDTO updateOrganization(String sessionId, String json)
-  {
-    OrganizationDTO dto = super.updateOrganization(sessionId, json);
-
-    SerializedListTypeCache.getInstance().clear();
-
-    return dto;
-  }
-  
-  /**
-   * Deletes the {@link OrganizationDTO} with the given code.
-   * 
-   * @param sessionId
-   * @param code
-   *          code of the {@link OrganizationDTO} to delete.
-   */
-  @Request(RequestType.SESSION)
-  public void deleteOrganization(String sessionId, String code)
-  {
-    super.deleteOrganization(sessionId, code);
-
-    SerializedListTypeCache.getInstance().clear();
-  }
-  
   @Override
   protected void deleteRoles(ServerOrganization sorg)
   {

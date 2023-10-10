@@ -19,27 +19,15 @@
 package net.geoprism.registry.service;
 
 import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
-
-import com.runwaysdk.dataaccess.MdClassificationDAOIF;
-import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
-import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.model.Classification;
-import net.geoprism.registry.model.ClassificationType;
 
 public class ConversionService
 {
   public ConversionService()
   {
-  }
-
-  public static ConversionService getInstance()
-  {
-    return ServiceFactory.getConversionService();
   }
 
   // public void populate(LocalStruct struct, LocalizedValue label)

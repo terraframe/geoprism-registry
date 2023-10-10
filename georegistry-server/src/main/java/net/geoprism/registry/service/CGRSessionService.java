@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -24,6 +24,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonArray;
@@ -35,12 +36,15 @@ import net.geoprism.session.SessionService;
 @Component
 public class CGRSessionService extends SessionService
 {
+  @Autowired
+  private RegistryComponentService service;
+
   @Override
   public JsonArray getInstalledLocales(String sessionId)
   {
-    return JsonParser.parseString(ServiceFactory.getRegistryService().getLocales(sessionId).toString()).getAsJsonArray();
+    return JsonParser.parseString(service.getLocales(sessionId).toString()).getAsJsonArray();
   }
-  
+
   @Override
   public Set<String> getPublicEndpoints()
   {
@@ -60,12 +64,12 @@ public class CGRSessionService extends SessionService
     endpoints.add("api/forgotpassword/initiate");
     endpoints.add("api/forgotpassword/complete");
     endpoints.add("api/master-list/tile");
-    
+
     // Public list management support
     endpoints.add("api/cgr/init");
     endpoints.add("api/list-type/entries");
-    endpoints.add("api/list-type/list-for-type");    
-    
+    endpoints.add("api/list-type/list-for-type");
+
     // Public list support
     endpoints.add("api/list-type/version");
     endpoints.add("api/list-type/data");
@@ -74,7 +78,7 @@ public class CGRSessionService extends SessionService
     endpoints.add("api/geoobjecttype/get-all");
     endpoints.add("websocket/notify");
     endpoints.add("websocket/progress");
-    
+
     // Public explorer support
     endpoints.add("api/list-type/fetchVersionsAsListVersion");
     endpoints.add("api/list-type/record");
@@ -93,13 +97,13 @@ public class CGRSessionService extends SessionService
     endpoints.add("api/labeled-property-graph-type/data");
     endpoints.add("api/labeled-property-graph-type/geo-objects");
     endpoints.add("api/labeled-property-graph-type/edges");
-    
+
     // Public endpoint for changing locale
     endpoints.add("api/localization/set-locale");
-    
+
     return endpoints;
   }
-  
+
   @Override
   public boolean pathAllowed(HttpServletRequest req)
   {
@@ -174,7 +178,6 @@ public class CGRSessionService extends SessionService
     return false;
   }
 
-
   @Override
   public String getHomeUrl()
   {
@@ -186,7 +189,7 @@ public class CGRSessionService extends SessionService
   {
     return "/cgr/manage#login";
   }
-  
+
   @Override
   public String getServerVersion()
   {

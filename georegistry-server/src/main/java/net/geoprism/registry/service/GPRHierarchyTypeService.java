@@ -3,7 +3,7 @@ package net.geoprism.registry.service;
 import java.util.List;
 
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -18,7 +18,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.RolePermissionService;
 
-@Component
+@Repository
 public class GPRHierarchyTypeService extends HierarchyTypeService implements HierarchyTypeServiceIF
 {
   @Request(RequestType.SESSION)

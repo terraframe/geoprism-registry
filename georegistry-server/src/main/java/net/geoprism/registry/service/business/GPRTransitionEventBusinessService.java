@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -29,6 +30,9 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public class GPRTransitionEventBusinessService extends TransitionEventBusinessService
 {
+  @Autowired
+  private GeoObjectTypeRestrictionUtil util;
+
   @Override
   public boolean readOnly(TransitionEvent tran)
   {
@@ -39,7 +43,7 @@ public class GPRTransitionEventBusinessService extends TransitionEventBusinessSe
 
     return ! ( rps.isSRA() || rps.isRA(orgCode) || rps.isRM(orgCode, type) || rps.isRC(orgCode, type) );
   }
-  
+
   @Override
   public void addPageWhereCriteria(StringBuilder statement, Map<String, Object> parameters, String attrConditions)
   {
@@ -48,17 +52,17 @@ public class GPRTransitionEventBusinessService extends TransitionEventBusinessSe
     // Add permissions criteria
     if (Session.getCurrentSession() != null)
     {
-        String beforeCondition = GeoObjectTypeRestrictionUtil.buildTypeWritePermissionsFilter(TransitionEvent.BEFORETYPEORGCODE, TransitionEvent.BEFORETYPECODE);
-        if (beforeCondition.length() > 0)
-        {
-          whereConditions.add(beforeCondition);
-        }
-        
-        String afterCondition = GeoObjectTypeRestrictionUtil.buildTypeReadPermissionsFilter(TransitionEvent.AFTERTYPEORGCODE, TransitionEvent.AFTERTYPECODE);
-        if (afterCondition.length() > 0)
-        {
-          whereConditions.add(afterCondition);
-        }
+      String beforeCondition = this.util.buildTypeWritePermissionsFilter(TransitionEvent.BEFORETYPEORGCODE, TransitionEvent.BEFORETYPECODE);
+      if (beforeCondition.length() > 0)
+      {
+        whereConditions.add(beforeCondition);
+      }
+
+      String afterCondition = this.util.buildTypeReadPermissionsFilter(TransitionEvent.AFTERTYPEORGCODE, TransitionEvent.AFTERTYPECODE);
+      if (afterCondition.length() > 0)
+      {
+        whereConditions.add(afterCondition);
+      }
     }
 
     // Filter based on attributes

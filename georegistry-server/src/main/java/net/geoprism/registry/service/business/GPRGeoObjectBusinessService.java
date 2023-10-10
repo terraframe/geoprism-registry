@@ -1,7 +1,10 @@
 package net.geoprism.registry.service.business;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -14,16 +17,15 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.AlternateId;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeListType;
-import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.locationtech.jts.geom.Geometry;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
@@ -35,11 +37,11 @@ import com.runwaysdk.session.ReadPermissionException;
 import com.runwaysdk.session.WritePermissionException;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.GeometrySizeException;
-import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.business.GeoObjectBusinessService;
-import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.etl.export.GeoObjectExportFormat;
+import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
+import net.geoprism.registry.etl.export.RevealGeoObjectJsonAdapters;
 import net.geoprism.registry.etl.upload.ClassifierCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
@@ -48,6 +50,7 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.ExternalId;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
@@ -57,6 +60,38 @@ import net.geoprism.registry.service.SearchService;
 
 public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implements GPRGeoObjectBusinessServiceIF
 {
+  @Override
+  public JsonObject getAll(String gotCode, String hierarchyCode, Date since, Boolean includeLevel, String format, String externalSystemId, Integer pageNumber, Integer pageSize)
+  {
+    GeoObjectExportFormat goef = null;
+    if (format != null && format.length() > 0)
+    {
+      goef = GeoObjectExportFormat.valueOf(format);
+    }
+
+    Map<Type, Object> typeAdapters = null;
+
+    if (format.equals(GeoObjectExportFormat.JSON_REVEAL.name()) && externalSystemId != null)
+    {
+      ExternalSystem es = ExternalSystem.getByExternalSystemId(externalSystemId);
+      ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
+
+      typeAdapters = new HashMap<Type, Object>();
+      typeAdapters.put(VertexServerGeoObject.class, new RevealGeoObjectJsonAdapters.RevealSerializer(ServerGeoObjectType.get(gotCode), ht, includeLevel, es));
+    }
+
+    GeoObjectJsonExporter exporter = new GeoObjectJsonExporter(gotCode, hierarchyCode, since, includeLevel, goef, typeAdapters, pageSize, pageNumber);
+
+    try
+    {
+      return exporter.export();
+    }
+    catch (IOException e)
+    {
+      throw new RuntimeException(e);
+    }
+  }
+  
   @Override
   public void apply(ServerGeoObjectIF sgo, boolean isImport)
   {

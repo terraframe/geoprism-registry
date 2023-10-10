@@ -28,12 +28,12 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
@@ -42,13 +42,14 @@ import com.runwaysdk.system.VaultFile;
 import net.geoprism.data.etl.excel.ExcelDataFormatter;
 import net.geoprism.data.etl.excel.ExcelSheetReader;
 import net.geoprism.data.etl.excel.InvalidExcelFileException;
-import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory;
+import net.geoprism.registry.etl.upload.BusinessObjectImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.etl.upload.BusinessObjectImportConfiguration;
 import net.geoprism.registry.excel.ExcelFieldContentsHandler;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
@@ -58,6 +59,8 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 @Component
 public class ExcelService
 {
+  @Autowired
+  private BusinessTypeBusinessServiceIF bTypeService;
 
   @Request(RequestType.SESSION)
   public JSONObject getExcelConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
@@ -137,7 +140,7 @@ public class ExcelService
     // Save the file to the file system
     try
     {
-      BusinessType businessType = BusinessType.getByCode(type);
+      BusinessType businessType = this.bTypeService.getByCode(type);
 
       VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
 
@@ -208,7 +211,7 @@ public class ExcelService
 
   private JSONObject getType(BusinessType pType)
   {
-    JSONObject type = new JSONObject(pType.toJSON(true, true).toString());
+    JSONObject type = new JSONObject(this.bTypeService.toJSON(pType, true, true).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -60,6 +60,8 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import net.geoprism.GeoprismUser;
 import net.geoprism.classifier.ClassifierBusinessServiceIF;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.EdgeJsonImporter;
 import net.geoprism.registry.etl.ImportError;
@@ -90,8 +92,20 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 public class ETLService
 {
   @Autowired
-  protected ClassifierBusinessServiceIF classifierService;
-  
+  protected ClassifierBusinessServiceIF    classifierService;
+
+  @Autowired
+  protected GeoObjectTypeBusinessServiceIF typeService;
+
+  @Autowired
+  protected GeoObjectEditorServiceIF       editorService;
+
+  @Autowired
+  protected GeoObjectBusinessServiceIF     objectService;
+
+  @Autowired
+  protected RegistryComponentService       registryService;
+
   @Request(RequestType.SESSION)
   public void cancelImport(String sessionId, String json)
   {
@@ -101,11 +115,12 @@ public class ETLService
   @Transaction
   private void cancelImportInTrans(String sessionId, String json)
   {
-    // This code can fail if it references a GeoObjectType which no longer exists
-//    ImportConfiguration config = ImportConfiguration.build(json);
-//    final String vaultId = config.getVaultFileId();
-//    final String historyId = config.getHistoryId();
-    
+    // This code can fail if it references a GeoObjectType which no longer
+    // exists
+    // ImportConfiguration config = ImportConfiguration.build(json);
+    // final String vaultId = config.getVaultFileId();
+    // final String historyId = config.getHistoryId();
+
     JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
     final String vaultId = jo.has(GeoObjectImportConfiguration.VAULT_FILE_ID) ? jo.get(GeoObjectImportConfiguration.VAULT_FILE_ID).getAsString() : null;
     final String historyId = jo.has(GeoObjectImportConfiguration.HISTORY_ID) ? jo.get(GeoObjectImportConfiguration.HISTORY_ID).getAsString() : null;
@@ -115,18 +130,20 @@ public class ETLService
       VaultFile.get(vaultId).delete();
     }
 
-    // This code is also invoked when they hit "cancel" on the import modal, at which point it won't have a historyId.
+    // This code is also invoked when they hit "cancel" on the import modal, at
+    // which point it won't have a historyId.
     if (StringUtils.isNotEmpty(historyId))
     {
       ImportHistory hist = ImportHistory.get(historyId);
-      
+
       try
       {
         hist.getConfig().enforceExecutePermissions();
       }
       catch (net.geoprism.registry.DataNotFoundException ex)
       {
-        // If we can't construct (because the type no longer exists), just ignore it and allow delete since it's corrupt anyway.
+        // If we can't construct (because the type no longer exists), just
+        // ignore it and allow delete since it's corrupt anyway.
       }
 
       if (!hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
@@ -297,7 +314,7 @@ public class ETLService
 
       if (op.isPresent() && op.get().getIsAbstract())
       {
-        List<ServerGeoObjectType> subTypes = op.get().getSubtypes();
+        List<ServerGeoObjectType> subTypes = this.typeService.getSubtypes(op.get());
 
         for (ServerGeoObjectType subType : subTypes)
         {
@@ -332,7 +349,7 @@ public class ETLService
     {
       List<JsonWrapper> results = it.getAll().stream().map(hist -> {
         DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
-        GeoprismUser user = (job.getRunAsUser() == null) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
+        GeoprismUser user = ( job.getRunAsUser() == null ) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
 
         return new JsonWrapper(serializeHistory(hist, user, job));
       }).collect(Collectors.toList());
@@ -357,7 +374,7 @@ public class ETLService
     {
       List<JsonWrapper> results = it.getAll().stream().map(hist -> {
         DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
-        GeoprismUser user = (job.getRunAsUser() == null) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
+        GeoprismUser user = ( job.getRunAsUser() == null ) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
 
         return new JsonWrapper(serializeHistory(hist, user, job));
       }).collect(Collectors.toList());
@@ -432,7 +449,7 @@ public class ETLService
   {
     return this.getImportErrorsInReq(historyId, onlyUnresolved, pageSize, pageNumber);
   }
-  
+
   public JsonObject getImportErrorsInReq(String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
     ImportErrorQuery query = new ImportErrorQuery(new QueryFactory());
@@ -455,7 +472,7 @@ public class ETLService
       return new Page<ImportError>(query.getCount(), query.getPageNumber(), query.getPageSize(), results).toJSON();
     }
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject getValidationProblems(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
@@ -597,7 +614,7 @@ public class ETLService
   {
     ImportHistory hist = ImportHistory.get(historyId);
     DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
-    GeoprismUser user = (job.getRunAsUser() == null) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
+    GeoprismUser user = ( job.getRunAsUser() == null ) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
     hist.getConfig().enforceExecutePermissions();
 
     JsonObject jo = this.serializeHistory(hist, user, job);
@@ -619,7 +636,7 @@ public class ETLService
   {
     ExportHistory hist = ExportHistory.get(historyId);
     DataExportJob job = (DataExportJob) hist.getAllJob().getAll().get(0);
-    GeoprismUser user = (job.getRunAsUser() == null) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
+    GeoprismUser user = ( job.getRunAsUser() == null ) ? null : GeoprismUser.get(job.getRunAsUser().getOid());
 
     JsonObject jo = this.serializeHistory(hist, user, job);
 
@@ -659,18 +676,16 @@ public class ETLService
         go.setUid(RegistryIdService.getInstance().next());
         geoObject = go.toJSON().toString();
 
-        new ServerGeoObjectService().createGeoObject(sessionId, parentTreeNode, geoObject, null, null);
+        this.editorService.createGeoObject(sessionId, parentTreeNode, geoObject, null, null);
       }
       else
       {
-        ServerGeoObjectService service = new ServerGeoObjectService();
-
-        ServerGeoObjectIF serverGO = service.apply(go, isNew, true);
+        ServerGeoObjectIF serverGO = this.objectService.apply(go, isNew, true);
         final ServerGeoObjectType type = serverGO.getType();
 
         ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, parentTreeNode);
 
-        serverGO.setParents(ptnOt);
+        this.objectService.setParents(serverGO, ptnOt);
       }
 
       err.appLock();
@@ -729,7 +744,7 @@ public class ETLService
         String typeCode = config.get("typeCode").getAsString();
         String label = config.get("label").getAsString();
 
-        ServerGeoObjectIF go = new ServerGeoObjectService().getGeoObjectByCode(code, typeCode);
+        ServerGeoObjectIF go = this.objectService.getGeoObjectByCode(code, typeCode);
 
         response = JsonParser.parseString(new GeoSynonymService().createGeoEntitySynonym(sessionId, typeCode, go.getCode(), label).toString()).getAsJsonObject();
       }
@@ -755,7 +770,7 @@ public class ETLService
         String parentTermCode = config.get("parentTermCode").getAsString();
         String termJSON = config.get("termJSON").toString();
 
-        response = ServiceFactory.getRegistryService().createTerm(sessionId, parentTermCode, termJSON).toJSON();
+        response = this.registryService.createTerm(sessionId, parentTermCode, termJSON).toJSON();
       }
       else if (problem instanceof ParentReferenceProblem)
       {

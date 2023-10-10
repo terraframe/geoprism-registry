@@ -55,8 +55,6 @@ import com.google.gson.JsonParser;
 import net.geoprism.rbac.RoleServiceIF;
 import net.geoprism.rbac.RoleView;
 import net.geoprism.registry.CGRApplication;
-import net.geoprism.registry.ListType;
-import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.service.AccountService;
 import net.geoprism.registry.service.ExternalSystemService;

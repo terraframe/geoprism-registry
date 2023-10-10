@@ -56,6 +56,8 @@ import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeVersionBusinessSe
 import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeVersionBusinessServiceIF;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -82,10 +84,16 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
   }
 
   @Autowired
-  private GeoObjectTypeSnapshotBusinessServiceIF objectService;
+  private GeoObjectTypeSnapshotBusinessServiceIF oSnapshotService;
 
   @Autowired
-  private HierarchyTypeSnapshotBusinessServiceIF hierarchyService;
+  private HierarchyTypeSnapshotBusinessServiceIF hSnapshotService;
+
+  @Autowired
+  private HierarchyTypeBusinessServiceIF         hierarchyService;
+
+  @Autowired
+  private GeoObjectTypeBusinessServiceIF         typeService;
 
   @Autowired
   private TreeStrategyPublisherService           publisherService;
@@ -113,7 +121,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
     this.publisherService.publish((TreeStrategyConfiguration) configuration, version);
   }
-  
+
   @Override
   public void createPublishJob(LabeledPropertyGraphTypeVersion version)
   {
@@ -168,13 +176,13 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     LabeledPropertyGraphType listType = version.getGraphType();
     ServerHierarchyType hierarchy = ServerHierarchyType.get(listType.getHierarchy());
 
-    GeoObjectTypeSnapshot root = this.objectService.createRoot(version);
+    GeoObjectTypeSnapshot root = this.oSnapshotService.createRoot(version);
 
     this.create(version, hierarchy, root);
 
     Stack<StackItem> stack = new Stack<StackItem>();
 
-    hierarchy.getDirectRootNodes().forEach(type -> stack.push(new StackItem(type, root)));
+    this.hierarchyService.getDirectRootNodes(hierarchy).forEach(type -> stack.push(new StackItem(type, root)));
 
     while (!stack.isEmpty())
     {
@@ -185,7 +193,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
       if (type.getIsAbstract())
       {
-        type.getSubtypes().forEach(subtype -> {
+        this.typeService.getSubtypes(type).forEach(subtype -> {
           this.create(version, subtype, parent);
         });
       }
@@ -195,7 +203,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
         item.parent.addChildSnapshot(parent).apply();
       }
 
-      hierarchy.getChildren(type).forEach(child -> {
+      this.hierarchyService.getChildren(hierarchy, type).forEach(child -> {
         stack.push(new StackItem(child, parent));
       });
 
@@ -210,7 +218,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
     String className = mdEdge.getDBClassName();
 
-    return this.hierarchyService.getTableName(className);
+    return this.hSnapshotService.getTableName(className);
   }
 
   public HierarchyTypeSnapshot create(LabeledPropertyGraphTypeVersion version, ServerHierarchyType type, GeoObjectTypeSnapshot root)
@@ -246,7 +254,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
   @Transaction
   public GeoObjectTypeSnapshot create(LabeledPropertyGraphTypeVersion version, ServerGeoObjectType type, GeoObjectTypeSnapshot parent)
   {
-    String viewName = this.objectService.getTableName(type.getMdVertex().getDBClassName());
+    String viewName = this.oSnapshotService.getTableName(type.getMdVertex().getDBClassName());
 
     // Create the MdTable
     MdVertexDAO mdVertexDAO = MdVertexDAO.newInstance();
@@ -263,7 +271,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
     if (!type.getIsAbstract())
     {
-      this.objectService.createGeometryAttribute(type.getGeometryType(), mdVertexDAO);
+      this.oSnapshotService.createGeometryAttribute(type.getGeometryType(), mdVertexDAO);
     }
 
     List<String> existingAttributes = mdVertexDAO.getAllDefinedMdAttributes().stream().map(attribute -> attribute.definesAttribute()).collect(Collectors.toList());

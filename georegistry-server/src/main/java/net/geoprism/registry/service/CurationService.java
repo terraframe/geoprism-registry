@@ -4,24 +4,25 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -48,9 +49,15 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.view.Page;
 
-@Component
+@Repository
 public class CurationService
 {
+  @Autowired
+  private RolePermissionService    permissions;
+
+  @Autowired
+  private GeoObjectEditorServiceIF service;
+
   public JsonObject getListCurationInfo(ListTypeVersion version)
   {
     final ListType listType = version.getListType();
@@ -77,8 +84,7 @@ public class CurationService
       json.addProperty("curationId", history.getOid());
     }
 
-    final RolePermissionService perms = ServiceFactory.getRolePermissionService();
-    boolean hasRunPermission = perms.isSRA() || perms.isRA(orgCode) || perms.isRM(orgCode, serverGOT);
+    boolean hasRunPermission = this.permissions.isSRA() || this.permissions.isRA(orgCode) || this.permissions.isRM(orgCode, serverGOT);
 
     json.addProperty("canRun", !isRunning && hasRunPermission);
 
@@ -183,19 +189,17 @@ public class CurationService
 
   private void checkPermissions(String orgCode, ServerGeoObjectType type)
   {
-    RolePermissionService perms = ServiceFactory.getRolePermissionService();
-
-    if (perms.isRA())
+    if (this.permissions.isRA())
     {
-      perms.enforceRA(orgCode);
+      this.permissions.enforceRA(orgCode);
     }
-    else if (perms.isRM())
+    else if (this.permissions.isRM())
     {
-      perms.enforceRM(orgCode, type);
+      this.permissions.enforceRM(orgCode, type);
     }
     else
     {
-      perms.enforceRM();
+      this.permissions.enforceRM();
     }
   }
 
@@ -227,8 +231,7 @@ public class CurationService
       String geoObjectTypeCode = config.get("typeCode").getAsString();
       String actions = config.get("actions").getAsJsonArray().toString();
 
-      ServerGeoObjectService service = new ServerGeoObjectService();
-      service.updateGeoObjectInTrans(geoObjectCode, geoObjectTypeCode, actions, version.getOid(), null);
+      this.service.updateGeoObjectInTrans(geoObjectCode, geoObjectTypeCode, actions, version.getOid(), null);
 
       // err.appLock();
       // err.setResolution(resolution);

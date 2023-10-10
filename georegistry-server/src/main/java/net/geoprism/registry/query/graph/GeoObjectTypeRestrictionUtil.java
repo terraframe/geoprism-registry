@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.query.graph;
 
@@ -25,13 +25,16 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.GPRServiceFactory;
+import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.service.ServiceFactory;
 
 /**
@@ -39,17 +42,24 @@ import net.geoprism.registry.service.ServiceFactory;
  * 
  * @author rrowlands
  */
+@Repository
 public class GeoObjectTypeRestrictionUtil
 {
-  public static String buildTypeWritePermissionsFilter(String orgColumnAlias, String gotCodeAlias)
+  @Autowired
+  private RolePermissionService          permissions;
+
+  @Autowired
+  private GeoObjectTypeBusinessServiceIF service;
+
+  public String buildTypeWritePermissionsFilter(String orgColumnAlias, String gotCodeAlias)
   {
-    if (GPRServiceFactory.getRolePermissionService().isSRA())
+    if (this.permissions.isSRA())
     {
       return "";
     }
-    
+
     List<String> conditions = hasMandateOnType(orgColumnAlias, gotCodeAlias, false);
-    
+
     if (conditions.size() > 0)
     {
       return "(" + StringUtils.join(conditions, " OR ") + ")";
@@ -59,36 +69,36 @@ public class GeoObjectTypeRestrictionUtil
       return "";
     }
   }
-  
-  public static String buildTypeReadPermissionsFilter(String orgColumnAlias, String gotCodeAlias)
+
+  public String buildTypeReadPermissionsFilter(String orgColumnAlias, String gotCodeAlias)
   {
-    if (GPRServiceFactory.getRolePermissionService().isSRA())
+    if (this.permissions.isSRA())
     {
       return "";
     }
-    
+
     final List<String> privateTypes = ServiceFactory.getMetadataCache().getAllGeoObjectTypes().stream().filter(type -> type.getIsPrivate()).map(type -> "'" + type.getCode() + "'").collect(Collectors.toList());
-    
+
     StringBuilder builder = new StringBuilder();
-    
+
     builder.append("(");
-    
+
     // Must be a public type
     builder.append(gotCodeAlias + " NOT IN [" + StringUtils.join(privateTypes, ", ") + "]");
-    
-    // Or they have CGR mandate permissions on this type 
+
+    // Or they have CGR mandate permissions on this type
     List<String> conditions = hasMandateOnType(orgColumnAlias, gotCodeAlias, true);
     if (conditions.size() > 0)
     {
       builder.append(" OR (" + StringUtils.join(conditions, " OR ") + ")");
     }
-    
+
     builder.append(")");
-    
+
     return builder.toString();
   }
 
-  public static List<String> hasMandateOnType(String orgCodeAttr, String gotCodeAttr, boolean allowRC)
+  public List<String> hasMandateOnType(String orgCodeAttr, String gotCodeAttr, boolean allowRC)
   {
     List<String> criteria = new ArrayList<String>();
     List<String> raOrgs = new ArrayList<String>();
@@ -135,7 +145,8 @@ public class GeoObjectTypeRestrictionUtil
 
       if (op.isPresent() && op.get().getIsAbstract())
       {
-        List<ServerGeoObjectType> subTypes = op.get().getSubtypes();
+        ServerGeoObjectType type = op.get();
+        List<ServerGeoObjectType> subTypes = this.service.getSubtypes(type);
 
         for (ServerGeoObjectType subType : subTypes)
         {

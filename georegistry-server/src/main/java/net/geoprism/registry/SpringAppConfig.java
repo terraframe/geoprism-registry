@@ -59,6 +59,7 @@ import net.geoprism.registry.lpg.business.GPRHierarchyTypeSnapshotBusinessServic
 import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeBusinessService;
 import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeEntryBusinessService;
 import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeVersionBusinessService;
+import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.session.ExternalProfileCGRService;
 import net.geoprism.session.LoginBruteForceGuardService;
 import net.geoprism.session.SessionController;

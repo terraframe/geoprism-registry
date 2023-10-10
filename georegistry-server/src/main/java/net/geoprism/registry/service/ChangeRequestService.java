@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonArray;
@@ -63,13 +64,21 @@ import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequest
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.action.InvalidChangeRequestException;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.view.Page;
 
 @Component
 public class ChangeRequestService
 {
-  public ChangeRequestPermissionService permService = new ChangeRequestPermissionService();
+  @Autowired
+  public ChangeRequestPermissionService permissions;
+
+  @Autowired
+  public GeoObjectTypeBusinessServiceIF typeService;
+
+  @Autowired
+  public GeoObjectEditorServiceIF       editorService;
 
   @Request(RequestType.SESSION)
   public void reject(String sessionId, String request)
@@ -77,7 +86,7 @@ public class ChangeRequestService
     ChangeRequest input = ChangeRequest.fromJSON(request);
     ChangeRequest current = ChangeRequest.get(JsonParser.parseString(request).getAsJsonObject().get("oid").getAsString());
 
-    if (!this.permService.getPermissions(current).containsAll(Arrays.asList(ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.READ, ChangeRequestPermissionAction.READ_DETAILS)))
+    if (!this.permissions.getPermissions(current).containsAll(Arrays.asList(ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.READ, ChangeRequestPermissionAction.READ_DETAILS)))
     {
       throw new CGRPermissionException();
     }
@@ -96,7 +105,7 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(crOid);
 
-    if (!this.permService.getPermissions(request).contains(ChangeRequestPermissionAction.WRITE_DOCUMENTS))
+    if (!this.permissions.getPermissions(request).contains(ChangeRequestPermissionAction.WRITE_DOCUMENTS))
     {
       throw new CGRPermissionException();
     }
@@ -116,7 +125,7 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(crOid);
 
-    if (!this.permService.getPermissions(request).contains(ChangeRequestPermissionAction.READ_DOCUMENTS))
+    if (!this.permissions.getPermissions(request).contains(ChangeRequestPermissionAction.READ_DOCUMENTS))
     {
       throw new CGRPermissionException();
     }
@@ -138,7 +147,7 @@ public class ChangeRequestService
 
     ChangeRequest request = ChangeRequest.get(requestId);
 
-    if (!this.permService.getPermissions(request).contains(ChangeRequestPermissionAction.READ_DOCUMENTS))
+    if (!this.permissions.getPermissions(request).contains(ChangeRequestPermissionAction.READ_DOCUMENTS))
     {
       throw new CGRPermissionException();
     }
@@ -176,7 +185,7 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(requestId);
 
-    if (!this.permService.getPermissions(request).contains(ChangeRequestPermissionAction.WRITE_DOCUMENTS))
+    if (!this.permissions.getPermissions(request).contains(ChangeRequestPermissionAction.WRITE_DOCUMENTS))
     {
       throw new CGRPermissionException();
     }
@@ -418,7 +427,7 @@ public class ChangeRequestService
 
       if (op.isPresent() && op.get().getIsAbstract())
       {
-        List<ServerGeoObjectType> subTypes = op.get().getSubtypes();
+        List<ServerGeoObjectType> subTypes = this.typeService.getSubtypes(op.get());
 
         for (ServerGeoObjectType subType : subTypes)
         {
@@ -440,7 +449,7 @@ public class ChangeRequestService
   {
     AbstractAction action = AbstractAction.get(actionOid);
 
-    if (!this.permService.getPermissions(action.getAllRequest().next()).containsAll(Arrays.asList(ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS)))
+    if (!this.permissions.getPermissions(action.getAllRequest().next()).containsAll(Arrays.asList(ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS)))
     {
       throw new CGRPermissionException();
     }
@@ -456,15 +465,16 @@ public class ChangeRequestService
   {
     ChangeRequest input = ChangeRequest.fromJSON(request);
     ChangeRequest current = ChangeRequest.get(JsonParser.parseString(request).getAsJsonObject().get("oid").getAsString());
-    
-    Set<ChangeRequestPermissionAction> permissions = this.permService.getPermissions(current);
-    
-    // Allow them to also update the code when they execute the CR (for creating new GeoObjects)
+
+    Set<ChangeRequestPermissionAction> permissions = this.permissions.getPermissions(current);
+
+    // Allow them to also update the code when they execute the CR (for creating
+    // new GeoObjects)
     if (ChangeRequestType.CreateGeoObject.equals(current.getChangeRequestType()) && StringUtils.isNotEmpty(newCode))
     {
       java.util.Optional<? extends AbstractAction> opAction = current.getAllAction().getAll().stream().findFirst();
-      
-      if (!opAction.isPresent() || !(opAction.get() instanceof CreateGeoObjectAction))
+
+      if (!opAction.isPresent() || ! ( opAction.get() instanceof CreateGeoObjectAction ))
       {
         throw new InvalidChangeRequestException();
       }
@@ -476,13 +486,13 @@ public class ChangeRequestService
       {
         CreateGeoObjectAction createAction = (CreateGeoObjectAction) opAction.get();
         createAction.appLock();
-        
+
         JsonObject joGO = JsonParser.parseString(createAction.getGeoObjectJson()).getAsJsonObject();
         joGO.get("attributes").getAsJsonObject().addProperty("code", newCode);
         createAction.setGeoObjectJson(joGO.toString());
-        
+
         createAction.apply();
-        
+
         current.appLock();
         current.setGeoObjectCode(newCode);
         current.apply();
@@ -508,8 +518,7 @@ public class ChangeRequestService
 
     ChangeRequest current = ChangeRequest.get(oid);
 
-    ServerGeoObjectService service = new ServerGeoObjectService();
-    service.updateChangeRequest(current, notes, actions);
+    this.editorService.updateChangeRequest(current, notes, actions);
 
     return current.getDetails();
   }
@@ -519,7 +528,7 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(requestId);
 
-    if (!this.permService.getPermissions(request).containsAll(Arrays.asList(ChangeRequestPermissionAction.DELETE)))
+    if (!this.permissions.getPermissions(request).containsAll(Arrays.asList(ChangeRequestPermissionAction.DELETE)))
     {
       throw new CGRPermissionException();
     }
