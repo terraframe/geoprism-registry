@@ -40,7 +40,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.localization.LocaleView;
-import net.geoprism.registry.service.CGRLocalizationService;
+import net.geoprism.registry.service.GPRLocalizationService;
 import net.geoprism.registry.service.RegistryComponentService;
 import net.geoprism.registry.service.RegistryServiceIF;
 import net.geoprism.registry.service.ServiceFactory;
@@ -86,7 +86,7 @@ public class RegistryLocalizationController extends RunwaySpringController
   }
 
   @Autowired
-  private CGRLocalizationService   service;
+  private GPRLocalizationService   service;
 
   @Autowired
   private RegistryComponentService registryService;

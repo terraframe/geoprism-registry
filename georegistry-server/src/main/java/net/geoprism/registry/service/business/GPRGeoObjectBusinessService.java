@@ -91,12 +91,12 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
       throw new RuntimeException(e);
     }
   }
-  
+
   @Override
   public void apply(ServerGeoObjectIF sgo, boolean isImport)
   {
     final boolean isNew = sgo.getVertex().isNew() || sgo.getVertex().getObjectValue(GeoVertex.CREATEDATE) == null;
-    
+
     try
     {
       super.apply(sgo, isImport);
@@ -132,7 +132,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
       new SearchService().remove(sgo.getCode());
     }
   }
-  
+
   public void setAlternateIds(ServerGeoObjectIF sgo, List<AlternateId> alternateIds)
   {
     if (alternateIds == null)
@@ -178,8 +178,9 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
       }
     }
   }
-  
-  public static VertexServerGeoObject getByExternalId(ServerGeoObjectIF sgo, String externalId, DHIS2ExternalSystem system, ServerGeoObjectType type)
+
+  @Override
+  public VertexServerGeoObject getByExternalId(String externalId, DHIS2ExternalSystem system, ServerGeoObjectType type)
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
 
@@ -254,6 +255,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
     return query.getResults().stream().map(edge -> new ExternalId(edge)).collect(Collectors.toList());
   }
 
+  @Override
   public void createExternalId(ServerGeoObjectIF sgo, ExternalSystem system, String id, ImportStrategy importStrategy)
   {
     if (importStrategy.equals(ImportStrategy.NEW_ONLY))
@@ -276,6 +278,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
     }
   }
 
+  @Override
   public String getExternalId(VertexServerGeoObject sgo, ExternalSystem system)
   {
     ExternalId edge = getExternalIdEdge(sgo, system);
@@ -287,25 +290,25 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
 
     return null;
   }
-  
+
   @Override
   public GeoObjectOverTime toGeoObjectOverTime(ServerGeoObjectIF sgo, boolean generateUid, ClassifierCache classifierCache)
   {
     GeoObjectOverTime geoObj = super.toGeoObjectOverTime(sgo, generateUid, classifierCache);
-    
+
     for (ExternalId id : getAllExternalIds(sgo))
     {
       geoObj.addAlternateId(id.toDTO());
     }
-    
+
     return geoObj;
   }
-  
+
   @Override
   public GeoObject toGeoObject(ServerGeoObjectIF sgo, Date date, boolean includeExternalIds)
   {
     GeoObject geoObj = super.toGeoObject(sgo, date, includeExternalIds);
-    
+
     if (includeExternalIds)
     {
       for (ExternalId id : getAllExternalIds(sgo))
@@ -313,10 +316,10 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
         geoObj.addAlternateId(id.toDTO());
       }
     }
-    
+
     return geoObj;
   }
-  
+
   @SuppressWarnings("unchecked")
   @Override
   public boolean trySetValue(ServerGeoObjectIF sgo, String attributeName, Object value)
@@ -333,7 +336,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
       return false;
     }
   }
-  
+
   @SuppressWarnings("unchecked")
   @Override
   public void populate(ServerGeoObjectIF sgo, GeoObject geoObject, Date startDate, Date endDate)
@@ -489,7 +492,8 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
 
             // if (value != null)
             // {
-            // sgo.getVertex().setValue(attributeName, value, votDTO.getStartDate(),
+            // sgo.getVertex().setValue(attributeName, value,
+            // votDTO.getStartDate(),
             // votDTO.getEndDate());
             // }
             // else

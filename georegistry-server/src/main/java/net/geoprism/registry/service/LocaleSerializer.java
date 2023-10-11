@@ -30,8 +30,8 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.graphrepo.permission.RepoPermissionActionIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.RepoPermissionActionIF;
 
 public class LocaleSerializer extends DefaultSerializer implements CustomSerializer
 {

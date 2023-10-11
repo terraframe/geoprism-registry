@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.service;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.BusinessFacade;
@@ -32,8 +32,8 @@ import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.RegistryConstants;
 
-@Component
-public class ServerClassificationObjectService implements ClassificationObjectServiceIF
+@Repository
+public class GPRClassificationObjectService implements ClassificationObjectServiceIF
 {
 
   @Override

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -31,6 +31,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.JsonArray;
@@ -40,10 +41,18 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.graphrepo.permission.GeoObjectPermissionServiceIF;
+import net.geoprism.graphrepo.permission.GeoObjectTypePermissionServiceIF;
+import net.geoprism.graphrepo.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.business.BusinessEdgeTypeBusinessServiceIF;
+import net.geoprism.registry.business.BusinessObjectBusinessServiceIF;
+import net.geoprism.registry.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerChildGraphNode;
@@ -51,9 +60,6 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
-import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
-import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.visualization.EdgeView;
 import net.geoprism.registry.visualization.VertexView;
 import net.geoprism.registry.visualization.VertexView.ObjectType;
@@ -63,25 +69,43 @@ public class RelationshipVisualizationService
 {
   // Usability really degrades past 500 or so. Past 1000 the browser falls over,
   // even on good computers. @rrowlands
-  public static final long             maxResults                              = 500;
+  public static final long                  maxResults                              = 500;
 
-  public static final String           SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE = "BUSINESS";
+  public static final String                SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE = "BUSINESS";
 
-  public static final String           SHOW_GEOOBJECTS_RELATIONSHIP_TYPE       = "GEOOBJECT";
+  public static final String                SHOW_GEOOBJECTS_RELATIONSHIP_TYPE       = "GEOOBJECT";
 
-  private GeoObjectPermissionServiceIF permissions;
+  @Autowired
+  private BusinessObjectBusinessServiceIF   bObjectService;
 
-  public RelationshipVisualizationService()
-  {
-    this.permissions = ServiceFactory.getGeoObjectPermissionService();
-  }
+  @Autowired
+  private BusinessTypeBusinessServiceIF     bTypeService;
+
+  @Autowired
+  private BusinessEdgeTypeBusinessServiceIF bEdgeService;
+
+  @Autowired
+  private RegistryComponentService          service;
+
+  @Autowired
+  private GeoObjectBusinessServiceIF        objectService;
+
+  @Autowired
+  private GeoObjectTypeBusinessServiceIF    typeService;
+
+  @Autowired
+  private GeoObjectPermissionServiceIF      objectPermissions;
+
+  @Autowired
+  private GeoObjectTypePermissionServiceIF  typePermissions;
+
+  @Autowired
+  private HierarchyTypePermissionServiceIF  hierarchyPermissions;
 
   @Request(RequestType.SESSION)
   public JsonElement treeAsGeoJson(String sessionId, Date date, String relationshipType, String graphTypeCode, String sourceVertex, String boundsWKT)
   {
-    final CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
-    final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
-
+    final CustomSerializer serializer = this.service.serializer(sessionId);
     if (!this.validateBounds(boundsWKT))
     {
       boundsWKT = null;
@@ -96,7 +120,7 @@ public class RelationshipVisualizationService
     {
       final ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(sourceView.getTypeCode()).get();
 
-      if (typePermissions.canRead(type.getOrganization().getCode(), type, type.getIsPrivate()))
+      if (this.typePermissions.canRead(type.getOrganization().getCode(), type, type.getIsPrivate()))
       {
         VertexServerGeoObject rootGo = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(sourceView.getCode(), type);
 
@@ -108,7 +132,7 @@ public class RelationshipVisualizationService
         {
           final GraphType graphType = GraphType.getByCode(relationshipType, graphTypeCode);
 
-          geoObjects.add(rootGo.toGeoObject(date));
+          geoObjects.add(this.objectService.toGeoObject(rootGo, date));
 
           if (graphType instanceof UndirectedGraphType)
           {
@@ -137,13 +161,13 @@ public class RelationshipVisualizationService
     {
       if (SHOW_GEOOBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
       {
-        final BusinessType type = BusinessType.getByCode(sourceView.getTypeCode());
+        final BusinessType type = this.bTypeService.getByCode(sourceView.getTypeCode());
 
         if (canReadBusinessData(type))
         {
-          final BusinessObject selected = BusinessObject.getByCode(type, sourceView.getCode());
+          final BusinessObject selected = this.bObjectService.getByCode(type, sourceView.getCode());
 
-          List<VertexServerGeoObject> objects = selected.getGeoObjects();
+          List<VertexServerGeoObject> objects = this.bObjectService.getGeoObjects(selected);
 
           long endIndex = Math.min(maxResults, objects.size());
 
@@ -151,7 +175,7 @@ public class RelationshipVisualizationService
           {
             VertexServerGeoObject object = objects.get(i);
 
-            geoObjects.add(object.toGeoObject(date));
+            geoObjects.add(this.objectService.toGeoObject(object, date));
           }
         }
       }
@@ -196,7 +220,7 @@ public class RelationshipVisualizationService
     {
       final ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(sourceView.getTypeCode()).get();
 
-      if (permissions.canRead(type.getOrganization().getCode(), type))
+      if (objectPermissions.canRead(type.getOrganization().getCode(), type))
       {
         VertexServerGeoObject selected = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(sourceView.getCode(), type);
 
@@ -205,7 +229,7 @@ public class RelationshipVisualizationService
 
         if (SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
         {
-          List<BusinessObject> objects = selected.getBusinessObjects();
+          List<BusinessObject> objects = this.objectService.getBusinessObjects(selected);
 
           long endIndex = Math.min(maxResults, objects.size());
 
@@ -254,18 +278,18 @@ public class RelationshipVisualizationService
     }
     else if (VertexView.ObjectType.BUSINESS.equals(sourceView.getObjectType()))
     {
-      final BusinessType type = BusinessType.getByCode(sourceView.getTypeCode());
+      final BusinessType type = this.bTypeService.getByCode(sourceView.getTypeCode());
 
       if (canReadBusinessData(type))
       {
-        final BusinessObject selected = BusinessObject.getByCode(type, sourceView.getCode());
+        final BusinessObject selected = this.bObjectService.getByCode(type, sourceView.getCode());
 
         verticies.put(selected.getCode(), VertexView.fromBusinessObject(selected, "SELECTED"));
         addRelatedType(relatedTypes, type);
 
         if (SHOW_GEOOBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
         {
-          List<VertexServerGeoObject> objects = selected.getGeoObjects();
+          List<VertexServerGeoObject> objects = this.bObjectService.getGeoObjects(selected);
 
           long endIndex = Math.min(maxResults, objects.size());
 
@@ -284,10 +308,10 @@ public class RelationshipVisualizationService
         }
         else
         {
-          final BusinessEdgeType edgeType = BusinessEdgeType.getByCode(graphTypeCode);
+          final BusinessEdgeType edgeType = this.bEdgeService.getByCode(graphTypeCode);
 
           // Parents
-          List<BusinessObject> objects = selected.getParents(edgeType);
+          List<BusinessObject> objects = this.bObjectService.getParents(selected, edgeType);
           long endIndex = Math.min(maxResults, objects.size());
 
           for (int i = 0; i < endIndex; ++i)
@@ -304,7 +328,7 @@ public class RelationshipVisualizationService
           }
 
           // Children
-          objects = selected.getChildren(edgeType);
+          objects = this.bObjectService.getChildren(selected, edgeType);
           endIndex = Math.min(maxResults - verticies.size(), objects.size());
 
           for (int i = 0; i < endIndex; ++i)
@@ -416,7 +440,7 @@ public class RelationshipVisualizationService
     {
       ServerChildGraphNode child = children.get(i);
 
-      geoObjects.add(child.getGeoObject().toGeoObject(date));
+      geoObjects.add(this.objectService.toGeoObject(child.getGeoObject(), date));
     }
 
     return geoObjects;
@@ -432,7 +456,7 @@ public class RelationshipVisualizationService
     {
       ServerParentGraphNode parent = parents.get(i);
 
-      geoObjects.add(parent.getGeoObject().toGeoObject(date));
+      geoObjects.add(this.objectService.toGeoObject(parent.getGeoObject(), date));
 
       if (recursive)
       {
@@ -448,14 +472,12 @@ public class RelationshipVisualizationService
   {
     JsonArray views = new JsonArray();
 
-    // Hierarchy relationships
-    final HierarchyTypePermissionServiceIF htpService = ServiceFactory.getHierarchyPermissionService();
-
     if (objectType.equals(VertexView.ObjectType.GEOOBJECT))
     {
       ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
-      type.getHierarchies().stream().filter(htp -> {
-        return htpService.canRead(htp.getOrganizationCode());
+
+      this.typeService.getHierarchies(type).stream().filter(htp -> {
+        return this.hierarchyPermissions.canRead(htp.getOrganizationCode());
       }).forEach(graphType -> {
 
         JsonObject jo = new JsonObject();
@@ -494,7 +516,7 @@ public class RelationshipVisualizationService
     }
     else if (objectType.equals(VertexView.ObjectType.BUSINESS))
     {
-      BusinessEdgeType.getAll().forEach(edgeType -> {
+      this.bTypeService.getAll().forEach(edgeType -> {
         JsonObject jo = new JsonObject();
         jo.addProperty("oid", edgeType.getOid());
         jo.addProperty("code", edgeType.getCode());

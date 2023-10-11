@@ -42,13 +42,15 @@ import net.geoprism.graph.HierarchyTypeSnapshot;
 import net.geoprism.graph.LabeledPropertyGraphSynchronization;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
-import net.geoprism.graph.lpg.StrategyConfiguration;
 import net.geoprism.graph.lpg.TreeStrategyConfiguration;
 import net.geoprism.graph.lpg.business.GeoObjectTypeSnapshotBusinessServiceIF;
 import net.geoprism.graph.lpg.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.graph.lpg.service.AbstractGraphVersionPublisherService;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -99,10 +101,19 @@ public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherS
   }
 
   @Autowired
-  private GeoObjectTypeSnapshotBusinessServiceIF objectService;
+  private GeoObjectBusinessServiceIF             objectService;
 
   @Autowired
-  private HierarchyTypeSnapshotBusinessServiceIF hierarchyService;
+  private GeoObjectTypeBusinessServiceIF         typeService;
+
+  @Autowired
+  private HierarchyTypeBusinessServiceIF         hierarchyService;
+
+  @Autowired
+  private GeoObjectTypeSnapshotBusinessServiceIF tSnapshotService;
+
+  @Autowired
+  private HierarchyTypeSnapshotBusinessServiceIF hSnapshotService;
 
   public void publish(TreeStrategyConfiguration configuration, LabeledPropertyGraphTypeVersion version)
   {
@@ -131,19 +142,18 @@ public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherS
         }
 
         ServerHierarchyType hierarchyType = ServerHierarchyType.get(type.getHierarchy());
-        HierarchyTypeSnapshot graphEdge = this.hierarchyService.get(version, hierarchyType.getCode());
+        HierarchyTypeSnapshot graphEdge = this.hSnapshotService.get(version, hierarchyType.getCode());
         MdEdge mdEdge = graphEdge.getGraphMdEdge();
 
-        List<ServerGeoObjectType> geoObjectTypes = hierarchyType.getAllTypes(false);
+        List<ServerGeoObjectType> geoObjectTypes = this.hierarchyService.getAllTypes(hierarchyType, false);
 
         geoObjectTypes.stream().filter(t -> t.getIsAbstract()).collect(Collectors.toList()).forEach(t -> {
-          geoObjectTypes.addAll(t.getSubtypes());
+          geoObjectTypes.addAll(this.typeService.getSubtypes(t));
         });
 
         Date forDate = version.getForDate();
 
-        ServerGeoObjectService service = new ServerGeoObjectService();
-        ServerGeoObjectIF root = service.getGeoObjectByCode(configuration.getCode(), configuration.getTypeCode());
+        ServerGeoObjectIF root = this.objectService.getGeoObjectByCode(configuration.getCode(), configuration.getTypeCode());
 
         if (root != null && geoObjectTypes.contains(root.getType()))
         {
@@ -185,18 +195,18 @@ public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherS
     Snapshot snapshot = state.stack.pop();
 
     long startTime = System.currentTimeMillis();
-    GeoObjectTypeSnapshot graphVertex = this.objectService.get(state.version, snapshot.node.getType().getCode());
+    GeoObjectTypeSnapshot graphVertex = this.tSnapshotService.get(state.version, snapshot.node.getType().getCode());
     MdVertex mdVertex = graphVertex.getGraphMdVertex();
 
     VertexObject vertex = null;
 
     if (!state.uids.contains(snapshot.node.getUid()))
     {
-      vertex = this.publish(state, mdVertex, snapshot.node.toGeoObject(forDate, false));
+      vertex = this.publish(state, mdVertex, this.objectService.toGeoObject(snapshot.node, forDate, false));
 
       final VertexObject parent = vertex;
 
-      ServerChildTreeNode node = snapshot.node.getChildGeoObjects(hierarchyType, null, false, forDate);
+      ServerChildTreeNode node = this.objectService.getChildGeoObjects(snapshot.node, hierarchyType, null, false, forDate);
       List<ServerChildTreeNode> children = node.getChildren();
 
       if (children.size() > 0)

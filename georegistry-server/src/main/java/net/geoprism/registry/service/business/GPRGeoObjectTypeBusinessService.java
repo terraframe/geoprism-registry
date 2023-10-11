@@ -1,6 +1,5 @@
 package net.geoprism.registry.service.business;
 
-import java.io.InputStream;
 import java.util.Locale;
 
 import org.commongeoregistry.adapter.Optional;
@@ -25,8 +24,6 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.MdGeoVertexInfo;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
-import com.runwaysdk.session.Request;
-import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -39,7 +36,6 @@ import net.geoprism.registry.ChainInheritanceException;
 import net.geoprism.registry.CodeLengthException;
 import net.geoprism.registry.DuplicateGeoObjectTypeException;
 import net.geoprism.registry.GeoObjectTypeAssignmentException;
-import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
@@ -89,47 +85,12 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
     new ChangeRequestService().markAllAsInvalid(type);
   }
   
-  @Request(RequestType.SESSION)
-  public void importTypes(String sessionId, String orgCode, InputStream istream)
-  {
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(orgCode, true);
-
-    GeoRegistryUtil.importTypes(orgCode, istream);
-
-    ServiceFactory.getGraphRepoService().refreshMetadataCache();
-    SerializedListTypeCache.getInstance().clear();
-
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
-  }
-  
-  @Override
-  @Request(RequestType.SESSION)
-  public GeoObjectType updateGeoObjectType(String sessionId, String gtJSON)
-  {
-    GeoObjectType got = super.updateGeoObjectType(sessionId, gtJSON);
-    
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
-    
-    return got;
-  }
-  
   @Override
   protected void update(ServerGeoObjectType serverGeoObjectType, GeoObjectType geoObjectTypeNew)
   {
     super.update(serverGeoObjectType, geoObjectTypeNew);
     
     SerializedListTypeCache.getInstance().clear();
-  }
-  
-  @Override
-  @Request(RequestType.SESSION)
-  public GeoObjectType createGeoObjectType(String sessionId, String gtJSON)
-  {
-    GeoObjectType got = super.createGeoObjectType(sessionId, gtJSON);
-    
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
-    
-    return got;
   }
   
   @Override

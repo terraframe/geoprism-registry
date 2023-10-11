@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
@@ -17,7 +17,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.GPRGeoObjectPermissionService;
 import net.geoprism.registry.view.HistoricalRow;
 
-@Component
+@Repository
 public class TransitionEventService
 {
   @Autowired

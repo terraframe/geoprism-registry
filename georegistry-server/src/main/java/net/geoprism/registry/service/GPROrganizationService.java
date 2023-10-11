@@ -1,29 +1,14 @@
 package net.geoprism.registry.service;
 
-import java.io.InputStream;
-
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
+import org.springframework.stereotype.Repository;
 
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
-import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.xml.XMLExporter;
-
+@Repository
 public class GPROrganizationService extends OrganizationService implements OrganizationServiceIF
 {
-
-  @Request(RequestType.SESSION)
-  public InputStream exportTypes(String sessionId, String code)
-  {
-    ServerOrganization organization = ServerOrganization.getByCode(code);
-
-    XMLExporter exporter = new XMLExporter(organization);
-    exporter.build();
-
-    return exporter.write();
-  }
-
   /**
    * Updates the given {@link OrganizationDTO} represented as JSON.
    * 

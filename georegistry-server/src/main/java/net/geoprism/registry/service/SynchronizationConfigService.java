@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -29,7 +29,7 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -53,6 +53,7 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnitGroup;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
+import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
@@ -74,12 +75,15 @@ import net.geoprism.registry.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 
-@Component
+@Repository
 public class SynchronizationConfigService
 {
   @Autowired
-  private RegistryComponentService service;
-  
+  private RegistryComponentService       service;
+
+  @Autowired
+  private HierarchyTypeBusinessServiceIF hierarchyService;
+
   @Request(RequestType.SESSION)
   public JsonObject page(String sessionId, Integer pageNumber, Integer pageSize) throws JSONException
   {
@@ -94,7 +98,7 @@ public class SynchronizationConfigService
   {
     return applyInTrans(sessionId, element);
   }
-  
+
   @Transaction
   public JsonObject applyInTrans(String sessionId, JsonObject element) throws JSONException
   {
@@ -127,14 +131,15 @@ public class SynchronizationConfigService
   public JsonObject getConfigForExternalSystem(String sessionId, String externalSystemId, String hierarchyTypeCode)
   {
     ServerHierarchyType sht = ServerHierarchyType.get(hierarchyTypeCode);
-    
-    List<ServerGeoObjectType> gots = sht.getAllTypes();
-    
+
+    List<ServerGeoObjectType> gots = this.hierarchyService.getAllTypes(sht);
+
     JsonObject ret = new JsonObject();
 
     // Add GeoObjectTypes
-//    GeoObjectType[] gots = service.getGeoObjectTypes(sessionId, null, new String[] { hierarchyTypeCode }, PermissionContext.WRITE);
-    
+    // GeoObjectType[] gots = service.getGeoObjectTypes(sessionId, null, new
+    // String[] { hierarchyTypeCode }, PermissionContext.WRITE);
+
     CustomSerializer serializer = service.serializer(sessionId);
 
     JsonArray jarray = new JsonArray();

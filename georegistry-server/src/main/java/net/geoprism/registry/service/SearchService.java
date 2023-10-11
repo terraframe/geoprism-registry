@@ -276,7 +276,7 @@ public class SearchService
     {
       GraphObjectDAOIF value = (GraphObjectDAOIF) vot.getValue();
 
-      Set<String> attributeNames = CGRLocalizationService.getLocaleNames();
+      Set<String> attributeNames = GPRLocalizationService.getLocaleNames();
 
       Set<String> labels = new HashSet<String>(); // Using a set so we don't
                                                   // have duplicates

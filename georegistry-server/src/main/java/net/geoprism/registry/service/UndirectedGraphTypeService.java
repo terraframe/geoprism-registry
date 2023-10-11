@@ -4,24 +4,24 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
 import java.util.List;
-import java.util.stream.Collector;
 
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -29,26 +29,28 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.JsonCollectors;
 import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.business.UndirectedGraphTypeBusinessServiceIF;
 
-@Component
+@Repository
 public class UndirectedGraphTypeService
 {
+  @Autowired
+  private UndirectedGraphTypeBusinessServiceIF service;
+
   @Request(RequestType.SESSION)
   public JsonArray getAll(String sessionId)
   {
     List<UndirectedGraphType> types = UndirectedGraphType.getAll();
 
-    return types.stream().map(child -> child.toJSON()).collect(Collector.of(() -> new JsonArray(), (r, t) -> r.add((JsonObject) t), (x1, x2) -> {
-      x1.addAll(x2);
-      return x1;
-    }));
+    return types.stream().map(child -> child.toJSON()).collect(JsonCollectors.toJsonArray());
   }
 
   @Request(RequestType.SESSION)
   public JsonObject create(String sessionId, JsonObject object)
   {
-    UndirectedGraphType type = UndirectedGraphType.create(object);
+    UndirectedGraphType type = this.service.create(object);
 
     // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
@@ -62,7 +64,8 @@ public class UndirectedGraphTypeService
     String code = object.get(UndirectedGraphType.CODE).getAsString();
 
     UndirectedGraphType type = UndirectedGraphType.getByCode(code);
-    type.update(object);
+
+    this.service.update(type, object);
 
     return type.toJSON();
   }

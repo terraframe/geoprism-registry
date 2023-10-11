@@ -71,7 +71,7 @@ import net.geoprism.registry.localization.LocalizationImportMessagesException;
 import net.geoprism.registry.permission.RolePermissionService;
 
 @Repository
-public class CGRLocalizationService extends net.geoprism.localization.LocalizationService
+public class GPRLocalizationService extends net.geoprism.localization.LocalizationService
 {
   @Autowired
   private RolePermissionService permissions;
@@ -274,7 +274,7 @@ public class CGRLocalizationService extends net.geoprism.localization.Localizati
     {
       if (locale != null && locale.length() > 0)
       {
-        Set<String> locales = CGRLocalizationService.getLocaleNames();
+        Set<String> locales = GPRLocalizationService.getLocaleNames();
 
         if (locales.contains(locale))
         {

@@ -34,7 +34,7 @@ import net.geoprism.registry.RegistryVersionProperties;
 import net.geoprism.session.SessionService;
 
 @Component
-public class CGRSessionService extends SessionService
+public class GPRSessionService extends SessionService
 {
   @Autowired
   private RegistryComponentService service;

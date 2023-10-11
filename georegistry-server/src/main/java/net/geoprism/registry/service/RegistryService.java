@@ -36,7 +36,7 @@ import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -59,6 +59,7 @@ import net.geoprism.registry.CGRApplication;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.localization.DefaultLocaleView;
@@ -70,11 +71,17 @@ import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
 
-@Component
-public class RegistryService
+@Repository
+public class RegistryService implements RegistryServiceIF
 {
   @Autowired
-  private GeoObjectBusinessServiceIF service;
+  private GeoObjectBusinessServiceIF     service;
+
+  @Autowired
+  private GeoObjectTypeBusinessServiceIF gTypeService;
+
+  @Autowired
+  private HierarchyTypeServiceIF         hTypeService;
 
   private String buildOauthServerUrl(OauthServer server)
   {
@@ -101,6 +108,7 @@ public class RegistryService
     }
   }
 
+  @Override
   @Request(RequestType.SESSION)
   public String oauthGetAll(String sessionId, String id)
   {
@@ -135,6 +143,7 @@ public class RegistryService
     return ja.toString();
   }
 
+  @Override
   @Request(RequestType.SESSION)
   public String oauthGetPublic(String sessionId, String id)
   {
@@ -175,6 +184,7 @@ public class RegistryService
     return ja.toString();
   }
 
+  @Override
   @Request(RequestType.SESSION)
   public JsonObject initHierarchyManager(String sessionId, Boolean publicOnly)
   {
@@ -193,8 +203,8 @@ public class RegistryService
     }
     else
     {
-      GeoObjectType[] gots = this.getGeoObjectTypes(sessionId, null, PermissionContext.READ);
-      HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(sessionId, null, PermissionContext.READ);
+      List<GeoObjectType> gots = this.gTypeService.getGeoObjectTypes(null, PermissionContext.READ);
+      HierarchyType[] hts = this.hTypeService.getHierarchyTypes(sessionId, null, PermissionContext.READ);
 
       for (GeoObjectType got : gots)
       {
@@ -241,46 +251,37 @@ public class RegistryService
     return response;
   }
 
+  @Override
   @Request(RequestType.SESSION)
   public String[] getUIDS(String sessionId, Integer amount)
   {
     return RegistryIdService.getInstance().getUids(amount);
   }
 
+  @Override
   @Request(RequestType.SESSION)
   public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String parentTypeCode, String hierarchyCode, Date startDate, Date endDate)
   {
     return VertexServerGeoObject.getGeoObjectSuggestions(text, typeCode, parentCode, parentTypeCode, hierarchyCode, startDate, endDate);
   }
 
-  // private ParentTreeNode ptnFromHierarchyNode(HierarchyNode hn, HierarchyType
-  // ht)
-  // {
-  // List<HierarchyNode> lhnChildren = hn.getChildren();
-  //
-  // for (HierarchyNode hnChild : lhnChildren)
-  // {
-  // ParentTreeNode ptnChild = ptnFromHierarchyNode(hnChild, ht);
-  //
-  // ptnChild.addParent(parents);
-  // ParentTreeNode ptnHn = new ParentTreeNode(null, ht);
-  // }
-  // }
-
+  @Override
   @Request(RequestType.SESSION)
   public JsonArray getHierarchiesForGeoObject(String sessionId, String code, String typeCode, Date date)
   {
     ServerGeoObjectIF geoObject = this.service.getGeoObjectByCode(code, typeCode);
 
-    return geoObject.getHierarchiesForGeoObject(date);
+    return this.service.getHierarchiesForGeoObject(geoObject, date);
   }
-  
+
+  @Override
   @Request(RequestType.SESSION)
   public JsonObject serialize(String sessionId, GeoObjectType got)
   {
     return got.toJSON(this.serializer(sessionId));
   }
 
+  @Override
   @Request(RequestType.SESSION)
   public JsonArray getLocales(String sessionId)
   {
@@ -303,6 +304,7 @@ public class RegistryService
     return array;
   }
 
+  @Override
   @Request(RequestType.SESSION)
   public String getCurrentLocale(String sessionId)
   {
@@ -311,6 +313,7 @@ public class RegistryService
     return locale.toString();
   }
 
+  @Override
   @Request(RequestType.SESSION)
   public CustomSerializer serializer(String sessionId)
   {
@@ -319,6 +322,7 @@ public class RegistryService
     return new LocaleSerializer(locale);
   }
 
+  @Override
   @Request(RequestType.SESSION)
   public List<GeoObject> search(String sessionId, String typeCode, String text, Date date)
   {
@@ -339,18 +343,20 @@ public class RegistryService
 
     for (ServerGeoObjectIF result : results)
     {
-      objects.add(result.toGeoObject(date));
+      objects.add(this.service.toGeoObject(result, date));
     }
 
     return objects;
   }
 
+  @Override
   @Request(RequestType.SESSION)
   public String getLocalizationMap(String sessionId)
   {
     return new net.geoprism.localization.LocalizationService().getAllView();
   }
 
+  @Override
   @Request(RequestType.SESSION)
   public JsonObject configuration(String sessionId, String contextPath)
   {
@@ -373,15 +379,10 @@ public class RegistryService
     return config;
   }
 
+  @Override
   @Request(RequestType.SESSION)
   public List<CGRApplication> getApplications(String sessionId)
   {
     return CGRApplication.getApplications();
   }
-
-  public static RegistryService getInstance()
-  {
-    return GPRServiceFactory.getRegistryService();
-  }
-
 }

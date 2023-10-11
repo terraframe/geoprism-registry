@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -36,7 +36,8 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
-import net.geoprism.registry.hierarchy.HierarchyService;
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -49,20 +50,30 @@ import net.geoprism.registry.view.LocationInformation;
 public class LocationService
 {
   @Autowired
-  private RegistryComponentService service;
+  private RegistryComponentService       service;
+
+  @Autowired
+  private GeoObjectBusinessServiceIF     objectService;
+
+  @Autowired
+  private HierarchyTypeServiceIF         hierarchyService;
+
+  @Autowired
+  private HierarchyTypeBusinessServiceIF hbService;
+
+  @Autowired
+  private GPRGeoObjectPermissionService  permissions;
 
   @Request(RequestType.SESSION)
   public List<GeoObject> search(String sessionId, String text, Date date)
   {
-    final GPRGeoObjectPermissionService pService = new GPRGeoObjectPermissionService();
-
     List<ServerGeoObjectIF> results = new SearchService().search(text, date, 20L);
 
     return results.stream().collect(() -> new LinkedList<GeoObject>(), (list, element) -> {
       ServerGeoObjectType type = element.getType();
 
-      GeoObject geoObject = element.toGeoObject(date);
-      geoObject.setWritable(pService.canCreateCR(type.getOrganization().getCode(), type));
+      GeoObject geoObject = this.objectService.toGeoObject(element, date);
+      geoObject.setWritable(permissions.canCreateCR(type.getOrganization().getCode(), type));
 
       list.add(geoObject);
     }, (listA, listB) -> {
@@ -89,8 +100,7 @@ public class LocationService
   {
     LocationInformation information = new LocationInformation();
 
-    HierarchyService hService = ServiceFactory.getHierarchyService();
-    HierarchyType[] hierarchies = hService.getHierarchyTypes(sessionId, null, PermissionContext.READ);
+    HierarchyType[] hierarchies = this.hierarchyService.getHierarchyTypes(sessionId, null, PermissionContext.READ);
 
     ServerHierarchyType hierarchy = null;
 
@@ -103,7 +113,7 @@ public class LocationService
       hierarchy = ServerHierarchyType.get(hierarchyCode);
     }
 
-    List<ServerGeoObjectType> nodes = hierarchy.getDirectRootNodes();
+    List<ServerGeoObjectType> nodes = this.hbService.getDirectRootNodes(hierarchy);
 
     if (nodes.size() > 0)
     {
@@ -134,7 +144,7 @@ public class LocationService
 
         for (VertexServerGeoObject child : children)
         {
-          information.addChild(child.toGeoObject(date));
+          information.addChild(this.objectService.toGeoObject(child, date));
         }
 
       }

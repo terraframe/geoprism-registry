@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.rbac.RoleDAOIF;
@@ -48,7 +48,7 @@ import net.geoprism.registry.task.TaskQuery;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 
-@Component
+@Repository
 public class TaskService
 {
   public JsonObject getTasksForCurrentUser(String sessionId)

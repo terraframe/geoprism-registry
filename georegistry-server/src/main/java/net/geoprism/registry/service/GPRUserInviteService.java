@@ -42,10 +42,10 @@ import net.geoprism.userinvite.business.UserInviteBusinessService;
 import net.geoprism.userinvite.business.UserInviteBusinessServiceIF;
 
 @Component
-public class CGRUserInviteService extends UserInviteBusinessService implements UserInviteBusinessServiceIF
+public class GPRUserInviteService extends UserInviteBusinessService implements UserInviteBusinessServiceIF
 {
 
-  private static final Logger logger = LoggerFactory.getLogger(CGRUserInviteService.class);
+  private static final Logger logger = LoggerFactory.getLogger(GPRUserInviteService.class);
   
   @Override
   protected void applyUserWithRoles(JsonObject joUser, Set<String> roleNames)
