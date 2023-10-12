@@ -16,13 +16,15 @@ import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.view.Page;
 
 @ContextConfiguration(classes = { TestConfig.class })
-@RunWith(SpringJUnit4ClassRunner.class)
-public class ClassificationTypeTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class ClassificationTypeTest implements InstanceTestClassListener
 {
   @Test
   @Request

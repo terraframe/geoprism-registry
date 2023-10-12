@@ -13,18 +13,25 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.DirectedAcyclicGraphType;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.test.FastTestDataset;
 
-public class DirectedAcyclicGraphTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class DirectedAcyclicGraphTest implements InstanceTestClassListener
 {
   protected static FastTestDataset          testData;
 

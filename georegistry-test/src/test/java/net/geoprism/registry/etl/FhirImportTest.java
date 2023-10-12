@@ -15,13 +15,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.GsonBuilder;
 import com.runwaysdk.session.Request;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.SynchronizationConfig;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.etl.fhir.BasicFhirConnection;
 import net.geoprism.registry.etl.fhir.BasicFhirResourceProcessor;
 import net.geoprism.registry.etl.fhir.FhirFactory;
@@ -37,7 +42,9 @@ import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
-public class FhirImportTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class FhirImportTest implements InstanceTestClassListener
 {
   protected static USATestData           testData;
 

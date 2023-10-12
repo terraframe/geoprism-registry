@@ -31,6 +31,8 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeometryTypeException;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
@@ -40,9 +42,9 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class GeoObjectServiceTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class GeoObjectServiceTest implements InstanceTestClassListener
 {
   protected static FastTestDataset      testData;
 
@@ -51,8 +53,7 @@ public class GeoObjectServiceTest
   public static final TestGeoObjectInfo TEST_GO_PRIVATE = new TestGeoObjectInfo("GOSERV_TEST_GO_PRIVATE", FastTestDataset.PROVINCE_PRIVATE);
 
   @Autowired
-  private TestRegistryClient   client;
-
+  private TestRegistryClient            client;
 
   @BeforeClass
   public static void setUpClass()
@@ -548,7 +549,7 @@ public class GeoObjectServiceTest
     geoObj.setUid(UUID.randomUUID().toString());
     client.createGeoObject(geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
   }
-  
+
   /**
    * Test to make sure we can't just provide random ids, they actually have to
    * be issued by our id service

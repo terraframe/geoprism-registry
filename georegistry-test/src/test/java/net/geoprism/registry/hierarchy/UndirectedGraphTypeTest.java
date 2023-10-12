@@ -8,6 +8,8 @@ import java.util.List;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
@@ -15,9 +17,14 @@ import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
 
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.UndirectedGraphType;
 
-public class UndirectedGraphTypeTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class UndirectedGraphTypeTest implements InstanceTestClassListener
 {
 
   @Test

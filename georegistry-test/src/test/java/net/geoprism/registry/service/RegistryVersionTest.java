@@ -28,6 +28,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -35,9 +37,9 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class RegistryVersionTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class RegistryVersionTest implements InstanceTestClassListener
 {
   protected static FastTestDataset               testData;
 

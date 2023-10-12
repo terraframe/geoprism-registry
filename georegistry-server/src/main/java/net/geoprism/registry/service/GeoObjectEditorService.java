@@ -7,6 +7,7 @@ import java.util.Date;
 import org.commongeoregistry.adapter.constants.CGRAdapterProperties;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -35,6 +36,7 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
 import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 
+@Service
 public class GeoObjectEditorService implements GeoObjectEditorServiceIF
 {
   @Autowired

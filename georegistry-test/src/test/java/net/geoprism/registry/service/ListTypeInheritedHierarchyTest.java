@@ -11,6 +11,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
@@ -20,15 +22,20 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.ListTypeVersion;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
-public class ListTypeInheritedHierarchyTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class ListTypeInheritedHierarchyTest implements InstanceTestClassListener
 {
   private static USATestData testData;
 

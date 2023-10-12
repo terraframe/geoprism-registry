@@ -25,16 +25,19 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 
 import net.geoprism.registry.RegistryVersionProperties;
 import net.geoprism.session.SessionService;
+import net.geoprism.session.SessionServiceIF;
 
-@Component
-public class GPRSessionService extends SessionService
+@Service
+@Primary
+public class GPRSessionService extends SessionService implements SessionServiceIF
 {
   @Autowired
   private RegistryComponentService service;

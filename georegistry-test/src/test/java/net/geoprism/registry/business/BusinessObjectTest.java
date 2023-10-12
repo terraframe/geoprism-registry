@@ -12,18 +12,25 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.test.FastTestDataset;
 
-public class BusinessObjectTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class BusinessObjectTest implements InstanceTestClassListener
 {
   private static String           TEST_CODE = "TEST_OBJ";
 

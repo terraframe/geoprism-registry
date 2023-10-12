@@ -36,7 +36,7 @@ import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -71,7 +71,7 @@ import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
 
-@Repository
+@Service
 public class RegistryService implements RegistryServiceIF
 {
   @Autowired

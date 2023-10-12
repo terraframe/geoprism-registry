@@ -1,6 +1,8 @@
 package net.geoprism.registry.service.business;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
@@ -9,6 +11,8 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.business.UndirectedGraphTypeBusinessService;
 import net.geoprism.registry.business.UndirectedGraphTypeBusinessServiceIF;
 
+@Service
+@Primary
 public class GPRUndirectedGraphTypeBusinessService extends UndirectedGraphTypeBusinessService implements UndirectedGraphTypeBusinessServiceIF
 {
   @Autowired

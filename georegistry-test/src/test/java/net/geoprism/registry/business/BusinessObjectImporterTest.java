@@ -18,6 +18,8 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonObject;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
@@ -29,6 +31,9 @@ import com.runwaysdk.system.scheduler.ExecutionContext;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportHistory;
@@ -53,7 +58,9 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
-public class BusinessObjectImporterTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class BusinessObjectImporterTest implements InstanceTestClassListener
 {
   private static FastTestDataset testData;
 

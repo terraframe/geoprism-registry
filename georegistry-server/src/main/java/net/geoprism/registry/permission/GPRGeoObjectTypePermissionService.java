@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.rbac.RoleDAOIF;
@@ -39,6 +40,7 @@ import net.geoprism.registry.roles.ReadGeoObjectTypePermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectTypePermissionException;
 
 @Service
+@Primary
 public class GPRGeoObjectTypePermissionService extends UserPermissionService implements GeoObjectTypePermissionServiceIF
 {
   /**

@@ -40,6 +40,7 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.IncrementalListType;
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.IntervalListType;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.ListType;
@@ -47,6 +48,7 @@ import net.geoprism.registry.ListTypeBuilder;
 import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.SingleListType;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
@@ -64,8 +66,8 @@ import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
 @ContextConfiguration(classes = { TestConfig.class })
-@RunWith(SpringJUnit4ClassRunner.class)
-public class ListTypeTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class ListTypeTest implements InstanceTestClassListener
 {
   private static String                      CODE    = "Test Term";
 

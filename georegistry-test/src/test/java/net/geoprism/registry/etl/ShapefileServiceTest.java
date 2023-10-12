@@ -36,16 +36,17 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.FilterFactory;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.VaultProperties;
@@ -60,6 +61,11 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.USADatasetTest;
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
@@ -78,12 +84,10 @@ import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.service.ETLService;
-import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.service.RegistryComponentService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.ShapefileService;
 import net.geoprism.registry.test.SchedulerTestUtils;
@@ -94,22 +98,27 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
-public class ShapefileServiceTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class ShapefileServiceTest extends USADatasetTest implements InstanceTestClassListener
 {
-  protected static USATestData             testData;
+  private TestAttributeTermTypeInfo  testTerm    = new TestAttributeTermTypeInfo("testTerm", "testTermLocalName", USATestData.STATE);
 
-  private static TestAttributeTermTypeInfo testTerm    = new TestAttributeTermTypeInfo("testTerm", "testTermLocalName", USATestData.STATE);
+  private TestAttributeTypeInfo      testInteger = new TestAttributeTypeInfo("testInteger", "testIntegerLocalName", USATestData.STATE, AttributeIntegerType.TYPE);
 
-  private static TestAttributeTypeInfo     testInteger = new TestAttributeTypeInfo("testInteger", "testIntegerLocalName", USATestData.STATE, AttributeIntegerType.TYPE);
+  @Autowired
+  private RegistryComponentService   service;
 
-  @BeforeClass
+  @Autowired
+  private GeoObjectBusinessServiceIF objectService;
+
+  @Override
   @Request
-  public static void classSetUp()
+  public void beforeClassSetup() throws Exception
   {
     TestDataSet.deleteAllSchedulerData();
 
-    testData = USATestData.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
 
     testTerm.apply();
 
@@ -121,11 +130,10 @@ public class ShapefileServiceTest
     }
   }
 
-  @AfterClass
-  public static void classTearDown() throws IOException
+  @Override
+  public void afterClassSetup() throws Exception
   {
-    testData.tearDownMetadata();
-
+    super.afterClassSetup();
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
   }
 
@@ -148,7 +156,7 @@ public class ShapefileServiceTest
   }
 
   @Request
-  private static void clearData()
+  private void clearData()
   {
     SchedulerTestUtils.clearImportData();
 
@@ -168,7 +176,7 @@ public class ShapefileServiceTest
   // new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false,
   // false, false);
   // this.testTerm = (AttributeTermType)
-  // ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(),
+  // this.service.createAttributeType(this.adminCR.getSessionId(),
   // this.USATestData.STATE.getCode(), testTerm.toJSON().toString());
   //
   // AttributeIntegerType testInteger = (AttributeIntegerType)
@@ -177,7 +185,7 @@ public class ShapefileServiceTest
   // LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE,
   // false, false, false);
   // this.testInteger = (AttributeIntegerType)
-  // ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(),
+  // this.service.createAttributeType(this.adminCR.getSessionId(),
   // this.USATestData.STATE.getCode(), testInteger.toJSON().toString());
   //
   // reload();
@@ -349,7 +357,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(Long.valueOf(56), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+    GeoObject object = this.service.getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
@@ -399,7 +407,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(Long.valueOf(56), hist2.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist2.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+    GeoObject object = this.service.getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
@@ -432,7 +440,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(Long.valueOf(56), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+    GeoObject object = this.service.getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
@@ -477,7 +485,7 @@ public class ShapefileServiceTest
       importer.importRow(new MapFeatureRow(row, 0L));
     }
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+    GeoObject object = this.service.getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
@@ -522,7 +530,7 @@ public class ShapefileServiceTest
       importer.importRow(new MapFeatureRow(row, 0L));
     }
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+    GeoObject object = this.service.getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
@@ -534,13 +542,13 @@ public class ShapefileServiceTest
   @Request
   public void testImportShapefileWithParent() throws Throwable
   {
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
+    GeoObject geoObj = this.service.newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
     geoObj.setCode("00");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, true, false);
-    geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+    ServerGeoObjectIF serverGO = this.objectService.apply(geoObj, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, true, false);
+    geoObj = this.service.getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -565,11 +573,11 @@ public class ShapefileServiceTest
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     String sessionId = testData.clientRequest.getSessionId();
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+    GeoObject object = this.service.getGeoObjectByCode(sessionId, "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertEquals("01", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getCode(), config.getType().getCode(), null, new String[] { USATestData.COUNTRY.getCode() }, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+    ParentTreeNode nodes = this.service.getParentGeoObjects(sessionId, object.getCode(), config.getType().getCode(), null, new String[] { USATestData.COUNTRY.getCode() }, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -580,13 +588,13 @@ public class ShapefileServiceTest
   @Request
   public void testImportShapefileWithParentCode() throws Throwable
   {
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
+    GeoObject geoObj = this.service.newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
     geoObj.setCode("00");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, true, false);
-    geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+    ServerGeoObjectIF serverGO = this.objectService.apply(geoObj, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, true, false);
+    geoObj = this.service.getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -619,11 +627,11 @@ public class ShapefileServiceTest
     // test.getParentLookupType());
 
     String sessionId = testData.clientRequest.getSessionId();
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+    GeoObject object = this.service.getGeoObjectByCode(sessionId, "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertEquals("01", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getCode(), config.getType().getCode(), null, new String[] { USATestData.COUNTRY.getCode() }, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+    ParentTreeNode nodes = this.service.getParentGeoObjects(sessionId, object.getCode(), config.getType().getCode(), null, new String[] { USATestData.COUNTRY.getCode() }, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -634,13 +642,13 @@ public class ShapefileServiceTest
   @Request
   public void testImportShapefileWithBadParentCode() throws Throwable
   {
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
+    GeoObject geoObj = this.service.newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
     geoObj.setCode("00");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, true, false);
-    geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+    ServerGeoObjectIF serverGO = this.objectService.apply(geoObj, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, true, false);
+    geoObj = this.service.getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -676,7 +684,7 @@ public class ShapefileServiceTest
     // Assert.assertEquals(0, errors.length());
 
     // Ensure the geo objects were not created
-    ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
+    ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
     query.setRestriction(new ServerCodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
@@ -711,7 +719,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     // Ensure the geo objects were not created
-    ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
+    ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
     query.setRestriction(new ServerCodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
@@ -749,7 +757,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(1, results.length());
 
     // Ensure the geo objects were not created
-    ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
+    ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
     query.setRestriction(new ServerCodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
@@ -759,7 +767,7 @@ public class ShapefileServiceTest
   @Request
   public void testImportShapefileWithTerm() throws Throwable
   {
-    Term term = ServiceFactory.getRegistryService().createTerm(testData.clientRequest.getSessionId(), testTerm.fetchRootAsTerm().getCode(), new Term("00", new LocalizedValue("00"), new LocalizedValue("")).toJSON().toString());
+    Term term = this.service.createTerm(testData.clientRequest.getSessionId(), testTerm.fetchRootAsTerm().getCode(), new Term("00", new LocalizedValue("00"), new LocalizedValue("")).toJSON().toString());
 
     try
     {
@@ -787,13 +795,13 @@ public class ShapefileServiceTest
       Assert.assertEquals(Long.valueOf(56), hist.getImportedRecords());
 
       String sessionId = testData.clientRequest.getSessionId();
-      GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+      GeoObject object = this.service.getGeoObjectByCode(sessionId, "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
       Assert.assertEquals("01", object.getCode());
     }
     finally
     {
-      ServiceFactory.getRegistryService().deleteTerm(testData.clientRequest.getSessionId(), testTerm.fetchRootAsTerm().getCode(), term.getCode());
+      this.service.deleteTerm(testData.clientRequest.getSessionId(), testTerm.fetchRootAsTerm().getCode(), term.getCode());
 
       TestDataSet.refreshTerms((AttributeTermType) testTerm.fetchDTO());
     }
@@ -837,7 +845,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(testTerm.getLabel(), problem.getString("attributeLabel"));
 
     // Ensure the geo objects were not created
-    ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
+    ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
     query.setRestriction(new ServerCodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
@@ -878,7 +886,7 @@ public class ShapefileServiceTest
 
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+    GeoObject object = this.service.getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
@@ -978,18 +986,18 @@ public class ShapefileServiceTest
     Assert.assertEquals(1, results.length());
 
     // Ensure the geo objects were not created
-    ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
+    ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
     query.setRestriction(new ServerCodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
 
     // Resolve the import problem with a synonym
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
+    GeoObject geoObj = this.service.newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
     geoObj.setCode("99");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label99");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServerGeoObjectIF serverGo = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, true, false);
+    ServerGeoObjectIF serverGo = this.objectService.apply(geoObj, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, true, false);
 
     JSONObject valRes = new JSONObject();
     valRes.put("validationProblemId", results.getJSONObject(0).getString("id"));
@@ -1017,11 +1025,11 @@ public class ShapefileServiceTest
     Assert.assertEquals(Long.valueOf(56), hist.getImportedRecords());
 
     String sessionId = testData.clientRequest.getSessionId();
-    GeoObject go = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+    GeoObject go = this.service.getGeoObjectByCode(sessionId, "01", USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertEquals("01", go.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, go.getCode(), config.getType().getCode(), null, new String[] { USATestData.COUNTRY.getCode() }, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+    ParentTreeNode nodes = this.service.getParentGeoObjects(sessionId, go.getCode(), config.getType().getCode(), null, new String[] { USATestData.COUNTRY.getCode() }, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -1141,7 +1149,7 @@ public class ShapefileServiceTest
 
       try
       {
-        ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), geoId, USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+        this.service.getGeoObjectByCode(testData.clientRequest.getSessionId(), geoId, USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
         Assert.fail("Was able to fectch GeoObject with code [" + geoId + "], which should not have been imported.");
       }
@@ -1155,7 +1163,7 @@ public class ShapefileServiceTest
     {
       String geoId = sortedGeoIds.get(i);
 
-      GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), geoId, USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+      GeoObject object = this.service.getGeoObjectByCode(testData.clientRequest.getSessionId(), geoId, USATestData.STATE.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
       Assert.assertNotNull(object);
       Assert.assertEquals(geoId, object.getCode());
@@ -1176,12 +1184,12 @@ public class ShapefileServiceTest
   {
     String parentCode = "ZZZZ000";
 
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode());
+    GeoObject geoObj = this.service.newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode());
     geoObj.setCode(parentCode);
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
 
-    ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, true, false);
+    ServerGeoObjectIF serverGO = this.objectService.apply(geoObj, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, true, false);
 
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -1205,7 +1213,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(Long.valueOf(56), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.HEALTH_POST.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+    GeoObject object = this.service.getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.HEALTH_POST.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());

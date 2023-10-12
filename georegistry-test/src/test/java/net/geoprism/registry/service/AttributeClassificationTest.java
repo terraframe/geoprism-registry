@@ -24,8 +24,10 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeQuery;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.model.Classification;
@@ -38,9 +40,9 @@ import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class AttributeClassificationTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class AttributeClassificationTest implements InstanceTestClassListener
 {
   public static final String                 TEST_KEY = "ATTRCLASSTEST";
 

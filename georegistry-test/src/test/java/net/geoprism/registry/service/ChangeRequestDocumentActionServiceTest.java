@@ -11,6 +11,8 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -24,6 +26,9 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.registry.CGRPermissionException;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
@@ -32,7 +37,9 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestUserInfo;
 
-public class ChangeRequestDocumentActionServiceTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class ChangeRequestDocumentActionServiceTest implements InstanceTestClassListener
 {
   protected static FastTestDataset testData;
 

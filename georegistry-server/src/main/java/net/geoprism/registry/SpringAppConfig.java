@@ -47,19 +47,8 @@ import net.geoprism.forgotpassword.business.ForgotPasswordBusinessServiceIF;
 import net.geoprism.forgotpassword.controller.ForgotPasswordController;
 import net.geoprism.forgotpassword.service.ForgotPasswordService;
 import net.geoprism.forgotpassword.service.ForgotPasswordServiceIF;
-import net.geoprism.graph.lpg.business.GeoObjectTypeSnapshotBusinessService;
-import net.geoprism.graph.lpg.business.HierarchyTypeSnapshotBusinessService;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeBusinessService;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeEntryBusinessService;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeVersionBusinessService;
 import net.geoprism.registry.account.ForgotPasswordCGRService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.lpg.business.GPRGeoObjectTypeSnapshotBusinessService;
-import net.geoprism.registry.lpg.business.GPRHierarchyTypeSnapshotBusinessService;
-import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeBusinessService;
-import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeEntryBusinessService;
-import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeVersionBusinessService;
-import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.session.ExternalProfileCGRService;
 import net.geoprism.session.LoginBruteForceGuardService;
 import net.geoprism.session.SessionController;
@@ -213,41 +202,5 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
   LoginBruteForceGuardService loginBruteForceGuard()
   {
     return new LoginBruteForceGuardService();
-  }
-  
-  @Bean
-  ServiceFactory serviceFactory()
-  {
-    return new ServiceFactory();
-  }
-
-  @Bean
-  GeoObjectTypeSnapshotBusinessService geoObjectTypeSnapshotBusinessService()
-  {
-    return new GPRGeoObjectTypeSnapshotBusinessService();
-  }
-
-  @Bean
-  HierarchyTypeSnapshotBusinessService hierarchyTypeSnapshotBusinessService()
-  {
-    return new GPRHierarchyTypeSnapshotBusinessService();
-  }
-
-  @Bean
-  LabeledPropertyGraphTypeBusinessService labeledPropertyGraphTypeBusinessService()
-  {
-    return new GPRLabeledPropertyGraphTypeBusinessService();
-  }
-
-  @Bean
-  LabeledPropertyGraphTypeEntryBusinessService labeledPropertyGraphTypeEntryBusinessService()
-  {
-    return new GPRLabeledPropertyGraphTypeEntryBusinessService();
-  }
-
-  @Bean
-  LabeledPropertyGraphTypeVersionBusinessService labeledPropertyGraphTypeVersionBusinessService()
-  {
-    return new GPRLabeledPropertyGraphTypeVersionBusinessService();
-  }
+  }  
 }

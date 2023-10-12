@@ -61,8 +61,10 @@ import net.geoprism.graph.lpg.service.LabeledPropertyGraphJsonExporterService;
 import net.geoprism.graph.lpg.service.LabeledPropertyGraphTypeServiceIF;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.LabeledPropertyGraphTypeBuilder;
 import net.geoprism.registry.LocalRegistryConnectorBuilder;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.conversion.TermConverter;
@@ -76,8 +78,8 @@ import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
-@RunWith(SpringJUnit4ClassRunner.class)
-public class LabeledPropertyGraphTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class LabeledPropertyGraphTest implements InstanceTestClassListener
 {
   private static boolean                                       isSetup = false;
 

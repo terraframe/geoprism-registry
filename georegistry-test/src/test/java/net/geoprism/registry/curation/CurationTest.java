@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -26,11 +25,13 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.OrganizationRAException;
 import net.geoprism.registry.OrganizationRMException;
 import net.geoprism.registry.SingleListType;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.curation.CurationProblem.CurationResolution;
 import net.geoprism.registry.curation.GeoObjectProblem.GeoObjectProblemType;
@@ -42,9 +43,9 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.test.curation.CurationControllerWrapper;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class CurationTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class CurationTest implements InstanceTestClassListener
 {
   protected static FastTestDataset testData;
   

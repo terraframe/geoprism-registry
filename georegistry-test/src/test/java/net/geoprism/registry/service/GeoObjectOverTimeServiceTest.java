@@ -21,6 +21,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.runwaysdk.business.SmartExceptionDTO;
 
 import net.geoprism.registry.GeometryTypeException;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
@@ -28,9 +30,9 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class GeoObjectOverTimeServiceTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class GeoObjectOverTimeServiceTest implements InstanceTestClassListener
 {
   protected static FastTestDataset      testData;
 

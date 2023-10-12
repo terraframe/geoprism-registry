@@ -3,7 +3,9 @@ package net.geoprism.registry.service;
 import java.util.List;
 
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.springframework.stereotype.Repository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -18,16 +20,19 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.RolePermissionService;
 
-@Repository
+@Service
+@Primary
 public class GPRHierarchyTypeService extends HierarchyTypeService implements HierarchyTypeServiceIF
 {
+  @Autowired
+  private RolePermissionService permissions;
+
   @Request(RequestType.SESSION)
   public JsonArray getHierarchyGroupedTypes(String sessionId)
   {
     final HierarchyTypePermissionServiceIF hierarchyPermissions = ServiceFactory.getHierarchyPermissionService();
     final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
-    final RolePermissionService rps = GPRServiceFactory.getRolePermissionService();
-    final boolean isSRA = rps.isSRA();
+    final boolean isSRA = permissions.isSRA();
 
     JsonArray allHiers = new JsonArray();
 
@@ -37,7 +42,7 @@ public class GPRHierarchyTypeService extends HierarchyTypeService implements Hie
     {
       final String htOrgCode = sht.getOrganizationCode();
 
-      if (hierarchyPermissions.canRead(htOrgCode) && ( isSRA || rps.isRA(htOrgCode) || rps.isRM(htOrgCode) ))
+      if (hierarchyPermissions.canRead(htOrgCode) && ( isSRA || permissions.isRA(htOrgCode) || permissions.isRM(htOrgCode) ))
       {
         JsonObject hierView = new JsonObject();
         hierView.addProperty("code", sht.getCode());
@@ -52,7 +57,7 @@ public class GPRHierarchyTypeService extends HierarchyTypeService implements Hie
         {
           final String gotOrgCode = type.getOrganizationCode();
 
-          if (typePermissions.canRead(gotOrgCode, type, type.getIsPrivate()) && ( isSRA || rps.isRA(gotOrgCode) || rps.isRM(gotOrgCode, type) ))
+          if (typePermissions.canRead(gotOrgCode, type, type.getIsPrivate()) && ( isSRA || permissions.isRA(gotOrgCode) || permissions.isRM(gotOrgCode, type) ))
           {
             if (type.getIsAbstract())
             {

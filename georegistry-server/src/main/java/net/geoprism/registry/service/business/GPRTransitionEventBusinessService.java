@@ -14,7 +14,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -29,19 +30,20 @@ import com.runwaysdk.session.Session;
 import net.geoprism.registry.DateFormatter;
 import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.business.TransitionEventBusinessService;
+import net.geoprism.registry.business.TransitionEventBusinessServiceIF;
 import net.geoprism.registry.excel.HistoricalReportExcelExporter;
 import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.query.graph.GeoObjectTypeRestrictionUtil;
-import net.geoprism.registry.service.GPRServiceFactory;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.HistoricalRow;
 import net.geoprism.registry.view.Page;
 
-@Repository
-public class GPRTransitionEventBusinessService extends TransitionEventBusinessService
+@Service
+@Primary
+public class GPRTransitionEventBusinessService extends TransitionEventBusinessService implements TransitionEventBusinessServiceIF
 {
   @Autowired
   private GeoObjectTypeRestrictionUtil   util;
@@ -49,15 +51,17 @@ public class GPRTransitionEventBusinessService extends TransitionEventBusinessSe
   @Autowired
   private GeoObjectTypeBusinessServiceIF typeService;
 
+  @Autowired
+  private RolePermissionService          permissions;
+
   @Override
   public boolean readOnly(TransitionEvent tran)
   {
-    RolePermissionService rps = GPRServiceFactory.getRolePermissionService();
     ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(tran.getBeforeTypeCode()).get();
 
     final String orgCode = tran.getBeforeTypeOrgCode();
 
-    return ! ( rps.isSRA() || rps.isRA(orgCode) || rps.isRM(orgCode, type) || rps.isRC(orgCode, type) );
+    return ! ( permissions.isSRA() || permissions.isRA(orgCode) || permissions.isRM(orgCode, type) || permissions.isRC(orgCode, type) );
   }
 
   @Override

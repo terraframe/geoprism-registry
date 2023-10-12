@@ -24,7 +24,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
@@ -37,7 +38,7 @@ import net.geoprism.registry.SRAException;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.roles.RAException;
 
-@Repository
+@Service
 public class RolePermissionService extends UserPermissionService
 {
   public boolean isSRA()

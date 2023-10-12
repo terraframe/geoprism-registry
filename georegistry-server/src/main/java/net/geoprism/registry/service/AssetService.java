@@ -26,7 +26,7 @@ import java.io.InputStream;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.Pair;
 import com.runwaysdk.constants.DeployProperties;
@@ -38,7 +38,7 @@ import com.runwaysdk.vault.VaultFileDAOIF;
 
 import net.geoprism.SystemLogoSingleton;
 
-@Component
+@Service
 public class AssetService
 {
   private static Logger logger = LoggerFactory.getLogger(AssetService.class);

@@ -25,10 +25,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.VaultProperties;
@@ -41,6 +43,9 @@ import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.DuplicateGeoObjectCodeException;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
@@ -60,7 +65,9 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
-public class GeoObjectImporterTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class GeoObjectImporterTest implements InstanceTestClassListener
 {
   protected static USATestData testData;
 

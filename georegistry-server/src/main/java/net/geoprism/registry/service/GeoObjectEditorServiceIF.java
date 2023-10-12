@@ -1,10 +1,13 @@
 package net.geoprism.registry.service;
 
+import org.springframework.stereotype.Component;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.action.ChangeRequest;
 
+@Component
 public interface GeoObjectEditorServiceIF
 {
 

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.Roles;
@@ -23,6 +25,8 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.task.Task;
 import net.geoprism.registry.task.Task.TaskType;
 
+@Service
+@Primary
 public class GPRTransitionBusinessService extends TransitionBusinessService implements TransitionBusinessServiceIF
 {
   @Override

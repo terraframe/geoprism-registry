@@ -14,8 +14,9 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
-import net.geoprism.registry.conversion.OrganizationConverter;
+import net.geoprism.registry.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class TestOrganizationInfo
 {
@@ -138,6 +139,8 @@ public class TestOrganizationInfo
       return;
     }
 
-    this.serverObj = new OrganizationConverter().create(this.toDTO());
+    OrganizationBusinessServiceIF service = ServiceFactory.getBean(OrganizationBusinessServiceIF.class);
+
+    this.serverObj = service.create(this.toDTO());
   }
 }

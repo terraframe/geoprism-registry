@@ -10,6 +10,8 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.Roles;
@@ -20,7 +22,9 @@ import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 
-public class OrganizationAndRoleTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class OrganizationAndRoleTest implements InstanceTestClassListener
 {
   private static FastTestDataset testData;
 
@@ -194,7 +198,7 @@ public class OrganizationAndRoleTest
   public void testGetGeoObjectTypesMethod()
   {
     int numGots = 0;
-    
+
     for (TestGeoObjectTypeInfo testGot : testData.getManagedGeoObjectTypes())
     {
       if (testGot.getOrganization().getCode().equals(FastTestDataset.ORG_CGOV.getCode()))
@@ -202,7 +206,7 @@ public class OrganizationAndRoleTest
         numGots++;
       }
     }
-    
+
     Map<String, ServerGeoObjectType> geoObjectTypeInfo = FastTestDataset.ORG_CGOV.getServerObject().getGeoObjectTypes();
 
     Assert.assertEquals("Method did not return the correct number of GeoObjectTypes managed by the organization", numGots, geoObjectTypeInfo.size());

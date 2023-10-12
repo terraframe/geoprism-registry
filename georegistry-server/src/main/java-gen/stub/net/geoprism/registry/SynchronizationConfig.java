@@ -46,7 +46,8 @@ import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.permission.GPROrganizationPermissionService;
-import net.geoprism.registry.service.GPRServiceFactory;
+import net.geoprism.registry.permission.RolePermissionService;
+import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 
 public class SynchronizationConfig extends SynchronizationConfigBase implements JsonSerializable
@@ -79,7 +80,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
 
     if (session != null && organization != null)
     {
-      GPRServiceFactory.getRolePermissionService().enforceRA(organization.getCode());
+      ServiceFactory.getBean(RolePermissionService.class).enforceRA(organization.getCode());
     }
 
     super.apply();

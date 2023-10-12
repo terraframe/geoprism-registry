@@ -2,6 +2,9 @@ package net.geoprism.registry.service.business;
 
 import java.util.List;
 
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.query.OIterator;
@@ -20,6 +23,8 @@ import net.geoprism.registry.geoobjecttype.TypeHasPrivateParents;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
+@Service
+@Primary
 public class GPRGeoObjectTypeMetadataBusinessService extends GeoObjectTypeMetadataBusinessService implements GeoObjectTypeMetadataBusinessServiceIF
 {
   @Override

@@ -18,13 +18,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.localization.LocaleView;
 import net.geoprism.registry.test.FastTestDataset;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class SupportedLocaleInstallAndRefreshDeadlockTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class SupportedLocaleInstallAndRefreshDeadlockTest implements InstanceTestClassListener
 {
   protected static FastTestDataset testData;
   

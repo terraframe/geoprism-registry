@@ -34,11 +34,13 @@ import com.google.gson.GsonBuilder;
 import com.runwaysdk.session.Request;
 
 import ca.uhn.fhir.context.FhirContext;
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeBuilder;
 import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.etl.fhir.BasicFhirConnection;
@@ -53,9 +55,9 @@ import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {TestConfig.class})
-public class FhirExportTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class FhirExportTest implements InstanceTestClassListener
 {
   protected static USATestData           testData;
 

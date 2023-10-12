@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.rbac.Operation;
@@ -40,6 +41,7 @@ import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
 import net.geoprism.registry.service.ServiceFactory;
 
 @Service
+@Primary
 public class GPRGeoObjectPermissionService extends UserPermissionService implements GeoObjectPermissionServiceIF
 {
   /**

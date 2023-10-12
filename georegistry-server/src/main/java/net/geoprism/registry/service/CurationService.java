@@ -22,7 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -49,7 +49,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.view.Page;
 
-@Repository
+@Service
 public class CurationService
 {
   @Autowired

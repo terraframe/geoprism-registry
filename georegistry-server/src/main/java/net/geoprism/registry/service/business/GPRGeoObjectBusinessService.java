@@ -24,6 +24,8 @@ import org.commongeoregistry.adapter.metadata.AttributeListType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.locationtech.jts.geom.Geometry;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.EdgeObject;
@@ -57,6 +59,8 @@ import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
 import net.geoprism.registry.service.SearchService;
 
+@Service
+@Primary
 public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implements GPRGeoObjectBusinessServiceIF
 {
   @Override

@@ -32,11 +32,10 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class TestGeoObjectInfo
@@ -64,7 +63,7 @@ public class TestGeoObjectInfo
   private Date                    date;
 
   private HashMap<String, Object> defaultValues;
-  
+
   public TestGeoObjectInfo(String label, String code, TestGeoObjectTypeInfo testUni, String wkt, Boolean exists, Boolean isNew)
   {
     initialize(code, testUni, exists, isNew);
@@ -121,12 +120,12 @@ public class TestGeoObjectInfo
       throw new UnsupportedOperationException("Add a default geometry if you want to use this geometry type.");
     }
   }
-  
+
   public void setExists(boolean exists)
   {
     this.exists = exists;
   }
-  
+
   public boolean getExists()
   {
     return this.exists;
@@ -218,7 +217,7 @@ public class TestGeoObjectInfo
     {
       return null;
     }
-    
+
     try
     {
       final WKTReader reader = new WKTReader(new GeometryFactory());
@@ -236,13 +235,17 @@ public class TestGeoObjectInfo
   @Request
   public GeoObject fetchGeoObject()
   {
-    return this.getServerObject().toGeoObject(TestDataSet.DEFAULT_OVER_TIME_DATE);
+    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
+    return service.toGeoObject(this.getServerObject(), TestDataSet.DEFAULT_OVER_TIME_DATE);
   }
 
   @Request
   public GeoObjectOverTime fetchGeoObjectOverTime()
   {
-    return this.getServerObject().toGeoObjectOverTime();
+    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
+    return service.toGeoObjectOverTime(this.getServerObject());
   }
 
   /**
@@ -299,7 +302,7 @@ public class TestGeoObjectInfo
     // TODO : HierarchyType?
 
     List<ChildTreeNode> tnChildren = tn.getChildren();
-    
+
     Assert.assertEquals(expectedChildren.size(), tnChildren.size());
 
     for (TestGeoObjectInfo expectedChild : expectedChildren)
@@ -408,7 +411,9 @@ public class TestGeoObjectInfo
     // return child.getGeoEntity().addLink(geoEntity, relationshipType);
     // }
 
-    this.getServerObject().addChild(child.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE);
+    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
+    service.addChild(this.getServerObject(), child.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE);
   }
 
   private void addParent(TestGeoObjectInfo parent)
@@ -428,7 +433,9 @@ public class TestGeoObjectInfo
   {
     // if (this.serverGO == null)
     // {
-    this.serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObjectByCode(this.getCode(), this.getGeoObjectType().getCode(), false);
+    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
+    this.serverGO = service.getGeoObjectByCode(this.getCode(), this.getGeoObjectType().getCode(), false);
     // }
 
     return this.serverGO;
@@ -458,7 +465,7 @@ public class TestGeoObjectInfo
   @Transaction
   private ServerGeoObjectIF applyInTrans(Date date)
   {
-    ServerGeoObjectService service = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService());
+    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
 
     if (date == null)
     {
@@ -611,7 +618,7 @@ public class TestGeoObjectInfo
     geoObj.setGeometry(geometry, date, TestDataSet.DEFAULT_END_TIME_DATE);
     geoObj.setCode(this.getCode());
     geoObj.setDisplayLabel(label, date, TestDataSet.DEFAULT_END_TIME_DATE);
-    
+
     geoObj.setExists(this.exists, date, TestDataSet.DEFAULT_END_TIME_DATE);
 
     if (registryId != null)
@@ -633,7 +640,7 @@ public class TestGeoObjectInfo
   {
     this.assertApplied(TestDataSet.DEFAULT_OVER_TIME_DATE);
   }
-  
+
   /**
    * Asserts that the GeoObject that this test wrapper represents has been
    * applied and exists in the database with all attributes set to the values
@@ -642,8 +649,10 @@ public class TestGeoObjectInfo
   @Request
   public void assertApplied(Date startDate)
   {
+    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
     ServerGeoObjectIF serverGO = this.getServerObject();
 
-    this.assertEquals(serverGO.toGeoObject(startDate));
+    this.assertEquals(service.toGeoObject(serverGO, startDate));
   }
 }

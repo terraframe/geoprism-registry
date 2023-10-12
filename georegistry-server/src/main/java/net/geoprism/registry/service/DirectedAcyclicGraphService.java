@@ -18,12 +18,12 @@
  */
 package net.geoprism.registry.service;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.model.GraphType;
 
-@Component
+@Service
 public class DirectedAcyclicGraphService extends GraphService
 {
 

@@ -10,6 +10,8 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
@@ -17,9 +19,14 @@ import com.runwaysdk.system.metadata.MdEdge;
 
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.test.FastTestDataset;
 
-public class BusinessEdgeTypeTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class BusinessEdgeTypeTest implements InstanceTestClassListener
 {
   private static FastTestDataset testData;
 

@@ -12,7 +12,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 
-import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
@@ -139,8 +139,10 @@ public class TestHierarchyTypeInfo
 
     HierarchyType dto = this.toDTO();
 
-    this.serverObj = new ServerHierarchyTypeBuilder().createHierarchyType(dto);
-    
+    HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
+
+    this.serverObj = service.createHierarchyType(dto);
+
     // The transaction did not error out, so it is safe to put into the cache.
     ServiceFactory.getMetadataCache().addHierarchyType(this.serverObj);
   }
@@ -148,13 +150,15 @@ public class TestHierarchyTypeInfo
   @Request
   public void setRoot(TestGeoObjectTypeInfo type)
   {
-    this.serverObj.addToHierarchy(RootGeoObjectType.INSTANCE, type.getServerObject());
+    HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
+    service.addToHierarchy(this.serverObj, RootGeoObjectType.INSTANCE, type.getServerObject());
   }
 
   @Request
   public void removeRoot(TestGeoObjectTypeInfo type)
   {
-    this.serverObj.removeChild(RootGeoObjectType.INSTANCE, type.getServerObject(), true);
+    HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
+    service.removeChild(this.serverObj, RootGeoObjectType.INSTANCE, type.getServerObject(), true);
   }
 
   @Request
@@ -170,7 +174,8 @@ public class TestHierarchyTypeInfo
 
     if (serverHOT != null)
     {
-      serverHOT.delete();
+      HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
+      service.delete(serverHOT);
     }
 
     this.serverObj = null;

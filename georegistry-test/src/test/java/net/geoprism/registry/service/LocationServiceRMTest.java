@@ -4,10 +4,17 @@
 package net.geoprism.registry.service;
 
 import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.test.FastTestDataset;
 
-public class LocationServiceRMTest extends AbstractLocationServiceTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class LocationServiceRMTest extends AbstractLocationServiceTest implements InstanceTestClassListener
 {
   @BeforeClass
   public static void setUpClass()

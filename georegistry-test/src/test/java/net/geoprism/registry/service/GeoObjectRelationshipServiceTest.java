@@ -31,6 +31,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
 
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.test.FastTestDataset;
@@ -41,9 +43,9 @@ import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class GeoObjectRelationshipServiceTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class GeoObjectRelationshipServiceTest implements InstanceTestClassListener
 {
   protected static FastTestDataset testData;
 

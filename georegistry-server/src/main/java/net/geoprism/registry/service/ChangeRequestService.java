@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -68,7 +68,7 @@ import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.view.Page;
 
-@Component
+@Service
 public class ChangeRequestService
 {
   @Autowired

@@ -1,6 +1,8 @@
 package net.geoprism.registry.service.business;
 
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.ontology.InitializationStrategyIF;
 import com.runwaysdk.business.rbac.Operation;
@@ -29,6 +31,8 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.SerializedListTypeCache;
 
+@Service
+@Primary
 public class GPRHierarchyTypeBusinessService extends HierarchyTypeBusinessService implements HierarchyTypeBusinessServiceIF
 {
   @Override

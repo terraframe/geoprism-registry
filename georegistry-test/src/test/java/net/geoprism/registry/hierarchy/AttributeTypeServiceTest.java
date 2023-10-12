@@ -43,7 +43,9 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.conversion.TermConverter;
@@ -56,9 +58,9 @@ import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class AttributeTypeServiceTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class AttributeTypeServiceTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectTypeInfo TEST_GOT  = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
 

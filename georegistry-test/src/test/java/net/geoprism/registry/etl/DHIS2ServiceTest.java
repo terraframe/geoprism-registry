@@ -34,7 +34,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -61,7 +60,8 @@ import net.geoprism.dhis2.dhis2adapter.response.model.DHIS2Locale;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.Organization;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
@@ -101,9 +101,9 @@ import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class DHIS2ServiceTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class DHIS2ServiceTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectInfo GO_NO_PARENT = new TestGeoObjectInfo("BOOL_NO_PARENT", AllAttributesDataset.GOT_BOOL);
   

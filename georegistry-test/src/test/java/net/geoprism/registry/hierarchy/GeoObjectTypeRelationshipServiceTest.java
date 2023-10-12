@@ -25,6 +25,8 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.registry.AbstractParentException;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -37,9 +39,9 @@ import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class GeoObjectTypeRelationshipServiceTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class GeoObjectTypeRelationshipServiceTest implements InstanceTestClassListener
 {
 
   public static final String                TEST_PREFIX               = "GOTREL";

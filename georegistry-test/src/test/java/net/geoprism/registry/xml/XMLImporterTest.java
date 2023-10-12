@@ -24,14 +24,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
-import net.geoprism.registry.Organization;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.model.Classification;
@@ -43,8 +43,8 @@ import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.RegistryService;
 
 @ContextConfiguration(classes = { TestConfig.class })
-@RunWith(SpringJUnit4ClassRunner.class)
-public class XMLImporterTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class XMLImporterTest implements InstanceTestClassListener
 {
 
   private static ClassificationType type      = null;

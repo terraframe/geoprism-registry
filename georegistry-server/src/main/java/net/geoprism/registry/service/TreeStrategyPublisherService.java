@@ -26,7 +26,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.graph.GraphQuery;
@@ -58,7 +58,7 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 
-@Repository
+@Service
 public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherService
 {
   private static class Snapshot

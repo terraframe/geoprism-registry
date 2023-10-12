@@ -32,16 +32,15 @@ import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.CGRApplication;
 import net.geoprism.registry.permission.PermissionContext;
-import net.geoprism.registry.service.business.GPRGeoObjectTypeBusinessService;
 
-@Component
+@Service
 public class RegistryComponentService
 {
   @Autowired

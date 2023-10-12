@@ -4,7 +4,8 @@ import java.io.InputStream;
 
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -18,7 +19,8 @@ import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
 import net.geoprism.registry.xml.XMLExporter;
 
-@Repository
+@Service
+@Primary
 public class GPRGeoObjectTypeService extends GeoObjectTypeService implements GeoObjectTypeServiceIF
 {
   @Autowired

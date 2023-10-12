@@ -57,6 +57,8 @@ import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
@@ -89,8 +91,8 @@ import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
-@RunWith(SpringJUnit4ClassRunner.class)
-public class ExcelServiceTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class ExcelServiceTest implements InstanceTestClassListener
 {
   private static ClassificationType          type;
 

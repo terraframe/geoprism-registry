@@ -29,7 +29,7 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
@@ -56,7 +56,7 @@ import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
-@Component
+@Service
 public class ExcelService
 {
   @Autowired

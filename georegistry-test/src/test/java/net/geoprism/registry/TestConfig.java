@@ -16,10 +16,8 @@ import net.geoprism.SchedulerContextListener;
 import net.geoprism.externalprofile.business.ExternalProfileBusinessService;
 import net.geoprism.externalprofile.controller.ExternalProfileController;
 import net.geoprism.externalprofile.service.ExternalProfileService;
-import net.geoprism.externalprofile.service.ExternalProfileService;
 import net.geoprism.forgotpassword.business.ForgotPasswordBusinessService;
 import net.geoprism.forgotpassword.controller.ForgotPasswordController;
-import net.geoprism.forgotpassword.service.ForgotPasswordService;
 import net.geoprism.forgotpassword.service.ForgotPasswordService;
 import net.geoprism.graph.lpg.business.GeoObjectTypeSnapshotBusinessService;
 import net.geoprism.graph.lpg.business.HierarchyTypeSnapshotBusinessService;
@@ -27,11 +25,13 @@ import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeBusinessService;
 import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeEntryBusinessService;
 import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeVersionBusinessService;
 import net.geoprism.registry.account.ForgotPasswordCGRService;
+import net.geoprism.registry.business.OrganizationBusinessService;
 import net.geoprism.registry.lpg.business.GPRGeoObjectTypeSnapshotBusinessService;
 import net.geoprism.registry.lpg.business.GPRHierarchyTypeSnapshotBusinessService;
 import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeBusinessService;
 import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeEntryBusinessService;
 import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeVersionBusinessService;
+import net.geoprism.registry.service.business.GPROrganizationBusinessService;
 import net.geoprism.registry.session.ExternalProfileCGRService;
 import net.geoprism.registry.test.MockHttpServletRequest;
 import net.geoprism.registry.test.MockHttpServletResponse;
@@ -41,7 +41,7 @@ import net.geoprism.userinvite.controller.UserInviteController;
 import net.geoprism.userinvite.service.UserInviteService;
 
 @Configuration
-@ComponentScan(basePackages = { "net.geoprism.spring", "net.geoprism.graph", "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.spring", "net.geoprism.registry.test", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" })
+@ComponentScan(basePackages = { "net.geoprism.registry", "net.geoprism.graph", "net.geoprism.graphrepo", "net.geoprism.spring", "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.spring", "net.geoprism.registry.test", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" })
 public class TestConfig
 {
 
@@ -134,35 +134,4 @@ public class TestConfig
   {
     return new LoginBruteForceGuardService();
   }
-
-  @Bean
-  GeoObjectTypeSnapshotBusinessService geoObjectTypeSnapshotBusinessService()
-  {
-    return new GPRGeoObjectTypeSnapshotBusinessService();
-  }
-
-  @Bean
-  HierarchyTypeSnapshotBusinessService hierarchyTypeSnapshotBusinessService()
-  {
-    return new GPRHierarchyTypeSnapshotBusinessService();
-  }
-
-  @Bean
-  LabeledPropertyGraphTypeBusinessService labeledPropertyGraphTypeBusinessService()
-  {
-    return new GPRLabeledPropertyGraphTypeBusinessService();
-  }
-
-  @Bean
-  LabeledPropertyGraphTypeEntryBusinessService labeledPropertyGraphTypeEntryBusinessService()
-  {
-    return new GPRLabeledPropertyGraphTypeEntryBusinessService();
-  }
-
-  @Bean
-  LabeledPropertyGraphTypeVersionBusinessService labeledPropertyGraphTypeVersionBusinessService()
-  {
-    return new GPRLabeledPropertyGraphTypeVersionBusinessService();
-  }
-
 }

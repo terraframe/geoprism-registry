@@ -26,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
@@ -42,7 +42,7 @@ import net.geoprism.registry.service.ServiceFactory;
  * 
  * @author rrowlands
  */
-@Repository
+@Service
 public class GeoObjectTypeRestrictionUtil
 {
   @Autowired

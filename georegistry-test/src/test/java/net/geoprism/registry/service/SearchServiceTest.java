@@ -12,16 +12,23 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.build.domain.SearchTablePatch;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 
-public class SearchServiceTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class SearchServiceTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectInfo BELIZE_CITY = new TestGeoObjectInfo("Belize Ci't/=&y*)(0$#-@!\"}{][.,;:", "BelizeCity", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
   

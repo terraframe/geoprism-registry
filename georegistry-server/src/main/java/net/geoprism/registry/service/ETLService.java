@@ -32,7 +32,7 @@ import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.gson.JsonArray;
@@ -88,7 +88,7 @@ import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
-@Component
+@Service
 public class ETLService
 {
   @Autowired

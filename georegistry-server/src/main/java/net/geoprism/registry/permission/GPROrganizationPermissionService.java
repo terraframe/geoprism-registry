@@ -21,10 +21,12 @@ package net.geoprism.registry.permission;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
@@ -39,40 +41,42 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.GPRServiceFactory;
 
 @Service
+@Primary
 public class GPROrganizationPermissionService extends UserPermissionService implements OrganizationPermissionServiceIF
 {
+  @Autowired
+  private RolePermissionService service;
 
   public void enforceActorCanCreate()
   {
-    GPRServiceFactory.getRolePermissionService().enforceSRA();
+    this.service.enforceSRA();
   }
 
   public void enforceActorCanUpdate()
   {
-    GPRServiceFactory.getRolePermissionService().enforceSRA();
+    this.service.enforceSRA();
   }
 
   public boolean canActorCreate()
   {
-    return GPRServiceFactory.getRolePermissionService().isSRA();
+    return this.service.isSRA();
   }
 
   public boolean canActorUpdate()
   {
-    return GPRServiceFactory.getRolePermissionService().isSRA();
+    return this.service.isSRA();
   }
 
   public void enforceActorCanDelete()
   {
-    GPRServiceFactory.getRolePermissionService().enforceSRA();
+    this.service.enforceSRA();
   }
 
   public boolean canActorDelete()
   {
-    return GPRServiceFactory.getRolePermissionService().isSRA();
+    return this.service.isSRA();
   }
 
   public boolean canActorRead(String orgCode)

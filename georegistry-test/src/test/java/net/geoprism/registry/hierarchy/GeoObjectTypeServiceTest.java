@@ -38,7 +38,9 @@ import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdBusiness;
 
 import net.geoprism.registry.GeoObjectTypeAssignmentException;
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -52,9 +54,9 @@ import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class GeoObjectTypeServiceTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class GeoObjectTypeServiceTest implements InstanceTestClassListener
 {
   public static TestGeoObjectTypeInfo TEST_GOT            = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
 

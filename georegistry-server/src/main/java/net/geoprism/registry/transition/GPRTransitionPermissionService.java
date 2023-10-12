@@ -22,19 +22,25 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
+
 import net.geoprism.graphrepo.permission.TransitionPermissionServiceIF;
 import net.geoprism.graphrepo.permission.UserPermissionService;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
-import net.geoprism.registry.service.GPRServiceFactory;
 
+@Service
+@Primary
 public class GPRTransitionPermissionService extends UserPermissionService implements TransitionPermissionServiceIF
 {
+  @Autowired
+  private RolePermissionService permissions;
+
   public Set<RepoPermissionAction> getPermissions(TransitionEvent event)
   {
-    final RolePermissionService perms = GPRServiceFactory.getRolePermissionService();
-
     final String beforeOrgCode = event.getBeforeTypeOrgCode();
     final String beforeGotCode = event.getBeforeTypeCode();
     
@@ -51,19 +57,19 @@ public class GPRTransitionPermissionService extends UserPermissionService implem
     ServerGeoObjectType beforeType = ServerGeoObjectType.get(beforeGotCode, true);
     ServerGeoObjectType afterType = ServerGeoObjectType.get(afterGotCode, true);
 
-    if (perms.isSRA())
+    if (permissions.isSRA())
     {
       actions.addAll(Arrays.asList(RepoPermissionAction.values()));
     }
-    else if (perms.isRA(beforeOrgCode))
+    else if (permissions.isRA(beforeOrgCode))
     {
       actions.addAll(Arrays.asList(RepoPermissionAction.values()));
     }
-    else if (perms.isRM(beforeOrgCode, beforeType))
+    else if (permissions.isRM(beforeOrgCode, beforeType))
     {
       actions.addAll(Arrays.asList(RepoPermissionAction.values()));
     }
-    else if ( (!beforeType.getIsPrivate() && !afterType.getIsPrivate()) || perms.isRA(afterOrgCode) || perms.isRM(afterOrgCode, afterType) )
+    else if ( (!beforeType.getIsPrivate() && !afterType.getIsPrivate()) || permissions.isRA(afterOrgCode) || permissions.isRM(afterOrgCode, afterType) )
     {
       actions.add(RepoPermissionAction.READ);
     }

@@ -19,19 +19,18 @@
 package net.geoprism.registry.service;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.localization.LocalizationFacade;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 
 import net.geoprism.configuration.GeoprismProperties;
@@ -41,7 +40,8 @@ import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.userinvite.business.UserInviteBusinessService;
 import net.geoprism.userinvite.business.UserInviteBusinessServiceIF;
 
-@Component
+@Service
+@Primary
 public class GPRUserInviteService extends UserInviteBusinessService implements UserInviteBusinessServiceIF
 {
 

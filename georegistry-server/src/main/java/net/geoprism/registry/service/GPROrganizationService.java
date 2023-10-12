@@ -1,12 +1,14 @@
 package net.geoprism.registry.service;
 
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
-@Repository
+@Service
+@Primary
 public class GPROrganizationService extends OrganizationService implements OrganizationServiceIF
 {
   /**

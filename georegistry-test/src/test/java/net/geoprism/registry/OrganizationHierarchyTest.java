@@ -19,7 +19,7 @@ import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.view.Page;
 
 @ContextConfiguration(classes = { TestConfig.class })
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringInstanceTestClassRunner.class)
 public class OrganizationHierarchyTest
 {
   private static String GRANDPARENT_CODE = "GRANDPARENT_OBJ";

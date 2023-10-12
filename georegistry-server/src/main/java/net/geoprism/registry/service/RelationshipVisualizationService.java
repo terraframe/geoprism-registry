@@ -33,6 +33,7 @@ import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -65,7 +66,7 @@ import net.geoprism.registry.visualization.EdgeView;
 import net.geoprism.registry.visualization.VertexView;
 import net.geoprism.registry.visualization.VertexView.ObjectType;
 
-@Component
+@Service
 public class RelationshipVisualizationService
 {
   // Usability really degrades past 500 or so. Past 1000 the browser falls over,

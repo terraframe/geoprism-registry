@@ -24,20 +24,27 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.shapefile.GeoObjectAtTimeShapefileExporter;
 import net.geoprism.registry.test.FastTestDataset;
 
-public class GeoObjectAtTimeShapefileExporterTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class GeoObjectAtTimeShapefileExporterTest implements InstanceTestClassListener
 {
   private static FastTestDataset testData;
 

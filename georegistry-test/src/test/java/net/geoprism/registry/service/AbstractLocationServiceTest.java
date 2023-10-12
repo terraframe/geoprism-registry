@@ -5,9 +5,10 @@ package net.geoprism.registry.service;
 
 import org.junit.AfterClass;
 
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.test.FastTestDataset;
 
-public abstract class AbstractLocationServiceTest
+public abstract class AbstractLocationServiceTest implements InstanceTestClassListener
 {
   protected static FastTestDataset testData;
 

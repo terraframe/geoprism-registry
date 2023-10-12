@@ -19,14 +19,14 @@
 package net.geoprism.registry.service;
 
 import org.json.JSONObject;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.graph.GeoVertexSynonym;
 
-@Component
+@Service
 public class GeoSynonymService
 {
   @Request(RequestType.SESSION)

@@ -27,7 +27,9 @@ import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.PermissionContext;
@@ -38,9 +40,9 @@ import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.TestRegistryAdapter;
 import net.geoprism.registry.test.TestUserInfo;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class HierarchyServiceTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class HierarchyServiceTest implements InstanceTestClassListener
 {
 
   public static final TestGeoObjectTypeInfo TEST_GOT = new TestGeoObjectTypeInfo("HMST_Country", FastTestDataset.ORG_CGOV);

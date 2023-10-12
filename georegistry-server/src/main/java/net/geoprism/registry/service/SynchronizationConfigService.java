@@ -29,7 +29,7 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -72,10 +72,11 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.GPROrganizationPermissionService;
+import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 
-@Repository
+@Service
 public class SynchronizationConfigService
 {
   @Autowired
@@ -83,6 +84,9 @@ public class SynchronizationConfigService
 
   @Autowired
   private HierarchyTypeBusinessServiceIF hierarchyService;
+
+  @Autowired
+  private RolePermissionService          permissions;
 
   @Request(RequestType.SESSION)
   public JsonObject page(String sessionId, Integer pageNumber, Integer pageSize) throws JSONException
@@ -122,7 +126,7 @@ public class SynchronizationConfigService
     SynchronizationConfig config = SynchronizationConfig.get(oid);
     Organization organization = config.getOrganization();
 
-    GPRServiceFactory.getRolePermissionService().enforceRA(organization.getCode());
+    permissions.enforceRA(organization.getCode());
 
     config.delete();
   }
@@ -265,7 +269,7 @@ public class SynchronizationConfigService
   {
     SynchronizationConfig synchorinzation = SynchronizationConfig.get(oid);
 
-    GPRServiceFactory.getRolePermissionService().enforceRA(synchorinzation.getOrganization().getCode());
+    permissions.enforceRA(synchorinzation.getOrganization().getCode());
 
     ExternalSystemSyncConfig config = synchorinzation.buildConfiguration();
 
@@ -290,7 +294,7 @@ public class SynchronizationConfigService
   {
     SynchronizationConfig config = SynchronizationConfig.get(oid);
 
-    GPRServiceFactory.getRolePermissionService().enforceRA(config.getOrganization().getCode());
+    permissions.enforceRA(config.getOrganization().getCode());
 
     List<? extends DataExportJob> jobs = config.getJobs();
 

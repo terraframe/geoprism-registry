@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.rbac.RoleDAOIF;
@@ -39,6 +40,7 @@ import net.geoprism.registry.roles.ReadHierarchyPermissionException;
 import net.geoprism.registry.roles.UpdateHierarchyPermissionException;
 
 @Service
+@Primary
 public class GPRHierarchyTypePermissionService extends UserPermissionService implements HierarchyTypePermissionServiceIF
 {
   public void enforceActorHasPermission(String orgCode, RepoPermissionAction action)

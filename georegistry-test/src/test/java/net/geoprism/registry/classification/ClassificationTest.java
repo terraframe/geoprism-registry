@@ -12,10 +12,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationNode;
@@ -23,8 +24,8 @@ import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.view.Page;
 
 @ContextConfiguration(classes = { TestConfig.class })
-@RunWith(SpringJUnit4ClassRunner.class)
-public class ClassificationTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class ClassificationTest implements InstanceTestClassListener
 {
   private static String             GRANDPARENT_CODE = "GRANDPARENT_OBJ";
 

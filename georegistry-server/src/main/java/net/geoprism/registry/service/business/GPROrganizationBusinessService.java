@@ -20,7 +20,8 @@ package net.geoprism.registry.service.business;
 
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
@@ -34,7 +35,8 @@ import net.geoprism.registry.business.OrganizationBusinessService;
 import net.geoprism.registry.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.model.ServerOrganization;
 
-@Repository
+@Service
+@Primary
 public class GPROrganizationBusinessService extends OrganizationBusinessService implements OrganizationBusinessServiceIF
 {
   @Override

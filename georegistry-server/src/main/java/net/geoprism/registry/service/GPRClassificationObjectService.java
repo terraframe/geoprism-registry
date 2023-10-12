@@ -18,7 +18,8 @@
  */
 package net.geoprism.registry.service;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.BusinessFacade;
@@ -32,7 +33,8 @@ import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.RegistryConstants;
 
-@Repository
+@Service
+@Primary
 public class GPRClassificationObjectService implements ClassificationObjectServiceIF
 {
 

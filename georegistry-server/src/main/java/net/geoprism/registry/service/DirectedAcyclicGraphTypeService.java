@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collector;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -33,7 +33,7 @@ import com.runwaysdk.session.Session;
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 
-@Component
+@Service
 public class DirectedAcyclicGraphTypeService
 {
   @Autowired

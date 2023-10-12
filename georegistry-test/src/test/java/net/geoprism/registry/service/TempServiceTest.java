@@ -18,6 +18,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.controller.GeoObjectOverTimeController;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -26,9 +28,9 @@ import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class TempServiceTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class TempServiceTest implements InstanceTestClassListener
 {
   protected static FastTestDataset      testData;
 

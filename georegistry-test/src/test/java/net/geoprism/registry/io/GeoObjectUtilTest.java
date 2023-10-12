@@ -12,9 +12,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -22,7 +27,9 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.test.USATestData;
 
-public class GeoObjectUtilTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class GeoObjectUtilTest implements InstanceTestClassListener
 {
   private static USATestData testData;
 

@@ -32,7 +32,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.runwaysdk.MessageExceptionDTO;
@@ -70,7 +71,8 @@ import net.geoprism.registry.localization.LocaleView;
 import net.geoprism.registry.localization.LocalizationImportMessagesException;
 import net.geoprism.registry.permission.RolePermissionService;
 
-@Repository
+@Service
+@Primary
 public class GPRLocalizationService extends net.geoprism.localization.LocalizationService
 {
   @Autowired

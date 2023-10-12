@@ -32,7 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -54,15 +54,10 @@ import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.GPROrganizationBusinessService;
 
-@Component
+@Service
 public class AccountService
 {
   private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
-
-  public static AccountService getInstance()
-  {
-    return GPRServiceFactory.getAccountService();
-  }
 
   @Request(RequestType.SESSION)
   public String page(String sessionId, Integer number, Integer pageSize) throws JSONException

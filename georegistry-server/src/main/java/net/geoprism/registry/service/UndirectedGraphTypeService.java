@@ -21,7 +21,7 @@ package net.geoprism.registry.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -33,7 +33,7 @@ import net.geoprism.registry.JsonCollectors;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.business.UndirectedGraphTypeBusinessServiceIF;
 
-@Repository
+@Service
 public class UndirectedGraphTypeService
 {
   @Autowired

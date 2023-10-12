@@ -22,6 +22,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -39,7 +41,10 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.TaskService;
 import net.geoprism.registry.task.Task.TaskStatus;
@@ -47,7 +52,9 @@ import net.geoprism.registry.task.Task.TaskTypeIF;
 import net.geoprism.registry.test.TestUserInfo;
 
 @Ignore
-public class TaskTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class TaskTest implements InstanceTestClassListener
 {
   public static final TestUserInfo USER_SRA       = new TestUserInfo("task_sra", "task_sra", "task_sra@noreply.com", new String[] { RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE });
 

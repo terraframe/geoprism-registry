@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.ontology.Term;
@@ -40,6 +41,7 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.roles.HierarchyRelationshipPermissionException;
 
 @Service
+@Primary
 public class GPRGeoObjectTypeRelationshipPermissionService extends UserPermissionService implements GeoObjectTypeRelationshipPermissionServiceIF
 {
   public enum RelationshipAction {

@@ -21,6 +21,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -30,6 +32,9 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.graph.transition.Transition.TransitionImpact;
@@ -44,7 +49,9 @@ import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.view.HistoricalRow;
 import net.geoprism.registry.view.Page;
 
-public class TransitionEventTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class TransitionEventTest implements InstanceTestClassListener
 {
   private static FastTestDataset testData;
 

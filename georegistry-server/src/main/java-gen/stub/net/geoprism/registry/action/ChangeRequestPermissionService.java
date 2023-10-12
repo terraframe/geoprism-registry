@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
@@ -31,7 +31,7 @@ import com.runwaysdk.session.SessionIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
 
-@Repository
+@Service
 public class ChangeRequestPermissionService
 {
   public static enum ChangeRequestPermissionAction {
