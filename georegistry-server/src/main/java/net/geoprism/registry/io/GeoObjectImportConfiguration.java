@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -52,6 +52,7 @@ import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.upload.GeoObjectRecordedErrorException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
@@ -128,8 +129,15 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
   private LinkedList<GeoObjectRecordedErrorException> errors                 = new LinkedList<GeoObjectRecordedErrorException>();
 
+  private GeoObjectTypeBusinessServiceIF              typeService;
+
+  private RolePermissionService                       permissions;
+
   public GeoObjectImportConfiguration()
   {
+    this.typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+    this.permissions = ServiceFactory.getBean(RolePermissionService.class);
+
     this.includeCoordinates = false;
     this.functions = new HashMap<String, ShapefileFunction>();
     this.locations = new LinkedList<Location>();
@@ -426,7 +434,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       {
 
         ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
-        List<ServerGeoObjectType> ancestors = got.getTypeAncestors(hierarchyType, true);
+        List<ServerGeoObjectType> ancestors = this.typeService.getTypeAncestors(got, hierarchyType, true);
 
         this.setHierarchy(hierarchyType);
 
@@ -461,7 +469,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
         // In the case of a spreadsheet, this ends up being the column header
         String target = attribute.getString(TARGET);
-        
+
         if (attribute.has("type") && attribute.getString("type").equals(ConstantShapefileFunction.class.getName()))
         {
           this.setFunction(attributeName, new ConstantShapefileFunction(target));
@@ -471,12 +479,12 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
           if (attribute.has("locale"))
           {
             String locale = attribute.getString("locale");
-  
+
             if (this.getFunction(attributeName) == null)
             {
               this.setFunction(attributeName, new LocalizedValueFunction());
             }
-  
+
             LocalizedValueFunction function = (LocalizedValueFunction) this.getFunction(attributeName);
             function.add(locale, new BasicColumnFunction(target));
           }
@@ -496,7 +504,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       {
         String pCode = location.getString(AttributeType.JSON_CODE);
         ServerGeoObjectType pType = ServerGeoObjectType.get(pCode);
-        ServerHierarchyType pHierarchy = got.findHierarchy(this.hierarchy, pType);
+        ServerHierarchyType pHierarchy = this.typeService.findHierarchy(got, this.hierarchy, pType);
 
         String target = location.getString(TARGET);
         ParentMatchStrategy matchStrategy = ParentMatchStrategy.valueOf(location.getString(MATCH_STRATEGY));
@@ -520,7 +528,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     {
       Location loc = this.locations.get(i);
 
-      ht = got.findHierarchy(ht, loc.getType());
+      ht = this.typeService.findHierarchy(got, ht, loc.getType());
       loc.setHierarchy(ht);
     }
 
@@ -609,18 +617,17 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   {
     Organization org = type.getOrganization();
 
-    RolePermissionService perms = ServiceFactory.getRolePermissionService();
-    if (perms.isRA())
+    if (this.permissions.isRA())
     {
-      perms.enforceRA(org.getCode());
+      this.permissions.enforceRA(org.getCode());
     }
-    else if (perms.isRM())
+    else if (this.permissions.isRM())
     {
-      perms.enforceRM(org.getCode(), type);
+      this.permissions.enforceRM(org.getCode(), type);
     }
     else
     {
-      perms.enforceRM();
+      this.permissions.enforceRM();
     }
   }
 

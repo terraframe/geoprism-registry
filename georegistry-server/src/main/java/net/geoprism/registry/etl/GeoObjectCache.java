@@ -21,14 +21,17 @@ package net.geoprism.registry.etl;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectCache
 {
   public static final String SEPARATOR = "$@~";
   
   protected Map<String, ServerGeoObjectIF> cache;
+
+  private GeoObjectBusinessServiceIF objectService;
   
   public GeoObjectCache(int cacheSize)
   {
@@ -50,6 +53,9 @@ public class GeoObjectCache
         return size() > cacheSize;
       }
     };
+    
+    this.objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
   }
   
   public long getSize()
@@ -64,13 +70,11 @@ public class GeoObjectCache
   
   public ServerGeoObjectIF getOrFetchByCode(String code, String typeCode)
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
-    
     ServerGeoObjectIF go = this.cache.get(typeCode + SEPARATOR + code);
     
     if (go == null)
     {
-      go = service.getGeoObjectByCode(code, typeCode, true);
+      go = this.objectService.getGeoObjectByCode(code, typeCode, true);
       
       this.cache.put(typeCode + SEPARATOR + code, go);
     }

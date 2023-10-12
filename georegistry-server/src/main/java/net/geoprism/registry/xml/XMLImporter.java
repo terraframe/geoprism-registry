@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.xml;
 
@@ -59,10 +59,13 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.UndirectedGraphType;
-import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
-import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.business.BusinessEdgeTypeBusinessServiceIF;
+import net.geoprism.registry.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.business.DirectedAcyclicGraphTypeBusinessServiceIF;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
+import net.geoprism.registry.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.model.AttributedType;
 import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -72,12 +75,29 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public class XMLImporter
 {
-  private RegistryAdapter            adapter;
+  private RegistryAdapter                           adapter;
 
-  private Map<String, ServerElement> cache;
+  private Map<String, ServerElement>                cache;
+
+  private GeoObjectTypeBusinessServiceIF            typeService;
+
+  private HierarchyTypeBusinessServiceIF            hierarchyService;
+
+  private BusinessTypeBusinessServiceIF             bTypeService;
+
+  private BusinessEdgeTypeBusinessServiceIF         bEdgeService;
+
+  private DirectedAcyclicGraphTypeBusinessServiceIF dagService;
+
+  private UndirectedGraphTypeBusinessServiceIF      undirectedService;
 
   public XMLImporter()
   {
+    this.typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+    this.hierarchyService = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
+    this.bTypeService = ServiceFactory.getBean(BusinessTypeBusinessServiceIF.class);
+    this.bEdgeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
+
     this.adapter = ServiceFactory.getAdapter();
     this.cache = new HashMap<String, ServerElement>();
   }
@@ -278,7 +298,7 @@ public class XMLImporter
         type.setSuperTypeCode(superType.getCode());
         type.setIsPrivate(superType.getIsPrivate());
 
-        ServerGeoObjectType result = new ServerGeoObjectTypeConverter().create(type);
+        ServerGeoObjectType result = this.typeService.create(type);
 
         list.add(result);
         this.cache.put(code, result);
@@ -288,7 +308,7 @@ public class XMLImporter
     return list;
   }
 
-  private void addAttributes(Element root, AttributedType type)
+  private void addAttributes(Element root, ServerGeoObjectType type)
   {
     NodeList attributeList = root.getElementsByTagName("attributes");
 
@@ -310,15 +330,15 @@ public class XMLImporter
 
           if (elem.getTagName().equals("text"))
           {
-            type.createAttributeType(new AttributeCharacterType(code, label, description, false, false, false));
+            this.typeService.createAttributeType(type, new AttributeCharacterType(code, label, description, false, false, false));
           }
           else if (elem.getTagName().equals("boolean"))
           {
-            type.createAttributeType(new AttributeBooleanType(code, label, description, false, false, false));
+            this.typeService.createAttributeType(type, new AttributeBooleanType(code, label, description, false, false, false));
           }
           else if (elem.getTagName().equals("integer"))
           {
-            type.createAttributeType(new AttributeIntegerType(code, label, description, false, false, false));
+            this.typeService.createAttributeType(type, new AttributeIntegerType(code, label, description, false, false, false));
           }
           else if (elem.getTagName().equals("decimal"))
           {
@@ -326,16 +346,16 @@ public class XMLImporter
             attributeType.setPrecision(this.getPrecision(elem));
             attributeType.setScale(this.getScale(elem));
 
-            type.createAttributeType(attributeType);
+            this.typeService.createAttributeType(type, attributeType);
           }
           else if (elem.getTagName().equals("date"))
           {
-            type.createAttributeType(new AttributeDateType(code, label, description, false, false, false));
+            this.typeService.createAttributeType(type, new AttributeDateType(code, label, description, false, false, false));
           }
           else if (elem.getTagName().equals("term"))
           {
             AttributeTermType attributeType = new AttributeTermType(code, label, description, false, false, false);
-            attributeType = (AttributeTermType) type.createAttributeType(attributeType);
+            attributeType = (AttributeTermType) this.typeService.createAttributeType(type, attributeType);
 
             Term rootTerm = attributeType.getRootTerm();
 
@@ -350,40 +370,109 @@ public class XMLImporter
             attributeType.setRootTerm(new Term(rootCode, new LocalizedValue(""), new LocalizedValue("")));
             attributeType.setClassificationType(classificationType);
 
-            attributeType = (AttributeClassificationType) type.createAttributeType(attributeType);
+            attributeType = (AttributeClassificationType) this.typeService.createAttributeType(type, attributeType);
           }
         }
       }
     }
   }
 
+  private void addAttributes(Element root, BusinessType type)
+  {
+    NodeList attributeList = root.getElementsByTagName("attributes");
+    
+    if (attributeList.getLength() > 0)
+    {
+      NodeList nList = attributeList.item(0).getChildNodes();
+      
+      for (int i = 0; i < nList.getLength(); i++)
+      {
+        Node nNode = nList.item(i);
+        
+        if (nNode.getNodeType() == Node.ELEMENT_NODE)
+        {
+          Element elem = (Element) nNode;
+          
+          String code = elem.getAttribute("code");
+          LocalizedValue label = this.getLabel(elem);
+          LocalizedValue description = this.getDescription(elem);
+          
+          if (elem.getTagName().equals("text"))
+          {
+            this.bTypeService.createAttributeType(type, new AttributeCharacterType(code, label, description, false, false, false));
+          }
+          else if (elem.getTagName().equals("boolean"))
+          {
+            this.bTypeService.createAttributeType(type, new AttributeBooleanType(code, label, description, false, false, false));
+          }
+          else if (elem.getTagName().equals("integer"))
+          {
+            this.bTypeService.createAttributeType(type, new AttributeIntegerType(code, label, description, false, false, false));
+          }
+          else if (elem.getTagName().equals("decimal"))
+          {
+            AttributeFloatType attributeType = new AttributeFloatType(code, label, description, false, false, false);
+            attributeType.setPrecision(this.getPrecision(elem));
+            attributeType.setScale(this.getScale(elem));
+            
+            this.bTypeService.createAttributeType(type, attributeType);
+          }
+          else if (elem.getTagName().equals("date"))
+          {
+            this.bTypeService.createAttributeType(type, new AttributeDateType(code, label, description, false, false, false));
+          }
+          else if (elem.getTagName().equals("term"))
+          {
+            AttributeTermType attributeType = new AttributeTermType(code, label, description, false, false, false);
+            attributeType = (AttributeTermType) this.bTypeService.createAttributeType(type, attributeType);
+            
+            Term rootTerm = attributeType.getRootTerm();
+            
+            this.createTermOptions(elem, rootTerm);
+          }
+          else if (elem.getTagName().equals("classification"))
+          {
+            String rootCode = elem.getAttribute("root");
+            String classificationType = elem.getAttribute("classificationType");
+            
+            AttributeClassificationType attributeType = new AttributeClassificationType(code, label, description, false, false, false);
+            attributeType.setRootTerm(new Term(rootCode, new LocalizedValue(""), new LocalizedValue("")));
+            attributeType.setClassificationType(classificationType);
+            
+            attributeType = (AttributeClassificationType) this.bTypeService.createAttributeType(type, attributeType);
+          }
+        }
+      }
+    }
+  }
+  
   private void createTermOptions(Element attributeNode, Term root)
   {
     NodeList attributeList = attributeNode.getElementsByTagName("option");
-
+    
     for (int i = 0; i < attributeList.getLength(); i++)
     {
       Node nNode = attributeList.item(i);
-
+      
       if (nNode.getNodeType() == Node.ELEMENT_NODE)
       {
         Element elem = (Element) nNode;
-
+        
         String code = elem.getAttribute("code");
         LocalizedValue label = this.getLabel(elem);
         LocalizedValue description = this.getDescription(elem);
-
+        
         Term term = new Term(code, label, description);
-
+        
         Classifier classifier = TermConverter.createClassifierFromTerm(root.getCode(), term);
-
+        
         TermConverter termBuilder = new TermConverter(classifier.getKeyName());
-
+        
         termBuilder.build();
       }
     }
   }
-
+  
   private void addChildren(ServerHierarchyType hierarchy, ServerGeoObjectType parent, Element root)
   {
     NodeList childNodes = root.getChildNodes();
@@ -400,14 +489,14 @@ public class XMLImporter
 
         ServerGeoObjectType child = ServerGeoObjectType.get(code);
 
-        hierarchy.addToHierarchy(parent, child, false);
+        this.hierarchyService.addToHierarchy(hierarchy, parent, child, false);
 
         if (root.hasAttribute("extends"))
         {
           String inheritedHierarchyCode = root.getAttribute("extends");
           ServerHierarchyType inheritedHierarchy = ServerHierarchyType.get(inheritedHierarchyCode);
 
-          child.setInheritedHierarchy(hierarchy, inheritedHierarchy);
+          this.typeService.setInheritedHierarchy(child, hierarchy, inheritedHierarchy);
         }
 
         this.addChildren(hierarchy, child, elem);
@@ -421,7 +510,7 @@ public class XMLImporter
     LocalizedValue label = this.getLabel(elem);
     LocalizedValue description = this.getDescription(elem);
 
-    DirectedAcyclicGraphType type = DirectedAcyclicGraphType.create(code, label, description);
+    DirectedAcyclicGraphType type = this.dagService.create(code, label, description);
 
     return type;
   }
@@ -432,7 +521,7 @@ public class XMLImporter
     LocalizedValue label = this.getLabel(elem);
     LocalizedValue description = this.getDescription(elem);
 
-    UndirectedGraphType type = UndirectedGraphType.create(code, label, description);
+    UndirectedGraphType type = this.undirectedService.create(code, label, description);
 
     return type;
   }
@@ -457,7 +546,7 @@ public class XMLImporter
 
     ServiceFactory.getHierarchyPermissionService().enforceCanCreate(organization.getCode());
 
-    return new ServerHierarchyTypeBuilder().createHierarchyType(type);
+    return this.hierarchyService.createHierarchyType(type);
   }
 
   private BusinessEdgeType createBusinessEdgeType(ServerOrganization organization, Element elem)
@@ -468,7 +557,7 @@ public class XMLImporter
     String parentTypeCode = elem.getAttribute("parentTypeCode");
     String childTypeCode = elem.getAttribute("childTypeCode");
 
-    BusinessEdgeType type = BusinessEdgeType.create(organization.getCode(), code, label, description, parentTypeCode, childTypeCode);
+    BusinessEdgeType type = this.bEdgeService.create(organization.getCode(), code, label, description, parentTypeCode, childTypeCode);
 
     ServiceFactory.getHierarchyPermissionService().enforceCanCreate(organization.getCode());
 
@@ -491,7 +580,7 @@ public class XMLImporter
 
     ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(organization.getCode(), type.getIsPrivate());
 
-    return new ServerGeoObjectTypeConverter().create(type);
+    return this.typeService.create(type);
   }
 
   private BusinessType createBusinessType(ServerOrganization organization, Element elem)
@@ -506,7 +595,7 @@ public class XMLImporter
     object.addProperty(BusinessType.ORGANIZATION, organization.getCode());
     object.add(BusinessType.DISPLAYLABEL, label.toJSON());
 
-    return BusinessType.apply(object);
+    return this.bTypeService.apply(object);
   }
 
   private void updateBusinessType(BusinessType type, Element elem)

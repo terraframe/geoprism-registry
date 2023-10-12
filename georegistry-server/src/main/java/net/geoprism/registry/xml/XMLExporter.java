@@ -48,6 +48,10 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.business.BusinessEdgeTypeBusinessServiceIF;
+import net.geoprism.registry.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.cache.ServerMetadataCache;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -57,21 +61,29 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public class XMLExporter
 {
-  private static Logger logger = LoggerFactory.getLogger(XMLExporter.class);
+  private static Logger                     logger = LoggerFactory.getLogger(XMLExporter.class);
 
   /**
    * The DOM <code>document</code> that is populated with data from the core.
    */
-  private Document      document;
+  private Document                          document;
 
   /**
    * The <code>root</code> element of the DOM document.
    */
-  private Element       root;
+  private Element                           root;
 
-  private ServerOrganization  orginzation;
+  private ServerOrganization                orginzation;
 
-  private Set<String>   businessEdgeTypes;
+  private Set<String>                       businessEdgeTypes;
+
+  private GeoObjectTypeBusinessServiceIF    typeService;
+
+  private HierarchyTypeBusinessServiceIF    hierarchyService;
+
+  private BusinessTypeBusinessServiceIF     bTypeService;
+
+  private BusinessEdgeTypeBusinessServiceIF bEdgeService;
 
   /**
    * Initializes the <code>document</code>, creates the <code>root</code>
@@ -80,6 +92,11 @@ public class XMLExporter
    */
   public XMLExporter(ServerOrganization orginzation)
   {
+    this.typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+    this.hierarchyService = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
+    this.bTypeService = ServiceFactory.getBean(BusinessTypeBusinessServiceIF.class);
+    this.bEdgeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
+
     this.orginzation = orginzation;
     this.businessEdgeTypes = new TreeSet<>();
 
@@ -125,11 +142,11 @@ public class XMLExporter
       this.exportHierarchy(type);
     });
 
-    BusinessType.getForOrganization(this.orginzation).forEach(type -> {
+    this.bTypeService.getForOrganization(this.orginzation).forEach(type -> {
       this.exportBusinessType(type);
     });
 
-    this.businessEdgeTypes.stream().map(code -> BusinessEdgeType.getByCode(code)).forEach(type -> {
+    this.businessEdgeTypes.stream().map(code -> this.bEdgeService.getByCode(code)).forEach(type -> {
       this.exportBusinessEdgeType(type);
     });
 
@@ -178,7 +195,7 @@ public class XMLExporter
 
     this.root.appendChild(element);
 
-    type.getEdgeTypes().forEach(edgeType -> {
+    this.bTypeService.getEdgeTypes(type).forEach(edgeType -> {
       this.businessEdgeTypes.add(edgeType.getCode());
     });
   }
@@ -190,8 +207,8 @@ public class XMLExporter
     element.setAttribute("label", type.getLabel().getValue());
     element.setAttribute("description", type.getDescription().getValue());
     element.setAttribute("description", type.getDescription().getValue());
-    element.setAttribute("parentTypeCode", type.getParent().getCode());
-    element.setAttribute("childTypeCode", type.getChild().getCode());
+    element.setAttribute("parentTypeCode", this.bEdgeService.getParent(type).getCode());
+    element.setAttribute("childTypeCode", this.bEdgeService.getChild(type).getCode());
 
     this.root.appendChild(element);
   }
@@ -208,7 +225,7 @@ public class XMLExporter
     element.setAttribute("accessConstraints", type.getAccessConstraints());
     element.setAttribute("useConstraints", type.getUseConstraints());
 
-    List<HierarchyNode> rootTypes = type.getRootGeoObjectTypes();
+    List<HierarchyNode> rootTypes = this.hierarchyService.getRootGeoObjectTypes(type);
 
     if (rootTypes.size() > 0)
     {
@@ -245,7 +262,7 @@ public class XMLExporter
   private void exportType(ServerGeoObjectType type)
   {
     ServerGeoObjectType superType = type.getSuperType();
-    
+
     if (superType == null)
     {
       Element element = document.createElement("type");
@@ -273,7 +290,7 @@ public class XMLExporter
 
       if (type.getIsAbstract())
       {
-        type.getSubtypes().forEach(subtype -> {
+        this.typeService.getSubtypes(type).forEach(subtype -> {
           Element groupItem = this.exportGroupItem(subtype);
 
           element.appendChild(groupItem);

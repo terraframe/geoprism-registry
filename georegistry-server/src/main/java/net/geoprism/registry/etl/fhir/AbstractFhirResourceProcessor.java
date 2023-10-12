@@ -28,22 +28,23 @@ import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
-
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
 
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
+
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.service.ServiceFactory;
 
 public abstract class AbstractFhirResourceProcessor implements FhirResourceProcessor
 {
   private FhirExternalSystem     system;
 
-  private ServerGeoObjectService service;
+  private GeoObjectBusinessServiceIF service;
 
   protected abstract String getType(Location location);
 
@@ -57,16 +58,16 @@ public abstract class AbstractFhirResourceProcessor implements FhirResourceProce
 
   public void configure(FhirExternalSystem system)
   {
+    this.service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
     this.system = system;
-    this.service = new ServerGeoObjectService();
   }
 
   public FhirExternalSystem getSystem()
   {
     return system;
   }
-
-  public ServerGeoObjectService getService()
+  
+  public GeoObjectBusinessServiceIF getService()
   {
     return service;
   }
@@ -125,7 +126,8 @@ public abstract class AbstractFhirResourceProcessor implements FhirResourceProce
       this.populate(geoObject, location, lastUpdated);
 
       geoObject.setGeometry(geometry, lastUpdated, ValueOverTime.INFINITY_END_DATE);
-      geoObject.apply(true);
+      
+      this.service.apply(geoObject, true);
     }
   }
 

@@ -44,7 +44,6 @@ import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
 import net.geoprism.registry.etl.export.RevealGeoObjectJsonAdapters;
 import net.geoprism.registry.etl.upload.ClassifierCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.Classification;
@@ -180,7 +179,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
   }
 
   @Override
-  public VertexServerGeoObject getByExternalId(String externalId, DHIS2ExternalSystem system, ServerGeoObjectType type)
+  public VertexServerGeoObject getByExternalId(String externalId, ExternalSystem system, ServerGeoObjectType type)
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
 
@@ -277,9 +276,9 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
       externalId.apply();
     }
   }
-
+  
   @Override
-  public String getExternalId(VertexServerGeoObject sgo, ExternalSystem system)
+  public String getExternalId(ServerGeoObjectIF sgo, ExternalSystem system)
   {
     ExternalId edge = getExternalIdEdge(sgo, system);
 

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.view;
 
@@ -37,9 +37,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class LocationInformation
 {
@@ -102,20 +105,27 @@ public class LocationInformation
     }
   }
 
-  private List<GeoObject>     children;
+  private List<GeoObject>                children;
 
-  private List<GeoObjectType> childTypes;
+  private List<GeoObjectType>            childTypes;
 
-  private List<HierarchyType> hierarchies;
+  private List<HierarchyType>            hierarchies;
 
-  private String              hierarchy;
+  private String                         hierarchy;
 
-  private GeoObject           entity;
+  private GeoObject                      entity;
 
-  private GeoObjectType       childType;
+  private GeoObjectType                  childType;
+
+  private GeoObjectBusinessServiceIF     objectService;
+
+  private HierarchyTypeBusinessServiceIF hierarchyService;
 
   public LocationInformation()
   {
+    this.objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+    this.hierarchyService = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
+
     this.children = new LinkedList<GeoObject>();
     this.childTypes = new LinkedList<GeoObjectType>();
   }
@@ -131,7 +141,7 @@ public class LocationInformation
 
     for (ServerChildTreeNode node : nodes)
     {
-      GeoObject geoObject = node.getGeoObject().toGeoObject(date);
+      GeoObject geoObject = this.objectService.toGeoObject(node.getGeoObject(), date);
       this.children.add(geoObject);
     }
   }
@@ -182,7 +192,7 @@ public class LocationInformation
 
     for (ServerHierarchyType node : hierarchies)
     {
-      this.hierarchies.add(node.toHierarchyType());
+      this.hierarchies.add(this.hierarchyService.toHierarchyType(node));
     }
   }
 

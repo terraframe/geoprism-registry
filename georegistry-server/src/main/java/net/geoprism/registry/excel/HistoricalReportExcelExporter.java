@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.excel;
 
@@ -42,25 +42,31 @@ import com.runwaysdk.localization.LocalizationFacade;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GPRTransitionEventBusinessService;
 import net.geoprism.registry.view.HistoricalRow;
 import net.geoprism.registry.view.Page;
 
 public class HistoricalReportExcelExporter
 {
-  private static Logger       logger = LoggerFactory.getLogger(GeoObjectExcelExporter.class);
+  private static Logger                     logger = LoggerFactory.getLogger(GeoObjectExcelExporter.class);
 
-  private ServerGeoObjectType type;
+  private ServerGeoObjectType               type;
 
-  private Date                startDate;
+  private Date                              startDate;
 
-  private Date                endDate;
+  private Date                              endDate;
 
-  private CellStyle           boldStyle;
+  private CellStyle                         boldStyle;
 
-  private SimpleDateFormat    format;
+  private SimpleDateFormat                  format;
+
+  private GPRTransitionEventBusinessService service;
 
   public HistoricalReportExcelExporter(ServerGeoObjectType type, Date startDate, Date endDate)
   {
+    this.service = ServiceFactory.getBean(GPRTransitionEventBusinessService.class);
+
     this.type = type;
     this.startDate = startDate;
     this.endDate = endDate;
@@ -124,7 +130,7 @@ public class HistoricalReportExcelExporter
 
     this.writeHeader(sheet.createRow(rowNum++));
 
-    Page<HistoricalRow> page = HistoricalRow.getHistoricalReport(type, startDate, endDate, 1000, 1);
+    Page<HistoricalRow> page = this.service.getHistoricalReport(type, startDate, endDate, 1000, 1);
 
     while (page.getResults().size() > 0)
     {
@@ -135,7 +141,7 @@ public class HistoricalReportExcelExporter
         this.writeRow(sheet.createRow(rowNum++), result);
       }
 
-      page = HistoricalRow.getHistoricalReport(type, startDate, endDate, page.getPageSize(), page.getPageNumber() + 1);
+      page = this.service.getHistoricalReport(type, startDate, endDate, page.getPageSize(), page.getPageNumber() + 1);
     }
   }
 

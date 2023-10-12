@@ -34,6 +34,7 @@ import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -113,7 +114,7 @@ public class RelationshipVisualizationService
 
     final List<GeoObject> geoObjects = new LinkedList<GeoObject>();
 
-    final VertexView sourceView = VertexView.fromJSON(sourceVertex);
+    final VertexView sourceView = this.fromJSON(sourceVertex);
 
     // 1. Build a list of all related objects
     if (VertexView.ObjectType.GEOOBJECT.equals(sourceView.getObjectType()))
@@ -214,7 +215,7 @@ public class RelationshipVisualizationService
     final Map<String, EdgeView> edges = new HashMap<String, EdgeView>();
     final Map<String, JsonObject> relatedTypes = new HashMap<String, JsonObject>();
 
-    final VertexView sourceView = VertexView.fromJSON(sourceVertex);
+    final VertexView sourceView = this.fromJSON(sourceVertex);
 
     if (VertexView.ObjectType.GEOOBJECT.equals(sourceView.getObjectType()))
     {
@@ -224,7 +225,7 @@ public class RelationshipVisualizationService
       {
         VertexServerGeoObject selected = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(sourceView.getCode(), type);
 
-        verticies.put(selected.getUid(), VertexView.fromGeoObject(selected, "SELECTED"));
+        verticies.put(selected.getUid(), this.fromGeoObject(selected, "SELECTED"));
         addRelatedType(relatedTypes, type);
 
         if (SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
@@ -239,7 +240,7 @@ public class RelationshipVisualizationService
 
             if (!verticies.containsKey(child.getCode()))
             {
-              verticies.put(child.getCode(), VertexView.fromBusinessObject(child, "CHILD"));
+              verticies.put(child.getCode(), this.fromBusinessObject(child, "CHILD"));
               EdgeView edge = EdgeView.create(selected, child);
               edges.put(edge.getId(), edge);
               addRelatedType(relatedTypes, child.getType());
@@ -284,7 +285,7 @@ public class RelationshipVisualizationService
       {
         final BusinessObject selected = this.bObjectService.getByCode(type, sourceView.getCode());
 
-        verticies.put(selected.getCode(), VertexView.fromBusinessObject(selected, "SELECTED"));
+        verticies.put(selected.getCode(), this.fromBusinessObject(selected, "SELECTED"));
         addRelatedType(relatedTypes, type);
 
         if (SHOW_GEOOBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
@@ -299,7 +300,7 @@ public class RelationshipVisualizationService
 
             if (!verticies.containsKey(child.getCode()))
             {
-              verticies.put(child.getCode(), VertexView.fromGeoObject(child, "CHILD"));
+              verticies.put(child.getCode(), this.fromGeoObject(child, "CHILD"));
               EdgeView edge = EdgeView.create(selected, child);
               edges.put(edge.getId(), edge);
               addRelatedType(relatedTypes, child.getType());
@@ -320,7 +321,7 @@ public class RelationshipVisualizationService
 
             if (!verticies.containsKey(parent.getCode()))
             {
-              verticies.put(parent.getCode(), VertexView.fromBusinessObject(parent, "PARENT"));
+              verticies.put(parent.getCode(), this.fromBusinessObject(parent, "PARENT"));
               EdgeView edge = EdgeView.create(parent, selected);
               edges.put(edge.getId(), edge);
               addRelatedType(relatedTypes, parent.getType());
@@ -337,7 +338,7 @@ public class RelationshipVisualizationService
 
             if (!verticies.containsKey(child.getCode()))
             {
-              verticies.put(child.getCode(), VertexView.fromBusinessObject(child, "CHILD"));
+              verticies.put(child.getCode(), this.fromBusinessObject(child, "CHILD"));
               EdgeView edge = EdgeView.create(selected, child);
               edges.put(edge.getId(), edge);
               addRelatedType(relatedTypes, child.getType());
@@ -557,7 +558,7 @@ public class RelationshipVisualizationService
 
         if (!verticies.containsKey(parentGO.getUid()))
         {
-          verticies.put(parentGO.getUid(), VertexView.fromGeoObject(parentGO, "PARENT"));
+          verticies.put(parentGO.getUid(), this.fromGeoObject(parentGO, "PARENT"));
 
           addRelatedType(relatedTypes, parentGO.getType());
         }
@@ -591,7 +592,7 @@ public class RelationshipVisualizationService
 
         if (!verticies.containsKey(targetGO.getUid()))
         {
-          verticies.put(targetGO.getUid(), VertexView.fromGeoObject(targetGO, "CHILD"));
+          verticies.put(targetGO.getUid(), this.fromGeoObject(targetGO, "CHILD"));
 
           addRelatedType(relatedTypes, targetGO.getType());
         }
@@ -605,4 +606,30 @@ public class RelationshipVisualizationService
       this.processChildNode(node, graphType, edges, verticies, relatedTypes);
     });
   }
+
+  public VertexView fromBusinessObject(BusinessObject bo, String relation)
+  {
+    String label = bo.getLabel();
+
+    return new VertexView(ObjectType.BUSINESS, "g-" + bo.getCode(), bo.getCode(), bo.getType().getCode(), ( label == null || label.length() == 0 ) ? bo.getCode() : label, relation, true);
+  }
+
+  public VertexView fromGeoObject(ServerGeoObjectIF go, String relation)
+  {
+    final ServerGeoObjectType type = go.getType();
+
+    boolean readable = objectPermissions.canRead(type.getOrganization().getCode(), type);
+
+    String label = go.getDisplayLabel().getValue();
+
+    return new VertexView(ObjectType.GEOOBJECT, "g-" + go.getUid(), go.getCode(), go.getType().getCode(), ( label == null || label.length() == 0 ) ? go.getCode() : label, relation, readable);
+  }
+
+  public VertexView fromJSON(String sJson)
+  {
+    GsonBuilder builder = new GsonBuilder();
+
+    return builder.create().fromJson(sJson, VertexView.class);
+  }
+
 }

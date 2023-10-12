@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -48,6 +48,7 @@ import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.io.ConstantShapefileFunction;
@@ -56,51 +57,56 @@ import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class BusinessObjectImportConfiguration extends ImportConfiguration
 {
-  public static final String                                   PARENT_EXCLUSION = "##PARENT##";
+  public static final String                               PARENT_EXCLUSION = "##PARENT##";
 
-  public static final String                                   DATE             = "date";
+  public static final String                               DATE             = "date";
 
-  public static final String                                   TARGET           = "target";
+  public static final String                               TARGET           = "target";
 
-  public static final String                                   BASE_TYPE        = "baseType";
+  public static final String                               BASE_TYPE        = "baseType";
 
-  public static final String                                   TEXT             = "text";
+  public static final String                               TEXT             = "text";
 
-  public static final String                                   NUMERIC          = "numeric";
+  public static final String                               NUMERIC          = "numeric";
 
-  public static final String                                   HIERARCHY        = "hierarchy";
+  public static final String                               HIERARCHY        = "hierarchy";
 
-  public static final String                                   LOCATIONS        = "locations";
+  public static final String                               LOCATIONS        = "locations";
 
-  public static final String                                   TYPE             = "type";
+  public static final String                               TYPE             = "type";
 
-  public static final String                                   SHEET            = "sheet";
+  public static final String                               SHEET            = "sheet";
 
-  public static final String                                   EXCLUSIONS       = "exclusions";
+  public static final String                               EXCLUSIONS       = "exclusions";
 
-  public static final String                                   VALUE            = "value";
+  public static final String                               VALUE            = "value";
 
-  public static final String                                   DATE_FORMAT      = "yyyy-MM-dd";
+  public static final String                               DATE_FORMAT      = "yyyy-MM-dd";
 
-  public static final String                                   MATCH_STRATEGY   = "matchStrategy";
+  public static final String                               MATCH_STRATEGY   = "matchStrategy";
 
   private BusinessType                                     type;
 
-  private Map<String, Set<String>>                             exclusions;
+  private Map<String, Set<String>>                         exclusions;
 
-  private List<Location>                                       locations;
+  private List<Location>                                   locations;
 
-  private ServerHierarchyType                                  hierarchy;
+  private ServerHierarchyType                              hierarchy;
 
-  private Date                                                 date;
+  private Date                                             date;
 
   private LinkedList<BusinessObjectRecordedErrorException> errors           = new LinkedList<BusinessObjectRecordedErrorException>();
 
+  private BusinessTypeBusinessServiceIF                    typeService;
+
   public BusinessObjectImportConfiguration()
   {
+    this.typeService = ServiceFactory.getBean(BusinessTypeBusinessServiceIF.class);
+
     this.functions = new HashMap<String, ShapefileFunction>();
     this.locations = new LinkedList<Location>();
     this.exclusions = new HashMap<String, Set<String>>();
@@ -210,7 +216,7 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
     SimpleDateFormat format = new SimpleDateFormat(BusinessObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-    JSONObject type = new JSONObject(this.type.toJSON(true, true).toString());
+    JSONObject type = new JSONObject(this.typeService.toJSON(this.type, true, true).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)
@@ -293,7 +299,7 @@ public class BusinessObjectImportConfiguration extends ImportConfiguration
     JSONArray locations = config.has(LOCATIONS) ? config.getJSONArray(LOCATIONS) : new JSONArray();
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
     String code = type.getString(GeoObjectType.JSON_CODE);
-    BusinessType businessType = BusinessType.getByCode(code);
+    BusinessType businessType = this.typeService.getByCode(code);
 
     this.setType(businessType);
 

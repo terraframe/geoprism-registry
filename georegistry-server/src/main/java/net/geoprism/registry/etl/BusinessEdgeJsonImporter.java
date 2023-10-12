@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -41,32 +41,40 @@ import com.runwaysdk.util.IDGenerator;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.business.BusinessEdgeTypeBusinessServiceIF;
+import net.geoprism.registry.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class BusinessEdgeJsonImporter
 {
-  private static final Logger   logger     = LoggerFactory.getLogger(BusinessEdgeJsonImporter.class);
+  private static final Logger               logger     = LoggerFactory.getLogger(BusinessEdgeJsonImporter.class);
 
-  protected BusinessObjectCache goCache    = new BusinessObjectCache();
+  protected BusinessObjectCache             goCache    = new BusinessObjectCache();
 
-  protected Map<String, Object> goRidCache = new LinkedHashMap<String, Object>()
-                                           {
-                                             public boolean removeEldestEntry(@SuppressWarnings("rawtypes")
-                                             Map.Entry eldest)
-                                             {
-                                               final int cacheSize = 10000;
-                                               return size() > cacheSize;
-                                             }
-                                           };
+  protected Map<String, Object>             goRidCache = new LinkedHashMap<String, Object>()
+                                                       {
+                                                         public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
+                                                         {
+                                                           final int cacheSize = 10000;
+                                                           return size() > cacheSize;
+                                                         }
+                                                       };
 
-  private ApplicationResource   resource;
+  private ApplicationResource               resource;
 
-  private boolean               validate;
+  private boolean                           validate;
+
+  private BusinessEdgeTypeBusinessServiceIF edgeTypeService;
+
+  private BusinessObjectBusinessServiceIF   objectService;
 
   public BusinessEdgeJsonImporter(ApplicationResource resource, boolean validate)
   {
     this.resource = resource;
     this.validate = validate;
+
+    this.edgeTypeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
   }
 
   public void importData() throws JsonSyntaxException, IOException
@@ -83,9 +91,9 @@ public class BusinessEdgeJsonImporter
 
         final String code = joGraphType.get("code").getAsString();
 
-        final BusinessEdgeType edgeType = BusinessEdgeType.getByCode(code);
-        BusinessType sourceType = edgeType.getParent();
-        BusinessType targetType = edgeType.getChild();
+        final BusinessEdgeType edgeType = this.edgeTypeService.getByCode(code);
+        BusinessType sourceType = this.edgeTypeService.getParent(edgeType);
+        BusinessType targetType = this.edgeTypeService.getChild(edgeType);
 
         JsonArray edges = joGraphType.get("edges").getAsJsonArray();
 
@@ -103,7 +111,7 @@ public class BusinessEdgeJsonImporter
             BusinessObject source = goCache.getOrFetchByCode(sourceCode, sourceType.getCode());
             BusinessObject target = goCache.getOrFetchByCode(targetCode, targetType.getCode());
 
-            source.addChild(edgeType, target);
+            this.objectService.addChild(source, edgeType, target);
           }
           else
           {

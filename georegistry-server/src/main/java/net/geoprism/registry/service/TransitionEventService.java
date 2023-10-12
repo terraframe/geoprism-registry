@@ -11,18 +11,17 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
-import net.geoprism.registry.business.TransitionEventBusinessServiceIF;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.GPRGeoObjectPermissionService;
-import net.geoprism.registry.view.HistoricalRow;
+import net.geoprism.registry.service.business.GPRTransitionEventBusinessService;
 
 @Repository
 public class TransitionEventService
 {
   @Autowired
-  protected TransitionEventBusinessServiceIF service;
-  
+  protected GPRTransitionEventBusinessService service;
+
   @Request(RequestType.SESSION)
   public JsonObject page(String sessionId, Integer pageSize, Integer pageNumber, String attrConditions)
   {
@@ -54,7 +53,7 @@ public class TransitionEventService
 
     new GPRGeoObjectPermissionService().enforceCanRead(type.getOrganization().getCode(), type);
 
-    return HistoricalRow.getHistoricalReport(type, startDate, endDate, pageSize, pageNumber).toJSON();
+    return this.service.getHistoricalReport(type, startDate, endDate, pageSize, pageNumber).toJSON();
   }
 
   @Request(RequestType.SESSION)
@@ -64,6 +63,6 @@ public class TransitionEventService
 
     new GPRGeoObjectPermissionService().enforceCanRead(type.getOrganization().getCode(), type);
 
-    return HistoricalRow.exportToExcel(type, startDate, endDate);
+    return this.service.exportToExcel(type, startDate, endDate);
   }
 }

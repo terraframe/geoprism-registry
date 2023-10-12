@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.excel;
 
@@ -24,11 +24,9 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.BuiltinFormats;
@@ -49,15 +47,16 @@ import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.locationtech.jts.geom.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
-import org.locationtech.jts.geom.Point;
 
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
@@ -65,27 +64,35 @@ import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectExcelExporter
 {
-  private static Logger           logger = LoggerFactory.getLogger(GeoObjectExcelExporter.class);
+  private static Logger                  logger = LoggerFactory.getLogger(GeoObjectExcelExporter.class);
 
-  private ServerGeoObjectType     type;
+  private ServerGeoObjectType            type;
 
-  private ServerHierarchyType     hierarchy;
+  private ServerHierarchyType            hierarchy;
 
-  private List<ServerGeoObjectIF> objects;
-  
-  private List<Locale> locales;
+  private List<ServerGeoObjectIF>        objects;
+
+  private List<Locale>                   locales;
+
+  private GeoObjectTypeBusinessServiceIF typeService;
+
+  private GeoObjectBusinessServiceIF     objectService;
 
   public GeoObjectExcelExporter(ServerGeoObjectType type, ServerHierarchyType hierarchy, List<ServerGeoObjectIF> objects)
   {
+    this.typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+    this.objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
     this.type = type;
     this.hierarchy = hierarchy;
     this.objects = objects;
     this.locales = LocalizationFacade.getInstalledLocales().stream().collect(Collectors.toList());
   }
-  
+
   public ServerGeoObjectType getType()
   {
     return type;
@@ -127,7 +134,7 @@ public class GeoObjectExcelExporter
     Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, this.type.getType()).attributes(this.type.getType());
 
     // Get the ancestors of the type
-    List<ServerGeoObjectType> ancestors = this.type.getTypeAncestors(this.hierarchy, true);
+    List<ServerGeoObjectType> ancestors = this.typeService.getTypeAncestors(type, this.hierarchy, true);
 
     this.writeHeader(boldStyle, header, attributes, ancestors);
 
@@ -224,7 +231,7 @@ public class GeoObjectExcelExporter
     }
 
     // Write the parent values
-    Map<String, LocationInfo> map = object.getAncestorMap(this.hierarchy, ancestors);
+    Map<String, LocationInfo> map = this.objectService.getAncestorMap(object, this.hierarchy, ancestors);
 
     for (ServerGeoObjectType ancestor : ancestors)
     {

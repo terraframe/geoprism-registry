@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -105,13 +105,12 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class GeoObjectImporter implements ObjectImporterIF
@@ -199,8 +198,6 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   protected GeoObjectImportConfiguration   configuration;
 
-  protected ServerGeoObjectService         service;
-
   protected Map<String, ServerGeoObjectIF> parentCache;
 
   protected ClassifierCache                classifierCache            = new ClassifierCache();
@@ -219,11 +216,13 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   private ThreadPoolExecutor               executor;
 
+  protected GPRGeoObjectBusinessServiceIF  service;
+
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.configuration = configuration;
     this.progressListener = progressListener;
-    this.service = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService());
+    this.service = ServiceFactory.getBean(GPRGeoObjectBusinessServiceIF.class);
 
     final int MAX_ENTRIES = 10000; // The size of our parentCache
     this.parentCache = Collections.synchronizedMap(new LinkedHashMap<String, ServerGeoObjectIF>(MAX_ENTRIES + 1, .75F, true)
@@ -284,7 +283,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
           ServerParentTreeNode tnParent = new ServerParentTreeNode(parent, hierarchy, GeoObjectImporter.this.configuration.getStartDate(), GeoObjectImporter.this.configuration.getEndDate(), null);
 
-          ServerParentTreeNodeOverTime grandParentsOverTime = parent.getParentsOverTime(null, true, true);
+          ServerParentTreeNodeOverTime grandParentsOverTime = service.getParentsOverTime(parent, null, true, true);
 
           if (grandParentsOverTime != null && grandParentsOverTime.hasEntries(hierarchy))
           {
@@ -423,7 +422,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             }
           }
 
-          GeoObjectOverTime go = ( (VertexServerGeoObject) entity ).toGeoObjectOverTime(false, this.classifierCache);
+          GeoObjectOverTime go = this.service.toGeoObjectOverTime(entity, false, this.classifierCache);
           go.toJSON().toString();
 
           if (this.configuration.isExternalImport())
@@ -552,7 +551,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       {
         try
         {
-          VertexServerGeoObject.handleDuplicateDataException(this.configuration.getType(), e);
+          this.service.handleDuplicateDataException(this.configuration.getType(), e);
         }
         catch (Throwable t)
         {
@@ -767,7 +766,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
         }
 
-        go = ( (VertexServerGeoObject) serverGo ).toGeoObjectOverTime(false, this.classifierCache);
+        go = this.service.toGeoObjectOverTime(serverGo, false, this.classifierCache);
         goJson = go.toJSON().toString();
 
         /*
@@ -794,8 +793,8 @@ public class GeoObjectImporter implements ObjectImporterIF
         data.setNew(isNew);
         data.setParentBuilder(parentBuilder);
 
-        serverGo.apply(true);
-
+        this.service.apply(serverGo, true);
+        
         imported = true;
       }
       finally
@@ -811,22 +810,22 @@ public class GeoObjectImporter implements ObjectImporterIF
         ShapefileFunction function = this.configuration.getExternalIdFunction();
 
         Object value = function.getValue(row);
-
-        serverGo.createExternalId(this.configuration.getExternalSystem(), String.valueOf(value), this.configuration.getImportStrategy());
+        
+        this.service.createExternalId(serverGo, this.configuration.getExternalSystem(), String.valueOf(value), this.configuration.getImportStrategy());
       }
 
       if (parent != null)
       {
         if (!isNew)
         {
-          parent.addChild(serverGo, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
+          this.service.addChild(parent, serverGo, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
         }
         else
         {
           // If we're a new object, we can speed things up quite a bit here by
           // just directly applying the edge object since the addChild method
           // does a lot of unnecessary validation.
-          ( (VertexServerGeoObject) serverGo ).addParentRaw( ( (VertexServerGeoObject) parent ).getVertex(), this.configuration.getHierarchy().getMdEdge(), this.configuration.getStartDate(), this.configuration.getEndDate());
+          this.service.addParentRaw(serverGo, ((VertexServerGeoObject) parent ).getVertex(), this.configuration.getHierarchy().getMdEdge(), this.configuration.getStartDate(), this.configuration.getEndDate());
         }
       }
       else if (isNew)
@@ -1205,7 +1204,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     if (code != null)
     {
       // Search
-      ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(location.getType(), this.configuration.getStartDate());
+      ServerGeoObjectQuery query = this.service.createQuery(location.getType(), this.configuration.getStartDate());
       query.setRestriction(new ServerCodeRestriction(code));
 
       // Assert.assertNull(query.getSingleResult());
