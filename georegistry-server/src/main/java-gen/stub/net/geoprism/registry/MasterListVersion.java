@@ -127,9 +127,11 @@ import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 
-import net.geoprism.rbac.RoleConstants;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.rbac.RoleConstants;
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.PublishMasterListVersionJob;
 import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
@@ -820,9 +822,11 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
 
       // Add the type ancestor fields
+      GeoObjectTypeBusinessServiceIF typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+
       Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
       Collection<AttributeType> attributes = type.getAttributeMap().values();
-      Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
+      Set<ServerHierarchyType> hierarchiesOfSubTypes = typeService.getHierarchiesOfSubTypes(type);
 
       // ServerGeoObjectService service = new ServerGeoObjectService();
       // ServerGeoObjectQuery query = service.createQuery(type,
@@ -894,6 +898,8 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
   private void publish(ServerGeoObjectIF go, Business business, Collection<AttributeType> attributes, Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap, Set<ServerHierarchyType> hierarchiesOfSubTypes, Collection<Locale> locales)
   {
+    GeoObjectBusinessServiceIF objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
     VertexServerGeoObject vertexGo = (VertexServerGeoObject) go;
 
     boolean hasData = false;
@@ -995,7 +1001,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       {
         ServerHierarchyType hierarchy = entry.getKey();
 
-        Map<String, LocationInfo> map = vertexGo.getAncestorMap(hierarchy, entry.getValue());
+        Map<String, LocationInfo> map = objectService.getAncestorMap(vertexGo, hierarchy, entry.getValue());
 
         Set<Entry<String, LocationInfo>> locations = map.entrySet();
 
@@ -1021,7 +1027,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
       for (ServerHierarchyType hierarchy : hierarchiesOfSubTypes)
       {
-        ServerParentTreeNode node = go.getParentsForHierarchy(hierarchy, false, false, this.getForDate());
+        ServerParentTreeNode node = objectService.getParentsForHierarchy(go, hierarchy, false, false, this.getForDate());
         List<ServerParentTreeNode> parents = node.getParents();
 
         if (parents.size() > 0)
@@ -1074,8 +1080,10 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
     Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
 
     // Add the type ancestor fields
+    GeoObjectTypeBusinessServiceIF typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
-    Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
+    Set<ServerHierarchyType> hierarchiesOfSubTypes = typeService.getHierarchiesOfSubTypes(type);
     Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
     Collection<AttributeType> attributes = type.getAttributeMap().values();
 
@@ -1102,6 +1110,8 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
   @Transaction
   public void publishRecord(ServerGeoObjectIF object)
   {
+    GeoObjectTypeBusinessServiceIF typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+
     object.setDate(this.getForDate());
 
     // Delete tile cache
@@ -1114,7 +1124,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
     // Add the type ancestor fields
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
     Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
-    Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
+    Set<ServerHierarchyType> hierarchiesOfSubTypes = typeService.getHierarchiesOfSubTypes(type);
     Collection<AttributeType> attributes = type.getAttributeMap().values();
 
     Business business = new Business(mdBusiness.definesType());
@@ -1165,17 +1175,20 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
     if (type.getIsAbstract())
     {
-      JsonArray subtypes = new JsonArray();
+      JsonArray jSubtypes = new JsonArray();
 
-      for (ServerGeoObjectType subtype : type.getSubtypes())
+      GeoObjectTypeBusinessServiceIF typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+      List<ServerGeoObjectType> subtypes = typeService.getSubtypes(type);
+
+      for (ServerGeoObjectType subtype : subtypes)
       {
         JsonObject jo = new JsonObject();
         jo.addProperty("code", subtype.getCode());
         jo.addProperty("label", subtype.getLabel().getValue());
-        subtypes.add(jo);
+        jSubtypes.add(jo);
       }
 
-      object.add("subtypes", subtypes);
+      object.add("subtypes", jSubtypes);
     }
 
     if (this.getPublishDate() != null)

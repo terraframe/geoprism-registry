@@ -51,6 +51,7 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.configuration.GeoprismProperties;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
@@ -238,7 +239,7 @@ public class MasterList extends MasterListBase
         String hCode = hierarchy.get("code").getAsString();
         ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
 
-        List<ServerGeoObjectType> ancestors = type.getTypeAncestors(hierarchyType, true);
+        List<ServerGeoObjectType> ancestors = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).getTypeAncestors(type, hierarchyType, true);
 
         map.put(hierarchyType, ancestors);
       }
@@ -848,7 +849,7 @@ public class MasterList extends MasterListBase
 
       if (ht.isPresent())
       {
-        ServerHierarchyType actualHierarchy = masterlistType.findHierarchy(ht.get(), type);
+        ServerHierarchyType actualHierarchy = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).findHierarchy(masterlistType, ht.get(), type);
 
         if (hCode.equals(hierarchyType.getCode()) || actualHierarchy.getCode().equals(hierarchyType.getCode()))
         {
@@ -1106,12 +1107,14 @@ public class MasterList extends MasterListBase
           }
         }
       }
+      
+      RolePermissionService permissions = ServiceFactory.getBean(RolePermissionService.class);
 
       JsonObject object = new JsonObject();
       object.addProperty("oid", org.getOid());
       object.addProperty("code", org.getCode());
       object.addProperty("label", org.getDisplayLabel().getValue());
-      object.addProperty("write", Organization.isRegistryAdmin(org) || Organization.isRegistryMaintainer(org));
+      object.addProperty("write",  permissions.isRA(org.getCode()) || permissions.isRM(org.getCode()));
       object.add("lists", lists);
 
       response.add(object);

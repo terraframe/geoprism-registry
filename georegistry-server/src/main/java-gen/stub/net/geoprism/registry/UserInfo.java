@@ -80,12 +80,12 @@ public class UserInfo extends UserInfoBase
 
   public static JSONObject page(Integer pageSize, Integer pageNumber)
   {
-    final RolePermissionService perms = ServiceFactory.getRolePermissionService();
+    RolePermissionService permissions = ServiceFactory.getBean(RolePermissionService.class);
 
     List<Organization> organizations = Organization.getUserOrganizations();
 
-    boolean isSRA = perms.isSRA();
-    boolean isRMorRCorAC = ( !isSRA && !perms.isRA() ) && ( perms.isRM() || perms.isRC() || perms.isAC() );
+    boolean isSRA = permissions.isSRA();
+    boolean isRMorRCorAC = ( !isSRA && !permissions.isRA() ) && ( permissions.isRM() || permissions.isRC() || permissions.isAC() );
 
     List<ExternalSystem> externalSystemList = ExternalSystem.getExternalSystemsForOrg(1, 100);
     JSONArray externalSystems = new JSONArray();

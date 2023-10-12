@@ -46,12 +46,11 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.StreamResource;
 
-import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.excel.ListTypeExcelExporter;
 import net.geoprism.registry.excel.ListTypeExcelExporter.ListMetadataSource;
 import net.geoprism.registry.excel.MasterListExcelExporter;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.masterlist.ListColumn;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
@@ -191,7 +190,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     ServiceFactory.getHierarchyPermissionService().enforceCanCreate(hierarchyType.getOrganizationCode());
 
-    ServerHierarchyType sType = new ServerHierarchyTypeBuilder().createHierarchyType(hierarchyType);
+    ServerHierarchyType sType = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class).createHierarchyType(hierarchyType);
 
     // The transaction did not error out, so it is safe to put into the cache.
     ServiceFactory.getMetadataCache().addHierarchyType(sType);

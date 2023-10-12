@@ -33,11 +33,10 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.action.ActionJsonAdapters;
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class RemoveChildAction extends RemoveChildActionBase
@@ -49,13 +48,15 @@ public class RemoveChildAction extends RemoveChildActionBase
   @Override
   public void execute()
   {
-    ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
-    ServerGeoObjectIF child = new ServerGeoObjectService().getGeoObject(this.getChildId(), this.getChildTypeCode());
+    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
+    ServerGeoObjectIF parent = service.getGeoObject(this.getParentId(), this.getParentTypeCode());
+    ServerGeoObjectIF child = service.getGeoObject(this.getChildId(), this.getChildTypeCode());
     ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
-    parent.removeChild(child, this.getHierarchyTypeCode(), null, null);
+    service.removeChild(parent, child, this.getHierarchyTypeCode(), null, null);
   }
 
   @Override
@@ -116,8 +117,10 @@ public class RemoveChildAction extends RemoveChildActionBase
   @Override
   public void apply()
   {
-    ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
-    ServerGeoObjectIF child = new ServerGeoObjectService().getGeoObject(this.getChildId(), this.getChildTypeCode());
+    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
+    ServerGeoObjectIF parent = service.getGeoObject(this.getParentId(), this.getParentTypeCode());
+    ServerGeoObjectIF child = service.getGeoObject(this.getChildId(), this.getChildTypeCode());
     ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChildCR(ht.getOrganization().getCode(), parent.getType(), child.getType());

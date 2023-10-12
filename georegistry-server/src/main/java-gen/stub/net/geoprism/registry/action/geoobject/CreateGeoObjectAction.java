@@ -34,14 +34,14 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.graphrepo.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.ChangeRequestPermissionService;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.GPRGeoObjectPermissionService;
-import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
-import net.geoprism.registry.service.ServerGeoObjectService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
@@ -59,18 +59,19 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
   @Override
   public void execute()
   {
+    GeoObjectBusinessServiceIF objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
     String sJson = this.getGeoObjectJson();
 
     GeoObjectOverTime geoObject = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sJson);
 
-    ServerGeoObjectService service = new ServerGeoObjectService();
-    service.apply(geoObject, true, false);
+    objectService.apply(geoObject, true, false);
 
-    ServerGeoObjectIF child = service.getGeoObjectByCode(geoObject.getCode(), geoObject.getType().getCode());
+    ServerGeoObjectIF child = objectService.getGeoObjectByCode(geoObject.getCode(), geoObject.getType().getCode());
 
     ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getParentJson());
 
-    child.setParents(ptnOt);
+    objectService.setParents(child, ptnOt);
   }
 
   @Override

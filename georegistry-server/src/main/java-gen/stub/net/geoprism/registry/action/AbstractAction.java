@@ -21,15 +21,14 @@ package net.geoprism.registry.action;
 import java.util.Arrays;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
-import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.RegistryServiceIF;
 import net.geoprism.registry.service.ServiceFactory;
 
 public abstract class AbstractAction extends AbstractActionBase
@@ -37,13 +36,14 @@ public abstract class AbstractAction extends AbstractActionBase
 
   private static final long serialVersionUID = 1324056554;
 
-  protected RegistryService registry;
+  protected RegistryServiceIF registry;
 
   public AbstractAction()
   {
     super();
 
-    this.registry = ServiceFactory.getRegistryService();
+    this.registry = ServiceFactory.getBean(RegistryServiceIF.class);
+;
   }
 
   abstract public void execute();

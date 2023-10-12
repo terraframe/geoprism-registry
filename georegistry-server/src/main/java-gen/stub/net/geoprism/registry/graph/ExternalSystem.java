@@ -41,6 +41,7 @@ import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.permission.GPROrganizationPermissionService;
+import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 
@@ -79,7 +80,9 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
       if (session != null)
       {
-        ServiceFactory.getRolePermissionService().enforceRA(organization.getCode());
+        RolePermissionService permissions = ServiceFactory.getBean(RolePermissionService.class);
+
+        permissions.enforceRA(organization.getCode());
       }
     }
 

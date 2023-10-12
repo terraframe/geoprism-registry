@@ -69,6 +69,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.ListTypeJob;
@@ -296,7 +297,7 @@ public abstract class ListType extends ListTypeBase
         String hCode = hierarchy.get("code").getAsString();
         ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
 
-        List<ServerGeoObjectType> ancestors = type.getTypeAncestors(hierarchyType, true);
+        List<ServerGeoObjectType> ancestors =  ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).getTypeAncestors(type, hierarchyType, true);
 
         map.put(hierarchyType, ancestors);
       }
@@ -624,7 +625,7 @@ public abstract class ListType extends ListTypeBase
 
       if (ht.isPresent())
       {
-        ServerHierarchyType actualHierarchy = masterlistType.findHierarchy(ht.get(), type);
+        ServerHierarchyType actualHierarchy = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).findHierarchy(masterlistType, ht.get(), type);
 
         if (hCode.equals(hierarchyType.getCode()) || actualHierarchy.getCode().equals(hierarchyType.getCode()))
         {
