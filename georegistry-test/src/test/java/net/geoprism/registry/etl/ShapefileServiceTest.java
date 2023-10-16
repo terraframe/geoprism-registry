@@ -102,15 +102,21 @@ import net.geoprism.registry.test.USATestData;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ShapefileServiceTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private static TestAttributeTermTypeInfo  testTerm    = new TestAttributeTermTypeInfo("testTerm", "testTermLocalName", USATestData.STATE);
+  private static TestAttributeTermTypeInfo testTerm    = new TestAttributeTermTypeInfo("testTerm", "testTermLocalName", USATestData.STATE);
 
-  private static TestAttributeTypeInfo      testInteger = new TestAttributeTypeInfo("testInteger", "testIntegerLocalName", USATestData.STATE, AttributeIntegerType.TYPE);
-
-  @Autowired
-  private RegistryComponentService   service;
+  private static TestAttributeTypeInfo     testInteger = new TestAttributeTypeInfo("testInteger", "testIntegerLocalName", USATestData.STATE, AttributeIntegerType.TYPE);
 
   @Autowired
-  private GeoObjectBusinessServiceIF objectService;
+  private RegistryComponentService         service;
+
+  @Autowired
+  private GeoObjectBusinessServiceIF       objectService;
+
+  @Autowired
+  private ETLService                       etlService;
+
+  @Autowired
+  private ShapefileService                 shapefileService;
 
   @Override
   @Request
@@ -210,8 +216,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
-    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
+    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
 
     Assert.assertFalse(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
 
@@ -278,8 +283,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
-    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
+    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
 
     Assert.assertTrue(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
   }
@@ -292,13 +296,12 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     /*
      * Build Config
      */
-    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "ntd_zam_operational_28082020.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
+    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "ntd_zam_operational_28082020.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
@@ -342,10 +345,9 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
     config.setHierarchy(hierarchyType);
 
     ImportHistory hist = mockImport(config);
@@ -373,10 +375,9 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
     config.setHierarchy(hierarchyType);
 
     ImportHistory hist = mockImport(config);
@@ -422,9 +423,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
-
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -456,9 +455,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
-
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -470,7 +467,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
-    config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
     config.setFunction(testInteger.getName(), new BasicColumnFunction("ALAND"));
     config.setCopyBlank(true);
 
@@ -501,9 +498,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
-
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -515,7 +510,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
-    config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
     config.setFunction(testInteger.getName(), new BasicColumnFunction("ALAND"));
     config.setCopyBlank(false);
 
@@ -554,9 +549,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
-
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -600,9 +593,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
-
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -654,9 +645,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
-
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -698,9 +687,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
-
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -733,9 +720,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
-
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -752,7 +737,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     Assert.assertEquals(Long.valueOf(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
+    JSONObject page = new JSONObject(this.etlService.getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results = page.getJSONArray("resultSet");
     Assert.assertEquals(1, results.length());
 
@@ -777,9 +762,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
       Assert.assertNotNull(istream);
 
-      ShapefileService service = new ShapefileService();
-
-      GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, (AttributeTermType) testTerm.fetchDTO(), ImportStrategy.NEW_AND_UPDATE);
+      GeoObjectImportConfiguration config = this.getTestConfiguration(istream, (AttributeTermType) testTerm.fetchDTO(), ImportStrategy.NEW_AND_UPDATE);
 
       ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -815,9 +798,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
-
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, (AttributeTermType) testTerm.fetchDTO(), ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, (AttributeTermType) testTerm.fetchDTO(), ImportStrategy.NEW_AND_UPDATE);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -832,7 +813,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     Assert.assertEquals(Long.valueOf(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
+    JSONObject page = new JSONObject(this.etlService.getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results = page.getJSONArray("resultSet");
     Assert.assertEquals(1, results.length());
 
@@ -859,10 +840,9 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
 
     config.setHierarchy(hierarchyType);
 
@@ -904,7 +884,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
   private ImportHistory importShapefile(String sessionId, String config) throws InterruptedException
   {
-    String retConfig = new ETLService().doImport(sessionId, config).toString();
+    String retConfig = this.etlService.doImport(sessionId, config).toString();
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(retConfig, true);
 
@@ -959,9 +939,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
-
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -981,7 +959,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     Assert.assertEquals(Long.valueOf(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
+    JSONObject page = new JSONObject(this.etlService.getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results = page.getJSONArray("resultSet");
     Assert.assertEquals(1, results.length());
 
@@ -1006,7 +984,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     valRes.put("typeCode", serverGo.getType().getCode());
     valRes.put("label", "00");
 
-    new ETLService().submitValidationProblemResolution(testData.clientRequest.getSessionId(), valRes.toString());
+    this.etlService.submitValidationProblemResolution(testData.clientRequest.getSessionId(), valRes.toString());
 
     ValidationProblem vp = ValidationProblem.get(results.getJSONObject(0).getString("id"));
     Assert.assertEquals(ValidationResolution.SYNONYM.name(), vp.getResolution());
@@ -1035,7 +1013,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertEquals(1, parents.size());
 
-    JSONObject page2 = new JSONObject(new ETLService().getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
+    JSONObject page2 = new JSONObject(this.etlService.getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results2 = page2.getJSONArray("resultSet");
     Assert.assertEquals(0, results2.length());
     Assert.assertEquals(0, page2.getInt("count"));
@@ -1119,10 +1097,9 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_ONLY);
     config.setHierarchy(hierarchyType);
     config.setHistoryId(fakeImportHistory.getOid());
     config.setJobId(job.getOid());
@@ -1173,7 +1150,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
       Assert.assertNotNull(geometry);
     }
 
-    JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
+    JSONObject json = new JSONObject(this.etlService.getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
 
     Assert.assertEquals(0, json.getJSONArray("resultSet").length());
   }
@@ -1195,9 +1172,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     Assert.assertNotNull(istream);
 
-    ShapefileService service = new ShapefileService();
-
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE, USATestData.HEALTH_POST);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, null, ImportStrategy.NEW_AND_UPDATE, USATestData.HEALTH_POST);
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
@@ -1220,14 +1195,14 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
   }
 
-  private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ShapefileService service, AttributeTermType testTerm, ImportStrategy strategy)
+  private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, AttributeTermType testTerm, ImportStrategy strategy)
   {
-    return getTestConfiguration(istream, service, testTerm, strategy, USATestData.STATE);
+    return getTestConfiguration(istream, testTerm, strategy, USATestData.STATE);
   }
 
-  private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ShapefileService service, AttributeTermType testTerm, ImportStrategy strategy, TestGeoObjectTypeInfo info)
+  private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, AttributeTermType testTerm, ImportStrategy strategy, TestGeoObjectTypeInfo info)
   {
-    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), info.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, "cb_2017_us_state_500k.zip", istream, strategy, false);
+    JSONObject result = this.shapefileService.getShapefileConfiguration(testData.clientRequest.getSessionId(), info.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, "cb_2017_us_state_500k.zip", istream, strategy, false);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 

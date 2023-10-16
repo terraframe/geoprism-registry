@@ -40,7 +40,6 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.RunwayException;
