@@ -45,9 +45,9 @@ public class CambodiaDemoHierarchyGenerator
   
   private static void generateHierarchyTypes()
   {
-    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
-    
-    HierarchyType ht = MetadataFactory.newHierarchyType("Cambodia", new LocalizedValue("Cambodia"), new LocalizedValue(""), null, registry);
-    ServiceFactory.getHierarchyService().createHierarchyType(Session.getCurrentSession().getOid(), ht.toJSON().toString());
+//    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
+//    
+//    HierarchyType ht = MetadataFactory.newHierarchyType("Cambodia", new LocalizedValue("Cambodia"), new LocalizedValue(""), null, registry);
+//    ServiceFactory.getHierarchyService().createHierarchyType(Session.getCurrentSession().getOid(), ht.toJSON().toString());
   }
 }

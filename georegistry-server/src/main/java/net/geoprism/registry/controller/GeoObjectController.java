@@ -49,6 +49,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.service.GeoObjectServiceIF;
+import net.geoprism.registry.service.HierarchyTypeServiceIF;
 import net.geoprism.registry.service.RegistryComponentService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
@@ -219,6 +220,9 @@ public class GeoObjectController extends RunwaySpringController
 
   @Autowired
   private GeoObjectServiceIF       objectService;
+  
+  @Autowired
+  private HierarchyTypeServiceIF      hierService;
 
   /**
    * Returns a paginated response of all GeoObjects matching the provided
@@ -302,7 +306,7 @@ public class GeoObjectController extends RunwaySpringController
       @NotEmpty
       @RequestParam String typeCode)
   {
-    JsonArray response = ServiceFactory.getHierarchyService().getHierarchiesForGeoObjectOverTime(this.getSessionId(), code, typeCode);
+    JsonArray response = hierService.getHierarchiesForGeoObjectOverTime(this.getSessionId(), code, typeCode);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
