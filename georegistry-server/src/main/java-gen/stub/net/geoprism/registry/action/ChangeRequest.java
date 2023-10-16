@@ -58,6 +58,7 @@ import net.geoprism.email.service.EmailService;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -167,7 +168,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
       return null;
     }
 
-    return (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(code, type, false);
+    return (VertexServerGeoObject) ServiceFactory.getBean(GeoObjectBusinessServiceIF.class).getGeoObjectByCode(code, type, false);
   }
 
   public JsonObject toJSON()

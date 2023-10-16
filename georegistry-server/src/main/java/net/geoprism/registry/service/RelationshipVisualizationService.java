@@ -79,6 +79,9 @@ public class RelationshipVisualizationService
 
   @Autowired
   private BusinessObjectBusinessServiceIF   bObjectService;
+  
+  @Autowired
+  private GeoObjectBusinessServiceIF        geoObjectService;
 
   @Autowired
   private BusinessTypeBusinessServiceIF     bTypeService;
@@ -124,7 +127,7 @@ public class RelationshipVisualizationService
 
       if (this.typePermissions.canRead(type.getOrganization().getCode(), type, type.getIsPrivate()))
       {
-        VertexServerGeoObject rootGo = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(sourceView.getCode(), type);
+        VertexServerGeoObject rootGo = (VertexServerGeoObject) geoObjectService.getGeoObjectByCode(sourceView.getCode(), type);
 
         if (SHOW_BUSINESS_OBJECTS_RELATIONSHIP_TYPE.equals(relationshipType))
         {
@@ -224,7 +227,7 @@ public class RelationshipVisualizationService
 
       if (objectPermissions.canRead(type.getOrganization().getCode(), type))
       {
-        VertexServerGeoObject selected = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(sourceView.getCode(), type);
+        VertexServerGeoObject selected = (VertexServerGeoObject) geoObjectService.getGeoObjectByCode(sourceView.getCode(), type);
 
         verticies.put(selected.getUid(), this.fromGeoObject(selected, "SELECTED"));
         addRelatedType(relatedTypes, type);
