@@ -43,12 +43,13 @@ import com.runwaysdk.system.Users;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.action.ChangeRequest.ChangeRequestType;
-import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.cache.ServerMetadataCache;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.ChangeRequestPermissionService;
+import net.geoprism.registry.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;

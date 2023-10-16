@@ -36,12 +36,12 @@ import com.runwaysdk.session.Session;
 
 import net.geoprism.graphrepo.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.action.ActionJsonAdapters;
-import net.geoprism.registry.action.ChangeRequestPermissionService;
-import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.permission.ChangeRequestPermissionService;
 import net.geoprism.registry.permission.GPRGeoObjectPermissionService;
+import net.geoprism.registry.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 

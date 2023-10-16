@@ -36,7 +36,6 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.Users;
 
-import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.SetParentAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
@@ -44,6 +43,8 @@ import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.action.tree.AddChildAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.permission.ChangeRequestPermissionService;
+import net.geoprism.registry.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
 import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 import net.geoprism.registry.view.action.UpdateParentView;

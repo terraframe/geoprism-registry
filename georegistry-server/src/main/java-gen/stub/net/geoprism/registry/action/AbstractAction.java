@@ -26,7 +26,8 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
+import net.geoprism.registry.permission.ChangeRequestPermissionService;
+import net.geoprism.registry.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.RegistryServiceIF;
 import net.geoprism.registry.service.ServiceFactory;

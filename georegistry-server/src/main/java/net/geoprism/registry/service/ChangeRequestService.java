@@ -59,13 +59,13 @@ import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequest.ChangeRequestType;
-import net.geoprism.registry.action.ChangeRequestPermissionService;
-import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.action.InvalidChangeRequestException;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.permission.ChangeRequestPermissionService;
+import net.geoprism.registry.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.view.Page;
 
 @Service

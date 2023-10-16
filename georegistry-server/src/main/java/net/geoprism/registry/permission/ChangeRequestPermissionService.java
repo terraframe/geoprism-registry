@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.action;
+package net.geoprism.registry.permission;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -28,8 +28,9 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
 
+import net.geoprism.registry.action.AllGovernanceStatus;
+import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.RolePermissionService;
 
 @Service
 public class ChangeRequestPermissionService

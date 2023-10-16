@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.transition;
+package net.geoprism.registry.permission;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -30,7 +30,6 @@ import net.geoprism.graphrepo.permission.TransitionPermissionServiceIF;
 import net.geoprism.graphrepo.permission.UserPermissionService;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.RolePermissionService;
 
 @Service
 @Primary

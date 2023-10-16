@@ -41,7 +41,7 @@ import net.geoprism.userinvite.controller.UserInviteController;
 import net.geoprism.userinvite.service.UserInviteService;
 
 @Configuration
-@ComponentScan(basePackages = { "net.geoprism.registry", "net.geoprism.graph", "net.geoprism.graphrepo", "net.geoprism.spring", "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.spring", "net.geoprism.registry.test", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" })
+@ComponentScan(basePackages = { "net.geoprism.registry.permission", "net.geoprism.registry.service", "net.geoprism.registry.business", "net.geoprism.registry.controller", "net.geoprism.graph", "net.geoprism.graphrepo", "net.geoprism.spring", "net.geoprism.registry.service", "net.geoprism.registry.spring", "net.geoprism.registry.test", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" })
 public class TestConfig
 {
 
