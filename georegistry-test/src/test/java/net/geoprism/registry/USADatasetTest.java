@@ -4,7 +4,7 @@ import net.geoprism.registry.test.USATestData;
 
 public class USADatasetTest implements InstanceTestClassListener
 {
-  protected USATestData testData;
+  protected static USATestData testData;
 
   @Override
   public void beforeClassSetup() throws Exception

@@ -102,9 +102,9 @@ import net.geoprism.registry.test.USATestData;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ShapefileServiceTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private TestAttributeTermTypeInfo  testTerm    = new TestAttributeTermTypeInfo("testTerm", "testTermLocalName", USATestData.STATE);
+  private static TestAttributeTermTypeInfo  testTerm    = new TestAttributeTermTypeInfo("testTerm", "testTermLocalName", USATestData.STATE);
 
-  private TestAttributeTypeInfo      testInteger = new TestAttributeTypeInfo("testInteger", "testIntegerLocalName", USATestData.STATE, AttributeIntegerType.TYPE);
+  private static TestAttributeTypeInfo      testInteger = new TestAttributeTypeInfo("testInteger", "testIntegerLocalName", USATestData.STATE, AttributeIntegerType.TYPE);
 
   @Autowired
   private RegistryComponentService   service;
