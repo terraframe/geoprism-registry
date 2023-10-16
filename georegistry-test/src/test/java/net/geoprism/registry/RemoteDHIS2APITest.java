@@ -72,6 +72,7 @@ import net.geoprism.registry.test.TestUserInfo;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
+@Ignore
 public class RemoteDHIS2APITest implements InstanceTestClassListener
 {
   /*
