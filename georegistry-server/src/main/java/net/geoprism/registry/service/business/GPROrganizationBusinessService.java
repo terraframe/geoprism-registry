@@ -128,6 +128,8 @@ public class GPROrganizationBusinessService extends OrganizationBusinessService 
   {
     try
     {
+      super.deleteRoles(sorg);
+      
       Roles raOrgRole = this.getRegistryAdminRole(sorg.getOrganization());
       raOrgRole.delete();
     }

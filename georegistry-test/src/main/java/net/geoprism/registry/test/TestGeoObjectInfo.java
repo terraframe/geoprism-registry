@@ -556,6 +556,7 @@ public class TestGeoObjectInfo
     if (serverGOTT != null)
     {
       VertexObject vertex = VertexServerGeoObject.getVertexByCode(serverGOTT, this.getCode());
+      
       if (vertex != null)
       {
         vertex.delete();

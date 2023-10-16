@@ -86,7 +86,7 @@ public class TestOrganizationInfo
     {
       return this.serverObj;
     }
-
+    
     OrganizationQuery query = new OrganizationQuery(new QueryFactory());
 
     query.WHERE(query.getCode().EQ(this.getCode()));
@@ -117,7 +117,8 @@ public class TestOrganizationInfo
 
     if (org != null)
     {
-      org.delete();
+      OrganizationBusinessServiceIF service = ServiceFactory.getBean(OrganizationBusinessServiceIF.class);
+      service.delete(org);
     }
   }
 
