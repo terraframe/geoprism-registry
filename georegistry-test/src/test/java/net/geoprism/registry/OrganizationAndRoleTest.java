@@ -6,9 +6,7 @@ package net.geoprism.registry;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -24,26 +22,8 @@ import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class OrganizationAndRoleTest implements InstanceTestClassListener
+public class OrganizationAndRoleTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static FastTestDataset testData;
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
-  }
-
   @Test
   public void testRoleNames()
   {
