@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.build.domain.SearchTablePatch;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
@@ -28,7 +29,7 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class SearchServiceTest implements InstanceTestClassListener
+public class SearchServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectInfo BELIZE_CITY = new TestGeoObjectInfo("Belize Ci't/=&y*)(0$#-@!\"}{][.,;:", "BelizeCity", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
   
@@ -38,24 +39,6 @@ public class SearchServiceTest implements InstanceTestClassListener
   public static final TestGeoObjectInfo EXACT_MATCH_TEST = new TestGeoObjectInfo("Exact-Term(Test) Match Test", "ExactMatchTest", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
   public static final TestGeoObjectInfo EXACT_MATCH_FAIL = new TestGeoObjectInfo("Exact-Term(Test) Match Fail", "ExactMatchFail", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
   public static final TestGeoObjectInfo EXACT_WRONG_FAIL = new TestGeoObjectInfo("Exact-Term(Test) Wrong Fail", "ExactWrongFail", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
-  
-  protected static FastTestDataset testData;
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
-  }
 
   @Before
   public void setUp()

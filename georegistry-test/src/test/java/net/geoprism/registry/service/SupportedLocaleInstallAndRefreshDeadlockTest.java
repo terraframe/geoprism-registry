@@ -6,18 +6,16 @@ package net.geoprism.registry.service;
 import java.util.Locale;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
@@ -26,28 +24,25 @@ import net.geoprism.registry.test.FastTestDataset;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class SupportedLocaleInstallAndRefreshDeadlockTest implements InstanceTestClassListener
+public class SupportedLocaleInstallAndRefreshDeadlockTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static FastTestDataset testData;
-  
   protected static final Locale testLocale = Locale.SIMPLIFIED_CHINESE;
   
   @Autowired
-  private CGRLocalizationService                 service;
+  private GPRLocalizationService                 service;
   
-  @BeforeClass
-  public static void setUpClass()
+  @Override
+  public void beforeClassSetup() throws Exception
   {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
     
     cleanupLocale();
   }
 
-  @AfterClass
-  public static void cleanUpClass()
+  @Override
+  public void afterClassSetup() throws Exception
   {
-    testData.tearDownMetadata();
+    super.afterClassSetup();
     
     cleanupLocale();
   }
