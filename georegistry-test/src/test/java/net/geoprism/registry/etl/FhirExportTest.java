@@ -20,15 +20,13 @@ import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.StringType;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.GsonBuilder;
 import com.runwaysdk.session.Request;
@@ -39,10 +37,10 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeBuilder;
 import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.etl.fhir.BasicFhirConnection;
 import net.geoprism.registry.etl.fhir.FhirExportSynchronizationManager;
 import net.geoprism.registry.etl.fhir.MCSDFhirDataPopulator;
@@ -54,13 +52,10 @@ import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
-
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class FhirExportTest implements InstanceTestClassListener
+public class FhirExportTest extends USADatasetTest implements InstanceTestClassListener
 {
-  protected static USATestData           testData;
-
   protected static ListType              multiHierarchyList;
 
   protected static ListTypeVersion       multiHierarchyVersion;
@@ -69,22 +64,22 @@ public class FhirExportTest implements InstanceTestClassListener
 
   protected static ListTypeVersion       basicHierarchyVersion;
 
+  @Autowired
   protected SynchronizationConfigService syncService;
-
-  @BeforeClass
-  public static void setUpClass() throws ParseException
+  
+  @Override
+  public void beforeClassSetup() throws Exception
   {
     TestDataSet.deleteExternalSystems("FHIRExportTest");
 
-    testData = USATestData.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
     testData.setUpInstanceData();
 
     classSetupInRequest();
   }
 
   @Request
-  public static void classSetupInRequest() throws ParseException
+  public void classSetupInRequest() throws ParseException
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     Date date = format.parse("2020-04-05");
@@ -121,17 +116,17 @@ public class FhirExportTest implements InstanceTestClassListener
     basicHierarchyVersion = basicHierarchyEntry.getWorking();
     basicHierarchyVersion.publishNoAuth();
   }
-
-  @AfterClass
-  public static void cleanUpClass()
+  
+  @Override
+  public void afterClassSetup() throws Exception
   {
     cleanUpClassInRequest();
-
-    testData.tearDownMetadata();
+    
+    super.afterClassSetup();
   }
-
+  
   @Request
-  public static void cleanUpClassInRequest()
+  public void cleanUpClassInRequest()
   {
     if (multiHierarchyList != null)
     {

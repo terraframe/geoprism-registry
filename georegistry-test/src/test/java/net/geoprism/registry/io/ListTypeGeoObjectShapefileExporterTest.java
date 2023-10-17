@@ -52,7 +52,6 @@ import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.shapefile.ShapefileColumnNameGenerator;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
-import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
@@ -81,7 +80,7 @@ public class ListTypeGeoObjectShapefileExporterTest implements InstanceTestClass
   {
     JsonObject json = ListTypeTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, FastTestDataset.COUNTRY);
 
-    TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
+    TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
 
       masterlist = ListType.apply(json);
       version = masterlist.createEntry(FastTestDataset.DEFAULT_OVER_TIME_DATE).getWorking();
@@ -122,7 +121,7 @@ public class ListTypeGeoObjectShapefileExporterTest implements InstanceTestClass
     {
       testData.setUpInstanceData();
 
-      TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
+      TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
         version.publish();
       });
     }

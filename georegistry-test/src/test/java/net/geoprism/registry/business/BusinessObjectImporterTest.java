@@ -14,17 +14,15 @@ import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonObject;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.dataaccess.DuplicateDataException;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
@@ -34,6 +32,7 @@ import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportHistory;
@@ -60,28 +59,37 @@ import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class BusinessObjectImporterTest implements InstanceTestClassListener
+public class BusinessObjectImporterTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private static FastTestDataset testData;
+  private static FastTestDataset          testData;
 
-  private static BusinessType    type;
+  private static BusinessType             type;
 
-  private static AttributeType   attributeType;
+  private static AttributeType            attributeType;
 
-  private static String          TEST_CODE = "testCode";
+  private static String                   TEST_CODE = "testCode";
 
-  @BeforeClass
-  public static void setUpClass()
+  @Autowired
+  private BusinessTypeBusinessServiceIF   bTypeService;
+
+  @Autowired
+  private BusinessObjectBusinessServiceIF bObjectService;
+
+  @Autowired
+  private ExcelService                    excelService;
+
+  @Override
+  public void beforeClassSetup() throws Exception
   {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
+
     testData.setUpInstanceData();
 
     setUpClassInRequest();
   }
 
   @Request
-  private static void setUpClassInRequest()
+  private void setUpClassInRequest()
   {
     String code = "TEST_PROG";
     String orgCode = FastTestDataset.ORG_CGOV.getCode();
@@ -92,25 +100,26 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    type = BusinessType.apply(object);
+    type = this.bTypeService.apply(object);
 
-    attributeType = type.createAttributeType(new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false));
+    attributeType = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false));
   }
 
-  @AfterClass
-  public static void cleanUpClass()
+  @Override
+  public void afterClassSetup() throws Exception
   {
     cleanUpClassInRequest();
+
+    super.afterClassSetup();
 
     if (testData != null)
     {
       testData.tearDownInstanceData();
-      testData.tearDownMetadata();
     }
   }
 
   @Request
-  private static void cleanUpClassInRequest()
+  private void cleanUpClassInRequest()
   {
     if (type != null)
     {
@@ -142,7 +151,7 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
         importer.importRow(new MapFeatureRow(row, 0L));
       }
 
-      BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
+      BusinessObject result = this.bObjectService.get(type, attributeType.getName(), value);
 
       try
       {
@@ -152,7 +161,7 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
       {
         if (result != null)
         {
-          result.delete();
+          this.bObjectService.delete(result);
         }
       }
     });
@@ -183,7 +192,7 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
         importer.importRow(new MapFeatureRow(row, 0L));
       }
 
-      BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
+      BusinessObject result = this.bObjectService.get(type, attributeType.getName(), value);
 
       try
       {
@@ -193,7 +202,7 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
       {
         if (result != null)
         {
-          result.delete();
+          this.bObjectService.delete(result);
         }
       }
     });
@@ -204,9 +213,9 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
-      BusinessObject object = BusinessObject.newInstance(type);
+      BusinessObject object = this.bObjectService.newInstance(type);
       object.setCode(TEST_CODE);
-      object.apply();
+      this.bObjectService.apply(object);
 
       try
       {
@@ -232,7 +241,7 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
 
         Assert.assertFalse(configuration.hasExceptions());
 
-        BusinessObject result = BusinessObject.getByCode(type, TEST_CODE);
+        BusinessObject result = this.bObjectService.getByCode(type, TEST_CODE);
 
         Assert.assertEquals(result.getObjectValue(attributeType.getName()), value);
       }
@@ -244,7 +253,7 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
           {
             try
             {
-              object.delete();
+              this.bObjectService.delete(object);
 
               break;
             }
@@ -263,9 +272,9 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
-      BusinessObject object = BusinessObject.newInstance(type);
+      BusinessObject object = this.bObjectService.newInstance(type);
       object.setCode(TEST_CODE);
-      object.apply();
+      this.bObjectService.apply(object);
 
       try
       {
@@ -303,7 +312,7 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
       {
         if (object != null)
         {
-          object.delete();
+          this.bObjectService.delete(object);
         }
       }
     });
@@ -341,13 +350,13 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
         importer.importRow(new MapFeatureRow(row, 0L));
       }
 
-      BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
+      BusinessObject result = this.bObjectService.get(type, attributeType.getName(), value);
 
       try
       {
         Assert.assertNotNull(result);
 
-        List<VertexServerGeoObject> results = result.getGeoObjects();
+        List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(result);
 
         Assert.assertEquals(1, results.size());
 
@@ -361,7 +370,7 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
       {
         if (result != null)
         {
-          result.delete();
+          this.bObjectService.delete(result);
         }
       }
     });
@@ -399,7 +408,7 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
         importer.importRow(new MapFeatureRow(row, 0L));
       }
 
-      BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
+      BusinessObject result = this.bObjectService.get(type, attributeType.getName(), value);
 
       try
       {
@@ -422,7 +431,7 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
       {
         if (result != null)
         {
-          result.delete();
+          this.bObjectService.delete(result);
         }
       }
     });
@@ -437,9 +446,7 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
 
       Assert.assertNotNull(istream);
 
-      ExcelService service = new ExcelService();
-
-      JSONObject json = this.getTestConfiguration(istream, service, ImportStrategy.NEW_AND_UPDATE);
+      JSONObject json = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
 
       BusinessObjectImportConfiguration config = (BusinessObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
       config.setHierarchy(FastTestDataset.HIER_ADMIN.getServerObject());
@@ -453,8 +460,8 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
       Assert.assertEquals(Long.valueOf(2), hist.getImportedRecords());
       Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-      assertAndDelete(BusinessObject.get(type, attributeType.getName(), "0001"));
-      assertAndDelete(BusinessObject.get(type, attributeType.getName(), "0002"));
+      assertAndDelete(this.bObjectService.get(type, attributeType.getName(), "0001"));
+      assertAndDelete(this.bObjectService.get(type, attributeType.getName(), "0002"));
     });
   }
 
@@ -468,14 +475,14 @@ public class BusinessObjectImporterTest implements InstanceTestClassListener
     {
       if (o1 != null)
       {
-        o1.delete();
+        this.bObjectService.delete(o1);
       }
     }
   }
 
-  private JSONObject getTestConfiguration(InputStream istream, ExcelService service, ImportStrategy strategy)
+  private JSONObject getTestConfiguration(InputStream istream, ImportStrategy strategy)
   {
-    JSONObject result = service.getBusinessTypeConfiguration(type.getCode(), TestDataSet.DEFAULT_END_TIME_DATE, "business-spreadsheet.xlsx", istream, strategy, false);
+    JSONObject result = this.excelService.getBusinessTypeConfiguration(type.getCode(), TestDataSet.DEFAULT_END_TIME_DATE, "business-spreadsheet.xlsx", istream, strategy, false);
     JSONObject type = result.getJSONObject(BusinessObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(BusinessType.JSON_ATTRIBUTES);
 

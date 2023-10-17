@@ -12,14 +12,12 @@ import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -66,6 +64,8 @@ import net.geoprism.registry.LabeledPropertyGraphTypeBuilder;
 import net.geoprism.registry.LocalRegistryConnectorBuilder;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.USADatasetTest;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.Classification;
@@ -79,15 +79,11 @@ import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class LabeledPropertyGraphTest implements InstanceTestClassListener
+public class LabeledPropertyGraphTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private static boolean                                       isSetup = false;
-
-  private static String                                        CODE    = "Test Term";
+  private static String                                        CODE = "Test Term";
 
   private static ClassificationType                            type;
-
-  private static USATestData                                   testData;
 
   private static AttributeTermType                             testTerm;
 
@@ -115,16 +111,21 @@ public class LabeledPropertyGraphTest implements InstanceTestClassListener
   private HierarchyTypeSnapshotBusinessServiceIF               hierarchyService;
 
   @Autowired
+  private GeoObjectTypeBusinessServiceIF                       oTypeService;
+
+  @Autowired
+  private GraphRepoServiceIF                                   repoService;
+
+  @Autowired
   private JsonGraphVersionPublisherService                     publisherService;
 
   @Autowired
   private LabeledPropertyGraphJsonExporterService              exporterService;
 
-  public static void setupClasses()
+  @Override
+  public void beforeClassSetup() throws Exception
   {
-
-    testData = USATestData.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
 
     setUpInReq();
 
@@ -132,12 +133,10 @@ public class LabeledPropertyGraphTest implements InstanceTestClassListener
     {
       SchedulerManager.start();
     }
-
-    isSetup = true;
   }
 
   @Request
-  private static void setUpInReq()
+  private void setUpInReq()
   {
     type = ClassificationType.apply(ClassificationTypeTest.createMock());
 
@@ -151,10 +150,10 @@ public class LabeledPropertyGraphTest implements InstanceTestClassListener
     testClassification.setRootTerm(root.toTerm());
 
     ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.STATE.getCode());
-    testClassification = (AttributeClassificationType) got.createAttributeType(testClassification.toJSON().toString());
+    testClassification = (AttributeClassificationType) this.oTypeService.createAttributeType(got, testClassification.toJSON().toString());
 
     testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-    testTerm = (AttributeTermType) got.createAttributeType(testTerm.toJSON().toString());
+    testTerm = (AttributeTermType) this.oTypeService.createAttributeType(got, testTerm.toJSON().toString());
 
     Term term = new Term("TERM_1", new LocalizedValue("Term 1"), new LocalizedValue("Term 1"));
 
@@ -164,17 +163,14 @@ public class LabeledPropertyGraphTest implements InstanceTestClassListener
     USATestData.COLORADO.setDefaultValue(testClassification.getName(), CODE);
     USATestData.COLORADO.setDefaultValue(testTerm.getName(), term);
 
-    RegistryService.getInstance().refreshMetadataCache();
+    this.repoService.refreshMetadataCache();
   }
 
-  @AfterClass
+  @Override
   @Request
-  public static void classTearDown()
+  public void afterClassSetup() throws Exception
   {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
+    super.afterClassSetup();
 
     USATestData.COLORADO.removeDefaultValue(testClassification.getName());
     USATestData.COLORADO.removeDefaultValue(testTerm.getName());
@@ -188,12 +184,6 @@ public class LabeledPropertyGraphTest implements InstanceTestClassListener
   @Before
   public void setUp()
   {
-    // This is a hack to allow for spring injection of classification tasks
-    if (!isSetup)
-    {
-      setupClasses();
-    }
-
     cleanUpExtra();
 
     testData.setUpInstanceData();

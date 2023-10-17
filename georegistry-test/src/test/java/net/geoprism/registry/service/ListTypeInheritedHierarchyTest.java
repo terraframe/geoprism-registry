@@ -6,12 +6,11 @@ package net.geoprism.registry.service;
 import java.util.Date;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonObject;
@@ -29,42 +28,35 @@ import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.USADatasetTest;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class ListTypeInheritedHierarchyTest implements InstanceTestClassListener
+public class ListTypeInheritedHierarchyTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private static USATestData testData;
+  @Autowired
+  private GeoObjectTypeBusinessServiceIF typeService;
 
-  @BeforeClass
-  public static void setUpClass()
+  @Override
+  public void beforeClassSetup() throws Exception
   {
-    testData = USATestData.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
 
     setUpInReq();
   }
 
   @Request
-  private static void setUpInReq()
+  private void setUpInReq()
   {
     ServerGeoObjectType sGO = USATestData.DISTRICT.getServerObject();
-    sGO.setInheritedHierarchy(USATestData.HIER_SCHOOL.getServerObject(), USATestData.HIER_ADMIN.getServerObject());
+    
+    this.typeService.setInheritedHierarchy(sGO, USATestData.HIER_SCHOOL.getServerObject(), USATestData.HIER_ADMIN.getServerObject());
   }
-
-  @AfterClass
-  @Request
-  public static void cleanUpClass()
-  {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
-  }
-
+  
   @Before
   public void setUp()
   {
