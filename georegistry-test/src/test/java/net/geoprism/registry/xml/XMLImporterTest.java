@@ -18,11 +18,11 @@ import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
-import org.junit.AfterClass;
+import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.resource.StreamResource;
@@ -33,6 +33,10 @@ import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.business.BusinessEdgeTypeBusinessServiceIF;
+import net.geoprism.registry.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
+import net.geoprism.registry.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
@@ -40,7 +44,7 @@ import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.GraphRepoServiceIF;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
@@ -52,14 +56,44 @@ public class XMLImporterTest implements InstanceTestClassListener
   private static String             ROOT_CODE = "Test_Classification";
 
   private static boolean            isSetup   = false;
+  
+  @Autowired
+  private GraphRepoServiceIF graphRepo;
+  
+  @Autowired
+  private OrganizationBusinessServiceIF orgService;
+  
+  @Autowired
+  private HierarchyTypeBusinessServiceIF hierarchyBizService;
+  
+  @Autowired
+  private BusinessTypeBusinessServiceIF bizService;
+  
+  @Autowired
+  private BusinessEdgeTypeBusinessServiceIF bizEdgeService;
 
-  @Before
-  public void setUp()
+  
+  
+  @Override
+  @Request
+  public void beforeClassSetup() throws Exception
   {
     // This is a hack to allow for spring injection of classification tasks
     if (!isSetup)
     {
       setupClasses();
+    }
+  }
+
+  @Override
+  @Request
+  public void afterClassSetup() throws Exception
+  {
+    if (type != null)
+    {
+      type.delete();
+
+      type = null;
     }
   }
   
@@ -81,37 +115,27 @@ public class XMLImporterTest implements InstanceTestClassListener
     isSetup = true;
   }
 
-
-  @AfterClass
-  @Request
-  public static void classTearDown()
-  {
-    if (type != null)
-    {
-      type.delete();
-
-      type = null;
-    }
-  }
-
   @Request
   @Test
   public void testImportAndExport() throws IOException
   {
-    ServerOrganization organization = new ServerOrganization();
-    organization.setCode("TEST_ORG");
-    organization.getDisplayLabel().setValue("Test Org");
-    organization.apply();
+//    ServerOrganization organization = new ServerOrganization();
+//    organization.setCode("TEST_ORG");
+//    organization.getDisplayLabel().setValue("Test Org");
+//    organization.apply();
+    
+    OrganizationDTO org = new OrganizationDTO("TEST_ORG", new LocalizedValue("Test Org"), new LocalizedValue(""), null, new LocalizedValue(""));
+    ServerOrganization serverOrg = orgService.create(org);
 
     try (InputStream istream = this.getClass().getResourceAsStream("/xml/test-domain.xml"))
     {
       XMLImporter xmlImporter = new XMLImporter();
 
-      List<ServerElement> results = xmlImporter.importXMLDefinitions(organization, new StreamResource(istream, "test-domain.xml"));
+      List<ServerElement> results = xmlImporter.importXMLDefinitions(serverOrg, new StreamResource(istream, "test-domain.xml"));
 
       try
       {
-        RegistryService.getInstance().refreshMetadataCache();
+        graphRepo.refreshMetadataCache();
 
         Assert.assertEquals(7, results.size());
 
@@ -207,7 +231,7 @@ public class XMLImporterTest implements InstanceTestClassListener
         Assert.assertEquals("Test Use Constraints", hierarchy.getUseConstraints());
         Assert.assertEquals("Test Acknowledgement", hierarchy.getAcknowledgement());
 
-        List<HierarchyNode> nodes = hierarchy.getRootGeoObjectTypes();
+        List<HierarchyNode> nodes = hierarchyBizService.getRootGeoObjectTypes(hierarchy);
 
         Assert.assertEquals(1, nodes.size());
 
@@ -223,7 +247,7 @@ public class XMLImporterTest implements InstanceTestClassListener
 
         Assert.assertEquals("TEST_VILLAGE", node.getGeoObjectType().getCode());
 
-        BusinessType businessType = BusinessType.getByCode(results.get(4).getCode());
+        BusinessType businessType = bizService.getByCode(results.get(4).getCode());
 
         Assert.assertEquals("BUSINESS_POP", businessType.getCode());
         Assert.assertEquals("Business Pop", businessType.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
@@ -234,10 +258,10 @@ public class XMLImporterTest implements InstanceTestClassListener
         Assert.assertEquals("Test Text", businessAttribute.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
         Assert.assertEquals("Test Text Description", businessAttribute.getDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
 
-        BusinessEdgeType businessEdge = BusinessEdgeType.getByCode(results.get(6).getCode());
+        BusinessEdgeType businessEdge = bizEdgeService.getByCode(results.get(6).getCode());
         Assert.assertEquals("BUS_EDGE", businessEdge.getCode());
 
-        XMLExporter exporter = new XMLExporter(organization);
+        XMLExporter exporter = new XMLExporter(serverOrg);
         exporter.build();
 
         File file = File.createTempFile("test", ".xml");
@@ -260,13 +284,13 @@ public class XMLImporterTest implements InstanceTestClassListener
 
         for (ServerElement result : results)
         {
-          result.delete();
+          graphRepo.deleteObject(result);
         }
       }
     }
     finally
     {
-      organization.delete();
+      serverOrg.delete();
     }
 
   }

@@ -16,10 +16,8 @@ import java.util.Map;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -101,10 +99,10 @@ public class TaskTest implements InstanceTestClassListener
       this.templateKey = msgKey;
     }
   }
-
-  @BeforeClass
+  
+  @Override
   @Request
-  public static void setUpClass()
+  public void beforeClassSetup() throws Exception
   {
     Collection<Locale> installed = LocalizationFacade.getInstalledLocales();
 
@@ -126,9 +124,9 @@ public class TaskTest implements InstanceTestClassListener
     USER_SRA.apply();
   }
 
-  @AfterClass
+  @Override
   @Request
-  public static void tearDownClass()
+  public void afterClassSetup() throws Exception
   {
     USER_SRA.delete();
 
