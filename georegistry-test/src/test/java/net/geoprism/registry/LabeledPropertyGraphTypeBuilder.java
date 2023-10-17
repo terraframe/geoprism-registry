@@ -10,8 +10,8 @@ import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.SingleLabeledPropertyGraphType;
 import net.geoprism.graph.lpg.StrategyConfiguration;
 import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeBusinessServiceIF;
+import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
-import net.geoprism.registry.test.USATestData;
 
 public class LabeledPropertyGraphTypeBuilder
 {
@@ -54,7 +54,7 @@ public class LabeledPropertyGraphTypeBuilder
   public JsonObject buildJSON()
   {
     SingleLabeledPropertyGraphType graph = new SingleLabeledPropertyGraphType();
-    graph.setValidOn(USATestData.DEFAULT_OVER_TIME_DATE);
+    graph.setValidOn(TestDataSet.DEFAULT_OVER_TIME_DATE);
     graph.getDisplayLabel().setValue("Test List");
     graph.setCode(this.code);
     graph.getDescription().setValue("My Abstract");

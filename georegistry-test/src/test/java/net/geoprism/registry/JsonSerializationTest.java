@@ -7,10 +7,8 @@ import java.io.IOException;
 import java.util.List;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -31,20 +29,14 @@ import com.runwaysdk.session.Request;
 import net.geoprism.account.OauthServer;
 import net.geoprism.account.OauthServerQuery;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
-import net.geoprism.registry.etl.export.GeoObjectExportFormat;
-import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class JsonSerializationTest implements InstanceTestClassListener
+public class JsonSerializationTest extends USADatasetTest implements InstanceTestClassListener
 {
-  protected USATestData       testData;
-
   protected ExternalSystem    system;
 
   // private DHIS2ServiceIF dhis2;
@@ -56,22 +48,6 @@ public class JsonSerializationTest implements InstanceTestClassListener
   private static final String URL      = "https://play.dhis2.org/2.31.9";
 
   private static final String VERSION  = "31";
-
-  @Override
-  public void beforeClassSetup()
-  {
-    testData = USATestData.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @Override
-  public void afterClassSetup()
-  {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
-  }
 
   @Before
   public void setUp()

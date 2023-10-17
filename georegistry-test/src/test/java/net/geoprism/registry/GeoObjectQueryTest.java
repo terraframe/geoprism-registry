@@ -27,26 +27,8 @@ import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class GeoObjectQueryTest implements InstanceTestClassListener
+public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestClassListener
 {
-  protected USATestData testData;
-
-  @Override
-  public void beforeClassSetup()
-  {
-    testData = USATestData.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @Override
-  public void afterClassSetup()
-  {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
-  }
-
   @Before
   public void setUp()
   {

@@ -37,31 +37,17 @@ import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class ConversionTest implements InstanceTestClassListener
+public class ConversionTest extends USADatasetTest implements InstanceTestClassListener
 {
+  protected static TestGeoObjectInfo testGo;
+
   @Autowired
-  private RegistryComponentService service;
-
-  protected USATestData            testData;
-
-  protected TestGeoObjectInfo      testGo;
+  private RegistryComponentService   service;
 
   @Override
   public void beforeClassSetup()
   {
-    testData = USATestData.newTestData();
-    testData.setUpMetadata();
-
     testGo = testData.newTestGeoObjectInfo("ConversionTest", USATestData.STATE);
-  }
-
-  @Override
-  public void afterClassSetup()
-  {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
   }
 
   @Before
