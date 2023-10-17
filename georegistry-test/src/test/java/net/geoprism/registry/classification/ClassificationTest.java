@@ -6,9 +6,7 @@ package net.geoprism.registry.classification;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,46 +32,31 @@ public class ClassificationTest implements InstanceTestClassListener
   private static String             CHILD_CODE       = "CHILD_OBJ";
 
   private static ClassificationType type;
-
-  private static boolean            isSetup          = false;
-
-  public static void setupClasses()
+  
+  @Override
+  public void beforeClassSetup() throws Exception
   {
     setUpClassInRequest();
   }
 
   @Request
-  private static void setUpClassInRequest()
+  private void setUpClassInRequest()
   {
     type = ClassificationType.apply(ClassificationTypeTest.createMock());
-    
-    isSetup = true;
   }
-
-  @AfterClass
-  public static void cleanUpClass()
+  
+  @Override
+  public void afterClassSetup() throws Exception
   {
     cleanUpClassInRequest();
   }
 
   @Request
-  private static void cleanUpClassInRequest()
+  private void cleanUpClassInRequest()
   {
     if (type != null)
     {
       type.delete();
-    }
-    
-    isSetup = false;
-  }
-
-  @Before
-  public void setUp()
-  {
-    // This is a hack to allow for spring injection of classification tasks
-    if (!isSetup)
-    {
-      setupClasses();
     }
   }
 
