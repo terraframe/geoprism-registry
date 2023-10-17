@@ -23,16 +23,17 @@ import org.springframework.test.context.ContextConfiguration;
 import com.google.gson.JsonObject;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.dataaccess.DuplicateDataException;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
-import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportHistory;
@@ -59,10 +60,8 @@ import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class BusinessObjectImporterTest extends USADatasetTest implements InstanceTestClassListener
+public class BusinessObjectImporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static FastTestDataset          testData;
-
   private static BusinessType             type;
 
   private static AttributeType            attributeType;
@@ -123,12 +122,12 @@ public class BusinessObjectImporterTest extends USADatasetTest implements Instan
   {
     if (type != null)
     {
-      type.delete();
+      this.bTypeService.delete(type);
     }
   }
 
   @Test
-  public void testImportValueNewOnly() throws InterruptedException
+  public void testImportValueNewOnly() 
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
       String value = "Test Text";
@@ -161,14 +160,14 @@ public class BusinessObjectImporterTest extends USADatasetTest implements Instan
       {
         if (result != null)
         {
-          this.bObjectService.delete(result);
+          this.deleteObject(result);
         }
       }
     });
   }
 
   @Test
-  public void testImportValueUpdateAndNew() throws InterruptedException
+  public void testImportValueUpdateAndNew() 
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
@@ -202,14 +201,14 @@ public class BusinessObjectImporterTest extends USADatasetTest implements Instan
       {
         if (result != null)
         {
-          this.bObjectService.delete(result);
+          this.deleteObject(result);
         }
       }
     });
   }
 
   @Test
-  public void testUpdateValue() throws InterruptedException
+  public void testUpdateValue() 
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
@@ -249,26 +248,14 @@ public class BusinessObjectImporterTest extends USADatasetTest implements Instan
       {
         if (object != null)
         {
-          for (int i = 0; i < 100; i++)
-          {
-            try
-            {
-              this.bObjectService.delete(object);
-
-              break;
-            }
-            catch (OConcurrentModificationException e)
-            {
-              // Do nothing
-            }
-          }
+          this.deleteObject(object);
         }
       }
     });
   }
 
   @Test
-  public void testImportValueExistingNewOnly() throws InterruptedException
+  public void testImportValueExistingNewOnly() 
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
@@ -312,14 +299,14 @@ public class BusinessObjectImporterTest extends USADatasetTest implements Instan
       {
         if (object != null)
         {
-          this.bObjectService.delete(object);
+          this.deleteObject(object);
         }
       }
     });
   }
 
   @Test
-  public void testSetGeoObject() throws InterruptedException
+  public void testSetGeoObject() 
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
@@ -370,14 +357,14 @@ public class BusinessObjectImporterTest extends USADatasetTest implements Instan
       {
         if (result != null)
         {
-          this.bObjectService.delete(result);
+          this.deleteObject(result);
         }
       }
     });
   }
 
   @Test
-  public void testUnknownGeoObject() throws InterruptedException
+  public void testUnknownGeoObject() 
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
@@ -431,7 +418,7 @@ public class BusinessObjectImporterTest extends USADatasetTest implements Instan
       {
         if (result != null)
         {
-          this.bObjectService.delete(result);
+          this.deleteObject(result);
         }
       }
     });
@@ -475,7 +462,7 @@ public class BusinessObjectImporterTest extends USADatasetTest implements Instan
     {
       if (o1 != null)
       {
-        this.bObjectService.delete(o1);
+        this.deleteObject(o1);
       }
     }
   }
@@ -534,6 +521,39 @@ public class BusinessObjectImporterTest extends USADatasetTest implements Instan
 
     hist = (ImportHistory) context.getHistory();
     return hist;
+  }
+
+  private void deleteObject(BusinessObject object)
+  {
+    for (int i = 0; i < 100; i++)
+    {
+      try
+      {
+        this.bObjectService.delete(object);
+
+        break;
+      }
+      catch (ProgrammingErrorException e)
+      {
+        Throwable cause = e.getCause();
+
+        if (cause instanceof OConcurrentModificationException)
+        {
+          // Do nothing
+          try
+          {
+            Thread.sleep(10);
+          }
+          catch (InterruptedException e1)
+          {
+          }
+        }
+        else
+        {
+          throw e;
+        }
+      }
+    }
   }
 
 }
