@@ -322,13 +322,9 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
       Assert.fail();
     }
-    catch (SmartExceptionDTO e)
+    catch (DataNotFoundException e)
     {
       // Expected
-      if (!e.getType().equals(DataNotFoundException.CLASS))
-      {
-        throw new RuntimeException(e);
-      }
     }
 
     ServerGeoObjectIF coloradoDistOne = this.objectService.getGeoObjectByCode(USATestData.CO_D_ONE.getCode(), USATestData.DISTRICT.getCode());
@@ -426,7 +422,7 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
     ServerGeoObjectIF object = this.objectService.getGeoObjectByCode("0001", USATestData.DISTRICT.getCode());
 
     Assert.assertNotNull(object);
-    Assert.assertEquals("Test", object.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE));
+    Assert.assertEquals("Test", object.getDisplayLabel(TestDataSet.DEFAULT_OVER_TIME_DATE).getValue());
 
     Geometry geometry = object.getGeometry();
 

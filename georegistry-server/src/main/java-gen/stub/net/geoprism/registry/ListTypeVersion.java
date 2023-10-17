@@ -1490,7 +1490,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     if (this.getWorking() && masterlist.doesActorHaveWritePermission())
     {
-      object.add("curation", new CurationService().getListCurationInfo(this));
+      object.add("curation", ServiceFactory.getBean(CurationService.class).getListCurationInfo(this));
     }
     else
     {

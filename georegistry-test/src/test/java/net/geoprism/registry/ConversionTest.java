@@ -45,8 +45,10 @@ public class ConversionTest extends USADatasetTest implements InstanceTestClassL
   private RegistryComponentService   service;
 
   @Override
-  public void beforeClassSetup()
+  public void beforeClassSetup() throws Exception
   {
+    super.beforeClassSetup();
+    
     testGo = testData.newTestGeoObjectInfo("ConversionTest", USATestData.STATE);
   }
 
