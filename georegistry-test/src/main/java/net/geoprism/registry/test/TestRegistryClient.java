@@ -18,6 +18,7 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -39,24 +40,24 @@ import net.geoprism.registry.controller.HierarchyTypeController.HierarchyTypeNod
 import net.geoprism.registry.controller.SynchronizationConfigController;
 import net.geoprism.registry.permission.PermissionContext;
 
-@Component
+@Service
 public class TestRegistryClient extends AbstractTestClient
 {
   @Autowired
-  private GenericRestController       restController;
+  private GenericRestController           restController;
 
   @Autowired
-  private GeoObjectController         geoObjectController;
+  private GeoObjectController             geoObjectController;
 
   @Autowired
-  private GeoObjectTypeController     geoObjectTypeController;
+  private GeoObjectTypeController         geoObjectTypeController;
 
   @Autowired
-  private GeoObjectOverTimeController geoObjectTimeController;
+  private GeoObjectOverTimeController     geoObjectTimeController;
 
   @Autowired
-  private HierarchyTypeController     hierarchyController;
-  
+  private HierarchyTypeController         hierarchyController;
+
   @Autowired
   private SynchronizationConfigController synchronizationConfigController;
 

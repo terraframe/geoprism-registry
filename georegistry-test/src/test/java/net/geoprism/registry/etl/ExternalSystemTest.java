@@ -6,16 +6,16 @@ package net.geoprism.registry.etl;
 import java.util.Date;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
@@ -25,29 +25,18 @@ import net.geoprism.registry.graph.RevealExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
+import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class ExternalSystemTest implements InstanceTestClassListener
+public class ExternalSystemTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static FastTestDataset testData;
+  public static final String            EXTERNAL_SYSTEM_ID = "ExternalSystemTest";
 
-  public static final String       EXTERNAL_SYSTEM_ID = "ExternalSystemTest";
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
-  }
+  @Autowired
+  private GPRGeoObjectBusinessServiceIF objectService;
 
   @Before
   public void setUp()
@@ -97,10 +86,10 @@ public class ExternalSystemTest implements InstanceTestClassListener
     String expected = "EXTERNAL ID";
 
     ServerGeoObjectIF serverGO = FastTestDataset.PROV_CENTRAL.getServerObject();
+    
+    this.objectService.createExternalId(serverGO, system, expected, ImportStrategy.NEW_ONLY);
 
-    serverGO.createExternalId(system, expected, ImportStrategy.NEW_ONLY);
-
-    String actual = serverGO.getExternalId(system);
+    String actual = this.objectService.getExternalId(serverGO, system);
 
     Assert.assertEquals(expected, actual);
   }
@@ -120,7 +109,7 @@ public class ExternalSystemTest implements InstanceTestClassListener
 
     ServerGeoObjectIF serverGO = FastTestDataset.PROV_CENTRAL.getServerObject();
 
-    serverGO.createExternalId(system, externalId, ImportStrategy.NEW_ONLY);
+    this.objectService.createExternalId(serverGO, system, externalId, ImportStrategy.NEW_ONLY);
 
     VertexGeoObjectQuery query = new VertexGeoObjectQuery(FastTestDataset.PROVINCE.getServerObject(), new Date());
     query.setRestriction(new ServerExternalIdRestriction(system, externalId));

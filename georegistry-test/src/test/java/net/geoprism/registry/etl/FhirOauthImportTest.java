@@ -5,17 +5,17 @@ package net.geoprism.registry.etl;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.GsonBuilder;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.account.OauthServer;
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.SynchronizationConfig;
@@ -31,26 +31,17 @@ import net.geoprism.registry.test.TestDataSet;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class FhirOauthImportTest implements InstanceTestClassListener
+public class FhirOauthImportTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static FastTestDataset           testData;
-
+  @Autowired
   protected SynchronizationConfigService syncService;
 
-  @BeforeClass
-  public static void setUpClass()
+  @Override
+  public void beforeClassSetup() throws Exception
   {
     TestDataSet.deleteExternalSystems("FHIRImportTest");
 
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-    testData.setUpInstanceData();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
+    super.beforeClassSetup();
   }
 
   @Before
