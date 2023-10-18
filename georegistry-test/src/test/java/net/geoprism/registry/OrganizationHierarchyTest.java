@@ -255,7 +255,7 @@ public class OrganizationHierarchyTest
     }
     finally
     {
-      grandParent.delete();
+      this.service.delete(grandParent);
     }
   }
 
