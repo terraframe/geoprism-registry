@@ -9,11 +9,12 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.model.GraphNode;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.view.Page;
@@ -22,11 +23,14 @@ import net.geoprism.registry.view.Page;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class OrganizationHierarchyTest
 {
-  private static String GRANDPARENT_CODE = "GRANDPARENT_OBJ";
+  private static String                 GRANDPARENT_CODE = "GRANDPARENT_OBJ";
 
-  private static String PARENT_CODE      = "PARENT_OBJ";
+  private static String                 PARENT_CODE      = "PARENT_OBJ";
 
-  private static String CHILD_CODE       = "CHILD_OBJ";
+  private static String                 CHILD_CODE       = "CHILD_OBJ";
+
+  @Autowired
+  private OrganizationBusinessServiceIF service;
 
   @Test
   @Request
@@ -40,7 +44,7 @@ public class OrganizationHierarchyTest
     }
     finally
     {
-      object.delete();
+      this.service.delete(object);
     }
   }
 
@@ -58,7 +62,7 @@ public class OrganizationHierarchyTest
     }
     finally
     {
-      object.delete();
+      this.service.delete(object);
     }
   }
 
@@ -86,12 +90,12 @@ public class OrganizationHierarchyTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -117,12 +121,12 @@ public class OrganizationHierarchyTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -148,12 +152,12 @@ public class OrganizationHierarchyTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -179,12 +183,12 @@ public class OrganizationHierarchyTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -210,12 +214,12 @@ public class OrganizationHierarchyTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -241,12 +245,12 @@ public class OrganizationHierarchyTest
         }
         finally
         {
-          child.delete();
+          this.service.delete(child);
         }
       }
       finally
       {
-        parent.delete();
+        this.service.delete(parent);
       }
     }
     finally
@@ -273,12 +277,12 @@ public class OrganizationHierarchyTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -288,8 +292,9 @@ public class OrganizationHierarchyTest
     object.setCode(code);
     object.setDisplayLabel(new LocalizedValue(code));
     object.setContactInfo(new LocalizedValue(code));
-    object.apply(parent);
     
+    this.service.apply(object, parent);
+
     return object;
   }
 
