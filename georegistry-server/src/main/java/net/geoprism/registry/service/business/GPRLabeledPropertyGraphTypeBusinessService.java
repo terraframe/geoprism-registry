@@ -1,4 +1,7 @@
-package net.geoprism.registry.lpg.business;
+package net.geoprism.registry.service.business;
+
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeBusinessService;
@@ -7,6 +10,8 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.RolePermissionService;
 
+@Service
+@Primary
 public class GPRLabeledPropertyGraphTypeBusinessService extends LabeledPropertyGraphTypeBusinessService implements LabeledPropertyGraphTypeBusinessServiceIF
 {
   @Override

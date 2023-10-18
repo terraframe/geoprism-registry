@@ -1,4 +1,7 @@
-package net.geoprism.registry.lpg.business;
+package net.geoprism.registry.service.business;
+
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.rbac.Operation;
@@ -11,6 +14,8 @@ import net.geoprism.graph.lpg.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.RegistryConstants;
 
+@Service
+@Primary
 public class GPRHierarchyTypeSnapshotBusinessService extends HierarchyTypeSnapshotBusinessService implements HierarchyTypeSnapshotBusinessServiceIF
 {
   @Override

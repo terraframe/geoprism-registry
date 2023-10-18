@@ -1,4 +1,7 @@
-package net.geoprism.registry.lpg.business;
+package net.geoprism.registry.service.business;
+
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.query.QueryFactory;
@@ -17,6 +20,8 @@ import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
 
+@Service
+@Primary
 public class GPRLabeledPropertyGraphTypeEntryBusinessService extends LabeledPropertyGraphTypeEntryBusinessService implements LabeledPropertyGraphTypeEntryBusinessServiceIF
 {
 

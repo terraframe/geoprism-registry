@@ -1,4 +1,4 @@
-package net.geoprism.registry.lpg.business;
+package net.geoprism.registry.service.business;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -6,6 +6,8 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.BusinessFacade;
@@ -67,6 +69,8 @@ import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
 
+@Service
+@Primary
 public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPropertyGraphTypeVersionBusinessService implements LabeledPropertyGraphTypeVersionBusinessServiceIF
 {
   private class StackItem
@@ -112,9 +116,9 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
     super.delete(version);
   }
-
+  
   @Override
-  public void publish(LabeledPropertyGraphTypeVersion version)
+  public void publishNoAuth(LabeledPropertyGraphTypeVersion version)
   {
     LabeledPropertyGraphType type = version.getGraphType();
     StrategyConfiguration configuration = type.toStrategyConfiguration();
@@ -173,8 +177,8 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
   {
     LabeledPropertyGraphTypeVersion version = super.create(listEntry, working, versionNumber);
 
-    LabeledPropertyGraphType listType = version.getGraphType();
-    ServerHierarchyType hierarchy = ServerHierarchyType.get(listType.getHierarchy());
+    LabeledPropertyGraphType graphType = version.getGraphType();
+    ServerHierarchyType hierarchy = ServerHierarchyType.get(graphType.getHierarchy());
 
     GeoObjectTypeSnapshot root = this.oSnapshotService.createRoot(version);
 
