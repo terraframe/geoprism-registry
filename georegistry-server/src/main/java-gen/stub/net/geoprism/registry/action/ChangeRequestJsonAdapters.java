@@ -111,10 +111,6 @@ public class ChangeRequestJsonAdapters
 
   public static class ChangeRequestSerializer implements JsonSerializer<ChangeRequest>
   {
-    private ChangeRequestService           service   = new ChangeRequestService();
-
-    private ChangeRequestPermissionService perms     = new ChangeRequestPermissionService();
-
     private boolean                        hasCreate = false;
 
     private ServerGeoObjectType            type      = null;
@@ -122,9 +118,15 @@ public class ChangeRequestJsonAdapters
     private GPRGeoObjectBusinessServiceIF  objectService;
 
     private GPRHierarchyTypeBusinessService hierarchyService;
+    
+    private ChangeRequestService           service;
+
+    private ChangeRequestPermissionService perms;
 
     public ChangeRequestSerializer()
     {
+      this.service = ServiceFactory.getBean(ChangeRequestService.class);
+      this.perms = ServiceFactory.getBean(ChangeRequestPermissionService.class);
       this.objectService = ServiceFactory.getBean(GPRGeoObjectBusinessServiceIF.class);
       this.hierarchyService = ServiceFactory.getBean(GPRHierarchyTypeBusinessService.class);
     }

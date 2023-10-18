@@ -107,7 +107,7 @@ public class SetParentAction extends SetParentActionBase
   {
     super.buildFromJson(joAction);
     
-    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this.getAllRequest().next());
+    Set<ChangeRequestPermissionAction> perms = ServiceFactory.getBean(ChangeRequestPermissionService.class).getPermissions(this.getAllRequest().next());
 
     if (perms.containsAll(Arrays.asList(
         ChangeRequestPermissionAction.WRITE_DETAILS

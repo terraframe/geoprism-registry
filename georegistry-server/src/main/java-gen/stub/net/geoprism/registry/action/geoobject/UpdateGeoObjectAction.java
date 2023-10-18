@@ -39,8 +39,8 @@ import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.ChangeRequestPermissionService;
-import net.geoprism.registry.permission.GPRGeoObjectPermissionService;
 import net.geoprism.registry.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
+import net.geoprism.registry.permission.GPRGeoObjectPermissionService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
@@ -105,7 +105,7 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
   {
     super.buildFromJson(joAction);
 
-    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this.getAllRequest().next());
+    Set<ChangeRequestPermissionAction> perms = ServiceFactory.getBean(ChangeRequestPermissionService.class).getPermissions(this.getAllRequest().next());
 
     if (perms.containsAll(Arrays.asList(ChangeRequestPermissionAction.WRITE_DETAILS)))
     {

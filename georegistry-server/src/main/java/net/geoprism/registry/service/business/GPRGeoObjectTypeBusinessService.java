@@ -64,6 +64,9 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
   @Autowired
   private GPROrganizationBusinessService gprOrgService;
   
+  @Autowired
+  private ChangeRequestService changeService;
+  
   @Override
   protected void delete(ServerGeoObjectType type)
   {
@@ -84,7 +87,7 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
 
     new SearchService().clear(type.getCode());
 
-    new ChangeRequestService().markAllAsInvalid(type);
+    changeService.markAllAsInvalid(type);
   }
   
   @Override

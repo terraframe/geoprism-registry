@@ -87,6 +87,8 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   @Autowired GeoObjectBusinessServiceIF goBizService;
   
   @Autowired GeoObjectEditorServiceIF goEditorService;
+  
+  @Autowired ChangeRequestService changeService;
 
   @Before
   public void setUp()
@@ -257,9 +259,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
 
   private void testGetAllCR(ClientRequestIF request, boolean hasPermission)
   {
-    ChangeRequestService service = new ChangeRequestService();
-    
-    Page<ChangeRequest> page = service.getAllRequests(request.getSessionId(), 10, 1, "", "", null);
+    Page<ChangeRequest> page = changeService.getAllRequests(request.getSessionId(), 10, 1, "", "", null);
     
     JsonObject joPage = toJson(request.getSessionId(), page);
     JsonArray jaResults = joPage.get("resultSet").getAsJsonArray();
@@ -347,9 +347,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   {
     final String crOid = JsonParser.parseString(serializedCR).getAsJsonObject().get("oid").getAsString();
     
-    ChangeRequestService service = new ChangeRequestService();
-    
-    service.setActionStatus(request.getSessionId(), testSetActionStatusGetCRAction(crOid), AllGovernanceStatus.ACCEPTED.name());
+    changeService.setActionStatus(request.getSessionId(), testSetActionStatusGetCRAction(crOid), AllGovernanceStatus.ACCEPTED.name());
     
     testSetActionStatusVerifyCRAction(crOid);
   }
@@ -411,13 +409,11 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   
   private void testImplementDecisions(ClientRequestIF request, String serializedCR) throws Exception
   {
-    ChangeRequestService service = new ChangeRequestService();
-    
     String crOid = JsonParser.parseString(serializedCR).getAsJsonObject().get("oid").getAsString();
     
     testSetActionStatus(request, serializedCR);
     
-    service.implementDecisions(request.getSessionId(), serializedCR, null);
+    changeService.implementDecisions(request.getSessionId(), serializedCR, null);
     
     testImplementDecisionsVerify(crOid);
   }
@@ -499,11 +495,9 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   {
     final String crOid = JsonParser.parseString(serializedCR).getAsJsonObject().get("oid").getAsString();
     
-    ChangeRequestService service = new ChangeRequestService();
-    
     testSetActionStatus(request, serializedCR);
     
-    service.implementDecisions(request.getSessionId(), serializedCR, null);
+    changeService.implementDecisions(request.getSessionId(), serializedCR, null);
     
     testImplementParentDecisionsVerify(crOid);
   }
@@ -760,7 +754,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   
   private void testComplexUpdateGeoObjectCR(String[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0], null);
+    changeService.implementDecisions(request.getSessionId(), data[0], null);
     
     testComplexUpdateGeoObjectCR_Verify(data);
   }
@@ -899,7 +893,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   
   private void testUpdateGeoObjectGeometryCR(String[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0], null);
+    changeService.implementDecisions(request.getSessionId(), data[0], null);
     
     testUpdateGeoObjectGeometryCR_Verify(data);
   }
@@ -1032,7 +1026,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   
   private void testUpdateGeoObjectLocalizedValueCR(String[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0], null);
+    changeService.implementDecisions(request.getSessionId(), data[0], null);
     
     testUpdateGeoObjectLocalizedValueCR_Verify(data);
   }
@@ -1162,7 +1156,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   
   private void testUpdateGeoObjectTermCR(String[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0], null);
+    changeService.implementDecisions(request.getSessionId(), data[0], null);
     
     testUpdateGeoObjectTermCR_Verify(data);
   }
@@ -1293,7 +1287,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
   
   private void testUpdateGeoObjectDateCR(Object[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), (String) data[0], null);
+    changeService.implementDecisions(request.getSessionId(), (String) data[0], null);
     
     testUpdateGeoObjectDateCR_Verify(data);
   }

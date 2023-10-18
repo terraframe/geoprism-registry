@@ -100,7 +100,7 @@ public abstract class AbstractAction extends AbstractActionBase
    */
   public void buildFromJson(JSONObject joAction)
   {
-    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this.getAllRequest().next());
+    Set<ChangeRequestPermissionAction> perms = ServiceFactory.getBean(ChangeRequestPermissionService.class).getPermissions(this.getAllRequest().next());
     
     if (perms.containsAll(Arrays.asList(
         ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS

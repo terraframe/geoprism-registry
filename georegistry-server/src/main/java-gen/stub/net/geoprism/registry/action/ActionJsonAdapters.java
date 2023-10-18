@@ -45,6 +45,7 @@ import net.geoprism.registry.action.tree.RemoveChildAction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.permission.ChangeRequestPermissionService;
 import net.geoprism.registry.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
+import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
 import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 import net.geoprism.registry.view.action.UpdateParentView;
@@ -63,7 +64,7 @@ public class ActionJsonAdapters
   
   abstract public static class AbstractActionSerializer
   {
-    private ChangeRequestPermissionService perms = new ChangeRequestPermissionService();
+    private ChangeRequestPermissionService perms = ServiceFactory.getBean(ChangeRequestPermissionService.class);
     
     public JsonElement serialize(AbstractAction action, Type typeOfSrc, JsonSerializationContext context)
     {
