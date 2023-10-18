@@ -44,7 +44,7 @@ public class DHIS2OrgUnitGroupAttributeMapping extends DHIS2AttributeMapping
 
   private Map<String, String>           terms;
 
-  private GPRGeoObjectBusinessServiceIF objectService;
+  private transient GPRGeoObjectBusinessServiceIF objectService;
 
   public DHIS2OrgUnitGroupAttributeMapping()
   {

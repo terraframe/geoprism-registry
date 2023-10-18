@@ -62,7 +62,6 @@ import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.TestConfig;
-import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
@@ -90,7 +89,6 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.SynchronizationConfigService;
-import net.geoprism.registry.service.business.GPRGeoObjectBusinessService;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.test.AllAttributesDataset;
 import net.geoprism.registry.test.FastTestDataset;
@@ -120,6 +118,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
 
   protected static FastTestDataset       fastTestData;
 
+  @Autowired
   protected SynchronizationConfigService syncService;
 
   protected ExternalSystem               system;
@@ -170,8 +169,6 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     DHIS2ServiceFactory.setDhis2TransportService(this.dhis2);
 
     system = createDhis2ExternalSystem();
-
-    syncService = new SynchronizationConfigService();
 
     // deleteExternalIds();
 
@@ -1271,9 +1268,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     SynchronizationConfig config = (SynchronizationConfig) objects[0];
     String configOid = (String) objects[1];
 
-    SynchronizationConfigService service = new SynchronizationConfigService();
-
-    JsonObject joHist = service.run(testData.clientSession.getSessionId(), configOid);
+    JsonObject joHist = syncService.run(testData.clientSession.getSessionId(), configOid);
 
     testSyncWithInheritedHierarchyValidate(joHist);
   }
@@ -1344,12 +1339,10 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
   {
     SynchronizationConfig config = createSyncConfig(this.system, null, false);
 
-    SynchronizationConfigService service = new SynchronizationConfigService();
-
     JsonObject json = config.toJSON();
     json.remove("oid");
 
-    JsonObject configToJson = service.apply(testData.clientSession.getSessionId(), json);
+    JsonObject configToJson = syncService.apply(testData.clientSession.getSessionId(), json);
 
     String oid = configToJson.get(SynchronizationConfig.OID).getAsString();
 
@@ -1362,9 +1355,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
   {
     SynchronizationConfig config = createSyncConfig(this.system, null);
 
-    SynchronizationConfigService service = new SynchronizationConfigService();
-
-    JsonObject joHist = service.run(testData.clientSession.getSessionId(), config.getOid());
+    JsonObject joHist = syncService.run(testData.clientSession.getSessionId(), config.getOid());
     ExportHistory hist = ExportHistory.get(joHist.get("historyId").getAsString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
@@ -1410,9 +1401,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
 
     SynchronizationConfig config = createSyncConfig(system, null);
 
-    SynchronizationConfigService service = new SynchronizationConfigService();
-
-    JsonObject joHist = service.run(testData.clientSession.getSessionId(), config.getOid());
+    JsonObject joHist = syncService.run(testData.clientSession.getSessionId(), config.getOid());
     ExportHistory hist = ExportHistory.get(joHist.get("historyId").getAsString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
