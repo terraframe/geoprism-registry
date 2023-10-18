@@ -58,7 +58,7 @@ public class DirectedAcyclicGraphTypeTest
     }
     finally
     {
-      type.delete();
+      this.service.delete(type);
     }
 
   }
