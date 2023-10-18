@@ -52,9 +52,11 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.USADatasetTest;
@@ -87,6 +89,7 @@ import net.geoprism.registry.service.request.ExcelService;
 import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
+import net.geoprism.registry.test.TestTermInfo;
 import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
@@ -542,6 +545,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
   public void testExport() throws IOException
   {
     Term term = this.termService.createTerm(testTerm.getRootTerm().getCode(), new Term("Test Term", new LocalizedValue("Test Term"), new LocalizedValue("")));
+    Classifier classy = Classifier.getByKey(RegistryConstants.REGISTRY_PACKAGE + "." + testTerm.getRootTerm().getCode() + "." + term.getCode());
 
     try
     {
@@ -559,7 +563,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
       geoObj.setDisplayLabel(new LocalizedValue("Test Label"));
       geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
       geoObj.setGeometry(point);
-      geoObj.setValue(testTerm.getName(), term.getCode());
+      geoObj.setValue(testTerm.getName(), classy.getOid());
       geoObj.setValue(testInteger.getName(), 23L);
       geoObj.setValue(testDate.getName(), calendar.getTime());
       geoObj.setValue(testBoolean.getName(), true);
