@@ -292,8 +292,7 @@ public class OrganizationHierarchyTest
     object.setCode(code);
     object.setDisplayLabel(new LocalizedValue(code));
     object.setContactInfo(new LocalizedValue(code));
-    
-    this.service.apply(object, parent);
+    object.apply(parent);
 
     return object;
   }
