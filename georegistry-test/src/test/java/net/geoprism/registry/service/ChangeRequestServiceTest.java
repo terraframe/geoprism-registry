@@ -13,14 +13,13 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeGeometryType;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonArray;
@@ -37,6 +36,7 @@ import com.runwaysdk.session.RequestType;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.CGRPermissionException;
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
@@ -49,6 +49,7 @@ import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectActionBase;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeActionBase;
+import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -63,13 +64,11 @@ import net.geoprism.registry.view.action.UpdateParentValueOverTimeView;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class ChangeRequestServiceTest implements InstanceTestClassListener
+public class ChangeRequestServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectInfo BELIZE = new TestGeoObjectInfo("Belize", FastTestDataset.COUNTRY);
   
   public static final TestGeoObjectInfo TEST_NEW_PROVINCE = new TestGeoObjectInfo("CR_TEST_NEW_PROVINCE", FastTestDataset.PROVINCE);
-  
-  protected static FastTestDataset    testData;
   
   private static final String NEW_ANTHEM = "NEW_ANTHEM";
   
@@ -85,18 +84,9 @@ public class ChangeRequestServiceTest implements InstanceTestClassListener
   
   private String UPDATE_PARENT_ATTR_JSON = null;
   
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
-  }
+  @Autowired GeoObjectBusinessServiceIF goBizService;
+  
+  @Autowired GeoObjectEditorServiceIF goEditorService;
 
   @Before
   public void setUp()
@@ -130,7 +120,7 @@ public class ChangeRequestServiceTest implements InstanceTestClassListener
     + "}";
     
     ServerGeoObjectIF central_prov = FastTestDataset.PROV_CENTRAL.getServerObject();
-    ServerParentTreeNode ptn = central_prov.getParentGeoObjects(null, new String[] {FastTestDataset.COUNTRY.getCode()}, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE).getParents().get(0);
+    ServerParentTreeNode ptn = goBizService.getParentGeoObjects(central_prov, null, new String[] {FastTestDataset.COUNTRY.getCode()}, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE).getParents().get(0);
     
     UPDATE_PARENT_ATTR_JSON = "{"
         + "\"hierarchyCode\" : \"" + FastTestDataset.HIER_ADMIN.getCode() + "\","
@@ -537,7 +527,7 @@ public class ChangeRequestServiceTest implements InstanceTestClassListener
     
     ServerGeoObjectIF serverGo = FastTestDataset.PROV_CENTRAL.getServerObject();
     
-    List<ServerParentTreeNode> ptns = serverGo.getParentsOverTime(new String[] {FastTestDataset.COUNTRY.getCode()}, false, false).getEntries(FastTestDataset.HIER_ADMIN.getServerObject());
+    List<ServerParentTreeNode> ptns = goBizService.getParentsOverTime(serverGo, new String[] {FastTestDataset.COUNTRY.getCode()}, false, false).getEntries(FastTestDataset.HIER_ADMIN.getServerObject());
     Assert.assertEquals(1, ptns.size());
     
     ServerParentTreeNode ptn = ptns.get(0);
@@ -598,9 +588,7 @@ public class ChangeRequestServiceTest implements InstanceTestClassListener
   
   private void testCreateGeoObjectCR(String[] json, ClientRequestIF request) throws Exception
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
-    
-    JsonObject jo = service.createGeoObject(request.getSessionId(), json[0], json[1], null, "test-notes");
+    JsonObject jo = goEditorService.createGeoObject(request.getSessionId(), json[0], json[1], null, "test-notes");
     
     Assert.assertEquals(true, jo.get("isChangeRequest").getAsBoolean());
     Assert.assertEquals(36, jo.get("changeRequestId").getAsString().length());
@@ -699,9 +687,7 @@ public class ChangeRequestServiceTest implements InstanceTestClassListener
   
   private void testUpdateGeoObjectCR(String json, ClientRequestIF request) throws Exception
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
-    
-    JsonObject jo = service.updateGeoObject(request.getSessionId(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.COUNTRY.getCode(), json, null, "test-notes");
+    JsonObject jo = goEditorService.updateGeoObject(request.getSessionId(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.COUNTRY.getCode(), json, null, "test-notes");
     
     Assert.assertEquals(true, jo.get("isChangeRequest").getAsBoolean());
     Assert.assertEquals(36, jo.get("changeRequestId").getAsString().length());
