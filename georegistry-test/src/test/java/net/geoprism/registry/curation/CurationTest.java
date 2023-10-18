@@ -6,10 +6,8 @@ package net.geoprism.registry.curation;
 import java.util.List;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +22,7 @@ import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.ListTypeEntry;
@@ -45,36 +44,33 @@ import net.geoprism.registry.test.curation.CurationControllerWrapper;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class CurationTest implements InstanceTestClassListener
+public class CurationTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static FastTestDataset testData;
-  
   @Autowired
-  private CurationControllerWrapper         controller;  
+  private CurationControllerWrapper controller;
 
-  private ListCurationHistory      history;
+  private ListCurationHistory       history;
 
-  private String                   historyId;
+  private String                    historyId;
 
-  private ListCurationJob          job;
+  private ListCurationJob           job;
 
-  private JobHistoryRecord         jobHistoryRecord;
+  private JobHistoryRecord          jobHistoryRecord;
 
-  private ListTypeVersion          version;
+  private ListTypeVersion           version;
 
-  private SingleListType           list;
+  private SingleListType            list;
 
-  private ListTypeEntry            entry;
+  private ListTypeEntry             entry;
 
-  private GeoObjectProblem         curationProblem;
+  private GeoObjectProblem          curationProblem;
 
-  private String                   curationProblemId;
+  private String                    curationProblemId;
 
-  @BeforeClass
-  public static void setUpClass()
+  @Override
+  public void beforeClassSetup() throws Exception
   {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
 
     TestDataSet.deleteAllSchedulerData();
     TestDataSet.deleteAllListData();
@@ -83,12 +79,6 @@ public class CurationTest implements InstanceTestClassListener
     {
       SchedulerManager.start();
     }
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
   }
 
   @Before

@@ -18,15 +18,12 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
@@ -43,6 +40,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
@@ -60,11 +58,9 @@ import net.geoprism.registry.test.TestRegistryClient;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class AttributeTypeServiceTest implements InstanceTestClassListener
+public class AttributeTypeServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectTypeInfo TEST_GOT  = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
-
-  protected static FastTestDataset          testData;
 
   protected static ClassificationType       type;
 
@@ -73,20 +69,7 @@ public class AttributeTypeServiceTest implements InstanceTestClassListener
   protected static String                   CODE      = "Classification-ROOT";
 
   @Autowired
-  private TestRegistryClient         client;
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
-  }
+  private TestRegistryClient                client;
 
   @Before
   public void setUp()

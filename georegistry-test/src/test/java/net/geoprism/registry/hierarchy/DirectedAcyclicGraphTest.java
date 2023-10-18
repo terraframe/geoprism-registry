@@ -8,12 +8,11 @@ import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -21,9 +20,11 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.DirectedAcyclicGraphType;
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentGraphNode;
@@ -31,32 +32,32 @@ import net.geoprism.registry.test.FastTestDataset;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class DirectedAcyclicGraphTest implements InstanceTestClassListener
+public class DirectedAcyclicGraphTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static FastTestDataset          testData;
+  protected static DirectedAcyclicGraphType         type;
 
-  protected static DirectedAcyclicGraphType type;
+  @Autowired
+  private DirectedAcyclicGraphTypeBusinessServiceIF service;
 
-  @BeforeClass
+  @Override
   @Request
-  public static void setUpClass()
+  public void beforeClassSetup() throws Exception
   {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
 
-    type = DirectedAcyclicGraphType.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"));
+    type = this.service.create("TEST_DAG", new LocalizedValue("TEST_DAG"), new LocalizedValue("TEST_DAG"));
   }
 
-  @AfterClass
+  @Override
   @Request
-  public static void cleanUpClass()
+  public void afterClassSetup() throws Exception
   {
     if (type != null)
     {
-      type.delete();
+      this.service.delete(type);
     }
 
-    testData.tearDownMetadata();
+    super.afterClassSetup();
   }
 
   @Before

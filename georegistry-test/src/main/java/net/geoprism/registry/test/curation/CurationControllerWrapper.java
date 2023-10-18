@@ -4,7 +4,7 @@
 package net.geoprism.registry.test.curation;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -13,7 +13,7 @@ import net.geoprism.registry.controller.CurationController;
 import net.geoprism.registry.controller.CurationController.VersionIdBody;
 import net.geoprism.registry.test.AbstractTestClient;
 
-@Component
+@Service
 public class CurationControllerWrapper extends AbstractTestClient
 {
   @Autowired
