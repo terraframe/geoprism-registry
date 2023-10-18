@@ -9,15 +9,12 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -27,13 +24,14 @@ import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.PermissionContext;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.GPRHierarchyTypeService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
@@ -42,33 +40,25 @@ import net.geoprism.registry.test.TestUserInfo;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class HierarchyServiceTest implements InstanceTestClassListener
+public class HierarchyServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
 
   public static final TestGeoObjectTypeInfo TEST_GOT = new TestGeoObjectTypeInfo("HMST_Country", FastTestDataset.ORG_CGOV);
 
   public static final TestHierarchyTypeInfo TEST_HT  = new TestHierarchyTypeInfo("HMST_ReportDiv", FastTestDataset.ORG_CGOV);
 
-  protected static FastTestDataset          testData;
-
-  protected HierarchyService                service  = new HierarchyService();
+  @Autowired
+  protected GPRHierarchyTypeService         service;
 
   @Autowired
   private TestRegistryAdapter               adapter;
 
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
+  @Override
+  public void afterClassSetup() throws Exception
   {
     deleteExtraMetadata();
 
-    testData.tearDownMetadata();
+    super.afterClassSetup();
   }
 
   @Before
@@ -91,7 +81,7 @@ public class HierarchyServiceTest implements InstanceTestClassListener
     testData.tearDownInstanceData();
   }
 
-  private static void deleteExtraMetadata()
+  private void deleteExtraMetadata()
   {
     TEST_HT.delete();
     TEST_GOT.delete();
@@ -200,9 +190,9 @@ public class HierarchyServiceTest implements InstanceTestClassListener
 
     String gtJSON = reportingDivision.toJSON().toString();
 
-    ServiceFactory.getHierarchyService().createHierarchyType(testData.clientSession.getSessionId(), gtJSON);
+    this.service.createHierarchyType(testData.clientSession.getSessionId(), gtJSON);
 
-    HierarchyType[] hierarchies = ServiceFactory.getHierarchyService().getHierarchyTypes(testData.clientSession.getSessionId(), new String[] { TEST_HT.getCode() }, PermissionContext.READ);
+    HierarchyType[] hierarchies = this.service.getHierarchyTypes(testData.clientSession.getSessionId(), new String[] { TEST_HT.getCode() }, PermissionContext.READ);
 
     Assert.assertNotNull("The created hierarchy was not returned", hierarchies);
 
@@ -241,9 +231,9 @@ public class HierarchyServiceTest implements InstanceTestClassListener
     reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, adapter);
     String gtJSON = reportingDivision.toJSON().toString();
 
-    ServiceFactory.getHierarchyService().createHierarchyType(testData.clientSession.getSessionId(), gtJSON);
+    this.service.createHierarchyType(testData.clientSession.getSessionId(), gtJSON);
 
-    HierarchyType[] hierarchies = ServiceFactory.getHierarchyService().getHierarchyTypes(testData.clientSession.getSessionId(), new String[] { TEST_HT.getCode() }, PermissionContext.READ);
+    HierarchyType[] hierarchies = this.service.getHierarchyTypes(testData.clientSession.getSessionId(), new String[] { TEST_HT.getCode() }, PermissionContext.READ);
 
     Assert.assertNotNull("The created hierarchy was not returned", hierarchies);
 
@@ -281,7 +271,7 @@ public class HierarchyServiceTest implements InstanceTestClassListener
       {
         FastTestDataset.runAsUser(user, (request) -> {
 
-          ServiceFactory.getHierarchyService().createHierarchyType(request.getSessionId(), gtJSON);
+          this.service.createHierarchyType(request.getSessionId(), gtJSON);
         });
 
         Assert.fail("Able to update a geo object type as a user with bad roles");
@@ -306,7 +296,7 @@ public class HierarchyServiceTest implements InstanceTestClassListener
 
     gtJSON = reportingDivision.toJSON().toString();
 
-    reportingDivision = ServiceFactory.getHierarchyService().updateHierarchyType(testData.clientSession.getSessionId(), gtJSON);
+    reportingDivision = this.service.updateHierarchyType(testData.clientSession.getSessionId(), gtJSON);
 
     try
     {
@@ -319,7 +309,7 @@ public class HierarchyServiceTest implements InstanceTestClassListener
       reportingDivision.setLabel(new LocalizedValue(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
       reportingDivision.setDescription(new LocalizedValue(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
       gtJSON = reportingDivision.toJSON().toString();
-      reportingDivision = ServiceFactory.getHierarchyService().updateHierarchyType(testData.clientSession.getSessionId(), gtJSON);
+      reportingDivision = this.service.updateHierarchyType(testData.clientSession.getSessionId(), gtJSON);
     }
   }
 
@@ -340,7 +330,7 @@ public class HierarchyServiceTest implements InstanceTestClassListener
       {
         FastTestDataset.runAsUser(user, (request) -> {
 
-          ServiceFactory.getHierarchyService().updateHierarchyType(request.getSessionId(), updateJSON);
+          this.service.updateHierarchyType(request.getSessionId(), updateJSON);
         });
 
         Assert.fail("Able to update a geo object type as a user with bad roles");
@@ -360,7 +350,7 @@ public class HierarchyServiceTest implements InstanceTestClassListener
     HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, adapter);
     String gtJSON = reportingDivision.toJSON().toString();
 
-    ServiceFactory.getHierarchyService().createHierarchyType(testData.clientSession.getSessionId(), gtJSON);
+    this.service.createHierarchyType(testData.clientSession.getSessionId(), gtJSON);
 
     TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RM };
 
@@ -370,7 +360,7 @@ public class HierarchyServiceTest implements InstanceTestClassListener
       {
         FastTestDataset.runAsUser(user, (request) -> {
 
-          ServiceFactory.getHierarchyService().deleteHierarchyType(request.getSessionId(), TEST_HT.getCode());
+          this.service.deleteHierarchyType(request.getSessionId(), TEST_HT.getCode());
         });
 
         Assert.fail("Able to update a geo object type as a user with bad roles");
@@ -386,7 +376,7 @@ public class HierarchyServiceTest implements InstanceTestClassListener
   public void testGetHierarchyTypeAsDifferentOrgWithWriteContext()
   {
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request) -> {
-      HierarchyType[] hierarchyTypes = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null, PermissionContext.WRITE);
+      HierarchyType[] hierarchyTypes = this.service.getHierarchyTypes(request.getSessionId(), null, PermissionContext.WRITE);
 
       Assert.assertEquals(1, hierarchyTypes.length);
     });
@@ -396,7 +386,7 @@ public class HierarchyServiceTest implements InstanceTestClassListener
   public void testGetHierarchyTypeAsDifferentOrgWithReadContext()
   {
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request) -> {
-      HierarchyType[] hierarchyTypes = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null, PermissionContext.READ);
+      HierarchyType[] hierarchyTypes = this.service.getHierarchyTypes(request.getSessionId(), null, PermissionContext.READ);
 
       Assert.assertEquals(testData.getManagedHierarchyTypes().size(), hierarchyTypes.length);
     });
@@ -405,7 +395,7 @@ public class HierarchyServiceTest implements InstanceTestClassListener
   @Test
   public void testHierarchyType()
   {
-    HierarchyType[] hierarchyTypes = ServiceFactory.getHierarchyService().getHierarchyTypes(testData.clientSession.getSessionId(), null, PermissionContext.READ);
+    HierarchyType[] hierarchyTypes = this.service.getHierarchyTypes(testData.clientSession.getSessionId(), null, PermissionContext.READ);
 
     for (HierarchyType hierarchyType : hierarchyTypes)
     {
