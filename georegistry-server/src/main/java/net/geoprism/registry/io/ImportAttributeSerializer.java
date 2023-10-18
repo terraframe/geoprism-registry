@@ -38,7 +38,7 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.SupportedLocaleIF;
 
 import net.geoprism.registry.localization.DefaultLocaleView;
-import net.geoprism.registry.service.LocaleSerializer;
+import net.geoprism.registry.service.request.LocaleSerializer;
 
 public class ImportAttributeSerializer extends LocaleSerializer implements CustomSerializer
 {

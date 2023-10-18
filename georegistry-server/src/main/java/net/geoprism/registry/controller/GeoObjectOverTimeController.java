@@ -42,7 +42,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.controller.GeoObjectController.TypeCodeBody;
-import net.geoprism.registry.service.RegistryComponentService;
+import net.geoprism.registry.service.request.RegistryComponentService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController

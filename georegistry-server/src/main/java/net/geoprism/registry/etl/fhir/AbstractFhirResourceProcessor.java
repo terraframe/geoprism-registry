@@ -34,11 +34,11 @@ import org.locationtech.jts.io.geojson.GeoJsonReader;
 
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 
-import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public abstract class AbstractFhirResourceProcessor implements FhirResourceProcessor
 {

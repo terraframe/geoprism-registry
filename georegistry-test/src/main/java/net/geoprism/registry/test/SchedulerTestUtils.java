@@ -27,7 +27,7 @@ import net.geoprism.registry.etl.ImportErrorQuery;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ValidationProblem;
 import net.geoprism.registry.etl.ValidationProblemQuery;
-import net.geoprism.registry.service.ETLService;
+import net.geoprism.registry.service.request.ETLService;
 
 public class SchedulerTestUtils
 {

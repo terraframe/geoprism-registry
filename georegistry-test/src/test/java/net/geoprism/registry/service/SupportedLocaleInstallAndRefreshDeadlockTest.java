@@ -20,22 +20,23 @@ import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.localization.LocaleView;
+import net.geoprism.registry.service.request.GPRLocalizationService;
 import net.geoprism.registry.test.FastTestDataset;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
 public class SupportedLocaleInstallAndRefreshDeadlockTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static final Locale testLocale = Locale.SIMPLIFIED_CHINESE;
-  
+  protected static final Locale  testLocale = Locale.SIMPLIFIED_CHINESE;
+
   @Autowired
-  private GPRLocalizationService                 service;
-  
+  private GPRLocalizationService service;
+
   @Override
   public void beforeClassSetup() throws Exception
   {
     super.beforeClassSetup();
-    
+
     cleanupLocale();
   }
 
@@ -43,10 +44,10 @@ public class SupportedLocaleInstallAndRefreshDeadlockTest extends FastDatasetTes
   public void afterClassSetup() throws Exception
   {
     super.afterClassSetup();
-    
+
     cleanupLocale();
   }
-  
+
   @Request
   public static void cleanupLocale()
   {
@@ -55,22 +56,22 @@ public class SupportedLocaleInstallAndRefreshDeadlockTest extends FastDatasetTes
       LocalizationFacade.uninstall(testLocale);
     }
   }
-  
+
   @Test
   public void testDeadlock() throws InterruptedException
   {
     Thread refresher = new Thread(new RefreshLocaleCacheThreadPooler(), "SupportedLocaleRefreshDeadlockTest Locale Refresher Pooler");
     refresher.start();
-    
+
     Thread.sleep(300);
-    
+
     Thread installer = new Thread(new InstallLocaleThread(), "SupportedLocaleRefreshDeadlockTest Locale Installer");
     installer.start();
-    
+
     installer.join();
     refresher.join();
   }
-  
+
   public class InstallLocaleThread implements Runnable
   {
     @Override
@@ -78,29 +79,29 @@ public class SupportedLocaleInstallAndRefreshDeadlockTest extends FastDatasetTes
     {
       this.installLocale();
     }
-    
+
     @Request
     public void installLocale()
     {
       LocaleView lv = new LocaleView();
       lv.setLocale(testLocale);
       lv.setLabel(new LocalizedValue("SupportedLocaleRefreshDeadlockTest"));
-      
+
       String json = lv.toJson().toString();
-      
+
       FastTestDataset.runAsUser(FastTestDataset.USER_ADMIN, (request) -> {
         service.installLocaleInRequest(request.getSessionId(), json);
       });
     }
   }
-  
+
   public static class RefreshLocaleCacheThreadPooler implements Runnable
   {
     @Override
     public void run()
     {
       int elapsedMilis = 0;
-      
+
       while (elapsedMilis < 10000)
       {
         try
@@ -111,15 +112,15 @@ public class SupportedLocaleInstallAndRefreshDeadlockTest extends FastDatasetTes
         {
           throw new RuntimeException(e);
         }
-        
+
         Thread refresher = new Thread(new RefreshLocaleCacheThread(), "SupportedLocaleRefreshDeadlockTest Locale Refresher");
         refresher.start();
-        
+
         elapsedMilis += 10;
       }
     }
   }
-  
+
   public static class RefreshLocaleCacheThread implements Runnable
   {
 

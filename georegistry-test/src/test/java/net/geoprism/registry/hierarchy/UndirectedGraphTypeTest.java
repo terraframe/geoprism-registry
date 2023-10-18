@@ -21,7 +21,7 @@ import com.runwaysdk.system.metadata.MdEdge;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.UndirectedGraphType;
-import net.geoprism.registry.business.UndirectedGraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)

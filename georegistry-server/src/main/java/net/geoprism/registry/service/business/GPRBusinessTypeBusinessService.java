@@ -14,8 +14,6 @@ import com.runwaysdk.system.Roles;
 import ca.uhn.fhir.rest.annotation.Transaction;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.business.BusinessTypeBusinessService;
-import net.geoprism.registry.business.BusinessTypeBusinessServiceIF;
 
 @Service
 @Primary

@@ -24,7 +24,7 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeAttribute;
 import net.geoprism.registry.ListTypeVersion;
-import net.geoprism.registry.permission.GPROrganizationPermissionService;
+import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 
 public class PermissionColumnFilter implements ColumnFilter
 {

@@ -47,9 +47,8 @@ import com.google.gson.JsonObject;
 
 import net.geoprism.registry.controller.DirectedAcyclicGraphTypeController.CodeBody;
 import net.geoprism.registry.permission.PermissionContext;
-import net.geoprism.registry.service.HierarchyTypeServiceIF;
-import net.geoprism.registry.service.RegistryComponentService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.request.HierarchyTypeServiceIF;
+import net.geoprism.registry.service.request.RegistryComponentService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController

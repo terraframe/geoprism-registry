@@ -10,12 +10,12 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.graph.LabeledPropertyGraphType;
-import net.geoprism.graph.lpg.adapter.RegistryConnectorBuilderIF;
-import net.geoprism.graph.lpg.adapter.RegistryConnectorIF;
-import net.geoprism.graph.lpg.adapter.exception.BadServerUriException;
-import net.geoprism.graph.lpg.adapter.exception.HTTPException;
-import net.geoprism.graph.lpg.adapter.response.RegistryResponse;
-import net.geoprism.graph.lpg.service.LabeledPropertyGraphTypeServiceIF;
+import net.geoprism.registry.lpg.adapter.RegistryConnectorBuilderIF;
+import net.geoprism.registry.lpg.adapter.RegistryConnectorIF;
+import net.geoprism.registry.lpg.adapter.exception.BadServerUriException;
+import net.geoprism.registry.lpg.adapter.exception.HTTPException;
+import net.geoprism.registry.lpg.adapter.response.RegistryResponse;
+import net.geoprism.registry.service.request.LabeledPropertyGraphTypeServiceIF;
 
 public class LocalRegistryConnectorBuilder implements RegistryConnectorBuilderIF
 {

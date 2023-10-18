@@ -69,7 +69,6 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.ListTypeJob;
@@ -80,16 +79,17 @@ import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.permission.GPROrganizationPermissionService;
-import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.query.graph.AttributeValueRestriction;
 import net.geoprism.registry.query.graph.BasicVertexRestriction;
 import net.geoprism.registry.query.graph.CompositeRestriction;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
-import net.geoprism.registry.service.LocaleSerializer;
-import net.geoprism.registry.service.SerializedListTypeCache;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
+import net.geoprism.registry.service.permission.RolePermissionService;
+import net.geoprism.registry.service.request.LocaleSerializer;
+import net.geoprism.registry.service.request.SerializedListTypeCache;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public abstract class ListType extends ListTypeBase
 {

@@ -38,7 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.service.ShapefileService;
+import net.geoprism.registry.service.request.ShapefileService;
 import net.geoprism.registry.spring.NullableDateDeserializer;
 
 @RestController

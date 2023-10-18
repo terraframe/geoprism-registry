@@ -40,8 +40,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.controller.DirectedAcyclicGraphTypeController.CodeBody;
-import net.geoprism.registry.service.OrganizationServiceIF;
-import net.geoprism.registry.service.RegistryComponentService;
+import net.geoprism.registry.service.request.OrganizationServiceIF;
+import net.geoprism.registry.service.request.RegistryComponentService;
 
 /**
  * Differences in Spring MVC as compared to Runway MVC:

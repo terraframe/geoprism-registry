@@ -46,10 +46,9 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.business.BusinessTypeBusinessServiceIF;
-import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.io.ConstantShapefileFunction;
 import net.geoprism.registry.io.LocalizedValueFunction;
@@ -57,7 +56,8 @@ import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class BusinessObjectImportConfiguration extends ImportConfiguration
 {

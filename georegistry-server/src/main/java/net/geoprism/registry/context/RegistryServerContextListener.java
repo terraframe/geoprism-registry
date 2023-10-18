@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 import it.geosolutions.geoserver.rest.GeoServerRESTReader;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.GeoserverProperties;
-import net.geoprism.registry.service.WMSService;
+import net.geoprism.registry.service.request.WMSService;
 
 @Component
 public class RegistryServerContextListener implements ServletContextListener

@@ -33,10 +33,6 @@ import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
-import net.geoprism.registry.business.BusinessEdgeTypeBusinessServiceIF;
-import net.geoprism.registry.business.BusinessTypeBusinessServiceIF;
-import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
-import net.geoprism.registry.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
@@ -44,7 +40,11 @@ import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.GraphRepoServiceIF;
+import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
+import net.geoprism.registry.service.request.GraphRepoServiceIF;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)

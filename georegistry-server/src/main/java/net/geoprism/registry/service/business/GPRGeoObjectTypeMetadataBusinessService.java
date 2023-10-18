@@ -11,9 +11,6 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.gis.geo.Universal;
 
-import net.geoprism.registry.business.GeoObjectTypeMetadataBusinessService;
-import net.geoprism.registry.business.GeoObjectTypeMetadataBusinessServiceIF;
-
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.ListTypeVersionQuery;

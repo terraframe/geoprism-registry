@@ -29,7 +29,7 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.SearchService;
+import net.geoprism.registry.service.request.SearchService;
 
 public class SearchTablePatch
 {

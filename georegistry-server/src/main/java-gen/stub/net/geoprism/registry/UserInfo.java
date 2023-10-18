@@ -55,8 +55,8 @@ import net.geoprism.GeoprismUserQuery;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.graph.ExternalSystem;
-import net.geoprism.registry.permission.RolePermissionService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.permission.RolePermissionService;
 
 public class UserInfo extends UserInfoBase
 {

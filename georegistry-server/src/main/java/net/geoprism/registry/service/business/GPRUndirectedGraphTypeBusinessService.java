@@ -8,8 +8,6 @@ import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.business.UndirectedGraphTypeBusinessService;
-import net.geoprism.registry.business.UndirectedGraphTypeBusinessServiceIF;
 
 @Service
 @Primary

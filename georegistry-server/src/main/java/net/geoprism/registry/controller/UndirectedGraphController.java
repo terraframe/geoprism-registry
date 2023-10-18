@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.service.UndirectedGraphService;
+import net.geoprism.registry.service.request.UndirectedGraphService;
 import net.geoprism.registry.spring.NullableDateDeserializer;
 
 @RestController

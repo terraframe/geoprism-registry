@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.controller.ETLController.ConfigBody;
-import net.geoprism.registry.service.CurationService;
+import net.geoprism.registry.service.request.CurationService;
 
 @RestController
 @Validated

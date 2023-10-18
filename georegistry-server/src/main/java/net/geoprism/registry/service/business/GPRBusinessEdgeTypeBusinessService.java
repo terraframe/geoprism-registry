@@ -11,9 +11,6 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.business.BusinessEdgeTypeBusinessService;
-import net.geoprism.registry.business.BusinessEdgeTypeBusinessServiceIF;
-import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
 
 @Service
 @Primary

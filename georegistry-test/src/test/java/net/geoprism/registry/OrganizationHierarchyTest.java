@@ -14,9 +14,9 @@ import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.session.Request;
 
-import net.geoprism.registry.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.model.GraphNode;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.view.Page;
 
 @ContextConfiguration(classes = { TestConfig.class })

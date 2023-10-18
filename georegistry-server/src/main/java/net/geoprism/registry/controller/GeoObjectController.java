@@ -48,10 +48,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.service.GeoObjectServiceIF;
-import net.geoprism.registry.service.HierarchyTypeServiceIF;
-import net.geoprism.registry.service.RegistryComponentService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.request.GeoObjectServiceIF;
+import net.geoprism.registry.service.request.HierarchyTypeServiceIF;
+import net.geoprism.registry.service.request.RegistryComponentService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 import net.geoprism.registry.spring.NullableDateDeserializer;
 

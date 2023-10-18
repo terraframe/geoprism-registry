@@ -26,11 +26,11 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.permission.ChangeRequestPermissionService;
-import net.geoprism.registry.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
-import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.RegistryServiceIF;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
+import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
+import net.geoprism.registry.service.request.RegistryService;
+import net.geoprism.registry.service.request.RegistryServiceIF;
 
 public abstract class AbstractAction extends AbstractActionBase
 {

@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonArray;
@@ -44,7 +45,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.service.TaskService;
+import net.geoprism.registry.service.request.TaskService;
 import net.geoprism.registry.task.Task.TaskStatus;
 import net.geoprism.registry.task.Task.TaskTypeIF;
 import net.geoprism.registry.test.TestUserInfo;
@@ -64,7 +65,8 @@ public class TaskTest implements InstanceTestClassListener
 
   public ClientSession             italianSession = null;
 
-  public TaskService               service        = new TaskService();
+  @Autowired
+  public TaskService               service;
 
   public static enum TestTaskType implements TaskTypeIF {
     TestGeoObjectSplitOrphanedChildren("tasks.test.geoObjectSplitOrphanedChildren.title", "tasks.test.geoObjectSplitOrphanedChildren.template");

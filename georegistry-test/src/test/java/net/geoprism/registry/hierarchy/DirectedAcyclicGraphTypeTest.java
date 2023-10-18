@@ -21,7 +21,7 @@ import com.runwaysdk.system.metadata.MdEdge;
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
-import net.geoprism.registry.business.DirectedAcyclicGraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)

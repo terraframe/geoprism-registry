@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.dataaccess.Command;
 
 import net.geoprism.registry.TableEntity;
-import net.geoprism.registry.service.WMSService;
+import net.geoprism.registry.service.request.WMSService;
 
 public class GeoserverCreateWMSCommand implements Command
 {

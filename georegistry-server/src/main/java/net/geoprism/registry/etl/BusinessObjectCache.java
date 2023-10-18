@@ -22,10 +22,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.geoprism.registry.BusinessType;
-import net.geoprism.registry.business.BusinessObjectBusinessServiceIF;
-import net.geoprism.registry.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.model.BusinessObject;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class BusinessObjectCache
 {

@@ -31,8 +31,8 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.GPROrganizationPermissionService;
-import net.geoprism.registry.service.SerializedListTypeCache;
+import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
+import net.geoprism.registry.service.request.SerializedListTypeCache;
 
 public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
 {

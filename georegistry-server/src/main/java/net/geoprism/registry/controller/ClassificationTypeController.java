@@ -36,7 +36,7 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.mvc.RequestParamter;
 
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
-import net.geoprism.registry.service.ClassificationTypeService;
+import net.geoprism.registry.service.request.ClassificationTypeService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController

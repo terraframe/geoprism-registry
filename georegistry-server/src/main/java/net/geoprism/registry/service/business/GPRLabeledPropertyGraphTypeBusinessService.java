@@ -4,11 +4,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import net.geoprism.graph.LabeledPropertyGraphType;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeBusinessService;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeBusinessServiceIF;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.permission.RolePermissionService;
+import net.geoprism.registry.service.permission.RolePermissionService;
 
 @Service
 @Primary

@@ -40,10 +40,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.localization.LocaleView;
-import net.geoprism.registry.service.GPRLocalizationService;
-import net.geoprism.registry.service.RegistryComponentService;
-import net.geoprism.registry.service.RegistryServiceIF;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.request.GPRLocalizationService;
+import net.geoprism.registry.service.request.RegistryComponentService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController

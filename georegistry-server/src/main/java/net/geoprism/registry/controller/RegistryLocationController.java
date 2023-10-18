@@ -37,8 +37,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.service.LocationService;
-import net.geoprism.registry.service.RegistryComponentService;
+import net.geoprism.registry.service.request.LocationService;
+import net.geoprism.registry.service.request.RegistryComponentService;
 
 /**
  * This controller is used by the location manager widget.

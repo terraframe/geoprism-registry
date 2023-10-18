@@ -38,12 +38,10 @@ import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.util.IDGenerator;
 
-import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DataNotFoundException;
-import net.geoprism.registry.business.BusinessTypeBusinessServiceIF;
-import net.geoprism.registry.model.BusinessObject;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class BusinessGeoobjectEdgeJsonImporter
 {

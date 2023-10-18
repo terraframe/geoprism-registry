@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.service.BusinessObjectService;
+import net.geoprism.registry.service.request.BusinessObjectService;
 
 @RestController
 @Validated
@@ -40,11 +40,6 @@ public class BusinessObjectController extends RunwaySpringController
 
   @Autowired
   private BusinessObjectService service;
-
-  public BusinessObjectController()
-  {
-    this.service = new BusinessObjectService();
-  }
 
   @GetMapping(API_PATH + "/get")
   public ResponseEntity<String> get( 
