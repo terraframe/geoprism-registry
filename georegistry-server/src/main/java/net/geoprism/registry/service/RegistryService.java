@@ -82,6 +82,9 @@ public class RegistryService implements RegistryServiceIF
 
   @Autowired
   private HierarchyTypeServiceIF         hTypeService;
+  
+  @Autowired
+  private OrganizationServiceIF          orgService;
 
   private String buildOauthServerUrl(OauthServer server)
   {
@@ -193,7 +196,7 @@ public class RegistryService implements RegistryServiceIF
     final JsonArray organizations = new JsonArray();
     final CustomSerializer serializer = this.serializer(sessionId);
 
-    OrganizationDTO[] orgDtos = new OrganizationService().getOrganizations(sessionId, null);
+    OrganizationDTO[] orgDtos = orgService.getOrganizations(sessionId, null);
 
     if (publicOnly && UserInfo.isPublicUser())
     {
