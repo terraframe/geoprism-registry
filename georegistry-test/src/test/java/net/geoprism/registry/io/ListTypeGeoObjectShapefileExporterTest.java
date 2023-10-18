@@ -21,10 +21,8 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opengis.feature.simple.SimpleFeature;
@@ -40,6 +38,7 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
@@ -55,10 +54,8 @@ import net.geoprism.registry.test.TestDataSet;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class ListTypeGeoObjectShapefileExporterTest implements InstanceTestClassListener
+public class ListTypeGeoObjectShapefileExporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static FastTestDataset                          testData;
-
   private static ListType                                 masterlist;
 
   private static ListTypeVersion                          version;
@@ -67,16 +64,15 @@ public class ListTypeGeoObjectShapefileExporterTest implements InstanceTestClass
 
   private static List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
-  @BeforeClass
-  public static void setUpClass()
+  @Override
+  public void beforeClassSetup() throws Exception
   {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
 
     classSetupInRequest();
   }
 
-  private static void classSetupInRequest()
+  private void classSetupInRequest()
   {
     JsonObject json = ListTypeTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, FastTestDataset.COUNTRY);
 
@@ -89,19 +85,16 @@ public class ListTypeGeoObjectShapefileExporterTest implements InstanceTestClass
     });
   }
 
-  @AfterClass
-  public static void cleanUpClass()
+  @Override
+  public void afterClassSetup() throws Exception
   {
-    if (testData != null)
-    {
-      classTearDownInRequest();
+    classTearDownInRequest();
 
-      testData.tearDownMetadata();
-    }
+    super.afterClassSetup();
   }
 
   @Request
-  private static void classTearDownInRequest()
+  private void classTearDownInRequest()
   {
     if (version != null)
     {
@@ -143,7 +136,7 @@ public class ListTypeGeoObjectShapefileExporterTest implements InstanceTestClass
   public void testGenerateName()
   {
     ShapefileColumnNameGenerator exporter = new ShapefileColumnNameGenerator();
-    
+
     Assert.assertEquals("testestest", exporter.generateColumnName("testestestest1"));
     Assert.assertEquals("testestes1", exporter.generateColumnName("testestestest2"));
     Assert.assertEquals("testestes2", exporter.generateColumnName("testestestest3"));

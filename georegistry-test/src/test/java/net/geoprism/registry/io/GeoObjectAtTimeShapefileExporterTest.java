@@ -19,10 +19,8 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.opengis.feature.simple.SimpleFeature;
@@ -34,6 +32,7 @@ import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
@@ -44,26 +43,8 @@ import net.geoprism.registry.test.FastTestDataset;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class GeoObjectAtTimeShapefileExporterTest implements InstanceTestClassListener
+public class GeoObjectAtTimeShapefileExporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static FastTestDataset testData;
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
-  }
-
   @Before
   public void setUp()
   {
