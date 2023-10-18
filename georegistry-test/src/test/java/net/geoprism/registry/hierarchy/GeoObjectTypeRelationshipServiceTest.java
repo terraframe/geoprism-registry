@@ -10,24 +10,23 @@ import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.registry.AbstractParentException;
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -41,7 +40,7 @@ import net.geoprism.registry.test.TestUserInfo;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class GeoObjectTypeRelationshipServiceTest implements InstanceTestClassListener
+public class GeoObjectTypeRelationshipServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
 
   public static final String                TEST_PREFIX               = "GOTREL";
@@ -66,24 +65,18 @@ public class GeoObjectTypeRelationshipServiceTest implements InstanceTestClassLi
 
   public static final TestUserInfo          USER_PRIVATE_CHILD_GOT_AC = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + TEST_PREFIX + "acprivate", TEST_PREFIX + "acprivate", FastTestDataset.TEST_DATA_KEY + TEST_PREFIX + "acprivate@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), TEST_PRIVATE_CHILD.getCode()) });
 
-  protected static FastTestDataset          testData;
-
   @Autowired
   private TestRegistryClient                client;
 
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
+  @Autowired
+  private HierarchyTypeBusinessServiceIF    hierarchyService;
 
-  @AfterClass
-  public static void cleanUpClass()
+  @Override
+  public void afterClassSetup() throws Exception
   {
     deleteExtraMetadata();
 
-    testData.tearDownMetadata();
+    super.afterClassSetup();
   }
 
   @Before
@@ -108,7 +101,7 @@ public class GeoObjectTypeRelationshipServiceTest implements InstanceTestClassLi
     testData.tearDownInstanceData();
   }
 
-  private static void deleteExtraMetadata()
+  private void deleteExtraMetadata()
   {
     USER_CHILD_GOT_RM.delete();
     USER_CHILD_GOT_RC.delete();
@@ -201,18 +194,18 @@ public class GeoObjectTypeRelationshipServiceTest implements InstanceTestClassLi
 
       try
       {
-        type.addToHierarchy(RootGeoObjectType.INSTANCE, parentType);
-        type.addToHierarchy(parentType, childType);
+        this.hierarchyService.addToHierarchy(type, RootGeoObjectType.INSTANCE, parentType);
+        this.hierarchyService.addToHierarchy(type, parentType, childType);
 
-        List<ServerGeoObjectType> children = parentType.getChildren(type);
+        List<ServerGeoObjectType> children = this.hierarchyService.getChildren(type, parentType);
 
         Assert.assertEquals(1, children.size());
         Assert.assertEquals(childType.getCode(), children.get(0).getCode());
       }
       finally
       {
-        type.removeChild(RootGeoObjectType.INSTANCE, parentType, false);
-        type.removeChild(parentType, childType, false);
+        this.hierarchyService.removeChild(type, RootGeoObjectType.INSTANCE, parentType, false);
+        this.hierarchyService.removeChild(type, parentType, childType, false);
       }
     }
     finally
@@ -241,12 +234,12 @@ public class GeoObjectTypeRelationshipServiceTest implements InstanceTestClassLi
 
       try
       {
-        type.addToHierarchy(RootGeoObjectType.INSTANCE, parentType);
-        type.addToHierarchy(parentType, childType);
+        this.hierarchyService.addToHierarchy(type, RootGeoObjectType.INSTANCE, parentType);
+        this.hierarchyService.addToHierarchy(type, parentType, childType);
       }
       finally
       {
-        type.removeChild(RootGeoObjectType.INSTANCE, parentType, false);
+        this.hierarchyService.removeChild(type, RootGeoObjectType.INSTANCE, parentType, false);
       }
     }
     finally
