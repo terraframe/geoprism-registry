@@ -16,10 +16,10 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.business.SmartExceptionDTO;
 
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
@@ -32,27 +32,12 @@ import net.geoprism.registry.test.TestUserInfo;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class GeoObjectOverTimeServiceTest implements InstanceTestClassListener
+public class GeoObjectOverTimeServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static FastTestDataset      testData;
-
   public static final TestGeoObjectInfo TEST_GO = new TestGeoObjectInfo("GOSERV_TEST_GO", FastTestDataset.COUNTRY);
 
   @Autowired
   private TestRegistryClient            client;
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
-  }
 
   @Before
   public void setUp()

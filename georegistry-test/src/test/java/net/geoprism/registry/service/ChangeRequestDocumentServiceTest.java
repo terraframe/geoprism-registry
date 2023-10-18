@@ -7,12 +7,11 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonArray;
@@ -27,6 +26,7 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.registry.CGRPermissionException;
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
@@ -39,26 +39,13 @@ import net.geoprism.registry.test.TestUserInfo;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class ChangeRequestDocumentServiceTest implements InstanceTestClassListener
+public class ChangeRequestDocumentServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static FastTestDataset    testData;
-  
   private ChangeRequest cr;
   
   private String crOid;
   
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
-  }
+  @Autowired private ChangeRequestService crService;
 
   @Before
   public void setUp()
@@ -149,15 +136,13 @@ public class ChangeRequestDocumentServiceTest implements InstanceTestClassListen
 
   private void testDeleteDocumentAsUser(ClientRequestIF request)
   {
-    ChangeRequestService service = new ChangeRequestService();
-    
-    String sJson = service.uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+    String sJson = crService.uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
     
     JsonObject jsonVF = JsonParser.parseString(sJson).getAsJsonObject();
     
     final String vfOid = jsonVF.get("oid").getAsString();
     
-    service.deleteDocumentCR(request.getSessionId(), this.crOid, vfOid);
+    crService.deleteDocumentCR(request.getSessionId(), this.crOid, vfOid);
     
     assertVaultFileDeleted(vfOid);
   }
@@ -224,9 +209,7 @@ public class ChangeRequestDocumentServiceTest implements InstanceTestClassListen
   
   public void testListDocumentsAsUser(ClientRequestIF request)
   {
-    ChangeRequestService service = new ChangeRequestService();
-    
-    JsonArray ja = JsonParser.parseString(service.listDocumentsCR(request.getSessionId(), this.crOid)).getAsJsonArray();
+    JsonArray ja = JsonParser.parseString(crService.listDocumentsCR(request.getSessionId(), this.crOid)).getAsJsonArray();
     
     Assert.assertEquals(2, ja.size());
     
@@ -245,7 +228,7 @@ public class ChangeRequestDocumentServiceTest implements InstanceTestClassListen
     
     for (int i = 0; i < 2; ++i)
     {
-      json = new ChangeRequestService().uploadFileInTransactionCR(this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+      json = crService.uploadFileInTransactionCR(this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
     }
     
     JsonObject jsonVF = JsonParser.parseString(json).getAsJsonObject();
@@ -267,7 +250,7 @@ public class ChangeRequestDocumentServiceTest implements InstanceTestClassListen
       try
       {
         FastTestDataset.runAsUser(user, (request) -> {
-          new ChangeRequestService().uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+          crService.uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
           
           TestDataSet.deleteAllVaultFiles();
         });
@@ -286,7 +269,7 @@ public class ChangeRequestDocumentServiceTest implements InstanceTestClassListen
       try
       {
         FastTestDataset.runAsUser(user, (request) -> {
-          new ChangeRequestService().uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+          crService.uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
           
           Assert.fail("Expected a permission exception.");
         });
@@ -347,9 +330,7 @@ public class ChangeRequestDocumentServiceTest implements InstanceTestClassListen
   
   private void downloadDocumentAsUser(ClientRequestIF request, String vfOid)
   {
-    ChangeRequestService service = new ChangeRequestService();
-    
-    try (ApplicationResource res = service.downloadDocumentCR(request.getSessionId(), this.crOid, vfOid))
+    try (ApplicationResource res = crService.downloadDocumentCR(request.getSessionId(), this.crOid, vfOid))
     {
       Assert.assertEquals("parent-test.xlsx", res.getName());
       Assert.assertTrue(res.exists());

@@ -9,26 +9,25 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
@@ -42,7 +41,7 @@ import net.geoprism.registry.test.TestUserInfo;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class AttributeClassificationTest implements InstanceTestClassListener
+public class AttributeClassificationTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final String                 TEST_KEY = "ATTRCLASSTEST";
 
@@ -54,24 +53,23 @@ public class AttributeClassificationTest implements InstanceTestClassListener
 
   private static ClassificationType          type;
 
-  private static FastTestDataset             testData;
-
   private static AttributeClassificationType testClassification;
 
   @Autowired
   private TestRegistryClient                 client;
+  
+  @Autowired private GeoObjectTypeBusinessServiceIF gotService;
 
-  @BeforeClass
-  public static void setUpClass()
+  @Override
+  public void beforeClassSetup() throws Exception
   {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
 
     setUpInReq();
   }
 
   @Request
-  private static void setUpInReq()
+  private void setUpInReq()
   {
     type = ClassificationType.apply(ClassificationTypeTest.createMock());
 
@@ -87,16 +85,13 @@ public class AttributeClassificationTest implements InstanceTestClassListener
     testClassification.setRootTerm(root.toTerm());
 
     ServerGeoObjectType got = ServerGeoObjectType.get(TEST_GOT.getCode());
-    testClassification = (AttributeClassificationType) got.createAttributeType(testClassification.toJSON().toString());
+    testClassification = (AttributeClassificationType) gotService.createAttributeType(got, testClassification.toJSON().toString());
   }
 
-  @AfterClass
-  public static void cleanUpClass()
+  @Override
+  public void afterClassSetup() throws Exception
   {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
+    super.afterClassSetup();
 
     TEST_GOT.delete();
 
