@@ -1,7 +1,15 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <create>
-      <timestamp version=""></timestamp>
+      <timestamp version="0001547761646973"></timestamp>
+      <timestamp version="0001547761646974"></timestamp>
+      <timestamp version="0001572904892704"></timestamp>
+      <timestamp version="0001603743687528"></timestamp>
+      <timestamp version="0001607710853427"></timestamp>
+      <timestamp version="0001631310358984"></timestamp>
+      <timestamp version="0001676589654922"></timestamp>
+      <timestamp version="0001686841549593"></timestamp>
+      <timestamp version="0001682645028450"></timestamp>
     </create>
     <update></update>
   </doIt>
