@@ -7,7 +7,7 @@ import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.metadata.MetadataCache;
 import org.springframework.stereotype.Service;
 
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 @Service
 public class TestRegistryAdapter extends RegistryAdapter

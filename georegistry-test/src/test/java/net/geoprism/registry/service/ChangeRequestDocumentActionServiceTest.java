@@ -34,6 +34,7 @@ import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
+import net.geoprism.registry.service.request.ChangeRequestService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestUserInfo;
@@ -42,13 +43,14 @@ import net.geoprism.registry.test.TestUserInfo;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ChangeRequestDocumentActionServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private AbstractAction           action;
+  private AbstractAction       action;
 
-  private ChangeRequest            cr;
-  
-  private String                   crOid;
-  
-  @Autowired private ChangeRequestService crService;
+  private ChangeRequest        cr;
+
+  private String               crOid;
+
+  @Autowired
+  private ChangeRequestService crService;
 
   @Before
   public void setUp()

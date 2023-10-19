@@ -27,7 +27,6 @@ import com.runwaysdk.dataaccess.BusinessDAO;
 import com.runwaysdk.dataaccess.BusinessDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
-import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -42,7 +41,6 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 
 import net.geoprism.registry.HierarchicalRelationshipType;
-import net.geoprism.registry.HierarchyMetadata;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.InheritedHierarchyAnnotationQuery;
 import net.geoprism.registry.Organization;

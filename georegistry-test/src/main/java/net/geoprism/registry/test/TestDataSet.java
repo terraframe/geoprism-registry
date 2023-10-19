@@ -84,16 +84,16 @@ import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
-import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.GraphRepoServiceIF;
-import net.geoprism.registry.service.SerializedListTypeCache;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.GraphRepoServiceIF;
+import net.geoprism.registry.service.request.SerializedListTypeCache;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 abstract public class TestDataSet
 {

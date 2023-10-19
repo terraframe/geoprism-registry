@@ -8,8 +8,8 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.SingleLabeledPropertyGraphType;
-import net.geoprism.graph.lpg.StrategyConfiguration;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeBusinessServiceIF;
+import net.geoprism.registry.lpg.StrategyConfiguration;
+import net.geoprism.registry.service.business.LabeledPropertyGraphTypeBusinessServiceIF;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 

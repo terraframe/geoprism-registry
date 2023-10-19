@@ -19,8 +19,8 @@ import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.gis.geo.Universal;
 
-import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 /**
  * The purpose of this dataset is to provide very basic data which provides for

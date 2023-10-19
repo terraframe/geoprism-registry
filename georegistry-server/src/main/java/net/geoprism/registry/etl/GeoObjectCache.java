@@ -21,9 +21,9 @@ package net.geoprism.registry.etl;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class GeoObjectCache
 {

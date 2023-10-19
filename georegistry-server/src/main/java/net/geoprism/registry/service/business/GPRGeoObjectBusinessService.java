@@ -39,7 +39,6 @@ import com.runwaysdk.session.ReadPermissionException;
 import com.runwaysdk.session.WritePermissionException;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.business.GeoObjectBusinessService;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
 import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
@@ -57,7 +56,7 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
-import net.geoprism.registry.service.SearchService;
+import net.geoprism.registry.service.request.SearchService;
 
 @Service
 @Primary

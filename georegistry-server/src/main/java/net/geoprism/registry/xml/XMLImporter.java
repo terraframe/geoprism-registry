@@ -59,19 +59,19 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.UndirectedGraphType;
-import net.geoprism.registry.business.BusinessEdgeTypeBusinessServiceIF;
-import net.geoprism.registry.business.BusinessTypeBusinessServiceIF;
-import net.geoprism.registry.business.DirectedAcyclicGraphTypeBusinessServiceIF;
-import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
-import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
-import net.geoprism.registry.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class XMLImporter
 {

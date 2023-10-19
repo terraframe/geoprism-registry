@@ -13,8 +13,6 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.Roles;
 
-import net.geoprism.registry.business.TransitionBusinessService;
-import net.geoprism.registry.business.TransitionBusinessServiceIF;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.graph.transition.Transition.TransitionType;

@@ -40,9 +40,9 @@ import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.permission.GPROrganizationPermissionService;
-import net.geoprism.registry.permission.RolePermissionService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
+import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.JsonSerializable;
 
 public abstract class ExternalSystem extends ExternalSystemBase implements JsonSerializable

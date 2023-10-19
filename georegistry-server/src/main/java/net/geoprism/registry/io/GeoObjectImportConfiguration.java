@@ -52,14 +52,14 @@ import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.upload.GeoObjectRecordedErrorException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.permission.RolePermissionService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.permission.RolePermissionService;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class GeoObjectImportConfiguration extends ImportConfiguration
 {

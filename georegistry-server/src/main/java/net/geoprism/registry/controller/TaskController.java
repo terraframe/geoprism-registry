@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.service.TaskService;
+import net.geoprism.registry.service.request.TaskService;
 
 @RestController
 @Validated

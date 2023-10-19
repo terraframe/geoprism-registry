@@ -17,10 +17,8 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +26,7 @@ import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 
-import net.geoprism.registry.service.RegistryComponentService;
-import net.geoprism.registry.service.RegistryServiceIF;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.request.RegistryComponentService;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;

@@ -35,7 +35,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.service.GeoObjectEditorServiceIF;
+import net.geoprism.registry.service.request.GeoObjectEditorServiceIF;
 import net.geoprism.registry.spring.JsonArrayDeserializer;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 

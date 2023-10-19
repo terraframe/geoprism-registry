@@ -45,7 +45,7 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.system.scheduler.JobHistory;
 
-import net.geoprism.registry.service.ETLService;
+import net.geoprism.registry.service.request.ETLService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 import net.geoprism.registry.spring.NullableDateDeserializer;
 

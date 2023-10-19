@@ -38,7 +38,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 import com.runwaysdk.mvc.RequestParamter;
 
-import net.geoprism.registry.service.DirectedAcyclicGraphService;
+import net.geoprism.registry.service.request.DirectedAcyclicGraphService;
 import net.geoprism.registry.spring.NullableDateDeserializer;
 
 @RestController

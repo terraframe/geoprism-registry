@@ -130,8 +130,6 @@ import com.runwaysdk.system.scheduler.ExecutableJob;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.rbac.RoleConstants;
-import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
-import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.PublishMasterListVersionJob;
 import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
@@ -149,7 +147,9 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
 
 public class MasterListVersion extends MasterListVersionBase implements TableEntity

@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.service.TransitionEventService;
+import net.geoprism.registry.service.request.TransitionEventService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController

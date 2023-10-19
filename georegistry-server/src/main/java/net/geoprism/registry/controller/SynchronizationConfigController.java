@@ -42,7 +42,7 @@ import com.google.gson.JsonObject;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.etl.fhir.FhirFactory;
-import net.geoprism.registry.service.SynchronizationConfigService;
+import net.geoprism.registry.service.request.SynchronizationConfigService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController

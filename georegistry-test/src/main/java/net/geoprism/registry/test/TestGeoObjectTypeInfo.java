@@ -18,10 +18,10 @@ import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdClass;
 
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.business.GeoObjectTypeBusinessServiceIF;
-import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class TestGeoObjectTypeInfo
 {

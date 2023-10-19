@@ -49,7 +49,7 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.etl.ListTypeJob;
-import net.geoprism.registry.service.ListTypeService;
+import net.geoprism.registry.service.request.ListTypeService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController

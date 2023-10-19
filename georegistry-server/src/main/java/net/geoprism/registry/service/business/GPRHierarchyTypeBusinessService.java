@@ -24,12 +24,10 @@ import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.business.HierarchyTypeBusinessService;
-import net.geoprism.registry.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.SerializedListTypeCache;
+import net.geoprism.registry.service.request.SerializedListTypeCache;
 
 @Service
 @Primary

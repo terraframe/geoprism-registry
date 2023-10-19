@@ -9,8 +9,6 @@ import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.constants.UserInfo;
 
-import net.geoprism.graph.lpg.business.GeoObjectTypeSnapshotBusinessService;
-import net.geoprism.graph.lpg.business.GeoObjectTypeSnapshotBusinessServiceIF;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.RegistryConstants;
 

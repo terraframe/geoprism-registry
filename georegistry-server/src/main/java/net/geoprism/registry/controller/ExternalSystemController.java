@@ -44,7 +44,7 @@ import com.google.gson.JsonObject;
 
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
 import net.geoprism.registry.dhis2.DHIS2PluginZipManager;
-import net.geoprism.registry.service.ExternalSystemService;
+import net.geoprism.registry.service.request.ExternalSystemService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController

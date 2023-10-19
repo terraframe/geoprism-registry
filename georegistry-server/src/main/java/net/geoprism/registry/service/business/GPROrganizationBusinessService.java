@@ -31,8 +31,6 @@ import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.business.OrganizationBusinessService;
-import net.geoprism.registry.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.model.ServerOrganization;
 
 @Service
