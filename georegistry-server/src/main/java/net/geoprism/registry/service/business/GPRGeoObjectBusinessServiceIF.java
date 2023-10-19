@@ -1,5 +1,8 @@
 package net.geoprism.registry.service.business;
 
+import java.util.List;
+
+import org.commongeoregistry.adapter.dataaccess.AlternateId;
 import org.springframework.stereotype.Component;
 
 import net.geoprism.registry.business.GeoObjectBusinessServiceIF;
@@ -13,10 +16,12 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 public interface GPRGeoObjectBusinessServiceIF extends GeoObjectBusinessServiceIF
 {
 
-  String getExternalId(ServerGeoObjectIF sgo, ExternalSystem system);
+  public String getExternalId(ServerGeoObjectIF sgo, ExternalSystem system);
+  
+  public void setAlternateIds(ServerGeoObjectIF sgo, List<AlternateId> alternateIds);
 
-  VertexServerGeoObject getByExternalId(String externalId, ExternalSystem system, ServerGeoObjectType type);
+  public VertexServerGeoObject getByExternalId(String externalId, ExternalSystem system, ServerGeoObjectType type);
 
-  void createExternalId(ServerGeoObjectIF sgo, ExternalSystem system, String id, ImportStrategy importStrategy);
+  public void createExternalId(ServerGeoObjectIF sgo, ExternalSystem system, String id, ImportStrategy importStrategy);
 
 }
