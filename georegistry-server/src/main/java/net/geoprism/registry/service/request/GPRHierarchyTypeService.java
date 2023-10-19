@@ -109,6 +109,8 @@ public class GPRHierarchyTypeService extends HierarchyTypeService implements Hie
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
-    return ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code).get();
+//    return ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code).get();
+    
+    return service.toHierarchyType(ServerHierarchyType.get(code));
   }
 }
