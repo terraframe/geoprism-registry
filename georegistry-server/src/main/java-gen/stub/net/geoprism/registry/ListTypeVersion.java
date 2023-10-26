@@ -166,6 +166,8 @@ import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.ListTypeVersionPageQuery;
 import net.geoprism.registry.query.graph.BasicVertexQuery;
 import net.geoprism.registry.query.graph.BasicVertexRestriction;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
@@ -1080,9 +1082,12 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           }
           else if (attribute instanceof AttributeClassificationType)
           {
+            ClassificationTypeBusinessServiceIF typeService = ServiceFactory.getBean(ClassificationTypeBusinessServiceIF.class);
+            ClassificationBusinessServiceIF service = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
+
             String classificationTypeCode = ( (AttributeClassificationType) attribute ).getClassificationType();
-            ClassificationType classificationType = ClassificationType.getByCode(classificationTypeCode);
-            Classification classification = Classification.getByOid(classificationType, (String) value);
+            ClassificationType classificationType = typeService.getByCode(classificationTypeCode);
+            Classification classification = service.getByOid(classificationType, (String) value);
 
             LocalizedValue label = classification.getDisplayLabel();
 

@@ -4,19 +4,19 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.service.request;
+package net.geoprism.registry.service.business;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -25,6 +25,7 @@ import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.metadata.graph.MdGeoVertex;
 import com.runwaysdk.system.metadata.MdBusiness;
@@ -32,15 +33,23 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.service.ClassificationObjectServiceIF;
+import net.geoprism.registry.model.ClassificationType;
 
 @Service
 @Primary
-public class GPRClassificationObjectService implements ClassificationObjectServiceIF
+public class GPRClassificationTypeBusinessService extends ClassificationTypeBusinessService implements ClassificationTypeBusinessServiceIF
 {
 
   @Override
-  public void assignPermissions(ComponentIF component)
+  public void assignPermissions(ClassificationType type)
+  {
+    MdClassificationDAOIF mdClassification = type.getMdClassification();
+
+    assignPermissions(mdClassification.getReferenceMdVertexDAO());
+    assignPermissions(mdClassification.getReferenceMdEdgeDAO());
+  }
+
+  private void assignPermissions(ComponentIF component)
   {
     Roles sraRole = Roles.findRoleByName(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
 

@@ -16,18 +16,18 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.account;
+package net.geoprism.registry.service.business;
 
 import org.springframework.stereotype.Component;
 
 import net.geoprism.GeoprismUser;
-import net.geoprism.forgotpassword.business.ForgotPasswordBusinessService;
 import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.service.business.ForgotPasswordBusinessService;
 import net.geoprism.registry.session.ForgotPasswordOnOauthUser;
 
 @Component
-public class ForgotPasswordCGRService extends ForgotPasswordBusinessService
+public class GPRForgotPasswordBusinessService extends ForgotPasswordBusinessService
 {
   @Override
   protected void validateInitiate(GeoprismUser user)

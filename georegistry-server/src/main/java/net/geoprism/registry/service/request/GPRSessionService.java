@@ -32,8 +32,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 
 import net.geoprism.registry.RegistryVersionProperties;
-import net.geoprism.session.SessionService;
-import net.geoprism.session.SessionServiceIF;
 
 @Service
 @Primary

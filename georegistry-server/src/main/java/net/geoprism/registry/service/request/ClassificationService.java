@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collector;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
@@ -31,21 +32,30 @@ import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.view.Page;
 
 @Service
 public class ClassificationService
 {
+  @Autowired
+  private ClassificationTypeBusinessServiceIF typeService;
+
+  @Autowired
+  private ClassificationBusinessServiceIF     classificationService;
+
   @Request(RequestType.SESSION)
   public JsonObject apply(String sessionId, String classificationCode, String parentCode, JsonObject object, boolean isNew)
   {
-    ClassificationType type = ClassificationType.getByCode(classificationCode);
+    ClassificationType type = this.typeService.getByCode(classificationCode);
 
-    Classification parent = parentCode != null ? Classification.get(type, parentCode) : null;
+    Classification parent = parentCode != null ? this.classificationService.get(type, parentCode) : null;
 
-    Classification classification = Classification.construct(type, object, isNew);
-    classification.populate(object);
-    classification.apply(parent);
+    Classification classification = this.classificationService.construct(type, object, isNew);
+
+    this.classificationService.populate(classification, object);
+    this.classificationService.apply(classification, parent);
 
     // Return the refreshed copy of the geoObject
     return classification.toJSON();
@@ -54,18 +64,19 @@ public class ClassificationService
   @Request(RequestType.SESSION)
   public void remove(String sessionId, String classificationCode, String code)
   {
-    ClassificationType type = ClassificationType.getByCode(classificationCode);
+    ClassificationType type = this.typeService.getByCode(classificationCode);
 
-    Classification classification = Classification.get(type, code);
-    classification.delete();
+    Classification classification = this.classificationService.get(type, code);
+
+    this.classificationService.delete(classification);
   }
 
   @Request(RequestType.SESSION)
   public JsonObject get(String sessionId, String classificationCode, String code)
   {
-    ClassificationType type = ClassificationType.getByCode(classificationCode);
+    ClassificationType type = this.typeService.getByCode(classificationCode);
 
-    Classification classification = Classification.get(type, code);
+    Classification classification = this.classificationService.get(type, code);
 
     return classification.toJSON();
   }
@@ -73,45 +84,45 @@ public class ClassificationService
   @Request(RequestType.SESSION)
   public void move(String sessionId, String classificationCode, String code, String parentCode)
   {
-    ClassificationType type = ClassificationType.getByCode(classificationCode);
-    Classification classification = Classification.get(type, code);
-    Classification newParent = Classification.get(type, parentCode);
+    ClassificationType type = this.typeService.getByCode(classificationCode);
+    Classification classification = this.classificationService.get(type, code);
+    Classification newParent = this.classificationService.get(type, parentCode);
 
-    classification.move(newParent);
+    this.classificationService.move(classification, newParent);
   }
 
   @Request(RequestType.SESSION)
   public void addChild(String sessionId, String classificationCode, String parentCode, String childCode)
   {
-    ClassificationType type = ClassificationType.getByCode(classificationCode);
+    ClassificationType type = this.typeService.getByCode(classificationCode);
 
-    Classification parent = Classification.get(type, parentCode);
-    Classification child = Classification.get(type, childCode);
+    Classification parent = this.classificationService.get(type, parentCode);
+    Classification child = this.classificationService.get(type, childCode);
 
-    parent.addChild(child);
+    this.classificationService.addChild(parent, child);
   }
 
   @Request(RequestType.SESSION)
   public void removeChild(String sessionId, String classificationCode, String parentCode, String childCode)
   {
-    ClassificationType type = ClassificationType.getByCode(classificationCode);
+    ClassificationType type = this.typeService.getByCode(classificationCode);
 
-    Classification parent = Classification.get(type, parentCode);
-    Classification child = Classification.get(type, childCode);
+    Classification parent = this.classificationService.get(type, parentCode);
+    Classification child = this.classificationService.get(type, childCode);
 
-    parent.removeChild(child);
+    this.classificationService.removeChild(parent, child);
   }
 
   @Request(RequestType.SESSION)
   public JsonObject getChildren(String sessionId, String classificationCode, String code, Integer pageSize, Integer pageNumber)
   {
-    ClassificationType type = ClassificationType.getByCode(classificationCode);
+    ClassificationType type = this.typeService.getByCode(classificationCode);
 
     if (code != null)
     {
-      Classification parent = Classification.get(type, code);
+      Classification parent = this.classificationService.get(type, code);
 
-      return parent.getChildren(pageSize, pageNumber).toJSON();
+      return this.classificationService.getChildren(parent, pageSize, pageNumber).toJSON();
     }
 
     Classification root = type.getRoot();
@@ -128,18 +139,18 @@ public class ClassificationService
   @Request(RequestType.SESSION)
   public JsonObject getAncestorTree(String sessionId, String classificationCode, String rootCode, String code, Integer pageSize)
   {
-    ClassificationType type = ClassificationType.getByCode(classificationCode);
+    ClassificationType type = this.typeService.getByCode(classificationCode);
 
-    Classification child = Classification.get(type, code);
+    Classification child = this.classificationService.get(type, code);
 
-    return child.getAncestorTree(rootCode, pageSize).toJSON();
+    return this.classificationService.getAncestorTree(child, rootCode, pageSize).toJSON();
   }
 
   @Request(RequestType.SESSION)
   public JsonArray search(String sessionId, String classificationCode, String rootCode, String text)
   {
-    ClassificationType type = ClassificationType.getByCode(classificationCode);
-    List<Classification> results = Classification.search(type, rootCode, text);
+    ClassificationType type = this.typeService.getByCode(classificationCode);
+    List<Classification> results = this.classificationService.search(type, rootCode, text);
 
     return results.stream().map(child -> child.toJSON()).collect(Collector.of(() -> new JsonArray(), (r, t) -> r.add((JsonObject) t), (x1, x2) -> {
       x1.addAll(x2);

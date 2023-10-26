@@ -39,23 +39,9 @@ import org.springframework.web.servlet.view.BeanNameViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
 import net.geoprism.EncodingFilter;
-import net.geoprism.externalprofile.business.ExternalProfileBusinessServiceIF;
-import net.geoprism.externalprofile.controller.ExternalProfileController;
-import net.geoprism.externalprofile.service.ExternalProfileService;
-import net.geoprism.externalprofile.service.ExternalProfileServiceIF;
-import net.geoprism.forgotpassword.business.ForgotPasswordBusinessServiceIF;
-import net.geoprism.forgotpassword.controller.ForgotPasswordController;
-import net.geoprism.forgotpassword.service.ForgotPasswordService;
-import net.geoprism.forgotpassword.service.ForgotPasswordServiceIF;
-import net.geoprism.registry.account.ForgotPasswordCGRService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.session.ExternalProfileCGRService;
-import net.geoprism.session.LoginBruteForceGuardService;
-import net.geoprism.session.SessionController;
-import net.geoprism.session.SessionFilter;
+import net.geoprism.registry.service.SessionFilter;
 import net.geoprism.spring.JsonExceptionHandler;
-import net.geoprism.userinvite.controller.UserInviteController;
-import net.geoprism.userinvite.service.UserInviteService;
 
 @Configuration
 @EnableWebMvc
@@ -144,63 +130,4 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
     return new EncodingFilter();
   }
 
-  @Bean
-  ForgotPasswordController forgotPasswordController()
-  {
-    return new ForgotPasswordController();
-  }
-
-  @Bean
-  ForgotPasswordServiceIF forgotPasswordServiceIF()
-  {
-    return new ForgotPasswordService();
-  }
-
-  @Bean
-  ForgotPasswordBusinessServiceIF forgotPasswordBusinessServiceIF()
-  {
-    return new ForgotPasswordCGRService();
-  }
-
-  @Bean
-  SessionController sessionController()
-  {
-    return new SessionController();
-  }
-
-  @Bean
-  ExternalProfileController externalProfileController()
-  {
-    return new ExternalProfileController();
-  }
-
-  @Bean
-  ExternalProfileServiceIF externalProfileServiceIF()
-  {
-    return new ExternalProfileService();
-  }
-
-  @Bean
-  ExternalProfileBusinessServiceIF externalProfileBusinessServiceIF()
-  {
-    return new ExternalProfileCGRService();
-  }
-
-  @Bean
-  UserInviteController userInviteController()
-  {
-    return new UserInviteController();
-  }
-
-  @Bean
-  UserInviteService userInviteService()
-  {
-    return new UserInviteService();
-  }
-
-  @Bean
-  LoginBruteForceGuardService loginBruteForceGuard()
-  {
-    return new LoginBruteForceGuardService();
-  }  
 }

@@ -59,6 +59,8 @@ import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class UpdateValueOverTimeView
 {
@@ -372,8 +374,10 @@ public class UpdateValueOverTimeView
           {
             JsonObject object = this.newValue.getAsJsonObject();
             String code = object.get("code").getAsString();
+            
+            ClassificationBusinessServiceIF service = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
 
-            Classification classification = Classification.get((AttributeClassificationType) attype, code);
+            Classification classification = service.get((AttributeClassificationType) attype, code);
 
             convertedValue = new AttributeGraphRef.ID(classification.getOid(), classification.getVertex().getRID());
           }

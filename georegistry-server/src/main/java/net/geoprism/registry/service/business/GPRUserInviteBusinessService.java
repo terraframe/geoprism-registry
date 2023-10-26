@@ -4,19 +4,19 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.service.request;
+package net.geoprism.registry.service.business;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -37,16 +37,14 @@ import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
-import net.geoprism.userinvite.business.UserInviteBusinessService;
-import net.geoprism.userinvite.business.UserInviteBusinessServiceIF;
 
 @Service
 @Primary
-public class GPRUserInviteService extends UserInviteBusinessService implements UserInviteBusinessServiceIF
+public class GPRUserInviteBusinessService extends UserInviteBusinessService implements UserInviteBusinessServiceIF
 {
 
-  private static final Logger logger = LoggerFactory.getLogger(GPRUserInviteService.class);
-  
+  private static final Logger logger = LoggerFactory.getLogger(GPRUserInviteBusinessService.class);
+
   @Override
   protected void applyUserWithRoles(JsonObject joUser, Set<String> roleNames)
   {
@@ -57,27 +55,27 @@ public class GPRUserInviteService extends UserInviteBusinessService implements U
   protected void sendEmail(String emailAddress, String token, JsonArray roleNameArray)
   {
     final String serverExternalUrl = GeoprismProperties.getRemoteServerUrl();
-    
+
     String link = serverExternalUrl + "#/admin/invite-complete/" + token;
 
     String subject = LocalizationFacade.localize("user.invite.email.subject");
-    
+
     String body = LocalizationFacade.localize("user.invite.email.body");
     body = body.replaceAll("\\\\n", "\n");
     body = body.replace("${link}", link);
     body = body.replace("${expireTime}", getLocalizedExpireTime());
-    
+
     String orgLabel = "??";
     Set<String> roleLabels = new HashSet<String>();
-    
+
     for (int i = 0; i < roleNameArray.size(); ++i)
     {
       String roleName = roleNameArray.get(i).getAsString();
-      
+
       Roles role = Roles.findRoleByName(roleName);
-      
+
       RegistryRole registryRole = new RegistryRoleConverter().build(role);
-      
+
       if (orgLabel.equals("??"))
       {
         String orgCode = registryRole.getOrganizationCode();
@@ -86,7 +84,7 @@ public class GPRUserInviteService extends UserInviteBusinessService implements U
           orgLabel = Organization.getByCode(orgCode).getDisplayLabel().getValue().trim();
         }
       }
-      
+
       String roleLabel;
       if (RegistryRole.Type.isRA_Role(roleName))
       {
@@ -96,18 +94,19 @@ public class GPRUserInviteService extends UserInviteBusinessService implements U
       {
         roleLabel = role.getDisplayLabel().getValue().trim();
       }
-      
+
       roleLabels.add(roleLabel);
     }
-    
+
     body = body.replace("${roles}", StringUtils.join(roleLabels, ", "));
-    
-    if (orgLabel.equals("??")) {
+
+    if (orgLabel.equals("??"))
+    {
       orgLabel = StringUtils.join(roleLabels, ", ");
     }
     body = body.replace("${organization}", orgLabel);
 
     this.emailService.sendEmail(subject, body, new String[] { emailAddress });
   }
-  
+
 }

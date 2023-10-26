@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -53,6 +53,7 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.request.ServiceFactory;
@@ -72,14 +73,14 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   {
     super();
   }
-  
+
   public static String formatDateForPresentation(Date date, boolean includeTime)
   {
     if (date == null)
     {
       return LocalizationFacade.localize("changeovertime.present");
     }
-    
+
     return formatIso8601(date, includeTime);
   }
 
@@ -201,9 +202,10 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   @Authenticate
   public static String applyClassificationType(String json)
   {
+    ClassificationTypeBusinessServiceIF service = ServiceFactory.getBean(ClassificationTypeBusinessServiceIF.class);
     JsonObject object = JsonParser.parseString(json).getAsJsonObject();
 
-    ClassificationType type = ClassificationType.apply(object);
+    ClassificationType type = service.apply(object);
 
     return type.toJSON().toString();
   }
@@ -264,21 +266,23 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     ListTypeVersion version = ListTypeVersion.get(oid);
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
     JsonObject criteria = ( json != null ) ? JsonParser.parseString(json).getAsJsonObject() : new JsonObject();
-    
+
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
 
     if (json != null && json.contains("invalid"))
     {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
     }
-    
-    // If the list isn't public and the user isn't a member of the organization the remove all non code and display label attributes
-    if(version.getListVisibility().equals(ListType.PRIVATE) && !GPROrganizationPermissionService.isMemberOrSRA(version.getListType().getOrganization())) {
+
+    // If the list isn't public and the user isn't a member of the organization
+    // the remove all non code and display label attributes
+    if (version.getListVisibility().equals(ListType.PRIVATE) && !GPROrganizationPermissionService.isMemberOrSRA(version.getListType().getOrganization()))
+    {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> {
         String attributeName = mdAttribute.definesAttribute();
-        
-        return attributeName.equals("code") || attributeName.contains("displayLabel"); 
-      }).collect(Collectors.toList());      
+
+        return attributeName.equals("code") || attributeName.contains("displayLabel");
+      }).collect(Collectors.toList());
     }
 
     try
@@ -306,16 +310,17 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
     }
-    
-    // If the list isn't public and the user isn't a member of the organization the remove all non code and display label attributes
-    if(version.getListVisibility().equals(ListType.PRIVATE) && !GPROrganizationPermissionService.isMemberOrSRA(version.getListType().getOrganization())) {
+
+    // If the list isn't public and the user isn't a member of the organization
+    // the remove all non code and display label attributes
+    if (version.getListVisibility().equals(ListType.PRIVATE) && !GPROrganizationPermissionService.isMemberOrSRA(version.getListType().getOrganization()))
+    {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> {
         String attributeName = mdAttribute.definesAttribute();
-        
-        return attributeName.equals("code") || attributeName.contains("displayLabel"); 
-      }).collect(Collectors.toList());      
-    }
 
+        return attributeName.equals("code") || attributeName.contains("displayLabel");
+      }).collect(Collectors.toList());
+    }
 
     try
     {

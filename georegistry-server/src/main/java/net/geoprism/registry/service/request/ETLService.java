@@ -58,7 +58,6 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 
 import net.geoprism.GeoprismUser;
-import net.geoprism.classifier.ClassifierBusinessServiceIF;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.EdgeJsonImporter;
@@ -81,6 +80,7 @@ import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.business.ClassifierBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.RolePermissionService;

@@ -53,8 +53,6 @@ import com.runwaysdk.system.VaultFile;
 import net.geoprism.GeoprismUser;
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.email.SendEmailCommand;
-import net.geoprism.email.business.EmailBusinessService;
-import net.geoprism.email.service.EmailService;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
@@ -62,9 +60,11 @@ import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.business.EmailBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRGeoObjectTypeBusinessService;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.request.EmailServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 
@@ -284,10 +284,12 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
             String link = GeoprismProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
             body = body.replaceAll("\\{link\\}", link);
+            
+            EmailBusinessServiceIF service = ServiceFactory.getBean(EmailBusinessServiceIF.class);
 
             // Aspects will weave in here and this will happen at the end of the
             // transaction
-            new SendEmailCommand(new EmailBusinessService(), subject, body, toAddresses.toArray(new String[toAddresses.size()])).doIt();
+            new SendEmailCommand(service, subject, body, toAddresses.toArray(new String[toAddresses.size()])).doIt();
           }
         }
       }
@@ -457,8 +459,10 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
             String link = GeoprismProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
             body = body.replaceAll("\\{link\\}", link);
+            
+            EmailServiceIF service = ServiceFactory.getBean(EmailServiceIF.class);
 
-            new EmailService().sendEmail(Session.getCurrentSession().getOid(), subject, body, new String[] { email });
+            service.sendEmail(Session.getCurrentSession().getOid(), subject, body, new String[] { email });
           }
         }
       }

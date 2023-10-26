@@ -54,7 +54,6 @@ import com.runwaysdk.constants.MdAttributeDateTimeUtil;
 import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
-import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
@@ -84,6 +83,7 @@ import net.geoprism.registry.query.graph.BasicVertexRestriction;
 import net.geoprism.registry.query.graph.CompositeRestriction;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.permission.RolePermissionService;
@@ -801,10 +801,11 @@ public abstract class ListType extends ListTypeBase
           JsonObject object = filter.get("value").getAsJsonObject();
           Term term = Term.fromJSON(object);
           MdClassificationDAOIF mdClassification = ( (MdAttributeClassificationDAOIF) mdAttribute ).getMdClassificationDAOIF();
-          MdEdgeDAOIF mdEdge = mdClassification.getReferenceMdEdgeDAO();
           ClassificationType classificationType = new ClassificationType(mdClassification);
 
-          Classification classification = Classification.get(classificationType, term.getCode());
+          ClassificationBusinessServiceIF service = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
+
+          Classification classification = service.get(classificationType, term.getCode());
 
           restriction.add(new AttributeValueRestriction(mdAttribute, operation, classification.getVertex().getRID(), forDate));
         }

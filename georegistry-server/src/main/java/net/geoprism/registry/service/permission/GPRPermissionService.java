@@ -9,7 +9,7 @@ import net.geoprism.registry.model.ServerOrganization;
 
 @Service
 @Primary
-public class GPRPermissionService implements PermissionServiceIF
+public class GPRPermissionService extends PermissionService implements PermissionServiceIF
 {
   @Autowired
   private RolePermissionService rolePermissions;

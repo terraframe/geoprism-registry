@@ -16,10 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.session;
+package net.geoprism.registry.service.business;
 
 import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.rbac.UserDAO;
@@ -27,15 +26,14 @@ import com.runwaysdk.business.rbac.UserDAO;
 import net.geoprism.GeoprismUser;
 import net.geoprism.account.OauthServer;
 import net.geoprism.configuration.GeoprismProperties;
-import net.geoprism.externalprofile.business.ExternalProfileBusinessService;
-import net.geoprism.externalprofile.business.ExternalProfileBusinessServiceIF;
 import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.session.UserNotOuathEnabledException;
 
 @Service
 @Primary
-public class ExternalProfileCGRService extends ExternalProfileBusinessService implements ExternalProfileBusinessServiceIF
+public class GPRExternalProfileBusinessService extends ExternalProfileBusinessService implements ExternalProfileBusinessServiceIF
 {
   @Override
   protected void validateUser(String username, UserDAO user, GeoprismUser geoprismUser, OauthServer server)
