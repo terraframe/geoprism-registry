@@ -69,6 +69,8 @@ public class ServiceFactory
   private RolePermissionService                        rolePermissionServ;
 
   private ServerMetadataCache                          metadataCache;
+  
+  private boolean                                      cacheInitialized = false;
 
   private void initialize()
   {
@@ -100,8 +102,6 @@ public class ServiceFactory
 
     this.metadataCache = new ServerMetadataCache(this.adapter);
     this.metadataCache.rebuild();
-
-    this.registryService.initialize();
   }
 
   public static synchronized ServiceFactory getInstance()
@@ -185,8 +185,16 @@ public class ServiceFactory
     return ServiceFactory.getInstance().rolePermissionServ;
   }
 
-  public static ServerMetadataCache getMetadataCache()
+  public static synchronized ServerMetadataCache getMetadataCache()
   {
-    return ServiceFactory.getInstance().metadataCache;
+    ServiceFactory fac = ServiceFactory.getInstance();
+    
+    if (!fac.cacheInitialized)
+    {
+      fac.cacheInitialized = true;
+      fac.registryService.initialize();
+    }
+    
+    return fac.metadataCache;
   }
 }
