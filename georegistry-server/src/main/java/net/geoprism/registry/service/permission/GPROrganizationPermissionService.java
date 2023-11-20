@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.permission;
 
@@ -39,42 +39,47 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.business.GPROrganizationBusinessService;
+import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
 
 @Service
 @Primary
 public class GPROrganizationPermissionService extends UserPermissionService implements OrganizationPermissionServiceIF
 {
   @Autowired
-  private RolePermissionService service;
+  private RolePermissionService          roleService;
+
+  @Autowired
+  private GPROrganizationBusinessService service;
 
   public void enforceActorCanCreate()
   {
-    this.service.enforceSRA();
+    this.roleService.enforceSRA();
   }
 
   public void enforceActorCanUpdate()
   {
-    this.service.enforceSRA();
+    this.roleService.enforceSRA();
   }
 
   public boolean canActorCreate()
   {
-    return this.service.isSRA();
+    return this.roleService.isSRA();
   }
 
   public boolean canActorUpdate()
   {
-    return this.service.isSRA();
+    return this.roleService.isSRA();
   }
 
   public void enforceActorCanDelete()
   {
-    this.service.enforceSRA();
+    this.roleService.enforceSRA();
   }
 
   public boolean canActorDelete()
   {
-    return this.service.isSRA();
+    return this.roleService.isSRA();
   }
 
   public boolean canActorRead(String orgCode)
@@ -82,7 +87,7 @@ public class GPROrganizationPermissionService extends UserPermissionService impl
     // People need to be able to read all organizations so that we can display
     // them in a read-only format
     // See comments at the bottom of ticket 206 for a specific usecase
-    // (hierarchy manager read-only) 
+    // (hierarchy manager read-only)
 
     // It's OK to return true here because the PUBLIC user won't actually have
     // Runway-level object
@@ -95,13 +100,13 @@ public class GPROrganizationPermissionService extends UserPermissionService impl
   {
     return;
   }
-  
+
   /**
    * @param org
    * @return If the current user is part of the registry admin role for the
    *         given organization
    */
-  public static boolean isRegistryAdmin(ServerOrganization org)
+  public boolean isRegistryAdmin(ServerOrganization org)
   {
     if (new RolePermissionService().isSRA())
     {
@@ -125,7 +130,7 @@ public class GPROrganizationPermissionService extends UserPermissionService impl
    * @return If the current user is part of the registry admin role for the
    *         given organization
    */
-  public static boolean isRegistryMaintainer(Organization org)
+  public boolean isRegistryMaintainer(Organization org)
   {
     if (new RolePermissionService().isSRA())
     {
@@ -136,7 +141,7 @@ public class GPROrganizationPermissionService extends UserPermissionService impl
 
     if (session != null)
     {
-      Map<String, ServerGeoObjectType> types = org.getGeoObjectTypes();
+      Map<String, ServerGeoObjectType> types = this.service.getGeoObjectTypes(org);
 
       Set<Entry<String, ServerGeoObjectType>> entries = types.entrySet();
 
@@ -158,7 +163,7 @@ public class GPROrganizationPermissionService extends UserPermissionService impl
     return true;
   }
 
-  public static boolean isMemberOrSRA(ServerOrganization org)
+  public boolean isMemberOrSRA(ServerOrganization org)
   {
     if (new RolePermissionService().isSRA())
     {
@@ -167,8 +172,8 @@ public class GPROrganizationPermissionService extends UserPermissionService impl
 
     return ServerOrganization.isMember(org);
   }
-  
-  public static boolean isMemberOrSRA(Organization org)
+
+  public boolean isMemberOrSRA(Organization org)
   {
     if (new RolePermissionService().isSRA())
     {
@@ -177,13 +182,13 @@ public class GPROrganizationPermissionService extends UserPermissionService impl
 
     return Organization.isMember(org);
   }
-  
+
   /**
    * @param org
    * @return If the current user is part of the registry admin role for the
    *         given organization
    */
-  public static boolean isRegistryAdmin(Organization org)
+  public boolean isRegistryAdmin(Organization org)
   {
     if (new RolePermissionService().isSRA())
     {
@@ -201,8 +206,8 @@ public class GPROrganizationPermissionService extends UserPermissionService impl
 
     return true;
   }
-  
-  public static List<Organization> getUserAdminOrganizations()
+
+  public List<Organization> getUserAdminOrganizations()
   {
     OrganizationQuery query = new OrganizationQuery(new QueryFactory());
     query.ORDER_BY_ASC(query.getDisplayLabel().localize());
@@ -218,8 +223,8 @@ public class GPROrganizationPermissionService extends UserPermissionService impl
       return result;
     }
   }
-  
-  public static List<ServerOrganization> getUserAdminServerOrganizations()
+
+  public List<ServerOrganization> getUserAdminServerOrganizations()
   {
     return getUserAdminOrganizations().stream().map(org -> ServerOrganization.get(org)).collect(Collectors.toList());
   }

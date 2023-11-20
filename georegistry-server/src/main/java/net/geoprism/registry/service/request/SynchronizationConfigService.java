@@ -80,13 +80,16 @@ import net.geoprism.registry.view.Page;
 public class SynchronizationConfigService
 {
   @Autowired
-  private RegistryComponentService       service;
+  private RegistryComponentService         service;
 
   @Autowired
-  private HierarchyTypeBusinessServiceIF hierarchyService;
+  private HierarchyTypeBusinessServiceIF   hierarchyService;
 
   @Autowired
-  private RolePermissionService          permissions;
+  private RolePermissionService            permissions;
+
+  @Autowired
+  private GPROrganizationPermissionService orgPermissions;
 
   @Request(RequestType.SESSION)
   public JsonObject page(String sessionId, Integer pageNumber, Integer pageSize) throws JSONException
@@ -208,7 +211,7 @@ public class SynchronizationConfigService
 
     JsonArray orgs = new JsonArray();
 
-    List<Organization> organizations = GPROrganizationPermissionService.getUserAdminOrganizations();
+    List<Organization> organizations = orgPermissions.getUserAdminOrganizations();
 
     for (Organization organization : organizations)
     {

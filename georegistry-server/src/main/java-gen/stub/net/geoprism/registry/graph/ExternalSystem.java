@@ -176,7 +176,9 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
   public static List<ExternalSystem> getExternalSystemsForOrg(Integer pageNumber, Integer pageSize)
   {
-    List<Organization> organizations = GPROrganizationPermissionService.getUserAdminOrganizations();
+    GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
+
+    List<Organization> organizations = permissions.getUserAdminOrganizations();
 
     if (organizations.size() > 0)
     {
@@ -218,7 +220,9 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
   public static long getCount()
   {
-    List<Organization> organizations = GPROrganizationPermissionService.getUserAdminOrganizations();
+    GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
+
+    List<Organization> organizations = permissions.getUserAdminOrganizations();
 
     if (organizations.size() > 0)
     {

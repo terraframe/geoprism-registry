@@ -1426,7 +1426,9 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     final File file = new File(directory, filename);
 
     ServerGeoObjectType type = masterlist.getGeoObjectType();
-    boolean isMember = GPROrganizationPermissionService.isMemberOrSRA(masterlist.getOrganization());
+    
+    GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
+    boolean isMember = permissions.isMemberOrSRA(masterlist.getOrganization());
 
     JsonObject object = new JsonObject();
 
@@ -1573,7 +1575,9 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
       // If the list isn't public and the user isn't a member of the
       // organization the remove all non code and display label attributes
-      if (this.getListVisibility().equals(ListType.PRIVATE) && !GPROrganizationPermissionService.isMemberOrSRA(this.getListType().getOrganization()))
+      GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
+
+      if (this.getListVisibility().equals(ListType.PRIVATE) && !permissions.isMemberOrSRA(this.getListType().getOrganization()))
       {
         mdAttributes = mdAttributes.stream().filter(mdAttribute -> {
           String attributeName = mdAttribute.definesAttribute();

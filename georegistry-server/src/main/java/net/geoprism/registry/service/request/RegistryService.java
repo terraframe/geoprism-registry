@@ -258,7 +258,7 @@ public class RegistryService implements RegistryServiceIF
   @Request(RequestType.SESSION)
   public String[] getUIDS(String sessionId, Integer amount)
   {
-    return RegistryIdService.getInstance().getUids(amount);
+    return ServiceFactory.getIdService().getUids(amount);
   }
 
   @Override

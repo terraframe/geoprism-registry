@@ -32,6 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonObject;
@@ -57,7 +58,10 @@ import net.geoprism.registry.service.business.GPROrganizationBusinessService;
 @Service
 public class AccountService
 {
-  private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
+  private static final Logger            logger = LoggerFactory.getLogger(AccountService.class);
+
+  @Autowired
+  private GPROrganizationBusinessService service;
 
   @Request(RequestType.SESSION)
   public String page(String sessionId, Integer number, Integer pageSize) throws JSONException
@@ -233,7 +237,7 @@ public class AccountService
     adminRegistryRole.setOrganizationLabel(orgDisplayLabel);
     registryRoleList.add(adminRegistryRole);
 
-    Map<String, ServerGeoObjectType> geoObjectTypeInfo = organization.getGeoObjectTypes();
+    Map<String, ServerGeoObjectType> geoObjectTypeInfo = this.service.getGeoObjectTypes(organization);
 
     Set<Entry<String, ServerGeoObjectType>> entrySet = geoObjectTypeInfo.entrySet();
     for (Entry<String, ServerGeoObjectType> entry : entrySet)

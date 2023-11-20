@@ -1075,7 +1075,8 @@ public class MasterList extends MasterListBase
 
     for (Organization org : orgs)
     {
-      final boolean isMember = GPROrganizationPermissionService.isMemberOrSRA(org);
+      GPROrganizationPermissionService orgPermissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
+      final boolean isMember = orgPermissions.isMemberOrSRA(org);
 
       MasterListQuery query = new MasterListQuery(new QueryFactory());
       query.WHERE(query.getOrganization().EQ(org));

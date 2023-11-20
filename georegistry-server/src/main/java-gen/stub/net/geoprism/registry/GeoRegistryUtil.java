@@ -276,7 +276,9 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     // If the list isn't public and the user isn't a member of the organization
     // the remove all non code and display label attributes
-    if (version.getListVisibility().equals(ListType.PRIVATE) && !GPROrganizationPermissionService.isMemberOrSRA(version.getListType().getOrganization()))
+    GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
+
+    if (version.getListVisibility().equals(ListType.PRIVATE) && !permissions.isMemberOrSRA(version.getListType().getOrganization()))
     {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> {
         String attributeName = mdAttribute.definesAttribute();
@@ -313,7 +315,9 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     // If the list isn't public and the user isn't a member of the organization
     // the remove all non code and display label attributes
-    if (version.getListVisibility().equals(ListType.PRIVATE) && !GPROrganizationPermissionService.isMemberOrSRA(version.getListType().getOrganization()))
+    GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
+
+    if (version.getListVisibility().equals(ListType.PRIVATE) && !permissions.isMemberOrSRA(version.getListType().getOrganization()))
     {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> {
         String attributeName = mdAttribute.definesAttribute();

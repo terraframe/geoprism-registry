@@ -214,7 +214,9 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
 
   public static long getCount()
   {
-    List<Organization> organizations = GPROrganizationPermissionService.getUserAdminOrganizations();
+    GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
+
+    List<Organization> organizations = permissions.getUserAdminOrganizations();
 
     if (organizations.size() > 0)
     {
@@ -234,7 +236,9 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
 
   public static List<SynchronizationConfig> getSynchronizationConfigsForOrg(Integer pageNumber, Integer pageSize)
   {
-    List<Organization> organizations = GPROrganizationPermissionService.getUserAdminOrganizations();
+    GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
+
+    List<Organization> organizations = permissions.getUserAdminOrganizations();
 
     if (organizations.size() > 0)
     {

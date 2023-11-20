@@ -33,6 +33,7 @@ import com.runwaysdk.query.QueryFactory;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
 {
@@ -103,8 +104,9 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
     for (ListTypeVersion version : versions)
     {
       // Only include the versions the user has access to
+      GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
 
-      if (version.getListVisibility().equals(ListType.PUBLIC) || version.getGeospatialVisibility().equals(ListType.PUBLIC) || GPROrganizationPermissionService.isMemberOrSRA(organization))
+      if (version.getListVisibility().equals(ListType.PUBLIC) || version.getGeospatialVisibility().equals(ListType.PUBLIC) || permissions.isMemberOrSRA(organization))
       {
         jVersions.add(version.toJSON(false));
       }

@@ -673,7 +673,7 @@ public class ETLService
 
       if (isNew)
       {
-        go.setUid(RegistryIdService.getInstance().next());
+        go.setUid(ServiceFactory.getIdService().next());
         geoObject = go.toJSON().toString();
 
         this.editorService.createGeoObject(sessionId, parentTreeNode, geoObject, null, null);

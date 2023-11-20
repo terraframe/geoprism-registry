@@ -31,7 +31,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonArray;
@@ -57,9 +57,8 @@ import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.ListTypeVersionQuery;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
-import net.geoprism.security.UnauthorizedAccessException;
 import net.geoprism.registry.UserInfo;
+import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.etl.ListTypeJobQuery;
@@ -69,17 +68,20 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
-import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
+import net.geoprism.security.UnauthorizedAccessException;
 
 @Service
 public class ListTypeService
 {
+  @Autowired
+  private GPROrganizationPermissionService permissions;
+
   @Request(RequestType.SESSION)
   public JsonArray listAll(String sessionId)
   {
@@ -477,7 +479,7 @@ public class ListTypeService
     JsonArray response = new JsonArray();
 
     ListType listType = ListType.get(listOid);
-    final boolean isMember = GPROrganizationPermissionService.isMemberOrSRA(listType.getOrganization());
+    final boolean isMember = permissions.isMemberOrSRA(listType.getOrganization());
 
     ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
     query.WHERE(query.getListType().EQ(listType));
@@ -534,7 +536,7 @@ public class ListTypeService
       {
         ListTypeVersion version = it.next();
         ListType listType = version.getListType();
-        final boolean isMember = GPROrganizationPermissionService.isMemberOrSRA(listType.getOrganization());
+        final boolean isMember = permissions.isMemberOrSRA(listType.getOrganization());
 
         if ( ( version.getWorking() && listType.doesActorHaveExploratoryPermission() ) || ( isMember || version.getGeospatialVisibility().equals(ListType.PUBLIC) ))
         {

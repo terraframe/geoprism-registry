@@ -85,7 +85,6 @@ import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
-import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.service.request.LocaleSerializer;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
@@ -965,12 +964,8 @@ public abstract class ListType extends ListTypeBase
 
     Organization org = type.getOrganization();
 
-    final boolean isMember = GPROrganizationPermissionService.isMemberOrSRA(org);
-
     ListTypeQuery query = new ListTypeQuery(new QueryFactory());
     query.WHERE(query.getUniversal().EQ(type.getUniversal()));
-
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
     final JsonArray lists = new JsonArray();
 
