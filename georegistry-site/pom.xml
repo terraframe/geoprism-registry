@@ -16,7 +16,6 @@
 	<url>http://maven.apache.org</url>
  
   <modules>
-    <module>../georegistry-adapter/java/common</module>
     <module>../georegistry-test</module>
   </modules>
 	
