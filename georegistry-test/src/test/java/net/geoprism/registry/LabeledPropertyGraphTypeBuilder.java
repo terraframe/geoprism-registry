@@ -61,6 +61,7 @@ public class LabeledPropertyGraphTypeBuilder
     graph.setHierarchy(this.ht.getCode());
     graph.setStrategyType(LabeledPropertyGraphType.TREE);
     graph.setStrategyConfiguration(this.configuration);
+    graph.setOrganization(this.ht.getOrganization().getServerObject().getOrganization());
 
     return graph.toJSON();
   }

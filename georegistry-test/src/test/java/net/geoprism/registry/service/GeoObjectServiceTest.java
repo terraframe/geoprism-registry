@@ -35,7 +35,6 @@ import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
-import net.geoprism.registry.service.request.RegistryIdService;
 import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
@@ -53,8 +52,9 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
   @Autowired
   private TestRegistryClient            client;
-  
-  @Autowired private GeoObjectBusinessServiceIF goService;
+
+  @Autowired
+  private GeoObjectBusinessServiceIF    goService;
 
   @Before
   public void setUp()
@@ -454,7 +454,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
   {
     for (String id : ids)
     {
-      Assert.assertTrue(RegistryIdService.getInstance().isIssuedId(id));
+      Assert.assertTrue(ServiceFactory.getIdService().isIssuedId(id));
     }
   }
 
@@ -527,18 +527,17 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
    * be issued by our id service
    */
   /*
-  @Test(expected = SmartExceptionDTO.class)
-  public void testUnissuedIdCreate()
-  {
-    // Create
-    GeoObject geoObj = client.newGeoObjectInstance(FastTestDataset.PROVINCE.getCode());
-    geoObj.setWKTGeometry(FastTestDataset.CAMBODIA.getWkt());
-    geoObj.setCode(FastTestDataset.CAMBODIA.getCode());
-    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, FastTestDataset.CAMBODIA.getDisplayLabel());
-    geoObj.setUid(UUID.randomUUID().toString());
-    client.createGeoObject(geoObj.toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
-  }
-  */
+   * @Test(expected = SmartExceptionDTO.class) public void
+   * testUnissuedIdCreate() { // Create GeoObject geoObj =
+   * client.newGeoObjectInstance(FastTestDataset.PROVINCE.getCode());
+   * geoObj.setWKTGeometry(FastTestDataset.CAMBODIA.getWkt());
+   * geoObj.setCode(FastTestDataset.CAMBODIA.getCode());
+   * geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE,
+   * FastTestDataset.CAMBODIA.getDisplayLabel());
+   * geoObj.setUid(UUID.randomUUID().toString());
+   * client.createGeoObject(geoObj.toJSON().toString(),
+   * TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE); }
+   */
 
   /**
    * Test to make sure we can't just provide random ids, they actually have to

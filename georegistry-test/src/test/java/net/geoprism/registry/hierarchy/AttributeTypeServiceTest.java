@@ -51,6 +51,8 @@ import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.PermissionContext;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
@@ -60,16 +62,22 @@ import net.geoprism.registry.test.TestRegistryClient;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class AttributeTypeServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  public static final TestGeoObjectTypeInfo TEST_GOT  = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
+  public static final TestGeoObjectTypeInfo   TEST_GOT  = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
 
-  protected static ClassificationType       type;
+  protected static ClassificationType         type;
 
-  protected static String                   TYPE_CODE = null;
+  protected static String                     TYPE_CODE = null;
 
-  protected static String                   CODE      = "Classification-ROOT";
+  protected static String                     CODE      = "Classification-ROOT";
 
   @Autowired
-  private TestRegistryClient                client;
+  private TestRegistryClient                  client;
+
+  @Autowired
+  private ClassificationTypeBusinessServiceIF typeService;
+
+  @Autowired
+  private ClassificationBusinessServiceIF     service;
 
   @Before
   public void setUp()
@@ -111,12 +119,12 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
   @Request
   private void createMdClassification()
   {
-    type = ClassificationType.apply(ClassificationTypeTest.createMock());
+    type = this.typeService.apply(ClassificationTypeTest.createMock());
 
-    Classification root = Classification.newInstance(type);
+    Classification root = this.service.newInstance(type);
     root.setCode(CODE);
     root.setDisplayLabel(new LocalizedValue("Test Classification"));
-    root.apply(null);
+    this.service.apply(root, null);
 
     TYPE_CODE = type.getCode();
   }
@@ -126,7 +134,7 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
   {
     if (type != null)
     {
-      type.delete();
+      this.typeService.delete(type);
 
       type = null;
     }

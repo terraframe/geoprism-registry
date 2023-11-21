@@ -31,6 +31,8 @@ import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
@@ -43,22 +45,29 @@ import net.geoprism.registry.test.TestUserInfo;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class AttributeClassificationTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  public static final String                 TEST_KEY = "ATTRCLASSTEST";
+  public static final String                  TEST_KEY = "ATTRCLASSTEST";
 
-  public static TestGeoObjectTypeInfo        TEST_GOT = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
+  public static TestGeoObjectTypeInfo         TEST_GOT = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
 
-  public static final TestGeoObjectInfo      TEST_GO  = new TestGeoObjectInfo(TEST_KEY + "_NeverNeverLand", TEST_GOT);
+  public static final TestGeoObjectInfo       TEST_GO  = new TestGeoObjectInfo(TEST_KEY + "_NeverNeverLand", TEST_GOT);
 
-  private static String                      CODE     = "Classification-ROOT";
+  private static String                       CODE     = "Classification-ROOT";
 
-  private static ClassificationType          type;
+  private static ClassificationType           type;
 
-  private static AttributeClassificationType testClassification;
+  private static AttributeClassificationType  testClassification;
 
   @Autowired
-  private TestRegistryClient                 client;
-  
-  @Autowired private GeoObjectTypeBusinessServiceIF gotService;
+  private TestRegistryClient                  client;
+
+  @Autowired
+  private GeoObjectTypeBusinessServiceIF      gotService;
+
+  @Autowired
+  private ClassificationTypeBusinessServiceIF cTypeService;
+
+  @Autowired
+  private ClassificationBusinessServiceIF     cService;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -71,14 +80,14 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
   @Request
   private void setUpInReq()
   {
-    type = ClassificationType.apply(ClassificationTypeTest.createMock());
+    type = this.cTypeService.apply(ClassificationTypeTest.createMock());
 
     TEST_GOT.apply();
 
-    Classification root = Classification.newInstance(type);
+    Classification root = this.cService.newInstance(type);
     root.setCode(CODE);
     root.setDisplayLabel(new LocalizedValue("Test Classification"));
-    root.apply(null);
+    this.cService.apply(root, null);
 
     testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
     testClassification.setClassificationType(type.getCode());
@@ -99,11 +108,11 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
   }
 
   @Request
-  private static void deleteMdClassification()
+  private void deleteMdClassification()
   {
     if (type != null)
     {
-      type.delete();
+      this.cTypeService.delete(type);
     }
   }
 

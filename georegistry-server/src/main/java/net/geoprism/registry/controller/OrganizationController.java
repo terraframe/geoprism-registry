@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -46,15 +46,15 @@ import net.geoprism.registry.service.request.RegistryComponentService;
 /**
  * Differences in Spring MVC as compared to Runway MVC:
  * 
- * 1. Void return not supported
- * 2. parameters as POST not supported (https://stackoverflow.com/questions/44694305/how-to-accept-json-post-parameters-as-requestparam-in-spring-servlet)
+ * 1. Void return not supported 2. parameters as POST not supported
+ * (https://stackoverflow.com/questions/44694305/how-to-accept-json-post-parameters-as-requestparam-in-spring-servlet)
  * 3. Support for better views and error responses
  * 
  * @author rrowlands
  */
 @RestController
 @Validated
-public class OrganizationController  extends RunwaySpringController
+public class OrganizationController extends RunwaySpringController
 {
   public static class MoveOrganizationBody
   {
@@ -84,16 +84,15 @@ public class OrganizationController  extends RunwaySpringController
       this.parentCode = parentCode;
     }
   }
-  
-  
-  public static final String API_PATH = "organization";
-  
+
+  public static final String       API_PATH        = "organization";
+
   @Autowired
-  private OrganizationServiceIF service;
-  
+  private OrganizationServiceIF    service;
+
   @Autowired
   private RegistryComponentService registryService = new RegistryComponentService();
-  
+
   /**
    * Returns an array of (label, entityId) pairs that under the given
    * parent/hierarchy and have the given label.
@@ -129,10 +128,10 @@ public class OrganizationController  extends RunwaySpringController
    */
   @ResponseBody
   @PostMapping(API_PATH + "/create")
-  public ResponseEntity<String> submitNewOrganization( @RequestBody String json)
+  public ResponseEntity<String> submitNewOrganization(@RequestBody String json)
   {
     String sessionId = this.getSessionId();
-    
+
     OrganizationDTO org = this.service.createOrganization(sessionId, json);
     CustomSerializer serializer = this.registryService.serializer(sessionId);
 
@@ -146,10 +145,10 @@ public class OrganizationController  extends RunwaySpringController
    * @param json
    */
   @PostMapping(API_PATH + "/delete")
-  public ResponseEntity<Void> removeOrganization( @RequestBody String code)
+  public ResponseEntity<Void> removeOrganization(@RequestBody String code)
   {
     this.service.deleteOrganization(this.getSessionId(), code);
-    
+
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
 
@@ -164,13 +163,13 @@ public class OrganizationController  extends RunwaySpringController
   public ResponseEntity<String> updateOrganization(@RequestBody String json)
   {
     String sessionId = this.getSessionId();
-    
+
     OrganizationDTO org = this.service.updateOrganization(sessionId, json);
     CustomSerializer serializer = this.registryService.serializer(sessionId);
 
     return new ResponseEntity<String>(org.toJSON(serializer).toString(), HttpStatus.OK);
   }
-  
+
   @PostMapping(API_PATH + "/move")
   public ResponseEntity<Void> move(@Valid @RequestBody MoveOrganizationBody body)
   {
@@ -183,15 +182,12 @@ public class OrganizationController  extends RunwaySpringController
   public ResponseEntity<Void> move(@Valid @RequestBody CodeBody body)
   {
     this.service.removeAllParents(this.getSessionId(), body.getCode());
-    
+
     return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
   }
-  
+
   @GetMapping(API_PATH + "/get-children")
-  public ResponseEntity<String> getChildren(
-      @RequestParam(required = false) String code, 
-      @RequestParam(required = false) Integer pageSize, 
-      @RequestParam(required = false) Integer pageNumber)
+  public ResponseEntity<String> getChildren(@RequestParam(required = false) String code, @RequestParam(required = false) Integer pageSize, @RequestParam(required = false) Integer pageNumber)
   {
     JsonObject page = this.service.getChildren(this.getSessionId(), code, pageSize, pageNumber);
 
@@ -199,14 +195,27 @@ public class OrganizationController  extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/get-ancestor-tree")
-  public ResponseEntity<String> getAncestorTree(
-      @RequestParam(required = false) String rootCode,
-      @NotEmpty @RequestParam String code, 
-      @RequestParam(required = false) Integer pageSize)
+  public ResponseEntity<String> getAncestorTree(@RequestParam(required = false) String rootCode, @NotEmpty @RequestParam String code, @RequestParam(required = false) Integer pageSize)
   {
     JsonObject page = this.service.getAncestorTree(this.getSessionId(), rootCode, code, pageSize);
 
     return new ResponseEntity<String>(page.toString(), HttpStatus.OK);
+  }
+
+  @GetMapping(API_PATH + "/export-tree")
+  public ResponseEntity<String> exportToJson()
+  {
+    JsonArray nodes = this.service.exportToJson(this.getSessionId());
+
+    return new ResponseEntity<String>(nodes.toString(), HttpStatus.OK);
+  }
+
+  @PostMapping(API_PATH + "/import-tree")
+  public ResponseEntity<Void> importJsonTree(@Valid @RequestBody String json)
+  {
+    this.service.importJsonTree(this.getSessionId(), json);
+
+    return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
 }

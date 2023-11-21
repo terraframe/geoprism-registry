@@ -81,6 +81,8 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.TermBusinessServiceIF;
@@ -89,54 +91,60 @@ import net.geoprism.registry.service.request.ExcelService;
 import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
-import net.geoprism.registry.test.TestTermInfo;
 import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ExcelServiceTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private static ClassificationType          type;
+  private static ClassificationType           type;
 
-  protected static String                    CODE      = "Test Term";
+  protected static String                     CODE      = "Test Term";
 
-  private static AttributeTermType           testTerm;
+  private static AttributeTermType            testTerm;
 
-  private static AttributeIntegerType        testInteger;
+  private static AttributeIntegerType         testInteger;
 
-  private static AttributeDateType           testDate;
+  private static AttributeDateType            testDate;
 
-  private static AttributeBooleanType        testBoolean;
+  private static AttributeBooleanType         testBoolean;
 
-  private static AttributeClassificationType testClassification;
+  private static AttributeClassificationType  testClassification;
 
-  private final Integer                      ROW_COUNT = 2;
-
-  @Autowired
-  private GeoObjectTypeBusinessServiceIF     typeService;
+  private final Integer                       ROW_COUNT = 2;
 
   @Autowired
-  private GeoObjectBusinessServiceIF         objectService;
+  private GeoObjectTypeBusinessServiceIF      typeService;
 
   @Autowired
-  private TermBusinessServiceIF              termService;
+  private GeoObjectBusinessServiceIF          objectService;
 
   @Autowired
-  private ExcelService                       excelService;
+  private TermBusinessServiceIF               termService;
 
   @Autowired
-  private ETLService                         etlService;
+  private ExcelService                        excelService;
+
+  @Autowired
+  private ETLService                          etlService;
+
+  @Autowired
+  private ClassificationTypeBusinessServiceIF cTypeService;
+
+  @Autowired
+  private ClassificationBusinessServiceIF     cService;
 
   @Override
   @Request
   public void beforeClassSetup() throws Exception
   {
-    type = ClassificationType.apply(ClassificationTypeTest.createMock());
+    type = this.cTypeService.apply(ClassificationTypeTest.createMock());
 
-    Classification root = Classification.newInstance(type);
+    Classification root = this.cService.newInstance(type);
     root.setCode(CODE);
     root.setDisplayLabel(new LocalizedValue("Test Classification"));
-    root.apply(null);
+
+    this.cService.apply(root, null);
 
     TestDataSet.deleteAllSchedulerData();
 
@@ -166,7 +174,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
   {
     super.afterClassSetup();
 
-    type.delete();
+    this.cTypeService.delete(type);
   }
 
   @Before

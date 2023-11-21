@@ -3,6 +3,9 @@
  */
 package net.geoprism.registry;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -12,6 +15,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.model.GraphNode;
@@ -286,6 +293,103 @@ public class OrganizationHierarchyTest
     }
   }
 
+  @Test
+  @Request
+  public void testExportJson()
+  {
+    ServerOrganization grandParent = createOrganization(GRANDPARENT_CODE, null);
+
+    try
+    {
+      ServerOrganization parent = createOrganization(PARENT_CODE, grandParent);
+
+      try
+      {
+        ServerOrganization child = createOrganization(CHILD_CODE, parent);
+
+        try
+        {
+          JsonArray results = this.service.exportToJson();
+
+          System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(results));
+
+          JsonObject result = null;
+
+          for (int i = 0; i < results.size(); i++)
+          {
+            JsonObject item = results.get(i).getAsJsonObject();
+
+            if (grandParent.getCode().equals(item.get(Organization.CODE).getAsString()))
+            {
+              result = item;
+            }
+          }
+
+          Assert.assertNotNull(result);
+
+          results = result.get("children").getAsJsonArray();
+
+          Assert.assertEquals(1, results.size());
+
+          result = results.get(0).getAsJsonObject();
+
+          Assert.assertEquals(parent.getCode(), result.get(Organization.CODE).getAsString());
+
+          results = result.get("children").getAsJsonArray();
+
+          Assert.assertEquals(1, results.size());
+
+          result = results.get(0).getAsJsonObject();
+
+          Assert.assertEquals(child.getCode(), result.get(Organization.CODE).getAsString());
+        }
+        finally
+        {
+          this.service.delete(child);
+        }
+      }
+      finally
+      {
+        this.service.delete(parent);
+      }
+    }
+    finally
+    {
+      this.service.delete(grandParent);
+    }
+
+  }
+
+  @Test
+  @Request
+  public void testImportJson() throws IOException
+  {
+    try (InputStream resource = this.getClass().getResourceAsStream("/org-tree.json"))
+    {
+      JsonArray array = JsonParser.parseReader(new InputStreamReader(resource)).getAsJsonArray();
+
+      this.service.importJsonTree(array);
+
+      ServerOrganization child = ServerOrganization.getByCode(CHILD_CODE);
+
+      Assert.assertNotNull(child);
+
+      this.service.delete(child);
+
+      ServerOrganization parent = ServerOrganization.getByCode(PARENT_CODE);
+
+      Assert.assertNotNull(parent);
+
+      this.service.delete(parent);
+
+      ServerOrganization grandParent = ServerOrganization.getByCode(GRANDPARENT_CODE);
+
+      Assert.assertNotNull(grandParent);
+
+      this.service.delete(grandParent);
+    }
+  }
+
   private ServerOrganization createOrganization(String code, ServerOrganization parent)
   {
     ServerOrganization object = new ServerOrganization();
@@ -293,7 +397,7 @@ public class OrganizationHierarchyTest
     object.setDisplayLabel(new LocalizedValue(code));
     object.setContactInfo(new LocalizedValue(code));
     this.service.apply(object, parent);
-    
+
     return object;
   }
 

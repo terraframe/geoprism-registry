@@ -9,6 +9,7 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.session.Request;
@@ -17,6 +18,9 @@ import com.runwaysdk.system.Roles;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.business.GPROrganizationBusinessService;
+import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
+import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 
@@ -24,6 +28,9 @@ import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class OrganizationAndRoleTest extends FastDatasetTest implements InstanceTestClassListener
 {
+  @Autowired
+  private GPROrganizationBusinessService service;
+
   @Test
   public void testRoleNames()
   {
@@ -187,7 +194,7 @@ public class OrganizationAndRoleTest extends FastDatasetTest implements Instance
       }
     }
 
-    Map<String, ServerGeoObjectType> geoObjectTypeInfo = FastTestDataset.ORG_CGOV.getServerObject().getGeoObjectTypes();
+    Map<String, ServerGeoObjectType> geoObjectTypeInfo = service.getGeoObjectTypes(FastTestDataset.ORG_CGOV.getServerObject());
 
     Assert.assertEquals("Method did not return the correct number of GeoObjectTypes managed by the organization", numGots, geoObjectTypeInfo.size());
 

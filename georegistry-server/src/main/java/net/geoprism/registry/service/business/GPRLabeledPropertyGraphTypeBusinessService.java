@@ -21,6 +21,8 @@ public class GPRLabeledPropertyGraphTypeBusinessService extends LabeledPropertyG
     Organization organization = hierarchy.getOrganization();
 
     new RolePermissionService().enforceRA(organization.getCode());
+    
+    type.setOrganization(organization);
 
     super.apply(type);
   }

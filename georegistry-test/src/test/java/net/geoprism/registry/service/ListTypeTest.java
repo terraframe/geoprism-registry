@@ -56,6 +56,8 @@ import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ListTypeService;
 import net.geoprism.registry.test.SchedulerTestUtils;
@@ -71,16 +73,22 @@ import net.geoprism.registry.view.Page;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ListTypeTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private static String                      CODE = "Test Term";
+  private static String                       CODE = "Test Term";
 
-  private static ClassificationType          type;
+  private static ClassificationType           type;
 
-  private static AttributeTermType           testTerm;
+  private static AttributeTermType            testTerm;
 
-  private static AttributeClassificationType testClassification;
+  private static AttributeClassificationType  testClassification;
 
   @Autowired
-  private GeoObjectTypeBusinessServiceIF     typeService;
+  private GeoObjectTypeBusinessServiceIF      typeService;
+
+  @Autowired
+  private ClassificationTypeBusinessServiceIF cTypeService;
+
+  @Autowired
+  private ClassificationBusinessServiceIF     cService;
 
   @Override
   public void beforeClassSetup() throws Exception
@@ -104,12 +112,12 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
   @Request
   private void setUpInReq()
   {
-    type = ClassificationType.apply(ClassificationTypeTest.createMock());
+    type = this.cTypeService.apply(ClassificationTypeTest.createMock());
 
-    Classification root = Classification.newInstance(type);
+    Classification root = this.cService.newInstance(type);
     root.setCode(CODE);
     root.setDisplayLabel(new LocalizedValue("Test Classification"));
-    root.apply(null);
+    this.cService.apply(root, null);
 
     testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
     testClassification.setClassificationType(type.getCode());
@@ -134,7 +142,7 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
 
     if (type != null)
     {
-      type.delete();
+      this.cTypeService.delete(type);
     }
   }
 

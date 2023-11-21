@@ -61,6 +61,8 @@ import net.geoprism.registry.lpg.adapter.RegistryConnectorFactory;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
@@ -123,6 +125,12 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   @Autowired
   private LabeledPropertyGraphJsonExporterService              exporterService;
 
+  @Autowired
+  private ClassificationTypeBusinessServiceIF                  cTypeService;
+
+  @Autowired
+  private ClassificationBusinessServiceIF                      cService;
+
   @Override
   public void beforeClassSetup() throws Exception
   {
@@ -139,12 +147,12 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   @Request
   private void setUpInReq()
   {
-    type = ClassificationType.apply(ClassificationTypeTest.createMock());
+    type = this.cTypeService.apply(ClassificationTypeTest.createMock());
 
-    Classification root = Classification.newInstance(type);
+    Classification root = this.cService.newInstance(type);
     root.setCode(CODE);
     root.setDisplayLabel(new LocalizedValue("Test Classification"));
-    root.apply(null);
+    this.cService.apply(root, null);
 
     testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
     testClassification.setClassificationType(type.getCode());
@@ -178,7 +186,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
     if (type != null)
     {
-      type.delete();
+      this.cTypeService.delete(type);
     }
   }
 
@@ -219,6 +227,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     type.getDescription().setValue("My Overal Description");
     type.setValidOn(USATestData.DEFAULT_OVER_TIME_DATE);
     type.setStrategyType(SingleLabeledPropertyGraphType.TREE);
+    type.setOrganization(USATestData.ORG_NPS.getServerObject().getOrganization());
 
     JsonObject json = type.toJSON();
     SingleLabeledPropertyGraphType test = (SingleLabeledPropertyGraphType) this.typeService.fromJSON(json);
@@ -248,6 +257,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     type.getDescription().setValue("My Overal Description");
     type.setIntervalJson(intervalJson.toString());
     type.setStrategyType(SingleLabeledPropertyGraphType.TREE);
+    type.setOrganization(USATestData.ORG_NPS.getServerObject().getOrganization());
 
     JsonObject json = type.toJSON();
     IntervalLabeledPropertyGraphType test = (IntervalLabeledPropertyGraphType) this.typeService.fromJSON(json);
@@ -271,6 +281,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     type.setPublishingStartDate(USATestData.DEFAULT_OVER_TIME_DATE);
     type.addFrequency(ChangeFrequency.ANNUAL);
     type.setStrategyType(SingleLabeledPropertyGraphType.TREE);
+    type.setOrganization(USATestData.ORG_NPS.getServerObject().getOrganization());
 
     JsonObject json = type.toJSON();
     IncrementalLabeledPropertyGraphType test = (IncrementalLabeledPropertyGraphType) this.typeService.fromJSON(json);

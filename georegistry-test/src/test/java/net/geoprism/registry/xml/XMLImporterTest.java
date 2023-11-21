@@ -42,6 +42,8 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.service.request.GraphRepoServiceIF;
@@ -51,29 +53,33 @@ import net.geoprism.registry.service.request.GraphRepoServiceIF;
 public class XMLImporterTest implements InstanceTestClassListener
 {
 
-  private static ClassificationType type      = null;
+  private ClassificationType                  type      = null;
 
-  private static String             ROOT_CODE = "Test_Classification";
+  private String                              ROOT_CODE = "Test_Classification";
 
-  private static boolean            isSetup   = false;
-  
-  @Autowired
-  private GraphRepoServiceIF graphRepo;
-  
-  @Autowired
-  private OrganizationBusinessServiceIF orgService;
-  
-  @Autowired
-  private HierarchyTypeBusinessServiceIF hierarchyBizService;
-  
-  @Autowired
-  private BusinessTypeBusinessServiceIF bizService;
-  
-  @Autowired
-  private BusinessEdgeTypeBusinessServiceIF bizEdgeService;
+  private boolean                             isSetup   = false;
 
-  
-  
+  @Autowired
+  private GraphRepoServiceIF                  graphRepo;
+
+  @Autowired
+  private OrganizationBusinessServiceIF       orgService;
+
+  @Autowired
+  private HierarchyTypeBusinessServiceIF      hierarchyBizService;
+
+  @Autowired
+  private BusinessTypeBusinessServiceIF       bizService;
+
+  @Autowired
+  private BusinessEdgeTypeBusinessServiceIF   bizEdgeService;
+
+  @Autowired
+  private ClassificationTypeBusinessServiceIF cTypeService;
+
+  @Autowired
+  private ClassificationBusinessServiceIF     cService;
+
   @Override
   @Request
   public void beforeClassSetup() throws Exception
@@ -91,27 +97,27 @@ public class XMLImporterTest implements InstanceTestClassListener
   {
     if (type != null)
     {
-      type.delete();
+      this.cTypeService.delete(type);
 
       type = null;
     }
   }
-  
-  public static void setupClasses()
+
+  public void setupClasses()
   {
     setUpClassInRequest();
   }
 
   @Request
-  private static void setUpClassInRequest()
+  private void setUpClassInRequest()
   {
-    type = ClassificationType.apply(ClassificationTypeTest.createMock());
+    type = this.cTypeService.apply(ClassificationTypeTest.createMock());
 
-    Classification root = Classification.newInstance(type);
+    Classification root = this.cService.newInstance(type);
     root.setCode(ROOT_CODE);
     root.setDisplayLabel(new LocalizedValue("Test Classification"));
-    root.apply(null);
-    
+    this.cService.apply(root, null);
+
     isSetup = true;
   }
 
@@ -119,11 +125,11 @@ public class XMLImporterTest implements InstanceTestClassListener
   @Test
   public void testImportAndExport() throws IOException
   {
-//    ServerOrganization organization = new ServerOrganization();
-//    organization.setCode("TEST_ORG");
-//    organization.getDisplayLabel().setValue("Test Org");
-//    organization.apply();
-    
+    // ServerOrganization organization = new ServerOrganization();
+    // organization.setCode("TEST_ORG");
+    // organization.getDisplayLabel().setValue("Test Org");
+    // organization.apply();
+
     OrganizationDTO org = new OrganizationDTO("TEST_ORG", new LocalizedValue("Test Org"), new LocalizedValue(""), null, new LocalizedValue(""));
     ServerOrganization serverOrg = orgService.create(org);
 

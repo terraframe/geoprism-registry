@@ -11,6 +11,10 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class TestAttributeTypeInfo
 {
@@ -76,7 +80,9 @@ public class TestAttributeTypeInfo
   {
     if (serverObject == null)
     {
-      serverObject = ServerGeoObjectType.getMdAttribute(got.getServerObject().getMdBusiness(), this.name);
+      GeoObjectTypeBusinessServiceIF typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+
+      serverObject = typeService.getMdAttribute(got.getServerObject().getMdBusiness(), this.name);
     }
 
     return serverObject;
