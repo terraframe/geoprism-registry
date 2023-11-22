@@ -35,7 +35,7 @@ import { LocalizationService, OrganizationService } from '@shared/service';
 export class OrganizationModalComponent implements OnInit {
 
 	message: string = null;
-	organization: Organization = { code: "", label: this.lService.create(), contactInfo: this.lService.create() };
+	organization: Organization = { code: "", label: this.lService.create(), contactInfo: this.lService.create(), enabled: true };
 	isNewOrganization: boolean = true;
 
 	public onSuccess: Subject<Organization>;

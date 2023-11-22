@@ -159,7 +159,7 @@ export class SettingsComponent implements OnInit {
 			ignoreBackdropClick: true,
 		});
 
-		bsModalRef.content.organization = org;
+		bsModalRef.content.organization = {...org};
 		bsModalRef.content.isNewOrganization = false;
 
 		bsModalRef.content.onSuccess.subscribe(data => {

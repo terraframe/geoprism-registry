@@ -37,6 +37,13 @@ public class GPRGeoObjectTypeService extends GeoObjectTypeService implements Geo
   {
     this.typePermissions.enforceCanCreate(orgCode, true);
 
+    ServerOrganization org = ServerOrganization.getByCode(orgCode);
+
+    if (!org.getEnabled())
+    {
+      throw new UnsupportedOperationException();
+    }
+
     GeoRegistryUtil.importTypes(orgCode, istream);
 
     this.service.refreshMetadataCache();
@@ -53,6 +60,11 @@ public class GPRGeoObjectTypeService extends GeoObjectTypeService implements Geo
 
     ServerOrganization organization = ServerOrganization.getByCode(code);
 
+    if (!organization.getEnabled())
+    {
+      throw new UnsupportedOperationException();
+    }
+
     XMLExporter exporter = new XMLExporter(organization);
     exporter.build();
 
@@ -64,7 +76,7 @@ public class GPRGeoObjectTypeService extends GeoObjectTypeService implements Geo
   public GeoObjectType updateGeoObjectType(String sessionId, String gtJSON)
   {
     GeoObjectType got = super.updateGeoObjectType(sessionId, gtJSON);
-
+    
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
 
     return got;

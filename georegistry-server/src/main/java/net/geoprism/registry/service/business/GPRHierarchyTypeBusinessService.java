@@ -22,11 +22,11 @@ import net.geoprism.registry.CodeLengthException;
 import net.geoprism.registry.DuplicateHierarchyTypeException;
 import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.ListType;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
 
 @Service
@@ -39,26 +39,26 @@ public class GPRHierarchyTypeBusinessService extends HierarchyTypeBusinessServic
     super.refresh(sht);
     SerializedListTypeCache.getInstance().clear();
   }
-  
+
   @Override
   @Transaction
   protected void deleteInTrans(ServerHierarchyType sht)
   {
     super.deleteInTrans(sht);
-    
+
     ListType.markAllAsInvalid(sht, null);
   }
-  
+
   @Override
   @Transaction
   protected void removeFromHierarchy(ServerHierarchyType sht, ServerGeoObjectType parentType, ServerGeoObjectType childType, boolean migrateChildren)
   {
     super.removeFromHierarchy(sht, parentType, childType, migrateChildren);
-    
+
     ListType.markAllAsInvalid(sht, childType);
     SerializedListTypeCache.getInstance().clear();
   }
-  
+
   @Transaction
   public ServerHierarchyType createHierarchyType(HierarchyType hierarchyType)
   {
@@ -68,7 +68,12 @@ public class GPRHierarchyTypeBusinessService extends HierarchyTypeBusinessServic
       throw new AttributeValueException("Organization code cannot be null.", hierarchyType.getOrganizationCode());
     }
 
-    Organization organization = Organization.getByCode(hierarchyType.getOrganizationCode());
+    ServerOrganization organization = ServerOrganization.getByCode(hierarchyType.getOrganizationCode());
+
+    if (organization != null && !organization.getEnabled())
+    {
+      throw new UnsupportedOperationException();
+    }
 
     String addons = RegistryConstants.UNIVERSAL_RELATIONSHIP_POST + "AllPathsTable";
 
@@ -140,7 +145,7 @@ public class GPRHierarchyTypeBusinessService extends HierarchyTypeBusinessServic
 
       HierarchicalRelationshipType hierarchicalRelationship = new HierarchicalRelationshipType();
       hierarchicalRelationship.setCode(hierarchyType.getCode());
-      hierarchicalRelationship.setOrganization(organization);
+      hierarchicalRelationship.setOrganization(organization.getOrganization());
       LocalizedValueConverter.populate(hierarchicalRelationship.getDisplayLabel(), hierarchyType.getLabel());
       LocalizedValueConverter.populate(hierarchicalRelationship.getDescription(), hierarchyType.getDescription());
       hierarchicalRelationship.setMdTermRelationship(mdTermRelUniversal);

@@ -138,19 +138,19 @@ public class OrganizationController extends RunwaySpringController
     return new ResponseEntity<String>(org.toJSON(serializer).toString(), HttpStatus.CREATED);
   }
 
-  /**
-   * Delete organization.
-   * 
-   * @param sessionId
-   * @param json
-   */
-  @PostMapping(API_PATH + "/delete")
-  public ResponseEntity<Void> removeOrganization(@RequestBody String code)
-  {
-    this.service.deleteOrganization(this.getSessionId(), code);
-
-    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-  }
+//  /**
+//   * Delete organization.
+//   * 
+//   * @param sessionId
+//   * @param json
+//   */
+//  @PostMapping(API_PATH + "/delete")
+//  public ResponseEntity<Void> removeOrganization(@RequestBody String code)
+//  {
+//    this.service.deleteOrganization(this.getSessionId(), code);
+//
+//    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+//  }
 
   /**
    * Update organization.
@@ -179,7 +179,7 @@ public class OrganizationController extends RunwaySpringController
   }
 
   @PostMapping(API_PATH + "/remove-parent")
-  public ResponseEntity<Void> move(@Valid @RequestBody CodeBody body)
+  public ResponseEntity<Void> removeParent(@Valid @RequestBody CodeBody body)
   {
     this.service.removeAllParents(this.getSessionId(), body.getCode());
 

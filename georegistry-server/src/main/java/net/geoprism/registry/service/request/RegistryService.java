@@ -82,7 +82,7 @@ public class RegistryService implements RegistryServiceIF
 
   @Autowired
   private HierarchyTypeServiceIF         hTypeService;
-  
+
   @Autowired
   private OrganizationServiceIF          orgService;
 
@@ -242,7 +242,10 @@ public class RegistryService implements RegistryServiceIF
 
     for (OrganizationDTO dto : orgDtos)
     {
-      organizations.add(dto.toJSON(serializer));
+      if (dto.getEnabled() == null || dto.getEnabled())
+      {
+        organizations.add(dto.toJSON(serializer));
+      }
     }
 
     JsonObject response = new JsonObject();

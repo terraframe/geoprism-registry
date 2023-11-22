@@ -33,6 +33,7 @@ export class Organization {
     contactInfo: LocalizedValue;
     parentCode?: string;
     parentLabel?: LocalizedValue
+    enabled: boolean;
 }
 
 export class OrganizationNode {

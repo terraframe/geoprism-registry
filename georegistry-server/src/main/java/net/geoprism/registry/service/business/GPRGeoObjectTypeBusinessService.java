@@ -47,6 +47,7 @@ import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.request.ChangeRequestService;
 import net.geoprism.registry.service.request.SearchService;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
@@ -61,10 +62,10 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
 {
   @Autowired
   private GPROrganizationBusinessService gprOrgService;
-  
+
   @Autowired
-  private ChangeRequestService changeService;
-  
+  private ChangeRequestService           changeService;
+
   @Override
   protected void delete(ServerGeoObjectType type)
   {
@@ -74,28 +75,28 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
 
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.TYPE_CACHE_CHANGE, null));
   }
-  
+
   @Transaction
   @Override
   protected void deleteInTransaction(ServerGeoObjectType type)
   {
     super.deleteInTransaction(type);
-    
+
     ListType.markAllAsInvalid(null, type);
 
     new SearchService().clear(type.getCode());
 
     changeService.markAllAsInvalid(type);
   }
-  
+
   @Override
   protected void update(ServerGeoObjectType serverGeoObjectType, GeoObjectType geoObjectTypeNew)
   {
     super.update(serverGeoObjectType, geoObjectTypeNew);
-    
+
     SerializedListTypeCache.getInstance().clear();
   }
-  
+
   @Override
   @Transaction
   public ServerGeoObjectType create(GeoObjectType geoObjectType)
@@ -104,7 +105,7 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
     {
       throw new AttributeValueException("The geo object type code has an invalid character", geoObjectType.getCode());
     }
-    
+
     if (geoObjectType.getCode().length() > 64)
     {
       // Setting the typename on the MdBusiness creates this limitation.
@@ -113,7 +114,16 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
       throw ex;
     }
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(geoObjectType.getOrganizationCode(), geoObjectType.getIsPrivate());
+    String organizationCode = geoObjectType.getOrganizationCode();
+
+    ServerOrganization organization = ServerOrganization.getByCode(organizationCode);
+
+    if (organization != null && !organization.getEnabled())
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(organizationCode, geoObjectType.getIsPrivate());
 
     String superTypeCode = geoObjectType.getSuperTypeCode();
     Boolean isAbstract = geoObjectType.getIsAbstract();
@@ -143,7 +153,6 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
 
     // Set the owner of the universal to the id of the corresponding role of the
     // responsible organization.
-    String organizationCode = geoObjectType.getOrganizationCode();
     RegistryLocalizedValueConverter.setOwner(universal, organizationCode);
 
     LocalizedValueConverter.populate(universal.getDisplayLabel(), geoObjectType.getLabel());
@@ -254,7 +263,7 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
 
     return serverGeoObjectType;
   }
-  
+
   @Transaction
   @Override
   public void deleteMdAttributeFromAttributeType(ServerGeoObjectType serverType, String attributeName)
@@ -262,13 +271,13 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
     Optional<AttributeType> optional = serverType.getType().getAttribute(attributeName);
 
     super.deleteMdAttributeFromAttributeType(serverType, attributeName);
-    
+
     if (optional.isPresent())
     {
       ListType.deleteMdAttribute(serverType.getUniversal(), optional.get());
     }
   }
-  
+
   public String getAdminRoleName(ServerGeoObjectType sgot)
   {
     ServerGeoObjectType superType = sgot.getSuperType();
@@ -280,7 +289,7 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
 
     return gprOrgService.getRegistryAdminRoleName(sgot.getOrganization());
   }
-  
+
   public String getMaintainerRoleName(ServerGeoObjectType sgot)
   {
     ServerGeoObjectType superType = sgot.getSuperType();
@@ -292,7 +301,7 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
 
     return RegistryRole.Type.getRM_RoleName(sgot.getOrganization().getCode(), sgot.getCode());
   }
-  
+
   private void create_AC_GeoObjectTypeRole(MdGeoVertexDAO mdGeoVertexDAO, String organizationCode, String geoObjectTypeCode)
   {
     if (organizationCode != null && !organizationCode.trim().equals(""))
@@ -405,7 +414,7 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
       rootRM_DAO.addInheritance(rmOrgRoleDAO);
     }
   }
-  
+
   public void assignSRAPermissions(MdGeoVertexDAO mdGeoVertexDAO, MdBusiness mdBusiness)
   {
     Roles sraRole = Roles.findRoleByName(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
@@ -426,7 +435,7 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
       this.assignAllPermissions(mdGeoVertexDAO, rmRole);
     }
   }
-  
+
   @Transaction
   @Override
   public MdAttributeConcrete createMdAttributeFromAttributeType(ServerGeoObjectType serverType, AttributeType attributeType)

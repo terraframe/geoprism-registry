@@ -126,6 +126,9 @@
                                         <th>
                                             <localize key="settings.manage.orgs.table.parent.header"></localize>
                                         </th>
+                                        <th>
+                                            Enabled
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -133,9 +136,9 @@
                                         <td *ngIf="isSRA" class="button-column">
                                             <a class="fa fa-pencil ico-edit" (click)="onEditOrganization(org)"
                                                 [title]="'account.editTooltip' | localize"></a>
-                                            <a class="fa fa-trash-o ico-remove"
+                                            <!-- <a class="fa fa-trash-o ico-remove"
                                                 (click)="onRemoveOrganization(org.code, org.code)"
-                                                [title]="'account.removeTooltip' | localize"></a>
+                                                [title]="'account.removeTooltip' | localize"></a> -->
                                         </td>
                                         <td class="label-column">{{org.code}}</td>
                                         <td class="label-column">{{org.label.localizedValue}}</td>
@@ -144,6 +147,12 @@
                                             <ng-container *ngIf="org.parentLabel != null">
                                                 {{org.parentLabel.localizedValue}}
                                             </ng-container>
+                                        </td>
+                                        <td class="label-column">
+                                            <localize *ngIf="org.enabled" key="change.request.boolean.option.true">
+                                            </localize>
+                                            <localize *ngIf="!org.enabled" key="change.request.boolean.option.false">
+                                            </localize>
                                         </td>
                                     </tr>
                                     <tr *ngIf="isSRA">
