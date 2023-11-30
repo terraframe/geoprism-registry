@@ -130,7 +130,7 @@ public class XMLImporterTest implements InstanceTestClassListener
     // organization.getDisplayLabel().setValue("Test Org");
     // organization.apply();
 
-    OrganizationDTO org = new OrganizationDTO("TEST_ORG", new LocalizedValue("Test Org"), new LocalizedValue(""), null, new LocalizedValue(""));
+    OrganizationDTO org = new OrganizationDTO("TEST_ORG", new LocalizedValue("Test Org"), new LocalizedValue(""), true, null, new LocalizedValue(""));
     ServerOrganization serverOrg = orgService.create(org);
 
     try (InputStream istream = this.getClass().getResourceAsStream("/xml/test-domain.xml"))

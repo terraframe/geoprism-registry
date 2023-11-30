@@ -102,6 +102,9 @@ public class GPRSessionService extends SessionService implements SessionServiceI
     // Public endpoint for changing locale
     endpoints.add("api/localization/set-locale");
 
+    // Public endpoint for organization exports
+    endpoints.add("api/organization/export-tree");
+    
     return endpoints;
   }
 

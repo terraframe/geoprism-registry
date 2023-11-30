@@ -85,13 +85,13 @@ public class OrganizationController extends RunwaySpringController
     }
   }
 
-  public static final String       API_PATH        = "organization";
+  public static final String       API_PATH = "organization";
 
   @Autowired
   private OrganizationServiceIF    service;
 
   @Autowired
-  private RegistryComponentService registryService = new RegistryComponentService();
+  private RegistryComponentService registryService;
 
   /**
    * Returns an array of (label, entityId) pairs that under the given
@@ -138,19 +138,19 @@ public class OrganizationController extends RunwaySpringController
     return new ResponseEntity<String>(org.toJSON(serializer).toString(), HttpStatus.CREATED);
   }
 
-//  /**
-//   * Delete organization.
-//   * 
-//   * @param sessionId
-//   * @param json
-//   */
-//  @PostMapping(API_PATH + "/delete")
-//  public ResponseEntity<Void> removeOrganization(@RequestBody String code)
-//  {
-//    this.service.deleteOrganization(this.getSessionId(), code);
-//
-//    return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
-//  }
+  // /**
+  // * Delete organization.
+  // *
+  // * @param sessionId
+  // * @param json
+  // */
+  // @PostMapping(API_PATH + "/delete")
+  // public ResponseEntity<Void> removeOrganization(@RequestBody String code)
+  // {
+  // this.service.deleteOrganization(this.getSessionId(), code);
+  //
+  // return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+  // }
 
   /**
    * Update organization.
