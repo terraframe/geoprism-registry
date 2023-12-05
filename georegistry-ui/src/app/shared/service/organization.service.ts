@@ -27,6 +27,7 @@ import { EventService } from "@shared/service";
 import { Organization, OrganizationNode, PageResult } from "@shared/model/core";
 
 import { environment } from 'src/environments/environment';
+import { firstValueFrom } from "rxjs";
 
 @Injectable()
 export class OrganizationService {
@@ -155,5 +156,15 @@ export class OrganizationService {
 
         return this.http.get<OrganizationNode>(environment.apiUrl + "/api/organization/get-ancestor-tree", { params: params })
             .toPromise();
+    }
+
+    page(pageNumber: number, pageSize: number): Promise<PageResult<Organization>> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("pageNumber", pageNumber.toString());
+        params = params.set("pageSize", pageSize.toString());
+
+        return firstValueFrom(
+            this.http.get<PageResult<Organization>>(environment.apiUrl + "/api/organization/page", { params: params })
+        );
     }
 }

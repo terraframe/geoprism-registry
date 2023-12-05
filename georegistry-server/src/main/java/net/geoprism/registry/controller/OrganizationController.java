@@ -40,8 +40,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.controller.DirectedAcyclicGraphTypeController.CodeBody;
+import net.geoprism.registry.model.OrganizationView;
 import net.geoprism.registry.service.request.OrganizationServiceIF;
 import net.geoprism.registry.service.request.RegistryComponentService;
+import net.geoprism.registry.view.Page;
 
 /**
  * Differences in Spring MVC as compared to Runway MVC:
@@ -218,4 +220,11 @@ public class OrganizationController extends RunwaySpringController
     return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
+  @GetMapping(API_PATH + "/page")
+  public ResponseEntity<String> page(@RequestParam(required = false) Integer pageSize, @RequestParam(required = false) Integer pageNumber)
+  {
+    Page<OrganizationView> page = this.service.getPage(this.getSessionId(), pageSize, pageNumber);
+
+    return new ResponseEntity<String>(page.toJSON().toString(), HttpStatus.OK);
+  }
 }

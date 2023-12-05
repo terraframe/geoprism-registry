@@ -78,7 +78,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let account of sRAs.resultSet | paginate: { itemsPerPage: sRAs.pageSize, currentPage: sRAs.pageNumber, totalItems: sRAs.count }"
+                                    <tr *ngFor="let account of sRAs.resultSet | paginate: {id:'accounts', itemsPerPage: sRAs.pageSize, currentPage: sRAs.pageNumber, totalItems: sRAs.count }"
                                         class="fade-ngRepeat-item">
                                         <td class="label-column username-col">{{ account.username }}</td>
                                         <td class="label-column firstname-col">{{ account.firstName }}</td>
@@ -88,7 +88,8 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <pagination-controls (pageChange)="onSRAPageChange($event)"></pagination-controls>
+                            <pagination-controls id="accounts"
+                                (pageChange)="onSRAPageChange($event)"></pagination-controls>
 
                         </div>
                     </div>
@@ -132,7 +133,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let org of organizations">
+                                    <tr
+                                        *ngFor="let org of oPage.resultSet | paginate: { id:'orgs', itemsPerPage: oPage.pageSize, currentPage: oPage.pageNumber, totalItems: oPage.count }">
                                         <td *ngIf="isSRA" class="button-column">
                                             <a class="fa fa-pencil ico-edit" (click)="onEditOrganization(org)"
                                                 [title]="'account.editTooltip' | localize"></a>
@@ -164,6 +166,8 @@
 
                                 </tbody>
                             </table>
+                            <pagination-controls id="orgs" (pageChange)="onOrgPageChange($event)"></pagination-controls>
+
                         </div>
                     </div>
 
@@ -314,7 +318,7 @@
                                 </thead>
                                 <tbody>
                                     <tr
-                                        *ngFor="let system of systems.resultSet | paginate: { itemsPerPage: systems.pageSize, currentPage: systems.pageNumber, totalItems: systems.count }">
+                                        *ngFor="let system of systems.resultSet | paginate: {id:'systems', itemsPerPage: systems.pageSize, currentPage: systems.pageNumber, totalItems: systems.count }">
                                         <td class="button-column">
                                             <a class="fa fa-pencil ico-edit" (click)="onEditSystem(system)"
                                                 [title]="'account.editTooltip' | localize"></a>
@@ -340,7 +344,8 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <pagination-controls (pageChange)="onSystemPageChange($event)"></pagination-controls>
+                            <pagination-controls id="systems"
+                                (pageChange)="onSystemPageChange($event)"></pagination-controls>
 
                         </div>
                     </div>
