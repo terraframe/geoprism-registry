@@ -1,0 +1,45 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.manager.import.header">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="organization.manager.import.header" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import Organization Hierarchy" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.manager.enabled">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="organization.manager.enabled" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Enabled" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.manager.upload.button">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="organization.manager.upload.button" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Upload Hierarchy" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.manager.manage.button">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="organization.manager.manage.button" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Hierarchy" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.manager.tooltip">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="organization.manager.tooltip" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Create Organization" />
+        </attributeStruct>
+      </object>
+          
+    </createOrUpdate>    
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

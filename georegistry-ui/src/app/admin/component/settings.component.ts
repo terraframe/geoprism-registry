@@ -44,6 +44,7 @@ import { environment } from 'src/environments/environment';
 import { LocaleView } from '@core/model/core';
 import { ConfigurationService } from '@core/service/configuration.service';
 import { OrganizationHierarchyModalComponent } from './organization/organization-hierarchy-modal.component';
+import { ImportOrganizationModalComponent } from './organization/import-organization-modal.component';
 
 @Component({
 	selector: 'settings',
@@ -395,8 +396,26 @@ export class SettingsComponent implements OnInit {
 		});
 
 		this.bsModalRef.content.onConfirm.subscribe(() => {
+			this.onOrgPageChange(this.oPage.pageNumber);
+			
 			this.orgService.getOrganizations().then(organizations => {
-				this.organizations = organizations
+				this.organizations = organizations;
+			});
+		});
+	}
+
+	onUploadHierarchy(): void {
+		this.bsModalRef = this.modalService.show(ImportOrganizationModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+
+		this.bsModalRef.content.onSuccess.subscribe(() => {
+			this.onOrgPageChange(this.oPage.pageNumber);
+
+			this.orgService.getOrganizations().then(organizations => {
+				this.organizations = organizations;
 			});
 		});
 	}

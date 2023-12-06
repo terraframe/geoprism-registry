@@ -17,7 +17,7 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -32,7 +32,7 @@ import { LocalizationService, OrganizationService } from '@shared/service';
 	templateUrl: './organization-modal.component.html',
 	styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
 })
-export class OrganizationModalComponent implements OnInit {
+export class OrganizationModalComponent implements OnInit, OnDestroy {
 
 	message: string = null;
 	organization: Organization = { code: "", label: this.lService.create(), contactInfo: this.lService.create(), enabled: true };
@@ -44,8 +44,10 @@ export class OrganizationModalComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.onSuccess = new Subject();
-		
-		// console.log(this.organization.label.localeValues);
+	}
+
+	ngOnDestroy(): void {
+		this.onSuccess.unsubscribe();
 	}
 
 	cancel(): void {
@@ -72,7 +74,7 @@ export class OrganizationModalComponent implements OnInit {
 	}
 
 	public error(err: HttpErrorResponse): void {
-			this.message = ErrorHandler.getMessageFromError(err);
+		this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

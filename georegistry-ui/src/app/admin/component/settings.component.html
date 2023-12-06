@@ -104,7 +104,8 @@
                         <localize key="settings.organizations.heading"></localize>
 
                         <span style="float: right;">
-                            <a class="fa fa-sitemap" (click)="onManageHierarchy()" title="Manage Hierarchy"></a>
+                            <a class="fa fa-upload" (click)="onUploadHierarchy()" [title]="'organization.manager.upload.button' | localize"></a>
+                            <a class="fa fa-sitemap" (click)="onManageHierarchy()" [title]="'organization.manager.manage.button' | localize"></a>
                         </span>
                     </h3>
 
@@ -128,7 +129,7 @@
                                             <localize key="settings.manage.orgs.table.parent.header"></localize>
                                         </th>
                                         <th>
-                                            Enabled
+                                            <localize key="organization.manager.enabled"></localize>
                                         </th>
                                     </tr>
                                 </thead>
@@ -160,7 +161,7 @@
                                     <tr *ngIf="isSRA">
                                         <td class="button-column">
                                             <a class="fa fa-plus" (click)="newOrganization()"
-                                                [title]="'account.newTooltip' | localize"></a>
+                                                [title]="'organization.manager.tooltip' | localize"></a>
                                         </td>
                                     </tr>
 
