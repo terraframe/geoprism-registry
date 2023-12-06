@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.controller;
 
+import java.io.IOException;
 import java.text.ParseException;
 
 import javax.validation.Valid;
@@ -30,18 +31,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.controller.DirectedAcyclicGraphTypeController.CodeBody;
 import net.geoprism.registry.model.OrganizationView;
-import net.geoprism.registry.service.request.OrganizationServiceIF;
+import net.geoprism.registry.service.request.GPROrganizationService;
 import net.geoprism.registry.service.request.RegistryComponentService;
 import net.geoprism.registry.view.Page;
 
@@ -90,7 +93,7 @@ public class OrganizationController extends RunwaySpringController
   public static final String       API_PATH = "organization";
 
   @Autowired
-  private OrganizationServiceIF    service;
+  private GPROrganizationService   service;
 
   @Autowired
   private RegistryComponentService registryService;
@@ -216,6 +219,14 @@ public class OrganizationController extends RunwaySpringController
   public ResponseEntity<Void> importJsonTree(@Valid @RequestBody String json)
   {
     this.service.importJsonTree(this.getSessionId(), json);
+
+    return new ResponseEntity<Void>(HttpStatus.OK);
+  }
+
+  @PostMapping(API_PATH + "/import-file")
+  public ResponseEntity<Void> importFile(@ModelAttribute MultipartFile file) throws IOException
+  {
+    this.service.importFile(this.getSessionId(), file);
 
     return new ResponseEntity<Void>(HttpStatus.OK);
   }
