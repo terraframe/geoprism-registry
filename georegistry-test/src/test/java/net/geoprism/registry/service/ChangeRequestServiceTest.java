@@ -13,13 +13,14 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeGeometryType;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.geojson.GeoJsonWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -35,7 +36,11 @@ import com.runwaysdk.session.RequestType;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.CGRPermissionException;
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
@@ -47,6 +52,10 @@ import net.geoprism.registry.action.geoobject.UpdateAttributeActionBase;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.request.ChangeRequestService;
+import net.geoprism.registry.service.request.GeoObjectEditorServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
@@ -56,13 +65,13 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 import net.geoprism.registry.view.action.UpdateParentValueOverTimeView;
 
-public class ChangeRequestServiceTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class ChangeRequestServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static final TestGeoObjectInfo BELIZE = new TestGeoObjectInfo("Belize", FastTestDataset.COUNTRY);
   
   public static final TestGeoObjectInfo TEST_NEW_PROVINCE = new TestGeoObjectInfo("CR_TEST_NEW_PROVINCE", FastTestDataset.PROVINCE);
-  
-  protected static FastTestDataset    testData;
   
   private static final String NEW_ANTHEM = "NEW_ANTHEM";
   
@@ -78,18 +87,11 @@ public class ChangeRequestServiceTest
   
   private String UPDATE_PARENT_ATTR_JSON = null;
   
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
-  }
+  @Autowired GeoObjectBusinessServiceIF goBizService;
+  
+  @Autowired GeoObjectEditorServiceIF goEditorService;
+  
+  @Autowired ChangeRequestService changeService;
 
   @Before
   public void setUp()
@@ -123,7 +125,7 @@ public class ChangeRequestServiceTest
     + "}";
     
     ServerGeoObjectIF central_prov = FastTestDataset.PROV_CENTRAL.getServerObject();
-    ServerParentTreeNode ptn = central_prov.getParentGeoObjects(null, new String[] {FastTestDataset.COUNTRY.getCode()}, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE).getParents().get(0);
+    ServerParentTreeNode ptn = goBizService.getParentGeoObjects(central_prov, null, new String[] {FastTestDataset.COUNTRY.getCode()}, false, false, TestDataSet.DEFAULT_OVER_TIME_DATE).getParents().get(0);
     
     UPDATE_PARENT_ATTR_JSON = "{"
         + "\"hierarchyCode\" : \"" + FastTestDataset.HIER_ADMIN.getCode() + "\","
@@ -260,9 +262,7 @@ public class ChangeRequestServiceTest
 
   private void testGetAllCR(ClientRequestIF request, boolean hasPermission)
   {
-    ChangeRequestService service = new ChangeRequestService();
-    
-    Page<ChangeRequest> page = service.getAllRequests(request.getSessionId(), 10, 1, "", "", null);
+    Page<ChangeRequest> page = changeService.getAllRequests(request.getSessionId(), 10, 1, "", "", null);
     
     JsonObject joPage = toJson(request.getSessionId(), page);
     JsonArray jaResults = joPage.get("resultSet").getAsJsonArray();
@@ -350,9 +350,7 @@ public class ChangeRequestServiceTest
   {
     final String crOid = JsonParser.parseString(serializedCR).getAsJsonObject().get("oid").getAsString();
     
-    ChangeRequestService service = new ChangeRequestService();
-    
-    service.setActionStatus(request.getSessionId(), testSetActionStatusGetCRAction(crOid), AllGovernanceStatus.ACCEPTED.name());
+    changeService.setActionStatus(request.getSessionId(), testSetActionStatusGetCRAction(crOid), AllGovernanceStatus.ACCEPTED.name());
     
     testSetActionStatusVerifyCRAction(crOid);
   }
@@ -414,13 +412,11 @@ public class ChangeRequestServiceTest
   
   private void testImplementDecisions(ClientRequestIF request, String serializedCR) throws Exception
   {
-    ChangeRequestService service = new ChangeRequestService();
-    
     String crOid = JsonParser.parseString(serializedCR).getAsJsonObject().get("oid").getAsString();
     
     testSetActionStatus(request, serializedCR);
     
-    service.implementDecisions(request.getSessionId(), serializedCR, null);
+    changeService.implementDecisions(request.getSessionId(), serializedCR, null);
     
     testImplementDecisionsVerify(crOid);
   }
@@ -502,11 +498,9 @@ public class ChangeRequestServiceTest
   {
     final String crOid = JsonParser.parseString(serializedCR).getAsJsonObject().get("oid").getAsString();
     
-    ChangeRequestService service = new ChangeRequestService();
-    
     testSetActionStatus(request, serializedCR);
     
-    service.implementDecisions(request.getSessionId(), serializedCR, null);
+    changeService.implementDecisions(request.getSessionId(), serializedCR, null);
     
     testImplementParentDecisionsVerify(crOid);
   }
@@ -530,7 +524,7 @@ public class ChangeRequestServiceTest
     
     ServerGeoObjectIF serverGo = FastTestDataset.PROV_CENTRAL.getServerObject();
     
-    List<ServerParentTreeNode> ptns = serverGo.getParentsOverTime(new String[] {FastTestDataset.COUNTRY.getCode()}, false, false).getEntries(FastTestDataset.HIER_ADMIN.getServerObject());
+    List<ServerParentTreeNode> ptns = goBizService.getParentsOverTime(serverGo, new String[] {FastTestDataset.COUNTRY.getCode()}, false, false).getEntries(FastTestDataset.HIER_ADMIN.getServerObject());
     Assert.assertEquals(1, ptns.size());
     
     ServerParentTreeNode ptn = ptns.get(0);
@@ -591,9 +585,7 @@ public class ChangeRequestServiceTest
   
   private void testCreateGeoObjectCR(String[] json, ClientRequestIF request) throws Exception
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
-    
-    JsonObject jo = service.createGeoObject(request.getSessionId(), json[0], json[1], null, "test-notes");
+    JsonObject jo = goEditorService.createGeoObject(request.getSessionId(), json[0], json[1], null, "test-notes");
     
     Assert.assertEquals(true, jo.get("isChangeRequest").getAsBoolean());
     Assert.assertEquals(36, jo.get("changeRequestId").getAsString().length());
@@ -692,9 +684,7 @@ public class ChangeRequestServiceTest
   
   private void testUpdateGeoObjectCR(String json, ClientRequestIF request) throws Exception
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
-    
-    JsonObject jo = service.updateGeoObject(request.getSessionId(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.COUNTRY.getCode(), json, null, "test-notes");
+    JsonObject jo = goEditorService.updateGeoObject(request.getSessionId(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.COUNTRY.getCode(), json, null, "test-notes");
     
     Assert.assertEquals(true, jo.get("isChangeRequest").getAsBoolean());
     Assert.assertEquals(36, jo.get("changeRequestId").getAsString().length());
@@ -767,7 +757,7 @@ public class ChangeRequestServiceTest
   
   private void testComplexUpdateGeoObjectCR(String[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0], null);
+    changeService.implementDecisions(request.getSessionId(), data[0], null);
     
     testComplexUpdateGeoObjectCR_Verify(data);
   }
@@ -906,7 +896,7 @@ public class ChangeRequestServiceTest
   
   private void testUpdateGeoObjectGeometryCR(String[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0], null);
+    changeService.implementDecisions(request.getSessionId(), data[0], null);
     
     testUpdateGeoObjectGeometryCR_Verify(data);
   }
@@ -1039,7 +1029,7 @@ public class ChangeRequestServiceTest
   
   private void testUpdateGeoObjectLocalizedValueCR(String[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0], null);
+    changeService.implementDecisions(request.getSessionId(), data[0], null);
     
     testUpdateGeoObjectLocalizedValueCR_Verify(data);
   }
@@ -1169,7 +1159,7 @@ public class ChangeRequestServiceTest
   
   private void testUpdateGeoObjectTermCR(String[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0], null);
+    changeService.implementDecisions(request.getSessionId(), data[0], null);
     
     testUpdateGeoObjectTermCR_Verify(data);
   }
@@ -1300,7 +1290,7 @@ public class ChangeRequestServiceTest
   
   private void testUpdateGeoObjectDateCR(Object[] data, ClientRequestIF request) throws Exception
   {
-    new ChangeRequestService().implementDecisions(request.getSessionId(), (String) data[0], null);
+    changeService.implementDecisions(request.getSessionId(), (String) data[0], null);
     
     testUpdateGeoObjectDateCR_Verify(data);
   }

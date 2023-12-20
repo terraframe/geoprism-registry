@@ -10,18 +10,23 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Resource;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.GsonBuilder;
 import com.runwaysdk.session.Request;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.SynchronizationConfig;
+import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.etl.fhir.BasicFhirConnection;
 import net.geoprism.registry.etl.fhir.BasicFhirResourceProcessor;
 import net.geoprism.registry.etl.fhir.FhirFactory;
@@ -32,31 +37,27 @@ import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.ServerGeoObjectService;
-import net.geoprism.registry.service.SynchronizationConfigService;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.request.SynchronizationConfigService;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
-public class FhirImportTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class FhirImportTest extends USADatasetTest implements InstanceTestClassListener
 {
-  protected static USATestData           testData;
-
+  @Autowired
   protected SynchronizationConfigService syncService;
 
-  @BeforeClass
-  public static void setUpClass()
+  @Autowired
+  protected GeoObjectBusinessServiceIF   objectService;
+
+  @Override
+  public void beforeClassSetup() throws Exception
   {
     TestDataSet.deleteExternalSystems("FHIRImportTest");
 
-    testData = USATestData.newTestData();
-    testData.setUpMetadata();
-    testData.setUpInstanceData();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
+    super.beforeClassSetup();
   }
 
   @Before
@@ -144,7 +145,7 @@ public class FhirImportTest
       FhirResourceImporter importer = new FhirResourceImporter(new BasicFhirConnection(system), processor, null, null);
       importer.synchronize(bundle);
 
-      ServerGeoObjectIF geoobject = new ServerGeoObjectService().getGeoObjectByCode("USATestDataHsTwo", "USATestDataHealthStop");
+      ServerGeoObjectIF geoobject = this.objectService.getGeoObjectByCode("USATestDataHsTwo", "USATestDataHealthStop");
       geoobject.setDate(new Date());
       LocalizedValue displayLabel = geoobject.getDisplayLabel();
 

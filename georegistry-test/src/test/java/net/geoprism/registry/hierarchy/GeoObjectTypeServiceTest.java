@@ -11,15 +11,12 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -37,24 +34,27 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdBusiness;
 
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoObjectTypeAssignmentException;
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.roles.CreateGeoObjectTypePermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectTypePermissionException;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.request.GeoObjectTypeServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class GeoObjectTypeServiceTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class GeoObjectTypeServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
   public static TestGeoObjectTypeInfo TEST_GOT            = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
 
@@ -66,17 +66,11 @@ public class GeoObjectTypeServiceTest
 
   public static final TestUserInfo    USER_PRIVATE_GOT_AC = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "gottestacprivate", "gottestacprivate", FastTestDataset.TEST_DATA_KEY + "gottestacprivate@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), TEST_PRIVATE_GOT.getCode()) });
 
-  protected static FastTestDataset    testData;
+  @Autowired
+  private TestRegistryClient          client;
 
   @Autowired
-  private TestRegistryClient   client;
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
+  private GeoObjectTypeServiceIF      typeService;
 
   private static void createPrivateTestGot()
   {
@@ -94,12 +88,6 @@ public class GeoObjectTypeServiceTest
     USER_PRIVATE_GOT_RM.delete();
     USER_PRIVATE_GOT_RC.delete();
     USER_PRIVATE_GOT_AC.delete();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
   }
 
   @Before
@@ -288,7 +276,7 @@ public class GeoObjectTypeServiceTest
       {
         FastTestDataset.runAsUser(user, (request) -> {
 
-          ServiceFactory.getRegistryService().deleteGeoObjectType(request.getSessionId(), TEST_GOT.getCode());
+          this.typeService.deleteGeoObjectType(request.getSessionId(), TEST_GOT.getCode());
 
           Assert.fail("Able to delete a geo object type as a user with bad roles");
         });

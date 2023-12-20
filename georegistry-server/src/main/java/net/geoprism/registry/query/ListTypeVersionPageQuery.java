@@ -42,8 +42,9 @@ import com.runwaysdk.session.Session;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
+import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.JsonWrapper;
 
@@ -73,8 +74,11 @@ public class ListTypeVersionPageQuery extends AbstractBusinessPageQuery<JsonSeri
 
     this.numberFormat = NumberFormat.getInstance(Session.getCurrentLocale());
     this.mdAttributes = this.getMdBusiness().definesAttributes();
+    
+    GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
+    
     // If the list isn't public and the user isn't a member of the organization the remove all non code and display label attributes
-    if(version.getListVisibility().equals(ListType.PRIVATE) && !Organization.isMember(version.getListType().getOrganization())) {
+    if(version.getListVisibility().equals(ListType.PRIVATE) && !permissions.isMemberOrSRA(version.getListType().getOrganization())) {
       this.mdAttributes = this.mdAttributes.stream().filter(mdAttribute -> {
         String attributeName = mdAttribute.definesAttribute();
         

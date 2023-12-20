@@ -3,16 +3,14 @@
  */
 package net.geoprism.registry.service;
 
-import org.junit.AfterClass;
-
+import net.geoprism.registry.FastDatasetTest;
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.test.FastTestDataset;
 
-public abstract class AbstractLocationServiceTest
+public abstract class AbstractLocationServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static FastTestDataset testData;
-
-  @AfterClass
-  public static void cleanUpClass()
+  @Override
+  public void afterClassSetup()
   {
     testData.logOut();
     

@@ -12,37 +12,31 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.FastDatasetTest;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.test.TestDataSet;
 
-public class BusinessTypeTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class BusinessTypeTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static FastTestDataset testData;
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
-  }
+  @Autowired
+  private BusinessTypeBusinessServiceIF typeService;
 
   @Test
   @Request
@@ -57,7 +51,7 @@ public class BusinessTypeTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    BusinessType type = BusinessType.apply(object);
+    BusinessType type = this.typeService.apply(object);
 
     try
     {
@@ -69,7 +63,7 @@ public class BusinessTypeTest
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
@@ -86,15 +80,15 @@ public class BusinessTypeTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    BusinessType type = BusinessType.apply(object);
+    BusinessType type = this.typeService.apply(object);
 
     try
     {
-      Assert.assertNotNull(BusinessType.getByCode(type.getCode()));
+      Assert.assertNotNull(this.typeService.getByCode(type.getCode()));
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
@@ -111,14 +105,14 @@ public class BusinessTypeTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue("Test Prog").toJSON());
 
-    BusinessType type = BusinessType.apply(object);
+    BusinessType type = this.typeService.apply(object);
 
     try
     {
-      JsonObject json = type.toJSON();
+      JsonObject json = this.typeService.toJSON(type);
       json.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-      type = BusinessType.apply(json);
+      type = this.typeService.apply(json);
 
       Assert.assertEquals(code, type.getCode());
       Assert.assertEquals(orgCode, type.getOrganization().getCode());
@@ -127,7 +121,7 @@ public class BusinessTypeTest
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
@@ -144,13 +138,13 @@ public class BusinessTypeTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    BusinessType type = BusinessType.apply(object);
+    BusinessType type = this.typeService.apply(object);
 
     try
     {
       AttributeCharacterType expected = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false);
 
-      type.createAttributeType(expected);
+      this.typeService.createAttributeType(type, expected);
 
       Map<String, AttributeType> attributeMap = type.getAttributeMap();
 
@@ -165,7 +159,7 @@ public class BusinessTypeTest
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
@@ -182,13 +176,13 @@ public class BusinessTypeTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    BusinessType type = BusinessType.apply(object);
+    BusinessType type = this.typeService.apply(object);
 
     try
     {
       AttributeDateType expected = new AttributeDateType("testDate", new LocalizedValue("Test Date"), new LocalizedValue("Test True"), false, false, false);
 
-      type.createAttributeType(expected);
+      this.typeService.createAttributeType(type, expected);
 
       Map<String, AttributeType> attributeMap = type.getAttributeMap();
 
@@ -203,7 +197,7 @@ public class BusinessTypeTest
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
@@ -220,13 +214,13 @@ public class BusinessTypeTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    BusinessType type = BusinessType.apply(object);
+    BusinessType type = this.typeService.apply(object);
 
     try
     {
       AttributeIntegerType expected = new AttributeIntegerType("testInteger", new LocalizedValue("Test Integer"), new LocalizedValue("Test True"), false, false, false);
 
-      type.createAttributeType(expected);
+      this.typeService.createAttributeType(type, expected);
 
       Map<String, AttributeType> attributeMap = type.getAttributeMap();
 
@@ -241,7 +235,7 @@ public class BusinessTypeTest
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
@@ -258,7 +252,7 @@ public class BusinessTypeTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    BusinessType type = BusinessType.apply(object);
+    BusinessType type = this.typeService.apply(object);
 
     try
     {
@@ -266,7 +260,7 @@ public class BusinessTypeTest
       expected.setPrecision(10);
       expected.setScale(2);
 
-      type.createAttributeType(expected);
+      this.typeService.createAttributeType(type, expected);
 
       Map<String, AttributeType> attributeMap = type.getAttributeMap();
 
@@ -281,7 +275,7 @@ public class BusinessTypeTest
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
@@ -298,13 +292,13 @@ public class BusinessTypeTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    BusinessType type = BusinessType.apply(object);
+    BusinessType type = this.typeService.apply(object);
 
     try
     {
       AttributeTermType expected = new AttributeTermType("testTerm", new LocalizedValue("Test Term"), new LocalizedValue("Test True"), false, false, false);
 
-      type.createAttributeType(expected);
+      this.typeService.createAttributeType(type, expected);
 
       Map<String, AttributeType> attributeMap = type.getAttributeMap();
 
@@ -320,7 +314,7 @@ public class BusinessTypeTest
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
@@ -337,17 +331,17 @@ public class BusinessTypeTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    BusinessType type = BusinessType.apply(object);
+    BusinessType type = this.typeService.apply(object);
 
     try
     {
       AttributeCharacterType original = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false);
 
-      type.createAttributeType(original);
+      this.typeService.createAttributeType(type, original);
 
       AttributeCharacterType expected = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Characterzzzzzz"), new LocalizedValue("Test True"), false, false, false);
 
-      type.updateAttributeType(expected);
+      this.typeService.updateAttributeType(type, expected);
 
       Map<String, AttributeType> attributeMap = type.getAttributeMap();
 
@@ -362,46 +356,48 @@ public class BusinessTypeTest
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
   @Test
-  @Request
   public void testListByOrg()
   {
-    String code = "TEST_PROG";
-    String orgCode = FastTestDataset.ORG_CGOV.getCode();
-    String label = "Test Prog";
+    TestDataSet.executeRequestAsUser(FastTestDataset.USER_CGOV_RA, () -> {
 
-    JsonObject object = new JsonObject();
-    object.addProperty(BusinessType.CODE, code);
-    object.addProperty(BusinessType.ORGANIZATION, orgCode);
-    object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
+      String code = "TEST_PROG";
+      String orgCode = FastTestDataset.ORG_CGOV.getCode();
+      String label = "Test Prog";
 
-    BusinessType type = BusinessType.apply(object);
+      JsonObject object = new JsonObject();
+      object.addProperty(BusinessType.CODE, code);
+      object.addProperty(BusinessType.ORGANIZATION, orgCode);
+      object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    try
-    {
-      JsonArray orgs = BusinessType.listByOrg();
+      BusinessType type = this.typeService.apply(object);
 
-      Assert.assertEquals(2, orgs.size());
+      try
+      {
+        JsonArray orgs = this.typeService.listByOrg();
 
-      JsonObject org = orgs.get(0).getAsJsonObject();
-      Assert.assertEquals(orgCode, org.get("code").getAsString());
+        Assert.assertEquals(2, orgs.size());
 
-      JsonArray types = org.get("types").getAsJsonArray();
+        JsonObject org = orgs.get(0).getAsJsonObject();
+        Assert.assertEquals(orgCode, org.get("code").getAsString());
 
-      Assert.assertEquals(1, types.size());
+        JsonArray types = org.get("types").getAsJsonArray();
 
-      JsonObject json = types.get(0).getAsJsonObject();
+        Assert.assertEquals(1, types.size());
 
-      Assert.assertEquals(type.getCode(), json.get("code").getAsString());
-    }
-    finally
-    {
-      type.delete();
-    }
+        JsonObject json = types.get(0).getAsJsonObject();
+
+        Assert.assertEquals(type.getCode(), json.get("code").getAsString());
+      }
+      finally
+      {
+        this.typeService.delete(type);
+      }
+    });
   }
 
   @Test
@@ -417,18 +413,18 @@ public class BusinessTypeTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    BusinessType type = BusinessType.apply(object);
+    BusinessType type = this.typeService.apply(object);
 
     try
     {
-      JsonObject json = type.toJSON();
+      JsonObject json = this.typeService.toJSON(type);
 
       Assert.assertEquals(type.getCode(), json.get("code").getAsString());
       Assert.assertFalse(json.has("attributes"));
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
@@ -445,18 +441,18 @@ public class BusinessTypeTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    BusinessType type = BusinessType.apply(object);
+    BusinessType type = this.typeService.apply(object);
 
     try
     {
-      JsonObject json = type.toJSON(true, false);
+      JsonObject json = this.typeService.toJSON(type, true, false);
 
       Assert.assertEquals(type.getCode(), json.get("code").getAsString());
       Assert.assertTrue(json.has("attributes"));
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
@@ -473,19 +469,19 @@ public class BusinessTypeTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    BusinessType type = BusinessType.apply(object);
+    BusinessType type = this.typeService.apply(object);
 
     try
     {
       AttributeCharacterType expected = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false);
 
-      type.createAttributeType(expected);
+      this.typeService.createAttributeType(type, expected);
 
       Map<String, AttributeType> attributeMap = type.getAttributeMap();
 
       Assert.assertTrue(attributeMap.containsKey(expected.getName()));
 
-      type.removeAttribute(expected.getName());
+      this.typeService.removeAttribute(type, expected.getName());
 
       attributeMap = type.getAttributeMap();
 
@@ -493,7 +489,7 @@ public class BusinessTypeTest
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
@@ -510,10 +506,10 @@ public class BusinessTypeTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    BusinessType type = BusinessType.apply(object);
-    type.delete();
+    BusinessType type = this.typeService.apply(object);
+    this.typeService.delete(type);
 
-    Assert.assertNull(BusinessType.getByCode(type.getCode()));
+    Assert.assertNull(this.typeService.getByCode(type.getCode()));
   }
 
   @Test
@@ -529,13 +525,13 @@ public class BusinessTypeTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    BusinessType type = BusinessType.apply(object);
+    BusinessType type = this.typeService.apply(object);
 
     try
     {
       AttributeCharacterType expected = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false);
 
-      type.createAttributeType(expected);
+      this.typeService.createAttributeType(type, expected);
 
       AttributeType actual = type.getAttribute(expected.getName());
 
@@ -546,8 +542,38 @@ public class BusinessTypeTest
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
+  @Test
+  @Request
+  public void testSetLabelAttribute()
+  {
+    String code = "TEST_PROG";
+    String orgCode = FastTestDataset.ORG_CGOV.getCode();
+    String label = "Test Prog";
+    
+    JsonObject object = new JsonObject();
+    object.addProperty(BusinessType.CODE, code);
+    object.addProperty(BusinessType.ORGANIZATION, orgCode);
+    object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
+    
+    BusinessType type = this.typeService.apply(object);
+    
+    try
+    {
+      AttributeCharacterType expected = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false);
+      
+      this.typeService.createAttributeType(type, expected);
+      this.typeService.setLabelAttribute(type, expected.getName());
+      
+      Assert.assertNotNull(type.getLabelAttribute());
+    }
+    finally
+    {
+      this.typeService.delete(type);
+    }
+  }
+  
 }

@@ -44,27 +44,6 @@
         </attributeStruct>
       </object>
     </createOrUpdate>
-      
-    <create>
-      <mdException name="net.geoprism.registry.AbstractParentException" 
-                   label="Abstract Parent Exception" 
-                   message="You cannot add [{childGeoObjectTypeLabel}] to the hierarchy [{hierarchyTypeLabel}] as a child to [{parentGeoObjectTypeLabel}] because [{parentGeoObjectTypeLabel}] is a group.">
-        <attributes>
-          <text name="childGeoObjectTypeLabel" label="Child Type" />
-          <text name="hierarchyTypeLabel" label="Hierarchy Type Label" />
-          <text name="parentGeoObjectTypeLabel" label="Parent Type" />
-        </attributes>
-      </mdException>
-      <mdException name="net.geoprism.registry.ChainInheritanceException" 
-                   label="Chain Inheritance Exception" 
-                   message="Only single level inheritance supported">
-      </mdException>
-      <mdException name="net.geoprism.registry.GeoObjectTypeAssignmentException" 
-                   label="Chain Inheritance Exception" 
-                   message="A geo object type can only be added to geo object type which is abstract">
-      </mdException>
-    </create>
-      
     <update>
       <mdBusiness name="net.geoprism.registry.MasterList">
         <create>

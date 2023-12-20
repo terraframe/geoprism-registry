@@ -3,30 +3,41 @@
  */
 package net.geoprism.registry;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.model.GraphNode;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.view.Page;
 
 @ContextConfiguration(classes = { TestConfig.class })
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringInstanceTestClassRunner.class)
 public class OrganizationHierarchyTest
 {
-  private static String GRANDPARENT_CODE = "GRANDPARENT_OBJ";
+  private static String                 GRANDPARENT_CODE = "GRANDPARENT_OBJ";
 
-  private static String PARENT_CODE      = "PARENT_OBJ";
+  private static String                 PARENT_CODE      = "PARENT_OBJ";
 
-  private static String CHILD_CODE       = "CHILD_OBJ";
+  private static String                 CHILD_CODE       = "CHILD_OBJ";
+
+  @Autowired
+  private OrganizationBusinessServiceIF service;
 
   @Test
   @Request
@@ -40,7 +51,7 @@ public class OrganizationHierarchyTest
     }
     finally
     {
-      object.delete();
+      this.service.delete(object);
     }
   }
 
@@ -58,7 +69,7 @@ public class OrganizationHierarchyTest
     }
     finally
     {
-      object.delete();
+      this.service.delete(object);
     }
   }
 
@@ -86,12 +97,12 @@ public class OrganizationHierarchyTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -117,12 +128,12 @@ public class OrganizationHierarchyTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -148,12 +159,12 @@ public class OrganizationHierarchyTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -179,12 +190,12 @@ public class OrganizationHierarchyTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -210,12 +221,12 @@ public class OrganizationHierarchyTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -241,17 +252,17 @@ public class OrganizationHierarchyTest
         }
         finally
         {
-          child.delete();
+          this.service.delete(child);
         }
       }
       finally
       {
-        parent.delete();
+        this.service.delete(parent);
       }
     }
     finally
     {
-      grandParent.delete();
+      this.service.delete(grandParent);
     }
   }
 
@@ -273,12 +284,109 @@ public class OrganizationHierarchyTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
+    }
+  }
+
+  @Test
+  @Request
+  public void testExportJson()
+  {
+    ServerOrganization grandParent = createOrganization(GRANDPARENT_CODE, null);
+
+    try
+    {
+      ServerOrganization parent = createOrganization(PARENT_CODE, grandParent);
+
+      try
+      {
+        ServerOrganization child = createOrganization(CHILD_CODE, parent);
+
+        try
+        {
+          JsonArray results = this.service.exportToJson();
+
+          System.out.println(new GsonBuilder().setPrettyPrinting().create().toJson(results));
+
+          JsonObject result = null;
+
+          for (int i = 0; i < results.size(); i++)
+          {
+            JsonObject item = results.get(i).getAsJsonObject();
+
+            if (grandParent.getCode().equals(item.get(Organization.CODE).getAsString()))
+            {
+              result = item;
+            }
+          }
+
+          Assert.assertNotNull(result);
+
+          results = result.get("children").getAsJsonArray();
+
+          Assert.assertEquals(1, results.size());
+
+          result = results.get(0).getAsJsonObject();
+
+          Assert.assertEquals(parent.getCode(), result.get(Organization.CODE).getAsString());
+
+          results = result.get("children").getAsJsonArray();
+
+          Assert.assertEquals(1, results.size());
+
+          result = results.get(0).getAsJsonObject();
+
+          Assert.assertEquals(child.getCode(), result.get(Organization.CODE).getAsString());
+        }
+        finally
+        {
+          this.service.delete(child);
+        }
+      }
+      finally
+      {
+        this.service.delete(parent);
+      }
+    }
+    finally
+    {
+      this.service.delete(grandParent);
+    }
+
+  }
+
+  @Test
+  @Request
+  public void testImportJson() throws IOException
+  {
+    try (InputStream resource = this.getClass().getResourceAsStream("/org-tree.json"))
+    {
+      JsonArray array = JsonParser.parseReader(new InputStreamReader(resource)).getAsJsonArray();
+
+      this.service.importJsonTree(array);
+
+      ServerOrganization child = ServerOrganization.getByCode(CHILD_CODE);
+
+      Assert.assertNotNull(child);
+
+      this.service.delete(child);
+
+      ServerOrganization parent = ServerOrganization.getByCode(PARENT_CODE);
+
+      Assert.assertNotNull(parent);
+
+      this.service.delete(parent);
+
+      ServerOrganization grandParent = ServerOrganization.getByCode(GRANDPARENT_CODE);
+
+      Assert.assertNotNull(grandParent);
+
+      this.service.delete(grandParent);
     }
   }
 
@@ -288,8 +396,8 @@ public class OrganizationHierarchyTest
     object.setCode(code);
     object.setDisplayLabel(new LocalizedValue(code));
     object.setContactInfo(new LocalizedValue(code));
-    object.apply(parent);
-    
+    this.service.apply(object, parent);
+
     return object;
   }
 

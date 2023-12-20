@@ -7,11 +7,12 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -25,41 +26,36 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.registry.CGRPermissionException;
+import net.geoprism.registry.FastDatasetTest;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
+import net.geoprism.registry.service.request.ChangeRequestService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestUserInfo;
 
-public class ChangeRequestDocumentServiceTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class ChangeRequestDocumentServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static FastTestDataset    testData;
-  
-  private ChangeRequest cr;
-  
-  private String crOid;
-  
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
+  private ChangeRequest        cr;
 
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
-  }
+  private String               crOid;
+
+  @Autowired
+  private ChangeRequestService crService;
 
   @Before
   public void setUp()
   {
     testData.setUpInstanceData();
-    
-//    TestDataSet.populateAdapterIds(null, testData.adapter);
-    
+
+    // TestDataSet.populateAdapterIds(null, testData.adapter);
+
     createTestChangeRequest();
   }
 
@@ -67,16 +63,17 @@ public class ChangeRequestDocumentServiceTest
   public void tearDown()
   {
     testData.tearDownInstanceData();
-    
+
     TestDataSet.deleteAllChangeRequests();
     TestDataSet.deleteAllVaultFiles();
   }
-  
+
   @Request
   public void createTestChangeRequest()
   {
     createCRTrans();
   }
+
   @Transaction
   private void createCRTrans()
   {
@@ -86,20 +83,20 @@ public class ChangeRequestDocumentServiceTest
     cr.setGeoObjectTypeCode(FastTestDataset.COUNTRY.getCode());
     cr.setOrganizationCode(FastTestDataset.ORG_CGOV.getCode());
     cr.apply();
-    
+
     CreateGeoObjectAction action = new CreateGeoObjectAction();
     action.setApiVersion("1.0");
     action.setGeoObjectJson(FastTestDataset.CAMBODIA.fetchGeoObjectOverTime().toJSON().toString());
     action.addApprovalStatus(AllGovernanceStatus.PENDING);
     action.setCreateActionDate(new Date());
     action.apply();
-    
+
     cr.addAction(action).apply();
-    
+
     this.cr = cr;
     this.crOid = cr.getOid();
   }
-  
+
   @Test
   public void testDeleteDocument()
   {
@@ -119,7 +116,7 @@ public class ChangeRequestDocumentServiceTest
         Assert.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
       }
     }
-    
+
     TestUserInfo[] disAllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC };
 
     for (TestUserInfo user : disAllowedUsers)
@@ -128,7 +125,7 @@ public class ChangeRequestDocumentServiceTest
       {
         FastTestDataset.runAsUser(user, (request) -> {
           testDeleteDocumentAsUser(request);
-          
+
           Assert.fail("Expected a permission exception.");
         });
       }
@@ -142,26 +139,24 @@ public class ChangeRequestDocumentServiceTest
 
   private void testDeleteDocumentAsUser(ClientRequestIF request)
   {
-    ChangeRequestService service = new ChangeRequestService();
-    
-    String sJson = service.uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
-    
+    String sJson = crService.uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+
     JsonObject jsonVF = JsonParser.parseString(sJson).getAsJsonObject();
-    
+
     final String vfOid = jsonVF.get("oid").getAsString();
-    
-    service.deleteDocumentCR(request.getSessionId(), this.crOid, vfOid);
-    
+
+    crService.deleteDocumentCR(request.getSessionId(), this.crOid, vfOid);
+
     assertVaultFileDeleted(vfOid);
   }
-  
+
   @Request
   private void assertVaultFileDeleted(String vfOid)
   {
     try
     {
       VaultFile.get(vfOid);
-      
+
       Assert.fail("Vault file was not deleted.");
       Assert.assertEquals(0, cr.getAllDocument().getAll().size());
     }
@@ -170,12 +165,12 @@ public class ChangeRequestDocumentServiceTest
       // Expected
     }
   }
-  
+
   @Test
   public void testListDocuments()
   {
     uploadDocumentsAsAdmin();
-    
+
     TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : allowedUsers)
@@ -192,7 +187,7 @@ public class ChangeRequestDocumentServiceTest
         Assert.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
       }
     }
-    
+
     TestUserInfo[] disAllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC };
 
     for (TestUserInfo user : disAllowedUsers)
@@ -201,7 +196,7 @@ public class ChangeRequestDocumentServiceTest
       {
         FastTestDataset.runAsUser(user, (request) -> {
           testListDocumentsAsUser(request);
-          
+
           Assert.fail("Expected a permission exception.");
         });
       }
@@ -212,44 +207,40 @@ public class ChangeRequestDocumentServiceTest
       }
     }
   }
-  
-  
-  
+
   public void testListDocumentsAsUser(ClientRequestIF request)
   {
-    ChangeRequestService service = new ChangeRequestService();
-    
-    JsonArray ja = JsonParser.parseString(service.listDocumentsCR(request.getSessionId(), this.crOid)).getAsJsonArray();
-    
+    JsonArray ja = JsonParser.parseString(crService.listDocumentsCR(request.getSessionId(), this.crOid)).getAsJsonArray();
+
     Assert.assertEquals(2, ja.size());
-    
+
     for (int i = 0; i < ja.size(); ++i)
     {
       JsonObject jo = ja.get(i).getAsJsonObject();
-      
+
       Assert.assertEquals("parent-test.xlsx", jo.get("fileName").getAsString());
     }
   }
-  
+
   @Request
   private String uploadDocumentsAsAdmin()
   {
     String json = null;
-    
+
     for (int i = 0; i < 2; ++i)
     {
-      json = new ChangeRequestService().uploadFileInTransactionCR(this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+      json = crService.uploadFileInTransactionCR(this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
     }
-    
+
     JsonObject jsonVF = JsonParser.parseString(json).getAsJsonObject();
-    
+
     Assert.assertEquals("parent-test.xlsx", jsonVF.get("fileName").getAsString());
-    
+
     final String vfOid = jsonVF.get("oid").getAsString();
-    
+
     return vfOid;
   }
-  
+
   @Test
   public void testUploadDocument()
   {
@@ -260,8 +251,8 @@ public class ChangeRequestDocumentServiceTest
       try
       {
         FastTestDataset.runAsUser(user, (request) -> {
-          new ChangeRequestService().uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
-          
+          crService.uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+
           TestDataSet.deleteAllVaultFiles();
         });
       }
@@ -271,7 +262,7 @@ public class ChangeRequestDocumentServiceTest
         Assert.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
       }
     }
-    
+
     TestUserInfo[] disAllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC };
 
     for (TestUserInfo user : disAllowedUsers)
@@ -279,8 +270,8 @@ public class ChangeRequestDocumentServiceTest
       try
       {
         FastTestDataset.runAsUser(user, (request) -> {
-          new ChangeRequestService().uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
-          
+          crService.uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+
           Assert.fail("Expected a permission exception.");
         });
       }
@@ -289,16 +280,16 @@ public class ChangeRequestDocumentServiceTest
         Assert.assertEquals(CGRPermissionException.CLASS, e.getType());
         // Expected
       }
-      
+
       TestDataSet.deleteAllVaultFiles();
     }
   }
-  
+
   @Test
   public void testDownloadDocument() throws IOException
   {
     String vfOid = uploadDocumentsAsAdmin();
-    
+
     TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : allowedUsers)
@@ -315,7 +306,7 @@ public class ChangeRequestDocumentServiceTest
         Assert.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
       }
     }
-    
+
     TestUserInfo[] disAllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC };
 
     for (TestUserInfo user : disAllowedUsers)
@@ -324,7 +315,7 @@ public class ChangeRequestDocumentServiceTest
       {
         FastTestDataset.runAsUser(user, (request) -> {
           downloadDocumentAsUser(request, vfOid);
-          
+
           Assert.fail("Expected a permission exception.");
         });
       }
@@ -333,16 +324,14 @@ public class ChangeRequestDocumentServiceTest
         Assert.assertEquals(CGRPermissionException.CLASS, e.getType());
         // Expected
       }
-      
+
       TestDataSet.deleteAllVaultFiles();
     }
   }
-  
+
   private void downloadDocumentAsUser(ClientRequestIF request, String vfOid)
   {
-    ChangeRequestService service = new ChangeRequestService();
-    
-    try (ApplicationResource res = service.downloadDocumentCR(request.getSessionId(), this.crOid, vfOid))
+    try (ApplicationResource res = crService.downloadDocumentCR(request.getSessionId(), this.crOid, vfOid))
     {
       Assert.assertEquals("parent-test.xlsx", res.getName());
       Assert.assertTrue(res.exists());

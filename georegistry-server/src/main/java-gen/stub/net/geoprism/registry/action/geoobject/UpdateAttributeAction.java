@@ -22,12 +22,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 
-import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
 import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
 import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 
@@ -43,6 +44,8 @@ public class UpdateAttributeAction extends UpdateAttributeActionBase
   @Override
   public void execute()
   {
+    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
     ChangeRequest cr = this.getAllRequest().next();
     
     ServerGeoObjectType type = ServerGeoObjectType.get(cr.getGeoObjectTypeCode());
@@ -65,10 +68,8 @@ public class UpdateAttributeAction extends UpdateAttributeActionBase
       
       votc.reorder();
       
-      go.apply(false);
+      service.apply(go, false);
     }
-    
-    
   }
   
   public AbstractUpdateAttributeView getUpdateView()

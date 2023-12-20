@@ -14,7 +14,7 @@ import org.commongeoregistry.adapter.id.EmptyIdCacheException;
 
 import com.runwaysdk.session.Request;
 
-import net.geoprism.registry.service.RegistryIdService;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class TestRegistryIdService implements AdapterIdServiceIF
 {
@@ -47,8 +47,8 @@ public class TestRegistryIdService implements AdapterIdServiceIF
   @Request
   private Set<String> getUIDs(int amount)
   {
-    String[] uids = RegistryIdService.getInstance().getUids(amount);
-    
+    String[] uids = ServiceFactory.getIdService().getUids(amount);
+
     return new TreeSet<String>(Arrays.asList(uids));
   }
 

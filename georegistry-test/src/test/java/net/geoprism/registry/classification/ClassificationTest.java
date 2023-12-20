@@ -6,73 +6,66 @@ package net.geoprism.registry.classification;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationNode;
 import net.geoprism.registry.model.ClassificationType;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.view.Page;
 
 @ContextConfiguration(classes = { TestConfig.class })
-@RunWith(SpringJUnit4ClassRunner.class)
-public class ClassificationTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class ClassificationTest implements InstanceTestClassListener
 {
-  private static String             GRANDPARENT_CODE = "GRANDPARENT_OBJ";
+  private static String                       GRANDPARENT_CODE = "GRANDPARENT_OBJ";
 
-  private static String             PARENT_CODE      = "PARENT_OBJ";
+  private static String                       PARENT_CODE      = "PARENT_OBJ";
 
-  private static String             CHILD_CODE       = "CHILD_OBJ";
+  private static String                       CHILD_CODE       = "CHILD_OBJ";
 
-  private static ClassificationType type;
+  private static ClassificationType           type;
 
-  private static boolean            isSetup          = false;
+  @Autowired
+  private ClassificationTypeBusinessServiceIF typeService;
 
-  public static void setupClasses()
+  @Autowired
+  private ClassificationBusinessServiceIF     service;
+
+  @Override
+  public void beforeClassSetup() throws Exception
   {
     setUpClassInRequest();
   }
 
   @Request
-  private static void setUpClassInRequest()
+  private void setUpClassInRequest()
   {
-    type = ClassificationType.apply(ClassificationTypeTest.createMock());
-    
-    isSetup = true;
+    type = this.typeService.apply(ClassificationTypeTest.createMock());
   }
 
-  @AfterClass
-  public static void cleanUpClass()
+  @Override
+  public void afterClassSetup() throws Exception
   {
     cleanUpClassInRequest();
   }
 
   @Request
-  private static void cleanUpClassInRequest()
+  private void cleanUpClassInRequest()
   {
     if (type != null)
     {
-      type.delete();
-    }
-    
-    isSetup = false;
-  }
-
-  @Before
-  public void setUp()
-  {
-    // This is a hack to allow for spring injection of classification tasks
-    if (!isSetup)
-    {
-      setupClasses();
+      this.typeService.delete(type);
     }
   }
 
@@ -80,9 +73,9 @@ public class ClassificationTest
   @Request
   public void testBasicCreate()
   {
-    Classification object = Classification.newInstance(type);
+    Classification object = this.service.newInstance(type);
     object.setCode(PARENT_CODE);
-    object.apply(null);
+    this.service.apply(object, null);
 
     try
     {
@@ -90,7 +83,7 @@ public class ClassificationTest
     }
     finally
     {
-      object.delete();
+      this.service.delete(object);
     }
   }
 
@@ -98,19 +91,19 @@ public class ClassificationTest
   @Request
   public void testGetByCode()
   {
-    Classification object = Classification.newInstance(type);
+    Classification object = this.service.newInstance(type);
     object.setCode(PARENT_CODE);
-    object.apply(null);
+    this.service.apply(object, null);
 
     try
     {
-      Classification result = Classification.get(type, object.getCode());
+      Classification result = this.service.get(type, object.getCode());
 
       Assert.assertEquals(object.getOid(), result.getOid());
     }
     finally
     {
-      object.delete();
+      this.service.delete(object);
     }
   }
 
@@ -118,21 +111,21 @@ public class ClassificationTest
   @Request
   public void testAddGetChild()
   {
-    Classification parent = Classification.newInstance(type);
+    Classification parent = this.service.newInstance(type);
     parent.setCode(PARENT_CODE);
-    parent.apply(null);
+    this.service.apply(parent, null);
 
     try
     {
-      Classification child = Classification.newInstance(type);
+      Classification child = this.service.newInstance(type);
       child.setCode(CHILD_CODE);
-      child.apply(null);
+      this.service.apply(child, null);
 
       try
       {
-        parent.addChild(child);
+        this.service.addChild(parent, child);
 
-        Page<Classification> children = parent.getChildren(20, 1);
+        Page<Classification> children = this.service.getChildren(parent, 20, 1);
 
         Assert.assertEquals(Long.valueOf(1), children.getCount());
 
@@ -142,12 +135,12 @@ public class ClassificationTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -155,19 +148,19 @@ public class ClassificationTest
   @Request
   public void testAddGetChildApplyWithParent()
   {
-    Classification parent = Classification.newInstance(type);
+    Classification parent = this.service.newInstance(type);
     parent.setCode(PARENT_CODE);
-    parent.apply(null);
+    this.service.apply(parent, null);
 
     try
     {
-      Classification child = Classification.newInstance(type);
+      Classification child = this.service.newInstance(type);
       child.setCode(CHILD_CODE);
-      child.apply(parent);
+      this.service.apply(child, parent);
 
       try
       {
-        Page<Classification> children = parent.getChildren(20, 1);
+        Page<Classification> children = this.service.getChildren(parent, 20, 1);
 
         Assert.assertEquals(Long.valueOf(1), children.getCount());
 
@@ -177,12 +170,12 @@ public class ClassificationTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -190,34 +183,34 @@ public class ClassificationTest
   @Request
   public void testRemoveParent()
   {
-    Classification parent = Classification.newInstance(type);
+    Classification parent = this.service.newInstance(type);
     parent.setCode(PARENT_CODE);
-    parent.apply(null);
+    this.service.apply(parent, null);
 
     try
     {
-      Classification child = Classification.newInstance(type);
+      Classification child = this.service.newInstance(type);
       child.setCode(CHILD_CODE);
-      child.apply(null);
+      this.service.apply(child, null);
 
       try
       {
-        child.addParent(parent);
+        this.service.addParent(child, parent);
 
-        Assert.assertEquals(1, child.getParents().size());
+        Assert.assertEquals(1, this.service.getParents(child).size());
 
-        child.removeParent(parent);
+        this.service.removeParent(child, parent);
 
-        Assert.assertEquals(0, child.getParents().size());
+        Assert.assertEquals(0, this.service.getParents(child).size());
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -225,34 +218,34 @@ public class ClassificationTest
   @Request
   public void testRemoveChild()
   {
-    Classification parent = Classification.newInstance(type);
+    Classification parent = this.service.newInstance(type);
     parent.setCode(PARENT_CODE);
-    parent.apply(null);
+    this.service.apply(parent, null);
 
     try
     {
-      Classification child = Classification.newInstance(type);
+      Classification child = this.service.newInstance(type);
       child.setCode(CHILD_CODE);
-      child.apply(null);
+      this.service.apply(child, null);
 
       try
       {
-        parent.addChild(child);
+        this.service.addChild(parent, child);
 
-        Assert.assertEquals(Long.valueOf(1), parent.getChildren().getCount());
+        Assert.assertEquals(Long.valueOf(1), this.service.getChildren(parent).getCount());
 
-        parent.removeChild(child);
+        this.service.removeChild(parent, child);
 
-        Assert.assertEquals(Long.valueOf(0), parent.getChildren().getCount());
+        Assert.assertEquals(Long.valueOf(0), this.service.getChildren(parent).getCount());
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -260,21 +253,21 @@ public class ClassificationTest
   @Request
   public void testAddGetParent()
   {
-    Classification parent = Classification.newInstance(type);
+    Classification parent = this.service.newInstance(type);
     parent.setCode(PARENT_CODE);
-    parent.apply(null);
+    this.service.apply(parent, null);
 
     try
     {
-      Classification child = Classification.newInstance(type);
+      Classification child = this.service.newInstance(type);
       child.setCode(CHILD_CODE);
-      child.apply(null);
+      this.service.apply(child, null);
 
       try
       {
-        child.addParent(parent);
+        this.service.addParent(child, parent);
 
-        List<Classification> parents = child.getParents();
+        List<Classification> parents = this.service.getParents(child);
 
         Assert.assertEquals(1, parents.size());
 
@@ -284,12 +277,12 @@ public class ClassificationTest
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -297,41 +290,41 @@ public class ClassificationTest
   @Request
   public void testGetAncestor()
   {
-    Classification grandParent = Classification.newInstance(type);
+    Classification grandParent = this.service.newInstance(type);
     grandParent.setCode(GRANDPARENT_CODE);
-    grandParent.apply(null);
+    this.service.apply(grandParent, null);
 
     try
     {
-      Classification parent = Classification.newInstance(type);
+      Classification parent = this.service.newInstance(type);
       parent.setCode(PARENT_CODE);
-      parent.apply(grandParent);
+      this.service.apply(parent, grandParent);
 
       try
       {
-        Classification child = Classification.newInstance(type);
+        Classification child = this.service.newInstance(type);
         child.setCode(CHILD_CODE);
-        child.apply(parent);
+        this.service.apply(child, parent);
 
         try
         {
-          List<Classification> ancestors = child.getAncestors(null);
+          List<Classification> ancestors = this.service.getAncestors(child, null);
 
           Assert.assertEquals(3, ancestors.size());
         }
         finally
         {
-          child.delete();
+          this.service.delete(child);
         }
       }
       finally
       {
-        parent.delete();
+        this.service.delete(parent);
       }
     }
     finally
     {
-      grandParent.delete();
+      this.service.delete(grandParent);
     }
   }
 
@@ -339,30 +332,30 @@ public class ClassificationTest
   @Request
   public void testGetAncestorTree()
   {
-    Classification parent = Classification.newInstance(type);
+    Classification parent = this.service.newInstance(type);
     parent.setCode(PARENT_CODE);
-    parent.apply(null);
+    this.service.apply(parent, null);
 
     try
     {
-      Classification child = Classification.newInstance(type);
+      Classification child = this.service.newInstance(type);
       child.setCode(CHILD_CODE);
-      child.apply(parent);
+      this.service.apply(child, parent);
 
       try
       {
-        ClassificationNode tree = child.getAncestorTree(null, 200);
+        ClassificationNode tree = this.service.getAncestorTree(child, null, 200);
 
         Assert.assertEquals(parent.getOid(), tree.getClassification().getOid());
       }
       finally
       {
-        child.delete();
+        this.service.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 
@@ -370,22 +363,22 @@ public class ClassificationTest
   @Request
   public void testSearch()
   {
-    Classification parent = Classification.newInstance(type);
+    Classification parent = this.service.newInstance(type);
     parent.setCode(PARENT_CODE);
     parent.setDisplayLabel(new LocalizedValue("Test Parent"));
-    parent.apply(null);
+    this.service.apply(parent, null);
 
     try
     {
-      Assert.assertEquals(1, Classification.search(type, null, PARENT_CODE.toLowerCase()).size());
-      Assert.assertEquals(1, Classification.search(type, null, parent.getDisplayLabel().getValue()).size());
-      Assert.assertEquals(1, Classification.search(type, null, "test").size());
-      Assert.assertEquals(1, Classification.search(type, null, null).size());
-      Assert.assertEquals(0, Classification.search(type, null, "ARG-BARG").size());
+      Assert.assertEquals(1, this.service.search(type, null, PARENT_CODE.toLowerCase()).size());
+      Assert.assertEquals(1, this.service.search(type, null, parent.getDisplayLabel().getValue()).size());
+      Assert.assertEquals(1, this.service.search(type, null, "test").size());
+      Assert.assertEquals(1, this.service.search(type, null, null).size());
+      Assert.assertEquals(0, this.service.search(type, null, "ARG-BARG").size());
     }
     finally
     {
-      parent.delete();
+      this.service.delete(parent);
     }
   }
 

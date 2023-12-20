@@ -24,9 +24,8 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from "@shared/component";
 
 import { LocalizationService } from "@shared/service/localization.service";
-import { Organization } from "@shared/model/core";
 import { BusinessTypeService } from "@registry/service/business-type.service";
-import { BusinessType } from "@registry/model/business-type";
+import { BusinessType, BusinessTypeByOrg } from "@registry/model/business-type";
 
 @Component({
     selector: "create-business-type-modal",
@@ -36,7 +35,7 @@ import { BusinessType } from "@registry/model/business-type";
 export class CreateBusinessTypeModalComponent implements OnInit {
 
     type: BusinessType;
-    organization: Organization = null;
+    organization: BusinessTypeByOrg = null;
     message: string = null;
     organizationLabel: string;
 
@@ -61,12 +60,12 @@ export class CreateBusinessTypeModalComponent implements OnInit {
         };
     }
 
-    init(organization: any) {
+    init(organization: BusinessTypeByOrg) {
         // Filter out organizations they're not RA's of
         this.organization = organization;
 
         this.type.organization = this.organization.code;
-        this.type.organizationLabel = this.organization.label.localizedValue;
+        this.type.organizationLabel = this.organization.label;
     }
 
     handleOnSubmit(): void {

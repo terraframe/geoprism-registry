@@ -78,7 +78,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let account of sRAs.resultSet | paginate: { itemsPerPage: sRAs.pageSize, currentPage: sRAs.pageNumber, totalItems: sRAs.count }"
+                                    <tr *ngFor="let account of sRAs.resultSet | paginate: {id:'accounts', itemsPerPage: sRAs.pageSize, currentPage: sRAs.pageNumber, totalItems: sRAs.count }"
                                         class="fade-ngRepeat-item">
                                         <td class="label-column username-col">{{ account.username }}</td>
                                         <td class="label-column firstname-col">{{ account.firstName }}</td>
@@ -88,7 +88,8 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <pagination-controls (pageChange)="onSRAPageChange($event)"></pagination-controls>
+                            <pagination-controls id="accounts"
+                                (pageChange)="onSRAPageChange($event)"></pagination-controls>
 
                         </div>
                     </div>
@@ -103,7 +104,8 @@
                         <localize key="settings.organizations.heading"></localize>
 
                         <span style="float: right;">
-                            <a class="fa fa-sitemap" (click)="onManageHierarchy()" title="Manage Hierarchy"></a>
+                            <a class="fa fa-upload" (click)="onUploadHierarchy()" [title]="'organization.manager.upload.button' | localize"></a>
+                            <a class="fa fa-sitemap" (click)="onManageHierarchy()" [title]="'organization.manager.manage.button' | localize"></a>
                         </span>
                     </h3>
 
@@ -126,16 +128,20 @@
                                         <th>
                                             <localize key="settings.manage.orgs.table.parent.header"></localize>
                                         </th>
+                                        <th>
+                                            <localize key="organization.manager.enabled"></localize>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let org of organizations">
+                                    <tr
+                                        *ngFor="let org of oPage.resultSet | paginate: { id:'orgs', itemsPerPage: oPage.pageSize, currentPage: oPage.pageNumber, totalItems: oPage.count }">
                                         <td *ngIf="isSRA" class="button-column">
                                             <a class="fa fa-pencil ico-edit" (click)="onEditOrganization(org)"
                                                 [title]="'account.editTooltip' | localize"></a>
-                                            <a class="fa fa-trash-o ico-remove"
+                                            <!-- <a class="fa fa-trash-o ico-remove"
                                                 (click)="onRemoveOrganization(org.code, org.code)"
-                                                [title]="'account.removeTooltip' | localize"></a>
+                                                [title]="'account.removeTooltip' | localize"></a> -->
                                         </td>
                                         <td class="label-column">{{org.code}}</td>
                                         <td class="label-column">{{org.label.localizedValue}}</td>
@@ -145,16 +151,24 @@
                                                 {{org.parentLabel.localizedValue}}
                                             </ng-container>
                                         </td>
+                                        <td class="label-column">
+                                            <localize *ngIf="org.enabled" key="change.request.boolean.option.true">
+                                            </localize>
+                                            <localize *ngIf="!org.enabled" key="change.request.boolean.option.false">
+                                            </localize>
+                                        </td>
                                     </tr>
                                     <tr *ngIf="isSRA">
                                         <td class="button-column">
                                             <a class="fa fa-plus" (click)="newOrganization()"
-                                                [title]="'account.newTooltip' | localize"></a>
+                                                [title]="'organization.manager.tooltip' | localize"></a>
                                         </td>
                                     </tr>
 
                                 </tbody>
                             </table>
+                            <pagination-controls id="orgs" (pageChange)="onOrgPageChange($event)"></pagination-controls>
+
                         </div>
                     </div>
 
@@ -305,7 +319,7 @@
                                 </thead>
                                 <tbody>
                                     <tr
-                                        *ngFor="let system of systems.resultSet | paginate: { itemsPerPage: systems.pageSize, currentPage: systems.pageNumber, totalItems: systems.count }">
+                                        *ngFor="let system of systems.resultSet | paginate: {id:'systems', itemsPerPage: systems.pageSize, currentPage: systems.pageNumber, totalItems: systems.count }">
                                         <td class="button-column">
                                             <a class="fa fa-pencil ico-edit" (click)="onEditSystem(system)"
                                                 [title]="'account.editTooltip' | localize"></a>
@@ -331,7 +345,8 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <pagination-controls (pageChange)="onSystemPageChange($event)"></pagination-controls>
+                            <pagination-controls id="systems"
+                                (pageChange)="onSystemPageChange($event)"></pagination-controls>
 
                         </div>
                     </div>

@@ -45,7 +45,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonObject;
 import com.runwaysdk.resource.ApplicationResource;
 
-import net.geoprism.registry.service.ChangeRequestService;
+import net.geoprism.registry.service.request.ChangeRequestService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 /**

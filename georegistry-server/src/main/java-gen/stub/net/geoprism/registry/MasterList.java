@@ -57,11 +57,13 @@ import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
-import net.geoprism.registry.service.LocaleSerializer;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
+import net.geoprism.registry.service.permission.RolePermissionService;
+import net.geoprism.registry.service.request.LocaleSerializer;
+import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -237,7 +239,7 @@ public class MasterList extends MasterListBase
         String hCode = hierarchy.get("code").getAsString();
         ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
 
-        List<ServerGeoObjectType> ancestors = type.getTypeAncestors(hierarchyType, true);
+        List<ServerGeoObjectType> ancestors = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).getTypeAncestors(type, hierarchyType, true);
 
         map.put(hierarchyType, ancestors);
       }
@@ -847,7 +849,7 @@ public class MasterList extends MasterListBase
 
       if (ht.isPresent())
       {
-        ServerHierarchyType actualHierarchy = masterlistType.findHierarchy(ht.get(), type);
+        ServerHierarchyType actualHierarchy = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).findHierarchy(masterlistType, ht.get(), type);
 
         if (hCode.equals(hierarchyType.getCode()) || actualHierarchy.getCode().equals(hierarchyType.getCode()))
         {
@@ -1073,7 +1075,8 @@ public class MasterList extends MasterListBase
 
     for (Organization org : orgs)
     {
-      final boolean isMember = Organization.isMember(org);
+      GPROrganizationPermissionService orgPermissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
+      final boolean isMember = orgPermissions.isMemberOrSRA(org);
 
       MasterListQuery query = new MasterListQuery(new QueryFactory());
       query.WHERE(query.getOrganization().EQ(org));
@@ -1105,12 +1108,14 @@ public class MasterList extends MasterListBase
           }
         }
       }
+      
+      RolePermissionService permissions = ServiceFactory.getBean(RolePermissionService.class);
 
       JsonObject object = new JsonObject();
       object.addProperty("oid", org.getOid());
       object.addProperty("code", org.getCode());
       object.addProperty("label", org.getDisplayLabel().getValue());
-      object.addProperty("write", Organization.isRegistryAdmin(org) || Organization.isRegistryMaintainer(org));
+      object.addProperty("write",  permissions.isRA(org.getCode()) || permissions.isRM(org.getCode()));
       object.add("lists", lists);
 
       response.add(object);

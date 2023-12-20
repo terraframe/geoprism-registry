@@ -54,7 +54,6 @@ import com.runwaysdk.constants.MdAttributeDateTimeUtil;
 import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
-import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
@@ -79,15 +78,17 @@ import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.query.graph.AttributeValueRestriction;
 import net.geoprism.registry.query.graph.BasicVertexRestriction;
 import net.geoprism.registry.query.graph.CompositeRestriction;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
-import net.geoprism.registry.service.LocaleSerializer;
-import net.geoprism.registry.service.SerializedListTypeCache;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.permission.RolePermissionService;
+import net.geoprism.registry.service.request.LocaleSerializer;
+import net.geoprism.registry.service.request.SerializedListTypeCache;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public abstract class ListType extends ListTypeBase
 {
@@ -295,7 +296,7 @@ public abstract class ListType extends ListTypeBase
         String hCode = hierarchy.get("code").getAsString();
         ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
 
-        List<ServerGeoObjectType> ancestors = type.getTypeAncestors(hierarchyType, true);
+        List<ServerGeoObjectType> ancestors =  ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).getTypeAncestors(type, hierarchyType, true);
 
         map.put(hierarchyType, ancestors);
       }
@@ -623,7 +624,7 @@ public abstract class ListType extends ListTypeBase
 
       if (ht.isPresent())
       {
-        ServerHierarchyType actualHierarchy = masterlistType.findHierarchy(ht.get(), type);
+        ServerHierarchyType actualHierarchy = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).findHierarchy(masterlistType, ht.get(), type);
 
         if (hCode.equals(hierarchyType.getCode()) || actualHierarchy.getCode().equals(hierarchyType.getCode()))
         {
@@ -799,10 +800,11 @@ public abstract class ListType extends ListTypeBase
           JsonObject object = filter.get("value").getAsJsonObject();
           Term term = Term.fromJSON(object);
           MdClassificationDAOIF mdClassification = ( (MdAttributeClassificationDAOIF) mdAttribute ).getMdClassificationDAOIF();
-          MdEdgeDAOIF mdEdge = mdClassification.getReferenceMdEdgeDAO();
           ClassificationType classificationType = new ClassificationType(mdClassification);
 
-          Classification classification = Classification.get(classificationType, term.getCode());
+          ClassificationBusinessServiceIF service = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
+
+          Classification classification = service.get(classificationType, term.getCode());
 
           restriction.add(new AttributeValueRestriction(mdAttribute, operation, classification.getVertex().getRID(), forDate));
         }
@@ -962,12 +964,8 @@ public abstract class ListType extends ListTypeBase
 
     Organization org = type.getOrganization();
 
-    final boolean isMember = Organization.isMember(org);
-
     ListTypeQuery query = new ListTypeQuery(new QueryFactory());
     query.WHERE(query.getUniversal().EQ(type.getUniversal()));
-
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
     final JsonArray lists = new JsonArray();
 

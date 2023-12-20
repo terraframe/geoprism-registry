@@ -9,42 +9,37 @@ import java.util.Date;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.dataaccess.graph.GraphObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 
-public class ValueOverTimeTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class ValueOverTimeTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static FastTestDataset      testData;
-  
   public static final TestGeoObjectInfo TEST_GO = new TestGeoObjectInfo("VOT_TEST_GO", FastTestDataset.COUNTRY);
 
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
-  }
-
+  @Autowired private GeoObjectBusinessServiceIF goBiz;
+  
   @Before
   public void setUp()
   {
@@ -82,7 +77,7 @@ public class ValueOverTimeTest
     
     ServerGeoObjectIF go = TEST_GO.getServerObject();
     go.setDisplayLabel(original, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
-    go.apply(false);
+    goBiz.apply(go, false);
     
     final String newValue = defaultValue;
     
@@ -91,7 +86,7 @@ public class ValueOverTimeTest
     
     ServerGeoObjectIF go2 = TEST_GO.getServerObject();
     go2.setDisplayLabel(lvNew, addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), addDay(TestDataSet.DEFAULT_END_TIME_DATE, -5));
-    go2.apply(false);
+    goBiz.apply(go2, false);
     
     ServerGeoObjectIF go3 = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go3.getValuesOverTime(DefaultAttribute.DISPLAY_LABEL.getName());
@@ -114,7 +109,7 @@ public class ValueOverTimeTest
     
     ServerGeoObjectIF go = TEST_GO.getServerObject();
     go.setDisplayLabel(original, TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
-    go.apply(false);
+    goBiz.apply(go, false);
     
     final String newValue = "new value";
     
@@ -123,7 +118,7 @@ public class ValueOverTimeTest
     
     ServerGeoObjectIF go2 = TEST_GO.getServerObject();
     go2.setDisplayLabel(lvNew, addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), addDay(TestDataSet.DEFAULT_END_TIME_DATE, -5));
-    go2.apply(false);
+    goBiz.apply(go2, false);
     
     ServerGeoObjectIF go3 = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go3.getValuesOverTime(DefaultAttribute.DISPLAY_LABEL.getName());
@@ -164,7 +159,7 @@ public class ValueOverTimeTest
     
     ServerGeoObjectIF go = TEST_GO.getServerObject();
     go.setValue(DefaultAttribute.EXISTS.getName(), false, start, end);
-    go.apply(false);
+    goBiz.apply(go, false);
     
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go.getValuesOverTime(DefaultAttribute.EXISTS.getName());
@@ -190,7 +185,7 @@ public class ValueOverTimeTest
   {
     ServerGeoObjectIF go = TEST_GO.getServerObject();
     go.setValue(DefaultAttribute.EXISTS.getName(), true, addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 1), addDay(TestDataSet.DEFAULT_END_TIME_DATE, -1));
-    go.apply(false);
+    goBiz.apply(go, false);
     
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go.getValuesOverTime(DefaultAttribute.EXISTS.getName());
@@ -211,7 +206,7 @@ public class ValueOverTimeTest
   {
     ServerGeoObjectIF go = TEST_GO.getServerObject();
     go.setValue(DefaultAttribute.EXISTS.getName(), false, addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), addDay(TestDataSet.DEFAULT_END_TIME_DATE, -5));
-    go.apply(false);
+    goBiz.apply(go, false);
     
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go.getValuesOverTime(DefaultAttribute.EXISTS.getName());
@@ -242,7 +237,7 @@ public class ValueOverTimeTest
   {
     ServerGeoObjectIF go = TEST_GO.getServerObject();
     go.setValue(DefaultAttribute.EXISTS.getName(), true, addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5));
-    go.apply(false);
+    goBiz.apply(go, false);
     
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go.getValuesOverTime(DefaultAttribute.EXISTS.getName());
@@ -263,7 +258,7 @@ public class ValueOverTimeTest
   {
     ServerGeoObjectIF go = TEST_GO.getServerObject();
     go.setValue(DefaultAttribute.EXISTS.getName(), false, addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5));
-    go.apply(false);
+    goBiz.apply(go, false);
     
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go.getValuesOverTime(DefaultAttribute.EXISTS.getName());
@@ -284,7 +279,7 @@ public class ValueOverTimeTest
   {
     ServerGeoObjectIF go = TEST_GO.getServerObject();
     go.setValue(DefaultAttribute.EXISTS.getName(), true, addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -30), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5));
-    go.apply(false);
+    goBiz.apply(go, false);
     
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go.getValuesOverTime(DefaultAttribute.EXISTS.getName());
@@ -305,7 +300,7 @@ public class ValueOverTimeTest
   {
     ServerGeoObjectIF go = TEST_GO.getServerObject();
     go.setValue(DefaultAttribute.EXISTS.getName(), false, addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -30), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5));
-    go.apply(false);
+    goBiz.apply(go, false);
     
     go = TEST_GO.getServerObject();
     ValueOverTimeCollection votc = go.getValuesOverTime(DefaultAttribute.EXISTS.getName());

@@ -25,12 +25,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
 
+import net.geoprism.registry.FastDatasetTest;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.test.FastTestDataset;
@@ -41,27 +43,12 @@ import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class GeoObjectRelationshipServiceTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class GeoObjectRelationshipServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static FastTestDataset testData;
-
   @Autowired
   private TestRegistryClient       client;
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
-  }
 
   @Before
   public void setUp()

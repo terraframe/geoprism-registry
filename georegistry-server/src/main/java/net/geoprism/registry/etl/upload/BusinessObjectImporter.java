@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -92,7 +92,9 @@ import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
-import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class BusinessObjectImporter implements ObjectImporterIF
@@ -196,8 +198,15 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
   private ThreadPoolExecutor                  executor;
 
+  private BusinessObjectBusinessServiceIF     bObjectService;
+
+  private GeoObjectBusinessServiceIF          objectService;
+
   public BusinessObjectImporter(BusinessObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
+    this.bObjectService = ServiceFactory.getBean(BusinessObjectBusinessServiceIF.class);
+    this.objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
     this.configuration = configuration;
     this.progressListener = progressListener;
 
@@ -271,7 +280,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
           ServerParentTreeNode tnParent = new ServerParentTreeNode(geoObject, hierarchy, BusinessObjectImporter.this.getConfiguration().getDate(), BusinessObjectImporter.this.getConfiguration().getDate(), null);
 
-          ServerParentTreeNodeOverTime grandParentsOverTime = geoObject.getParentsOverTime(null, true, true);
+          ServerParentTreeNodeOverTime grandParentsOverTime = objectService.getParentsOverTime(geoObject, null, true, true);
 
           if (grandParentsOverTime != null && grandParentsOverTime.hasEntries(hierarchy))
           {
@@ -354,7 +363,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
         BusinessObject entity;
 
-        entity = BusinessObject.newInstance(this.configuration.getType());
+        entity = this.bObjectService.newInstance(this.configuration.getType());
 
         Map<String, AttributeType> attributes = this.getConfiguration().getType().getAttributeMap();
         Set<Entry<String, AttributeType>> entries = attributes.entrySet();
@@ -542,7 +551,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
       if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY) || this.configuration.getImportStrategy().equals(ImportStrategy.NEW_AND_UPDATE))
       {
-        businessObject = BusinessObject.getByCode(this.configuration.getType(), code);
+        businessObject = this.bObjectService.getByCode(this.configuration.getType(), code);
       }
 
       if (businessObject == null)
@@ -558,7 +567,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
         isNew = true;
 
-        businessObject = BusinessObject.newInstance(this.configuration.getType());
+        businessObject = this.bObjectService.newInstance(this.configuration.getType());
         businessObject.setCode(code);
       }
 
@@ -606,13 +615,13 @@ public class BusinessObjectImporter implements ObjectImporterIF
         throw new RuntimeException("Did not expect to encounter validation problems during import.");
       }
 
-      data.setGoJson(businessObject.toJSON().toString());
+      data.setGoJson(this.bObjectService.toJSON(businessObject).toString());
       data.setNew(isNew);
       data.setParentBuilder(builder);
 
-      businessObject.apply();
-
-      businessObject.addGeoObject(geoObject);
+      this.bObjectService.apply(businessObject);
+      
+      this.bObjectService.addGeoObject(businessObject, geoObject);
 
       imported = true;
 
@@ -633,7 +642,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
     }
     catch (Throwable t)
     {
-      buildRecordException(businessObject.toJSON().toString(), isNew, builder, t);
+      buildRecordException(this.bObjectService.toJSON(businessObject).toString(), isNew, builder, t);
     }
 
     return imported;
@@ -745,7 +754,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
         final ParentMatchStrategy ms = location.getMatchStrategy();
 
         // Search
-        ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(location.getType(), this.configuration.getDate());
+        ServerGeoObjectQuery query = this.objectService.createQuery(location.getType(), this.configuration.getDate());
         query.setLimit(20);
 
         if (ms.equals(ParentMatchStrategy.CODE))

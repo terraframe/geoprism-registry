@@ -12,14 +12,12 @@ import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -48,27 +46,34 @@ import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobQuery;
 import net.geoprism.graph.SingleLabeledPropertyGraphType;
-import net.geoprism.graph.lpg.TreeStrategyConfiguration;
-import net.geoprism.graph.lpg.adapter.RegistryConnectorFactory;
-import net.geoprism.graph.lpg.business.GeoObjectTypeSnapshotBusinessServiceIF;
-import net.geoprism.graph.lpg.business.HierarchyTypeSnapshotBusinessServiceIF;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphSynchronizationBusinessServiceIF;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeBusinessServiceIF;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeEntryBusinessServiceIF;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeVersionBusinessServiceIF;
-import net.geoprism.graph.lpg.service.JsonGraphVersionPublisherService;
-import net.geoprism.graph.lpg.service.LabeledPropertyGraphJsonExporterService;
-import net.geoprism.graph.lpg.service.LabeledPropertyGraphTypeServiceIF;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.LabeledPropertyGraphTypeBuilder;
 import net.geoprism.registry.LocalRegistryConnectorBuilder;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.lpg.TreeStrategyConfiguration;
+import net.geoprism.registry.lpg.adapter.RegistryConnectorFactory;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
+import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
+import net.geoprism.registry.service.business.LabeledPropertyGraphSynchronizationBusinessServiceIF;
+import net.geoprism.registry.service.business.LabeledPropertyGraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.LabeledPropertyGraphTypeEntryBusinessServiceIF;
+import net.geoprism.registry.service.business.LabeledPropertyGraphTypeVersionBusinessServiceIF;
+import net.geoprism.registry.service.request.GraphRepoServiceIF;
+import net.geoprism.registry.service.request.JsonGraphVersionPublisherService;
+import net.geoprism.registry.service.request.LabeledPropertyGraphJsonExporterService;
+import net.geoprism.registry.service.request.LabeledPropertyGraphTypeServiceIF;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
@@ -76,16 +81,12 @@ import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
-@RunWith(SpringJUnit4ClassRunner.class)
-public class LabeledPropertyGraphTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class LabeledPropertyGraphTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private static boolean                                       isSetup = false;
-
-  private static String                                        CODE    = "Test Term";
+  private static String                                        CODE = "Test Term";
 
   private static ClassificationType                            type;
-
-  private static USATestData                                   testData;
 
   private static AttributeTermType                             testTerm;
 
@@ -113,16 +114,27 @@ public class LabeledPropertyGraphTest
   private HierarchyTypeSnapshotBusinessServiceIF               hierarchyService;
 
   @Autowired
+  private GeoObjectTypeBusinessServiceIF                       oTypeService;
+
+  @Autowired
+  private GraphRepoServiceIF                                   repoService;
+
+  @Autowired
   private JsonGraphVersionPublisherService                     publisherService;
 
   @Autowired
   private LabeledPropertyGraphJsonExporterService              exporterService;
 
-  public static void setupClasses()
-  {
+  @Autowired
+  private ClassificationTypeBusinessServiceIF                  cTypeService;
 
-    testData = USATestData.newTestData();
-    testData.setUpMetadata();
+  @Autowired
+  private ClassificationBusinessServiceIF                      cService;
+
+  @Override
+  public void beforeClassSetup() throws Exception
+  {
+    super.beforeClassSetup();
 
     setUpInReq();
 
@@ -130,29 +142,27 @@ public class LabeledPropertyGraphTest
     {
       SchedulerManager.start();
     }
-
-    isSetup = true;
   }
 
   @Request
-  private static void setUpInReq()
+  private void setUpInReq()
   {
-    type = ClassificationType.apply(ClassificationTypeTest.createMock());
+    type = this.cTypeService.apply(ClassificationTypeTest.createMock());
 
-    Classification root = Classification.newInstance(type);
+    Classification root = this.cService.newInstance(type);
     root.setCode(CODE);
     root.setDisplayLabel(new LocalizedValue("Test Classification"));
-    root.apply(null);
+    this.cService.apply(root, null);
 
     testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
     testClassification.setClassificationType(type.getCode());
     testClassification.setRootTerm(root.toTerm());
 
     ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.STATE.getCode());
-    testClassification = (AttributeClassificationType) got.createAttributeType(testClassification.toJSON().toString());
+    testClassification = (AttributeClassificationType) this.oTypeService.createAttributeType(got, testClassification.toJSON().toString());
 
     testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-    testTerm = (AttributeTermType) got.createAttributeType(testTerm.toJSON().toString());
+    testTerm = (AttributeTermType) this.oTypeService.createAttributeType(got, testTerm.toJSON().toString());
 
     Term term = new Term("TERM_1", new LocalizedValue("Term 1"), new LocalizedValue("Term 1"));
 
@@ -162,36 +172,27 @@ public class LabeledPropertyGraphTest
     USATestData.COLORADO.setDefaultValue(testClassification.getName(), CODE);
     USATestData.COLORADO.setDefaultValue(testTerm.getName(), term);
 
-    RegistryService.getInstance().refreshMetadataCache();
+    this.repoService.refreshMetadataCache();
   }
 
-  @AfterClass
+  @Override
   @Request
-  public static void classTearDown()
+  public void afterClassSetup() throws Exception
   {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
+    super.afterClassSetup();
 
     USATestData.COLORADO.removeDefaultValue(testClassification.getName());
     USATestData.COLORADO.removeDefaultValue(testTerm.getName());
 
     if (type != null)
     {
-      type.delete();
+      this.cTypeService.delete(type);
     }
   }
 
   @Before
   public void setUp()
   {
-    // This is a hack to allow for spring injection of classification tasks
-    if (!isSetup)
-    {
-      setupClasses();
-    }
-
     cleanUpExtra();
 
     testData.setUpInstanceData();
@@ -226,6 +227,7 @@ public class LabeledPropertyGraphTest
     type.getDescription().setValue("My Overal Description");
     type.setValidOn(USATestData.DEFAULT_OVER_TIME_DATE);
     type.setStrategyType(SingleLabeledPropertyGraphType.TREE);
+    type.setOrganization(USATestData.ORG_NPS.getServerObject().getOrganization());
 
     JsonObject json = type.toJSON();
     SingleLabeledPropertyGraphType test = (SingleLabeledPropertyGraphType) this.typeService.fromJSON(json);
@@ -255,6 +257,7 @@ public class LabeledPropertyGraphTest
     type.getDescription().setValue("My Overal Description");
     type.setIntervalJson(intervalJson.toString());
     type.setStrategyType(SingleLabeledPropertyGraphType.TREE);
+    type.setOrganization(USATestData.ORG_NPS.getServerObject().getOrganization());
 
     JsonObject json = type.toJSON();
     IntervalLabeledPropertyGraphType test = (IntervalLabeledPropertyGraphType) this.typeService.fromJSON(json);
@@ -278,6 +281,7 @@ public class LabeledPropertyGraphTest
     type.setPublishingStartDate(USATestData.DEFAULT_OVER_TIME_DATE);
     type.addFrequency(ChangeFrequency.ANNUAL);
     type.setStrategyType(SingleLabeledPropertyGraphType.TREE);
+    type.setOrganization(USATestData.ORG_NPS.getServerObject().getOrganization());
 
     JsonObject json = type.toJSON();
     IncrementalLabeledPropertyGraphType test = (IncrementalLabeledPropertyGraphType) this.typeService.fromJSON(json);

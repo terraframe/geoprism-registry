@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -43,8 +43,8 @@ import com.google.gson.JsonObject;
 
 import net.geoprism.registry.controller.DirectedAcyclicGraphTypeController.CodeBody;
 import net.geoprism.registry.permission.PermissionContext;
-import net.geoprism.registry.service.RegistryComponentService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.request.GPRHierarchyTypeService;
+import net.geoprism.registry.service.request.RegistryComponentService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController
@@ -61,13 +61,13 @@ public class HierarchyTypeController extends RunwaySpringController
     {
       return hierarchyType;
     }
-    
+
     public void setHierarchyType(JsonObject hierarchyType)
     {
       this.hierarchyType = hierarchyType;
     }
   }
-  
+
   public static class HierarchyTypeNodeBody
   {
     @NotEmpty
@@ -169,31 +169,31 @@ public class HierarchyTypeController extends RunwaySpringController
   {
     @NotEmpty
     String hierarchyTypeCode;
-    
+
     @NotEmpty
     String geoObjectTypeCode;
-    
+
     public String getHierarchyTypeCode()
     {
       return hierarchyTypeCode;
     }
-    
+
     public void setHierarchyTypeCode(String hierarchyTypeCode)
     {
       this.hierarchyTypeCode = hierarchyTypeCode;
     }
-    
+
     public String getGeoObjectTypeCode()
     {
       return geoObjectTypeCode;
     }
-    
+
     public void setGeoObjectTypeCode(String geoObjectTypeCode)
     {
       this.geoObjectTypeCode = geoObjectTypeCode;
     }
   }
-  
+
   public static class HierarchyTypeSetInheritedBody extends HierarchyTypeInheritedBody
   {
     @NotEmpty
@@ -210,15 +210,18 @@ public class HierarchyTypeController extends RunwaySpringController
     }
   }
 
-  public static final String API_PATH = "hierarchytype";
+  public static final String       API_PATH = "hierarchytype";
 
   @Autowired
-  private RegistryComponentService    registryService;
+  private RegistryComponentService  registryService;
+
+  @Autowired
+  private GPRHierarchyTypeService   hierarchyService;
 
   @GetMapping(API_PATH + "/groupedTypes")
   public ResponseEntity<String> getHierarchyGroupedTypes()
   {
-    JsonArray ja = ServiceFactory.getHierarchyService().getHierarchyGroupedTypes(this.getSessionId());
+    JsonArray ja = this.hierarchyService.getHierarchyGroupedTypes(this.getSessionId());
 
     return new ResponseEntity<String>(ja.toString(), HttpStatus.OK);
   }
@@ -245,7 +248,7 @@ public class HierarchyTypeController extends RunwaySpringController
   @PostMapping(API_PATH + "/add")
   public ResponseEntity<String> addToHierarchy(@Valid @RequestBody HierarchyTypeNodeBody body)
   {
-    HierarchyType ht = ServiceFactory.getHierarchyService().addToHierarchy(this.getSessionId(), body.hierarchyCode, body.parentGeoObjectTypeCode, body.childGeoObjectTypeCode);
+    HierarchyType ht = this.hierarchyService.addToHierarchy(this.getSessionId(), body.hierarchyCode, body.parentGeoObjectTypeCode, body.childGeoObjectTypeCode);
     CustomSerializer serializer = this.registryService.serializer(this.getSessionId());
 
     JsonObject response = ht.toJSON(serializer);
@@ -266,10 +269,9 @@ public class HierarchyTypeController extends RunwaySpringController
    *          child {@link GeoObjectType}.
    */
   @PostMapping(API_PATH + "/remove")
-  public ResponseEntity<String> removeFromHierarchy(@Valid
-  @RequestBody HierarchyTypeNodeBody body)
+  public ResponseEntity<String> removeFromHierarchy(@Valid @RequestBody HierarchyTypeNodeBody body)
   {
-    HierarchyType ht = ServiceFactory.getHierarchyService().removeFromHierarchy(this.getSessionId(), body.hierarchyCode, body.parentGeoObjectTypeCode, body.childGeoObjectTypeCode, true);
+    HierarchyType ht = this.hierarchyService.removeFromHierarchy(this.getSessionId(), body.hierarchyCode, body.parentGeoObjectTypeCode, body.childGeoObjectTypeCode, true);
     CustomSerializer serializer = this.registryService.serializer(this.getSessionId());
 
     JsonObject response = ht.toJSON(serializer);
@@ -296,7 +298,7 @@ public class HierarchyTypeController extends RunwaySpringController
   @PostMapping(API_PATH + "/insertBetweenTypes")
   public ResponseEntity<String> insertBetweenTypes(@Valid @RequestBody HierarchyTypeInsertBody body)
   {
-    HierarchyType ht = ServiceFactory.getHierarchyService().insertBetweenTypes(this.getSessionId(), body.hierarchyCode, body.parentGeoObjectTypeCode, body.middleGeoObjectTypeCode, body.youngestGeoObjectTypeCode);
+    HierarchyType ht = this.hierarchyService.insertBetweenTypes(this.getSessionId(), body.hierarchyCode, body.parentGeoObjectTypeCode, body.middleGeoObjectTypeCode, body.youngestGeoObjectTypeCode);
     CustomSerializer serializer = this.registryService.serializer(this.getSessionId());
 
     JsonObject response = ht.toJSON(serializer);
@@ -319,7 +321,7 @@ public class HierarchyTypeController extends RunwaySpringController
   @PostMapping(API_PATH + "/setInherited")
   public ResponseEntity<String> setInheritedHierarchy(@Valid @RequestBody HierarchyTypeSetInheritedBody body)
   {
-    HierarchyType ht = ServiceFactory.getHierarchyService().setInheritedHierarchy(this.getSessionId(), body.hierarchyTypeCode, body.inheritedHierarchyTypeCode, body.geoObjectTypeCode);
+    HierarchyType ht = this.hierarchyService.setInheritedHierarchy(this.getSessionId(), body.hierarchyTypeCode, body.inheritedHierarchyTypeCode, body.geoObjectTypeCode);
     CustomSerializer serializer = this.registryService.serializer(this.getSessionId());
 
     JsonObject response = ht.toJSON(serializer);
@@ -339,13 +341,13 @@ public class HierarchyTypeController extends RunwaySpringController
   @PostMapping(API_PATH + "/removeInherited")
   public ResponseEntity<String> removeInheritedHierarchy(@Valid @RequestBody HierarchyTypeInheritedBody body)
   {
-    HierarchyType ht = ServiceFactory.getHierarchyService().removeInheritedHierarchy(this.getSessionId(), body.hierarchyTypeCode, body.geoObjectTypeCode);
+    HierarchyType ht = this.hierarchyService.removeInheritedHierarchy(this.getSessionId(), body.hierarchyTypeCode, body.geoObjectTypeCode);
     CustomSerializer serializer = this.registryService.serializer(this.getSessionId());
 
     JsonObject response = ht.toJSON(serializer);
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
-  
+
   /**
    * Returns an array of {@link HierarchyType} that define the given list of
    * types. If no types are provided then all will be returned.
@@ -355,9 +357,7 @@ public class HierarchyTypeController extends RunwaySpringController
    *          retrieved.
    */
   @GetMapping(RegistryUrls.HIERARCHY_TYPE_GET_ALL)
-  public ResponseEntity<String> getHierarchyTypes( 
-      @RequestParam(required = false) String types, 
-      @NotEmpty @RequestParam String context)
+  public ResponseEntity<String> getHierarchyTypes(@RequestParam(required = false) String types, @NotEmpty @RequestParam String context)
   {
     String[] aTypes = null;
     if (types != null)
@@ -373,7 +373,7 @@ public class HierarchyTypeController extends RunwaySpringController
 
     PermissionContext pContext = PermissionContext.get(context);
 
-    HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(this.getSessionId(), aTypes, pContext);
+    HierarchyType[] hts = this.hierarchyService.getHierarchyTypes(this.getSessionId(), aTypes, pContext);
     CustomSerializer serializer = this.registryService.serializer(this.getSessionId());
 
     JsonArray jarray = new JsonArray();
@@ -392,10 +392,10 @@ public class HierarchyTypeController extends RunwaySpringController
    * @param htJSON
    *          JSON of the {@link HierarchyType} to be created.
    */
-  @PostMapping(RegistryUrls.HIERARCHY_TYPE_CREATE)  
+  @PostMapping(RegistryUrls.HIERARCHY_TYPE_CREATE)
   public ResponseEntity<String> createHierarchyType(@Valid @RequestBody HierarchyTypeBody body)
   {
-    HierarchyType hierarchyType = ServiceFactory.getHierarchyService().createHierarchyType(this.getSessionId(), body.hierarchyType.toString());
+    HierarchyType hierarchyType = this.hierarchyService.createHierarchyType(this.getSessionId(), body.hierarchyType.toString());
     CustomSerializer serializer = this.registryService.serializer(this.getSessionId());
 
     JsonObject response = hierarchyType.toJSON(serializer);
@@ -409,10 +409,10 @@ public class HierarchyTypeController extends RunwaySpringController
    * @param gtJSON
    *          JSON of the {@link HierarchyType} to be updated.
    */
-  @PostMapping(RegistryUrls.HIERARCHY_TYPE_UPDATE)    
+  @PostMapping(RegistryUrls.HIERARCHY_TYPE_UPDATE)
   public ResponseEntity<String> updateHierarchyType(@Valid @RequestBody HierarchyTypeBody body)
   {
-    HierarchyType hierarchyType = ServiceFactory.getHierarchyService().updateHierarchyType(this.getSessionId(), body.hierarchyType.toString());
+    HierarchyType hierarchyType = this.hierarchyService.updateHierarchyType(this.getSessionId(), body.hierarchyType.toString());
     CustomSerializer serializer = this.registryService.serializer(this.getSessionId());
 
     JsonObject response = hierarchyType.toJSON(serializer);
@@ -427,10 +427,10 @@ public class HierarchyTypeController extends RunwaySpringController
    *          code of the {@link HierarchyType} to delete.
    * @return
    */
-  @PostMapping(RegistryUrls.HIERARCHY_TYPE_DELETE)      
-  public ResponseEntity<Void> deleteHierarchyType( @Valid @RequestBody CodeBody body)
+  @PostMapping(RegistryUrls.HIERARCHY_TYPE_DELETE)
+  public ResponseEntity<Void> deleteHierarchyType(@Valid @RequestBody CodeBody body)
   {
-    ServiceFactory.getHierarchyService().deleteHierarchyType(this.getSessionId(), body.getCode());
+    this.hierarchyService.deleteHierarchyType(this.getSessionId(), body.getCode());
 
     return new ResponseEntity<Void>(HttpStatus.OK);
   }

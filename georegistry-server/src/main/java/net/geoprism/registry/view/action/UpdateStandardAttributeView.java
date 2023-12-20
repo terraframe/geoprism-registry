@@ -31,6 +31,8 @@ import com.google.gson.JsonElement;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class UpdateStandardAttributeView extends AbstractUpdateAttributeView
 {
@@ -56,7 +58,8 @@ public class UpdateStandardAttributeView extends AbstractUpdateAttributeView
         
         ja.forEach(ele -> ids.add(AlternateId.fromJSON(ele)));
         
-        converted = ids;
+        ServiceFactory.getBean(GPRGeoObjectBusinessServiceIF.class).setAlternateIds(go, ids);
+        return;
       }
       else if (attr instanceof AttributeBooleanType)
       {

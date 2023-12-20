@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.gson.JsonElement;
 
-import net.geoprism.registry.service.RelationshipVisualizationService;
+import net.geoprism.registry.service.request.RelationshipVisualizationService;
 import net.geoprism.registry.visualization.VertexView;
 
 @RestController

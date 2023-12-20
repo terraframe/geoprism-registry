@@ -52,16 +52,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import net.geoprism.rbac.RoleServiceIF;
 import net.geoprism.rbac.RoleView;
 import net.geoprism.registry.CGRApplication;
-import net.geoprism.registry.ListType;
-import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.service.AccountService;
-import net.geoprism.registry.service.ExternalSystemService;
-import net.geoprism.registry.service.OrganizationService;
-import net.geoprism.registry.service.RegistryComponentService;
+import net.geoprism.registry.service.request.AccountService;
+import net.geoprism.registry.service.request.ExternalSystemService;
+import net.geoprism.registry.service.request.OrganizationService;
+import net.geoprism.registry.service.request.RegistryComponentService;
+import net.geoprism.registry.service.request.RoleServiceIF;
 
 @RestController
 @Validated

@@ -8,22 +8,27 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ClassificationType;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.view.Page;
 
 @ContextConfiguration(classes = { TestConfig.class })
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringInstanceTestClassRunner.class)
 public class ClassificationTypeTest
 {
+  @Autowired
+  private ClassificationTypeBusinessServiceIF typeService;
+
   @Test
   @Request
   public void testCreate()
@@ -32,7 +37,7 @@ public class ClassificationTypeTest
     String label = "Test Prog";
     String description = "Test Description";
 
-    ClassificationType type = ClassificationType.apply(createMock(code, label, description));
+    ClassificationType type = this.typeService.apply(createMock(code, label, description));
 
     try
     {
@@ -42,7 +47,7 @@ public class ClassificationTypeTest
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
@@ -50,15 +55,15 @@ public class ClassificationTypeTest
   @Request
   public void testGetByCode()
   {
-    ClassificationType type = ClassificationType.apply(createMock());
+    ClassificationType type = this.typeService.apply(createMock());
 
     try
     {
-      Assert.assertNotNull(ClassificationType.getByCode(type.getCode()));
+      Assert.assertNotNull(this.typeService.getByCode(type.getCode()));
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
@@ -66,7 +71,7 @@ public class ClassificationTypeTest
   @Request
   public void testUpdate()
   {
-    ClassificationType type = ClassificationType.apply(createMock());
+    ClassificationType type = this.typeService.apply(createMock());
 
     try
     {
@@ -75,13 +80,13 @@ public class ClassificationTypeTest
       JsonObject json = type.toJSON();
       json.add(MdClassificationInfo.DISPLAY_LABEL, new LocalizedValue(label).toJSON());
 
-      type = ClassificationType.apply(json);
+      type = this.typeService.apply(json);
 
       Assert.assertEquals(label, type.getDisplayLabel().getValue());
     }
     finally
     {
-      type.delete();
+      this.typeService.delete(type);
     }
   }
 
@@ -89,12 +94,12 @@ public class ClassificationTypeTest
   @Request
   public void testRemove()
   {
-    ClassificationType type = ClassificationType.apply(createMock());
-    type.delete();
+    ClassificationType type = this.typeService.apply(createMock());
+    this.typeService.delete(type);
 
     try
     {
-      ClassificationType.getByCode(type.getCode());
+      this.typeService.getByCode(type.getCode());
 
       Assert.fail("Able to get type which should have been deleted");
     }
@@ -108,7 +113,7 @@ public class ClassificationTypeTest
   @Request
   public void testToJson()
   {
-    ClassificationType classificationType = ClassificationType.apply(createMock());
+    ClassificationType classificationType = this.typeService.apply(createMock());
 
     try
     {
@@ -119,7 +124,7 @@ public class ClassificationTypeTest
     }
     finally
     {
-      classificationType.delete();
+      this.typeService.delete(classificationType);
     }
 
   }
@@ -128,11 +133,11 @@ public class ClassificationTypeTest
   @Request
   public void testPage()
   {
-    ClassificationType classificationType = ClassificationType.apply(createMock());
+    ClassificationType classificationType = this.typeService.apply(createMock());
 
     try
     {
-      Page<ClassificationType> page = ClassificationType.page(new JsonObject());
+      Page<ClassificationType> page = this.typeService.page(new JsonObject());
 
       Assert.assertEquals(Long.valueOf(1), page.getCount());
 
@@ -142,7 +147,7 @@ public class ClassificationTypeTest
     }
     finally
     {
-      classificationType.delete();
+      this.typeService.delete(classificationType);
     }
 
   }

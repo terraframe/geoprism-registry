@@ -56,6 +56,7 @@ import '../rxjs-extensions';
 import { TreeModule } from '@circlon/angular-tree-component';
 import { OrganizationHierarchyModalComponent } from './component/organization/organization-hierarchy-modal.component';
 import { ContextMenuModule } from '@perfectmemory/ngx-contextmenu';
+import { ImportOrganizationModalComponent } from './component/organization/import-organization-modal.component';
 
 @NgModule({
 	imports: [
@@ -87,7 +88,8 @@ import { ContextMenuModule } from '@perfectmemory/ngx-contextmenu';
 		ExternalSystemModalComponent,
 		ImportLocalizationModalComponent,
 		LocalizationFeedbackModalComponent,
-		OrganizationHierarchyModalComponent
+		OrganizationHierarchyModalComponent,
+		ImportOrganizationModalComponent
 	],
 	exports: [
 		SystemLogoComponent,
@@ -110,7 +112,8 @@ import { ContextMenuModule } from '@perfectmemory/ngx-contextmenu';
 		ExternalSystemModalComponent,
 		ImportLocalizationModalComponent,
 		LocalizationFeedbackModalComponent,
-		OrganizationHierarchyModalComponent
+		OrganizationHierarchyModalComponent,
+		ImportOrganizationModalComponent
 	]
 })
 

@@ -6,10 +6,11 @@ package net.geoprism.registry;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.Roles;
@@ -17,28 +18,18 @@ import com.runwaysdk.system.Roles;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.business.GPROrganizationBusinessService;
+import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
+import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 
-public class OrganizationAndRoleTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class OrganizationAndRoleTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static FastTestDataset testData;
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
-  }
+  @Autowired
+  private GPROrganizationBusinessService service;
 
   @Test
   public void testRoleNames()
@@ -194,7 +185,7 @@ public class OrganizationAndRoleTest
   public void testGetGeoObjectTypesMethod()
   {
     int numGots = 0;
-    
+
     for (TestGeoObjectTypeInfo testGot : testData.getManagedGeoObjectTypes())
     {
       if (testGot.getOrganization().getCode().equals(FastTestDataset.ORG_CGOV.getCode()))
@@ -202,8 +193,8 @@ public class OrganizationAndRoleTest
         numGots++;
       }
     }
-    
-    Map<String, ServerGeoObjectType> geoObjectTypeInfo = FastTestDataset.ORG_CGOV.getServerObject().getGeoObjectTypes();
+
+    Map<String, ServerGeoObjectType> geoObjectTypeInfo = service.getGeoObjectTypes(FastTestDataset.ORG_CGOV.getServerObject());
 
     Assert.assertEquals("Method did not return the correct number of GeoObjectTypes managed by the organization", numGots, geoObjectTypeInfo.size());
 

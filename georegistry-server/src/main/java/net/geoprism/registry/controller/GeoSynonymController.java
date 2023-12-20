@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
-import net.geoprism.registry.service.GeoSynonymService;
+import net.geoprism.registry.service.request.GeoSynonymService;
 
 @RestController
 @Validated

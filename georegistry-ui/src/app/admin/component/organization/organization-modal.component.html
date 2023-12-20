@@ -19,61 +19,81 @@
 
 -->
 <div>
-  
+
   <message></message>
 
   <loading-bar></loading-bar>
 
-  <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
-        <fieldset>            
-          <div class="heading text-center">
-            <h1><localize key="organization.heading"></localize></h1>
-          </div>      
-          
-          <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-          
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="organization.code"></localize></label>
-            </div>
-            <div class="holder" >
-                <input type="text" [(ngModel)]="organization.code" name="code" [disabled]="!isNewOrganization" required>
-            </div>
+  <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">
+    <fieldset>
+      <div class="heading text-center">
+        <h1>
+          <localize key="organization.heading"></localize>
+        </h1>
+      </div>
+
+      <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+      <div class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="organization.code"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <input type="text" [(ngModel)]="organization.code" name="code" [disabled]="!isNewOrganization" required>
+        </div>
+      </div>
+      <div class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="organization.name"></localize>
+          </label>
+        </div>
+        <div class="holder" style="padding-top:10px;">
+          <div class="form-group" *ngFor="let localeValue of organization.label.localeValues">
+            <label> <convert-key-label [key]="localeValue.locale"></convert-key-label></label>
+            <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input"
+              class="form-control" required>
           </div>
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="organization.name"></localize></label>
-            </div>          
-            <div class="holder" style="padding-top:10px;">
-                <div class="form-group" *ngFor="let localeValue of organization.label.localeValues">
-                  <label> <convert-key-label [key]="localeValue.locale"></convert-key-label></label>
-                  <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" required>
-                </div>
-            </div>
-          </div>  
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="organization.contact"></localize></label>
-            </div>          
-            <div class="holder" style="padding-top:10px;">
-                <div class="form-group" *ngFor="let localeValue of organization.contactInfo.localeValues">
-                  <label> <convert-key-label [key]="localeValue.locale"></convert-key-label></label>
-                  <input  [(ngModel)]="localeValue.value" [name]="'contact-' + localeValue.locale" type="input" class="form-control">
-                </div>
-            </div>
-          </div>  
+        </div>
+      </div>
+      <div class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="organization.contact"></localize>
+          </label>
+        </div>
+        <div class="holder" style="padding-top:10px;">
+          <div class="form-group" *ngFor="let localeValue of organization.contactInfo.localeValues">
+            <label> <convert-key-label [key]="localeValue.locale"></convert-key-label></label>
+            <input [(ngModel)]="localeValue.value" [name]="'contact-' + localeValue.locale" type="input"
+              class="form-control">
+          </div>
+        </div>
+      </div>
+      <div class="row-holder">
+        <div class="label-holder">
+        </div>
+        <div class="holder" style="padding-top:10px;">
+          <div>
+            <boolean-field [(value)]="organization.enabled" localizeLabelKey="organization.manager.enabled"></boolean-field>
+          </div>
+        </div>
+      </div>
 
 
-          <div class="row-holder">
-            <div class="label-holder">
-            </div>                    
-            <div class="holder">
-              <div class="button-holder">
-                <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
-                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid)" />
-              </div>
-            </div>
+      <div class="row-holder">
+        <div class="label-holder">
+        </div>
+        <div class="holder">
+          <div class="button-holder">
+            <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />
+            <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary"
+              [disabled]="!(form.valid)" />
           </div>
-        </fieldset>
+        </div>
+      </div>
+    </fieldset>
   </form>
 </div>

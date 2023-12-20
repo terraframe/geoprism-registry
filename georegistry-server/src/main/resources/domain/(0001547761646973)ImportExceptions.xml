@@ -1,0 +1,49 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.io.RequiredMappingException" 
+                   label="Required attribute mapping exception" 
+                   description="Thrown when trying to import location data without mapping the required attributes" 
+                   message="The attribute [{attributeLabel}] must be mapped to a source column">
+        <attributes>
+          <text name="attributeLabel" label="Attribute label" />
+        </attributes>
+      </mdException>
+    
+      <mdException name="net.geoprism.registry.io.AmbiguousParentException" 
+                   label="Ambiguous Parent exception" 
+                   description="Thrown when trying to import a geo object with multiple parents of the same name" 
+                   message="Multiple parent locations exist for the name [{parentLabel}] and within [{context}]">
+        <attributes>
+          <text name="parentLabel" label="Parent label" />
+          <text name="context" label="Context" />
+        </attributes>
+      </mdException>
+    </create>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdException" key="net.geoprism.registry.io.RequiredMappingException" />
+    </delete>
+  </undoIt>
+</version>

@@ -21,12 +21,6 @@ package net.geoprism.registry.visualization;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.model.BusinessObject;
-import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
-import net.geoprism.registry.service.ServiceFactory;
-
 public class VertexView
 {
   public static enum ObjectType {
@@ -46,7 +40,7 @@ public class VertexView
   private String     relation;
 
   private boolean    readable;
-
+  
   public VertexView(ObjectType objectType, String id, String code, String typeCode, String label, String relation, boolean readable)
   {
     super();
@@ -59,38 +53,11 @@ public class VertexView
     this.readable = readable;
   }
 
-  public static VertexView fromBusinessObject(BusinessObject bo, String relation)
-  {
-    String label = bo.getLabel();
-
-    return new VertexView(ObjectType.BUSINESS, "g-" + bo.getCode(), bo.getCode(), bo.getType().getCode(), ( label == null || label.length() == 0 ) ? bo.getCode() : label, relation, true);
-  }
-
-  public static VertexView fromGeoObject(ServerGeoObjectIF go, String relation)
-  {
-    final ServerGeoObjectType type = go.getType();
-
-    final GeoObjectPermissionServiceIF typePermissions = ServiceFactory.getGeoObjectPermissionService();
-
-    boolean readable = typePermissions.canRead(type.getOrganization().getCode(), type);
-
-    String label = go.getDisplayLabel().getValue();
-
-    return new VertexView(ObjectType.GEOOBJECT, "g-" + go.getUid(), go.getCode(), go.getType().getCode(), ( label == null || label.length() == 0 ) ? go.getCode() : label, relation, readable);
-  }
-
   public JsonObject toJson()
   {
     GsonBuilder builder = new GsonBuilder();
-
+    
     return (JsonObject) builder.create().toJsonTree(this);
-  }
-
-  public static VertexView fromJSON(String sJson)
-  {
-    GsonBuilder builder = new GsonBuilder();
-
-    return builder.create().fromJson(sJson, VertexView.class);
   }
 
   public ObjectType getObjectType()

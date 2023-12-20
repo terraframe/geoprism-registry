@@ -32,13 +32,13 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.action.ActionJsonAdapters;
-import net.geoprism.registry.action.ChangeRequestPermissionService;
-import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.ServerGeoObjectService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
+import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
+import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime.ServerParentTreeNodeOverTimeDeserializer;
 
@@ -70,12 +70,13 @@ public class SetParentAction extends SetParentActionBase
   @Override
   public void execute()
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
+    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
     ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
 
     ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getJson());
 
-    child.setParents(ptnOt);
+    service.setParents(child, ptnOt);
   }
 
   @Override
@@ -106,7 +107,7 @@ public class SetParentAction extends SetParentActionBase
   {
     super.buildFromJson(joAction);
     
-    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this.getAllRequest().next());
+    Set<ChangeRequestPermissionAction> perms = ServiceFactory.getBean(ChangeRequestPermissionService.class).getPermissions(this.getAllRequest().next());
 
     if (perms.containsAll(Arrays.asList(
         ChangeRequestPermissionAction.WRITE_DETAILS

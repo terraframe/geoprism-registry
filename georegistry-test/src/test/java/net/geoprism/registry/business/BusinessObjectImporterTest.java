@@ -14,10 +14,11 @@ import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonObject;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
@@ -29,6 +30,10 @@ import com.runwaysdk.system.scheduler.ExecutionContext;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.FastDatasetTest;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.etl.DataImportJob;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportHistory;
@@ -48,33 +53,44 @@ import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.ExcelService;
+import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.ExcelService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
-public class BusinessObjectImporterTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class BusinessObjectImporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static FastTestDataset testData;
+  private static BusinessType             type;
 
-  private static BusinessType    type;
+  private static AttributeType            attributeType;
 
-  private static AttributeType   attributeType;
+  private static String                   TEST_CODE = "testCode";
 
-  private static String          TEST_CODE = "testCode";
+  @Autowired
+  private BusinessTypeBusinessServiceIF   bTypeService;
 
-  @BeforeClass
-  public static void setUpClass()
+  @Autowired
+  private BusinessObjectBusinessServiceIF bObjectService;
+
+  @Autowired
+  private ExcelService                    excelService;
+
+  @Override
+  public void beforeClassSetup() throws Exception
   {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
+
     testData.setUpInstanceData();
 
     setUpClassInRequest();
   }
 
   @Request
-  private static void setUpClassInRequest()
+  private void setUpClassInRequest()
   {
     String code = "TEST_PROG";
     String orgCode = FastTestDataset.ORG_CGOV.getCode();
@@ -85,34 +101,35 @@ public class BusinessObjectImporterTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    type = BusinessType.apply(object);
+    type = this.bTypeService.apply(object);
 
-    attributeType = type.createAttributeType(new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false));
+    attributeType = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false));
   }
 
-  @AfterClass
-  public static void cleanUpClass()
+  @Override
+  public void afterClassSetup() throws Exception
   {
     cleanUpClassInRequest();
+
+    super.afterClassSetup();
 
     if (testData != null)
     {
       testData.tearDownInstanceData();
-      testData.tearDownMetadata();
     }
   }
 
   @Request
-  private static void cleanUpClassInRequest()
+  private void cleanUpClassInRequest()
   {
     if (type != null)
     {
-      type.delete();
+      this.bTypeService.delete(type);
     }
   }
 
   @Test
-  public void testImportValueNewOnly() throws InterruptedException
+  public void testImportValueNewOnly() 
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
       String value = "Test Text";
@@ -135,7 +152,7 @@ public class BusinessObjectImporterTest
         importer.importRow(new MapFeatureRow(row, 0L));
       }
 
-      BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
+      BusinessObject result = this.bObjectService.get(type, attributeType.getName(), value);
 
       try
       {
@@ -145,14 +162,14 @@ public class BusinessObjectImporterTest
       {
         if (result != null)
         {
-          result.delete();
+          this.deleteObject(result);
         }
       }
     });
   }
 
   @Test
-  public void testImportValueUpdateAndNew() throws InterruptedException
+  public void testImportValueUpdateAndNew() 
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
@@ -176,7 +193,7 @@ public class BusinessObjectImporterTest
         importer.importRow(new MapFeatureRow(row, 0L));
       }
 
-      BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
+      BusinessObject result = this.bObjectService.get(type, attributeType.getName(), value);
 
       try
       {
@@ -186,20 +203,20 @@ public class BusinessObjectImporterTest
       {
         if (result != null)
         {
-          result.delete();
+          this.deleteObject(result);
         }
       }
     });
   }
 
   @Test
-  public void testUpdateValue() throws InterruptedException
+  public void testUpdateValue() 
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
-      BusinessObject object = BusinessObject.newInstance(type);
+      BusinessObject object = this.bObjectService.newInstance(type);
       object.setCode(TEST_CODE);
-      object.apply();
+      this.bObjectService.apply(object);
 
       try
       {
@@ -225,7 +242,7 @@ public class BusinessObjectImporterTest
 
         Assert.assertFalse(configuration.hasExceptions());
 
-        BusinessObject result = BusinessObject.getByCode(type, TEST_CODE);
+        BusinessObject result = this.bObjectService.getByCode(type, TEST_CODE);
 
         Assert.assertEquals(result.getObjectValue(attributeType.getName()), value);
       }
@@ -233,32 +250,20 @@ public class BusinessObjectImporterTest
       {
         if (object != null)
         {
-          for (int i = 0; i < 100; i++)
-          {
-            try
-            {
-              object.delete();
-
-              break;
-            }
-            catch (OConcurrentModificationException e)
-            {
-              // Do nothing
-            }
-          }
+          this.deleteObject(object);
         }
       }
     });
   }
 
   @Test
-  public void testImportValueExistingNewOnly() throws InterruptedException
+  public void testImportValueExistingNewOnly() 
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
-      BusinessObject object = BusinessObject.newInstance(type);
+      BusinessObject object = this.bObjectService.newInstance(type);
       object.setCode(TEST_CODE);
-      object.apply();
+      this.bObjectService.apply(object);
 
       try
       {
@@ -296,14 +301,14 @@ public class BusinessObjectImporterTest
       {
         if (object != null)
         {
-          object.delete();
+          this.deleteObject(object);
         }
       }
     });
   }
 
   @Test
-  public void testSetGeoObject() throws InterruptedException
+  public void testSetGeoObject() 
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
@@ -334,13 +339,13 @@ public class BusinessObjectImporterTest
         importer.importRow(new MapFeatureRow(row, 0L));
       }
 
-      BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
+      BusinessObject result = this.bObjectService.get(type, attributeType.getName(), value);
 
       try
       {
         Assert.assertNotNull(result);
 
-        List<VertexServerGeoObject> results = result.getGeoObjects();
+        List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(result);
 
         Assert.assertEquals(1, results.size());
 
@@ -354,14 +359,14 @@ public class BusinessObjectImporterTest
       {
         if (result != null)
         {
-          result.delete();
+          this.deleteObject(result);
         }
       }
     });
   }
 
   @Test
-  public void testUnknownGeoObject() throws InterruptedException
+  public void testUnknownGeoObject() 
   {
     TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
 
@@ -392,7 +397,7 @@ public class BusinessObjectImporterTest
         importer.importRow(new MapFeatureRow(row, 0L));
       }
 
-      BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
+      BusinessObject result = this.bObjectService.get(type, attributeType.getName(), value);
 
       try
       {
@@ -415,7 +420,7 @@ public class BusinessObjectImporterTest
       {
         if (result != null)
         {
-          result.delete();
+          this.deleteObject(result);
         }
       }
     });
@@ -430,9 +435,7 @@ public class BusinessObjectImporterTest
 
       Assert.assertNotNull(istream);
 
-      ExcelService service = new ExcelService();
-
-      JSONObject json = this.getTestConfiguration(istream, service, ImportStrategy.NEW_AND_UPDATE);
+      JSONObject json = this.getTestConfiguration(istream, ImportStrategy.NEW_AND_UPDATE);
 
       BusinessObjectImportConfiguration config = (BusinessObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
       config.setHierarchy(FastTestDataset.HIER_ADMIN.getServerObject());
@@ -446,8 +449,8 @@ public class BusinessObjectImporterTest
       Assert.assertEquals(Long.valueOf(2), hist.getImportedRecords());
       Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-      assertAndDelete(BusinessObject.get(type, attributeType.getName(), "0001"));
-      assertAndDelete(BusinessObject.get(type, attributeType.getName(), "0002"));
+      assertAndDelete(this.bObjectService.get(type, attributeType.getName(), "0001"));
+      assertAndDelete(this.bObjectService.get(type, attributeType.getName(), "0002"));
     });
   }
 
@@ -461,14 +464,14 @@ public class BusinessObjectImporterTest
     {
       if (o1 != null)
       {
-        o1.delete();
+        this.deleteObject(o1);
       }
     }
   }
 
-  private JSONObject getTestConfiguration(InputStream istream, ExcelService service, ImportStrategy strategy)
+  private JSONObject getTestConfiguration(InputStream istream, ImportStrategy strategy)
   {
-    JSONObject result = service.getBusinessTypeConfiguration(type.getCode(), TestDataSet.DEFAULT_END_TIME_DATE, "business-spreadsheet.xlsx", istream, strategy, false);
+    JSONObject result = this.excelService.getBusinessTypeConfiguration(type.getCode(), TestDataSet.DEFAULT_END_TIME_DATE, "business-spreadsheet.xlsx", istream, strategy, false);
     JSONObject type = result.getJSONObject(BusinessObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(BusinessType.JSON_ATTRIBUTES);
 
@@ -520,6 +523,39 @@ public class BusinessObjectImporterTest
 
     hist = (ImportHistory) context.getHistory();
     return hist;
+  }
+
+  private void deleteObject(BusinessObject object)
+  {
+    for (int i = 0; i < 100; i++)
+    {
+      try
+      {
+        this.bObjectService.delete(object);
+
+        break;
+      }
+      catch (ProgrammingErrorException e)
+      {
+        Throwable cause = e.getCause();
+
+        if (cause instanceof OConcurrentModificationException)
+        {
+          // Do nothing
+          try
+          {
+            Thread.sleep(10);
+          }
+          catch (InterruptedException e1)
+          {
+          }
+        }
+        else
+        {
+          throw e;
+        }
+      }
+    }
   }
 
 }

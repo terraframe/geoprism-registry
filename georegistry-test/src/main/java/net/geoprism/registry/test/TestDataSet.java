@@ -90,8 +90,10 @@ import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.SerializedListTypeCache;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.GraphRepoServiceIF;
+import net.geoprism.registry.service.request.SerializedListTypeCache;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 abstract public class TestDataSet
 {
@@ -294,16 +296,18 @@ abstract public class TestDataSet
   @Request
   public void setUpMetadata()
   {
+    GraphRepoServiceIF service = ServiceFactory.getBean(GraphRepoServiceIF.class);
+    
     tearDownMetadata();
 
     setUpOrgsInTrans();
     setUpMetadataInTrans();
 
-    RegistryService.getInstance().refreshMetadataCache();
+    service.refreshMetadataCache();
 
     setUpClassRelationships();
 
-    RegistryService.getInstance().refreshMetadataCache();
+    service.refreshMetadataCache();
   }
 
   public void setUpClassRelationships()
@@ -342,15 +346,17 @@ abstract public class TestDataSet
   @Request
   public void setUpInstanceData()
   {
+    GraphRepoServiceIF service = ServiceFactory.getBean(GraphRepoServiceIF.class);
+
     tearDownInstanceData();
 
     setUpTestInTrans();
 
-    RegistryService.getInstance().refreshMetadataCache();
+    service.refreshMetadataCache();
 
     setUpRelationships();
 
-    RegistryService.getInstance().refreshMetadataCache();
+    service.refreshMetadataCache();
 
     SerializedListTypeCache.getInstance().clear();
 
@@ -1045,17 +1051,21 @@ abstract public class TestDataSet
 
   public static TestAttributeTypeInfo createAttribute(String name, String label, TestGeoObjectTypeInfo got, String type)
   {
+    GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+
     AttributeType at = AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, true);
 
     String attributeTypeJSON = at.toJSON().toString();
 
-    at = got.getServerObject().createAttributeType(attributeTypeJSON);
+    at = service.createAttributeType(got.getServerObject(), attributeTypeJSON);
 
     return new TestAttributeTypeInfo(at, got);
   }
 
   public static TestAttributeTermTypeInfo createTermAttribute(String name, String label, TestGeoObjectTypeInfo got, Term attrRoot)
   {
+    GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+
     final String type = AttributeTermType.TYPE;
 
     AttributeTermType att = (AttributeTermType) AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, false);
@@ -1066,7 +1076,7 @@ abstract public class TestDataSet
 
     String attributeTypeJSON = att.toJSON().toString();
 
-    att = (AttributeTermType) got.getServerObject().createAttributeType(attributeTypeJSON);
+    att = (AttributeTermType) service.createAttributeType(got.getServerObject(), attributeTypeJSON);
 
     return new TestAttributeTermTypeInfo(att, got);
   }

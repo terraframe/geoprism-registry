@@ -19,6 +19,9 @@ import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.gis.geo.Universal;
 
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
+
 /**
  * The purpose of this dataset is to provide very basic data which provides for
  * very fast running of tests. This is achieved by creating the most basic data
@@ -183,7 +186,9 @@ public class FastTestDataset extends TestDataSet
       PROVINCE.getUniversal().addLink(Universal.getRoot(), HIER_SPLIT_CHILD.getServerObject().getUniversalType());
       PROVINCE.addChild(DISTRICT, HIER_SPLIT_CHILD);
       
-      PROVINCE.getServerObject().setInheritedHierarchy(HIER_SPLIT_CHILD.getServerObject(), HIER_SPLIT_PARENT.getServerObject());
+      GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+      
+      service.setInheritedHierarchy(PROVINCE.getServerObject(), HIER_SPLIT_CHILD.getServerObject(), HIER_SPLIT_PARENT.getServerObject());
     }
     catch (DuplicateGraphPathException ex)
     {

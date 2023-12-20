@@ -21,29 +21,30 @@ package net.geoprism.registry.action;
 import java.util.Arrays;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
+import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
+import net.geoprism.registry.service.request.RegistryService;
+import net.geoprism.registry.service.request.RegistryServiceIF;
 
 public abstract class AbstractAction extends AbstractActionBase
 {
 
   private static final long serialVersionUID = 1324056554;
 
-  protected RegistryService registry;
+  protected RegistryServiceIF registry;
 
   public AbstractAction()
   {
     super();
 
-    this.registry = ServiceFactory.getRegistryService();
+    this.registry = ServiceFactory.getBean(RegistryServiceIF.class);
+;
   }
 
   abstract public void execute();
@@ -99,7 +100,7 @@ public abstract class AbstractAction extends AbstractActionBase
    */
   public void buildFromJson(JSONObject joAction)
   {
-    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this.getAllRequest().next());
+    Set<ChangeRequestPermissionAction> perms = ServiceFactory.getBean(ChangeRequestPermissionService.class).getPermissions(this.getAllRequest().next());
     
     if (perms.containsAll(Arrays.asList(
         ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS

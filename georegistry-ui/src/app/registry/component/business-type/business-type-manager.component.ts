@@ -56,6 +56,7 @@ export class BusinessTypeManagerComponent implements OnInit {
     }
 
     onCreate(org: BusinessTypeByOrg): void {
+
         this.bsModalRef = this.modalService.show(CreateBusinessTypeModalComponent, {
             animated: true,
             backdrop: true,

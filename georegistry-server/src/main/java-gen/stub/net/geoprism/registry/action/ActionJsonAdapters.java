@@ -36,7 +36,6 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.Users;
 
-import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.SetParentAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
@@ -44,6 +43,9 @@ import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.action.tree.AddChildAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
+import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
 import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 import net.geoprism.registry.view.action.UpdateParentView;
@@ -62,7 +64,7 @@ public class ActionJsonAdapters
   
   abstract public static class AbstractActionSerializer
   {
-    private ChangeRequestPermissionService perms = new ChangeRequestPermissionService();
+    private ChangeRequestPermissionService perms = ServiceFactory.getBean(ChangeRequestPermissionService.class);
     
     public JsonElement serialize(AbstractAction action, Type typeOfSrc, JsonSerializationContext context)
     {

@@ -36,14 +36,13 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.action.ActionJsonAdapters;
-import net.geoprism.registry.action.ChangeRequestPermissionService;
-import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
-import net.geoprism.registry.service.ServerGeoObjectService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
+import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class AddChildAction extends AddChildActionBase
 {
@@ -54,13 +53,15 @@ public class AddChildAction extends AddChildActionBase
   @Override
   public void execute()
   {
-    ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
-    ServerGeoObjectIF child = new ServerGeoObjectService().getGeoObject(this.getChildId(), this.getChildTypeCode());
+    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+    
+    ServerGeoObjectIF parent = service.getGeoObject(this.getParentId(), this.getParentTypeCode());
+    ServerGeoObjectIF child = service.getGeoObject(this.getChildId(), this.getChildTypeCode());
     ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
-    parent.addChild(child, ht);
+    service.addChild(parent, child, ht);
   }
 
   @Override
@@ -91,7 +92,7 @@ public class AddChildAction extends AddChildActionBase
   {
     super.buildFromJson(joAction);
     
-    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this.getAllRequest().next());
+    Set<ChangeRequestPermissionAction> perms = ServiceFactory.getBean(ChangeRequestPermissionService.class).getPermissions(this.getAllRequest().next());
     
     if (perms.containsAll(Arrays.asList(
         ChangeRequestPermissionAction.WRITE_DETAILS
@@ -128,8 +129,10 @@ public class AddChildAction extends AddChildActionBase
   @Override
   public void apply()
   {
-    ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
-    ServerGeoObjectIF child = new ServerGeoObjectService().getGeoObject(this.getChildId(), this.getChildTypeCode());
+    GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
+    ServerGeoObjectIF parent = service.getGeoObject(this.getParentId(), this.getParentTypeCode());
+    ServerGeoObjectIF child = service.getGeoObject(this.getChildId(), this.getChildTypeCode());
     ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChildCR(ht.getOrganization().getCode(), parent.getType(), child.getType());

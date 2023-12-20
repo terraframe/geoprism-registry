@@ -37,7 +37,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.controller.UndirectedGraphTypeController.TypeBody;
-import net.geoprism.registry.service.DirectedAcyclicGraphTypeService;
+import net.geoprism.registry.service.request.DirectedAcyclicGraphTypeService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController

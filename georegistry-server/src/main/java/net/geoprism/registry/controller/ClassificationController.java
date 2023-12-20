@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.service.ClassificationService;
+import net.geoprism.registry.service.request.ClassificationService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController

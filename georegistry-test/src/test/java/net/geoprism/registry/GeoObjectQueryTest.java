@@ -8,11 +8,11 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.json.JSONObject;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.session.Request;
 
@@ -25,26 +25,10 @@ import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.test.USATestData;
 
-public class GeoObjectQueryTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestClassListener
 {
-  protected static USATestData testData;
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = USATestData.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
-  }
-
   @Before
   public void setUp()
   {
@@ -92,9 +76,9 @@ public class GeoObjectQueryTest
 
     List<ServerGeoObjectIF> results = query.getResults();
 
-    String[] expectedCodes = new String[] {USATestData.CO_D_ONE.getCode(), USATestData.CO_D_TWO.getCode(), USATestData.CO_D_THREE.getCode(), USATestData.WA_D_ONE.getCode(), USATestData.WA_D_TWO.getCode()};
+    String[] expectedCodes = new String[] { USATestData.CO_D_ONE.getCode(), USATestData.CO_D_TWO.getCode(), USATestData.CO_D_THREE.getCode(), USATestData.WA_D_ONE.getCode(), USATestData.WA_D_TWO.getCode() };
     Assert.assertEquals(expectedCodes.length, results.size());
-    
+
     for (ServerGeoObjectIF result : results)
     {
       Assert.assertTrue(ArrayUtils.contains(expectedCodes, result.getCode()));

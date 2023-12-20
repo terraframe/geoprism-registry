@@ -5,45 +5,43 @@ package net.geoprism.registry.etl;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.GsonBuilder;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.account.OauthServer;
+import net.geoprism.registry.FastDatasetTest;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.SynchronizationConfig;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.etl.fhir.BasicFhirResourceProcessor;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.SynchronizationConfigService;
+import net.geoprism.registry.service.request.SynchronizationConfigService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 
-public class FhirOauthImportTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class FhirOauthImportTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static FastTestDataset           testData;
-
+  @Autowired
   protected SynchronizationConfigService syncService;
 
-  @BeforeClass
-  public static void setUpClass()
+  @Override
+  public void beforeClassSetup() throws Exception
   {
     TestDataSet.deleteExternalSystems("FHIRImportTest");
 
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-    testData.setUpInstanceData();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
+    super.beforeClassSetup();
   }
 
   @Before

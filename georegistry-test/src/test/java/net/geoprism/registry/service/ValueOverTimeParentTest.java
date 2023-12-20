@@ -7,43 +7,38 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 
-public class ValueOverTimeParentTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class ValueOverTimeParentTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static FastTestDataset      testData;
-  
   public static final TestGeoObjectInfo BELIZE = new TestGeoObjectInfo("Belize", FastTestDataset.COUNTRY);
   
   public static final TestGeoObjectInfo TEST_GO = new TestGeoObjectInfo("VOT_TEST_GO", FastTestDataset.PROVINCE);
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
-  }
+  
+  @Autowired private GeoObjectBusinessServiceIF goService;
 
   @Before
   public void setUp()
@@ -89,11 +84,11 @@ public class ValueOverTimeParentTest
     Date end = cEnd.getTime();
     
     ServerGeoObjectIF go = TEST_GO.getServerObject();
-    go.addParent(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), start, end);
-    go.apply(false);
+    goService.addParent(go, FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), start, end);
+    goService.apply(go, false);
     
     go = TEST_GO.getServerObject();
-    ValueOverTimeCollection parents = go.getParentCollection(FastTestDataset.HIER_ADMIN.getServerObject());
+    ValueOverTimeCollection parents = goService.getParentCollection(go, (FastTestDataset.HIER_ADMIN.getServerObject()));
     Assert.assertEquals(2, parents.size());
     
     ValueOverTime vot = parents.get(0);
@@ -115,11 +110,11 @@ public class ValueOverTimeParentTest
   public void testFullOverlapSameValue()
   {
     ServerGeoObjectIF go = TEST_GO.getServerObject();
-    go.addParent(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 1), addDay(TestDataSet.DEFAULT_END_TIME_DATE, -1));
-    go.apply(false);
+    goService.addParent(go, FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 1), addDay(TestDataSet.DEFAULT_END_TIME_DATE, -1));
+    goService.apply(go, false);
     
     go = TEST_GO.getServerObject();
-    ValueOverTimeCollection votc = go.getParentCollection(FastTestDataset.HIER_ADMIN.getServerObject());
+    ValueOverTimeCollection votc = goService.getParentCollection(go, (FastTestDataset.HIER_ADMIN.getServerObject()));
     Assert.assertEquals(1, votc.size());
     
     ValueOverTime vot = votc.get(0);
@@ -136,11 +131,11 @@ public class ValueOverTimeParentTest
   public void testFullOverlapDifferentValue()
   {
     ServerGeoObjectIF go = TEST_GO.getServerObject();
-    go.addParent(BELIZE.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), addDay(TestDataSet.DEFAULT_END_TIME_DATE, -5));
-    go.apply(false);
+    goService.addParent(go, BELIZE.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5), addDay(TestDataSet.DEFAULT_END_TIME_DATE, -5));
+    goService.apply(go, false);
     
     go = TEST_GO.getServerObject();
-    ValueOverTimeCollection votc = go.getParentCollection(FastTestDataset.HIER_ADMIN.getServerObject());
+    ValueOverTimeCollection votc = goService.getParentCollection(go, (FastTestDataset.HIER_ADMIN.getServerObject()));
     Assert.assertEquals(3, votc.size());
     
     ValueOverTime vot = votc.get(0);
@@ -167,11 +162,11 @@ public class ValueOverTimeParentTest
   public void testFullConsumeSameValue()
   {
     ServerGeoObjectIF go = TEST_GO.getServerObject();
-    go.addParent(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5));
-    go.apply(false);
+    goService.addParent(go, FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5));
+    goService.apply(go, false);
     
     go = TEST_GO.getServerObject();
-    ValueOverTimeCollection votc = go.getParentCollection(FastTestDataset.HIER_ADMIN.getServerObject());
+    ValueOverTimeCollection votc = goService.getParentCollection(go, (FastTestDataset.HIER_ADMIN.getServerObject()));
     Assert.assertEquals(1, votc.size());
     
     ValueOverTime vot = votc.get(0);
@@ -188,11 +183,11 @@ public class ValueOverTimeParentTest
   public void testFullConsumeDifferentValue()
   {
     ServerGeoObjectIF go = TEST_GO.getServerObject();
-    go.addParent(BELIZE.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5));
-    go.apply(false);
+    goService.addParent(go, BELIZE.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5));
+    goService.apply(go, false);
     
     go = TEST_GO.getServerObject();
-    ValueOverTimeCollection votc = go.getParentCollection(FastTestDataset.HIER_ADMIN.getServerObject());
+    ValueOverTimeCollection votc = goService.getParentCollection(go, (FastTestDataset.HIER_ADMIN.getServerObject()));
     Assert.assertEquals(1, votc.size());
     
     ValueOverTime vot = votc.get(0);
@@ -209,11 +204,11 @@ public class ValueOverTimeParentTest
   public void testGetParentAtTime()
   {
     ServerGeoObjectIF go = TEST_GO.getServerObject();
-    go.addParent(BELIZE.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5));
-    go.apply(false);
+    goService.addParent(go, BELIZE.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -5), addDay(TestDataSet.DEFAULT_END_TIME_DATE, 5));
+    goService.apply(go, false);
     
     go = TEST_GO.getServerObject();
-    ServerParentTreeNode node = go.getParentsForHierarchy(FastTestDataset.HIER_ADMIN.getServerObject(), false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
+    ServerParentTreeNode node = goService.getParentsForHierarchy(go, FastTestDataset.HIER_ADMIN.getServerObject(), false, false, TestDataSet.DEFAULT_OVER_TIME_DATE);
     Assert.assertEquals(1, node.getParents().size());
     
     ServerGeoObjectIF value = node.getParents().get(0).getGeoObject();
@@ -228,11 +223,11 @@ public class ValueOverTimeParentTest
   public void testPartialOverlapSameValue()
   {
     ServerGeoObjectIF go = TEST_GO.getServerObject();
-    go.addParent(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -30), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5));
-    go.apply(false);
+    goService.addParent(go, FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -30), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5));
+    goService.apply(go, false);
     
     go = TEST_GO.getServerObject();
-    ValueOverTimeCollection votc = go.getParentCollection(FastTestDataset.HIER_ADMIN.getServerObject());
+    ValueOverTimeCollection votc = goService.getParentCollection(go, (FastTestDataset.HIER_ADMIN.getServerObject()));
     Assert.assertEquals(1, votc.size());
     
     ValueOverTime vot = votc.get(0);
@@ -249,11 +244,11 @@ public class ValueOverTimeParentTest
   public void testPartialOverlapDifferentValue()
   {
     ServerGeoObjectIF go = TEST_GO.getServerObject();
-    go.addParent(BELIZE.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -30), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5));
-    go.apply(false);
+    goService.addParent(go, BELIZE.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, -30), addDay(TestDataSet.DEFAULT_OVER_TIME_DATE, 5));
+    goService.apply(go, false);
     
     go = TEST_GO.getServerObject();
-    ValueOverTimeCollection votc = go.getParentCollection(FastTestDataset.HIER_ADMIN.getServerObject());
+    ValueOverTimeCollection votc = goService.getParentCollection(go, (FastTestDataset.HIER_ADMIN.getServerObject()));
     Assert.assertEquals(2, votc.size());
     
     ValueOverTime vot = votc.get(0);

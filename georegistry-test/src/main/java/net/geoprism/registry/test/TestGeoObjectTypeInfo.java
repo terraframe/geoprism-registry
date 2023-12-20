@@ -18,9 +18,10 @@ import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdClass;
 
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class TestGeoObjectTypeInfo
 {
@@ -45,8 +46,8 @@ public class TestGeoObjectTypeInfo
   private TestOrganizationInfo        organization;
 
   private boolean                     isAbstract = false;
-  
-  private boolean                     isPrivate = false;
+
+  private boolean                     isPrivate  = false;
 
   private TestGeoObjectTypeInfo       superType;
 
@@ -134,7 +135,7 @@ public class TestGeoObjectTypeInfo
     }
     else
     {
-//      return Universal.getByKey(this.getCode());
+      // return Universal.getByKey(this.getCode());
       return TestDataSet.getUniversalIfExist(this.getCode());
     }
   }
@@ -158,7 +159,7 @@ public class TestGeoObjectTypeInfo
   {
     this.isAbstract = isAbstract;
   }
-  
+
   public boolean isPrivate()
   {
     return isPrivate;
@@ -204,7 +205,9 @@ public class TestGeoObjectTypeInfo
           return null;
         }
 
-        this.serverObject = new ServerGeoObjectTypeConverter().build(uni);
+        GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+
+        this.serverObject = service.build(uni);
 
         return this.serverObject;
       }
@@ -241,7 +244,9 @@ public class TestGeoObjectTypeInfo
       this.children.add(child);
     }
 
-    hierarchy.getServerObject().addToHierarchy(this.getServerObject(), child.getServerObject());
+    HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
+
+    service.addToHierarchy(hierarchy.getServerObject(), this.getServerObject(), child.getServerObject());
     // this.getServerObject().add(child.getServerObject(),
     // hierarchy.getServerObject());
     // return child.getUniversal().addLink(universal,
@@ -291,7 +296,9 @@ public class TestGeoObjectTypeInfo
       got.setSuperTypeCode(this.getSuperType().code);
     }
 
-    this.serverObject = new ServerGeoObjectTypeConverter().create(got);
+    GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+
+    this.serverObject = service.create(got);
 
     universal = this.serverObject.getUniversal();
 
@@ -313,7 +320,8 @@ public class TestGeoObjectTypeInfo
 
     if (type != null)
     {
-      type.delete();
+      GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+      service.deleteGeoObjectType(type.getCode());
     }
 
     // Universal uni = this.testDataSet.getUniversalIfExist(this.getCode());

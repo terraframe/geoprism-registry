@@ -21,14 +21,14 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.VaultProperties;
@@ -38,8 +38,12 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.FastDatasetTest;
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ListTypeTest;
@@ -47,12 +51,11 @@ import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.shapefile.ShapefileColumnNameGenerator;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
-import net.geoprism.registry.test.USATestData;
 
-public class ListTypeGeoObjectShapefileExporterTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class ListTypeGeoObjectShapefileExporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static FastTestDataset                          testData;
-
   private static ListType                                 masterlist;
 
   private static ListTypeVersion                          version;
@@ -61,20 +64,19 @@ public class ListTypeGeoObjectShapefileExporterTest
 
   private static List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
-  @BeforeClass
-  public static void setUpClass()
+  @Override
+  public void beforeClassSetup() throws Exception
   {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
 
     classSetupInRequest();
   }
 
-  private static void classSetupInRequest()
+  private void classSetupInRequest()
   {
     JsonObject json = ListTypeTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, FastTestDataset.COUNTRY);
 
-    TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
+    TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
 
       masterlist = ListType.apply(json);
       version = masterlist.createEntry(FastTestDataset.DEFAULT_OVER_TIME_DATE).getWorking();
@@ -83,19 +85,16 @@ public class ListTypeGeoObjectShapefileExporterTest
     });
   }
 
-  @AfterClass
-  public static void cleanUpClass()
+  @Override
+  public void afterClassSetup() throws Exception
   {
-    if (testData != null)
-    {
-      classTearDownInRequest();
+    classTearDownInRequest();
 
-      testData.tearDownMetadata();
-    }
+    super.afterClassSetup();
   }
 
   @Request
-  private static void classTearDownInRequest()
+  private void classTearDownInRequest()
   {
     if (version != null)
     {
@@ -115,7 +114,7 @@ public class ListTypeGeoObjectShapefileExporterTest
     {
       testData.setUpInstanceData();
 
-      TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
+      TestDataSet.executeRequestAsUser(FastTestDataset.USER_ADMIN, () -> {
         version.publish();
       });
     }
@@ -137,7 +136,7 @@ public class ListTypeGeoObjectShapefileExporterTest
   public void testGenerateName()
   {
     ShapefileColumnNameGenerator exporter = new ShapefileColumnNameGenerator();
-    
+
     Assert.assertEquals("testestest", exporter.generateColumnName("testestestest1"));
     Assert.assertEquals("testestes1", exporter.generateColumnName("testestestest2"));
     Assert.assertEquals("testestes2", exporter.generateColumnName("testestestest3"));

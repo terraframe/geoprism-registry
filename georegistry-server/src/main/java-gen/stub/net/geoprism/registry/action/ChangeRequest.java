@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action;
 
@@ -53,8 +53,6 @@ import com.runwaysdk.system.VaultFile;
 import net.geoprism.GeoprismUser;
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.email.SendEmailCommand;
-import net.geoprism.email.business.EmailBusinessService;
-import net.geoprism.email.service.EmailService;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
@@ -62,8 +60,12 @@ import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.ServerGeoObjectService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.EmailBusinessServiceIF;
+import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.GPRGeoObjectTypeBusinessService;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.request.EmailServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 
 public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
@@ -143,12 +145,12 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
   public ServerGeoObjectType getGeoObjectType()
   {
     final String typeCode = this.getGeoObjectTypeCode();
-    
+
     if (StringUtils.isEmpty(typeCode))
     {
       return null;
     }
-    
+
     return ServerGeoObjectType.get(typeCode, true);
   }
 
@@ -166,7 +168,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
       return null;
     }
 
-    return (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(code, type, false);
+    return (VertexServerGeoObject) ServiceFactory.getBean(GeoObjectBusinessServiceIF.class).getGeoObjectByCode(code, type, false);
   }
 
   public JsonObject toJSON()
@@ -226,6 +228,8 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
   @Override
   public void apply()
   {
+    GPRGeoObjectTypeBusinessService typeService = ServiceFactory.getBean(GPRGeoObjectTypeBusinessService.class);
+
     final boolean isApplied = this.isAppliedToDB(); // We aren't using 'isNew'
                                                     // here because isNew will
                                                     // be true until the
@@ -247,8 +251,9 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
         if (createdBy instanceof GeoprismUser)
         {
+
           // Get all RM's for the GOT and Org
-          String rmRoleName = this.getGeoObjectType().getMaintainerRoleName();
+          String rmRoleName = typeService.getMaintainerRoleName(this.getGeoObjectType());
           RoleDAOIF role = RoleDAO.findRole(rmRoleName);
           Set<SingleActorDAOIF> actors = role.assignedActors();
 
@@ -279,10 +284,12 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
             String link = GeoprismProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
             body = body.replaceAll("\\{link\\}", link);
+            
+            EmailBusinessServiceIF service = ServiceFactory.getBean(EmailBusinessServiceIF.class);
 
             // Aspects will weave in here and this will happen at the end of the
             // transaction
-            new SendEmailCommand(new EmailBusinessService(), subject, body, toAddresses.toArray(new String[toAddresses.size()])).doIt();
+            new SendEmailCommand(service, subject, body, toAddresses.toArray(new String[toAddresses.size()])).doIt();
           }
         }
       }
@@ -295,6 +302,8 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
   public LocalizedValue getGeoObjectDisplayLabel()
   {
+    GPRGeoObjectBusinessServiceIF objectService = ServiceFactory.getBean(GPRGeoObjectBusinessServiceIF.class);
+
     if (this.getChangeRequestType().equals(ChangeRequestType.CreateGeoObject))
     {
       try
@@ -305,19 +314,19 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
         // part of a Runway object.
         LocalizedValueStore lvs = new LocalizedValueStore();
         lvs.getStoreValue().setLocaleMap(goTime.getDisplayLabel(null).getLocaleMap());
-        
+
         return RegistryLocalizedValueConverter.convertNoAutoCoalesce(lvs.getStoreValue());
       }
       catch (Exception e)
       {
         final String code = StringUtils.isEmpty(this.getGeoObjectCode()) ? "" : this.getGeoObjectCode();
-        
+
         logger.error("Error occurred while getting localized label from GeoObject with code [" + code + "].", e);
       }
     }
     else
     {
-      ServerGeoObjectIF serverGO = new ServerGeoObjectService().getGeoObjectByCode(this.getGeoObjectCode(), this.getGeoObjectTypeCode(), false);
+      ServerGeoObjectIF serverGO = objectService.getGeoObjectByCode(this.getGeoObjectCode(), this.getGeoObjectTypeCode(), false);
       if (serverGO != null)
       {
         return serverGO.getDisplayLabel();
@@ -411,11 +420,13 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
       // Update all of the working lists which have this record
       ServerGeoObjectType type = this.getGeoObjectType();
 
+      GPRGeoObjectBusinessServiceIF objectService = ServiceFactory.getBean(GPRGeoObjectBusinessServiceIF.class);
+
       if (type != null)
       {
         String code = this.getGeoObjectCode();
 
-        final ServerGeoObjectIF go = new ServerGeoObjectService().getGeoObjectByCode(code, type, false);
+        final ServerGeoObjectIF go = objectService.getGeoObjectByCode(code, type, false);
 
         if (go != null)
         {
@@ -448,8 +459,10 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
             String link = GeoprismProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
             body = body.replaceAll("\\{link\\}", link);
+            
+            EmailServiceIF service = ServiceFactory.getBean(EmailServiceIF.class);
 
-            new EmailService().sendEmail(Session.getCurrentSession().getOid(), subject, body, new String[] { email });
+            service.sendEmail(Session.getCurrentSession().getOid(), subject, body, new String[] { email });
           }
         }
       }

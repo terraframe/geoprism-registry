@@ -40,8 +40,8 @@ import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
 
-import net.geoprism.classifier.ClassifierServiceIF;
 import net.geoprism.ontology.ClassifierDTO;
+import net.geoprism.registry.service.request.ClassifierServiceIF;
 
 @RestController
 @Validated

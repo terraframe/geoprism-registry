@@ -12,15 +12,14 @@ import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.io.geojson.GeoJsonReader;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -40,6 +39,7 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.IncrementalListType;
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.IntervalListType;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.ListType;
@@ -47,13 +47,19 @@ import net.geoprism.registry.ListTypeBuilder;
 import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.SingleListType;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.ListTypeService;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
@@ -64,101 +70,91 @@ import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
 @ContextConfiguration(classes = { TestConfig.class })
-@RunWith(SpringJUnit4ClassRunner.class)
-public class ListTypeTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class ListTypeTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private static String                      CODE    = "Test Term";
+  private static String                       CODE = "Test Term";
 
-  private static ClassificationType          type;
+  private static ClassificationType           type;
 
-  private static USATestData                 testData;
+  private static AttributeTermType            testTerm;
 
-  private static AttributeTermType           testTerm;
+  private static AttributeClassificationType  testClassification;
 
-  private static AttributeClassificationType testClassification;
+  @Autowired
+  private GeoObjectTypeBusinessServiceIF      typeService;
 
-  private static boolean                     isSetup = false;
-  
-  public static void setupClasses()
+  @Autowired
+  private ClassificationTypeBusinessServiceIF cTypeService;
+
+  @Autowired
+  private ClassificationBusinessServiceIF     cService;
+
+  @Override
+  public void beforeClassSetup() throws Exception
   {
+    super.beforeClassSetup();
+
     setUpClassInRequest();
   }
 
   @Request
-  private static void setUpClassInRequest()
+  private void setUpClassInRequest()
   {
-    testData = USATestData.newTestData();
-    testData.setUpMetadata();
-
     setUpInReq();
 
     if (!SchedulerManager.initialized())
     {
       SchedulerManager.start();
     }
-    
-    isSetup = true;
   }
 
   @Request
-  private static void setUpInReq()
+  private void setUpInReq()
   {
-    type = ClassificationType.apply(ClassificationTypeTest.createMock());
+    type = this.cTypeService.apply(ClassificationTypeTest.createMock());
 
-    Classification root = Classification.newInstance(type);
+    Classification root = this.cService.newInstance(type);
     root.setCode(CODE);
     root.setDisplayLabel(new LocalizedValue("Test Classification"));
-    root.apply(null);
+    this.cService.apply(root, null);
 
     testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
     testClassification.setClassificationType(type.getCode());
     testClassification.setRootTerm(root.toTerm());
 
     ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.STATE.getCode());
-    testClassification = (AttributeClassificationType) got.createAttributeType(testClassification.toJSON().toString());
+    testClassification = (AttributeClassificationType) this.typeService.createAttributeType(got, testClassification);
 
     testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-
-    testTerm = (AttributeTermType) got.createAttributeType(testTerm.toJSON().toString());
+    testTerm = (AttributeTermType) this.typeService.createAttributeType(got, testTerm);
 
     USATestData.COLORADO.setDefaultValue(testClassification.getName(), CODE);
   }
 
-  @AfterClass
+  @Override
   @Request
-  public static void classTearDown()
+  public void afterClassSetup() throws Exception
   {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
+    super.afterClassSetup();
 
     USATestData.COLORADO.removeDefaultValue(testClassification.getName());
 
     if (type != null)
     {
-      type.delete();
+      this.cTypeService.delete(type);
     }
-    
-    isSetup = false;
   }
-
 
   @Before
   public void setUp()
   {
-    // This is a hack to allow for spring injection of classification tasks
-    if (!isSetup)
-    {
-      setupClasses();
-    }
-    
     cleanUpExtra();
 
     testData.setUpInstanceData();
 
     testData.logIn(USATestData.USER_NPS_RA);
-    
+
   }
 
   @After

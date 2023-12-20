@@ -39,42 +39,13 @@ import org.springframework.web.servlet.view.BeanNameViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
 import net.geoprism.EncodingFilter;
-import net.geoprism.externalprofile.business.ExternalProfileBusinessServiceIF;
-import net.geoprism.externalprofile.controller.ExternalProfileController;
-import net.geoprism.externalprofile.service.ExternalProfileService;
-import net.geoprism.externalprofile.service.ExternalProfileServiceIF;
-import net.geoprism.forgotpassword.business.ForgotPasswordBusinessServiceIF;
-import net.geoprism.forgotpassword.controller.ForgotPasswordController;
-import net.geoprism.forgotpassword.service.ForgotPasswordService;
-import net.geoprism.forgotpassword.service.ForgotPasswordServiceIF;
-import net.geoprism.graph.lpg.business.GeoObjectTypeSnapshotBusinessService;
-import net.geoprism.graph.lpg.business.GeoObjectTypeSnapshotBusinessServiceIF;
-import net.geoprism.graph.lpg.business.HierarchyTypeSnapshotBusinessService;
-import net.geoprism.graph.lpg.business.HierarchyTypeSnapshotBusinessServiceIF;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeBusinessService;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeBusinessServiceIF;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeEntryBusinessService;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeEntryBusinessServiceIF;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeVersionBusinessService;
-import net.geoprism.graph.lpg.business.LabeledPropertyGraphTypeVersionBusinessServiceIF;
-import net.geoprism.registry.account.ForgotPasswordCGRService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.lpg.business.GPRGeoObjectTypeSnapshotBusinessService;
-import net.geoprism.registry.lpg.business.GPRHierarchyTypeSnapshotBusinessService;
-import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeBusinessService;
-import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeEntryBusinessService;
-import net.geoprism.registry.lpg.business.GPRLabeledPropertyGraphTypeVersionBusinessService;
-import net.geoprism.registry.session.ExternalProfileCGRService;
-import net.geoprism.session.LoginBruteForceGuardService;
-import net.geoprism.session.SessionController;
-import net.geoprism.session.SessionFilter;
+import net.geoprism.registry.service.SessionFilter;
 import net.geoprism.spring.JsonExceptionHandler;
-import net.geoprism.userinvite.controller.UserInviteController;
-import net.geoprism.userinvite.service.UserInviteService;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = { "net.geoprism.spring", "net.geoprism.graph", "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.spring", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" })
+@ComponentScan(basePackages = { "net.geoprism.spring", "net.geoprism.graph", "net.geoprism.registry.controller", "net.geoprism.registry.service", "net.geoprism.registry.permission", "net.geoprism.registry.spring", "net.geoprism.email", "net.geoprism.rbac", "net.geoprism.classifier", "net.geoprism.account" })
 public class SpringAppConfig extends WebMvcConfigurationSupport
 {
 
@@ -157,96 +128,6 @@ public class SpringAppConfig extends WebMvcConfigurationSupport
   EncodingFilter encodingFilter()
   {
     return new EncodingFilter();
-  }
-
-  @Bean
-  ForgotPasswordController forgotPasswordController()
-  {
-    return new ForgotPasswordController();
-  }
-
-  @Bean
-  ForgotPasswordServiceIF forgotPasswordServiceIF()
-  {
-    return new ForgotPasswordService();
-  }
-
-  @Bean
-  ForgotPasswordBusinessServiceIF forgotPasswordBusinessServiceIF()
-  {
-    return new ForgotPasswordCGRService();
-  }
-
-  @Bean
-  SessionController sessionController()
-  {
-    return new SessionController();
-  }
-
-  @Bean
-  ExternalProfileController externalProfileController()
-  {
-    return new ExternalProfileController();
-  }
-
-  @Bean
-  ExternalProfileServiceIF externalProfileServiceIF()
-  {
-    return new ExternalProfileService();
-  }
-
-  @Bean
-  ExternalProfileBusinessServiceIF externalProfileBusinessServiceIF()
-  {
-    return new ExternalProfileCGRService();
-  }
-
-  @Bean
-  UserInviteController userInviteController()
-  {
-    return new UserInviteController();
-  }
-
-  @Bean
-  UserInviteService userInviteService()
-  {
-    return new UserInviteService();
-  }
-
-  @Bean
-  LoginBruteForceGuardService loginBruteForceGuard()
-  {
-    return new LoginBruteForceGuardService();
-  }
-
-  @Bean
-  GeoObjectTypeSnapshotBusinessService geoObjectTypeSnapshotBusinessService()
-  {
-    return new GPRGeoObjectTypeSnapshotBusinessService();
-  }
-
-  @Bean
-  HierarchyTypeSnapshotBusinessService hierarchyTypeSnapshotBusinessService()
-  {
-    return new GPRHierarchyTypeSnapshotBusinessService();
-  }
-
-  @Bean
-  LabeledPropertyGraphTypeBusinessService labeledPropertyGraphTypeBusinessService()
-  {
-    return new GPRLabeledPropertyGraphTypeBusinessService();
-  }
-
-  @Bean
-  LabeledPropertyGraphTypeEntryBusinessService labeledPropertyGraphTypeEntryBusinessService()
-  {
-    return new GPRLabeledPropertyGraphTypeEntryBusinessService();
-  }
-
-  @Bean
-  LabeledPropertyGraphTypeVersionBusinessService labeledPropertyGraphTypeVersionBusinessService()
-  {
-    return new GPRLabeledPropertyGraphTypeVersionBusinessService();
   }
 
 }

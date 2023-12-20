@@ -20,13 +20,13 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -60,7 +60,8 @@ import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.SynchronizationConfigService;
+import net.geoprism.registry.service.business.GPRGeoObjectBusinessService;
+import net.geoprism.registry.service.request.SynchronizationConfigService;
 import net.geoprism.registry.test.AllAttributesDataset;
 import net.geoprism.registry.test.TestAttributeTypeInfo;
 import net.geoprism.registry.test.TestDataSet;
@@ -69,10 +70,10 @@ import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 import net.geoprism.registry.test.TestUserInfo;
 
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration(classes = { TestConfig.class })
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
 @Ignore
-public class RemoteDHIS2APITest
+public class RemoteDHIS2APITest implements InstanceTestClassListener
 {
   /*
    * Which server are we connecting to?
@@ -105,6 +106,9 @@ public class RemoteDHIS2APITest
   
   @Autowired
   private TestRegistryClient   client;
+  
+  @Autowired
+  private GPRGeoObjectBusinessService goBizService;
   
   public static class RemoteDHIS2Dataset extends AllAttributesDataset
   {
@@ -153,9 +157,9 @@ public class RemoteDHIS2APITest
       return TEST_DATA_KEY;
     }
   }
-
-  @BeforeClass
-  public static void setUpClass()
+  
+  @Override
+  public void beforeClassSetup()
   {
     System.out.println("Test will run against server [" + URL + "].");
     
@@ -169,10 +173,13 @@ public class RemoteDHIS2APITest
     }
   }
   
-  @AfterClass
-  public static void cleanUpClass()
+  @Override
+  public void afterClassSetup()
   {
-    testData.tearDownMetadata();
+    if (testData != null)
+    {
+      testData.tearDownMetadata();
+    }
   }
 
   @Before
@@ -231,7 +238,7 @@ public class RemoteDHIS2APITest
   private void setRootExternalId() throws Exception
   {
     OrganisationUnit ou = this.getRemoteOrgUnitByCode(REMOTE_COUNTRY_CODE);
-    RemoteDHIS2Dataset.REMOTE_GO_PARENT.getServerObject().createExternalId(this.system, ou.getId(), ImportStrategy.NEW_ONLY);
+    goBizService.createExternalId(RemoteDHIS2Dataset.REMOTE_GO_PARENT.getServerObject(), system, ou.getId(), ImportStrategy.NEW_ONLY);
   }
   
   @Test

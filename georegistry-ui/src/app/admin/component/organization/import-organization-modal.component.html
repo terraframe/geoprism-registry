@@ -1,0 +1,61 @@
+<!--
+
+    Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<div>
+  <loading-bar></loading-bar>
+
+<form #form="ngForm" class="modal-form" name="new-locale-form" (ngSubmit)="form.valid && submit()">
+  <div class="modal-body">
+  <fieldset>
+    <div class="heading text-center">
+      <h1>
+        <localize key="organization.manager.import.header"></localize>
+      </h1>
+    </div>
+
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+    <div class="row">
+      <div class="col-md-12">
+          <input class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" accept=".json" required />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="button-holder">
+          <button type="button" (click)="cancel()" class="btn btn-default" role="button" aria-disabled="false">
+            <span>
+              <localize key="new-locale.cancel"></localize>
+            </span>
+          </button>
+          <button type="submit" class="btn btn-primary" role="button" aria-disabled="false">
+            <span>
+              <localize key="new-locale.submit"></localize>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+  </div>
+</form>
+
+</div>

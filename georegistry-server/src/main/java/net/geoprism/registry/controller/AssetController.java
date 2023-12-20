@@ -45,7 +45,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.runwaysdk.Pair;
 
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
-import net.geoprism.registry.service.AssetService;
+import net.geoprism.registry.service.request.AssetService;
 
 @RestController
 @Validated

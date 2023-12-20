@@ -1,0 +1,682 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+    </create>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.inherited">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.inherited" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Inherited" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.intersectChild">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.intersectChild" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Intersect Child" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.intersectParent">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.intersectParent" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Intersect Parent" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="georegistry.geometry.mixed">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="georegistry.geometry.mixed" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Mixed Geometries" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.problem.type.datanotfound">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="scheduledjobs.job.problem.type.datanotfound" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Data Not Found" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="header.transitionEvents">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="header.transitionEvents" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Transition Events" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.beforeType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.beforeType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Geo-Object Type Before" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.afterType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.afterType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Geo-Object Type After" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.merge">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.merge" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Merge" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.split">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.split" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Split" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.upgrade">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.upgrade" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Upgrade" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.impact">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.impact" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Impact" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.downgrade">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.downgrade" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Downgrade" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.reassign">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.reassign" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Reassign" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.events">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.events" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Manage Historical Events" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.partial">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.partial" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Partial" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.full">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.full" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Full" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.transitions">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.transitions" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Transitions" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.after">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.after" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="After" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.before">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.before" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Before" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.date">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.date" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Date" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.description">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.description" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Description" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.actions">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.actions" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Actions" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.id">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.id" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Id" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="masterlist.showInvalid">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="masterlist.showInvalid" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Also Show Invalid Geo-Objects" />
+        </attributeStruct>
+      </object>
+
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.date">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.date" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Date" />
+        </attributeStruct>
+      </object>
+
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.eventId">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.eventId" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Id" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.eventDate">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.eventDate" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Date" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.eventType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.eventType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.description">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.description" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Description" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.beforeType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.beforeType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Before Type Code" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.beforeCode">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.beforeCode" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Before Code" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.beforeLabel">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.beforeLabel" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Before Label" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.afterType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.afterType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="After Type Code" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.afterCode">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.afterCode" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="After Code" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.afterLabel">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.afterLabel" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="After Label" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.report">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.report" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="History" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.events">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.events" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Historical Events" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.events.description">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.events.description" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Historical Events" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="tasks.hideCompletedTasksButton">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="tasks.hideCompletedTasksButton" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Hide Completed Tasks" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <update></update>
+    <permissions>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.HierarchicalRelationshipType">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.HierarchicalRelationshipType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.HierarchicalRelationshipType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.DirectedAcyclicGraphType">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.UndirectedGraphType">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.DirectedAcyclicGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.UndirectedGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.DirectedAcyclicGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.UndirectedGraphType">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.graph.transition.TransitionEvent">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.graph.transition.Transition">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.InheritedHierarchyAnnotation">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.InheritedHierarchyAnnotation">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.InheritedHierarchyAnnotation">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

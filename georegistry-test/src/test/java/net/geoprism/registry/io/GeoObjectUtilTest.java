@@ -7,40 +7,36 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.ServerGeoObjectService;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
 
-public class GeoObjectUtilTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class GeoObjectUtilTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private static USATestData testData;
+  @Autowired
+  private GeoObjectBusinessServiceIF     objectService;
 
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = USATestData.newTestData();
-    testData.setUpMetadata();
-  }
-
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
-  }
+  @Autowired
+  private GeoObjectTypeBusinessServiceIF typeService;
 
   @Before
   public void setUp()
@@ -65,11 +61,11 @@ public class GeoObjectUtilTest
     ServerGeoObjectType type = USATestData.AREA.getServerObject();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
-    ServerGeoObjectIF object = new ServerGeoObjectService().getGeoObjectByCode(USATestData.CO_A_ONE.getCode(), type);
-    
-    List<ServerGeoObjectType> ancestors = type.getTypeAncestors(hierarchyType, true);
+    ServerGeoObjectIF object = this.objectService.getGeoObjectByCode(USATestData.CO_A_ONE.getCode(), type);
 
-    Map<String, LocationInfo> map = object.getAncestorMap(hierarchyType, ancestors);
+    List<ServerGeoObjectType> ancestors = this.typeService.getTypeAncestors(type, hierarchyType, true);
+
+    Map<String, LocationInfo> map = this.objectService.getAncestorMap(object, hierarchyType, ancestors);
 
     Assert.assertEquals(3, map.size());
 

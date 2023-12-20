@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -38,35 +38,36 @@ import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.util.IDGenerator;
 
-import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DataNotFoundException;
-import net.geoprism.registry.model.BusinessObject;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class BusinessGeoobjectEdgeJsonImporter
 {
-  private static final Logger   logger   = LoggerFactory.getLogger(BusinessGeoobjectEdgeJsonImporter.class);
+  private static final Logger           logger   = LoggerFactory.getLogger(BusinessGeoobjectEdgeJsonImporter.class);
 
-  protected BusinessObjectCache boCache  = new BusinessObjectCache();
+  protected BusinessObjectCache         boCache  = new BusinessObjectCache();
 
-  protected GeoObjectCache      goCache  = new GeoObjectCache();
+  protected GeoObjectCache              goCache  = new GeoObjectCache();
 
-  protected Map<String, Object> ridCache = new LinkedHashMap<String, Object>()
-                                         {
-                                           public boolean removeEldestEntry(@SuppressWarnings("rawtypes")
-                                           Map.Entry eldest)
-                                           {
-                                             final int cacheSize = 10000;
-                                             return size() > cacheSize;
-                                           }
-                                         };
+  protected Map<String, Object>         ridCache = new LinkedHashMap<String, Object>()
+                                                 {
+                                                   public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
+                                                   {
+                                                     final int cacheSize = 10000;
+                                                     return size() > cacheSize;
+                                                   }
+                                                 };
 
-  private ApplicationResource   resource;
+  private ApplicationResource           resource;
+
+  private BusinessTypeBusinessServiceIF typeService;
 
   public BusinessGeoobjectEdgeJsonImporter(ApplicationResource resource)
   {
     this.resource = resource;
+    this.typeService = ServiceFactory.getBean(BusinessTypeBusinessServiceIF.class);
   }
 
   public void importData() throws JsonSyntaxException, IOException
@@ -86,7 +87,7 @@ public class BusinessGeoobjectEdgeJsonImporter
         String targetCode = joEdge.get("target").getAsString();
         String targetTypeCode = joEdge.get("targetType").getAsString();
 
-        BusinessType targetType = BusinessType.getByCode(targetTypeCode);
+        BusinessType targetType = this.typeService.getByCode(targetTypeCode);
 
         String sourceDbClassName = ServiceFactory.getMetadataCache().getGeoObjectType(sourceTypeCode).get().getMdVertex().getDBClassName();
         String targetDbClassName = targetType.getMdVertexDAO().getDBClassName();

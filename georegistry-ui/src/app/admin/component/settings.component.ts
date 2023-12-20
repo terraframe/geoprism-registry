@@ -44,6 +44,7 @@ import { environment } from 'src/environments/environment';
 import { LocaleView } from '@core/model/core';
 import { ConfigurationService } from '@core/service/configuration.service';
 import { OrganizationHierarchyModalComponent } from './organization/organization-hierarchy-modal.component';
+import { ImportOrganizationModalComponent } from './organization/import-organization-modal.component';
 
 @Component({
 	selector: 'settings',
@@ -53,7 +54,15 @@ import { OrganizationHierarchyModalComponent } from './organization/organization
 export class SettingsComponent implements OnInit {
 	bsModalRef: BsModalRef;
 	message: string = null;
+
 	organizations: Organization[] = [];
+	oPage: PageResult<Organization> = {
+		resultSet: [],
+		count: 0,
+		pageNumber: 1,
+		pageSize: 10
+	};
+
 	installedLocales: LocaleView[];
 	isAdmin: boolean;
 	isSRA: boolean;
@@ -100,6 +109,8 @@ export class SettingsComponent implements OnInit {
 		// } ).catch(( err: HttpErrorResponse ) => {
 		//     this.error( err );
 		// } );
+
+		this.onOrgPageChange(1);
 
 		this.settingsService.getInitView().then((view: SettingsInitView) => {
 			this.view = view;
@@ -149,6 +160,8 @@ export class SettingsComponent implements OnInit {
 
 		bsModalRef.content.onSuccess.subscribe(data => {
 			this.organizations.push(data);
+
+			this.onOrgPageChange(this.oPage.pageNumber);
 		})
 	}
 
@@ -159,7 +172,7 @@ export class SettingsComponent implements OnInit {
 			ignoreBackdropClick: true,
 		});
 
-		bsModalRef.content.organization = org;
+		bsModalRef.content.organization = { ...org };
 		bsModalRef.content.isNewOrganization = false;
 
 		bsModalRef.content.onSuccess.subscribe(data => {
@@ -173,6 +186,7 @@ export class SettingsComponent implements OnInit {
 				this.organizations.push(data);
 			}
 
+			this.onOrgPageChange(this.oPage.pageNumber);
 		})
 	}
 
@@ -196,6 +210,7 @@ export class SettingsComponent implements OnInit {
 					}
 				}
 
+				this.onOrgPageChange(this.oPage.pageNumber);
 			}).catch((err: HttpErrorResponse) => {
 				this.error(err);
 			});
@@ -306,6 +321,14 @@ export class SettingsComponent implements OnInit {
 		});
 	}
 
+	onOrgPageChange(pageNumber: number): void {
+		this.orgService.page(pageNumber, this.oPage.pageSize).then(oPage => {
+			this.oPage = oPage;
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
+	}
+
 
 	/* EXTERNAL SYSTEM LOGIC */
 
@@ -373,8 +396,26 @@ export class SettingsComponent implements OnInit {
 		});
 
 		this.bsModalRef.content.onConfirm.subscribe(() => {
+			this.onOrgPageChange(this.oPage.pageNumber);
+			
 			this.orgService.getOrganizations().then(organizations => {
-				this.organizations = organizations
+				this.organizations = organizations;
+			});
+		});
+	}
+
+	onUploadHierarchy(): void {
+		this.bsModalRef = this.modalService.show(ImportOrganizationModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+
+		this.bsModalRef.content.onSuccess.subscribe(() => {
+			this.onOrgPageChange(this.oPage.pageNumber);
+
+			this.orgService.getOrganizations().then(organizations => {
+				this.organizations = organizations;
 			});
 		});
 	}

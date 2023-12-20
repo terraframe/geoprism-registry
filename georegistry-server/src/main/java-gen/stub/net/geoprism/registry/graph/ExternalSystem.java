@@ -40,7 +40,9 @@ import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
+import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.JsonSerializable;
 
 public abstract class ExternalSystem extends ExternalSystemBase implements JsonSerializable
@@ -78,7 +80,9 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
       if (session != null)
       {
-        ServiceFactory.getRolePermissionService().enforceRA(organization.getCode());
+        RolePermissionService permissions = ServiceFactory.getBean(RolePermissionService.class);
+
+        permissions.enforceRA(organization.getCode());
       }
     }
 
@@ -172,7 +176,9 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
   public static List<ExternalSystem> getExternalSystemsForOrg(Integer pageNumber, Integer pageSize)
   {
-    List<Organization> organizations = Organization.getUserAdminOrganizations();
+    GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
+
+    List<Organization> organizations = permissions.getUserAdminOrganizations();
 
     if (organizations.size() > 0)
     {
@@ -214,7 +220,9 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
   public static long getCount()
   {
-    List<Organization> organizations = Organization.getUserAdminOrganizations();
+    GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
+
+    List<Organization> organizations = permissions.getUserAdminOrganizations();
 
     if (organizations.size() > 0)
     {

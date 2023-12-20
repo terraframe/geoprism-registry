@@ -9,63 +9,80 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.HierarchyRootException;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.TypeInUseException;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.GPRHierarchyTypeService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 
-public class InheritedHierarchyAnnotationTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class InheritedHierarchyAnnotationTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  public static final TestGeoObjectTypeInfo TEST_CHILD = new TestGeoObjectTypeInfo("HMST_PROVINCE", FastTestDataset.ORG_CGOV);
+  public static final TestGeoObjectTypeInfo TEST_CHILD        = new TestGeoObjectTypeInfo("HMST_PROVINCE", FastTestDataset.ORG_CGOV);
 
-  public static final TestHierarchyTypeInfo TEST_HT    = new TestHierarchyTypeInfo("INHAT", FastTestDataset.ORG_CGOV);
-  
+  public static final TestHierarchyTypeInfo TEST_HT           = new TestHierarchyTypeInfo("INHAT", FastTestDataset.ORG_CGOV);
+
   public static final TestGeoObjectTypeInfo TEST_DELETE_CHILD = new TestGeoObjectTypeInfo("INHAT_CHILD_GOT", FastTestDataset.ORG_CGOV);
-  
-  public static final TestHierarchyTypeInfo TEST_CHILD_HT = new TestHierarchyTypeInfo("IHAT_Child_HT", FastTestDataset.ORG_CGOV);
-  
-  public static final TestHierarchyTypeInfo TEST_PARENT_HT = new TestHierarchyTypeInfo("IHAT_Parent_HT", FastTestDataset.ORG_CGOV);
 
-  protected static FastTestDataset          testData;
+  public static final TestHierarchyTypeInfo TEST_CHILD_HT     = new TestHierarchyTypeInfo("IHAT_Child_HT", FastTestDataset.ORG_CGOV);
 
-  @BeforeClass
+  public static final TestHierarchyTypeInfo TEST_PARENT_HT    = new TestHierarchyTypeInfo("IHAT_Parent_HT", FastTestDataset.ORG_CGOV);
+
+  @Autowired
+  private GPRHierarchyTypeService           service;
+
+  @Autowired
+  private HierarchyTypeBusinessServiceIF    hierarchyService;
+
+  @Autowired
+  private GeoObjectTypeBusinessServiceIF    typeService;
+
+  @Override
   @Request
-  public static void setUpClass()
+  public void beforeClassSetup() throws Exception
   {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
 
     TEST_CHILD.apply();
     TEST_HT.apply();
 
     TEST_HT.setRoot(FastTestDataset.PROVINCE);
-    TEST_HT.getServerObject().addToHierarchy(FastTestDataset.PROVINCE.getServerObject(), TEST_CHILD.getServerObject());
+
+    this.hierarchyService.addToHierarchy(TEST_HT.getServerObject(), FastTestDataset.PROVINCE.getServerObject(), TEST_CHILD.getServerObject());
   }
 
-  @AfterClass
+  @Override
   @Request
-  public static void cleanUpClass()
+  public void afterClassSetup() throws Exception
   {
-    TEST_HT.getServerObject().removeChild(FastTestDataset.PROVINCE.getServerObject(), TEST_CHILD.getServerObject(), true);
+    this.hierarchyService.removeChild(TEST_HT.getServerObject(), FastTestDataset.PROVINCE.getServerObject(), TEST_CHILD.getServerObject(), true);
     TEST_HT.removeRoot(FastTestDataset.PROVINCE);
 
     TEST_HT.delete();
     TEST_CHILD.delete();
 
-    testData.tearDownMetadata();
+    super.afterClassSetup();
   }
-  
+
   @After
   public void cleanUp()
   {
@@ -79,7 +96,7 @@ public class InheritedHierarchyAnnotationTest
   public void testCreate()
   {
     ServerGeoObjectType sGOT = FastTestDataset.PROVINCE.getServerObject();
-    InheritedHierarchyAnnotation annotation = sGOT.setInheritedHierarchy(TEST_HT.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject());
+    InheritedHierarchyAnnotation annotation = this.typeService.setInheritedHierarchy(sGOT, TEST_HT.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject());
 
     try
     {
@@ -96,7 +113,7 @@ public class InheritedHierarchyAnnotationTest
   public void testGetByUniversal()
   {
     ServerGeoObjectType sGOT = FastTestDataset.PROVINCE.getServerObject();
-    InheritedHierarchyAnnotation annotation = sGOT.setInheritedHierarchy(TEST_HT.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject());
+    InheritedHierarchyAnnotation annotation = this.typeService.setInheritedHierarchy(sGOT, TEST_HT.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject());
 
     try
     {
@@ -107,7 +124,7 @@ public class InheritedHierarchyAnnotationTest
       for (InheritedHierarchyAnnotation dbanno : annotations)
       {
         String forHierCode = dbanno.getForHierarchicalRelationshipType().getCode();
-        
+
         if (forHierCode.equals(TEST_HT.getCode()))
         {
           Assert.assertEquals(dbanno.getOid(), annotation.getOid());
@@ -136,7 +153,7 @@ public class InheritedHierarchyAnnotationTest
     ServerHierarchyType forHierarchy = TEST_HT.getServerObject();
     ServerHierarchyType inheritedHierarchy = FastTestDataset.HIER_ADMIN.getServerObject();
 
-    InheritedHierarchyAnnotation annotation = sGOT.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
+    InheritedHierarchyAnnotation annotation = this.typeService.setInheritedHierarchy(sGOT, forHierarchy, inheritedHierarchy);
 
     try
     {
@@ -162,7 +179,7 @@ public class InheritedHierarchyAnnotationTest
     ServerHierarchyType forHierarchy = TEST_HT.getServerObject();
     ServerHierarchyType inheritedHierarchy = FastTestDataset.HIER_ADMIN.getServerObject();
 
-    InheritedHierarchyAnnotation annotation = sGOT.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
+    InheritedHierarchyAnnotation annotation = this.typeService.setInheritedHierarchy(sGOT, forHierarchy, inheritedHierarchy);
 
     try
     {
@@ -188,7 +205,7 @@ public class InheritedHierarchyAnnotationTest
     ServerHierarchyType forHierarchy = TEST_HT.getServerObject();
     ServerHierarchyType inheritedHierarchy = FastTestDataset.HIER_ADMIN.getServerObject();
 
-    InheritedHierarchyAnnotation annotation = sGOT.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
+    InheritedHierarchyAnnotation annotation = this.typeService.setInheritedHierarchy(sGOT, forHierarchy, inheritedHierarchy);
 
     try
     {
@@ -211,8 +228,8 @@ public class InheritedHierarchyAnnotationTest
     ServerHierarchyType forHierarchy = TEST_HT.getServerObject();
     ServerHierarchyType inheritedHierarchy = FastTestDataset.HIER_ADMIN.getServerObject();
 
-    sGOT.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
-    sGOT.removeInheritedHierarchy(forHierarchy);
+    this.typeService.setInheritedHierarchy(sGOT, forHierarchy, inheritedHierarchy);
+    this.typeService.removeInheritedHierarchy(forHierarchy);
 
     InheritedHierarchyAnnotation test = InheritedHierarchyAnnotation.get(sGOT.getUniversal(), forHierarchy.getHierarchicalRelationshipType());
 
@@ -228,11 +245,11 @@ public class InheritedHierarchyAnnotationTest
       }
     }
   }
-  
-  
+
   /**
-   * Tests to make sure that if we have a hierarchy A which is inherited by hierarchy B, if we delete A then the inherit relationship
-   * needs to also be deleted.
+   * Tests to make sure that if we have a hierarchy A which is inherited by
+   * hierarchy B, if we delete A then the inherit relationship needs to also be
+   * deleted.
    */
   @Test
   @Request
@@ -242,23 +259,23 @@ public class InheritedHierarchyAnnotationTest
     TEST_CHILD_HT.apply();
     TEST_PARENT_HT.apply();
     TEST_CHILD_HT.setRoot(TEST_DELETE_CHILD);
-    
+
     ServerGeoObjectType sGOT = TEST_DELETE_CHILD.getServerObject();
     ServerHierarchyType forHierarchy = TEST_CHILD_HT.getServerObject();
     ServerHierarchyType inheritedHierarchy = TEST_PARENT_HT.getServerObject();
 
-    sGOT.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
+    this.typeService.setInheritedHierarchy(sGOT, forHierarchy, inheritedHierarchy);
 
     InheritedHierarchyAnnotation test = InheritedHierarchyAnnotation.get(sGOT.getUniversal(), forHierarchy.getHierarchicalRelationshipType());
 
     try
     {
       Assert.assertNotNull(test);
-      
+
       TEST_PARENT_HT.delete();
-      
+
       Assert.assertNull(InheritedHierarchyAnnotation.get(sGOT.getUniversal(), forHierarchy.getHierarchicalRelationshipType()));
-      
+
       test = null;
     }
     finally
@@ -269,10 +286,11 @@ public class InheritedHierarchyAnnotationTest
       }
     }
   }
-  
+
   /**
-   * Tests to make sure that if we have a hierarchy A which is inherited by hierarchy B, if we delete B then the inherit relationship
-   * needs to also be deleted.
+   * Tests to make sure that if we have a hierarchy A which is inherited by
+   * hierarchy B, if we delete B then the inherit relationship needs to also be
+   * deleted.
    */
   @Test
   @Request
@@ -282,25 +300,25 @@ public class InheritedHierarchyAnnotationTest
     TEST_CHILD_HT.apply();
     TEST_PARENT_HT.apply();
     TEST_CHILD_HT.setRoot(TEST_DELETE_CHILD);
-    
+
     ServerGeoObjectType sGOT = TEST_DELETE_CHILD.getServerObject();
     ServerHierarchyType forHierarchy = TEST_CHILD_HT.getServerObject();
     ServerHierarchyType inheritedHierarchy = TEST_PARENT_HT.getServerObject();
 
-    sGOT.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
+    this.typeService.setInheritedHierarchy(sGOT, forHierarchy, inheritedHierarchy);
 
     List<? extends InheritedHierarchyAnnotation> test = InheritedHierarchyAnnotation.getByInheritedHierarchy(sGOT.getUniversal(), inheritedHierarchy.getHierarchicalRelationshipType());
 
     try
     {
       Assert.assertTrue(test != null && test.size() == 1);
-      
+
       TEST_CHILD_HT.delete();
-      
+
       test = InheritedHierarchyAnnotation.getByInheritedHierarchy(sGOT.getUniversal(), inheritedHierarchy.getHierarchicalRelationshipType());
-      
+
       Assert.assertTrue(test != null && test.size() == 0);
-      
+
       test = null;
     }
     finally
@@ -311,12 +329,13 @@ public class InheritedHierarchyAnnotationTest
       }
     }
   }
-  
+
   /**
-   * Tests to make sure that if we have a hierarchy A which is inherited by hierarchy B, if we delete the GeoObjectType, then the
-   * annotation is also deleted.
+   * Tests to make sure that if we have a hierarchy A which is inherited by
+   * hierarchy B, if we delete the GeoObjectType, then the annotation is also
+   * deleted.
    */
-  @Test(expected=TypeInUseException.class)
+  @Test(expected = TypeInUseException.class)
   @Request
   public void testDeleteGeoObjectType()
   {
@@ -324,26 +343,28 @@ public class InheritedHierarchyAnnotationTest
     TEST_CHILD_HT.apply();
     TEST_PARENT_HT.apply();
     TEST_CHILD_HT.setRoot(TEST_DELETE_CHILD);
-    
+
     ServerGeoObjectType sGOT = TEST_DELETE_CHILD.getServerObject();
     ServerHierarchyType forHierarchy = TEST_CHILD_HT.getServerObject();
     ServerHierarchyType inheritedHierarchy = TEST_PARENT_HT.getServerObject();
 
-    sGOT.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
+    this.typeService.setInheritedHierarchy(sGOT, forHierarchy, inheritedHierarchy);
 
     List<? extends InheritedHierarchyAnnotation> test = InheritedHierarchyAnnotation.getAnnotationByHierarchies(forHierarchy.getHierarchicalRelationshipType(), inheritedHierarchy.getHierarchicalRelationshipType());
 
     try
     {
       Assert.assertTrue(test != null && test.size() == 1);
-      
+
       TEST_DELETE_CHILD.delete();
-      
-//      test = InheritedHierarchyAnnotation.getAnnotationByHierarchies(forHierarchy.getHierarchicalRelationshipType(), inheritedHierarchy.getHierarchicalRelationshipType());
-//      
-//      Assert.assertTrue(test != null && test.size() == 0);
-//      
-//      test = null;
+
+      // test =
+      // InheritedHierarchyAnnotation.getAnnotationByHierarchies(forHierarchy.getHierarchicalRelationshipType(),
+      // inheritedHierarchy.getHierarchicalRelationshipType());
+      //
+      // Assert.assertTrue(test != null && test.size() == 0);
+      //
+      // test = null;
     }
     finally
     {
@@ -353,13 +374,13 @@ public class InheritedHierarchyAnnotationTest
       }
     }
   }
-  
+
   @Request
   @Test(expected = HierarchyRootException.class)
   public void testCreateOnNonRoot()
   {
     ServerGeoObjectType sGOT = TEST_CHILD.getServerObject();
-    sGOT.setInheritedHierarchy(TEST_HT.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject());
+    this.typeService.setInheritedHierarchy(sGOT, TEST_HT.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject());
   }
 
   @Test
@@ -370,13 +391,13 @@ public class InheritedHierarchyAnnotationTest
     ServerHierarchyType forHierarchy = TEST_HT.getServerObject();
     ServerHierarchyType inheritedHierarchy = FastTestDataset.HIER_ADMIN.getServerObject();
 
-    InheritedHierarchyAnnotation annotation = sGOT.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
+    InheritedHierarchyAnnotation annotation = this.typeService.setInheritedHierarchy(sGOT, forHierarchy, inheritedHierarchy);
 
     try
     {
       ServerGeoObjectType childType = TEST_CHILD.getServerObject();
 
-      List<ServerGeoObjectType> results = childType.getTypeAncestors(TEST_HT.getServerObject(), true);
+      List<ServerGeoObjectType> results = this.typeService.getTypeAncestors(childType, TEST_HT.getServerObject(), true);
 
       Assert.assertEquals(2, results.size());
     }
@@ -394,13 +415,13 @@ public class InheritedHierarchyAnnotationTest
     ServerHierarchyType forHierarchy = TEST_HT.getServerObject();
     ServerHierarchyType inheritedHierarchy = FastTestDataset.HIER_ADMIN.getServerObject();
 
-    InheritedHierarchyAnnotation annotation = sGOT.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
+    InheritedHierarchyAnnotation annotation = this.typeService.setInheritedHierarchy(sGOT, forHierarchy, inheritedHierarchy);
 
     try
     {
       ServerGeoObjectType childType = TEST_CHILD.getServerObject();
 
-      List<ServerGeoObjectType> results = childType.getTypeAncestors(TEST_HT.getServerObject(), false);
+      List<ServerGeoObjectType> results = this.typeService.getTypeAncestors(childType, TEST_HT.getServerObject(), false);
 
       Assert.assertEquals(1, results.size());
     }
@@ -418,13 +439,13 @@ public class InheritedHierarchyAnnotationTest
     ServerHierarchyType forHierarchy = TEST_HT.getServerObject();
     ServerHierarchyType inheritedHierarchy = FastTestDataset.HIER_ADMIN.getServerObject();
 
-    InheritedHierarchyAnnotation annotation = sGOT.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
+    InheritedHierarchyAnnotation annotation = this.typeService.setInheritedHierarchy(sGOT, forHierarchy, inheritedHierarchy);
 
     try
     {
       ServerGeoObjectType childType = TEST_CHILD.getServerObject();
 
-      ServerHierarchyType hierarchy = childType.findHierarchy(forHierarchy, FastTestDataset.COUNTRY.getServerObject());
+      ServerHierarchyType hierarchy = this.typeService.findHierarchy(childType, forHierarchy, FastTestDataset.COUNTRY.getServerObject());
 
       Assert.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), hierarchy.getCode());
     }
@@ -438,8 +459,6 @@ public class InheritedHierarchyAnnotationTest
   public void testSetInheritedHierarchy()
   {
     FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request) -> {
-
-      HierarchyService service = new HierarchyService();
 
       try
       {

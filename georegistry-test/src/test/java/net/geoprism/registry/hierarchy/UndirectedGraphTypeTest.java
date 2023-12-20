@@ -8,6 +8,9 @@ import java.util.List;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
@@ -15,10 +18,17 @@ import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
 
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
 public class UndirectedGraphTypeTest
 {
+  @Autowired
+  private UndirectedGraphTypeBusinessServiceIF service;
 
   @Test
   @Request
@@ -28,7 +38,7 @@ public class UndirectedGraphTypeTest
     LocalizedValue label = new LocalizedValue("Test Label");
     LocalizedValue description = new LocalizedValue("Test Description");
 
-    UndirectedGraphType type = UndirectedGraphType.create(code, label, description);
+    UndirectedGraphType type = this.service.create(code, label, description);
 
     try
     {
@@ -48,7 +58,7 @@ public class UndirectedGraphTypeTest
     }
     finally
     {
-      type.delete();
+      this.service.delete(type);
     }
 
   }
@@ -57,7 +67,7 @@ public class UndirectedGraphTypeTest
   @Request
   public void testUpdate()
   {
-    UndirectedGraphType type = UndirectedGraphType.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    UndirectedGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
 
     try
     {
@@ -65,14 +75,14 @@ public class UndirectedGraphTypeTest
       object.add(UndirectedGraphType.JSON_LABEL, new LocalizedValue("Updated Label").toJSON());
       object.add(UndirectedGraphType.DESCRIPTION, new LocalizedValue("Updated Description").toJSON());
 
-      type.update(object);
+      this.service.update(type, object);
 
       Assert.assertEquals("Updated Label", type.getDisplayLabel().getValue());
       Assert.assertEquals("Updated Description", type.getDescription().getValue());
     }
     finally
     {
-      type.delete();
+      this.service.delete(type);
     }
 
   }
@@ -81,7 +91,7 @@ public class UndirectedGraphTypeTest
   @Request
   public void testGetByCode()
   {
-    UndirectedGraphType type = UndirectedGraphType.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    UndirectedGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
 
     try
     {
@@ -92,7 +102,7 @@ public class UndirectedGraphTypeTest
     }
     finally
     {
-      type.delete();
+      this.service.delete(type);
     }
 
   }
@@ -101,7 +111,7 @@ public class UndirectedGraphTypeTest
   @Request
   public void testGetByMdEdge()
   {
-    UndirectedGraphType type = UndirectedGraphType.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    UndirectedGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
 
     try
     {
@@ -112,7 +122,7 @@ public class UndirectedGraphTypeTest
     }
     finally
     {
-      type.delete();
+      this.service.delete(type);
     }
 
   }
@@ -121,7 +131,7 @@ public class UndirectedGraphTypeTest
   @Request
   public void testGetByAll()
   {
-    UndirectedGraphType type = UndirectedGraphType.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
+    UndirectedGraphType type = this.service.create("TEST", new LocalizedValue("Test Label"), new LocalizedValue("Test Description"));
 
     try
     {
@@ -135,7 +145,7 @@ public class UndirectedGraphTypeTest
     }
     finally
     {
-      type.delete();
+      this.service.delete(type);
     }
 
   }

@@ -16,12 +16,13 @@ import java.util.Map;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -39,15 +40,20 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.service.TaskService;
+import net.geoprism.registry.service.request.TaskService;
 import net.geoprism.registry.task.Task.TaskStatus;
 import net.geoprism.registry.task.Task.TaskTypeIF;
 import net.geoprism.registry.test.TestUserInfo;
 
 @Ignore
-public class TaskTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class TaskTest implements InstanceTestClassListener
 {
   public static final TestUserInfo USER_SRA       = new TestUserInfo("task_sra", "task_sra", "task_sra@noreply.com", new String[] { RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE });
 
@@ -59,7 +65,8 @@ public class TaskTest
 
   public ClientSession             italianSession = null;
 
-  public TaskService               service        = new TaskService();
+  @Autowired
+  public TaskService               service;
 
   public static enum TestTaskType implements TaskTypeIF {
     TestGeoObjectSplitOrphanedChildren("tasks.test.geoObjectSplitOrphanedChildren.title", "tasks.test.geoObjectSplitOrphanedChildren.template");
@@ -94,10 +101,10 @@ public class TaskTest
       this.templateKey = msgKey;
     }
   }
-
-  @BeforeClass
+  
+  @Override
   @Request
-  public static void setUpClass()
+  public void beforeClassSetup() throws Exception
   {
     Collection<Locale> installed = LocalizationFacade.getInstalledLocales();
 
@@ -119,9 +126,9 @@ public class TaskTest
     USER_SRA.apply();
   }
 
-  @AfterClass
+  @Override
   @Request
-  public static void tearDownClass()
+  public void afterClassSetup() throws Exception
   {
     USER_SRA.delete();
 

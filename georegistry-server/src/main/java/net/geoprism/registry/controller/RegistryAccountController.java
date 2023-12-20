@@ -45,7 +45,7 @@ import com.google.gson.JsonParser;
 
 import net.geoprism.GeoprismUserDTO;
 import net.geoprism.registry.controller.BusinessTypeController.OidBody;
-import net.geoprism.registry.service.AccountService;
+import net.geoprism.registry.service.request.AccountService;
 import net.geoprism.registry.spring.JsonArrayDeserializer;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 

@@ -39,7 +39,8 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 public class PatchCodeMetadata
 {
@@ -84,7 +85,7 @@ public class PatchCodeMetadata
   // @Transaction
   public void create(ServerGeoObjectType type)
   {
-    List<ServerGeoObjectType> subtypes = type.getSubtypes();
+    List<ServerGeoObjectType> subtypes = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).getSubtypes(type);
 
     for (ServerGeoObjectType subtype : subtypes)
     {

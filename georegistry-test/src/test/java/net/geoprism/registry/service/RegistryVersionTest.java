@@ -14,48 +14,36 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestRegistryClient;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class RegistryVersionTest
+@RunWith(SpringInstanceTestClassRunner.class)
+public class RegistryVersionTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  protected static FastTestDataset               testData;
-
   @Autowired
   private TestRegistryClient            client;
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
-  }
   
-  @AfterClass
-  public static void cleanUpClass()
-  {
-    testData.tearDownMetadata();
-  }
+  @Autowired private GeoObjectBusinessServiceIF goService;
   
   @Before
   public void setUp()
@@ -169,13 +157,13 @@ public class RegistryVersionTest
     VertexServerGeoObject serverObj = (VertexServerGeoObject) FastTestDataset.PROV_CENTRAL.getServerObject();
     serverObj.getValuesOverTime(attributeName).clear();
     serverObj.setValue(attributeName, value, dateFormat.parse("1990-01-01"), dateFormat.parse("1990-02-01"));
-    serverObj.apply(false);
+    goService.apply(serverObj, false);
     Assert.assertEquals(1, FastTestDataset.PROV_CENTRAL.getServerObject().getValuesOverTime(attributeName).size());
     
     // Set a value inside that date range with the same value
     VertexServerGeoObject serverObj2 = (VertexServerGeoObject) FastTestDataset.PROV_CENTRAL.getServerObject();
     serverObj2.setValue(attributeName, value, dateFormat.parse("1990-01-05"), dateFormat.parse("1990-01-10"));
-    serverObj2.apply(false);
+    goService.apply(serverObj2, false);
     
     // Fetch the object and assert values on it
     Assert.assertEquals(1, FastTestDataset.PROV_CENTRAL.getServerObject().getValuesOverTime(attributeName).size());
@@ -255,7 +243,7 @@ public class RegistryVersionTest
     serverObj.setExists(Boolean.FALSE, dateFormat.parse("03-01-1990"), dateFormat.parse("03-31-1990"));
     Assert.assertEquals(Boolean.FALSE, serverObj.getExists(dateFormat.parse("03-01-1990")));
     
-    serverObj.apply(false);
+    goService.apply(serverObj, false);
     
     Assert.assertEquals(Boolean.FALSE, serverObj.getExists(dateFormat.parse("01-01-1990")));
   }

@@ -47,8 +47,8 @@ import com.google.gson.JsonObject;
 
 import net.geoprism.registry.controller.DirectedAcyclicGraphTypeController.CodeBody;
 import net.geoprism.registry.permission.PermissionContext;
-import net.geoprism.registry.service.RegistryComponentService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.request.HierarchyTypeServiceIF;
+import net.geoprism.registry.service.request.RegistryComponentService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;
 
 @RestController
@@ -197,6 +197,9 @@ public class GeoObjectTypeController extends RunwaySpringController
 
   @Autowired
   private RegistryComponentService    service;
+  
+  @Autowired
+  private HierarchyTypeServiceIF      hierService;
 
   @PostMapping(RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE)
   public ResponseEntity<String> createAttributeType(@Valid @RequestBody AttributeBody body)
@@ -423,7 +426,7 @@ public class GeoObjectTypeController extends RunwaySpringController
       @NotEmpty
       @RequestParam Boolean includeTypes)
   {
-    JsonArray response = ServiceFactory.getHierarchyService().getHierarchiesForType(this.getSessionId(), code, includeTypes);
+    JsonArray response = hierService.getHierarchiesForType(this.getSessionId(), code, includeTypes);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
@@ -432,7 +435,7 @@ public class GeoObjectTypeController extends RunwaySpringController
   public ResponseEntity<String> getHierarchiesForSubtypes(@NotEmpty
   @RequestParam String code)
   {
-    JsonArray response = ServiceFactory.getHierarchyService().getHierarchiesForSubtypes(this.getSessionId(), code);
+    JsonArray response = hierService.getHierarchiesForSubtypes(this.getSessionId(), code);
 
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }

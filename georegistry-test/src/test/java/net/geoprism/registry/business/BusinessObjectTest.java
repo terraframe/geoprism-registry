@@ -8,45 +8,66 @@ import java.util.List;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.FastDatasetTest;
+import net.geoprism.registry.InstanceTestClassListener;
+import net.geoprism.registry.SpringInstanceTestClassRunner;
+import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.test.FastTestDataset;
 
-public class BusinessObjectTest
+@ContextConfiguration(classes = { TestConfig.class })
+@RunWith(SpringInstanceTestClassRunner.class)
+public class BusinessObjectTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static String           TEST_CODE = "TEST_OBJ";
+  private static String                     TEST_CODE = "TEST_OBJ";
 
-  private static FastTestDataset  testData;
+  private static BusinessType               type;
 
-  private static BusinessType     type;
+  private static AttributeType              attribute;
 
-  private static AttributeType    attribute;
+  private static BusinessEdgeType           relationshipType;
 
-  private static BusinessEdgeType relationshipType;
+  @Autowired
+  private BusinessTypeBusinessServiceIF     bTypeService;
 
-  @BeforeClass
-  public static void setUpClass()
+  @Autowired
+  private BusinessEdgeTypeBusinessServiceIF bEdgeService;
+
+  @Autowired
+  private BusinessObjectBusinessServiceIF   bObjectService;
+
+  @Autowired
+  private GeoObjectBusinessServiceIF        objectService;
+
+  @Override
+  public void beforeClassSetup() throws Exception
   {
-    testData = FastTestDataset.newTestData();
-    testData.setUpMetadata();
+    super.beforeClassSetup();
+
     testData.setUpInstanceData();
 
     setUpClassInRequest();
   }
 
   @Request
-  private static void setUpClassInRequest()
+  private void setUpClassInRequest()
   {
     String code = "TEST_PROG";
     String orgCode = FastTestDataset.ORG_CGOV.getCode();
@@ -57,36 +78,37 @@ public class BusinessObjectTest
     object.addProperty(BusinessType.ORGANIZATION, orgCode);
     object.add(BusinessType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
 
-    type = BusinessType.apply(object);
+    type = this.bTypeService.apply(object);
 
-    attribute = type.createAttributeType(new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false));
+    attribute = this.bTypeService.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false));
 
-    relationshipType = BusinessEdgeType.create(FastTestDataset.ORG_CGOV.getCode(), "TEST_REL", new LocalizedValue("Test Rel"), new LocalizedValue("Test Rel"), type.getCode(), type.getCode());
+    relationshipType = this.bEdgeService.create(FastTestDataset.ORG_CGOV.getCode(), "TEST_REL", new LocalizedValue("Test Rel"), new LocalizedValue("Test Rel"), type.getCode(), type.getCode());
   }
 
-  @AfterClass
-  public static void cleanUpClass()
+  @Override
+  public void afterClassSetup() throws Exception
   {
     cleanUpClassInRequest();
 
     if (testData != null)
     {
       testData.tearDownInstanceData();
-      testData.tearDownMetadata();
     }
+
+    super.afterClassSetup();
   }
 
   @Request
-  private static void cleanUpClassInRequest()
+  private void cleanUpClassInRequest()
   {
     if (relationshipType != null)
     {
-      relationshipType.delete();
+      this.bEdgeService.delete(relationshipType);
     }
 
     if (type != null)
     {
-      type.delete();
+      this.bTypeService.delete(type);
     }
   }
 
@@ -94,9 +116,9 @@ public class BusinessObjectTest
   @Request
   public void testBasicCreate()
   {
-    BusinessObject object = BusinessObject.newInstance(type);
+    BusinessObject object = this.bObjectService.newInstance(type);
     object.setCode(TEST_CODE);
-    object.apply();
+    this.bObjectService.apply(object);
 
     try
     {
@@ -104,7 +126,7 @@ public class BusinessObjectTest
     }
     finally
     {
-      object.delete();
+      this.bObjectService.delete(object);
     }
   }
 
@@ -112,10 +134,10 @@ public class BusinessObjectTest
   @Request
   public void testSetGetValue()
   {
-    BusinessObject object = BusinessObject.newInstance(type);
+    BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getName(), "Test Text");
     object.setCode(TEST_CODE);
-    object.apply();
+    this.bObjectService.apply(object);
 
     try
     {
@@ -123,7 +145,7 @@ public class BusinessObjectTest
     }
     finally
     {
-      object.delete();
+      this.bObjectService.delete(object);
     }
 
   }
@@ -132,20 +154,20 @@ public class BusinessObjectTest
   @Request
   public void testGet()
   {
-    BusinessObject object = BusinessObject.newInstance(type);
+    BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getName(), "Test Text");
     object.setCode(TEST_CODE);
-    object.apply();
+    this.bObjectService.apply(object);
 
     try
     {
-      BusinessObject result = BusinessObject.get(type, attribute.getName(), object.getObjectValue(attribute.getName()));
+      BusinessObject result = this.bObjectService.get(type, attribute.getName(), object.getObjectValue(attribute.getName()));
 
       Assert.assertEquals((String) object.getObjectValue("oid"), (String) result.getObjectValue("oid"));
     }
     finally
     {
-      object.delete();
+      this.bObjectService.delete(object);
     }
   }
 
@@ -153,20 +175,20 @@ public class BusinessObjectTest
   @Request
   public void testGetByCode()
   {
-    BusinessObject object = BusinessObject.newInstance(type);
+    BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getName(), "Test Text");
     object.setCode(TEST_CODE);
-    object.apply();
+    this.bObjectService.apply(object);
 
     try
     {
-      BusinessObject result = BusinessObject.getByCode(type, object.getCode());
+      BusinessObject result = this.bObjectService.getByCode(type, object.getCode());
 
       Assert.assertEquals((String) object.getObjectValue("oid"), (String) result.getObjectValue("oid"));
     }
     finally
     {
-      object.delete();
+      this.bObjectService.delete(object);
     }
   }
 
@@ -176,16 +198,16 @@ public class BusinessObjectTest
   {
     ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
 
-    BusinessObject object = BusinessObject.newInstance(type);
+    BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getName(), "Test Text");
     object.setCode(TEST_CODE);
-    object.apply();
+    this.bObjectService.apply(object);
 
     try
     {
-      object.addGeoObject(serverObject);
+      this.bObjectService.addGeoObject(object, serverObject);
 
-      List<VertexServerGeoObject> results = object.getGeoObjects();
+      List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(object);
 
       Assert.assertEquals(1, results.size());
 
@@ -195,7 +217,7 @@ public class BusinessObjectTest
     }
     finally
     {
-      object.delete();
+      this.bObjectService.delete(object);
     }
   }
 
@@ -205,21 +227,21 @@ public class BusinessObjectTest
   {
     ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
 
-    BusinessObject object = BusinessObject.newInstance(type);
+    BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getName(), "Test Text");
     object.setCode(TEST_CODE);
-    object.apply();
+    this.bObjectService.apply(object);
 
     try
     {
-      object.addGeoObject(serverObject);
-      object.removeGeoObject(serverObject);
+      this.bObjectService.addGeoObject(object, serverObject);
+      this.bObjectService.removeGeoObject(object, serverObject);
 
-      Assert.assertEquals(0, object.getGeoObjects().size());
+      Assert.assertEquals(0, this.bObjectService.getGeoObjects(object).size());
     }
     finally
     {
-      object.delete();
+      this.bObjectService.delete(object);
     }
   }
 
@@ -229,19 +251,19 @@ public class BusinessObjectTest
   {
     ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
 
-    BusinessObject object = BusinessObject.newInstance(type);
+    BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getName(), "Test Text");
     object.setCode(TEST_CODE);
-    object.apply();
+    this.bObjectService.apply(object);
 
     try
     {
-      object.addGeoObject(serverObject);
-      object.addGeoObject(serverObject);
-      object.addGeoObject(serverObject);
-      object.addGeoObject(serverObject);
+      this.bObjectService.addGeoObject(object, serverObject);
+      this.bObjectService.addGeoObject(object, serverObject);
+      this.bObjectService.addGeoObject(object, serverObject);
+      this.bObjectService.addGeoObject(object, serverObject);
 
-      List<VertexServerGeoObject> results = object.getGeoObjects();
+      List<VertexServerGeoObject> results = this.bObjectService.getGeoObjects(object);
 
       Assert.assertEquals(1, results.size());
 
@@ -251,7 +273,7 @@ public class BusinessObjectTest
     }
     finally
     {
-      object.delete();
+      this.bObjectService.delete(object);
     }
   }
 
@@ -261,16 +283,16 @@ public class BusinessObjectTest
   {
     ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
 
-    BusinessObject object = BusinessObject.newInstance(type);
+    BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getName(), "Test Text");
     object.setCode(TEST_CODE);
-    object.apply();
+    this.bObjectService.apply(object);
 
     try
     {
-      object.addGeoObject(serverObject);
+      this.bObjectService.addGeoObject(object, serverObject);
 
-      List<BusinessObject> results = serverObject.getBusinessObjects(type);
+      List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject, type);
 
       Assert.assertEquals(1, results.size());
 
@@ -280,7 +302,7 @@ public class BusinessObjectTest
     }
     finally
     {
-      object.delete();
+      this.bObjectService.delete(object);
     }
   }
 
@@ -290,16 +312,16 @@ public class BusinessObjectTest
   {
     ServerGeoObjectIF serverObject = FastTestDataset.CENTRAL_HOSPITAL.getServerObject();
 
-    BusinessObject object = BusinessObject.newInstance(type);
+    BusinessObject object = this.bObjectService.newInstance(type);
     object.setValue(attribute.getName(), "Test Text");
     object.setCode(TEST_CODE);
-    object.apply();
+    this.bObjectService.apply(object);
 
     try
     {
-      object.addGeoObject(serverObject);
+      this.bObjectService.addGeoObject(object, serverObject);
 
-      List<BusinessObject> results = serverObject.getBusinessObjects();
+      List<BusinessObject> results = this.objectService.getBusinessObjects((VertexServerGeoObject) serverObject);
 
       Assert.assertEquals(1, results.size());
 
@@ -309,7 +331,7 @@ public class BusinessObjectTest
     }
     finally
     {
-      object.delete();
+      this.bObjectService.delete(object);
     }
   }
 
@@ -317,23 +339,23 @@ public class BusinessObjectTest
   @Request
   public void testAddParent()
   {
-    BusinessObject parent = BusinessObject.newInstance(type);
+    BusinessObject parent = this.bObjectService.newInstance(type);
     parent.setValue(attribute.getName(), "Test Parnet");
     parent.setCode("TEST_PARENT");
-    parent.apply();
+    this.bObjectService.apply(parent);
 
     try
     {
-      BusinessObject child = BusinessObject.newInstance(type);
+      BusinessObject child = this.bObjectService.newInstance(type);
       child.setValue(attribute.getName(), "Test Child");
       child.setCode("TEST_CHILD");
-      child.apply();
+      this.bObjectService.apply(child);
 
       try
       {
-        child.addParent(relationshipType, parent);
+        this.bObjectService.addParent(child, relationshipType, parent);
 
-        List<BusinessObject> results = child.getParents(relationshipType);
+        List<BusinessObject> results = this.bObjectService.getParents(child, relationshipType);
 
         Assert.assertEquals(1, results.size());
 
@@ -343,12 +365,12 @@ public class BusinessObjectTest
       }
       finally
       {
-        child.delete();
+        this.bObjectService.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.bObjectService.delete(parent);;
     }
   }
 
@@ -356,33 +378,33 @@ public class BusinessObjectTest
   @Request
   public void testRemoveParent()
   {
-    BusinessObject parent = BusinessObject.newInstance(type);
+    BusinessObject parent = this.bObjectService.newInstance(type);
     parent.setValue(attribute.getName(), "Test Parnet");
     parent.setCode("TEST_PARENT");
-    parent.apply();
+    this.bObjectService.apply(parent);
 
     try
     {
-      BusinessObject child = BusinessObject.newInstance(type);
+      BusinessObject child = this.bObjectService.newInstance(type);
       child.setValue(attribute.getName(), "Test Child");
       child.setCode("TEST_CHILD");
-      child.apply();
+      this.bObjectService.apply(child);
 
       try
       {
-        child.addParent(relationshipType, parent);
-        child.removeParent(relationshipType, parent);
+        this.bObjectService.addParent(child, relationshipType, parent);
+        this.bObjectService.removeParent(child, relationshipType, parent);
 
-        Assert.assertEquals(0, child.getParents(relationshipType).size());
+        Assert.assertEquals(0, this.bObjectService.getParents(child, relationshipType).size());
       }
       finally
       {
-        child.delete();
+        this.bObjectService.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.bObjectService.delete(parent);;
     }
   }
 
@@ -390,27 +412,27 @@ public class BusinessObjectTest
   @Request
   public void testDuplicateParent()
   {
-    BusinessObject parent = BusinessObject.newInstance(type);
+    BusinessObject parent = this.bObjectService.newInstance(type);
     parent.setValue(attribute.getName(), "Test Parnet");
     parent.setCode("TEST_PARENT");
-    parent.apply();
+    this.bObjectService.apply(parent);
 
     try
     {
-      BusinessObject child = BusinessObject.newInstance(type);
+      BusinessObject child = this.bObjectService.newInstance(type);
       child.setValue(attribute.getName(), "Test Child");
       child.setCode("TEST_CHILD");
-      child.apply();
+      this.bObjectService.apply(child);
 
       try
       {
-        child.addParent(relationshipType, parent);
-        child.addParent(relationshipType, parent);
-        child.addParent(relationshipType, parent);
-        child.addParent(relationshipType, parent);
-        child.addParent(relationshipType, parent);
+        this.bObjectService.addParent(child, relationshipType, parent);
+        this.bObjectService.addParent(child, relationshipType, parent);
+        this.bObjectService.addParent(child, relationshipType, parent);
+        this.bObjectService.addParent(child, relationshipType, parent);
+        this.bObjectService.addParent(child, relationshipType, parent);
 
-        List<BusinessObject> results = child.getParents(relationshipType);
+        List<BusinessObject> results = this.bObjectService.getParents(child, relationshipType);
 
         Assert.assertEquals(1, results.size());
 
@@ -420,12 +442,12 @@ public class BusinessObjectTest
       }
       finally
       {
-        child.delete();
+        this.bObjectService.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.bObjectService.delete(parent);;
     }
   }
 
@@ -433,23 +455,23 @@ public class BusinessObjectTest
   @Request
   public void testAddChildren()
   {
-    BusinessObject parent = BusinessObject.newInstance(type);
+    BusinessObject parent = this.bObjectService.newInstance(type);
     parent.setValue(attribute.getName(), "Test Parnet");
     parent.setCode("TEST_PARENT");
-    parent.apply();
+    this.bObjectService.apply(parent);
 
     try
     {
-      BusinessObject child = BusinessObject.newInstance(type);
+      BusinessObject child = this.bObjectService.newInstance(type);
       child.setValue(attribute.getName(), "Test Child");
       child.setCode("TEST_CHILD");
-      child.apply();
+      this.bObjectService.apply(child);
 
       try
       {
-        parent.addChild(relationshipType, child);
+        this.bObjectService.addChild(parent, relationshipType, child);
 
-        List<BusinessObject> results = parent.getChildren(relationshipType);
+        List<BusinessObject> results = this.bObjectService.getChildren(parent, relationshipType);
 
         Assert.assertEquals(1, results.size());
 
@@ -459,12 +481,12 @@ public class BusinessObjectTest
       }
       finally
       {
-        child.delete();
+        this.bObjectService.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.bObjectService.delete(parent);;
     }
   }
 
@@ -472,33 +494,33 @@ public class BusinessObjectTest
   @Request
   public void testRemoveChildren()
   {
-    BusinessObject parent = BusinessObject.newInstance(type);
+    BusinessObject parent = this.bObjectService.newInstance(type);
     parent.setValue(attribute.getName(), "Test Parnet");
     parent.setCode("TEST_PARENT");
-    parent.apply();
+    this.bObjectService.apply(parent);
 
     try
     {
-      BusinessObject child = BusinessObject.newInstance(type);
+      BusinessObject child = this.bObjectService.newInstance(type);
       child.setValue(attribute.getName(), "Test Child");
       child.setCode("TEST_CHILD");
-      child.apply();
+      this.bObjectService.apply(child);
 
       try
       {
-        parent.addChild(relationshipType, child);
-        parent.removeChild(relationshipType, child);
+        this.bObjectService.addChild(parent, relationshipType, child);
+        this.bObjectService.removeChild(parent, relationshipType, child);
 
-        Assert.assertEquals(0, parent.getChildren(relationshipType).size());
+        Assert.assertEquals(0, this.bObjectService.getChildren(parent, relationshipType).size());
       }
       finally
       {
-        child.delete();
+        this.bObjectService.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.bObjectService.delete(parent);;
     }
   }
 
@@ -506,27 +528,27 @@ public class BusinessObjectTest
   @Request
   public void testDuplicateChildren()
   {
-    BusinessObject parent = BusinessObject.newInstance(type);
+    BusinessObject parent = this.bObjectService.newInstance(type);
     parent.setValue(attribute.getName(), "Test Parnet");
     parent.setCode("TEST_PARENT");
-    parent.apply();
+    this.bObjectService.apply(parent);
 
     try
     {
-      BusinessObject child = BusinessObject.newInstance(type);
+      BusinessObject child = this.bObjectService.newInstance(type);
       child.setValue(attribute.getName(), "Test Child");
       child.setCode("TEST_CHILD");
-      child.apply();
+      this.bObjectService.apply(child);
 
       try
-      {
-        parent.addChild(relationshipType, child);
-        parent.addChild(relationshipType, child);
-        parent.addChild(relationshipType, child);
-        parent.addChild(relationshipType, child);
-        parent.addChild(relationshipType, child);
+      {        
+        this.bObjectService.addChild(parent, relationshipType, child);
+        this.bObjectService.addChild(parent, relationshipType, child);
+        this.bObjectService.addChild(parent, relationshipType, child);
+        this.bObjectService.addChild(parent, relationshipType, child);
+        this.bObjectService.addChild(parent, relationshipType, child);
 
-        List<BusinessObject> results = parent.getChildren(relationshipType);
+        List<BusinessObject> results = this.bObjectService.getChildren(parent, relationshipType);
 
         Assert.assertEquals(1, results.size());
 
@@ -536,12 +558,12 @@ public class BusinessObjectTest
       }
       finally
       {
-        child.delete();
+        this.bObjectService.delete(child);
       }
     }
     finally
     {
-      parent.delete();
+      this.bObjectService.delete(parent);;
     }
   }
 

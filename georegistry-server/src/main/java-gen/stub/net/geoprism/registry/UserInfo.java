@@ -55,8 +55,8 @@ import net.geoprism.GeoprismUserQuery;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.graph.ExternalSystem;
-import net.geoprism.registry.permission.RolePermissionService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.permission.RolePermissionService;
 
 public class UserInfo extends UserInfoBase
 {
@@ -80,12 +80,12 @@ public class UserInfo extends UserInfoBase
 
   public static JSONObject page(Integer pageSize, Integer pageNumber)
   {
-    final RolePermissionService perms = ServiceFactory.getRolePermissionService();
+    RolePermissionService permissions = ServiceFactory.getBean(RolePermissionService.class);
 
     List<Organization> organizations = Organization.getUserOrganizations();
 
-    boolean isSRA = perms.isSRA();
-    boolean isRMorRCorAC = ( !isSRA && !perms.isRA() ) && ( perms.isRM() || perms.isRC() || perms.isAC() );
+    boolean isSRA = permissions.isSRA();
+    boolean isRMorRCorAC = ( !isSRA && !permissions.isRA() ) && ( permissions.isRM() || permissions.isRC() || permissions.isAC() );
 
     List<ExternalSystem> externalSystemList = ExternalSystem.getExternalSystemsForOrg(1, 100);
     JSONArray externalSystems = new JSONArray();
