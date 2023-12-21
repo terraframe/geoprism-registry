@@ -55,6 +55,19 @@ public class GPROrganizationBusinessService extends OrganizationBusinessService 
   private BusinessTypeBusinessServiceIF service;
 
   @Override
+  public void apply(ServerOrganization organization, ServerOrganization parent)
+  {
+    boolean isNew = organization.getOrganization().isNew();
+
+    super.apply(organization, parent);
+
+    if (isNew)
+    {
+      this.createRegistryAdminOrganizationRole(organization.getOrganization());
+    }
+  }
+
+  @Override
   @Transaction
   public ServerOrganization create(OrganizationDTO organizationDTO)
   {

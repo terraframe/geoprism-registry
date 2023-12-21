@@ -22,6 +22,9 @@ import net.geoprism.registry.service.business.GPROrganizationBusinessService;
 public class GPROrganizationService extends OrganizationService implements OrganizationServiceIF
 {
   @Autowired
+  private CacheProviderIF                provider;
+
+  @Autowired
   private GPROrganizationBusinessService service;
 
   /**
@@ -71,5 +74,8 @@ public class GPROrganizationService extends OrganizationService implements Organ
         this.service.importJsonTree(array);
       }
     }
+
+    provider.getServerCache().refresh();
   }
+
 }
