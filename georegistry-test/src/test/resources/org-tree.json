@@ -1,0 +1,70 @@
+[
+  {
+    "code": "GRANDPARENT_OBJ",
+    "label": {
+      "localizedValue": "GRANDPARENT_OBJ",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "GRANDPARENT_OBJ"
+        }
+      ]
+    },
+    "contactInfo": {
+      "localizedValue": "GRANDPARENT_OBJ",
+      "localeValues": [
+        {
+          "locale": "defaultLocale",
+          "value": "GRANDPARENT_OBJ"
+        }
+      ]
+    },
+    "children": [
+      {
+        "code": "PARENT_OBJ",
+        "label": {
+          "localizedValue": "PARENT_OBJ",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "PARENT_OBJ"
+            }
+          ]
+        },
+        "contactInfo": {
+          "localizedValue": "PARENT_OBJ",
+          "localeValues": [
+            {
+              "locale": "defaultLocale",
+              "value": "PARENT_OBJ"
+            }
+          ]
+        },
+        "children": [
+          {
+            "code": "CHILD_OBJ",
+            "label": {
+              "localizedValue": "CHILD_OBJ",
+              "localeValues": [
+                {
+                  "locale": "defaultLocale",
+                  "value": "CHILD_OBJ"
+                }
+              ]
+            },
+            "contactInfo": {
+              "localizedValue": "CHILD_OBJ",
+              "localeValues": [
+                {
+                  "locale": "defaultLocale",
+                  "value": "CHILD_OBJ"
+                }
+              ]
+            },
+            "children": []
+          }
+        ]
+      }
+    ]
+  }
+]
