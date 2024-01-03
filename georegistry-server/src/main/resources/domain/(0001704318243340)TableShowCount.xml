@@ -1,0 +1,18 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="generic.table.pageReport">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="generic.table.pageReport" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Showing {first} to {last} of {totalRecords} entries" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
