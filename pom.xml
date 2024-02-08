@@ -25,7 +25,7 @@
   </modules>
 
   <properties>
-    <geoprism.version>1.1.3</geoprism.version>
+    <geoprism.version>1.1.4-SNAPSHOT</geoprism.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>

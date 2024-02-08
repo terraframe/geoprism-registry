@@ -163,6 +163,14 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
         });
     }
 
+    onCreateTiles(version: LabeledPropertyGraphTypeVersion): void {
+        this.service.createTiles(version).then(response => {
+            // Alert that the tiles have been created??
+        }).catch((err: HttpErrorResponse) => {
+            this.error.emit(err);
+        });
+    }
+
     handleProgressChange(progress: Progress): void {
         console.log(progress)
 

@@ -147,6 +147,21 @@ export class LabeledPropertyGraphTypeService {
             .toPromise();
     }
 
+    createTiles(version: LabeledPropertyGraphTypeVersion): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return this.http
+            .post<void>(environment.apiUrl + "/api/lpg-version/create-tiles", JSON.stringify({ oid: version.oid }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
 
     publish(oid: string): Observable<{ jobOid: string }> {
         let headers = new HttpHeaders({

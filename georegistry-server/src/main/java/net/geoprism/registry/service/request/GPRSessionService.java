@@ -98,6 +98,7 @@ public class GPRSessionService extends SessionService implements SessionServiceI
     endpoints.add("api/labeled-property-graph-type/data");
     endpoints.add("api/labeled-property-graph-type/geo-objects");
     endpoints.add("api/labeled-property-graph-type/edges");
+    endpoints.add("api/lpg-version/tile");
 
     // Public endpoint for changing locale
     endpoints.add("api/localization/set-locale");
