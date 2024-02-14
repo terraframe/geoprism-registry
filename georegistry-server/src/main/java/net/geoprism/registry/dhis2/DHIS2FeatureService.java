@@ -132,7 +132,7 @@ public class DHIS2FeatureService
 
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
 
-    Map<String, AttributeType> cgrAttrs = got.getAttributeMap();
+    Map<String, AttributeType> cgrAttrs = got.toDTO().getAttributeMap();
 
     DHIS2TransportServiceIF dhis2;
     try

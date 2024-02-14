@@ -275,7 +275,6 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     List<String> existingAttributes = mdVertexDAO.getAllDefinedMdAttributes().stream().map(attribute -> attribute.definesAttribute()).collect(Collectors.toList());
 
     MdVertexDAOIF sourceMdVertex = type.getMdVertex();
-    MdBusinessDAOIF sourceMdBusiness = type.getMdBusinessDAO();
 
     List<? extends MdAttributeDAOIF> attributes = sourceMdVertex.getAllDefinedMdAttributes();
 
@@ -289,17 +288,18 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
         if (attribute instanceof MdAttributeTermDAO)
         {
-          MdAttributeTermDAO targetAttribute = (MdAttributeTermDAO) mdAttribute;
-
-          // Roots are defined on the MdBusiness of the ServerGeoObjectType not
-          // the MdVertex
-          List<RelationshipDAOIF> roots = ( (MdAttributeTermDAOIF) sourceMdBusiness.definesAttribute(attribute.definesAttribute()) ).getAllAttributeRoots();
-
-          roots.forEach(relationship -> {
-            BusinessDAO term = (BusinessDAO) relationship.getChild();
-            Boolean selectable = Boolean.valueOf(relationship.getValue(MdAttributeTermInfo.SELECTABLE));
-            targetAttribute.addAttributeRoot(term, selectable);
-          });
+          // TODO: HEADS UP
+//          MdAttributeTermDAO targetAttribute = (MdAttributeTermDAO) mdAttribute;
+//
+//          // Roots are defined on the MdBusiness of the ServerGeoObjectType not
+//          // the MdVertex
+//          List<RelationshipDAOIF> roots = ( (MdAttributeTermDAOIF) sourceMdBusiness.definesAttribute(attribute.definesAttribute()) ).getAllAttributeRoots();
+//
+//          roots.forEach(relationship -> {
+//            BusinessDAO term = (BusinessDAO) relationship.getChild();
+//            Boolean selectable = Boolean.valueOf(relationship.getValue(MdAttributeTermInfo.SELECTABLE));
+//            targetAttribute.addAttributeRoot(term, selectable);
+//          });
         }
       }
     });

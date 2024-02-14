@@ -517,31 +517,6 @@ public class TestGeoObjectInfo
   @Transaction
   private void deleteInTrans()
   {
-    // Make sure we delete the business first, otherwise when we delete the
-    // geoEntity it nulls out the reference in the table.
-    if (this.getGeoObjectType() != null && this.getGeoObjectType().getUniversal() != null)
-    {
-      QueryFactory qf = new QueryFactory();
-      BusinessQuery bq = qf.businessQuery(this.getGeoObjectType().getUniversal().getMdBusiness().definesType());
-      bq.WHERE(bq.aCharacter(DefaultAttribute.CODE.getName()).EQ(this.getCode()));
-      OIterator<? extends Business> bit = bq.getIterator();
-      try
-      {
-        while (bit.hasNext())
-        {
-          Business biz = bit.next();
-
-          biz.delete();
-        }
-      }
-      finally
-      {
-        bit.close();
-      }
-    }
-
-    TestDataSet.deleteGeoEntity(this.getCode());
-
     // if (this.serverGO instanceof CompositeServerGeoObject)
     // {
     // ((CompositeServerGeoObject)this.serverGO).getVertex().getVertex().delete();

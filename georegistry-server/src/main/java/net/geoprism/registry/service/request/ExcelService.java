@@ -193,7 +193,7 @@ public class ExcelService
   private JSONObject getType(ServerGeoObjectType geoObjectType)
   {
     final boolean includeCoordinates = geoObjectType.getGeometryType().equals(GeometryType.POINT) || geoObjectType.getGeometryType().equals(GeometryType.MULTIPOINT) || geoObjectType.getGeometryType().equals(GeometryType.MIXED);
-    final ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, false, geoObjectType.getType());
+    final ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, false, geoObjectType.toDTO());
 
     JSONObject type = new JSONObject(geoObjectType.toJSON(serializer).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);

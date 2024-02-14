@@ -138,7 +138,7 @@ public class LocationService
       {
         ServiceFactory.getGeoObjectPermissionService().enforceCanRead(type.getOrganization().getCode(), type);
 
-        information.setChildType(type.getType());
+        information.setChildType(type.toDTO());
 
         List<VertexServerGeoObject> children = this.getGeoObjects(type.getCode(), date);
 

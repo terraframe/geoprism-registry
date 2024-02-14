@@ -13,7 +13,6 @@ import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.system.gis.geo.Universal;
 
 public class CambodiaTestDataset extends TestDataSet
 {
@@ -169,15 +168,11 @@ public class CambodiaTestDataset extends TestDataSet
   @Transaction
   @Override
   public void setUpClassRelationships()
-  {
-    GOT_Country.getUniversal().addLink(Universal.getRoot(), HIER_ADMIN.getServerObject().getUniversalType());
-    
+  {    
     GOT_Country.addChild(GOT_Province, HIER_ADMIN);
     GOT_Province.addChild(GOT_District, HIER_ADMIN);
     GOT_District.addChild(GOT_Commune, HIER_ADMIN);
     GOT_Commune.addChild(GOT_Village, HIER_ADMIN);
-    
-    GOT_Country.getUniversal().addLink(Universal.getRoot(), HIER_MOH.getServerObject().getUniversalType());
     
     GOT_Country.addChild(GOT_Province, HIER_MOH);
     GOT_Province.addChild(GOT_District, HIER_MOH);

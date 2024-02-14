@@ -3,7 +3,8 @@
  */
 package net.geoprism.registry.test;
 
-import org.commongeoregistry.adapter.Optional;
+import java.util.Optional;
+
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 

@@ -31,6 +31,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
 import net.geoprism.registry.service.request.ServiceFactory;
@@ -79,8 +80,8 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
   {
     ListType listType = this.getListType();
 
-    ServerGeoObjectType type = ServerGeoObjectType.get(listType.getUniversal());
-    Organization organization = type.getOrganization();
+    ServerGeoObjectType type = listType.getGeoObjectType();
+    ServerOrganization organization = type.getOrganization();
 
     JsonObject object = new JsonObject();
 

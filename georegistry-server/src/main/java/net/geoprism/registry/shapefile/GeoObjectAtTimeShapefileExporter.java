@@ -111,7 +111,7 @@ public class GeoObjectAtTimeShapefileExporter
   {
     this.type = type;
     this.date = date;
-    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, type.getType()).attributes(this.type.getType());
+    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, type.toDTO()).attributes(this.type.toDTO());
     this.columnNames = new HashMap<String, String>();
     this.locales = locales;
   }
@@ -302,15 +302,15 @@ public class GeoObjectAtTimeShapefileExporter
             }
           });
 
-          AttributeType attribute = this.getType().getAttribute(DefaultAttribute.DISPLAY_LABEL.getName()).get();
+          net.geoprism.registry.graph.AttributeType attribute = this.getType().getAttribute(DefaultAttribute.DISPLAY_LABEL.getName()).get();
 
           LocalizedValue label = object.getDisplayLabel(this.date);
 
-          builder.set(this.getColumnName(attribute.getName() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE), label.getValue(LocalizedValue.DEFAULT_LOCALE));
+          builder.set(this.getColumnName(attribute.getCode() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE), label.getValue(LocalizedValue.DEFAULT_LOCALE));
 
           for (Locale locale : locales)
           {
-            builder.set(this.getColumnName(attribute.getName() + " " + locale.toString()), label.getValue(locale));
+            builder.set(this.getColumnName(attribute.getCode() + " " + locale.toString()), label.getValue(locale));
           }
 
           SimpleFeature feature = builder.buildFeature(object.getCode());
@@ -338,13 +338,13 @@ public class GeoObjectAtTimeShapefileExporter
       builder.add(generateColumnName(attribute.getName()), this.getShapefileType(attribute));
     });
 
-    AttributeType attribute = this.getType().getAttribute(DefaultAttribute.DISPLAY_LABEL.getName()).get();
+    net.geoprism.registry.graph.AttributeType attribute = this.getType().getAttribute(DefaultAttribute.DISPLAY_LABEL.getName()).get();
 
-    builder.add(generateColumnName(attribute.getName() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE), String.class);
+    builder.add(generateColumnName(attribute.getCode() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE), String.class);
 
     for (Locale locale : locales)
     {
-      builder.add(generateColumnName(attribute.getName() + " " + locale.toString()), String.class);
+      builder.add(generateColumnName(attribute.getCode() + " " + locale.toString()), String.class);
     }
 
     return builder.buildFeatureType();

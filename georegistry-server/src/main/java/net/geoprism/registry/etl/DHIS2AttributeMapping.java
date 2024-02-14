@@ -173,7 +173,7 @@ public class DHIS2AttributeMapping
     if (this.isStandardAttribute())
     {
       ServerGeoObjectType got = level.getGeoObjectType();
-      AttributeType attr = got.getAttribute(this.getCgrAttrName()).get();
+      AttributeType attr = got.toDTO().getAttribute(this.getCgrAttrName()).get();
       
       Object value = this.getAttributeValue(serverGo, date, attr, got);
       
@@ -192,7 +192,7 @@ public class DHIS2AttributeMapping
     if (this.isCustomAttribute())
     {
       ServerGeoObjectType got = syncLevel.getGeoObjectType();
-      AttributeType attr = got.getAttribute(this.getCgrAttrName()).get();
+      AttributeType attr = got.toDTO().getAttribute(this.getCgrAttrName()).get();
       
       Object value = this.getAttributeValue(serverGo, date, attr, got);
       
@@ -220,7 +220,7 @@ public class DHIS2AttributeMapping
   public void writeTranslations(VertexServerGeoObject serverGo, Date date, JsonArray translations, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel level, List<DHIS2Locale> dhis2Locales)
   {
     final ServerGeoObjectType got = level.getGeoObjectType();
-    final AttributeType attr = serverGo.getType().getAttribute(cgrAttrName).orElse(null);
+    final AttributeType attr = serverGo.getType().toDTO().getAttribute(cgrAttrName).orElse(null);
     
     if (attr != null && attr instanceof AttributeLocalType)
     {

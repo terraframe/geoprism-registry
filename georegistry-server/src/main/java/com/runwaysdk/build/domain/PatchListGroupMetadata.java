@@ -89,7 +89,7 @@ public class PatchListGroupMetadata
   {
     ListType listType = version.getListType();
     ServerGeoObjectType type = listType.getGeoObjectType();
-    Collection<AttributeType> attributes = type.getAttributeMap().values();
+    Collection<AttributeType> attributes = type.toDTO().getAttributeMap().values();
 
     TableMetadata metadata = new TableMetadata(version.getMdBusiness(), type);
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());

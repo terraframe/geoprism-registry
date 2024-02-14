@@ -96,7 +96,7 @@ public class DHIS2OrgUnitGroupAttributeMapping extends DHIS2AttributeMapping
   public void writeCustomAttributes(JsonArray attributeValues, VertexServerGeoObject serverGo, Date date, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel syncLevel, String lastUpdateDate, String createDate)
   {
     ServerGeoObjectType got = syncLevel.getGeoObjectType();
-    AttributeType attr = got.getAttribute(this.getCgrAttrName()).get();
+    AttributeType attr = got.toDTO().getAttribute(this.getCgrAttrName()).get();
 
     Object value = this.getAttributeValue(serverGo, date, attr, got);
 

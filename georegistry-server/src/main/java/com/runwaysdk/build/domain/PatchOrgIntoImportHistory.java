@@ -25,11 +25,11 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ImportHistoryQuery;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.model.ServerOrganization;
 
 public class PatchOrgIntoImportHistory
 {
@@ -58,10 +58,10 @@ public class PatchOrgIntoImportHistory
           {
             GeoObjectImportConfiguration goConfig = (GeoObjectImportConfiguration) config;
             
-            Organization org = goConfig.getType().getOrganization();
+            ServerOrganization org = goConfig.getType().getOrganization();
             
             hist.appLock();
-            hist.setOrganization(org);
+            hist.setOrganization(org.getOrganization());
             hist.apply();
           }
         }

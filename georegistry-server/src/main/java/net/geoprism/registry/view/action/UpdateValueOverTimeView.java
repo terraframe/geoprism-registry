@@ -229,7 +229,7 @@ public class UpdateValueOverTimeView
     {
       ServerGeoObjectType type = go.getType();
 
-      AttributeType attype = type.getAttribute(cotView.getAttributeName()).get();
+      AttributeType attype = type.toDTO().getAttribute(cotView.getAttributeName()).get();
 
       if (attype instanceof AttributeLocalType)
       {

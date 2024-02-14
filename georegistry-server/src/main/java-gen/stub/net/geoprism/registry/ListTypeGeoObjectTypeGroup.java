@@ -90,7 +90,8 @@ public class ListTypeGeoObjectTypeGroup extends ListTypeGeoObjectTypeGroupBase
   {
     ListTypeGeoObjectTypeGroup group = new ListTypeGeoObjectTypeGroup();
     group.setVersion(version);
-    group.setUniversal(type.getUniversal());
+    // TODO: HEADS UP
+//    group.setUniversal(type.getUniversal());
     group.setLevel(level);
     group.setParent(parent);
 
@@ -106,7 +107,8 @@ public class ListTypeGeoObjectTypeGroup extends ListTypeGeoObjectTypeGroupBase
     ListTypeGeoObjectTypeGroupQuery query = new ListTypeGeoObjectTypeGroupQuery(new QueryFactory());
     query.WHERE(query.getVersion().EQ(version));
     query.AND(query.getParent().EQ((String) null));
-    query.AND(query.getUniversal().EQ(type.getUniversal()));
+    // TODO: HEADS UP
+//    query.AND(query.getUniversal().EQ(type.getUniversal()));
 
     try (OIterator<? extends ListTypeGeoObjectTypeGroup> it = query.getIterator())
     {

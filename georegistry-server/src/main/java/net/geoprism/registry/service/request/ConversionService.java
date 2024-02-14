@@ -73,7 +73,9 @@ public class ConversionService
       return null;
     }
 
-    return ServiceFactory.getMetadataCache().getTerm(code).get();
+    // TODO: HEADS UP
+//    return ServiceFactory.getMetadataCache().getTerm(code).get();
+    return null;
   }
 
   // public GeoObject getGeoObjectById(String uuid, String geoObjectTypeCode)

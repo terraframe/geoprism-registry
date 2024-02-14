@@ -18,9 +18,9 @@
  */
 package net.geoprism.registry.service.business;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
@@ -32,11 +32,8 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
-import com.runwaysdk.dataaccess.EntityDAOIF;
-import com.runwaysdk.dataaccess.cache.ObjectCache;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.Roles;
-import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.registry.ObjectHasDataException;
 import net.geoprism.registry.Organization;
@@ -176,43 +173,9 @@ public class GPROrganizationBusinessService extends OrganizationBusinessService 
    */
   public Map<String, ServerGeoObjectType> getGeoObjectTypes(ServerOrganization organization)
   {
-    return getGeoObjectTypes(organization.getRole());
-  }
-
-  /**
-   * Return a map of {@link GeoObjectType} codes and labels for this
-   * {@link Organization}.
-   * 
-   * @return a map of {@link GeoObjectType} codes and labels for this
-   *         {@link Organization}.
-   */
-  public Map<String, ServerGeoObjectType> getGeoObjectTypes(Organization organization)
-  {
-    return getGeoObjectTypes(organization.getRole());
-  }
-
-  private Map<String, ServerGeoObjectType> getGeoObjectTypes(Roles organizationRole)
-  {
-    // For performance, get all of the universals defined
-    List<? extends EntityDAOIF> universalList = ObjectCache.getCachedEntityDAOs(Universal.CLASS);
-
-    Map<String, ServerGeoObjectType> typeCodeMap = new HashMap<String, ServerGeoObjectType>();
-
-    for (EntityDAOIF entityDAOIF : universalList)
-    {
-      Universal universal = (Universal) BusinessFacade.get(entityDAOIF);
-
-      // Check to see if the universal is owned by the organization role.
-      String ownerId = universal.getOwnerOid();
-      if (ownerId.equals(organizationRole.getOid()))
-      {
-        ServerGeoObjectType type = ServerGeoObjectType.get(universal);
-
-        typeCodeMap.put(type.getCode(), type);
-      }
-    }
-
-    return typeCodeMap;
+    return ServerGeoObjectType.getAll().stream().filter(type -> {
+      return type.getOrganizationCode().equals(organization.getCode());
+    }).collect(Collectors.toMap(t -> t.getCode(), t -> t));
   }
 
   /**

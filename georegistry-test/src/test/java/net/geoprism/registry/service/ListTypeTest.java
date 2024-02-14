@@ -73,1046 +73,1047 @@ import net.geoprism.registry.view.Page;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class ListTypeTest extends USADatasetTest implements InstanceTestClassListener
 {
-  private static String                       CODE = "Test Term";
-
-  private static ClassificationType           type;
-
-  private static AttributeTermType            testTerm;
-
-  private static AttributeClassificationType  testClassification;
-
-  @Autowired
-  private GeoObjectTypeBusinessServiceIF      typeService;
-
-  @Autowired
-  private ClassificationTypeBusinessServiceIF cTypeService;
-
-  @Autowired
-  private ClassificationBusinessServiceIF     cService;
-
-  @Override
-  public void beforeClassSetup() throws Exception
-  {
-    super.beforeClassSetup();
-
-    setUpClassInRequest();
-  }
-
-  @Request
-  private void setUpClassInRequest()
-  {
-    setUpInReq();
-
-    if (!SchedulerManager.initialized())
-    {
-      SchedulerManager.start();
-    }
-  }
-
-  @Request
-  private void setUpInReq()
-  {
-    type = this.cTypeService.apply(ClassificationTypeTest.createMock());
-
-    Classification root = this.cService.newInstance(type);
-    root.setCode(CODE);
-    root.setDisplayLabel(new LocalizedValue("Test Classification"));
-    this.cService.apply(root, null);
-
-    testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
-    testClassification.setClassificationType(type.getCode());
-    testClassification.setRootTerm(root.toTerm());
-
-    ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.STATE.getCode());
-    testClassification = (AttributeClassificationType) this.typeService.createAttributeType(got, testClassification);
-
-    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-    testTerm = (AttributeTermType) this.typeService.createAttributeType(got, testTerm);
-
-    USATestData.COLORADO.setDefaultValue(testClassification.getName(), CODE);
-  }
-
-  @Override
-  @Request
-  public void afterClassSetup() throws Exception
-  {
-    super.afterClassSetup();
-
-    USATestData.COLORADO.removeDefaultValue(testClassification.getName());
-
-    if (type != null)
-    {
-      this.cTypeService.delete(type);
-    }
-  }
-
-  @Before
-  public void setUp()
-  {
-    cleanUpExtra();
-
-    testData.setUpInstanceData();
-
-    testData.logIn(USATestData.USER_NPS_RA);
-
-  }
-
-  @After
-  public void tearDown()
-  {
-    testData.logOut();
-
-    cleanUpExtra();
-
-    testData.tearDownInstanceData();
-  }
-
-  @Request
-  public void cleanUpExtra()
-  {
-    TestDataSet.deleteAllListData();
-  }
-
-  @Test
-  @Request
-  public void testSingleListTypeSerialization()
-  {
-    SingleListType list = new SingleListType();
-    list.setUniversal(USATestData.STATE.getUniversal());
-    list.getDisplayLabel().setValue("Test List");
-    list.setCode("TEST_CODE");
-    list.setOrganization(USATestData.ORG_NPS.getServerObject());
-    list.getDescription().setValue("My Overal Description");
-    list.setValidOn(USATestData.DEFAULT_OVER_TIME_DATE);
-
-    JsonObject json = list.toJSON();
-    SingleListType test = (SingleListType) ListType.fromJSON(json);
-
-    Assert.assertEquals(list.getUniversalOid(), test.getUniversalOid());
-    Assert.assertEquals(list.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
-    Assert.assertEquals(list.getDescription().getValue(), test.getDescription().getValue());
-    Assert.assertEquals(list.getOrganization(), test.getOrganization());
-    Assert.assertEquals(list.getCode(), test.getCode());
-    Assert.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
-    Assert.assertEquals(list.getValidOn(), test.getValidOn());
-  }
-
-  @Test
-  @Request
-  public void testIntervalListTypeSerialization()
-  {
-    JsonObject interval = new JsonObject();
-    interval.addProperty(IntervalListType.START_DATE, GeoRegistryUtil.formatDate(USATestData.DEFAULT_OVER_TIME_DATE, false));
-    interval.addProperty(IntervalListType.END_DATE, GeoRegistryUtil.formatDate(USATestData.DEFAULT_END_TIME_DATE, false));
-
-    JsonArray intervalJson = new JsonArray();
-    intervalJson.add(interval);
-
-    IntervalListType list = new IntervalListType();
-    list.setUniversal(USATestData.STATE.getUniversal());
-    list.getDisplayLabel().setValue("Test List");
-    list.setCode("TEST_CODE");
-    list.setOrganization(USATestData.ORG_NPS.getServerObject());
-    list.getDescription().setValue("My Overal Description");
-    list.setIntervalJson(intervalJson.toString());
-
-    JsonObject json = list.toJSON();
-    IntervalListType test = (IntervalListType) ListType.fromJSON(json);
-
-    Assert.assertEquals(list.getUniversalOid(), test.getUniversalOid());
-    Assert.assertEquals(list.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
-    Assert.assertEquals(list.getDescription().getValue(), test.getDescription().getValue());
-    Assert.assertEquals(list.getOrganization(), test.getOrganization());
-    Assert.assertEquals(list.getCode(), test.getCode());
-    Assert.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
-    Assert.assertEquals(list.getIntervalJson(), test.getIntervalJson());
-  }
-
-  @Test
-  @Request
-  public void testIncrementListTypeSerialization()
-  {
-    IncrementalListType list = new IncrementalListType();
-    list.setUniversal(USATestData.STATE.getUniversal());
-    list.getDisplayLabel().setValue("Test List");
-    list.setCode("TEST_CODE");
-    list.setOrganization(USATestData.ORG_NPS.getServerObject());
-    list.getDescription().setValue("My Overal Description");
-    list.setPublishingStartDate(USATestData.DEFAULT_OVER_TIME_DATE);
-    list.addFrequency(ChangeFrequency.ANNUAL);
-
-    JsonObject json = list.toJSON();
-    IncrementalListType test = (IncrementalListType) ListType.fromJSON(json);
-
-    Assert.assertEquals(list.getUniversalOid(), test.getUniversalOid());
-    Assert.assertEquals(list.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
-    Assert.assertEquals(list.getDescription().getValue(), test.getDescription().getValue());
-    Assert.assertEquals(list.getOrganization(), test.getOrganization());
-    Assert.assertEquals(list.getCode(), test.getCode());
-    Assert.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
-    Assert.assertEquals(list.getFrequency().get(0), test.getFrequency().get(0));
-    Assert.assertEquals(list.getPublishingStartDate(), test.getPublishingStartDate());
-  }
-
-  // @Test
-  // @Request
-  // public void testCreateMultiple()
-  // {
-  // JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.STATE, ListType.PUBLIC, true);
-  //
-  // ListType test1 = ListType.apply(json);
-  //
-  // try
-  // {
-  // json.addProperty(ListType.CODE, "CODE_2");
-  //
-  // ListType test2 = ListType.apply(json);
-  // test2.delete();
-  //
-  // Assert.fail("Able to apply multiple masterlists with the same universal");
-  // }
-  // catch (DuplicateListTypeException e)
-  // {
-  // test1.delete();
-  // }
-  // }
-  //
-
-  @Test
-  @Request
-  public void testCreateMultipleNonMaster()
-  {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
-
-    ListType test1 = ListType.apply(json);
-
-    try
-    {
-      json.addProperty(ListType.CODE, "CODE_2");
-
-      ListType test2 = ListType.apply(json);
-      test2.delete();
-    }
-    catch (DuplicateDataDatabaseException e)
-    {
-      test1.delete();
-
-      Assert.fail("Not able to apply multiple masterlists with the same universal when list is not a master");
-    }
-  }
-
-  @Test(expected = RunwayExceptionDTO.class)
-  public void testServiceCreateAndRemove()
-  {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
-
-    ListTypeService service = new ListTypeService();
-    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
-
-    String oid = result.get(ComponentInfo.OID).getAsString();
-
-    ListTypeTest.waitUntilPublished(oid);
-
-    service.remove(testData.clientRequest.getSessionId(), oid);
-
-    service.get(testData.clientRequest.getSessionId(), oid);
-  }
-
-  @Test
-  public void testListForType()
-  {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
-
-    ListTypeService service = new ListTypeService();
-    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
-
-    String oid = result.get(ComponentInfo.OID).getAsString();
-    ListTypeTest.waitUntilPublished(oid);
-
-    try
-    {
-      JsonObject org = service.listForType(testData.clientRequest.getSessionId(), USATestData.STATE.getCode());
-
-      Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("orgLabel").getAsString());
-      Assert.assertEquals(USATestData.ORG_NPS.getCode(), org.get("orgCode").getAsString());
-      Assert.assertEquals(USATestData.STATE.getDisplayLabel().getValue(), org.get("typeLabel").getAsString());
-      Assert.assertEquals(USATestData.STATE.getCode(), org.get("typeCode").getAsString());
-      Assert.assertTrue(org.get("write").getAsBoolean());
-      Assert.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
-    }
-    finally
-    {
-      service.remove(testData.clientRequest.getSessionId(), oid);
-    }
-  }
-
-  @Test
-  public void testListPublicByOrgFromOtherOrg()
-  {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
-
-    ListTypeService service = new ListTypeService();
-    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
-
-    String oid = result.get(ComponentInfo.OID).getAsString();
-    ListTypeTest.waitUntilPublished(oid);
-
-    try
-    {
-      USATestData.runAsUser(USATestData.USER_PPP_RA, (request) -> {
-
-        JsonObject org = service.listForType(testData.clientRequest.getSessionId(), USATestData.STATE.getCode());
-
-        Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("orgLabel").getAsString());
-        Assert.assertEquals(USATestData.ORG_NPS.getCode(), org.get("orgCode").getAsString());
-        Assert.assertEquals(USATestData.STATE.getDisplayLabel().getValue(), org.get("typeLabel").getAsString());
-        Assert.assertEquals(USATestData.STATE.getCode(), org.get("typeCode").getAsString());
-        Assert.assertTrue(org.get("write").getAsBoolean());
-        Assert.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
-      });
-    }
-    finally
-    {
-      service.remove(testData.clientRequest.getSessionId(), oid);
-    }
-  }
-
-  //
-  // @Test
-  // public void testPrivateListByOrgFromOtherOrg()
-  // {
-  // JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.STATE, ListType.PRIVATE, false);
-  //
-  // ListTypeService service = new ListTypeService();
-  // JsonObject result = service.apply(testData.clientRequest.getSessionId(),
-  // listJson);
-  //
-  // try
-  // {
-  // USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
-  // JsonArray orgs = service.listByOrg(request.getSessionId());
-  //
-  // JsonObject org = null;
-  // for (int i = 0; i < orgs.size(); ++i)
-  // {
-  // if
-  // (orgs.get(i).getAsJsonObject().get("oid").getAsString().equals(USATestData.ORG_NPS.getServerObject().getOid()))
-  // {
-  // org = orgs.get(i).getAsJsonObject();
-  // }
-  // }
-  //
-  // Assert.assertNotNull(org.get("oid").getAsString());
-  // Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(),
-  // org.get("label").getAsString());
-  // Assert.assertFalse(org.get("write").getAsBoolean());
-  // Assert.assertTrue(org.get("lists").getAsJsonArray().size() == 0);
-  // });
-  // }
-  // finally
-  // {
-  // String oid = result.get(ComponentInfo.OID).getAsString();
-  // service.remove(testData.clientRequest.getSessionId(), oid);
-  // }
-  // }
-  //
-
-  @Test
-  public void testPublishVersion()
-  {
-    USATestData.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
-
-      JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
-
-      ListType test = ListType.apply(json);
-
-      try
-      {
-        ListTypeEntry entry = test.createEntry(TestDataSet.DEFAULT_OVER_TIME_DATE);
-
-        try
-        {
-          entry.publish(createVersionMetadata().toString());
-
-          List<ListTypeVersion> versions = entry.getVersions();
-
-          Assert.assertEquals(2, versions.size());
-
-          ListTypeVersion version = versions.get(0);
-
-          MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
-
-          Assert.assertNotNull(mdTable);
-        }
-        finally
-        {
-          entry.delete();
-        }
-      }
-      catch (Exception e)
-      {
-        e.printStackTrace();
-
-        Assert.fail(e.getLocalizedMessage());
-      }
-      finally
-      {
-        test.delete();
-      }
-    });
-  }
-
-  @Test
-  public void testPublishVersionOfAbstract()
-  {
-    dataTest(null);
-  }
-
-  @Test
-  public void testFetchDataWithGeometries()
-  {
-    dataTest(true);
-  }
-
-  private void dataTest(Boolean includeGeometries)
-  {
-    GeoJsonReader reader = new GeoJsonReader();
-
-    TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
-
-      ListTypeBuilder.Hierarchy hierarchy = new ListTypeBuilder.Hierarchy();
-      hierarchy.setType(USATestData.HIER_ADMIN);
-      hierarchy.setParents(USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
-      hierarchy.setSubtypeHierarchies(USATestData.HIER_REPORTS_TO);
-
-      ListTypeBuilder builder = new ListTypeBuilder();
-      builder.setOrg(USATestData.ORG_NPS.getServerObject());
-      builder.setInfo(USATestData.HEALTH_FACILITY);
-      builder.setHts(hierarchy);
-
-      ListType test = builder.build();
-
-      try
-      {
-        ListTypeEntry entry = test.createEntry(TestDataSet.DEFAULT_OVER_TIME_DATE);
-
-        try
-        {
-          entry.publish(createVersionMetadata().toString());
-
-          List<ListTypeVersion> versions = entry.getVersions();
-
-          Assert.assertEquals(2, versions.size());
-
-          ListTypeVersion version = versions.get(0);
-
-          MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
-
-          Assert.assertNotNull(mdTable);
-
-          Page<JsonSerializable> data = version.data(new JsonObject(), true, includeGeometries);
-
-          // Entries should be HP_1, HP_2, HS_1, HS_2
-          Assert.assertEquals(Long.valueOf(4), data.getCount());
-
-          List<JsonSerializable> results = data.getResults();
-
-          for (int i = 0; i < results.size(); i++)
-          {
-            JsonObject result = results.get(i).toJSON().getAsJsonObject();
-
-            String code = result.get("code").getAsString();
-
-            if (code.equals(USATestData.HS_ONE.getCode()))
-            {
-              String reportsTo = result.get("usatestdatareportstocode").getAsString();
-              Assert.assertEquals(USATestData.HP_ONE.getCode(), reportsTo);
-            }
-            else if (code.equals(USATestData.HS_TWO.getCode()))
-            {
-              String reportsTo = result.get("usatestdatareportstocode").getAsString();
-
-              Assert.assertEquals(USATestData.HP_TWO.getCode(), reportsTo);
-            }
-
-            if (includeGeometries != null && includeGeometries.equals(Boolean.TRUE))
-            {
-              Assert.assertEquals(true, result.has("geometry"));
-
-              JsonObject geometries = result.get("geometry").getAsJsonObject();
-
-              Geometry jtsGeom = reader.read(geometries.toString());
-              Assert.assertTrue(jtsGeom.isValid());
-            }
-            else
-            {
-              Assert.assertEquals(false, result.has("geometry"));
-            }
-          }
-        }
-        finally
-        {
-          entry.delete();
-        }
-      }
-      catch (Throwable t)
-      {
-        t.printStackTrace();
-        throw new RuntimeException(t);
-      }
-      finally
-      {
-        test.delete();
-      }
-    });
-  }
-
-  @Test(expected = InvalidMasterListException.class)
-  @Request
-  public void testPublishInvalidVersion()
-  {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
-
-    ListType test = ListType.apply(json);
-
-    try
-    {
-      test.appLock();
-      test.setValid(false);
-      test.apply();
-
-      ListTypeEntry version = test.getOrCreateEntry(TestDataSet.DEFAULT_OVER_TIME_DATE, null);
-      version.delete();
-    }
-    finally
-    {
-      test.delete();
-    }
-  }
-
-  // @Test
-  // public void testCreatePublishedVersions()
-  // {
-  // JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
-  //
-  // ListTypeService service = new ListTypeService();
-  // JsonObject result = service.apply(testData.clientRequest.getSessionId(),
-  // listJson);
-  // String oid = result.get(ComponentInfo.OID).getAsString();
-  //
-  // try
-  // {
-  // service.createPublishedVersions(testData.clientRequest.getSessionId(),
-  // oid);
-  //
-  // final JsonObject json =
-  // service.getEntries(testData.clientRequest.getSessionId(), oid);
-  //
-  // Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
-  // }
-  // finally
-  // {
-  // service.remove(testData.clientRequest.getSessionId(), oid);
-  // }
-  // }
-
-  @Test
-  public void testCreateFromBadRole()
-  {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
-
-    TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_PPP_RA };
-
-    for (TestUserInfo user : users)
-    {
-      USATestData.runAsUser(user, (request) -> {
-
-        ListTypeService service = new ListTypeService();
-
-        try
-        {
-          service.apply(request.getSessionId(), listJson);
-
-          Assert.fail("Expected an exception to be thrown.");
-        }
-        catch (SmartExceptionDTO e)
-        {
-          // This is expected
-        }
-
-      });
-    }
-  }
-
-  @Test
-  public void testRemoveFromBadRole()
-  {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
-
-    ListTypeService service = new ListTypeService();
-    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
-    String oid = result.get(ComponentInfo.OID).getAsString();
-
-    ListTypeTest.waitUntilPublished(oid);
-
-    try
-    {
-      TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_PPP_RA };
-
-      for (TestUserInfo user : users)
-      {
-        USATestData.runAsUser(user, (request) -> {
-
-          try
-          {
-            service.remove(request.getSessionId(), oid);
-
-            Assert.fail("Expected an exception to be thrown.");
-          }
-          catch (SmartExceptionDTO e)
-          {
-            // This is expected
-          }
-
-        });
-      }
-    }
-    finally
-    {
-      service.remove(testData.clientRequest.getSessionId(), oid);
-    }
-  }
-
-  @Request
-  private static void waitUntilPublished(String oid)
-  {
-    List<? extends JobHistory> histories = null;
-    int waitTime = 0;
-
-    while (histories == null)
-    {
-      if (waitTime > 10000)
-      {
-        Assert.fail("Job was never scheduled. Unable to find any associated history.");
-      }
-
-      QueryFactory qf = new QueryFactory();
-
-      PublishListTypeVersionJobQuery jobQuery = new PublishListTypeVersionJobQuery(qf);
-      jobQuery.WHERE(jobQuery.getListType().EQ(oid));
-
-      JobHistoryQuery jhq = new JobHistoryQuery(qf);
-      jhq.WHERE(jhq.job(jobQuery));
-
-      List<? extends JobHistory> potentialHistories = jhq.getIterator().getAll();
-
-      if (potentialHistories.size() > 0)
-      {
-        histories = potentialHistories;
-      }
-      else
-      {
-        try
-        {
-          Thread.sleep(1000);
-        }
-        catch (InterruptedException e)
-        {
-          e.printStackTrace();
-          Assert.fail("Interrupted while waiting");
-        }
-
-        waitTime += 1000;
-      }
-    }
-
-    for (JobHistory history : histories)
-    {
-      try
-      {
-        SchedulerTestUtils.waitUntilStatus(history.getOid(), AllJobStatus.SUCCESS);
-      }
-      catch (InterruptedException e)
-      {
-        e.printStackTrace();
-        Assert.fail("Interrupted while waiting");
-      }
-    }
-  }
-
-  // @Test
-  // public void testCreatePublishedVersionsFromOtherOrg()
-  // {
-  // JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
-  //
-  // ListTypeService service = new ListTypeService();
-  // JsonObject result = service.apply(testData.clientRequest.getSessionId(),
-  // listJson);
-  // String oid = result.get(ComponentInfo.OID).getAsString();
-  //
-  // try
-  // {
-  // TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_PPP_RA };
-  //
-  // for (TestUserInfo user : users)
-  // {
-  // try
-  // {
-  // USATestData.runAsUser(user, (request, adapter) -> {
-  //
-  // service.createPublishedVersions(request.getSessionId(), oid);
-  //
-  // Assert.fail("Able to publish a master list as a user with bad roles");
-  // });
-  // }
-  // catch (SmartExceptionDTO e)
-  // {
-  // // This is expected
-  // }
-  // }
-  // }
-  // finally
-  // {
-  // service.remove(testData.clientRequest.getSessionId(), oid);
-  // }
-  //
-  // }
-
-  //
-  // @Test
-  // public void testGetTile() throws IOException
-  // {
-  // JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(),
-  // USATestData.HIER_ADMIN, USATestData.STATE, ListType.PUBLIC, false,
-  // USATestData.COUNTRY);
-  //
-  // ListTypeService service = new ListTypeService();
-  // JsonObject result = service.apply(testData.clientRequest.getSessionId(),
-  // listJson);
-  // String oid = result.get(ComponentInfo.OID).getAsString();
-  //
-  // try
-  // {
-  // service.applyPublishedVersions(testData.clientRequest.getSessionId(),
-  // oid);
-  //
-  // final JsonObject object =
-  // service.getVersions(testData.clientRequest.getSessionId(), oid,
-  // ListTypeVersion.PUBLISHED);
-  // final JsonArray json = object.get(ListType.VERSIONS).getAsJsonArray();
-  //
-  // Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
-  //
-  // String versionId = json.get(0).getAsJsonObject().get("oid").getAsString();
-  //
-  // JSONObject tileObj = new JSONObject();
-  // tileObj.put("oid", versionId);
-  // tileObj.put("x", 1);
-  // tileObj.put("y", 1);
-  // tileObj.put("z", 1);
-  //
-  // try (InputStream tile =
-  // service.getTile(testData.clientRequest.getSessionId(), tileObj))
-  // {
-  // Assert.assertNotNull(tile);
-  //
-  // byte[] ctile = getCachedTile(versionId);
-  //
-  // Assert.assertNotNull(ctile);
-  // Assert.assertTrue(ctile.length > 0);
-  // }
-  // }
-  // finally
-  // {
-  // service.remove(testData.clientRequest.getSessionId(), oid);
-  // }
-  // }
-  //
-  // @Request
-  // private byte[] getCachedTile(String versionId)
-  // {
-  // return TileCache.getCachedTile(versionId, 1, 1, 1);
-  // }
-
-  @Test
-  @Request
-  public void testGetAnnualFrequencyDates()
-  {
-    final IncrementalListType list = new IncrementalListType();
-    list.addFrequency(ChangeFrequency.ANNUAL);
-
-    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-    calendar.clear();
-    calendar.set(2012, Calendar.MARCH, 3);
-
-    final Date startDate = calendar.getTime();
-
-    calendar.set(2017, Calendar.OCTOBER, 21);
-
-    final Date endDate = calendar.getTime();
-
-    List<Date> dates = list.getFrequencyDates(startDate, endDate);
-
-    Assert.assertEquals(6, dates.size());
-
-    for (int i = 0; i < dates.size(); i++)
-    {
-      calendar.clear();
-      calendar.set( ( 2012 + i ), Calendar.MARCH, 3);
-
-      Assert.assertEquals(calendar.getTime(), dates.get(i));
-    }
-  }
-
-  @Test
-  @Request
-  public void testGetQuarterFrequencyDates()
-  {
-    final IncrementalListType list = new IncrementalListType();
-    list.addFrequency(ChangeFrequency.QUARTER);
-
-    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-    calendar.clear();
-    calendar.set(2012, Calendar.MARCH, 3);
-
-    final Date startDate = calendar.getTime();
-
-    calendar.set(2013, Calendar.JANUARY, 2);
-
-    final Date endDate = calendar.getTime();
-
-    List<Date> dates = list.getFrequencyDates(startDate, endDate);
-
-    Assert.assertEquals(4, dates.size());
-
-    for (int i = 0; i < dates.size(); i++)
-    {
-      calendar.clear();
-      calendar.set(2012, Calendar.MARCH, 3);
-      calendar.add(Calendar.MONTH, ( 3 * i ));
-
-      Assert.assertEquals(calendar.getTime(), dates.get(i));
-    }
-
-  }
-
-  @Test
-  @Request
-  public void testGetBiannualFrequencyDates()
-  {
-    final IncrementalListType list = new IncrementalListType();
-    list.addFrequency(ChangeFrequency.BIANNUAL);
-
-    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-    calendar.clear();
-    calendar.set(2012, Calendar.MARCH, 3);
-
-    final Date startDate = calendar.getTime();
-
-    calendar.set(2013, Calendar.JANUARY, 2);
-
-    final Date endDate = calendar.getTime();
-
-    List<Date> dates = list.getFrequencyDates(startDate, endDate);
-
-    Assert.assertEquals(2, dates.size());
-
-    for (int i = 0; i < dates.size(); i++)
-    {
-      calendar.clear();
-      calendar.set(2012, Calendar.MARCH, 3);
-      calendar.add(Calendar.MONTH, ( 6 * i ));
-
-      Assert.assertEquals(calendar.getTime(), dates.get(i));
-    }
-  }
-
-  @Test
-  @Request
-  public void testGetMonthFrequencyDates()
-  {
-    final IncrementalListType list = new IncrementalListType();
-    list.addFrequency(ChangeFrequency.MONTHLY);
-
-    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-    calendar.clear();
-    calendar.set(2012, Calendar.MARCH, 3);
-
-    final Date startDate = calendar.getTime();
-
-    calendar.set(2013, Calendar.JANUARY, 2);
-
-    final Date endDate = calendar.getTime();
-
-    List<Date> dates = list.getFrequencyDates(startDate, endDate);
-
-    Assert.assertEquals(10, dates.size());
-
-    for (int i = 0; i < dates.size(); i++)
-    {
-      calendar.clear();
-      calendar.set(2012, Calendar.MARCH, 3);
-      calendar.add(Calendar.MONTH, i);
-
-      Assert.assertEquals(calendar.getTime(), dates.get(i));
-    }
-  }
-
-  @Test
-  @Request
-  public void testMarkAsInvalidByParent()
-  {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY, USATestData.STATE);
-
-    ListType masterlist = ListType.apply(json);
-
-    try
-    {
-      masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.STATE.getServerObject());
-
-      Assert.assertFalse(masterlist.getValid());
-    }
-    catch (DuplicateDataDatabaseException e)
-    {
-      masterlist.delete();
-    }
-  }
-
-  @Test
-  @Request
-  public void testMarkAsInvalidByDirectType()
-  {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY, USATestData.STATE);
-
-    ListType masterlist = ListType.apply(json);
-
-    try
-    {
-      masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.DISTRICT.getServerObject());
-
-      Assert.assertFalse(masterlist.getValid());
-    }
-    catch (DuplicateDataDatabaseException e)
-    {
-      masterlist.delete();
-    }
-  }
-
-  @Test
-  @Request
-  public void testFailMarkAsInvalidByType()
-  {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY, USATestData.STATE);
-
-    ListType masterlist = ListType.apply(json);
-
-    try
-    {
-      masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.COUNTY.getServerObject());
-
-      Assert.assertTrue(masterlist.isValid());
-    }
-    catch (DuplicateDataDatabaseException e)
-    {
-      masterlist.delete();
-    }
-  }
-
-  @Test
-  @Request
-  public void testFailMarkAsInvalidByHierarchy()
-  {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY, USATestData.STATE);
-
-    ListType masterlist = ListType.apply(json);
-
-    try
-    {
-      masterlist.markAsInvalid(USATestData.HIER_SCHOOL.getServerObject(), USATestData.DISTRICT.getServerObject());
-
-      Assert.assertTrue(masterlist.isValid());
-    }
-    catch (DuplicateDataDatabaseException e)
-    {
-      masterlist.delete();
-    }
-  }
-
-  @Test
-  @Request
-  public void testMarkAllAsInvalid()
-  {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
-
-    ListType masterlist = ListType.apply(json);
-
-    try
-    {
-      ListType.markAllAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.STATE.getServerObject());
-
-      ListType test = ListType.get(masterlist.getOid());
-
-      Assert.assertFalse(test.getValid());
-    }
-    catch (DuplicateDataDatabaseException e)
-    {
-      masterlist.delete();
-    }
-  }
-
-  @Request
-  public static JsonObject getJson(ServerOrganization org, TestHierarchyTypeInfo ht, TestGeoObjectTypeInfo info, TestGeoObjectTypeInfo... parents)
-  {
-    ListTypeBuilder.Hierarchy hierarchy = new ListTypeBuilder.Hierarchy();
-    hierarchy.setType(ht);
-    hierarchy.setParents(parents);
-
-    ListTypeBuilder builder = new ListTypeBuilder();
-    builder.setOrg(org);
-    builder.setInfo(info);
-    builder.setHts(hierarchy);
-
-    return builder.buildJSON();
-  }
-
-  public static JsonObject createVersionMetadata()
-  {
-    JsonObject metadata = new JsonObject();
-    metadata.add("description", new LocalizedValue("Test").toJSON());
-    metadata.addProperty("visibility", "PRIVATE");
-    metadata.addProperty("master", false);
-    metadata.add("label", new LocalizedValue("Test").toJSON());
-    metadata.add("process", new LocalizedValue("Test").toJSON());
-    metadata.add("progress", new LocalizedValue("Test").toJSON());
-    metadata.add("accessConstraints", new LocalizedValue("Test").toJSON());
-    metadata.add("useConstraints", new LocalizedValue("Test").toJSON());
-    metadata.add("acknowledgements", new LocalizedValue("Test").toJSON());
-    metadata.add("disclaimer", new LocalizedValue("Test").toJSON());
-    metadata.addProperty("contactName", "AAAAA");
-    metadata.addProperty("organization", "AAAAA");
-    metadata.addProperty("telephoneNumber", "AAAAA");
-    metadata.addProperty("email", "AAAAA");
-    metadata.addProperty("originator", "AAAAA");
-    metadata.addProperty("collectionDate", "2020-02-12");
-    metadata.addProperty("topicCategories", "AAAAA");
-    metadata.addProperty("placeKeywords", "AAAAA");
-    metadata.addProperty("updateFrequency", "AAAAA");
-    metadata.addProperty("lineage", "AAAAA");
-    metadata.addProperty("languages", "AAAAA");
-    metadata.addProperty("scaleResolution", "AAAAA");
-    metadata.addProperty("spatialRepresentation", "AAAAA");
-    metadata.addProperty("referenceSystem", "AAAAA");
-    metadata.addProperty("reportSpecification", "AAAAA");
-    metadata.addProperty("distributionFormat", "AAAAA");
-
-    JsonObject versionMetadata = new JsonObject();
-    versionMetadata.add(ListType.LIST_METADATA, metadata);
-    versionMetadata.add(ListType.GEOSPATIAL_METADATA, metadata);
-    return versionMetadata;
-  }
-
+  // TODO: HEADS UP
+//  private static String                       CODE = "Test Term";
+//
+//  private static ClassificationType           type;
+//
+//  private static AttributeTermType            testTerm;
+//
+//  private static AttributeClassificationType  testClassification;
+//
+//  @Autowired
+//  private GeoObjectTypeBusinessServiceIF      typeService;
+//
+//  @Autowired
+//  private ClassificationTypeBusinessServiceIF cTypeService;
+//
+//  @Autowired
+//  private ClassificationBusinessServiceIF     cService;
+//
+//  @Override
+//  public void beforeClassSetup() throws Exception
+//  {
+//    super.beforeClassSetup();
+//
+//    setUpClassInRequest();
+//  }
+//
+//  @Request
+//  private void setUpClassInRequest()
+//  {
+//    setUpInReq();
+//
+//    if (!SchedulerManager.initialized())
+//    {
+//      SchedulerManager.start();
+//    }
+//  }
+//
+//  @Request
+//  private void setUpInReq()
+//  {
+//    type = this.cTypeService.apply(ClassificationTypeTest.createMock());
+//
+//    Classification root = this.cService.newInstance(type);
+//    root.setCode(CODE);
+//    root.setDisplayLabel(new LocalizedValue("Test Classification"));
+//    this.cService.apply(root, null);
+//
+//    testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
+//    testClassification.setClassificationType(type.getCode());
+//    testClassification.setRootTerm(root.toTerm());
+//
+//    ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.STATE.getCode());
+//    testClassification = (AttributeClassificationType) this.typeService.createAttributeType(got, testClassification);
+//
+//    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
+//    testTerm = (AttributeTermType) this.typeService.createAttributeType(got, testTerm);
+//
+//    USATestData.COLORADO.setDefaultValue(testClassification.getName(), CODE);
+//  }
+//
+//  @Override
+//  @Request
+//  public void afterClassSetup() throws Exception
+//  {
+//    super.afterClassSetup();
+//
+//    USATestData.COLORADO.removeDefaultValue(testClassification.getName());
+//
+//    if (type != null)
+//    {
+//      this.cTypeService.delete(type);
+//    }
+//  }
+//
+//  @Before
+//  public void setUp()
+//  {
+//    cleanUpExtra();
+//
+//    testData.setUpInstanceData();
+//
+//    testData.logIn(USATestData.USER_NPS_RA);
+//
+//  }
+//
+//  @After
+//  public void tearDown()
+//  {
+//    testData.logOut();
+//
+//    cleanUpExtra();
+//
+//    testData.tearDownInstanceData();
+//  }
+//
+//  @Request
+//  public void cleanUpExtra()
+//  {
+//    TestDataSet.deleteAllListData();
+//  }
+//
+//  @Test
+//  @Request
+//  public void testSingleListTypeSerialization()
+//  {
+//    SingleListType list = new SingleListType();
+//    list.setUniversal(USATestData.STATE.getUniversal());
+//    list.getDisplayLabel().setValue("Test List");
+//    list.setCode("TEST_CODE");
+//    list.setOrganization(USATestData.ORG_NPS.getServerObject());
+//    list.getDescription().setValue("My Overal Description");
+//    list.setValidOn(USATestData.DEFAULT_OVER_TIME_DATE);
+//
+//    JsonObject json = list.toJSON();
+//    SingleListType test = (SingleListType) ListType.fromJSON(json);
+//
+//    Assert.assertEquals(list.getUniversalOid(), test.getUniversalOid());
+//    Assert.assertEquals(list.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
+//    Assert.assertEquals(list.getDescription().getValue(), test.getDescription().getValue());
+//    Assert.assertEquals(list.getOrganization(), test.getOrganization());
+//    Assert.assertEquals(list.getCode(), test.getCode());
+//    Assert.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
+//    Assert.assertEquals(list.getValidOn(), test.getValidOn());
+//  }
+//
+//  @Test
+//  @Request
+//  public void testIntervalListTypeSerialization()
+//  {
+//    JsonObject interval = new JsonObject();
+//    interval.addProperty(IntervalListType.START_DATE, GeoRegistryUtil.formatDate(USATestData.DEFAULT_OVER_TIME_DATE, false));
+//    interval.addProperty(IntervalListType.END_DATE, GeoRegistryUtil.formatDate(USATestData.DEFAULT_END_TIME_DATE, false));
+//
+//    JsonArray intervalJson = new JsonArray();
+//    intervalJson.add(interval);
+//
+//    IntervalListType list = new IntervalListType();
+//    list.setUniversal(USATestData.STATE.getUniversal());
+//    list.getDisplayLabel().setValue("Test List");
+//    list.setCode("TEST_CODE");
+//    list.setOrganization(USATestData.ORG_NPS.getServerObject());
+//    list.getDescription().setValue("My Overal Description");
+//    list.setIntervalJson(intervalJson.toString());
+//
+//    JsonObject json = list.toJSON();
+//    IntervalListType test = (IntervalListType) ListType.fromJSON(json);
+//
+//    Assert.assertEquals(list.getUniversalOid(), test.getUniversalOid());
+//    Assert.assertEquals(list.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
+//    Assert.assertEquals(list.getDescription().getValue(), test.getDescription().getValue());
+//    Assert.assertEquals(list.getOrganization(), test.getOrganization());
+//    Assert.assertEquals(list.getCode(), test.getCode());
+//    Assert.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
+//    Assert.assertEquals(list.getIntervalJson(), test.getIntervalJson());
+//  }
+//
+//  @Test
+//  @Request
+//  public void testIncrementListTypeSerialization()
+//  {
+//    IncrementalListType list = new IncrementalListType();
+//    list.setUniversal(USATestData.STATE.getUniversal());
+//    list.getDisplayLabel().setValue("Test List");
+//    list.setCode("TEST_CODE");
+//    list.setOrganization(USATestData.ORG_NPS.getServerObject());
+//    list.getDescription().setValue("My Overal Description");
+//    list.setPublishingStartDate(USATestData.DEFAULT_OVER_TIME_DATE);
+//    list.addFrequency(ChangeFrequency.ANNUAL);
+//
+//    JsonObject json = list.toJSON();
+//    IncrementalListType test = (IncrementalListType) ListType.fromJSON(json);
+//
+//    Assert.assertEquals(list.getUniversalOid(), test.getUniversalOid());
+//    Assert.assertEquals(list.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
+//    Assert.assertEquals(list.getDescription().getValue(), test.getDescription().getValue());
+//    Assert.assertEquals(list.getOrganization(), test.getOrganization());
+//    Assert.assertEquals(list.getCode(), test.getCode());
+//    Assert.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
+//    Assert.assertEquals(list.getFrequency().get(0), test.getFrequency().get(0));
+//    Assert.assertEquals(list.getPublishingStartDate(), test.getPublishingStartDate());
+//  }
+//
+//  // @Test
+//  // @Request
+//  // public void testCreateMultiple()
+//  // {
+//  // JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(),
+//  // USATestData.HIER_ADMIN, USATestData.STATE, ListType.PUBLIC, true);
+//  //
+//  // ListType test1 = ListType.apply(json);
+//  //
+//  // try
+//  // {
+//  // json.addProperty(ListType.CODE, "CODE_2");
+//  //
+//  // ListType test2 = ListType.apply(json);
+//  // test2.delete();
+//  //
+//  // Assert.fail("Able to apply multiple masterlists with the same universal");
+//  // }
+//  // catch (DuplicateListTypeException e)
+//  // {
+//  // test1.delete();
+//  // }
+//  // }
+//  //
+//
+//  @Test
+//  @Request
+//  public void testCreateMultipleNonMaster()
+//  {
+//    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
+//
+//    ListType test1 = ListType.apply(json);
+//
+//    try
+//    {
+//      json.addProperty(ListType.CODE, "CODE_2");
+//
+//      ListType test2 = ListType.apply(json);
+//      test2.delete();
+//    }
+//    catch (DuplicateDataDatabaseException e)
+//    {
+//      test1.delete();
+//
+//      Assert.fail("Not able to apply multiple masterlists with the same universal when list is not a master");
+//    }
+//  }
+//
+//  @Test(expected = RunwayExceptionDTO.class)
+//  public void testServiceCreateAndRemove()
+//  {
+//    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
+//
+//    ListTypeService service = new ListTypeService();
+//    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
+//
+//    String oid = result.get(ComponentInfo.OID).getAsString();
+//
+//    ListTypeTest.waitUntilPublished(oid);
+//
+//    service.remove(testData.clientRequest.getSessionId(), oid);
+//
+//    service.get(testData.clientRequest.getSessionId(), oid);
+//  }
+//
+//  @Test
+//  public void testListForType()
+//  {
+//    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
+//
+//    ListTypeService service = new ListTypeService();
+//    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
+//
+//    String oid = result.get(ComponentInfo.OID).getAsString();
+//    ListTypeTest.waitUntilPublished(oid);
+//
+//    try
+//    {
+//      JsonObject org = service.listForType(testData.clientRequest.getSessionId(), USATestData.STATE.getCode());
+//
+//      Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("orgLabel").getAsString());
+//      Assert.assertEquals(USATestData.ORG_NPS.getCode(), org.get("orgCode").getAsString());
+//      Assert.assertEquals(USATestData.STATE.getDisplayLabel().getValue(), org.get("typeLabel").getAsString());
+//      Assert.assertEquals(USATestData.STATE.getCode(), org.get("typeCode").getAsString());
+//      Assert.assertTrue(org.get("write").getAsBoolean());
+//      Assert.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
+//    }
+//    finally
+//    {
+//      service.remove(testData.clientRequest.getSessionId(), oid);
+//    }
+//  }
+//
+//  @Test
+//  public void testListPublicByOrgFromOtherOrg()
+//  {
+//    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
+//
+//    ListTypeService service = new ListTypeService();
+//    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
+//
+//    String oid = result.get(ComponentInfo.OID).getAsString();
+//    ListTypeTest.waitUntilPublished(oid);
+//
+//    try
+//    {
+//      USATestData.runAsUser(USATestData.USER_PPP_RA, (request) -> {
+//
+//        JsonObject org = service.listForType(testData.clientRequest.getSessionId(), USATestData.STATE.getCode());
+//
+//        Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("orgLabel").getAsString());
+//        Assert.assertEquals(USATestData.ORG_NPS.getCode(), org.get("orgCode").getAsString());
+//        Assert.assertEquals(USATestData.STATE.getDisplayLabel().getValue(), org.get("typeLabel").getAsString());
+//        Assert.assertEquals(USATestData.STATE.getCode(), org.get("typeCode").getAsString());
+//        Assert.assertTrue(org.get("write").getAsBoolean());
+//        Assert.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
+//      });
+//    }
+//    finally
+//    {
+//      service.remove(testData.clientRequest.getSessionId(), oid);
+//    }
+//  }
+//
+//  //
+//  // @Test
+//  // public void testPrivateListByOrgFromOtherOrg()
+//  // {
+//  // JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(),
+//  // USATestData.HIER_ADMIN, USATestData.STATE, ListType.PRIVATE, false);
+//  //
+//  // ListTypeService service = new ListTypeService();
+//  // JsonObject result = service.apply(testData.clientRequest.getSessionId(),
+//  // listJson);
+//  //
+//  // try
+//  // {
+//  // USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
+//  // JsonArray orgs = service.listByOrg(request.getSessionId());
+//  //
+//  // JsonObject org = null;
+//  // for (int i = 0; i < orgs.size(); ++i)
+//  // {
+//  // if
+//  // (orgs.get(i).getAsJsonObject().get("oid").getAsString().equals(USATestData.ORG_NPS.getServerObject().getOid()))
+//  // {
+//  // org = orgs.get(i).getAsJsonObject();
+//  // }
+//  // }
+//  //
+//  // Assert.assertNotNull(org.get("oid").getAsString());
+//  // Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(),
+//  // org.get("label").getAsString());
+//  // Assert.assertFalse(org.get("write").getAsBoolean());
+//  // Assert.assertTrue(org.get("lists").getAsJsonArray().size() == 0);
+//  // });
+//  // }
+//  // finally
+//  // {
+//  // String oid = result.get(ComponentInfo.OID).getAsString();
+//  // service.remove(testData.clientRequest.getSessionId(), oid);
+//  // }
+//  // }
+//  //
+//
+//  @Test
+//  public void testPublishVersion()
+//  {
+//    USATestData.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
+//
+//      JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
+//
+//      ListType test = ListType.apply(json);
+//
+//      try
+//      {
+//        ListTypeEntry entry = test.createEntry(TestDataSet.DEFAULT_OVER_TIME_DATE);
+//
+//        try
+//        {
+//          entry.publish(createVersionMetadata().toString());
+//
+//          List<ListTypeVersion> versions = entry.getVersions();
+//
+//          Assert.assertEquals(2, versions.size());
+//
+//          ListTypeVersion version = versions.get(0);
+//
+//          MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
+//
+//          Assert.assertNotNull(mdTable);
+//        }
+//        finally
+//        {
+//          entry.delete();
+//        }
+//      }
+//      catch (Exception e)
+//      {
+//        e.printStackTrace();
+//
+//        Assert.fail(e.getLocalizedMessage());
+//      }
+//      finally
+//      {
+//        test.delete();
+//      }
+//    });
+//  }
+//
+//  @Test
+//  public void testPublishVersionOfAbstract()
+//  {
+//    dataTest(null);
+//  }
+//
+//  @Test
+//  public void testFetchDataWithGeometries()
+//  {
+//    dataTest(true);
+//  }
+//
+//  private void dataTest(Boolean includeGeometries)
+//  {
+//    GeoJsonReader reader = new GeoJsonReader();
+//
+//    TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
+//
+//      ListTypeBuilder.Hierarchy hierarchy = new ListTypeBuilder.Hierarchy();
+//      hierarchy.setType(USATestData.HIER_ADMIN);
+//      hierarchy.setParents(USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
+//      hierarchy.setSubtypeHierarchies(USATestData.HIER_REPORTS_TO);
+//
+//      ListTypeBuilder builder = new ListTypeBuilder();
+//      builder.setOrg(USATestData.ORG_NPS.getServerObject());
+//      builder.setInfo(USATestData.HEALTH_FACILITY);
+//      builder.setHts(hierarchy);
+//
+//      ListType test = builder.build();
+//
+//      try
+//      {
+//        ListTypeEntry entry = test.createEntry(TestDataSet.DEFAULT_OVER_TIME_DATE);
+//
+//        try
+//        {
+//          entry.publish(createVersionMetadata().toString());
+//
+//          List<ListTypeVersion> versions = entry.getVersions();
+//
+//          Assert.assertEquals(2, versions.size());
+//
+//          ListTypeVersion version = versions.get(0);
+//
+//          MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
+//
+//          Assert.assertNotNull(mdTable);
+//
+//          Page<JsonSerializable> data = version.data(new JsonObject(), true, includeGeometries);
+//
+//          // Entries should be HP_1, HP_2, HS_1, HS_2
+//          Assert.assertEquals(Long.valueOf(4), data.getCount());
+//
+//          List<JsonSerializable> results = data.getResults();
+//
+//          for (int i = 0; i < results.size(); i++)
+//          {
+//            JsonObject result = results.get(i).toJSON().getAsJsonObject();
+//
+//            String code = result.get("code").getAsString();
+//
+//            if (code.equals(USATestData.HS_ONE.getCode()))
+//            {
+//              String reportsTo = result.get("usatestdatareportstocode").getAsString();
+//              Assert.assertEquals(USATestData.HP_ONE.getCode(), reportsTo);
+//            }
+//            else if (code.equals(USATestData.HS_TWO.getCode()))
+//            {
+//              String reportsTo = result.get("usatestdatareportstocode").getAsString();
+//
+//              Assert.assertEquals(USATestData.HP_TWO.getCode(), reportsTo);
+//            }
+//
+//            if (includeGeometries != null && includeGeometries.equals(Boolean.TRUE))
+//            {
+//              Assert.assertEquals(true, result.has("geometry"));
+//
+//              JsonObject geometries = result.get("geometry").getAsJsonObject();
+//
+//              Geometry jtsGeom = reader.read(geometries.toString());
+//              Assert.assertTrue(jtsGeom.isValid());
+//            }
+//            else
+//            {
+//              Assert.assertEquals(false, result.has("geometry"));
+//            }
+//          }
+//        }
+//        finally
+//        {
+//          entry.delete();
+//        }
+//      }
+//      catch (Throwable t)
+//      {
+//        t.printStackTrace();
+//        throw new RuntimeException(t);
+//      }
+//      finally
+//      {
+//        test.delete();
+//      }
+//    });
+//  }
+//
+//  @Test(expected = InvalidMasterListException.class)
+//  @Request
+//  public void testPublishInvalidVersion()
+//  {
+//    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
+//
+//    ListType test = ListType.apply(json);
+//
+//    try
+//    {
+//      test.appLock();
+//      test.setValid(false);
+//      test.apply();
+//
+//      ListTypeEntry version = test.getOrCreateEntry(TestDataSet.DEFAULT_OVER_TIME_DATE, null);
+//      version.delete();
+//    }
+//    finally
+//    {
+//      test.delete();
+//    }
+//  }
+//
+//  // @Test
+//  // public void testCreatePublishedVersions()
+//  // {
+//  // JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(),
+//  // USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
+//  //
+//  // ListTypeService service = new ListTypeService();
+//  // JsonObject result = service.apply(testData.clientRequest.getSessionId(),
+//  // listJson);
+//  // String oid = result.get(ComponentInfo.OID).getAsString();
+//  //
+//  // try
+//  // {
+//  // service.createPublishedVersions(testData.clientRequest.getSessionId(),
+//  // oid);
+//  //
+//  // final JsonObject json =
+//  // service.getEntries(testData.clientRequest.getSessionId(), oid);
+//  //
+//  // Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
+//  // }
+//  // finally
+//  // {
+//  // service.remove(testData.clientRequest.getSessionId(), oid);
+//  // }
+//  // }
+//
+//  @Test
+//  public void testCreateFromBadRole()
+//  {
+//    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
+//
+//    TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_PPP_RA };
+//
+//    for (TestUserInfo user : users)
+//    {
+//      USATestData.runAsUser(user, (request) -> {
+//
+//        ListTypeService service = new ListTypeService();
+//
+//        try
+//        {
+//          service.apply(request.getSessionId(), listJson);
+//
+//          Assert.fail("Expected an exception to be thrown.");
+//        }
+//        catch (SmartExceptionDTO e)
+//        {
+//          // This is expected
+//        }
+//
+//      });
+//    }
+//  }
+//
+//  @Test
+//  public void testRemoveFromBadRole()
+//  {
+//    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
+//
+//    ListTypeService service = new ListTypeService();
+//    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
+//    String oid = result.get(ComponentInfo.OID).getAsString();
+//
+//    ListTypeTest.waitUntilPublished(oid);
+//
+//    try
+//    {
+//      TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_PPP_RA };
+//
+//      for (TestUserInfo user : users)
+//      {
+//        USATestData.runAsUser(user, (request) -> {
+//
+//          try
+//          {
+//            service.remove(request.getSessionId(), oid);
+//
+//            Assert.fail("Expected an exception to be thrown.");
+//          }
+//          catch (SmartExceptionDTO e)
+//          {
+//            // This is expected
+//          }
+//
+//        });
+//      }
+//    }
+//    finally
+//    {
+//      service.remove(testData.clientRequest.getSessionId(), oid);
+//    }
+//  }
+//
+//  @Request
+//  private static void waitUntilPublished(String oid)
+//  {
+//    List<? extends JobHistory> histories = null;
+//    int waitTime = 0;
+//
+//    while (histories == null)
+//    {
+//      if (waitTime > 10000)
+//      {
+//        Assert.fail("Job was never scheduled. Unable to find any associated history.");
+//      }
+//
+//      QueryFactory qf = new QueryFactory();
+//
+//      PublishListTypeVersionJobQuery jobQuery = new PublishListTypeVersionJobQuery(qf);
+//      jobQuery.WHERE(jobQuery.getListType().EQ(oid));
+//
+//      JobHistoryQuery jhq = new JobHistoryQuery(qf);
+//      jhq.WHERE(jhq.job(jobQuery));
+//
+//      List<? extends JobHistory> potentialHistories = jhq.getIterator().getAll();
+//
+//      if (potentialHistories.size() > 0)
+//      {
+//        histories = potentialHistories;
+//      }
+//      else
+//      {
+//        try
+//        {
+//          Thread.sleep(1000);
+//        }
+//        catch (InterruptedException e)
+//        {
+//          e.printStackTrace();
+//          Assert.fail("Interrupted while waiting");
+//        }
+//
+//        waitTime += 1000;
+//      }
+//    }
+//
+//    for (JobHistory history : histories)
+//    {
+//      try
+//      {
+//        SchedulerTestUtils.waitUntilStatus(history.getOid(), AllJobStatus.SUCCESS);
+//      }
+//      catch (InterruptedException e)
+//      {
+//        e.printStackTrace();
+//        Assert.fail("Interrupted while waiting");
+//      }
+//    }
+//  }
+//
+//  // @Test
+//  // public void testCreatePublishedVersionsFromOtherOrg()
+//  // {
+//  // JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(),
+//  // USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
+//  //
+//  // ListTypeService service = new ListTypeService();
+//  // JsonObject result = service.apply(testData.clientRequest.getSessionId(),
+//  // listJson);
+//  // String oid = result.get(ComponentInfo.OID).getAsString();
+//  //
+//  // try
+//  // {
+//  // TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_PPP_RA };
+//  //
+//  // for (TestUserInfo user : users)
+//  // {
+//  // try
+//  // {
+//  // USATestData.runAsUser(user, (request, adapter) -> {
+//  //
+//  // service.createPublishedVersions(request.getSessionId(), oid);
+//  //
+//  // Assert.fail("Able to publish a master list as a user with bad roles");
+//  // });
+//  // }
+//  // catch (SmartExceptionDTO e)
+//  // {
+//  // // This is expected
+//  // }
+//  // }
+//  // }
+//  // finally
+//  // {
+//  // service.remove(testData.clientRequest.getSessionId(), oid);
+//  // }
+//  //
+//  // }
+//
+//  //
+//  // @Test
+//  // public void testGetTile() throws IOException
+//  // {
+//  // JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(),
+//  // USATestData.HIER_ADMIN, USATestData.STATE, ListType.PUBLIC, false,
+//  // USATestData.COUNTRY);
+//  //
+//  // ListTypeService service = new ListTypeService();
+//  // JsonObject result = service.apply(testData.clientRequest.getSessionId(),
+//  // listJson);
+//  // String oid = result.get(ComponentInfo.OID).getAsString();
+//  //
+//  // try
+//  // {
+//  // service.applyPublishedVersions(testData.clientRequest.getSessionId(),
+//  // oid);
+//  //
+//  // final JsonObject object =
+//  // service.getVersions(testData.clientRequest.getSessionId(), oid,
+//  // ListTypeVersion.PUBLISHED);
+//  // final JsonArray json = object.get(ListType.VERSIONS).getAsJsonArray();
+//  //
+//  // Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
+//  //
+//  // String versionId = json.get(0).getAsJsonObject().get("oid").getAsString();
+//  //
+//  // JSONObject tileObj = new JSONObject();
+//  // tileObj.put("oid", versionId);
+//  // tileObj.put("x", 1);
+//  // tileObj.put("y", 1);
+//  // tileObj.put("z", 1);
+//  //
+//  // try (InputStream tile =
+//  // service.getTile(testData.clientRequest.getSessionId(), tileObj))
+//  // {
+//  // Assert.assertNotNull(tile);
+//  //
+//  // byte[] ctile = getCachedTile(versionId);
+//  //
+//  // Assert.assertNotNull(ctile);
+//  // Assert.assertTrue(ctile.length > 0);
+//  // }
+//  // }
+//  // finally
+//  // {
+//  // service.remove(testData.clientRequest.getSessionId(), oid);
+//  // }
+//  // }
+//  //
+//  // @Request
+//  // private byte[] getCachedTile(String versionId)
+//  // {
+//  // return TileCache.getCachedTile(versionId, 1, 1, 1);
+//  // }
+//
+//  @Test
+//  @Request
+//  public void testGetAnnualFrequencyDates()
+//  {
+//    final IncrementalListType list = new IncrementalListType();
+//    list.addFrequency(ChangeFrequency.ANNUAL);
+//
+//    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+//    calendar.clear();
+//    calendar.set(2012, Calendar.MARCH, 3);
+//
+//    final Date startDate = calendar.getTime();
+//
+//    calendar.set(2017, Calendar.OCTOBER, 21);
+//
+//    final Date endDate = calendar.getTime();
+//
+//    List<Date> dates = list.getFrequencyDates(startDate, endDate);
+//
+//    Assert.assertEquals(6, dates.size());
+//
+//    for (int i = 0; i < dates.size(); i++)
+//    {
+//      calendar.clear();
+//      calendar.set( ( 2012 + i ), Calendar.MARCH, 3);
+//
+//      Assert.assertEquals(calendar.getTime(), dates.get(i));
+//    }
+//  }
+//
+//  @Test
+//  @Request
+//  public void testGetQuarterFrequencyDates()
+//  {
+//    final IncrementalListType list = new IncrementalListType();
+//    list.addFrequency(ChangeFrequency.QUARTER);
+//
+//    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+//    calendar.clear();
+//    calendar.set(2012, Calendar.MARCH, 3);
+//
+//    final Date startDate = calendar.getTime();
+//
+//    calendar.set(2013, Calendar.JANUARY, 2);
+//
+//    final Date endDate = calendar.getTime();
+//
+//    List<Date> dates = list.getFrequencyDates(startDate, endDate);
+//
+//    Assert.assertEquals(4, dates.size());
+//
+//    for (int i = 0; i < dates.size(); i++)
+//    {
+//      calendar.clear();
+//      calendar.set(2012, Calendar.MARCH, 3);
+//      calendar.add(Calendar.MONTH, ( 3 * i ));
+//
+//      Assert.assertEquals(calendar.getTime(), dates.get(i));
+//    }
+//
+//  }
+//
+//  @Test
+//  @Request
+//  public void testGetBiannualFrequencyDates()
+//  {
+//    final IncrementalListType list = new IncrementalListType();
+//    list.addFrequency(ChangeFrequency.BIANNUAL);
+//
+//    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+//    calendar.clear();
+//    calendar.set(2012, Calendar.MARCH, 3);
+//
+//    final Date startDate = calendar.getTime();
+//
+//    calendar.set(2013, Calendar.JANUARY, 2);
+//
+//    final Date endDate = calendar.getTime();
+//
+//    List<Date> dates = list.getFrequencyDates(startDate, endDate);
+//
+//    Assert.assertEquals(2, dates.size());
+//
+//    for (int i = 0; i < dates.size(); i++)
+//    {
+//      calendar.clear();
+//      calendar.set(2012, Calendar.MARCH, 3);
+//      calendar.add(Calendar.MONTH, ( 6 * i ));
+//
+//      Assert.assertEquals(calendar.getTime(), dates.get(i));
+//    }
+//  }
+//
+//  @Test
+//  @Request
+//  public void testGetMonthFrequencyDates()
+//  {
+//    final IncrementalListType list = new IncrementalListType();
+//    list.addFrequency(ChangeFrequency.MONTHLY);
+//
+//    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
+//    calendar.clear();
+//    calendar.set(2012, Calendar.MARCH, 3);
+//
+//    final Date startDate = calendar.getTime();
+//
+//    calendar.set(2013, Calendar.JANUARY, 2);
+//
+//    final Date endDate = calendar.getTime();
+//
+//    List<Date> dates = list.getFrequencyDates(startDate, endDate);
+//
+//    Assert.assertEquals(10, dates.size());
+//
+//    for (int i = 0; i < dates.size(); i++)
+//    {
+//      calendar.clear();
+//      calendar.set(2012, Calendar.MARCH, 3);
+//      calendar.add(Calendar.MONTH, i);
+//
+//      Assert.assertEquals(calendar.getTime(), dates.get(i));
+//    }
+//  }
+//
+//  @Test
+//  @Request
+//  public void testMarkAsInvalidByParent()
+//  {
+//    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY, USATestData.STATE);
+//
+//    ListType masterlist = ListType.apply(json);
+//
+//    try
+//    {
+//      masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.STATE.getServerObject());
+//
+//      Assert.assertFalse(masterlist.getValid());
+//    }
+//    catch (DuplicateDataDatabaseException e)
+//    {
+//      masterlist.delete();
+//    }
+//  }
+//
+//  @Test
+//  @Request
+//  public void testMarkAsInvalidByDirectType()
+//  {
+//    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY, USATestData.STATE);
+//
+//    ListType masterlist = ListType.apply(json);
+//
+//    try
+//    {
+//      masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.DISTRICT.getServerObject());
+//
+//      Assert.assertFalse(masterlist.getValid());
+//    }
+//    catch (DuplicateDataDatabaseException e)
+//    {
+//      masterlist.delete();
+//    }
+//  }
+//
+//  @Test
+//  @Request
+//  public void testFailMarkAsInvalidByType()
+//  {
+//    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY, USATestData.STATE);
+//
+//    ListType masterlist = ListType.apply(json);
+//
+//    try
+//    {
+//      masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.COUNTY.getServerObject());
+//
+//      Assert.assertTrue(masterlist.isValid());
+//    }
+//    catch (DuplicateDataDatabaseException e)
+//    {
+//      masterlist.delete();
+//    }
+//  }
+//
+//  @Test
+//  @Request
+//  public void testFailMarkAsInvalidByHierarchy()
+//  {
+//    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY, USATestData.STATE);
+//
+//    ListType masterlist = ListType.apply(json);
+//
+//    try
+//    {
+//      masterlist.markAsInvalid(USATestData.HIER_SCHOOL.getServerObject(), USATestData.DISTRICT.getServerObject());
+//
+//      Assert.assertTrue(masterlist.isValid());
+//    }
+//    catch (DuplicateDataDatabaseException e)
+//    {
+//      masterlist.delete();
+//    }
+//  }
+//
+//  @Test
+//  @Request
+//  public void testMarkAllAsInvalid()
+//  {
+//    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
+//
+//    ListType masterlist = ListType.apply(json);
+//
+//    try
+//    {
+//      ListType.markAllAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.STATE.getServerObject());
+//
+//      ListType test = ListType.get(masterlist.getOid());
+//
+//      Assert.assertFalse(test.getValid());
+//    }
+//    catch (DuplicateDataDatabaseException e)
+//    {
+//      masterlist.delete();
+//    }
+//  }
+//
+//  @Request
+//  public static JsonObject getJson(ServerOrganization org, TestHierarchyTypeInfo ht, TestGeoObjectTypeInfo info, TestGeoObjectTypeInfo... parents)
+//  {
+//    ListTypeBuilder.Hierarchy hierarchy = new ListTypeBuilder.Hierarchy();
+//    hierarchy.setType(ht);
+//    hierarchy.setParents(parents);
+//
+//    ListTypeBuilder builder = new ListTypeBuilder();
+//    builder.setOrg(org);
+//    builder.setInfo(info);
+//    builder.setHts(hierarchy);
+//
+//    return builder.buildJSON();
+//  }
+//
+//  public static JsonObject createVersionMetadata()
+//  {
+//    JsonObject metadata = new JsonObject();
+//    metadata.add("description", new LocalizedValue("Test").toJSON());
+//    metadata.addProperty("visibility", "PRIVATE");
+//    metadata.addProperty("master", false);
+//    metadata.add("label", new LocalizedValue("Test").toJSON());
+//    metadata.add("process", new LocalizedValue("Test").toJSON());
+//    metadata.add("progress", new LocalizedValue("Test").toJSON());
+//    metadata.add("accessConstraints", new LocalizedValue("Test").toJSON());
+//    metadata.add("useConstraints", new LocalizedValue("Test").toJSON());
+//    metadata.add("acknowledgements", new LocalizedValue("Test").toJSON());
+//    metadata.add("disclaimer", new LocalizedValue("Test").toJSON());
+//    metadata.addProperty("contactName", "AAAAA");
+//    metadata.addProperty("organization", "AAAAA");
+//    metadata.addProperty("telephoneNumber", "AAAAA");
+//    metadata.addProperty("email", "AAAAA");
+//    metadata.addProperty("originator", "AAAAA");
+//    metadata.addProperty("collectionDate", "2020-02-12");
+//    metadata.addProperty("topicCategories", "AAAAA");
+//    metadata.addProperty("placeKeywords", "AAAAA");
+//    metadata.addProperty("updateFrequency", "AAAAA");
+//    metadata.addProperty("lineage", "AAAAA");
+//    metadata.addProperty("languages", "AAAAA");
+//    metadata.addProperty("scaleResolution", "AAAAA");
+//    metadata.addProperty("spatialRepresentation", "AAAAA");
+//    metadata.addProperty("referenceSystem", "AAAAA");
+//    metadata.addProperty("reportSpecification", "AAAAA");
+//    metadata.addProperty("distributionFormat", "AAAAA");
+//
+//    JsonObject versionMetadata = new JsonObject();
+//    versionMetadata.add(ListType.LIST_METADATA, metadata);
+//    versionMetadata.add(ListType.GEOSPATIAL_METADATA, metadata);
+//    return versionMetadata;
+//  }
+//
 }

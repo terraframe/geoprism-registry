@@ -17,7 +17,6 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 import com.runwaysdk.dataaccess.DuplicateGraphPathException;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
@@ -170,20 +169,16 @@ public class FastTestDataset extends TestDataSet
 
     try
     {
-      COUNTRY.getUniversal().addLink(Universal.getRoot(), HIER_ADMIN.getServerObject().getUniversalType());
       COUNTRY.addChild(PROVINCE, HIER_ADMIN);
       COUNTRY.addChild(PROVINCE_PRIVATE, HIER_ADMIN);
       PROVINCE.addChild(DISTRICT, HIER_ADMIN);
 
-      COUNTRY.getUniversal().addLink(Universal.getRoot(), HIER_HEALTH_ADMIN.getServerObject().getUniversalType());
       COUNTRY.addChild(PROVINCE, HIER_HEALTH_ADMIN);
       PROVINCE.addChild(HOSPITAL, HIER_HEALTH_ADMIN);
       PROVINCE.addChild(DISTRICT, HIER_HEALTH_ADMIN);
       
-      COUNTRY.getUniversal().addLink(Universal.getRoot(), HIER_SPLIT_PARENT.getServerObject().getUniversalType());
       COUNTRY.addChild(PROVINCE, HIER_SPLIT_PARENT);
       
-      PROVINCE.getUniversal().addLink(Universal.getRoot(), HIER_SPLIT_CHILD.getServerObject().getUniversalType());
       PROVINCE.addChild(DISTRICT, HIER_SPLIT_CHILD);
       
       GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);

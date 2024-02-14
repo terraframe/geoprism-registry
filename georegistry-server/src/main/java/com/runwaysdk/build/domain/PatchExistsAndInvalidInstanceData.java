@@ -48,83 +48,85 @@ public class PatchExistsAndInvalidInstanceData
   
   private static final Date today = new Date();
   
-  public static void main(String[] args)
-  {
-    new PatchExistsAndInvalidInstanceData().doItInReq();
-  }
-  
-  @Request
-  private void doItInReq()
-  {
-    patchInstanceData();
-  }
+  // TODO: HEADS UP
 
-  private void patchInstanceData()
-  {
-    List<Universal> unis = PatchExistsAndInvalid.getUniversals();
-    
-    int applied = 0;
-    
-    for (Universal uni : unis)
-    {
-      ServerGeoObjectType type = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).build(uni);
-      
-      MdGraphClassDAOIF mdClass = type.getMdVertex();
-      
-      List<VertexServerGeoObject> data = getInstanceData(type, mdClass);
-      
-      int current = 0;
-      final int size = data.size();
-      
-      logger.info("Starting to patch instance data for type [" + mdClass.getDBClassName() + "] with count [" + size + "] ");
-      
-      for (VertexServerGeoObject go : data)
-      {
-        ValueOverTime defaultExists = go.buildDefaultExists();
-        
-        if (defaultExists != null)
-        {
-          go.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE, defaultExists.getStartDate(), defaultExists.getEndDate());
-          go.setValue(DefaultAttribute.INVALID.getName(), false);
-          
-          // This apply method is mega slow due to the SearchService so we're going to just bypass it
-//            go.apply(false);
-          
-          go.getVertex().setValue(GeoVertex.LASTUPDATEDATE, new Date());
-          go.getVertex().apply();
-          
-          applied++;
-        }
-        
-        if (current % 100 == 0)
-        {
-          logger.info("Finished record " + current + " of " + size);
-        }
-        
-        current++;
-      }
-    }
-    
-    logger.info("Applied " + applied + " records across " + unis.size() + " types.");
-  }
-  
-  private List<VertexServerGeoObject> getInstanceData(ServerGeoObjectType type, MdGraphClassDAOIF mdClass)
-  {
-    StringBuilder statement = new StringBuilder();
-    statement.append("SELECT FROM " + mdClass.getDBClassName());
-
-    GraphQuery<VertexObject> vertexQuery = new GraphQuery<VertexObject>(statement.toString(), new HashMap<String, Object>());
-    
-    List<VertexServerGeoObject> list = new LinkedList<VertexServerGeoObject>();
-
-    List<VertexObject> results = vertexQuery.getResults();
-
-    for (VertexObject result : results)
-    {
-      list.add(new VertexServerGeoObject(type, result, today));
-    }
-
-    return list;
-  }
-  
+//  public static void main(String[] args)
+//  {
+//    new PatchExistsAndInvalidInstanceData().doItInReq();
+//  }
+//  
+//  @Request
+//  private void doItInReq()
+//  {
+//    patchInstanceData();
+//  }
+//
+//  private void patchInstanceData()
+//  {
+//    List<Universal> unis = PatchExistsAndInvalid.getUniversals();
+//    
+//    int applied = 0;
+//    
+//    for (Universal uni : unis)
+//    {
+//      ServerGeoObjectType type = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).build(uni);
+//      
+//      MdGraphClassDAOIF mdClass = type.getMdVertex();
+//      
+//      List<VertexServerGeoObject> data = getInstanceData(type, mdClass);
+//      
+//      int current = 0;
+//      final int size = data.size();
+//      
+//      logger.info("Starting to patch instance data for type [" + mdClass.getDBClassName() + "] with count [" + size + "] ");
+//      
+//      for (VertexServerGeoObject go : data)
+//      {
+//        ValueOverTime defaultExists = go.buildDefaultExists();
+//        
+//        if (defaultExists != null)
+//        {
+//          go.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE, defaultExists.getStartDate(), defaultExists.getEndDate());
+//          go.setValue(DefaultAttribute.INVALID.getName(), false);
+//          
+//          // This apply method is mega slow due to the SearchService so we're going to just bypass it
+////            go.apply(false);
+//          
+//          go.getVertex().setValue(GeoVertex.LASTUPDATEDATE, new Date());
+//          go.getVertex().apply();
+//          
+//          applied++;
+//        }
+//        
+//        if (current % 100 == 0)
+//        {
+//          logger.info("Finished record " + current + " of " + size);
+//        }
+//        
+//        current++;
+//      }
+//    }
+//    
+//    logger.info("Applied " + applied + " records across " + unis.size() + " types.");
+//  }
+//  
+//  private List<VertexServerGeoObject> getInstanceData(ServerGeoObjectType type, MdGraphClassDAOIF mdClass)
+//  {
+//    StringBuilder statement = new StringBuilder();
+//    statement.append("SELECT FROM " + mdClass.getDBClassName());
+//
+//    GraphQuery<VertexObject> vertexQuery = new GraphQuery<VertexObject>(statement.toString(), new HashMap<String, Object>());
+//    
+//    List<VertexServerGeoObject> list = new LinkedList<VertexServerGeoObject>();
+//
+//    List<VertexObject> results = vertexQuery.getResults();
+//
+//    for (VertexObject result : results)
+//    {
+//      list.add(new VertexServerGeoObject(type, result, today));
+//    }
+//
+//    return list;
+//  }
+//  
 }

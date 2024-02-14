@@ -276,7 +276,7 @@ public class XMLExporter
 
       Element attributes = document.createElement("attributes");
 
-      type.getAttributeMap().forEach((attirbuteName, attributeType) -> {
+      type.toDTO().getAttributeMap().forEach((attirbuteName, attributeType) -> {
 
         if (isValid(attributeType))
         {

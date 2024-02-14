@@ -18,82 +18,66 @@
  */
 package com.runwaysdk.build.domain;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.OrderBy.SortOrder;
-import com.runwaysdk.query.QueryFactory;
-import com.runwaysdk.session.Request;
-
-import net.geoprism.registry.HierarchicalRelationshipType;
-import net.geoprism.registry.InheritedHierarchyAnnotation;
-import net.geoprism.registry.InheritedHierarchyAnnotationQuery;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
-
 public class PatchInheritedAnnotation
 {
-  public static void main(String[] args)
-  {
-    new PatchInheritedAnnotation().doIt();
-  }
-
-  @Request
-  private void doIt()
-  {
-    this.transaction();
-  }
-
-  @Transaction
-  private void transaction()
-  {
-    InheritedHierarchyAnnotationQuery query = new InheritedHierarchyAnnotationQuery(new QueryFactory());
-    query.ORDER_BY(query.getForHierarchicalRelationshipType(), SortOrder.DESC);
-    query.ORDER_BY(query.getCreateDate(), SortOrder.DESC);
-
-    try (OIterator<? extends InheritedHierarchyAnnotation> iterator = query.getIterator())
-    {
-      InheritedHierarchyAnnotation prev = null;
-
-      while (iterator.hasNext())
-      {
-        InheritedHierarchyAnnotation annotation = iterator.next();
-
-        if (prev != null && prev.getForHierarchicalRelationshipTypeOid().equals(annotation.getForHierarchicalRelationshipTypeOid()))
-        {
-          annotation.delete();
-        }
-        else if (annotation.getForHierarchicalRelationshipTypeOid() == null || annotation.getForHierarchicalRelationshipTypeOid().length() == 0)
-        {
-          annotation.delete();
-        }
-        else
-        {
-          // Determine if the inherited hierarchy and for hierarchy have the
-          // same root
-          ServerGeoObjectType inheritedNode = ServerGeoObjectType.get(annotation.getUniversal());
-          HierarchicalRelationshipType inheritedHierarchicalType = annotation.getInheritedHierarchicalRelationshipType();
-
-          ServerHierarchyType inheritedHierarchy = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class).get(inheritedHierarchicalType);
-
-          Set<String> rootCodes = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class).getRootGeoObjectTypes(inheritedHierarchy).stream().map(type -> type.getGeoObjectType().getCode()).collect(Collectors.toSet());
-
-          if (rootCodes.contains(inheritedNode.getCode()))
-          {
-            annotation.delete();
-          }
-          else
-          {
-            prev = annotation;
-          }
-        }
-
-      }
-    }
-  }
-
+  //TODO: HEADS UP
+//  public static void main(String[] args)
+//  {
+//    new PatchInheritedAnnotation().doIt();
+//  }
+//
+//  @Request
+//  private void doIt()
+//  {
+//    this.transaction();
+//  }
+//
+//  @Transaction
+//  private void transaction()
+//  {
+//    InheritedHierarchyAnnotationQuery query = new InheritedHierarchyAnnotationQuery(new QueryFactory());
+//    query.ORDER_BY(query.getForHierarchicalRelationshipType(), SortOrder.DESC);
+//    query.ORDER_BY(query.getCreateDate(), SortOrder.DESC);
+//
+//    try (OIterator<? extends InheritedHierarchyAnnotation> iterator = query.getIterator())
+//    {
+//      InheritedHierarchyAnnotation prev = null;
+//
+//      while (iterator.hasNext())
+//      {
+//        InheritedHierarchyAnnotation annotation = iterator.next();
+//
+//        if (prev != null && prev.getForHierarchicalRelationshipTypeOid().equals(annotation.getForHierarchicalRelationshipTypeOid()))
+//        {
+//          annotation.delete();
+//        }
+//        else if (annotation.getForHierarchicalRelationshipTypeOid() == null || annotation.getForHierarchicalRelationshipTypeOid().length() == 0)
+//        {
+//          annotation.delete();
+//        }
+//        else
+//        {
+//          // Determine if the inherited hierarchy and for hierarchy have the
+//          // same root
+//          ServerGeoObjectType inheritedNode = ServerGeoObjectType.get(annotation.getUniversal());
+//          HierarchicalRelationshipType inheritedHierarchicalType = annotation.getInheritedHierarchicalRelationshipType();
+//
+//          ServerHierarchyType inheritedHierarchy = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class).get(inheritedHierarchicalType);
+//
+//          Set<String> rootCodes = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class).getRootGeoObjectTypes(inheritedHierarchy).stream().map(type -> type.getGeoObjectType().getCode()).collect(Collectors.toSet());
+//
+//          if (rootCodes.contains(inheritedNode.getCode()))
+//          {
+//            annotation.delete();
+//          }
+//          else
+//          {
+//            prev = annotation;
+//          }
+//        }
+//
+//      }
+//    }
+//  }
+//
 }

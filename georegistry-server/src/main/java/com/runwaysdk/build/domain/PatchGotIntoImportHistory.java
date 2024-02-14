@@ -61,7 +61,7 @@ public class PatchGotIntoImportHistory
             ServerGeoObjectType type = goConfig.getType();
             
             hist.appLock();
-            hist.setOrganization(type.getOrganization());
+            hist.setOrganization(type.getOrganization().getOrganization());
             hist.setGeoObjectTypeCode(type.getCode());
             hist.apply();
           }

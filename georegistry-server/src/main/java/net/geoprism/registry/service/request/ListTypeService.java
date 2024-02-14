@@ -56,7 +56,6 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.ListTypeVersionQuery;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
@@ -670,7 +669,7 @@ public class ListTypeService
   private void enforceWritePermissions(ListType listType)
   {
     ServerGeoObjectType geoObjectType = listType.getGeoObjectType();
-    Organization organization = geoObjectType.getOrganization();
+    ServerOrganization organization = geoObjectType.getOrganization();
 
     if (!ServiceFactory.getGeoObjectPermissionService().canWrite(organization.getCode(), geoObjectType))
     {
@@ -683,7 +682,7 @@ public class ListTypeService
   private void enforceReadPermissions(ListType listType)
   {
     ServerGeoObjectType geoObjectType = listType.getGeoObjectType();
-    Organization organization = geoObjectType.getOrganization();
+    ServerOrganization organization = geoObjectType.getOrganization();
 
     if (!ServiceFactory.getGeoObjectPermissionService().canRead(organization.getCode(), geoObjectType))
     {

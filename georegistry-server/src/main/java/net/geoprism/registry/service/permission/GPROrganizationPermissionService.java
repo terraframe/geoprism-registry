@@ -40,7 +40,6 @@ import net.geoprism.registry.OrganizationQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.GPROrganizationBusinessService;
-import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
 
 @Service
 @Primary
@@ -130,7 +129,7 @@ public class GPROrganizationPermissionService extends UserPermissionService impl
    * @return If the current user is part of the registry admin role for the
    *         given organization
    */
-  public boolean isRegistryMaintainer(Organization org)
+  public boolean isRegistryMaintainer(ServerOrganization org)
   {
     if (new RolePermissionService().isSRA())
     {

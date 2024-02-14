@@ -131,7 +131,7 @@ public class GeoObjectExcelExporter
     Row header = sheet.createRow(0);
 
     boolean includeCoordinates = this.type.getGeometryType().equals(GeometryType.POINT) || this.type.getGeometryType().equals(GeometryType.MIXED);
-    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, this.type.getType()).attributes(this.type.getType());
+    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, this.type.toDTO()).attributes(this.type.toDTO());
 
     // Get the ancestors of the type
     List<ServerGeoObjectType> ancestors = this.typeService.getTypeAncestors(type, this.hierarchy, true);
@@ -271,17 +271,17 @@ public class GeoObjectExcelExporter
     }
 
     {
-      AttributeType attribute = this.getType().getAttribute(DefaultAttribute.DISPLAY_LABEL.getName()).get();
+      net.geoprism.registry.graph.AttributeType attribute = this.getType().getAttribute(DefaultAttribute.DISPLAY_LABEL.getName()).get();
 
       Cell cell = header.createCell(col++);
       cell.setCellStyle(boldStyle);
-      cell.setCellValue(attribute.getLabel().getValue() + " (" + MdAttributeLocalInfo.DEFAULT_LOCALE + ")");
+      cell.setCellValue(attribute.getLocalizedLabel().getValue() + " (" + MdAttributeLocalInfo.DEFAULT_LOCALE + ")");
 
       for (Locale locale : locales)
       {
         cell = header.createCell(col++);
         cell.setCellStyle(boldStyle);
-        cell.setCellValue(attribute.getLabel().getValue() + " (" + locale.toString() + ")");
+        cell.setCellValue(attribute.getLocalizedLabel().getValue() + " (" + locale.toString() + ")");
       }
     }
 
@@ -289,7 +289,7 @@ public class GeoObjectExcelExporter
     {
       Cell cell = header.createCell(col++);
       cell.setCellStyle(boldStyle);
-      cell.setCellValue(ancestor.getLabel().getValue() + " " + ancestor.getAttribute(GeoObject.CODE).get().getLabel().getValue());
+      cell.setCellValue(ancestor.getLabel().getValue() + " " + ancestor.getAttribute(GeoObject.CODE).get().getLocalizedLabel().getValue());
 
       cell = header.createCell(col++);
       cell.setCellStyle(boldStyle);

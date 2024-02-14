@@ -212,7 +212,7 @@ public class ChangeRequestJsonAdapters
       }
       else
       {
-        got = this.type.getType();
+        got = this.type.toDTO();
       }
 
       current.add("geoObjectType", got.toJSON());

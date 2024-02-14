@@ -45,7 +45,7 @@ public class UpdateStandardAttributeView extends AbstractUpdateAttributeView
   public void execute(VertexServerGeoObject go)
   {
     ServerGeoObjectType type = go.getType();
-    AttributeType attr = type.getAttribute(this.getAttributeName()).get();
+    AttributeType attr = type.toDTO().getAttribute(this.getAttributeName()).get();
     
     if (newValue != null)
     {

@@ -73,7 +73,7 @@ public class UpdateAttributeViewJsonAdapters
     }
     else
     {
-      AttributeType attr = type.getAttribute(attributeName).get();
+      AttributeType attr = type.toDTO().getAttribute(attributeName).get();
 
       if (attr.isChangeOverTime())
       {

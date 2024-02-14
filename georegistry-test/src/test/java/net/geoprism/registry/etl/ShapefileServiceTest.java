@@ -921,7 +921,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     hist.appLock();
     hist.setImportFileId(config.getVaultFileId());
     hist.setConfigJson(config.toJSON().toString());
-    hist.setOrganization(type.getOrganization());
+    hist.setOrganization(type.getOrganization().getOrganization());
     hist.setGeoObjectTypeCode(type.getCode());
     hist.apply();
 

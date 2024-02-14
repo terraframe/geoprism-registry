@@ -134,7 +134,7 @@ public class GeoObjectAtTimeShapefileExporterTest extends FastDatasetTest implem
         Object geometry = feature.getDefaultGeometry();
         Assert.assertNotNull(geometry);
 
-        Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, type.getType()).attributes(type.getType());
+        Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, type.toDTO()).attributes(type.toDTO());
 
         for (AttributeType attribute : attributes)
         {

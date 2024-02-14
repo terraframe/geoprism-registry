@@ -51,12 +51,12 @@ import com.runwaysdk.session.Session;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.upload.GeoObjectRecordedErrorException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.service.request.ServiceFactory;
@@ -299,7 +299,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-    JSONObject type = new JSONObject(this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, false, this.type.getType())).toString());
+    JSONObject type = new JSONObject(this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, false, this.type.toDTO())).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)
@@ -615,7 +615,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   @Override
   public void enforceExecutePermissions()
   {
-    Organization org = type.getOrganization();
+    ServerOrganization org = type.getOrganization();
 
     if (this.permissions.isRA())
     {
@@ -634,9 +634,9 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   @Override
   public void populate(ImportHistory history)
   {
-    Organization org = type.getOrganization();
+    ServerOrganization org = type.getOrganization();
 
-    history.setOrganization(org);
+    history.setOrganization(org.getOrganization());
     history.setGeoObjectTypeCode(type.getCode());
   }
 }

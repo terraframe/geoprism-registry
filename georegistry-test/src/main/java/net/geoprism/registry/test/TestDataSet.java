@@ -14,7 +14,6 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -22,9 +21,7 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.ClientSession;
-import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
@@ -56,7 +53,6 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
-import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdClassQuery;
 import com.runwaysdk.system.scheduler.ExecutableJob;
@@ -486,24 +482,6 @@ abstract public class TestDataSet
       for (VertexObject vObject : vObjects)
       {
         VertexServerGeoObject serverGo = new VertexServerGeoObject(got, vObject);
-
-        QueryFactory qf = new QueryFactory();
-        BusinessQuery bq = qf.businessQuery(type.getServerObject().getUniversal().getMdBusiness().definesType());
-        bq.WHERE(bq.aCharacter(DefaultAttribute.CODE.getName()).EQ(serverGo.getCode()));
-        OIterator<? extends Business> bit = bq.getIterator();
-        try
-        {
-          while (bit.hasNext())
-          {
-            Business biz = bit.next();
-
-            biz.delete();
-          }
-        }
-        finally
-        {
-          bit.close();
-        }
 
         vObject.delete();
 
@@ -1102,13 +1080,16 @@ abstract public class TestDataSet
 
   public static Term createAttributeRootTerm(TestGeoObjectTypeInfo got, TestAttributeTypeInfo attr)
   {
-    MdBusiness mdBiz = got.getServerObject().getMdBusiness();
-
-    Classifier mdBizClassy = TermConverter.buildIfNotExistdMdBusinessClassifier(mdBiz);
-
-    Classifier classifier = TermConverter.buildIfNotExistAttribute(mdBiz, attr.getAttributeName(), mdBizClassy);
-
-    return new TermConverter(classifier.getKeyName()).build();
+    // TODO: HEADS UP
+//    MdBusiness mdBiz = got.getServerObject().getMdBusiness();
+//
+//    Classifier mdBizClassy = TermConverter.buildIfNotExistdMdBusinessClassifier(mdBiz);
+//
+//    Classifier classifier = TermConverter.buildIfNotExistAttribute(mdBiz, attr.getAttributeName(), mdBizClassy);
+//
+//    return new TermConverter(classifier.getKeyName()).build();
+    
+    return null;
   }
 
   public static void runAsUser(TestUserInfo user, ClientRequestExecutor executor)

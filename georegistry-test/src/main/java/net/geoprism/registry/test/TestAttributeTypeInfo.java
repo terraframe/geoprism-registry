@@ -3,32 +3,22 @@
  */
 package net.geoprism.registry.test;
 
-import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
 
-import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
-import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
-import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.graph.AttributeType;
 
 public class TestAttributeTypeInfo
 {
-  private String                   name;
+  private String                name;
 
-  private String                   label;
+  private String                label;
 
-  private String                   type;
+  private String                type;
 
-  private TestGeoObjectTypeInfo    got;
+  private TestGeoObjectTypeInfo got;
 
-  private AttributeType            dto;
-
-  private MdAttributeConcreteDAOIF serverObject;
+  private AttributeType         serverObject;
 
   public TestAttributeTypeInfo(String attributeName, TestGeoObjectTypeInfo got)
   {
@@ -36,12 +26,11 @@ public class TestAttributeTypeInfo
     this.got = got;
   }
 
-  public TestAttributeTypeInfo(AttributeType at, TestGeoObjectTypeInfo got)
+  public TestAttributeTypeInfo(org.commongeoregistry.adapter.metadata.AttributeType dto, TestGeoObjectTypeInfo got)
   {
-    this.name = at.getName();
-    this.dto = at;
+    this.name = dto.getName();
     this.got = got;
-    this.type = at.getType();
+    this.type = dto.getType();
   }
 
   public TestAttributeTypeInfo(String name, String label, TestGeoObjectTypeInfo got, String type)
@@ -62,27 +51,16 @@ public class TestAttributeTypeInfo
     this.name = attributeName;
   }
 
-  public AttributeType fetchDTO()
+  public org.commongeoregistry.adapter.metadata.AttributeType fetchDTO()
   {
-    Optional<AttributeType> optional = got.fetchDTO().getAttribute(this.name);
-
-    if (optional.isPresent())
-    {
-      return optional.get();
-    }
-    else
-    {
-      return null;
-    }
+    return got.fetchDTO().getAttribute(this.name).orElse(null);
   }
 
-  public MdAttributeConcreteDAOIF getServerObject()
+  public AttributeType getServerObject()
   {
     if (serverObject == null)
     {
-      GeoObjectTypeBusinessServiceIF typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
-
-      serverObject = typeService.getMdAttribute(got.getServerObject().getMdBusiness(), this.name);
+      serverObject = got.getServerObject().getAttribute(this.name).get();
     }
 
     return serverObject;
@@ -92,7 +70,7 @@ public class TestAttributeTypeInfo
   {
     if (this.fetchDTO() == null)
     {
-      if (this.type.equals(AttributeTermType.TYPE))
+      if (this.type.equals(org.commongeoregistry.adapter.metadata.AttributeTermType.TYPE))
       {
         TestDataSet.createTermAttribute(name, label, got, null);
       }

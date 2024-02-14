@@ -126,7 +126,7 @@ public class GeoObjectEditorService implements GeoObjectEditorServiceIF
 
     GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sTimeGo);
 
-    ServerGeoObjectType serverGOT = ServerGeoObjectType.get(timeGO.getType());
+    ServerGeoObjectType serverGOT = ServerGeoObjectType.get(timeGO.getType().getCode());
 
     final String orgCode = serverGOT.getOrganization().getCode();
 

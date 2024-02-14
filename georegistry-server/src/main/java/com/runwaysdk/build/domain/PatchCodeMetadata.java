@@ -44,78 +44,79 @@ import net.geoprism.registry.service.request.ServiceFactory;
 
 public class PatchCodeMetadata
 {
-  public static void main(String[] args)
-  {
-    new PatchCodeMetadata().doIt();
-  }
-
-  @Request
-  private void doIt()
-  {
-    this.transaction();
-  }
-
-  @Transaction
-  private void transaction()
-  {
-    MdAttributeDAOIF mdAttributeGeoId = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS).definesAttribute("geoId");
-
-    if (mdAttributeGeoId != null)
-    {
-      mdAttributeGeoId.getBusinessDAO().delete();
-    }
-
-    List<ServerGeoObjectType> types = ServiceFactory.getMetadataCache().getAllGeoObjectTypes();
-    types = types.stream().filter(t -> t.getIsAbstract()).collect(Collectors.toList());
-
-    for (ServerGeoObjectType type : types)
-    {
-      MdVertexDAOIF mdVertex = type.getMdVertex();
-
-      if (mdVertex.definesAttribute(DefaultAttribute.CODE.getName()) != null)
-      {
-        // Remove the code attribute
-        delete(type);
-
-        create(type);
-      }
-    }
-  }
-
-  // @Transaction
-  public void create(ServerGeoObjectType type)
-  {
-    List<ServerGeoObjectType> subtypes = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).getSubtypes(type);
-
-    for (ServerGeoObjectType subtype : subtypes)
-    {
-      // Add the code attribute to the subtypes
-      MdClassDAOIF[] mdClasses = new MdClassDAOIF[] { subtype.getMdVertex(), subtype.getMdBusinessDAO() };
-
-      for (MdClassDAOIF mdClass : mdClasses)
-      {
-        MdAttributeCharacterDAO codeMdAttr = MdAttributeCharacterDAO.newInstance();
-        codeMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.CODE.getName());
-        codeMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.CODE.getDefaultLocalizedName());
-        codeMdAttr.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.CODE.getDefaultDescription());
-        codeMdAttr.setValue(MdAttributeCharacterInfo.SIZE, MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
-        codeMdAttr.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdClass.getOid());
-        codeMdAttr.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
-        codeMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.UNIQUE_INDEX.getOid());
-        codeMdAttr.apply();
-      }
-
-    }
-  }
-
-  // @Transaction
-  public void delete(ServerGeoObjectType type)
-  {
-    DeleteContext context = new DeleteContext();
-    context.setRemoveValues(false);
-    context.setExecuteImmediately(true);
-
-    type.getMdVertex().definesAttribute(DefaultAttribute.CODE.getName()).getBusinessDAO().delete(context);
-    type.getMdBusinessDAO().definesAttribute(DefaultAttribute.CODE.getName()).getBusinessDAO().delete(context);
-  }
+  // TODO: HEADS UP
+//  public static void main(String[] args)
+//  {
+//    new PatchCodeMetadata().doIt();
+//  }
+//
+//  @Request
+//  private void doIt()
+//  {
+//    this.transaction();
+//  }
+//
+//  @Transaction
+//  private void transaction()
+//  {
+//    MdAttributeDAOIF mdAttributeGeoId = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS).definesAttribute("geoId");
+//
+//    if (mdAttributeGeoId != null)
+//    {
+//      mdAttributeGeoId.getBusinessDAO().delete();
+//    }
+//
+//    List<ServerGeoObjectType> types = ServiceFactory.getMetadataCache().getAllGeoObjectTypes();
+//    types = types.stream().filter(t -> t.getIsAbstract()).collect(Collectors.toList());
+//
+//    for (ServerGeoObjectType type : types)
+//    {
+//      MdVertexDAOIF mdVertex = type.getMdVertex();
+//
+//      if (mdVertex.definesAttribute(DefaultAttribute.CODE.getName()) != null)
+//      {
+//        // Remove the code attribute
+//        delete(type);
+//
+//        create(type);
+//      }
+//    }
+//  }
+//
+//  // @Transaction
+//  public void create(ServerGeoObjectType type)
+//  {
+//    List<ServerGeoObjectType> subtypes = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).getSubtypes(type);
+//
+//    for (ServerGeoObjectType subtype : subtypes)
+//    {
+//      // Add the code attribute to the subtypes
+//      MdClassDAOIF[] mdClasses = new MdClassDAOIF[] { subtype.getMdVertex(), subtype.getMdBusinessDAO() };
+//
+//      for (MdClassDAOIF mdClass : mdClasses)
+//      {
+//        MdAttributeCharacterDAO codeMdAttr = MdAttributeCharacterDAO.newInstance();
+//        codeMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.CODE.getName());
+//        codeMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.CODE.getDefaultLocalizedName());
+//        codeMdAttr.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.CODE.getDefaultDescription());
+//        codeMdAttr.setValue(MdAttributeCharacterInfo.SIZE, MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
+//        codeMdAttr.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdClass.getOid());
+//        codeMdAttr.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
+//        codeMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.UNIQUE_INDEX.getOid());
+//        codeMdAttr.apply();
+//      }
+//
+//    }
+//  }
+//
+//  // @Transaction
+//  public void delete(ServerGeoObjectType type)
+//  {
+//    DeleteContext context = new DeleteContext();
+//    context.setRemoveValues(false);
+//    context.setExecuteImmediately(true);
+//
+//    type.getMdVertex().definesAttribute(DefaultAttribute.CODE.getName()).getBusinessDAO().delete(context);
+//    type.getMdBusinessDAO().definesAttribute(DefaultAttribute.CODE.getName()).getBusinessDAO().delete(context);
+//  }
 }

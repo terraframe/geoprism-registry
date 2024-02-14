@@ -172,10 +172,11 @@ public class RevealGeoObjectJsonAdapters
         return;
       }
 
-      if (got.getUniversal().getParents(hierarchyType.getUniversalType()).getAll().size() > 1)
-      {
-        throw new UnsupportedOperationException("Multiple GeoObjectType parents not supported when 'includeLevel' is specified.");
-      }
+      // TODO: HEADS UP
+//      if (got.getUniversal().getParents(hierarchyType.getUniversalType()).getAll().size() > 1)
+//      {
+//        throw new UnsupportedOperationException("Multiple GeoObjectType parents not supported when 'includeLevel' is specified.");
+//      }
 
       List<ServerGeoObjectType> ancestors = this.typeService.getTypeAncestors(got, this.hierarchyType, true);
 

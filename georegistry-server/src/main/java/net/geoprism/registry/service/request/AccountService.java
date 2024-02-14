@@ -53,6 +53,7 @@ import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.GPROrganizationBusinessService;
 
 @Service
@@ -198,7 +199,7 @@ public class AccountService
       }
     }
 
-    List<Organization> organizationList;
+    List<ServerOrganization> organizationList;
 
     if (orgCodesToProcess.size() == 0)
     {
@@ -207,19 +208,19 @@ public class AccountService
       Roles sraRole = Roles.findRoleByName(sraRoleName);
       registryRoleList.add(new RegistryRoleConverter().build(sraRole));
 
-      organizationList = Organization.getOrganizationsFromCache();
+      organizationList = ServerOrganization.getOrganizationsFromCache();
     }
     else
     {
-      organizationList = new LinkedList<Organization>();
+      organizationList = new LinkedList<ServerOrganization>();
 
       for (String organizationCode : organizationCodes)
       {
-        organizationList.add(Organization.getByCode(organizationCode));
+        organizationList.add(ServerOrganization.getByCode(organizationCode));
       }
     }
 
-    for (Organization organization : organizationList)
+    for (ServerOrganization organization : organizationList)
     {
       this.addRolesForOrganization(registryRoleList, organization);
     }
@@ -227,7 +228,7 @@ public class AccountService
     return registryRoleList;
   }
 
-  private void addRolesForOrganization(List<RegistryRole> registryRoleList, Organization organization)
+  private void addRolesForOrganization(List<RegistryRole> registryRoleList, ServerOrganization organization)
   {
     LocalizedValue orgDisplayLabel = RegistryLocalizedValueConverter.convert(organization.getDisplayLabel());
 

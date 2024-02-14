@@ -466,15 +466,16 @@ public class DHIS2GeoObjectJsonAdapters
 
       if (this.typeService.isRoot(serverGo.getType(), this.hierarchyType))
       {
-        InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.get(serverGo.getType().getUniversal(), this.hierarchyType.getHierarchicalRelationshipType());
-
-        if (anno != null)
-        {
-          HierarchicalRelationshipType hrt = anno.getInheritedHierarchicalRelationshipType();
-          ServerHierarchyType shtInherited = ServerHierarchyType.get(hrt);
-
-          ancestors = this.objectService.getAncestors(serverGo, shtInherited, this.dhis2Config.getSyncNonExistent(), true);
-        }
+        // TODO: HEADS UP
+//        InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.get(serverGo.getType().getUniversal(), this.hierarchyType.getHierarchicalRelationshipType());
+//
+//        if (anno != null)
+//        {
+//          HierarchicalRelationshipType hrt = anno.getInheritedHierarchicalRelationshipType();
+//          ServerHierarchyType shtInherited = ServerHierarchyType.get(hrt);
+//
+//          ancestors = this.objectService.getAncestors(serverGo, shtInherited, this.dhis2Config.getSyncNonExistent(), true);
+//        }
       }
       else
       {

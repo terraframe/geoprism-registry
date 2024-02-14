@@ -30,9 +30,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
-import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
@@ -446,7 +446,7 @@ public class MasterList extends MasterListBase
     Locale locale = Session.getCurrentLocale();
     LocaleSerializer serializer = new LocaleSerializer(locale);
 
-    ServerGeoObjectType type = ServerGeoObjectType.get(this.getUniversal());
+    ServerGeoObjectType type = this.getGeoObjectType();
 
     JsonObject object = new JsonObject();
 
@@ -645,7 +645,9 @@ public class MasterList extends MasterListBase
 
   public ServerGeoObjectType getGeoObjectType()
   {
-    return ServerGeoObjectType.get(this.getUniversal());
+    // TODO: HEADS UP
+//    return ServerGeoObjectType.get(this.getUniversal());
+    return null;
   }
 
   public static MasterList fromJSON(JsonObject object)
@@ -672,7 +674,7 @@ public class MasterList extends MasterListBase
         list = new MasterList();
       }
 
-      list.setUniversal(type.getUniversal());
+//      list.setUniversal(type.getUniversal());
       RegistryLocalizedValueConverter.populate(list.getDisplayLabel(), label);
       list.setCode(object.get(MasterList.CODE).getAsString());
       list.getDescriptionLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.DESCRIPTIONLOCAL).getAsJsonObject()).getLocaleMap());
@@ -999,7 +1001,7 @@ public class MasterList extends MasterListBase
     Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
 
     MasterListQuery query = new MasterListQuery(new QueryFactory());
-    query.WHERE(query.getUniversal().EQ(type.getUniversal()));
+//    query.WHERE(query.getUniversal().EQ(type.getUniversal()));
 
     List<? extends MasterList> lists = query.getIterator().getAll();
 

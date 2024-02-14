@@ -157,7 +157,7 @@ public class LocationInformation
 
     for (ServerGeoObjectType node : childTypes)
     {
-      this.childTypes.add(node.getType());
+      this.childTypes.add(node.toDTO());
     }
   }
 

@@ -5,8 +5,8 @@ package net.geoprism.registry.test;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
-import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -25,8 +25,6 @@ import net.geoprism.registry.service.request.ServiceFactory;
 
 public class TestGeoObjectTypeInfo
 {
-  private Universal                   universal;
-
   private String                      code;
 
   private LocalizedValue              displayLabel;
@@ -127,19 +125,6 @@ public class TestGeoObjectTypeInfo
     this.uid = uid;
   }
 
-  public Universal getUniversal()
-  {
-    if (this.universal != null)
-    {
-      return this.universal;
-    }
-    else
-    {
-      // return Universal.getByKey(this.getCode());
-      return TestDataSet.getUniversalIfExist(this.getCode());
-    }
-  }
-
   public TestGeoObjectTypeInfo getSuperType()
   {
     return superType;
@@ -198,16 +183,14 @@ public class TestGeoObjectTypeInfo
       }
       else
       {
-        Universal uni = TestDataSet.getUniversalIfExist(getCode());
-
-        if (uni == null)
+        net.geoprism.registry.graph.GeoObjectType type = net.geoprism.registry.graph.GeoObjectType.getByCode(code);
+        
+        if (type == null)
         {
           return null;
         }
 
-        GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
-
-        this.serverObject = service.build(uni);
+        this.serverObject = new ServerGeoObjectType(type);
 
         return this.serverObject;
       }
@@ -216,7 +199,7 @@ public class TestGeoObjectTypeInfo
 
   public GeoObjectType fetchDTO()
   {
-    return this.getServerObject().getType();
+    return this.getServerObject().toDTO();
   }
 
   // public ServerGeoObjectType getGeoObjectType()
@@ -300,9 +283,7 @@ public class TestGeoObjectTypeInfo
 
     this.serverObject = service.create(got);
 
-    universal = this.serverObject.getUniversal();
-
-    this.setUid(universal.getOid());
+    this.setUid(this.serverObject.getOid());
   }
 
   @Request
@@ -352,7 +333,6 @@ public class TestGeoObjectTypeInfo
     // }
 
     this.children.clear();
-    this.universal = null;
   }
 
   public boolean isPersisted()
@@ -374,7 +354,7 @@ public class TestGeoObjectTypeInfo
   {
     ServerGeoObjectType type = this.getServerObject(true);
 
-    this.assertEquals(type.getType());
+    this.assertEquals(type.toDTO());
   }
 
   public TestAttributeTypeInfo getAttribute(String cgrAttrName)
