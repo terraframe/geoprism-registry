@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
@@ -25,14 +24,11 @@ import org.springframework.test.context.ContextConfiguration;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
 
-import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
-import net.geoprism.registry.graph.AttributeClassificationType;
-import net.geoprism.registry.graph.AttributeTermType;
 import net.geoprism.registry.graph.AttributeType;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;

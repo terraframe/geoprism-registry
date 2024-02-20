@@ -268,6 +268,17 @@ public class TestGeoObjectTypeInfo
       return;
     }
 
+    GeoObjectType got = toDTO();
+
+    GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+
+    this.serverObject = service.create(got);
+
+    this.setUid(this.serverObject.getOid());
+  }
+
+  public GeoObjectType toDTO()
+  {
     String organizationCode = this.getOrganization().getCode();
 
     GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), true, organizationCode, ServiceFactory.getAdapter());
@@ -278,12 +289,7 @@ public class TestGeoObjectTypeInfo
     {
       got.setSuperTypeCode(this.getSuperType().code);
     }
-
-    GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
-
-    this.serverObject = service.create(got);
-
-    this.setUid(this.serverObject.getOid());
+    return got;
   }
 
   @Request

@@ -38,6 +38,7 @@ import com.runwaysdk.dataaccess.graph.GraphDDLCommandAction;
 import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
+import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
@@ -181,7 +182,7 @@ public class CRAttributePatch
   {
     for (Universal uni : getUniversals())
     {
-      MdGeoVertexDAO mdVertex = GeoVertexType.getMdGeoVertex(uni.getUniversalId());
+      MdVertexDAO mdVertex = GeoVertexType.getMdGeoVertex(uni.getUniversalId());
       
       List<? extends MdAttributeDAOIF> attributes = mdVertex.getAllDefinedMdAttributes();
       

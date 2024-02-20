@@ -336,98 +336,91 @@ public class GeoObjectImporter implements ObjectImporterIF
         this.lastValidateSessionRefresh = curRowNumber;
       }
 
+      /*
+       * 1. Check for location problems
+       */
+      if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
+      {
+        // Skip location synonym check
+      }
+      else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
+      {
+        this.getParent(row);
+      }
+
+      /*
+       * 2. Check for serialization and term problems
+       */
+      String code = this.getCode(row);
+
+      ServerGeoObjectIF entity;
+
+      if (code == null || code.length() <= 0)
+      {
+        RequiredMappingException ex = new RequiredMappingException();
+        ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+        throw ex;
+      }
+
+      entity = service.newInstance(this.configuration.getType());
+      entity.setCode(code);
+      entity.setInvalid(false);
+
       try
       {
-        /*
-         * 1. Check for location problems
-         */
-        if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
+        LocalizedValue entityName = this.getName(row);
+        if (entityName != null && this.hasValue(entityName))
         {
-          // Skip location synonym check
-        }
-        else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
-        {
-          this.getParent(row);
+          entity.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
         }
 
-        /*
-         * 2. Check for serialization and term problems
-         */
-        String code = this.getCode(row);
+        Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
 
-        ServerGeoObjectIF entity;
+        geometry = convertGeometry(geometry);
 
-        if (code == null || code.length() <= 0)
+        if (geometry != null)
         {
-          RequiredMappingException ex = new RequiredMappingException();
-          ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
-          throw ex;
+          entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
         }
 
-        entity = service.newInstance(this.configuration.getType());
-        entity.setCode(code);
-        entity.setInvalid(false);
+        Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
+        Set<Entry<String, AttributeType>> entries = attributes.entrySet();
 
-        try
+        for (Entry<String, AttributeType> entry : entries)
         {
-          LocalizedValue entityName = this.getName(row);
-          if (entityName != null && this.hasValue(entityName))
+          String attributeName = entry.getKey();
+
+          if (!attributeName.equals(GeoObject.CODE))
           {
-            entity.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
-          }
+            ShapefileFunction function = this.configuration.getFunction(attributeName);
 
-          Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
-
-          geometry = convertGeometry(geometry);
-
-          if (geometry != null)
-          {
-            entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
-          }
-
-          Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
-          Set<Entry<String, AttributeType>> entries = attributes.entrySet();
-
-          for (Entry<String, AttributeType> entry : entries)
-          {
-            String attributeName = entry.getKey();
-
-            if (!attributeName.equals(GeoObject.CODE))
+            if (function != null)
             {
-              ShapefileFunction function = this.configuration.getFunction(attributeName);
+              Object value = function.getValue(row);
 
-              if (function != null)
+              if (value != null && !this.isEmptyString(value))
               {
-                Object value = function.getValue(row);
+                AttributeType attributeType = entry.getValue();
 
-                if (value != null && !this.isEmptyString(value))
-                {
-                  AttributeType attributeType = entry.getValue();
-
-                  this.setValue(entity, attributeType, attributeName, value, row);
-                }
+                this.setValue(entity, attributeType, attributeName, value, row);
               }
             }
           }
-
-          GeoObjectOverTime go = this.service.toGeoObjectOverTime(entity, false, this.classifierCache);
-          go.toJSON().toString();
-
-          if (this.configuration.isExternalImport())
-          {
-            ShapefileFunction function = this.configuration.getExternalIdFunction();
-
-            Object value = function.getValue(row);
-
-            if (value == null || ! ( value instanceof String || value instanceof Integer || value instanceof Long ) || ( value instanceof String && ( (String) value ).length() == 0 ))
-            {
-              throw new InvalidExternalIdException();
-            }
-          }
         }
-        finally
+
+        GeoObjectOverTime go = this.service.toGeoObjectOverTime(entity, false, this.classifierCache);
+        go.toJSON().toString();
+
+        if (this.configuration.isExternalImport())
         {
-          entity.unlock();
+          ShapefileFunction function = this.configuration.getExternalIdFunction();
+
+          Object value = function.getValue(row);
+
+          if (value == null || ! ( value instanceof String || value instanceof Integer || value instanceof Long ) || ( value instanceof String && ( (String) value ).length() == 0 ))
+          {
+            throw new InvalidExternalIdException();
+          }
         }
       }
       catch (IgnoreRowException e)
@@ -638,167 +631,152 @@ public class GeoObjectImporter implements ObjectImporterIF
         serverGo.setCode(code);
         serverGo.setInvalid(false);
       }
-      else
+
+      LocalizedValue entityName = this.getName(row);
+      if (entityName != null && this.hasValue(entityName))
       {
-        serverGo.lock();
+        serverGo.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
       }
 
-      try
+      Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
+
+      geometry = convertGeometry(geometry);
+
+      if (geometry != null)
       {
+        serverGo.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
 
-        LocalizedValue entityName = this.getName(row);
-        if (entityName != null && this.hasValue(entityName))
+      if (isNew)
+      {
+        serverGo.setUid(ServiceFactory.getIdService().getUids(1)[0]);
+      }
+
+      // Set exists first so we can validate attributes on it
+      // ShapefileFunction existsFunction =
+      // this.configuration.getFunction(DefaultAttribute.EXISTS.getName());
+      //
+      // if (existsFunction != null)
+      // {
+      // Object value = existsFunction.getValue(row);
+      //
+      // if (value != null && !this.isEmptyString(value))
+      // {
+      // this.setValue(serverGo,
+      // this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(),
+      // DefaultAttribute.EXISTS.getName(), value);
+      // }
+      // }
+      // else if (isNew)
+      // {
+      // ValueOverTime defaultExists = ((VertexServerGeoObject)
+      // serverGo).buildDefaultExists();
+      // if (defaultExists != null)
+      // {
+      // serverGo.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE,
+      // defaultExists.getStartDate(), defaultExists.getEndDate());
+      // }
+      // }
+      this.setValue(serverGo, this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(), DefaultAttribute.EXISTS.getName(), true, row);
+
+      Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
+      Set<Entry<String, AttributeType>> entries = attributes.entrySet();
+
+      for (Entry<String, AttributeType> entry : entries)
+      {
+        String attributeName = entry.getKey();
+
+        if (!attributeName.equals(GeoObject.CODE) && !attributeName.equals(DefaultAttribute.EXISTS.getName()))
         {
-          serverGo.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
-        }
+          ShapefileFunction function = this.configuration.getFunction(attributeName);
 
-        Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
-
-        geometry = convertGeometry(geometry);
-
-        if (geometry != null)
-        {
-          serverGo.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
-        }
-
-        if (isNew)
-        {
-          serverGo.setUid(ServiceFactory.getIdService().getUids(1)[0]);
-        }
-
-        // Set exists first so we can validate attributes on it
-        // ShapefileFunction existsFunction =
-        // this.configuration.getFunction(DefaultAttribute.EXISTS.getName());
-        //
-        // if (existsFunction != null)
-        // {
-        // Object value = existsFunction.getValue(row);
-        //
-        // if (value != null && !this.isEmptyString(value))
-        // {
-        // this.setValue(serverGo,
-        // this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(),
-        // DefaultAttribute.EXISTS.getName(), value);
-        // }
-        // }
-        // else if (isNew)
-        // {
-        // ValueOverTime defaultExists = ((VertexServerGeoObject)
-        // serverGo).buildDefaultExists();
-        // if (defaultExists != null)
-        // {
-        // serverGo.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE,
-        // defaultExists.getStartDate(), defaultExists.getEndDate());
-        // }
-        // }
-        this.setValue(serverGo, this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(), DefaultAttribute.EXISTS.getName(), true, row);
-
-        Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
-        Set<Entry<String, AttributeType>> entries = attributes.entrySet();
-
-        for (Entry<String, AttributeType> entry : entries)
-        {
-          String attributeName = entry.getKey();
-
-          if (!attributeName.equals(GeoObject.CODE) && !attributeName.equals(DefaultAttribute.EXISTS.getName()))
+          if (function != null)
           {
-            ShapefileFunction function = this.configuration.getFunction(attributeName);
+            Object value = function.getValue(row);
 
-            if (function != null)
+            AttributeType attributeType = entry.getValue();
+
+            if (value != null && !this.isEmptyString(value))
             {
-              Object value = function.getValue(row);
+              // if (!(existsFunction == null && isNew))
+              // {
+              // try
+              // {
+              // ((VertexServerGeoObject)
+              // serverGo).enforceAttributeSetWithinRange(serverGo.getDisplayLabel().getValue(),
+              // attributeName, this.configuration.getStartDate(),
+              // this.configuration.getEndDate());
+              // }
+              // catch (ValueOutOfRangeException e)
+              // {
+              // final SimpleDateFormat format =
+              // ValueOverTimeDTO.getTimeFormatter();
+              //
+              // ImportOutOfRangeException ex = new
+              // ImportOutOfRangeException();
+              // ex.setStartDate(format.format(this.configuration.getStartDate()));
+              //
+              // if
+              // (ValueOverTime.INFINITY_END_DATE.equals(this.configuration.getEndDate()))
+              // {
+              // ex.setEndDate(LocalizationFacade.localize("changeovertime.present"));
+              // }
+              // else
+              // {
+              // ex.setEndDate(format.format(this.configuration.getEndDate()));
+              // }
+              //
+              // throw ex;
+              // }
+              // }
 
-              AttributeType attributeType = entry.getValue();
-
-              if (value != null && !this.isEmptyString(value))
-              {
-                // if (!(existsFunction == null && isNew))
-                // {
-                // try
-                // {
-                // ((VertexServerGeoObject)
-                // serverGo).enforceAttributeSetWithinRange(serverGo.getDisplayLabel().getValue(),
-                // attributeName, this.configuration.getStartDate(),
-                // this.configuration.getEndDate());
-                // }
-                // catch (ValueOutOfRangeException e)
-                // {
-                // final SimpleDateFormat format =
-                // ValueOverTimeDTO.getTimeFormatter();
-                //
-                // ImportOutOfRangeException ex = new
-                // ImportOutOfRangeException();
-                // ex.setStartDate(format.format(this.configuration.getStartDate()));
-                //
-                // if
-                // (ValueOverTime.INFINITY_END_DATE.equals(this.configuration.getEndDate()))
-                // {
-                // ex.setEndDate(LocalizationFacade.localize("changeovertime.present"));
-                // }
-                // else
-                // {
-                // ex.setEndDate(format.format(this.configuration.getEndDate()));
-                // }
-                //
-                // throw ex;
-                // }
-                // }
-
-                this.setValue(serverGo, attributeType, attributeName, value, row);
-              }
-              else if (this.configuration.getCopyBlank())
-              {
-                this.setValue(serverGo, attributeType, attributeName, null, row);
-              }
+              this.setValue(serverGo, attributeType, attributeName, value, row);
+            }
+            else if (this.configuration.getCopyBlank())
+            {
+              this.setValue(serverGo, attributeType, attributeName, null, row);
             }
           }
         }
-
-        go = this.service.toGeoObjectOverTime(serverGo, false, this.classifierCache);
-        goJson = go.toJSON().toString();
-
-        /*
-         * Try to get the parent and ensure that this row is not ignored. The
-         * getParent method will throw a IgnoreRowException if the parent is
-         * configured to be ignored.
-         */
-        if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
-        {
-          parent = this.parsePostalCode(row);
-        }
-        else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
-        {
-          parent = this.getParent(row);
-        }
-        parentBuilder.setParent(parent);
-
-        if (this.progressListener.hasValidationProblems())
-        {
-          throw new RuntimeException("Did not expect to encounter validation problems during import.");
-        }
-
-        data.setGoJson(goJson);
-        data.setNew(isNew);
-        data.setParentBuilder(parentBuilder);
-
-        this.service.apply(serverGo, true);
-        
-        imported = true;
       }
-      finally
+
+      go = this.service.toGeoObjectOverTime(serverGo, false, this.classifierCache);
+      goJson = go.toJSON().toString();
+
+      /*
+       * Try to get the parent and ensure that this row is not ignored. The
+       * getParent method will throw a IgnoreRowException if the parent is
+       * configured to be ignored.
+       */
+      if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
       {
-        if (serverGo != null)
-        {
-          serverGo.unlock();
-        }
+        parent = this.parsePostalCode(row);
       }
+      else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
+      {
+        parent = this.getParent(row);
+      }
+      parentBuilder.setParent(parent);
+
+      if (this.progressListener.hasValidationProblems())
+      {
+        throw new RuntimeException("Did not expect to encounter validation problems during import.");
+      }
+
+      data.setGoJson(goJson);
+      data.setNew(isNew);
+      data.setParentBuilder(parentBuilder);
+
+      this.service.apply(serverGo, true);
+
+      imported = true;
 
       if (this.configuration.isExternalImport())
       {
         ShapefileFunction function = this.configuration.getExternalIdFunction();
 
         Object value = function.getValue(row);
-        
+
         this.service.createExternalId(serverGo, this.configuration.getExternalSystem(), String.valueOf(value), this.configuration.getImportStrategy());
       }
 
@@ -813,7 +791,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           // If we're a new object, we can speed things up quite a bit here by
           // just directly applying the edge object since the addChild method
           // does a lot of unnecessary validation.
-          this.service.addParentRaw(serverGo, ((VertexServerGeoObject) parent ).getVertex(), this.configuration.getHierarchy().getMdEdge(), this.configuration.getStartDate(), this.configuration.getEndDate());
+          this.service.addParentRaw(serverGo, ( (VertexServerGeoObject) parent ).getVertex(), this.configuration.getHierarchy().getMdEdge(), this.configuration.getStartDate(), this.configuration.getEndDate());
         }
       }
       else if (isNew)
@@ -1248,42 +1226,48 @@ public class GeoObjectImporter implements ObjectImporterIF
     if (!this.configuration.isExclusion(attributeName, value.toString()))
     {
       // TODO: HEADS UP
-//      try
-//      {
-//        ServerGeoObjectType type = this.configuration.getType();
-//        MdBusinessDAOIF mdBusiness = type.getMdBusinessDAO();
-//        MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF) mdBusiness.definesAttribute(attributeName);
-//
-//        if (mdAttribute == null && type.getSuperType() != null)
-//        {
-//          mdAttribute = (MdAttributeTermDAOIF) type.getSuperType().getMdBusinessDAO().definesAttribute(attributeName);
-//        }
-//
-//        Classifier classifier = Classifier.findMatchingTerm(value.toString().trim(), mdAttribute);
-//
-//        if (classifier == null)
-//        {
-//          Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
-//
-//          TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
-//          trp.addAffectedRowNumber(feature.getRowNumber());
-//          trp.setHistoryId(this.configuration.getHistoryId());
-//
-//          this.progressListener.addReferenceProblem(trp);
-//        }
-//        else
-//        {
-//          entity.setValue(attributeName, classifier.getOid(), startDate, endDate);
-//        }
-//      }
-//      catch (UnknownTermException e)
-//      {
-//        TermValueException ex = new TermValueException();
-//        ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
-//        ex.setCode(e.getCode());
-//
-//        throw e;
-//      }
+      // try
+      // {
+      // ServerGeoObjectType type = this.configuration.getType();
+      // MdBusinessDAOIF mdBusiness = type.getMdBusinessDAO();
+      // MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF)
+      // mdBusiness.definesAttribute(attributeName);
+      //
+      // if (mdAttribute == null && type.getSuperType() != null)
+      // {
+      // mdAttribute = (MdAttributeTermDAOIF)
+      // type.getSuperType().getMdBusinessDAO().definesAttribute(attributeName);
+      // }
+      //
+      // Classifier classifier =
+      // Classifier.findMatchingTerm(value.toString().trim(), mdAttribute);
+      //
+      // if (classifier == null)
+      // {
+      // Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
+      //
+      // TermReferenceProblem trp = new TermReferenceProblem(value.toString(),
+      // rootTerm.getCode(), mdAttribute.getOid(), attributeName,
+      // attributeType.getLabel().getValue());
+      // trp.addAffectedRowNumber(feature.getRowNumber());
+      // trp.setHistoryId(this.configuration.getHistoryId());
+      //
+      // this.progressListener.addReferenceProblem(trp);
+      // }
+      // else
+      // {
+      // entity.setValue(attributeName, classifier.getOid(), startDate,
+      // endDate);
+      // }
+      // }
+      // catch (UnknownTermException e)
+      // {
+      // TermValueException ex = new TermValueException();
+      // ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
+      // ex.setCode(e.getCode());
+      //
+      // throw e;
+      // }
     }
   }
 
@@ -1292,89 +1276,104 @@ public class GeoObjectImporter implements ObjectImporterIF
     if (!this.configuration.isExclusion(attributeName, value.toString()))
     {
       // TODO: HEADS UP
-//      try
-//      {
-//        ServerGeoObjectType type = this.configuration.getType();
-//        MdBusinessDAOIF mdBusiness = type.getMdBusinessDAO();
-//        MdAttributeClassificationDAOIF mdAttribute = (MdAttributeClassificationDAOIF) mdBusiness.definesAttribute(attributeName);
-//
-//        if (mdAttribute == null && type.getSuperType() != null)
-//        {
-//          mdAttribute = (MdAttributeClassificationDAOIF) type.getSuperType().getMdBusinessDAO().definesAttribute(attributeName);
-//        }
-//
-//        if (mdAttribute == null)
-//        {
-//          throw new ProgrammingErrorException("Unable to find mdAttribute: " + attributeName);
-//        }
-//
-//        VertexObject classifier = this.classifierCache.getClassifier(mdAttribute.getMdClassificationDAOIF().definesType(), value.toString().trim());
-//
-//        if (classifier == null)
-//        {
-//          classifier = AbstractClassification.findMatchingClassification(value.toString().trim(), mdAttribute);
-//
-//          if (classifier != null)
-//          {
-//            this.classifierCache.putClassifier(mdAttribute.getMdClassificationDAOIF().definesType(), classifier.getObjectValue("code"), classifier);
-//          }
-//        }
-//
-//        if (classifier == null)
-//        {
-//          throw new UnknownTermException(value.toString().trim(), attributeType);
-//          // Term rootClassification = ( (AttributeClassificationType)
-//          // attributeType ).getRootTerm();
-//          //
-//          // TermReferenceProblem trp = new
-//          // TermReferenceProblem(value.toString(),
-//          // rootClassification.getCode(), mdAttribute.getOid(), attributeName,
-//          // attributeType.getLabel().getValue());
-//          // trp.addAffectedRowNumber(this.progressListener.getWorkProgress() +
-//          // 1);
-//          // trp.setHistoryId(this.configuration.getHistoryId());
-//          //
-//          // this.progressListener.addReferenceProblem(trp);
-//        }
-//        else
-//        {
-//          AttributeClassification attrClass = ( (AttributeClassification) ( (VertexServerGeoObject) entity ).getVertex().getGraphObjectDAO().getAttribute(attributeName) );
-//          Boolean validationResult = this.classifierCache.getClassifierAttributeValidation(mdAttribute.getOid(), classifier);
-//
-//          if (validationResult == null)
-//          {
-//            validationResult = attrClass.validateRid(classifier.getRID(), false);
-//
-//            this.classifierCache.putClassifierAttributeValidation(mdAttribute.getOid(), classifier, validationResult);
-//          }
-//
-//          if (Boolean.TRUE.equals(validationResult))
-//          {
-//            attrClass.setSkipValidation(true);
-//
-//            try
-//            {
-//              attrClass.setValue(classifier, startDate, endDate);
-//            }
-//            finally
-//            {
-//              attrClass.setSkipValidation(false);
-//            }
-//          }
-//          else
-//          {
-//            throw new ClassificationValidationException("Value must be a child of the attribute root");
-//          }
-//        }
-//      }
-//      catch (UnknownTermException e)
-//      {
-//        TermValueException ex = new TermValueException();
-//        ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
-//        ex.setCode(e.getCode());
-//
-//        throw e;
-//      }
+      // try
+      // {
+      // ServerGeoObjectType type = this.configuration.getType();
+      // MdBusinessDAOIF mdBusiness = type.getMdBusinessDAO();
+      // MdAttributeClassificationDAOIF mdAttribute =
+      // (MdAttributeClassificationDAOIF)
+      // mdBusiness.definesAttribute(attributeName);
+      //
+      // if (mdAttribute == null && type.getSuperType() != null)
+      // {
+      // mdAttribute = (MdAttributeClassificationDAOIF)
+      // type.getSuperType().getMdBusinessDAO().definesAttribute(attributeName);
+      // }
+      //
+      // if (mdAttribute == null)
+      // {
+      // throw new ProgrammingErrorException("Unable to find mdAttribute: " +
+      // attributeName);
+      // }
+      //
+      // VertexObject classifier =
+      // this.classifierCache.getClassifier(mdAttribute.getMdClassificationDAOIF().definesType(),
+      // value.toString().trim());
+      //
+      // if (classifier == null)
+      // {
+      // classifier =
+      // AbstractClassification.findMatchingClassification(value.toString().trim(),
+      // mdAttribute);
+      //
+      // if (classifier != null)
+      // {
+      // this.classifierCache.putClassifier(mdAttribute.getMdClassificationDAOIF().definesType(),
+      // classifier.getObjectValue("code"), classifier);
+      // }
+      // }
+      //
+      // if (classifier == null)
+      // {
+      // throw new UnknownTermException(value.toString().trim(), attributeType);
+      // // Term rootClassification = ( (AttributeClassificationType)
+      // // attributeType ).getRootTerm();
+      // //
+      // // TermReferenceProblem trp = new
+      // // TermReferenceProblem(value.toString(),
+      // // rootClassification.getCode(), mdAttribute.getOid(), attributeName,
+      // // attributeType.getLabel().getValue());
+      // // trp.addAffectedRowNumber(this.progressListener.getWorkProgress() +
+      // // 1);
+      // // trp.setHistoryId(this.configuration.getHistoryId());
+      // //
+      // // this.progressListener.addReferenceProblem(trp);
+      // }
+      // else
+      // {
+      // AttributeClassification attrClass = ( (AttributeClassification) (
+      // (VertexServerGeoObject) entity
+      // ).getVertex().getGraphObjectDAO().getAttribute(attributeName) );
+      // Boolean validationResult =
+      // this.classifierCache.getClassifierAttributeValidation(mdAttribute.getOid(),
+      // classifier);
+      //
+      // if (validationResult == null)
+      // {
+      // validationResult = attrClass.validateRid(classifier.getRID(), false);
+      //
+      // this.classifierCache.putClassifierAttributeValidation(mdAttribute.getOid(),
+      // classifier, validationResult);
+      // }
+      //
+      // if (Boolean.TRUE.equals(validationResult))
+      // {
+      // attrClass.setSkipValidation(true);
+      //
+      // try
+      // {
+      // attrClass.setValue(classifier, startDate, endDate);
+      // }
+      // finally
+      // {
+      // attrClass.setSkipValidation(false);
+      // }
+      // }
+      // else
+      // {
+      // throw new ClassificationValidationException("Value must be a child of
+      // the attribute root");
+      // }
+      // }
+      // }
+      // catch (UnknownTermException e)
+      // {
+      // TermValueException ex = new TermValueException();
+      // ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
+      // ex.setCode(e.getCode());
+      //
+      // throw e;
+      // }
     }
   }
 

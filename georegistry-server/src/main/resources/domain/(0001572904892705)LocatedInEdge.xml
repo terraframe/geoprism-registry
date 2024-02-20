@@ -21,6 +21,7 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version_gis.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <create>
+    
       <mdEdge name="net.geoprism.registry.graph.LocatedIn" label="Located In" parent="net.geoprism.registry.graph.GeoVertex" child="net.geoprism.registry.graph.GeoVertex" generateSource="false">
         <attributes>
           <dateTime name="startDate" label="Start Date" required="false" />

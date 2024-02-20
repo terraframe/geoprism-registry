@@ -64,11 +64,13 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
   }
 
   @Override
-  protected void update(ServerGeoObjectType serverGeoObjectType, GeoObjectType geoObjectTypeNew)
+  protected GeoObjectType update(ServerGeoObjectType serverGeoObjectType, GeoObjectType geoObjectTypeNew)
   {
-    super.update(serverGeoObjectType, geoObjectTypeNew);
+    GeoObjectType dto = super.update(serverGeoObjectType, geoObjectTypeNew);
 
     SerializedListTypeCache.getInstance().clear();
+
+    return dto;
   }
 
   @Override

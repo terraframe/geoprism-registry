@@ -18,7 +18,8 @@
  */
 package net.geoprism.registry.model.graph;
 
-import com.google.gson.JsonObject;
+import java.util.TreeMap;
+
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
@@ -67,7 +68,7 @@ public class ExternalId
     
     ServerGeoObjectType type = ServerGeoObjectType.get((MdVertexDAOIF) child.getMdClass());
     
-    return new VertexServerGeoObject(type, child);
+    return new VertexServerGeoObject(type, child, new TreeMap<>());
   }
   
   public ExternalSystem getParent()

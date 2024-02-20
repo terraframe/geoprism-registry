@@ -133,15 +133,17 @@ public class TestOrganizationInfo
   }
 
   @Request
-  public void apply()
+  public ServerOrganization apply()
   {
     if (this.getServerObject(true) != null)
     {
-      return;
+      return this.serverObj;
     }
 
     OrganizationBusinessServiceIF service = ServiceFactory.getBean(OrganizationBusinessServiceIF.class);
 
     this.serverObj = service.create(this.toDTO());
+    
+    return this.serverObj;
   }
 }

@@ -6,24 +6,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.AlternateId;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
-import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
-import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.commongeoregistry.adapter.metadata.AttributeListType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.locationtech.jts.geom.Geometry;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
@@ -38,8 +29,6 @@ import com.runwaysdk.session.CreatePermissionException;
 import com.runwaysdk.session.ReadPermissionException;
 import com.runwaysdk.session.WritePermissionException;
 
-import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
 import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
 import net.geoprism.registry.etl.export.RevealGeoObjectJsonAdapters;
@@ -47,7 +36,6 @@ import net.geoprism.registry.etl.upload.ClassifierCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
-import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -213,7 +201,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
         type = ServerGeoObjectType.get((MdVertexDAOIF) vo.getMdClass());
       }
 
-      return new VertexServerGeoObject(type, vo);
+      return new VertexServerGeoObject(type, vo, new TreeMap<>());
     }
     else
     {
@@ -279,7 +267,7 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
       externalId.apply();
     }
   }
-  
+
   @Override
   public String getExternalId(ServerGeoObjectIF sgo, ExternalSystem system)
   {

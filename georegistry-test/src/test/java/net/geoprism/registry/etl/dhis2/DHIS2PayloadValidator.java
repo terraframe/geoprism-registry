@@ -51,23 +51,23 @@ public class DHIS2PayloadValidator
     else
     {
       Assert.assertTrue(orgUnit.has("attributeValues"));
-      
+
       final JsonArray attributeValues = orgUnit.get("attributeValues").getAsJsonArray();
-      
+
       Assert.assertEquals(go.getCode(), orgUnit.get("code").getAsString());
 
-      if (!(mapping instanceof DHIS2OrgUnitGroupAttributeMapping))
+      if (! ( mapping instanceof DHIS2OrgUnitGroupAttributeMapping ))
       {
         JsonObject attributeValue = null;
-        
+
         if (DHIS2TestService.SIERRA_LEONE_ID.equals(orgUnit.get("id").getAsString()))
         {
           Assert.assertEquals(2, attributeValues.size());
-          
+
           for (int i = 0; i < attributeValues.size(); ++i)
           {
             JsonObject av = attributeValues.get(i).getAsJsonObject();
-            
+
             if (av.get("attribute").getAsJsonObject().get("id").getAsString().equals(DHIS2TestService.ATTRIBUTE_COLOR_ID))
             {
               Assert.assertEquals("blue", av.get("value").getAsString());
@@ -81,15 +81,15 @@ public class DHIS2PayloadValidator
               Assert.fail();
             }
           }
-          
+
           JsonArray translations = orgUnit.get("translations").getAsJsonArray();
-          
+
           Assert.assertEquals(2, translations.size());
-          
+
           for (int i = 0; i < translations.size(); ++i)
           {
             JsonObject tran = translations.get(i).getAsJsonObject();
-            
+
             if (tran.get("property").getAsString().equals("NAME") && tran.get("locale").getAsString().equals("en_GB"))
             {
               Assert.assertEquals("Sierra Leone", tran.get("value").getAsString());
@@ -107,23 +107,23 @@ public class DHIS2PayloadValidator
         else
         {
           Assert.assertEquals(1, attributeValues.size());
-          
+
           attributeValue = attributeValues.get(0).getAsJsonObject();
         }
-        
+
         Assert.assertNotNull(attributeValue.get("lastUpdated").getAsString());
- 
+
         Assert.assertNotNull(attributeValue.get("created").getAsString());
- 
+
         AttributeType attrDto = attr.fetchDTO();
- 
+
         if (attrDto instanceof AttributeIntegerType)
         {
-          Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsLong());
+          Assert.assertEquals((long) go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsLong());
         }
         else if (attrDto instanceof AttributeFloatType)
         {
-          Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsDouble());
+          Assert.assertEquals((double) go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsDouble(), 0.000001);
         }
         else if (attrDto instanceof AttributeDateType)
         {
@@ -134,10 +134,10 @@ public class DHIS2PayloadValidator
           // String expected =
           // DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate((Date)
           // go.getServerObject().getValue(attr.getAttributeName()));
- 
+
           String expected = DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate(AllAttributesDataset.GO_DATE_VALUE);
           String actual = attributeValue.get("value").getAsString();
- 
+
           Assert.assertEquals(expected, actual);
         }
         else if (attrDto instanceof AttributeBooleanType)
@@ -147,10 +147,10 @@ public class DHIS2PayloadValidator
         else if (attrDto instanceof AttributeTermType)
         {
           String dhis2Id = attributeValue.get("value").getAsString();
- 
+
           // Term term = (Term)
           // go.getServerObject().getValue(attr.getAttributeName());
- 
+
           Assert.assertEquals("TEST_EXTERNAL_ID", dhis2Id);
         }
         else if (attrDto instanceof AttributeLocalType)
@@ -161,7 +161,7 @@ public class DHIS2PayloadValidator
         {
           Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsString());
         }
- 
+
         Assert.assertEquals("TEST_EXTERNAL_ID", attributeValue.get("attribute").getAsJsonObject().get("id").getAsString());
       }
       else
@@ -170,22 +170,22 @@ public class DHIS2PayloadValidator
       }
     }
   }
-  
+
   public static void orgUnitGroup(TestGeoObjectInfo go, TestAttributeTypeInfo attr, DHIS2OrgUnitGroupAttributeMapping mapping, int level, JsonObject joPayload)
   {
     JsonArray groups = joPayload.get(DHIS2Objects.ORGANISATION_UNIT_GROUPS).getAsJsonArray();
-    
+
     Set<String> payloadIds = new HashSet<String>();
-    
+
     for (int i = 0; i < groups.size(); ++i)
     {
       JsonObject joGroup = groups.get(i).getAsJsonObject();
-      
+
       payloadIds.add(joGroup.get("id").getAsString());
     }
-    
+
     Map<String, String> termMappings = mapping.getTerms();
-    
+
     for (String expectedId : termMappings.values())
     {
       Assert.assertTrue("expected id " + expectedId + " to exist in payloadIds [" + StringUtils.join(payloadIds, ", ") + "]", payloadIds.contains(expectedId));

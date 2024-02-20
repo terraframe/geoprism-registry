@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.BidiMap;
@@ -769,7 +770,7 @@ public class DHIS2SynchronizationManager
 
     for (VertexObject vObject : vObjects)
     {
-      VertexServerGeoObject vSGO = new VertexServerGeoObject(got, vObject);
+      VertexServerGeoObject vSGO = new VertexServerGeoObject(got, vObject, new TreeMap<>());
       vSGO.setDate(dhis2Config.getDate());
 
       response.add(vSGO);

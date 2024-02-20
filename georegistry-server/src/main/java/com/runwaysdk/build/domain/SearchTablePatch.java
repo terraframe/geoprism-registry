@@ -19,6 +19,7 @@
 package com.runwaysdk.build.domain;
 
 import java.util.List;
+import java.util.TreeMap;
 
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
@@ -72,7 +73,8 @@ public class SearchTablePatch
       {
         ServerGeoObjectType type = ServerGeoObjectType.get((MdVertexDAOIF) result.getMdClass());
 
-        service.insert(new VertexServerGeoObject(type, result), true);
+        // TODO: HEADS UP
+//        service.insert(new VertexServerGeoObject(type, result, new TreeMap<>()), true);
       }
 
       skip += pageSize;

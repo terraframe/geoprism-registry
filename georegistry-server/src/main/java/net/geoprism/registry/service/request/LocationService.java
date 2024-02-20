@@ -21,6 +21,7 @@ package net.geoprism.registry.service.request;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeMap;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
@@ -254,7 +255,7 @@ public class LocationService
 
     for (VertexObject vObject : vObjects)
     {
-      VertexServerGeoObject vSGO = new VertexServerGeoObject(type, vObject);
+      VertexServerGeoObject vSGO = new VertexServerGeoObject(type, vObject, new TreeMap<>());
       vSGO.setDate(date);
 
       response.add(vSGO);

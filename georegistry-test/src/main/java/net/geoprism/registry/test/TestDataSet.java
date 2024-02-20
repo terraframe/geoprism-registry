@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -481,7 +482,7 @@ abstract public class TestDataSet
 
       for (VertexObject vObject : vObjects)
       {
-        VertexServerGeoObject serverGo = new VertexServerGeoObject(got, vObject);
+        VertexServerGeoObject serverGo = new VertexServerGeoObject(got, vObject, new TreeMap<>());
 
         vObject.delete();
 

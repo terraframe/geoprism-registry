@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.service.request;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,10 +25,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.ComponentIF;
@@ -48,7 +49,6 @@ import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.GraphDDLCommandAction;
-import com.runwaysdk.dataaccess.graph.GraphObjectDAOIF;
 import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
@@ -274,7 +274,7 @@ public class SearchService
 
     for (ValueOverTime vot : vots)
     {
-      GraphObjectDAOIF value = (GraphObjectDAOIF) vot.getValue();
+      LocalizedValue value = (LocalizedValue) vot.getValue();
 
       Set<String> attributeNames = GPRLocalizationService.getLocaleNames();
 
@@ -283,7 +283,7 @@ public class SearchService
 
       for (String attributeName : attributeNames)
       {
-        labels.add(value.getObjectValue(attributeName));
+        labels.add(value.getValue(attributeName));
       }
 
       for (String label : labels)
@@ -404,7 +404,7 @@ public class SearchService
       MdVertexDAOIF mdVertexType = (MdVertexDAOIF) result.getMdClass();
       ServerGeoObjectType type = ServerGeoObjectType.get(mdVertexType);
 
-      VertexServerGeoObject vsgo = new VertexServerGeoObject(type, result, date);
+      VertexServerGeoObject vsgo = new VertexServerGeoObject(type, result, new TreeMap<>(), date);
 
       // Due to the way we add multiple records (for different locales) for
       // Geo-Objects we may have duplicates. Remove them now as it will be
