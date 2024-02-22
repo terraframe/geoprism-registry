@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.Assert;
@@ -21,8 +22,13 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.classification.ClassificationTypeTest;
 import net.geoprism.registry.graph.AttributeType;
+import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
+import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
 
@@ -30,18 +36,47 @@ import net.geoprism.registry.test.USATestData;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class GeoObjectTypeServiceTest implements InstanceTestClassListener
 {
+  private static ClassificationType           classificationType;
+
+  private static Classification               root;
+
   @Autowired
-  private GeoObjectTypeBusinessServiceIF service;
+  private GeoObjectTypeBusinessServiceIF      service;
+
+  @Autowired
+  private ClassificationTypeBusinessServiceIF cTypeService;
+
+  @Autowired
+  private ClassificationBusinessServiceIF     cService;
 
   @Override
+  @Request
   public void beforeClassSetup() throws Exception
   {
     USATestData.ORG_NPS.apply();
+
+    classificationType = this.cTypeService.apply(ClassificationTypeTest.createMock());
+
+    root = this.cService.newInstance(classificationType);
+    root.setCode("ROOT_OBJ");
+
+    this.cService.apply(root, null);
   }
 
   @Override
+  @Request
   public void afterClassSetup() throws Exception
   {
+    if (root != null)
+    {
+      this.cService.delete(root);
+    }
+
+    if (classificationType != null)
+    {
+      this.cTypeService.delete(classificationType);
+    }
+
     USATestData.ORG_NPS.delete();
   }
 
@@ -98,28 +133,28 @@ public class GeoObjectTypeServiceTest implements InstanceTestClassListener
   public void testDoubleAttribute()
   {
     GeoObjectType dto = USATestData.COUNTRY.toDTO();
-    
+
     ServerGeoObjectType type = this.service.create(dto);
-    
+
     try
     {
       AttributeFloatType attributeDto = new AttributeFloatType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false);
       attributeDto.setPrecision(10);
       attributeDto.setScale(2);
-      
+
       attributeDto = (AttributeFloatType) service.createAttributeType(type, attributeDto);
-      
+
       Assert.assertNotNull(attributeDto);
-      
+
       Assert.assertTrue(type.getAttribute(attributeDto.getName()).isPresent());
-      
+
       attributeDto.setPrecision(32);
       attributeDto.setScale(2);
-      
+
       attributeDto = (AttributeFloatType) service.updateAttributeType(type, attributeDto);
-      
+
       service.deleteAttributeType(type, attributeDto.getName());
-      
+
       Assert.assertFalse(type.getAttribute(attributeDto.getName()).isPresent());
     }
     finally
@@ -127,7 +162,37 @@ public class GeoObjectTypeServiceTest implements InstanceTestClassListener
       this.service.deleteGeoObjectType(type.getCode());
     }
   }
-  
+
+  @Test
+  @Request
+  public void testClassificationAttribute()
+  {
+    GeoObjectType dto = USATestData.COUNTRY.toDTO();
+
+    ServerGeoObjectType type = this.service.create(dto);
+
+    try
+    {
+      AttributeClassificationType attributeDto = new AttributeClassificationType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false);
+      attributeDto.setClassificationType(classificationType.getCode());
+      attributeDto.setRootTerm(root.toTerm());
+
+      attributeDto = (AttributeClassificationType) service.createAttributeType(type, attributeDto);
+
+      Assert.assertNotNull(attributeDto);
+
+      Assert.assertTrue(type.getAttribute(attributeDto.getName()).isPresent());
+
+      service.deleteAttributeType(type, attributeDto.getName());
+
+      Assert.assertFalse(type.getAttribute(attributeDto.getName()).isPresent());
+    }
+    finally
+    {
+      this.service.deleteGeoObjectType(type.getCode());
+    }
+  }
+
   @Test
   @Request
   public void testCreateDeleteSubType()

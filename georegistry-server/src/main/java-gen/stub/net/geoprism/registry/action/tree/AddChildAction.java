@@ -21,11 +21,8 @@ package net.geoprism.registry.action.tree;
 import java.util.Arrays;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.tree.AddChildActionDTO;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.commongeoregistry.adapter.metadata.MetadataCache;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,12 +106,9 @@ public class AddChildAction extends AddChildActionBase
   @Override
   protected String getMessage()
   {
-    RegistryAdapter adapter = ServiceFactory.getAdapter();
-    MetadataCache cache = adapter.getMetadataCache();
-
     ServerGeoObjectType parentType = ServerGeoObjectType.get(this.getParentTypeCode());
     ServerGeoObjectType childType = ServerGeoObjectType.get(this.getChildTypeCode());
-    HierarchyType hierarchyType = cache.getHierachyType(this.getHierarchyTypeCode()).get();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
     String message = LocalizationFacade.localize("change.request.email.add.child");
     message = message.replaceAll("\\{0\\}", this.getChildId());

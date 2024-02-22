@@ -97,12 +97,9 @@ public class RemoveChildAction extends RemoveChildActionBase
   @Override
   protected String getMessage()
   {
-    RegistryAdapter adapter = ServiceFactory.getAdapter();
-    MetadataCache cache = adapter.getMetadataCache();
-
     ServerGeoObjectType parentType = ServerGeoObjectType.get(this.getParentTypeCode());
     ServerGeoObjectType childType = ServerGeoObjectType.get(this.getChildTypeCode());
-    HierarchyType hierarchyType = cache.getHierachyType(this.getHierarchyTypeCode()).get();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
     String message = LocalizationFacade.localize("change.request.email.remove.child");
     message = message.replaceAll("\\{0\\}", this.getChildId());
