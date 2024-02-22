@@ -4,8 +4,12 @@
 package net.geoprism.registry.service;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -26,6 +30,8 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
 {
   private static ServerGeoObjectType     type;
 
+  private static AttributeType           attributeFloat;
+
   @Autowired
   private GeoObjectTypeBusinessServiceIF typeService;
 
@@ -39,6 +45,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
     USATestData.ORG_NPS.apply();
 
     type = this.typeService.create(USATestData.COUNTRY.toDTO());
+    attributeFloat = this.typeService.createAttributeType(type, new AttributeFloatType("testFloat", new LocalizedValue("Test Float"), new LocalizedValue("Test Float"), false, false, false));
   }
 
   @Override
@@ -54,6 +61,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
   @Request
   public void testCreateDeleteGeoObject()
   {
+    double testDouble = 10.4D;
     ServerGeoObjectIF object = this.service.newInstance(type);
 
     try
@@ -62,8 +70,24 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       object.setCode(USATestData.USA.getCode());
       object.setDisplayLabel(new LocalizedValue(USATestData.USA.getDisplayLabel()), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       object.setExists(true, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      object.setGeometry(USATestData.USA.getGeometry(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      object.setValue(attributeFloat.getName(), testDouble, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
       this.service.apply(object, false);
+
+      ServerGeoObjectIF test = this.service.getGeoObject(object.getUid(), type.getCode());
+
+      Assert.assertNotNull(test);
+      Assert.assertEquals(object.getInvalid(), test.getInvalid());
+      Assert.assertEquals(object.getCode(), test.getCode());
+      Assert.assertEquals(object.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getValue(), test.getDisplayLabel(USATestData.DEFAULT_OVER_TIME_DATE).getValue());
+      Assert.assertEquals(object.getExists(USATestData.DEFAULT_OVER_TIME_DATE), test.getExists(USATestData.DEFAULT_OVER_TIME_DATE));
+      Assert.assertEquals(testDouble, test.getValue(attributeFloat.getName(), USATestData.DEFAULT_OVER_TIME_DATE), 0.000001);
+
+      Geometry geometry = test.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE);
+
+      Assert.assertNotNull(geometry);
+      Assert.assertEquals(object.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE), geometry);
     }
     finally
     {

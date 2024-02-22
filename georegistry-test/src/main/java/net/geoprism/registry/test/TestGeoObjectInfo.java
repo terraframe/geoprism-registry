@@ -530,7 +530,9 @@ public class TestGeoObjectInfo
 
     if (serverGOTT != null)
     {
-      VertexObject vertex = VertexServerGeoObject.getVertexByCode(serverGOTT, this.getCode());
+      GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+      
+      ServerGeoObjectIF vertex = service.getGeoObjectByCode(this.getCode(), serverGOTT, false);
       
       if (vertex != null)
       {

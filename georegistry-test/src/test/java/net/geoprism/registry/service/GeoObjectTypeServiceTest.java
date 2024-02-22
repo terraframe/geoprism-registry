@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -66,7 +67,7 @@ public class GeoObjectTypeServiceTest implements InstanceTestClassListener
 
   @Test
   @Request
-  public void testCreateDeleteAttribute()
+  public void testCharacterAttribute()
   {
     GeoObjectType dto = USATestData.COUNTRY.toDTO();
 
@@ -92,6 +93,41 @@ public class GeoObjectTypeServiceTest implements InstanceTestClassListener
     }
   }
 
+  @Test
+  @Request
+  public void testDoubleAttribute()
+  {
+    GeoObjectType dto = USATestData.COUNTRY.toDTO();
+    
+    ServerGeoObjectType type = this.service.create(dto);
+    
+    try
+    {
+      AttributeFloatType attributeDto = new AttributeFloatType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false);
+      attributeDto.setPrecision(10);
+      attributeDto.setScale(2);
+      
+      attributeDto = (AttributeFloatType) service.createAttributeType(type, attributeDto);
+      
+      Assert.assertNotNull(attributeDto);
+      
+      Assert.assertTrue(type.getAttribute(attributeDto.getName()).isPresent());
+      
+      attributeDto.setPrecision(32);
+      attributeDto.setScale(2);
+      
+      attributeDto = (AttributeFloatType) service.updateAttributeType(type, attributeDto);
+      
+      service.deleteAttributeType(type, attributeDto.getName());
+      
+      Assert.assertFalse(type.getAttribute(attributeDto.getName()).isPresent());
+    }
+    finally
+    {
+      this.service.deleteGeoObjectType(type.getCode());
+    }
+  }
+  
   @Test
   @Request
   public void testCreateDeleteSubType()

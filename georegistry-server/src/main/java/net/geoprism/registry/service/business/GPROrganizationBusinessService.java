@@ -173,7 +173,7 @@ public class GPROrganizationBusinessService extends OrganizationBusinessService 
    */
   public Map<String, ServerGeoObjectType> getGeoObjectTypes(ServerOrganization organization)
   {
-    return ServerGeoObjectType.getAll().stream().filter(type -> {
+    return ServiceFactory.getMetadataCache().getAllGeoObjectTypes().stream().filter(type -> {
       return type.getOrganizationCode().equals(organization.getCode());
     }).collect(Collectors.toMap(t -> t.getCode(), t -> t));
   }

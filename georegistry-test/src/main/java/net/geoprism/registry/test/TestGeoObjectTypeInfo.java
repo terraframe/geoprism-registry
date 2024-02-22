@@ -184,13 +184,15 @@ public class TestGeoObjectTypeInfo
       else
       {
         net.geoprism.registry.graph.GeoObjectType type = net.geoprism.registry.graph.GeoObjectType.getByCode(code);
-        
+
         if (type == null)
         {
           return null;
         }
 
         this.serverObject = new ServerGeoObjectType(type);
+
+        ServiceFactory.getMetadataCache().addGeoObjectType(this.serverObject);
 
         return this.serverObject;
       }
