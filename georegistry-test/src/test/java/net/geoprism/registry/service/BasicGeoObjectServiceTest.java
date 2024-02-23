@@ -3,10 +3,11 @@
  */
 package net.geoprism.registry.service;
 
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +29,7 @@ import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.TermBusinessServiceIF;
 import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
@@ -36,13 +38,17 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
 {
   private static ServerGeoObjectType          type;
 
-  private static AttributeType                attributeFloat;
+  private static AttributeFloatType           attributeFloat;
 
   private static AttributeClassificationType  attributeClassification;
+
+  private static AttributeTermType            attributeTerm;
 
   private static ClassificationType           classificationType;
 
   private static Classification               root;
+
+  private static Term                         term;
 
   @Autowired
   private ClassificationTypeBusinessServiceIF cTypeService;
@@ -52,6 +58,9 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
 
   @Autowired
   private GeoObjectTypeBusinessServiceIF      typeService;
+
+  @Autowired
+  private TermBusinessServiceIF               termService;
 
   @Autowired
   private GeoObjectBusinessServiceIF          service;
@@ -72,12 +81,15 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
     type = this.typeService.create(USATestData.COUNTRY.toDTO());
 
     attributeFloat = this.typeService.createAttributeType(type, new AttributeFloatType("testFloat", new LocalizedValue("Test Float"), new LocalizedValue("Test Float"), false, false, false));
+    attributeTerm = this.typeService.createAttributeType(type, new AttributeTermType("testTerm", new LocalizedValue("Test Term"), new LocalizedValue("Test Term"), false, false, false));
 
     attributeClassification = new AttributeClassificationType("testClassification", new LocalizedValue("Test Classification"), new LocalizedValue("Test Classification"), false, false, false);
     attributeClassification.setClassificationType(classificationType.getCode());
     attributeClassification.setRootTerm(root.toTerm());
 
     attributeClassification = this.typeService.createAttributeType(type, attributeClassification);
+
+    term = this.termService.createTerm(attributeTerm.getRootTerm().getCode(), new Term("TERM_C_1", new LocalizedValue("TT1"), new LocalizedValue("TT1")));
   }
 
   @Override
@@ -115,6 +127,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       object.setGeometry(USATestData.USA.getGeometry(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       object.setValue(attributeFloat.getName(), testDouble, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       object.setValue(attributeClassification.getName(), root.getVertex(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      object.setValue(attributeTerm.getName(), term.getCode(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
       this.service.apply(object, false);
 
@@ -127,6 +140,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       Assert.assertEquals(object.getExists(USATestData.DEFAULT_OVER_TIME_DATE), test.getExists(USATestData.DEFAULT_OVER_TIME_DATE));
       Assert.assertEquals(testDouble, test.getValue(attributeFloat.getName(), USATestData.DEFAULT_OVER_TIME_DATE), 0.000001);
       Assert.assertEquals(root.getOid(), test.getValue(attributeClassification.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
+      Assert.assertEquals(term.getCode(), test.getValue(attributeTerm.getName(), USATestData.DEFAULT_OVER_TIME_DATE));
 
       Geometry geometry = test.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE);
 

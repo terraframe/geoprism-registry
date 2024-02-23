@@ -10,6 +10,7 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -178,6 +179,34 @@ public class GeoObjectTypeServiceTest implements InstanceTestClassListener
       attributeDto.setRootTerm(root.toTerm());
 
       attributeDto = (AttributeClassificationType) service.createAttributeType(type, attributeDto);
+
+      Assert.assertNotNull(attributeDto);
+
+      Assert.assertTrue(type.getAttribute(attributeDto.getName()).isPresent());
+
+      service.deleteAttributeType(type, attributeDto.getName());
+
+      Assert.assertFalse(type.getAttribute(attributeDto.getName()).isPresent());
+    }
+    finally
+    {
+      this.service.deleteGeoObjectType(type.getCode());
+    }
+  }
+
+  @Test
+  @Request
+  public void testTermAttribute()
+  {
+    GeoObjectType dto = USATestData.COUNTRY.toDTO();
+
+    ServerGeoObjectType type = this.service.create(dto);
+
+    try
+    {
+      AttributeTermType attributeDto = new AttributeTermType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false);
+
+      attributeDto = (AttributeTermType) service.createAttributeType(type, attributeDto);
 
       Assert.assertNotNull(attributeDto);
 
