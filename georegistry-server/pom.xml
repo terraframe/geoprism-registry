@@ -41,7 +41,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
-      <version>5.3.27</version>
+      <version>5.3.32</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-validator -->
     <dependency>
@@ -281,7 +281,7 @@
 									<mainClass>com.runwaysdk.dataaccess.io.UndoAll</mainClass>
 									<arguments>
 										<argument>${project.basedir}/src/main/working</argument>
-										<argument />
+										<argument/>
 										<argument>false</argument>
 									</arguments>
 									<systemProperties>
@@ -326,7 +326,7 @@
 									<mainClass>net.geoprism.ImportSchema</mainClass>
 									<arguments>
 										<argument>${project.basedir}/src/main/working</argument>
-										<argument />
+										<argument/>
 										<argument>false</argument>
 									</arguments>
 									<systemProperties>
@@ -504,7 +504,7 @@
 		                </goals>
 		              </pluginExecutionFilter>
 		              <action>
-		                <ignore />
+		                <ignore/>
 		              </action>
 		            </pluginExecution>
 		          </pluginExecutions>
