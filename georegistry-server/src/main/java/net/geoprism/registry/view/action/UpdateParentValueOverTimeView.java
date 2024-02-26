@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.view.action;
 
@@ -108,7 +108,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
             // go.addParent(newParent, hierarchyType, _newStartDate,
             // _newEndDate);
 
-            EdgeObject newEdge = go.getVertex().addParent( ( (VertexComponent) newParent ).getVertex(), hierarchyType.getMdEdge());
+            EdgeObject newEdge = go.getVertex().addParent( ( (VertexComponent) newParent ).getVertex(), hierarchyType.getObjectEdge());
             newEdge.setValue(GeoVertex.START_DATE, _newStartDate);
             newEdge.setValue(GeoVertex.END_DATE, _newEndDate);
             newEdge.apply();
@@ -153,7 +153,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
         // go.addParent(newParent, hierarchyType, this.newStartDate,
         // this.newEndDate);
 
-        EdgeObject newEdge = go.getVertex().addParent( ( (VertexComponent) newParent ).getVertex(), hierarchyType.getMdEdge());
+        EdgeObject newEdge = go.getVertex().addParent( ( (VertexComponent) newParent ).getVertex(), hierarchyType.getObjectEdge());
         newEdge.setValue(GeoVertex.START_DATE, this.newStartDate);
         newEdge.setValue(GeoVertex.END_DATE, this.newEndDate);
         newEdge.apply();

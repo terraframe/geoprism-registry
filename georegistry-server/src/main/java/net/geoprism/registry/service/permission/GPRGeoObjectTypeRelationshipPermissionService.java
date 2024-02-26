@@ -35,6 +35,7 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.roles.HierarchyRelationshipPermissionException;
 
 @Service
@@ -69,13 +70,7 @@ public class GPRGeoObjectTypeRelationshipPermissionService extends UserPermissio
       return true;
     }
 
-    if (ht.getMdTermRelationship().getKey().equals(AllowedIn.CLASS) || ht.getMdTermRelationship().getKey().equals(LocatedIn.CLASS))
-    {
-      return true; // AllowedIn is deprecated and should not be used by the
-      // end-user.
-    }
-
-    Organization thisOrg = ht.getOrganization();
+    ServerOrganization thisOrg = ht.getOrganization();
 
     if (thisOrg != null)
     {

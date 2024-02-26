@@ -146,6 +146,27 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
 
       Assert.assertNotNull(geometry);
       Assert.assertEquals(object.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE), geometry);
+
+      ServerGeoObjectIF object2 = this.service.newInstance(type);
+
+      try
+      {
+        object2.setInvalid(false);
+        object2.setCode(USATestData.USA.getCode());
+        object2.setDisplayLabel(new LocalizedValue(USATestData.USA.getDisplayLabel()), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+        object2.setExists(true, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+        object2.setGeometry(USATestData.USA.getGeometry(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+        object2.setValue(attributeFloat.getName(), testDouble, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+        object2.setValue(attributeClassification.getName(), root.getVertex(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+        object2.setValue(attributeTerm.getName(), term.getCode(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+
+        this.service.apply(object2, false);
+      }
+      finally
+      {
+        object2.delete();
+      }
+
     }
     finally
     {

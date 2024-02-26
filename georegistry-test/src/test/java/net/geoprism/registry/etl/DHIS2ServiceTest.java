@@ -334,7 +334,8 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(dhis2JsonConfig);
     config.setOrganization(org);
-    config.setHierarchy(ht.getMdTermRelationship());
+    // TODO: HEADS UP 
+//    config.setHierarchy(ht.getMdTermRelationship());
     config.setSystem(system.getOid());
     config.getLabel().setValue("DHIS2 Export Test");
 
@@ -1251,7 +1252,8 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(dhis2JsonConfig);
     config.setOrganization(org);
-    config.setHierarchy(ht.getMdTermRelationship());
+    // TODO: HEADS UP
+//    config.setHierarchy(ht.getMdTermRelationship());
     config.setSystem(system.getOid());
     config.getLabel().setValue("DHIS2 Export Test");
 

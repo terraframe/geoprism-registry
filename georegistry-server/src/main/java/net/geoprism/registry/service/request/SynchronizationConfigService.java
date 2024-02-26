@@ -222,7 +222,7 @@ public class SynchronizationConfigService
       for (ServerHierarchyType hierarchy : sHierachies)
       {
         JsonObject object = new JsonObject();
-        object.addProperty("label", hierarchy.getDisplayLabel().getValue());
+        object.addProperty("label", hierarchy.getLabel().getValue());
         object.addProperty("code", hierarchy.getCode());
 
         hierarchies.add(object);

@@ -10,20 +10,17 @@ import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
+import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.attributes.AttributeValueException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdEdge;
-import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.rbac.RoleConstants;
-import net.geoprism.registry.CodeLengthException;
 import net.geoprism.registry.DuplicateHierarchyTypeException;
-import net.geoprism.registry.HierarchicalRelationshipType;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.graph.HierarchicalRelationshipType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
@@ -59,115 +56,31 @@ public class GPRHierarchyTypeBusinessService extends HierarchyTypeBusinessServic
     SerializedListTypeCache.getInstance().clear();
   }
 
+  @Override
   @Transaction
-  public ServerHierarchyType createHierarchyType(HierarchyType hierarchyType)
+  protected ServerHierarchyType createHierarchyTypeInTrans(HierarchyType dto)
   {
-    if (hierarchyType.getOrganizationCode() == null || hierarchyType.getOrganizationCode().equals(""))
-    {
-      // TODO : A better exception
-      throw new AttributeValueException("Organization code cannot be null.", hierarchyType.getOrganizationCode());
-    }
+    ServerHierarchyType hierarchyType = super.createHierarchyTypeInTrans(dto);
 
-    ServerOrganization organization = ServerOrganization.getByCode(hierarchyType.getOrganizationCode());
-
-    if (organization != null && !organization.getEnabled())
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    String addons = RegistryConstants.UNIVERSAL_RELATIONSHIP_POST + "AllPathsTable";
-
-    if (hierarchyType.getCode().length() > ( 64 - addons.length() ))
-    {
-      // Initializing the Universal allpaths strategy creates this limitation.
-      CodeLengthException ex = new CodeLengthException();
-      ex.setLength(64 - addons.length());
-      throw ex;
-    }
-
+    // Assign GPR permissions
     RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
     RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
     RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
 
-    InitializationStrategyIF strategy = new InitializationStrategyIF()
-    {
-      @Override
-      public void preApply(MdBusinessDAO mdBusiness)
-      {
-        mdBusiness.setValue(MdBusinessInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
-      }
+    MdEdgeDAOIF objectEdge = hierarchyType.getObjectEdge();
 
-      @Override
-      public void postApply(MdBusinessDAO mdBusiness)
-      {
-        RoleDAO adminRole = RoleDAO.findRole(RoleConstants.ADMIN).getBusinessDAO();
+    this.grantWritePermissionsOnMdTermRel(objectEdge);
+    this.grantWritePermissionsOnMdTermRel(maintainer, objectEdge);
+    this.grantReadPermissionsOnMdTermRel(consumer, objectEdge);
+    this.grantReadPermissionsOnMdTermRel(contributor, objectEdge);
 
-        adminRole.grantPermission(Operation.READ, mdBusiness.getOid());
-        adminRole.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
-        adminRole.grantPermission(Operation.WRITE, mdBusiness.getOid());
-        adminRole.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
-        adminRole.grantPermission(Operation.CREATE, mdBusiness.getOid());
-        adminRole.grantPermission(Operation.DELETE, mdBusiness.getOid());
+    MdEdgeDAOIF definitionEdge = hierarchyType.getDefinitionEdge();
 
-        maintainer.grantPermission(Operation.READ, mdBusiness.getOid());
-        maintainer.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
-        maintainer.grantPermission(Operation.WRITE, mdBusiness.getOid());
-        maintainer.grantPermission(Operation.WRITE_ALL, mdBusiness.getOid());
-        maintainer.grantPermission(Operation.CREATE, mdBusiness.getOid());
-        maintainer.grantPermission(Operation.DELETE, mdBusiness.getOid());
+    this.grantWritePermissionsOnMdTermRel(definitionEdge);
+    this.grantReadPermissionsOnMdTermRel(maintainer, definitionEdge);
+    this.grantReadPermissionsOnMdTermRel(consumer, definitionEdge);
+    this.grantReadPermissionsOnMdTermRel(contributor, definitionEdge);
 
-        consumer.grantPermission(Operation.READ, mdBusiness.getOid());
-        consumer.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
-
-        contributor.grantPermission(Operation.READ, mdBusiness.getOid());
-        contributor.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
-      }
-    };
-
-    try
-    {
-      MdTermRelationship mdTermRelUniversal = this.newHierarchyToMdTermRelForUniversals(hierarchyType);
-      mdTermRelUniversal.apply();
-
-      this.grantWritePermissionsOnMdTermRel(mdTermRelUniversal);
-      this.grantWritePermissionsOnMdTermRel(maintainer, mdTermRelUniversal);
-      this.grantReadPermissionsOnMdTermRel(consumer, mdTermRelUniversal);
-      this.grantReadPermissionsOnMdTermRel(contributor, mdTermRelUniversal);
-
-      Universal.getStrategy().initialize(mdTermRelUniversal.definesType(), strategy);
-
-      MdEdge mdEdge = this.createMdEdge(hierarchyType);
-
-      this.grantWritePermissionsOnMdTermRel(mdEdge);
-      this.grantWritePermissionsOnMdTermRel(maintainer, mdEdge);
-      this.grantReadPermissionsOnMdTermRel(consumer, mdEdge);
-      this.grantReadPermissionsOnMdTermRel(contributor, mdEdge);
-
-      HierarchicalRelationshipType hierarchicalRelationship = new HierarchicalRelationshipType();
-      hierarchicalRelationship.setCode(hierarchyType.getCode());
-      hierarchicalRelationship.setOrganization(organization.getOrganization());
-      LocalizedValueConverter.populate(hierarchicalRelationship.getDisplayLabel(), hierarchyType.getLabel());
-      LocalizedValueConverter.populate(hierarchicalRelationship.getDescription(), hierarchyType.getDescription());
-      hierarchicalRelationship.setMdTermRelationship(mdTermRelUniversal);
-      hierarchicalRelationship.setMdEdge(mdEdge);
-      hierarchicalRelationship.setAbstractDescription(hierarchyType.getAbstractDescription());
-      hierarchicalRelationship.setAcknowledgement(hierarchyType.getAcknowledgement());
-      hierarchicalRelationship.setDisclaimer(hierarchyType.getDisclaimer());
-      hierarchicalRelationship.setContact(hierarchyType.getContact());
-      hierarchicalRelationship.setPhoneNumber(hierarchyType.getPhoneNumber());
-      hierarchicalRelationship.setEmail(hierarchyType.getEmail());
-      hierarchicalRelationship.setProgress(hierarchyType.getProgress());
-      hierarchicalRelationship.setAccessConstraints(hierarchyType.getAccessConstraints());
-      hierarchicalRelationship.setUseConstraints(hierarchyType.getUseConstraints());
-      hierarchicalRelationship.apply();
-
-      return this.get(hierarchicalRelationship);
-    }
-    catch (DuplicateDataException ex)
-    {
-      DuplicateHierarchyTypeException ex2 = new DuplicateHierarchyTypeException();
-      ex2.setDuplicateValue(hierarchyType.getCode());
-      throw ex2;
-    }
+    return hierarchyType;
   }
 }

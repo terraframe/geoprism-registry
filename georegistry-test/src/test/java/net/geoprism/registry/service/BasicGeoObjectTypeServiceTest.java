@@ -35,7 +35,7 @@ import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class GeoObjectTypeServiceTest implements InstanceTestClassListener
+public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
 {
   private static ClassificationType           classificationType;
 

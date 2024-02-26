@@ -20,16 +20,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.RunwayExceptionDTO;
 import com.runwaysdk.business.SmartExceptionDTO;
-import com.runwaysdk.gis.constants.GISConstants;
-import com.runwaysdk.system.gis.geo.AllowedIn;
-import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
-import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
-import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.request.GPRHierarchyTypeService;
 import net.geoprism.registry.test.FastTestDataset;
@@ -210,15 +205,6 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
     Assert.assertEquals("Test Progress", hierarchy.getProgress());
     Assert.assertEquals("Access Constraints", hierarchy.getAccessConstraints());
     Assert.assertEquals("Test Use Constraints", hierarchy.getUseConstraints());
-
-    // test the types that were created
-    String mdTermRelUniversal = ServerHierarchyType.buildMdTermRelUniversalKey(reportingDivision.getCode());
-    String expectedMdTermRelUniversal = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST;
-    Assert.assertEquals("The type name of the MdTermRelationshp defining the universals was not correctly defined for the given code.", expectedMdTermRelUniversal, mdTermRelUniversal);
-
-    String mdTermRelGeoEntity = ServerHierarchyType.buildMdTermRelGeoEntityKey(reportingDivision.getCode());
-    String expectedMdTermRelGeoEntity = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode();
-    Assert.assertEquals("The type name of the MdTermRelationshp defining the geoentities was not correctly defined for the given code.", expectedMdTermRelGeoEntity, mdTermRelGeoEntity);
   }
 
   @Test
@@ -244,15 +230,6 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
     Assert.assertEquals("Reporting Division", hierarchy.getLabel().getValue());
 
     Assert.assertEquals(organizationCode, hierarchy.getOrganizationCode());
-
-    // test the types that were created
-    String mdTermRelUniversal = ServerHierarchyType.buildMdTermRelUniversalKey(reportingDivision.getCode());
-    String expectedMdTermRelUniversal = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST;
-    Assert.assertEquals("The type name of the MdTermRelationshp defining the universals was not correctly defined for the given code.", expectedMdTermRelUniversal, mdTermRelUniversal);
-
-    String mdTermRelGeoEntity = ServerHierarchyType.buildMdTermRelGeoEntityKey(reportingDivision.getCode());
-    String expectedMdTermRelGeoEntity = GISConstants.GEO_PACKAGE + "." + reportingDivision.getCode();
-    Assert.assertEquals("The type name of the MdTermRelationshp defining the geoentities was not correctly defined for the given code.", expectedMdTermRelGeoEntity, mdTermRelGeoEntity);
   }
 
   @Test(expected = SmartExceptionDTO.class)
@@ -402,61 +379,4 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
       System.out.println(hierarchyType.toJSON());
     }
   }
-
-  /**
-   * The hardcoded {@link AllowedIn} and {@link LocatedIn} relationship do not
-   * follow the common geo registry convention.
-   */
-  @Test
-  public void testLocatedInCode_To_MdTermRelUniversal()
-  {
-    String locatedInClassName = LocatedIn.class.getSimpleName();
-
-    String mdTermRelUniversalType = ServerHierarchyType.buildMdTermRelUniversalKey(locatedInClassName);
-
-    Assert.assertEquals("HierarchyCode LocatedIn did not get converted to the AllowedIn Universal relationshipType.", AllowedIn.CLASS, mdTermRelUniversalType);
-  }
-
-  /**
-   * The hardcoded {@link AllowedIn} and {@link LocatedIn} relationship do not
-   * follow the common geo registry convention.
-   */
-  @Test
-  public void testToMdTermRelUniversal_To_HierarchyCode()
-  {
-    String allowedInClass = AllowedIn.CLASS;
-
-    String hierarchyCode = ServerHierarchyType.buildHierarchyKeyFromMdTermRelUniversal(allowedInClass);
-
-    Assert.assertEquals("AllowedIn relationship type did not get converted into the LocatedIn  hierarchy code", LocatedIn.class.getSimpleName(), hierarchyCode);
-  }
-
-  /**
-   * The hardcoded {@link AllowedIn} and {@link LocatedIn} relationship do not
-   * follow the common geo registry convention.
-   */
-  @Test
-  public void testLocatedInCode_To_MdTermRelGeoEntity()
-  {
-    String locatedInClassName = LocatedIn.class.getSimpleName();
-
-    String mdTermRelGeoEntity = ServerHierarchyType.buildMdTermRelGeoEntityKey(locatedInClassName);
-
-    Assert.assertEquals("HierarchyCode LocatedIn did not get converted to the AllowedIn Universal relationshipType.", LocatedIn.CLASS, mdTermRelGeoEntity);
-  }
-
-  /**
-   * The hardcoded {@link AllowedIn} and {@link LocatedIn} relationship do not
-   * follow the common geo registry convention.
-   */
-  @Test
-  public void testToMdTermRelGeoEntity_To_HierarchyCode()
-  {
-    String locatedInClass = LocatedIn.CLASS;
-
-    String hierarchyCode = ServerHierarchyType.buildHierarchyKeyFromMdTermRelGeoEntity(locatedInClass);
-
-    Assert.assertEquals("AllowedIn relationship type did not get converted into the LocatedIn  hierarchy code", LocatedIn.class.getSimpleName(), hierarchyCode);
-  }
-
 }

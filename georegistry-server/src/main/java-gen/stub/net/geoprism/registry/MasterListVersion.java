@@ -553,7 +553,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
         String hCode = hierarchy.get("code").getAsString();
 
         ServerHierarchyType hierarchyType = ServiceFactory.getMetadataCache().getHierachyType(hCode).get();
-        String hierarchyLabel = hierarchyType.getDisplayLabel().getValue(currentLocale);
+        String hierarchyLabel = hierarchyType.getLabel().getValue(currentLocale);
 
         for (String pCode : pCodes)
         {

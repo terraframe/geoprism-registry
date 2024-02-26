@@ -90,65 +90,67 @@ public class PatchHierarchicalRelationshipType
       }).forEach(mdTermRel -> {
 
         System.out.println("Creating HierarchicalRelationshipType for the MdTermRelationship [" + mdTermRel.definesType() + "]");
+        
+        // TODO: HEADS UP
 
-        String code = ServerHierarchyType.buildHierarchyKeyFromMdTermRelUniversal(mdTermRel.getKey());
-        String geoEntityKey = ServerHierarchyType.buildMdTermRelGeoEntityKey(code);
-        String mdEdgeKey = ServerHierarchyType.buildMdEdgeKey(code);
-
-        MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(mdEdgeKey);
-
-        String ownerActerOid = mdTermRel.getOwnerId();
-        String organizationCode = Organization.getRootOrganizationCode(ownerActerOid);
-
-        Organization organization = Organization.getByCode(organizationCode);
-
-        HierarchicalRelationshipType hierarchicalRelationship = new HierarchicalRelationshipType();
-        hierarchicalRelationship.setCode(code);
-        hierarchicalRelationship.setOrganization(organization);
-        hierarchicalRelationship.setMdTermRelationshipId(mdTermRel.getOid());
-        hierarchicalRelationship.setMdEdgeId(mdEdge.getOid());
-
-        try
-        {
-          MdTermRelationship entityRelationship = MdTermRelationship.getByKey(geoEntityKey);
-          LocalizedValue displayLabel = RegistryAttributeTypeConverter.convert(entityRelationship.getDisplayLabel());
-          LocalizedValue description = RegistryAttributeTypeConverter.convert(entityRelationship.getDescription());
-
-          RegistryLocalizedValueConverter.populate(hierarchicalRelationship.getDisplayLabel(), displayLabel);
-          RegistryLocalizedValueConverter.populate(hierarchicalRelationship.getDescription(), description);
-
-          entityRelationship.delete();
-        }
-        catch (DataNotFoundException | AttributeDoesNotExistException e)
-        {
-          logger.debug("The entity geo relationship was not found defaulting to the mdTermRel displayLabel and description");
-
-          LocalizedValue displayLabel = RegistryAttributeTypeConverter.convert(mdTermRel.getDisplayLabel());
-          LocalizedValue description = RegistryAttributeTypeConverter.convert(mdTermRel.getDescription());
-
-          RegistryLocalizedValueConverter.populate(hierarchicalRelationship.getDisplayLabel(), displayLabel);
-          RegistryLocalizedValueConverter.populate(hierarchicalRelationship.getDescription(), description);
-        }
-
-        try
-        {
-          BusinessDAOIF metadata = BusinessDAO.get("net.geoprism.registry.HierarchyMetadata", mdTermRel.getOid());
-
-          hierarchicalRelationship.setAbstractDescription(metadata.getValue("abstractDescription"));
-          hierarchicalRelationship.setAcknowledgement(metadata.getValue("acknowledgement"));
-          hierarchicalRelationship.setDisclaimer(metadata.getValue("disclaimer"));
-          hierarchicalRelationship.setContact(metadata.getValue("contact"));
-          hierarchicalRelationship.setPhoneNumber(metadata.getValue("phoneNumber"));
-          hierarchicalRelationship.setEmail(metadata.getValue("email"));
-          hierarchicalRelationship.setProgress(metadata.getValue("progress"));
-          hierarchicalRelationship.setAccessConstraints(metadata.getValue("accessConstraints"));
-          hierarchicalRelationship.setUseConstraints(metadata.getValue("useConstraints"));
-        }
-        catch (DataNotFoundException | AttributeDoesNotExistException e)
-        {
-        }
-
-        hierarchicalRelationship.apply();
+//        String code = ServerHierarchyType.buildHierarchyKeyFromMdTermRelUniversal(mdTermRel.getKey());
+//        String geoEntityKey = ServerHierarchyType.buildMdTermRelGeoEntityKey(code);
+//        String mdEdgeKey = ServerHierarchyType.buildMdEdgeKey(code);
+//
+//        MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(mdEdgeKey);
+//
+//        String ownerActerOid = mdTermRel.getOwnerId();
+//        String organizationCode = Organization.getRootOrganizationCode(ownerActerOid);
+//
+//        Organization organization = Organization.getByCode(organizationCode);
+//
+//        HierarchicalRelationshipType hierarchicalRelationship = new HierarchicalRelationshipType();
+//        hierarchicalRelationship.setCode(code);
+//        hierarchicalRelationship.setOrganization(organization);
+//        hierarchicalRelationship.setMdTermRelationshipId(mdTermRel.getOid());
+//        hierarchicalRelationship.setMdEdgeId(mdEdge.getOid());
+//
+//        try
+//        {
+//          MdTermRelationship entityRelationship = MdTermRelationship.getByKey(geoEntityKey);
+//          LocalizedValue displayLabel = RegistryAttributeTypeConverter.convert(entityRelationship.getDisplayLabel());
+//          LocalizedValue description = RegistryAttributeTypeConverter.convert(entityRelationship.getDescription());
+//
+//          RegistryLocalizedValueConverter.populate(hierarchicalRelationship.getDisplayLabel(), displayLabel);
+//          RegistryLocalizedValueConverter.populate(hierarchicalRelationship.getDescription(), description);
+//
+//          entityRelationship.delete();
+//        }
+//        catch (DataNotFoundException | AttributeDoesNotExistException e)
+//        {
+//          logger.debug("The entity geo relationship was not found defaulting to the mdTermRel displayLabel and description");
+//
+//          LocalizedValue displayLabel = RegistryAttributeTypeConverter.convert(mdTermRel.getDisplayLabel());
+//          LocalizedValue description = RegistryAttributeTypeConverter.convert(mdTermRel.getDescription());
+//
+//          RegistryLocalizedValueConverter.populate(hierarchicalRelationship.getDisplayLabel(), displayLabel);
+//          RegistryLocalizedValueConverter.populate(hierarchicalRelationship.getDescription(), description);
+//        }
+//
+//        try
+//        {
+//          BusinessDAOIF metadata = BusinessDAO.get("net.geoprism.registry.HierarchyMetadata", mdTermRel.getOid());
+//
+//          hierarchicalRelationship.setAbstractDescription(metadata.getValue("abstractDescription"));
+//          hierarchicalRelationship.setAcknowledgement(metadata.getValue("acknowledgement"));
+//          hierarchicalRelationship.setDisclaimer(metadata.getValue("disclaimer"));
+//          hierarchicalRelationship.setContact(metadata.getValue("contact"));
+//          hierarchicalRelationship.setPhoneNumber(metadata.getValue("phoneNumber"));
+//          hierarchicalRelationship.setEmail(metadata.getValue("email"));
+//          hierarchicalRelationship.setProgress(metadata.getValue("progress"));
+//          hierarchicalRelationship.setAccessConstraints(metadata.getValue("accessConstraints"));
+//          hierarchicalRelationship.setUseConstraints(metadata.getValue("useConstraints"));
+//        }
+//        catch (DataNotFoundException | AttributeDoesNotExistException e)
+//        {
+//        }
+//
+//        hierarchicalRelationship.apply();
       });
     }
   }

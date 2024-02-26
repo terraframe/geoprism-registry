@@ -99,7 +99,7 @@ public abstract class AbstractFhirDataPopulator extends BasicFhirDataPopulator i
     {
       CodeableConcept concept = new CodeableConcept();
       concept.addCoding(new Coding().setCode(type.getCode()));
-      concept.setText(type.getDisplayLabel().getValue());
+      concept.setText(type.getLabel().getValue());
 
       Reference reference = new Reference();
       reference.setReference(literal);

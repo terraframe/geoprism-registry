@@ -791,7 +791,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           // If we're a new object, we can speed things up quite a bit here by
           // just directly applying the edge object since the addChild method
           // does a lot of unnecessary validation.
-          this.service.addParentRaw(serverGo, ( (VertexServerGeoObject) parent ).getVertex(), this.configuration.getHierarchy().getMdEdge(), this.configuration.getStartDate(), this.configuration.getEndDate());
+          this.service.addParentRaw(serverGo, ( (VertexServerGeoObject) parent ).getVertex(), this.configuration.getHierarchy().getObjectEdge(), this.configuration.getStartDate(), this.configuration.getEndDate());
         }
       }
       else if (isNew)

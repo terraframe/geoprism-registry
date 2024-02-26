@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.permission.RolePermissionService;
 
 @Service
@@ -18,11 +19,11 @@ public class GPRLabeledPropertyGraphTypeBusinessService extends LabeledPropertyG
     ServerHierarchyType hierarchy = ServerHierarchyType.get(type.getHierarchy());
 
     // Ensure the user has permissions to create
-    Organization organization = hierarchy.getOrganization();
+    ServerOrganization organization = hierarchy.getOrganization();
 
     new RolePermissionService().enforceRA(organization.getCode());
     
-    type.setOrganization(organization);
+    type.setOrganization(organization.getOrganization());
 
     super.apply(type);
   }

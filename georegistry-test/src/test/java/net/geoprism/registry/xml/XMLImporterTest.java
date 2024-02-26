@@ -226,7 +226,7 @@ public class XMLImporterTest implements InstanceTestClassListener
         ServerHierarchyType hierarchy = ServerHierarchyType.get(results.get(3).getCode());
 
         Assert.assertEquals("TEST_HIERARCHY", hierarchy.getCode());
-        Assert.assertEquals("Test Hierarchy", hierarchy.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+        Assert.assertEquals("Test Hierarchy", hierarchy.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
         Assert.assertEquals("Test Hierarchy Description", hierarchy.getDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
         Assert.assertEquals("Test Progress", hierarchy.getProgress());
         Assert.assertEquals("Test Disclaimer", hierarchy.getDisclaimer());

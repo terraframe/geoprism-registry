@@ -662,7 +662,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         String hCode = hierarchy.get("code").getAsString();
 
         ServerHierarchyType hierarchyType = ServiceFactory.getMetadataCache().getHierachyType(hCode).get();
-        String hierarchyLabel = hierarchyType.getDisplayLabel().getValue(currentLocale);
+        String hierarchyLabel = hierarchyType.getLabel().getValue(currentLocale);
 
         HierarchyGroup hierarchyGroup = metadata.addRootHierarchyGroup(hierarchyType);
 

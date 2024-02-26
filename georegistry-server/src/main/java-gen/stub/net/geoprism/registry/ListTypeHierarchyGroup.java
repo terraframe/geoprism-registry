@@ -33,14 +33,18 @@ public class ListTypeHierarchyGroup extends ListTypeHierarchyGroupBase
 
   public ServerHierarchyType getServerHierarchyType()
   {
-    return ServerHierarchyType.get(this.getHierarchy());
+    // TODO: HEADS UP
+//    return ServerHierarchyType.get(this.getHierarchy());
+    return null;
   }
 
   public static ListTypeHierarchyGroup create(ListTypeVersion version, ListTypeGroup parent, ServerHierarchyType hierarchy)
   {
     ListTypeHierarchyGroup group = new ListTypeHierarchyGroup();
     group.setVersion(version);
-    group.setHierarchy(hierarchy.getHierarchicalRelationshipType());
+    
+    // TODO: HEADS UP
+//    group.setHierarchy(hierarchy.getHierarchicalRelationshipType());
     group.setParent(parent);
 
     RegistryLocalizedValueConverter.populate(group.getLabel(), hierarchy.getLabel());

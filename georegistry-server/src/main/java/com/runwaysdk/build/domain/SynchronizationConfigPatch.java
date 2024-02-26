@@ -75,7 +75,8 @@ public class SynchronizationConfigPatch
 
           if (universalRelationship != null)
           {
-            hierarchy = ServerHierarchyType.get(universalRelationship);
+            // TODO: HEADS UP
+//            hierarchy = ServerHierarchyType.get(universalRelationship);
           }
           else if (json.has("hierarchy"))
           {

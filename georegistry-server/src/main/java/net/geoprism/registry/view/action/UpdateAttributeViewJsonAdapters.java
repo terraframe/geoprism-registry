@@ -257,13 +257,14 @@ public class UpdateAttributeViewJsonAdapters
       ServerHierarchyType newParentHier = sht;
       if (this.typeService.isRoot(newParent.getType(), sht))
       {
-        InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.getByForHierarchical(sht.getHierarchicalRelationshipType());
-
-        if (anno != null)
-        {
-          HierarchicalRelationshipType hrtInherited = anno.getInheritedHierarchicalRelationshipType();
-          newParentHier = ServerHierarchyType.get(hrtInherited);
-        }
+        // TODO: HEADS UP
+//        InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.getByForHierarchical(sht.getHierarchicalRelationshipType());
+//
+//        if (anno != null)
+//        {
+//          HierarchicalRelationshipType hrtInherited = anno.getInheritedHierarchicalRelationshipType();
+//          newParentHier = ServerHierarchyType.get(hrtInherited);
+//        }
       }
       sptns = this.objectService.getParentsForHierarchy(newParent, newParentHier, true, true, startDate);
 

@@ -46,7 +46,7 @@ public class GPRHierarchyTypeService extends HierarchyTypeService implements Hie
       {
         JsonObject hierView = new JsonObject();
         hierView.addProperty("code", sht.getCode());
-        hierView.addProperty("label", sht.getDisplayLabel().getValue());
+        hierView.addProperty("label", sht.getLabel().getValue());
         hierView.addProperty("orgCode", sht.getOrganizationCode());
 
         JsonArray allHierTypes = new JsonArray();

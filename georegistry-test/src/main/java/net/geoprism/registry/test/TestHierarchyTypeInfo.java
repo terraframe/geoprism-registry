@@ -9,10 +9,9 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 
+import net.geoprism.registry.graph.HierarchicalRelationshipType;
 import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
@@ -107,12 +106,7 @@ public class TestHierarchyTypeInfo
 
   public Boolean doesMdTermRelationshipExist()
   {
-    String universalKey = ServerHierarchyType.buildMdTermRelUniversalKey(this.getCode());
-
-    MdTermRelationshipQuery uniQuery = new MdTermRelationshipQuery(new QueryFactory());
-    uniQuery.WHERE(uniQuery.getKeyName().EQ(universalKey));
-
-    return uniQuery.getCount() > 0;
+    return HierarchicalRelationshipType.getByCode(this.getCode()) != null;
   }
 
   public TestOrganizationInfo getOrganization()
@@ -145,7 +139,7 @@ public class TestHierarchyTypeInfo
     this.serverObj = service.createHierarchyType(dto);
 
     // The transaction did not error out, so it is safe to put into the cache.
-    ServiceFactory.getMetadataCache().addHierarchyType(this.serverObj, service.toHierarchyType(serverObj));
+    ServiceFactory.getMetadataCache().addHierarchyType(this.serverObj);
   }
 
   @Request
