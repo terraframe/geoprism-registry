@@ -183,7 +183,8 @@ public class FastTestDataset extends TestDataSet
       
       GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
       
-      service.setInheritedHierarchy(PROVINCE.getServerObject(), HIER_SPLIT_CHILD.getServerObject(), HIER_SPLIT_PARENT.getServerObject());
+      // TODO: HEADS UP
+//      service.setInheritedHierarchy(PROVINCE.getServerObject(), HIER_SPLIT_CHILD.getServerObject(), HIER_SPLIT_PARENT.getServerObject());
     }
     catch (DuplicateGraphPathException ex)
     {
@@ -256,9 +257,9 @@ public class FastTestDataset extends TestDataSet
     AT_DATE_OF_FORMATION.apply();
     CAMBODIA.setDefaultValue(AT_DATE_OF_FORMATION.getAttributeName(), new Date()); // TODO
 
-    AT_RELIGION.apply();
-
-    CAMBODIA.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism.fetchTerm());
+//    AT_RELIGION.apply();
+//
+//    CAMBODIA.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism.fetchTerm());
   }
 
   @Override

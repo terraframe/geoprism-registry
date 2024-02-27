@@ -78,7 +78,7 @@ public class ConversionService
     return null;
   }
 
-  // public GeoObject getGeoObjectById(String uuid, String geoObjectTypeCode)
+  // public GeoObject getGeoObjectById(String uid, String geoObjectTypeCode)
   // {
   // Universal universal = Universal.getByKey(geoObjectTypeCode);
   //

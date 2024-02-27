@@ -264,29 +264,29 @@ public class HierarchyServiceTest extends FastDatasetTest implements InstanceTes
   @Test
   public void testUpdateHierarchyType()
   {
-    HierarchyType reportingDivision = FastTestDataset.HIER_ADMIN.toDTO();
-    String gtJSON = reportingDivision.toJSON().toString();
+    HierarchyType dto = FastTestDataset.HIER_ADMIN.toDTO();
+    String gtJSON = dto.toJSON().toString();
 
-    reportingDivision.setLabel(new LocalizedValue("Reporting Division 2"));
+    dto.setLabel(new LocalizedValue("Reporting Division 2"));
 
-    reportingDivision.setDescription(new LocalizedValue("The rporting division hieracy 2"));
+    dto.setDescription(new LocalizedValue("The rporting division hieracy 2"));
 
-    gtJSON = reportingDivision.toJSON().toString();
+    gtJSON = dto.toJSON().toString();
 
-    reportingDivision = this.service.updateHierarchyType(testData.clientSession.getSessionId(), gtJSON);
+    dto = this.service.updateHierarchyType(testData.clientSession.getSessionId(), gtJSON);
 
     try
     {
-      Assert.assertNotNull("The created hierarchy was not returned", reportingDivision);
-      Assert.assertEquals("Reporting Division 2", reportingDivision.getLabel().getValue());
-      Assert.assertEquals("The rporting division hieracy 2", reportingDivision.getDescription().getValue());
+      Assert.assertNotNull("The created hierarchy was not returned", dto);
+      Assert.assertEquals("Reporting Division 2", dto.getLabel().getValue());
+      Assert.assertEquals("The rporting division hieracy 2", dto.getDescription().getValue());
     }
     finally
     {
-      reportingDivision.setLabel(new LocalizedValue(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
-      reportingDivision.setDescription(new LocalizedValue(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
-      gtJSON = reportingDivision.toJSON().toString();
-      reportingDivision = this.service.updateHierarchyType(testData.clientSession.getSessionId(), gtJSON);
+      dto.setLabel(new LocalizedValue(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
+      dto.setDescription(new LocalizedValue(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
+      gtJSON = dto.toJSON().toString();
+      dto = this.service.updateHierarchyType(testData.clientSession.getSessionId(), gtJSON);
     }
   }
 

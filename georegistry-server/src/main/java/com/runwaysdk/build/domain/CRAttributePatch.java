@@ -187,7 +187,7 @@ public class CRAttributePatch
       List<? extends MdAttributeDAOIF> attributes = mdVertex.getAllDefinedMdAttributes();
       
       String[] skipAttrs = new String[] {
-          DefaultAttribute.UID.getName(), "uuid", DefaultAttribute.CODE.getName(), DefaultAttribute.CREATE_DATE.getName(), DefaultAttribute.LAST_UPDATE_DATE.getName(),
+          DefaultAttribute.UID.getName(), "uid", DefaultAttribute.CODE.getName(), DefaultAttribute.CREATE_DATE.getName(), DefaultAttribute.LAST_UPDATE_DATE.getName(),
           DefaultAttribute.SEQUENCE.getName(), DefaultAttribute.TYPE.getName(), MdAttributeConcreteInfo.OID, MdAttributeConcreteInfo.SEQUENCE
       };
       

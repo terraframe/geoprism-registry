@@ -25,6 +25,7 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -243,7 +244,7 @@ public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherS
   private VertexObject get(MdVertex mdVertex, String uid)
   {
     MdVertexDAOIF mdVertexDAO = (MdVertexDAOIF) BusinessFacade.getEntityDAO(mdVertex);
-    MdAttributeDAOIF attribute = mdVertexDAO.definesAttribute(RegistryConstants.UUID);
+    MdAttributeDAOIF attribute = mdVertexDAO.definesAttribute(DefaultAttribute.UID.getName());
 
     StringBuffer statement = new StringBuffer();
     statement.append("SELECT FROM " + mdVertex.getDbClassName());

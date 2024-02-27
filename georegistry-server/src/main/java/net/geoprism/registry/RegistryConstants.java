@@ -46,10 +46,6 @@ public interface RegistryConstants
 
   public static final String GEO_ENTITY_ATTRIBUTE_LABEL       = "GeoEntity";
 
-  public static final String UUID                             = "uuid";
-
-  public static final String UUID_LABEL                       = "UID";
-
   public static final String GEOMETRY_ATTRIBUTE_NAME          = "geom";
 
   public static final String GEO_POINT_ATTRIBUTE_LABEL        = "Geo Point";
