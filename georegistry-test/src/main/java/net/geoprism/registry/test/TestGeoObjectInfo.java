@@ -453,13 +453,15 @@ public class TestGeoObjectInfo
    * @postcondition The applied GeoObject's status will be equal to ACTIVE
    */
   @Request
-  public void apply()
+  public ServerGeoObjectIF apply()
   {
     ServerGeoObjectIF localServerGO = applyInTrans(date);
 
     this.registryId = localServerGO.getUid();
 
     this.isNew = false;
+    
+    return localServerGO;
   }
 
   @Transaction
