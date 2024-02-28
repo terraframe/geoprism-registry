@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -23,18 +22,12 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 
-import com.runwaysdk.business.Business;
-import com.runwaysdk.business.BusinessQuery;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
 
@@ -103,13 +96,9 @@ public class TestGeoObjectInfo
     this.serverGO = null;
 
     GeometryType geom = this.getGeoObjectType().getGeometryType();
-    if (geom == GeometryType.POLYGON)
+    if (geom == GeometryType.MULTIPOINT)
     {
-      this.wkt = TestDataSet.WKT_DEFAULT_POLYGON;
-    }
-    else if (geom == GeometryType.POINT)
-    {
-      this.wkt = TestDataSet.WKT_DEFAULT_POINT;
+      this.wkt = TestDataSet.WKT_DEFAULT_MULTIPOINT;
     }
     else if (geom == GeometryType.MULTIPOLYGON)
     {

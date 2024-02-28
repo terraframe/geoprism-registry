@@ -6,6 +6,7 @@ package net.geoprism.registry.service;
 import java.util.List;
 import java.util.Map;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
@@ -241,6 +242,7 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
       try
       {
         Assert.assertEquals(parentType.getOid(), childType.getSuperType().getOid());
+        Assert.assertTrue(childType.getAttribute(DefaultAttribute.INVALID.getName()).isPresent());
 
         List<ServerGeoObjectType> subTypes = this.service.getSubtypes(parentType);
 

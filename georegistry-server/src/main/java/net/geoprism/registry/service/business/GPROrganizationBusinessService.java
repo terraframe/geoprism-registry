@@ -30,14 +30,17 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
+import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.ObjectHasDataException;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.graph.HierarchicalRelationshipType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
@@ -85,14 +88,11 @@ public class GPROrganizationBusinessService extends OrganizationBusinessService 
     this.permissionService.enforceActorCanDelete();
 
     // Can't delete if there's existing data
-    List<ServerHierarchyType> hierarchyTypes = ServiceFactory.getMetadataCache().getAllHierarchyTypes();
+    Long count = ServerHierarchyType.getCountForOrganization(sorg);
 
-    for (ServerHierarchyType ht : hierarchyTypes)
+    if (count > 0)
     {
-      if (ht.getOrganizationCode().equals(sorg.getCode()))
-      {
-        throw new ObjectHasDataException();
-      }
+      throw new ObjectHasDataException();
     }
 
     this.deleteRoles(sorg);
