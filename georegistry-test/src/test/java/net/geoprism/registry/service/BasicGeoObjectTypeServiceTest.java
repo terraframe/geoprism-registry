@@ -19,6 +19,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.InstanceTestClassListener;
@@ -130,6 +131,27 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
     }
   }
 
+  @Test(expected = ProgrammingErrorException.class)
+  @Request
+  public void testDuplicateAttribute()
+  {
+    GeoObjectType dto = USATestData.COUNTRY.toDTO();
+
+    ServerGeoObjectType type = this.service.create(dto);
+
+    try
+    {
+      service.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false));
+      service.createAttributeType(type, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false));
+
+      Assert.fail("Able to create attributes with the same name");
+    }
+    finally
+    {
+      this.service.deleteGeoObjectType(type.getCode());
+    }
+  }
+
   @Test
   @Request
   public void testDoubleAttribute()
@@ -158,6 +180,40 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
       service.deleteAttributeType(type, attributeDto.getName());
 
       Assert.assertFalse(type.getAttribute(attributeDto.getName()).isPresent());
+    }
+    finally
+    {
+      this.service.deleteGeoObjectType(type.getCode());
+    }
+  }
+
+  @Test
+  @Request
+  public void testDifferentDoubleAttribute()
+  {
+    GeoObjectType dto = USATestData.COUNTRY.toDTO();
+
+    ServerGeoObjectType type = this.service.create(dto);
+
+    try
+    {
+      AttributeFloatType attribute1Dto = new AttributeFloatType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false);
+      attribute1Dto.setPrecision(10);
+      attribute1Dto.setScale(2);
+
+      attribute1Dto = (AttributeFloatType) service.createAttributeType(type, attribute1Dto);
+
+      Assert.assertNotNull(attribute1Dto);
+
+      Assert.assertTrue(type.getAttribute(attribute1Dto.getName()).isPresent());
+
+      AttributeFloatType attribute2Dto = new AttributeFloatType("testDouble", new LocalizedValue("Test Double"), new LocalizedValue("Test Double"), false, false, false);
+
+      attribute2Dto = (AttributeFloatType) service.createAttributeType(type, attribute2Dto);
+
+      Assert.assertNotNull(attribute2Dto);
+
+      Assert.assertTrue(type.getAttribute(attribute2Dto.getName()).isPresent());
     }
     finally
     {
@@ -262,4 +318,39 @@ public class BasicGeoObjectTypeServiceTest implements InstanceTestClassListener
     }
   }
 
+  @Test(expected = ProgrammingErrorException.class)
+  @Request
+  public void testDuplicateAttributeOnSubType()
+  {
+    GeoObjectType parentDto = USATestData.COUNTRY.toDTO();
+    parentDto.setIsAbstract(true);
+
+    ServerGeoObjectType parentType = this.service.create(parentDto);
+
+    try
+    {
+      service.createAttributeType(parentType, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false));
+
+      GeoObjectType childDto = USATestData.STATE.toDTO();
+      childDto.setSuperTypeCode(parentType.getCode());
+
+      ServerGeoObjectType childType = this.service.create(childDto);
+
+      try
+      {
+        service.createAttributeType(childType, new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test Character"), false, false, false));
+
+        Assert.fail("Able to create attributes with the same name");
+      }
+      finally
+      {
+        this.service.deleteGeoObjectType(childType.getCode());
+      }
+
+    }
+    finally
+    {
+      this.service.deleteGeoObjectType(parentType.getCode());
+    }
+  }
 }
