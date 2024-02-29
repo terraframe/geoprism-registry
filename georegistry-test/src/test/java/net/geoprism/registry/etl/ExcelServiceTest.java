@@ -538,7 +538,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     ServerGeoObjectQuery query = this.objectService.createQuery(type, config.getStartDate());
     List<ServerGeoObjectIF> objects = query.getResults();
 
-    GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, hierarchyType, objects);
+    GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, hierarchyType, objects, USATestData.DEFAULT_OVER_TIME_DATE);
     Workbook workbook = exporter.createWorkbook();
 
     Assert.assertEquals(1, workbook.getNumberOfSheets());
@@ -591,7 +591,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
       ServerGeoObjectQuery query = this.objectService.createQuery(type, null);
       List<ServerGeoObjectIF> objects = query.getResults();
 
-      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, hierarchyType, objects);
+      GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, hierarchyType, objects, USATestData.DEFAULT_OVER_TIME_DATE);
       InputStream export = exporter.export();
 
       Assert.assertNotNull(export);
@@ -980,7 +980,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
       Assert.assertNotNull(object);
       Assert.assertEquals("Test", object.getDisplayLabel().getValue());
 
-      Geometry geometry = object.getGeometry();
+      Geometry geometry = object.getGeometry(TestDataSet.DEFAULT_OVER_TIME_DATE);
 
       Assert.assertNotNull(geometry);
     }

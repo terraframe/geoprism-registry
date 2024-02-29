@@ -18,7 +18,10 @@ import com.runwaysdk.dataaccess.DuplicateGraphPathException;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
+import net.geoprism.registry.graph.InheritedHierarchyAnnotation;
+import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
 
 /**
@@ -43,10 +46,16 @@ public class FastTestDataset extends TestDataSet
   public static final TestHierarchyTypeInfo     HIER_ADMIN            = new TestHierarchyTypeInfo(TEST_DATA_KEY + "Admin", ORG_CGOV);
 
   public static final TestHierarchyTypeInfo     HIER_HEALTH_ADMIN     = new TestHierarchyTypeInfo(TEST_DATA_KEY + "HealthAdmin", ORG_MOHA);
-  
-  public static final TestHierarchyTypeInfo     HIER_SPLIT_PARENT     = new TestHierarchyTypeInfo(TEST_DATA_KEY + "SplitParent", ORG_CGOV); // Used for testing inheritance
-  
-  public static final TestHierarchyTypeInfo     HIER_SPLIT_CHILD      = new TestHierarchyTypeInfo(TEST_DATA_KEY + "SplitChild", ORG_CGOV); // Used for testing inheritance
+
+  public static final TestHierarchyTypeInfo     HIER_SPLIT_PARENT     = new TestHierarchyTypeInfo(TEST_DATA_KEY + "SplitParent", ORG_CGOV);                                                                                                                                                                                                                                                                                                                               // Used
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                          // for
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                          // testing
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                          // inheritance
+
+  public static final TestHierarchyTypeInfo     HIER_SPLIT_CHILD      = new TestHierarchyTypeInfo(TEST_DATA_KEY + "SplitChild", ORG_CGOV);                                                                                                                                                                                                                                                                                                                                // Used
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                          // for
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                          // testing
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                          // inheritance
 
   public static final TestGeoObjectTypeInfo     COUNTRY               = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Country", GeometryType.MULTIPOLYGON, ORG_CGOV);
 
@@ -169,22 +178,31 @@ public class FastTestDataset extends TestDataSet
 
     try
     {
+      HierarchyTypeBusinessServiceIF hService = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
+
+      hService.addToHierarchy(HIER_ADMIN.getServerObject(), RootGeoObjectType.INSTANCE, COUNTRY.getServerObject());
       COUNTRY.addChild(PROVINCE, HIER_ADMIN);
       COUNTRY.addChild(PROVINCE_PRIVATE, HIER_ADMIN);
       PROVINCE.addChild(DISTRICT, HIER_ADMIN);
 
+      hService.addToHierarchy(HIER_HEALTH_ADMIN.getServerObject(), RootGeoObjectType.INSTANCE, COUNTRY.getServerObject());
       COUNTRY.addChild(PROVINCE, HIER_HEALTH_ADMIN);
       PROVINCE.addChild(HOSPITAL, HIER_HEALTH_ADMIN);
       PROVINCE.addChild(DISTRICT, HIER_HEALTH_ADMIN);
-      
+
+      hService.addToHierarchy(HIER_SPLIT_PARENT.getServerObject(), RootGeoObjectType.INSTANCE, COUNTRY.getServerObject());
       COUNTRY.addChild(PROVINCE, HIER_SPLIT_PARENT);
-      
+
+      hService.addToHierarchy(HIER_SPLIT_CHILD.getServerObject(), RootGeoObjectType.INSTANCE, PROVINCE.getServerObject());
       PROVINCE.addChild(DISTRICT, HIER_SPLIT_CHILD);
-      
+
       GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
-      
-      // TODO: HEADS UP
-//      service.setInheritedHierarchy(PROVINCE.getServerObject(), HIER_SPLIT_CHILD.getServerObject(), HIER_SPLIT_PARENT.getServerObject());
+
+      if (InheritedHierarchyAnnotation.getByForHierarchical(HIER_SPLIT_CHILD.getServerObject()) == null)
+      {
+        service.setInheritedHierarchy(PROVINCE.getServerObject(), HIER_SPLIT_CHILD.getServerObject(), HIER_SPLIT_PARENT.getServerObject());
+      }
+
     }
     catch (DuplicateGraphPathException ex)
     {
@@ -215,7 +233,7 @@ public class FastTestDataset extends TestDataSet
       CAMBODIA.addChild(PROV_CENTRAL, HIER_HEALTH_ADMIN);
       PROV_CENTRAL.addChild(CENTRAL_HOSPITAL, HIER_HEALTH_ADMIN);
       PROV_CENTRAL.addChild(DIST_CENTRAL, HIER_HEALTH_ADMIN);
-      
+
       CAMBODIA.addChild(PROV_CENTRAL, HIER_SPLIT_PARENT);
       CAMBODIA.addChild(PROV_WESTERN, HIER_SPLIT_PARENT);
       PROV_CENTRAL.addChild(DIST_CENTRAL, HIER_SPLIT_CHILD);
@@ -257,9 +275,10 @@ public class FastTestDataset extends TestDataSet
     AT_DATE_OF_FORMATION.apply();
     CAMBODIA.setDefaultValue(AT_DATE_OF_FORMATION.getAttributeName(), new Date()); // TODO
 
-//    AT_RELIGION.apply();
-//
-//    CAMBODIA.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism.fetchTerm());
+    // AT_RELIGION.apply();
+    //
+    // CAMBODIA.setDefaultValue(AT_RELIGION.getAttributeName(),
+    // T_Buddhism.fetchTerm());
   }
 
   @Override

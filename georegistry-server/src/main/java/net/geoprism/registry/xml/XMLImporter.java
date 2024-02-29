@@ -489,7 +489,7 @@ public class XMLImporter
 
         ServerGeoObjectType child = ServerGeoObjectType.get(code);
 
-        this.hierarchyService.addToHierarchy(hierarchy, parent, child, false);
+        this.hierarchyService.addToHierarchy(hierarchy, parent, child);
 
         if (root.hasAttribute("extends"))
         {

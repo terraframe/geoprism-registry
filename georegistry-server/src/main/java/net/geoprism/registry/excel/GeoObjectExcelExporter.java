@@ -82,7 +82,9 @@ public class GeoObjectExcelExporter
 
   private GeoObjectBusinessServiceIF     objectService;
 
-  public GeoObjectExcelExporter(ServerGeoObjectType type, ServerHierarchyType hierarchy, List<ServerGeoObjectIF> objects)
+  private Date                           date;
+
+  public GeoObjectExcelExporter(ServerGeoObjectType type, ServerHierarchyType hierarchy, List<ServerGeoObjectIF> objects, Date date)
   {
     this.typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
     this.objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
@@ -90,6 +92,7 @@ public class GeoObjectExcelExporter
     this.type = type;
     this.hierarchy = hierarchy;
     this.objects = objects;
+    this.date = date;
     this.locales = LocalizationFacade.getInstalledLocales().stream().collect(Collectors.toList());
   }
 
@@ -160,7 +163,7 @@ public class GeoObjectExcelExporter
 
       if (name.equals(GeoObjectImportConfiguration.LATITUDE))
       {
-        Point point = (Point) object.getGeometry();
+        Point point = (Point) object.getGeometry(this.date);
 
         if (point != null)
         {
@@ -169,7 +172,7 @@ public class GeoObjectExcelExporter
       }
       else if (name.equals(GeoObjectImportConfiguration.LONGITUDE))
       {
-        Point point = (Point) object.getGeometry();
+        Point point = (Point) object.getGeometry(this.date);
         if (point != null)
         {
           cell.setCellValue(point.getX());
@@ -177,7 +180,7 @@ public class GeoObjectExcelExporter
       }
       else
       {
-        Object value = object.getValue(name);
+        Object value = object.getValue(name, this.date);
 
         if (value != null)
         {
@@ -218,7 +221,7 @@ public class GeoObjectExcelExporter
     }
 
     {
-      LocalizedValue value = (LocalizedValue) object.getValue(DefaultAttribute.DISPLAY_LABEL.getName());
+      LocalizedValue value = (LocalizedValue) object.getValue(DefaultAttribute.DISPLAY_LABEL.getName(), this.date);
 
       Cell cell = row.createCell(col++);
       cell.setCellValue(value.getValue(LocalizedValue.DEFAULT_LOCALE));

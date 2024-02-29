@@ -53,8 +53,6 @@ import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.model.DHIS2Locale;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.HierarchicalRelationshipType;
-import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.DHIS2SyncLevel;
@@ -62,6 +60,7 @@ import net.geoprism.registry.etl.GeoObjectCache;
 import net.geoprism.registry.etl.export.ExportRemoteException;
 import net.geoprism.registry.etl.export.UnsupportedGeometryException;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.graph.InheritedHierarchyAnnotation;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -466,16 +465,14 @@ public class DHIS2GeoObjectJsonAdapters
 
       if (this.typeService.isRoot(serverGo.getType(), this.hierarchyType))
       {
-        // TODO: HEADS UP
-//        InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.get(serverGo.getType().getUniversal(), this.hierarchyType.getHierarchicalRelationshipType());
-//
-//        if (anno != null)
-//        {
-//          HierarchicalRelationshipType hrt = anno.getInheritedHierarchicalRelationshipType();
-//          ServerHierarchyType shtInherited = ServerHierarchyType.get(hrt);
-//
-//          ancestors = this.objectService.getAncestors(serverGo, shtInherited, this.dhis2Config.getSyncNonExistent(), true);
-//        }
+        InheritedHierarchyAnnotation anno = InheritedHierarchyAnnotation.get(serverGo.getType(), this.hierarchyType);
+
+        if (anno != null)
+        {
+          ServerHierarchyType shtInherited = ServerHierarchyType.get(anno.getInheritedHierarchyCode());
+
+          ancestors = this.objectService.getAncestors(serverGo, shtInherited, this.dhis2Config.getSyncNonExistent(), true);
+        }
       }
       else
       {
