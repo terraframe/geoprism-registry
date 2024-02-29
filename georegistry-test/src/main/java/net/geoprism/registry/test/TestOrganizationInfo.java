@@ -119,6 +119,8 @@ public class TestOrganizationInfo
     {
       OrganizationBusinessServiceIF service = ServiceFactory.getBean(OrganizationBusinessServiceIF.class);
       service.delete(org);
+      
+      ServiceFactory.getMetadataCache().removeOrganization(org.getCode());
     }
   }
 
@@ -143,6 +145,8 @@ public class TestOrganizationInfo
     OrganizationBusinessServiceIF service = ServiceFactory.getBean(OrganizationBusinessServiceIF.class);
 
     this.serverObj = service.create(this.toDTO());
+    
+    ServiceFactory.getMetadataCache().addOrganization(this.serverObj);
     
     return this.serverObj;
   }

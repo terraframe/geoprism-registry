@@ -111,7 +111,7 @@ abstract public class TestDataSet
   public static final TestUserInfo           USER_ADMIN                      = new TestUserInfo(ADMIN_USER_NAME, ADMIN_PASSWORD, null, null);
 
   public static final String                 WKT_DEFAULT_MULTIPOINT          = "MULTIPOINT ((110 80),(120 70))";
-  
+
   public static final String                 WKT_DEFAULT_MULTIPOLYGON        = "MULTIPOLYGON (((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))";
 
   public static final String                 WKT_POLYGON_2                   = "MULTIPOLYGON(((1 1,10 1,10 10,1 10,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))";
@@ -292,7 +292,7 @@ abstract public class TestDataSet
   public void setUpMetadata()
   {
     GraphRepoServiceIF service = ServiceFactory.getBean(GraphRepoServiceIF.class);
-    
+
     tearDownMetadata();
 
     setUpOrgsInTrans();
@@ -386,6 +386,11 @@ abstract public class TestDataSet
   @Transaction
   protected void cleanUpClassInTrans()
   {
+    for (TestHierarchyTypeInfo ht : this.getManagedHierarchyTypes())
+    {
+      ht.delete();
+    }
+
     for (TestGeoObjectTypeInfo got : managedGeoObjectTypeInfosExtras)
     {
       got.delete();
@@ -393,11 +398,6 @@ abstract public class TestDataSet
 
     LinkedList<TestGeoObjectTypeInfo> list = new LinkedList<>(managedGeoObjectTypeInfos);
     Collections.reverse(list);
-
-    for (TestHierarchyTypeInfo ht : this.getManagedHierarchyTypes())
-    {
-      ht.delete();
-    }
 
     for (TestGeoObjectTypeInfo got : list)
     {
@@ -1080,14 +1080,16 @@ abstract public class TestDataSet
   public static Term createAttributeRootTerm(TestGeoObjectTypeInfo got, TestAttributeTypeInfo attr)
   {
     // TODO: HEADS UP
-//    MdBusiness mdBiz = got.getServerObject().getMdBusiness();
-//
-//    Classifier mdBizClassy = TermConverter.buildIfNotExistdMdBusinessClassifier(mdBiz);
-//
-//    Classifier classifier = TermConverter.buildIfNotExistAttribute(mdBiz, attr.getAttributeName(), mdBizClassy);
-//
-//    return new TermConverter(classifier.getKeyName()).build();
-    
+    // MdBusiness mdBiz = got.getServerObject().getMdBusiness();
+    //
+    // Classifier mdBizClassy =
+    // TermConverter.buildIfNotExistdMdBusinessClassifier(mdBiz);
+    //
+    // Classifier classifier = TermConverter.buildIfNotExistAttribute(mdBiz,
+    // attr.getAttributeName(), mdBizClassy);
+    //
+    // return new TermConverter(classifier.getKeyName()).build();
+
     return null;
   }
 

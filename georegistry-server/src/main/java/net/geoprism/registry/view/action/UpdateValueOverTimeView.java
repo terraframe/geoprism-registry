@@ -246,7 +246,7 @@ public class UpdateValueOverTimeView
         {
           if (convertedValue != null)
           {
-            GraphObjectDAO votEmbeddedValue = (GraphObjectDAO) vot.getValue();
+            LocalizedValue votEmbeddedValue = (LocalizedValue) vot.getValue();
 
             votEmbeddedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, convertedValue.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
 
@@ -267,20 +267,7 @@ public class UpdateValueOverTimeView
         {
           if (convertedValue != null)
           {
-            MdAttributeEmbeddedDAOIF mdAttrEmbedded = (MdAttributeEmbeddedDAOIF) go.getMdAttributeDAO(attype.getName());
-            EmbeddedGraphObjectDAO votEmbeddedValue = EmbeddedGraphObjectDAO.newInstance((MdEmbeddedGraphClassDAOIF) mdAttrEmbedded.getEmbeddedMdClassDAOIF());
-
-            votEmbeddedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, convertedValue.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
-
-            for (Locale locale : locales)
-            {
-              if (convertedValue.contains(locale))
-              {
-                votEmbeddedValue.setValue(locale.toString(), convertedValue.getValue(locale));
-              }
-            }
-
-            looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, votEmbeddedValue));
+            looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, convertedValue));
           }
           else
           {
