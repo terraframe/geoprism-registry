@@ -26,14 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeLongDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeMomentDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
-import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
@@ -158,10 +150,10 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     String attributeTypeJSON = testChar.toJSON().toString();
     testChar = this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
-    MdAttributeDAOIF mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testChar.getName());
+    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testChar.getName());
 
     Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testChar.getName(), mdAttributeConcreteDAOIF);
-    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof MdAttributeCharacterDAOIF);
+    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeCharacterType);
 
     testChar.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "testCharLocalName-Update");
     testChar.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, "testCharLocalDescrip-Update");
@@ -189,10 +181,10 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     String attributeTypeJSON = testDate.toJSON().toString();
     testDate = this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
-    MdAttributeDAOIF mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testDate.getName());
+    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testDate.getName());
 
     Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testDate.getName(), mdAttributeConcreteDAOIF);
-    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof MdAttributeMomentDAOIF);
+    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeDateType);
   }
 
   @Test
@@ -212,10 +204,10 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     String attributeTypeJSON = testInteger.toJSON().toString();
     testInteger = this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
-    MdAttributeDAOIF mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testInteger.getName());
+    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testInteger.getName());
 
     Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testInteger.getName(), mdAttributeConcreteDAOIF);
-    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof MdAttributeLongDAOIF);
+    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeLongType);
   }
 
   @Test
@@ -235,10 +227,10 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     String attributeTypeJSON = testBoolean.toJSON().toString();
     testBoolean = this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
-    MdAttributeDAOIF mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testBoolean.getName());
+    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), testBoolean.getName());
 
     Assert.assertNotNull("A GeoObjectType did not define the attribute: " + testBoolean.getName(), mdAttributeConcreteDAOIF);
-    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof MdAttributeBooleanDAOIF);
+    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeBooleanType);
   }
 
   @Test
@@ -263,10 +255,10 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     String attributeTypeJSON = attributeTermType.toJSON().toString();
     attributeTermType = (AttributeTermType) this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
-    MdAttributeDAOIF mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), attributeTermType.getName());
+    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), attributeTermType.getName());
 
     Assert.assertNotNull("A GeoObjectType did not define the attribute: " + attributeTermType.getName(), mdAttributeConcreteDAOIF);
-    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof MdAttributeTermDAOIF);
+    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeTermType);
 
     Term rootTerm = attributeTermType.getRootTerm();
 
@@ -357,10 +349,10 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
     String attributeTypeJSON = attributeClassificationType.toJSON().toString();
     attributeClassificationType = (AttributeClassificationType) this.client.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
-    MdAttributeDAOIF mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), attributeClassificationType.getName());
+    net.geoprism.registry.graph.AttributeType mdAttributeConcreteDAOIF = checkAttribute(TEST_GOT.getCode(), attributeClassificationType.getName());
 
     Assert.assertNotNull("A GeoObjectType did not define the attribute: " + attributeClassificationType.getName(), mdAttributeConcreteDAOIF);
-    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof MdAttributeClassificationDAOIF);
+    Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof net.geoprism.registry.graph.AttributeClassificationType);
 
     Term rootTerm = attributeClassificationType.getRootTerm();
 
@@ -385,12 +377,10 @@ public class AttributeTypeServiceTest extends FastDatasetTest implements Instanc
    */
 
   @Request
-  private MdAttributeDAOIF checkAttribute(String geoObjectTypeCode, String attributeName)
+  private net.geoprism.registry.graph.AttributeType checkAttribute(String geoObjectTypeCode, String attributeName)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectTypeCode);
-    MdVertexDAOIF mdVertex = type.getMdVertex();
-
-    return mdVertex.definesAttribute(attributeName);
+    return type.getAttribute(attributeName).orElseThrow();
   }
 
   @Request
