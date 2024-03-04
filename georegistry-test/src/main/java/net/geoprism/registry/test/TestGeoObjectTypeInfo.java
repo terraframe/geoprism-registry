@@ -80,9 +80,12 @@ public class TestGeoObjectTypeInfo
 
   private void initialize(String genKey, boolean isPrivate, GeometryType geomType, TestOrganizationInfo organization)
   {
+    LocalizedValue label = new LocalizedValue(genKey);
+    label.setValue(LocalizedValue.DEFAULT_LOCALE, genKey);
+    
     this.code = genKey;
-    this.displayLabel = new LocalizedValue(genKey);
-    this.description = new LocalizedValue(genKey);
+    this.displayLabel = label;
+    this.description = label;
     this.children = new LinkedList<TestGeoObjectTypeInfo>();
     this.geomType = geomType;
     this.isLeaf = false; // Leaf types are not supported anymore

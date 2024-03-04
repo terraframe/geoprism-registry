@@ -200,7 +200,7 @@ public class RegistryService implements RegistryServiceIF
 
     if (publicOnly && UserInfo.isPublicUser())
     {
-      ServiceFactory.getAdapter().getMetadataCache().getAllGeoObjectTypes().stream().filter(got -> !got.getIsPrivate()).forEach(got -> {
+      ServiceFactory.getMetadataCache().getAllGeoObjectTypes().stream().filter(got -> !got.getIsPrivate()).forEach(got -> {
         types.add(got.toJSON(serializer));
       });
     }

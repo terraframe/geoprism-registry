@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
@@ -24,11 +25,14 @@ import org.springframework.test.context.ContextConfiguration;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
+import net.geoprism.registry.graph.AttributeClassificationType;
+import net.geoprism.registry.graph.AttributeTermType;
 import net.geoprism.registry.graph.AttributeType;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
@@ -52,8 +56,6 @@ public class XMLImporterTest implements InstanceTestClassListener
   private ClassificationType                  type      = null;
 
   private String                              ROOT_CODE = "Test_Classification";
-
-  private boolean                             isSetup   = false;
 
   @Autowired
   private GraphRepoServiceIF                  graphRepo;
@@ -80,11 +82,7 @@ public class XMLImporterTest implements InstanceTestClassListener
   @Request
   public void beforeClassSetup() throws Exception
   {
-    // This is a hack to allow for spring injection of classification tasks
-    if (!isSetup)
-    {
-      setupClasses();
-    }
+    setupClasses();
   }
 
   @Override
@@ -113,8 +111,6 @@ public class XMLImporterTest implements InstanceTestClassListener
     root.setCode(ROOT_CODE);
     root.setDisplayLabel(new LocalizedValue("Test Classification"));
     this.cService.apply(root, null);
-
-    isSetup = true;
   }
 
   @Request
@@ -198,20 +194,19 @@ public class XMLImporterTest implements InstanceTestClassListener
         Assert.assertEquals("Test Term", attributeType.getLocalizedLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
         Assert.assertEquals("Test Term Description", attributeType.getLocalizedDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
 
-        // TODO: HEADS UP
-//        List<Term> terms = ( (AttributeTermType) attributeType ).getTerms();
-//
-//        Assert.assertEquals(3, terms.size());
-//
-//        oattribute = type.getAttribute("TEST_CLASSIFICATION");
-//
-//        Assert.assertTrue(oattribute.isPresent());
-//
-//        attributeType = oattribute.get();
-//        Assert.assertEquals("Test Classification", attributeType.getLocalizedLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
-//        Assert.assertEquals("Test Text Classification", attributeType.getLocalizedDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
-//        Assert.assertEquals("TEST_PROG", ( (AttributeClassificationType) attributeType ).getClassificationType());
-//        Assert.assertEquals(ROOT_CODE, ( (AttributeClassificationType) attributeType ).getRootTerm().getCode());
+        List<Term> terms = ( (AttributeTermType) attributeType ).getTerms();
+
+        Assert.assertEquals(3, terms.size());
+
+        oattribute = type.getAttribute("TEST_CLASSIFICATION");
+
+        Assert.assertTrue(oattribute.isPresent());
+
+        attributeType = oattribute.get();
+        Assert.assertEquals("Test Classification", attributeType.getLocalizedLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+        Assert.assertEquals("Test Text Classification", attributeType.getLocalizedDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
+        Assert.assertEquals("TEST_PROG", ( (AttributeClassificationType) attributeType ).getClassificationType().getCode());
+        Assert.assertEquals(ROOT_CODE, ( (AttributeClassificationType) attributeType ).getRootClassification().getCode());
 
         type = ServerGeoObjectType.get(results.get(1).getCode());
 
@@ -256,14 +251,13 @@ public class XMLImporterTest implements InstanceTestClassListener
         Assert.assertEquals("Business Pop", businessType.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
         Assert.assertEquals("TEST_TEXT", businessType.getLabelAttribute().getAttributeName());
 
-        // TODO: HEADS UP
-//        AttributeType businessAttribute = businessType.getAttribute("TEST_TEXT");
-//
-//        Assert.assertEquals("Test Text", businessAttribute.getLocalizedLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
-//        Assert.assertEquals("Test Text Description", businessAttribute.getLocalizedDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
-//
-//        BusinessEdgeType businessEdge = bizEdgeService.getByCode(results.get(6).getCode());
-//        Assert.assertEquals("BUS_EDGE", businessEdge.getCode());
+        org.commongeoregistry.adapter.metadata.AttributeType businessAttribute = businessType.getAttribute("TEST_TEXT");
+
+        Assert.assertEquals("Test Text", businessAttribute.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+        Assert.assertEquals("Test Text Description", businessAttribute.getDescription().getValue(LocalizedValue.DEFAULT_LOCALE));
+
+        BusinessEdgeType businessEdge = bizEdgeService.getByCode(results.get(6).getCode());
+        Assert.assertEquals("BUS_EDGE", businessEdge.getCode());
 
         XMLExporter exporter = new XMLExporter(serverOrg);
         exporter.build();
