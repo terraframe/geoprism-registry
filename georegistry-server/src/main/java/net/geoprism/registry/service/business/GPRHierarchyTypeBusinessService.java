@@ -4,26 +4,14 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import com.runwaysdk.business.ontology.InitializationStrategyIF;
-import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
-import com.runwaysdk.constants.MdAttributeBooleanInfo;
-import com.runwaysdk.constants.MdBusinessInfo;
-import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
-import com.runwaysdk.dataaccess.attributes.AttributeValueException;
-import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.system.metadata.MdEdge;
 
-import net.geoprism.rbac.RoleConstants;
-import net.geoprism.registry.DuplicateHierarchyTypeException;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.graph.HierarchicalRelationshipType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
 
 @Service
@@ -77,7 +65,7 @@ public class GPRHierarchyTypeBusinessService extends HierarchyTypeBusinessServic
     MdEdgeDAOIF definitionEdge = hierarchyType.getDefinitionEdge();
 
     this.grantWritePermissionsOnMdTermRel(definitionEdge);
-    this.grantReadPermissionsOnMdTermRel(maintainer, definitionEdge);
+    this.grantWritePermissionsOnMdTermRel(maintainer, definitionEdge);
     this.grantReadPermissionsOnMdTermRel(consumer, definitionEdge);
     this.grantReadPermissionsOnMdTermRel(contributor, definitionEdge);
 
