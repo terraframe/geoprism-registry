@@ -41,7 +41,6 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdLocalizableInfo;
-import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationExcelExporter;
 import com.runwaysdk.localization.LocalizationExcelImporter;
 import com.runwaysdk.localization.LocalizationFacade;
@@ -64,16 +63,14 @@ import com.runwaysdk.system.metadata.MdAttributeLocal;
 import com.runwaysdk.system.metadata.MdAttributeLocalQuery;
 import com.runwaysdk.system.metadata.MdLocalizable;
 import com.runwaysdk.system.metadata.Metadata;
-import com.runwaysdk.system.metadata.SupportedLocale;
 
-import net.geoprism.registry.localization.DefaultLocaleView;
-import net.geoprism.registry.localization.LocaleView;
 import net.geoprism.registry.localization.LocalizationImportMessagesException;
+import net.geoprism.registry.model.localization.LocaleView;
 import net.geoprism.registry.service.permission.RolePermissionService;
 
 @Service
 @Primary
-public class GPRLocalizationService extends net.geoprism.localization.LocalizationService
+public class GPRLocalizationService extends RepoLocalizationService
 {
   @Autowired
   private RolePermissionService permissions;
@@ -142,7 +139,7 @@ public class GPRLocalizationService extends net.geoprism.localization.Localizati
 
     if (view.isDefaultLocale())
     {
-      LocaleView lv = editDefaultLocaleInTransaction(view);
+      LocaleView lv = editDefaultLocale(view);
 
       refreshCaches(false);
 
@@ -150,46 +147,12 @@ public class GPRLocalizationService extends net.geoprism.localization.Localizati
     }
     else
     {
-      SupportedLocaleIF supportedLocale = editLocaleInTransaction(view);
+      SupportedLocaleIF supportedLocale = editLocale(view);
 
       refreshCaches(false);
 
       return LocaleView.fromSupportedLocale(supportedLocale);
     }
-  }
-
-  @Transaction
-  private LocaleView editDefaultLocaleInTransaction(LocaleView view)
-  {
-    LocalizedValueStore lvs = LocalizedValueStore.getByKey(DefaultLocaleView.LABEL);
-
-    lvs.lock();
-    lvs.getStoreValue().setLocaleMap(view.getLabel().getLocaleMap());
-    lvs.apply();
-
-    view.getLabel().setValue(lvs.getStoreValue().getValue());
-
-    return view;
-  }
-
-  @Transaction
-  private SupportedLocaleIF editLocaleInTransaction(LocaleView view)
-  {
-    SupportedLocaleIF supportedLocale = (SupportedLocale) com.runwaysdk.localization.LocalizationFacade.getSupportedLocale(view.getLocale());
-
-    supportedLocale.appLock();
-    view.populate(supportedLocale);
-    supportedLocale.apply();
-
-    // Be careful what you put here. We definitely don't want to refresh any
-    // caches until after the transaction is over, especially given that we are
-    // holding onto a lot of database locks and such right now.
-
-    // Don't build the view inside the transaction either. Unless you like
-    // deadlocks
-    // return LocaleView.fromSupportedLocale(supportedLocale);
-
-    return supportedLocale;
   }
 
   @Request(RequestType.SESSION)
@@ -204,31 +167,11 @@ public class GPRLocalizationService extends net.geoprism.localization.Localizati
       return view;
     }
 
-    SupportedLocaleIF supportedLocale = installLocaleInTransaction(view);
+    SupportedLocaleIF supportedLocale = installLocale(view);
 
     refreshCaches(true);
 
     return LocaleView.fromSupportedLocale(supportedLocale);
-  }
-
-  @Transaction
-  private SupportedLocaleIF installLocaleInTransaction(LocaleView view)
-  {
-    SupportedLocaleIF supportedLocale = (SupportedLocale) com.runwaysdk.localization.LocalizationFacade.install(view.getLocale());
-
-    supportedLocale.appLock();
-    view.populate(supportedLocale);
-    supportedLocale.apply();
-
-    // Be careful what you put here. We definitely don't want to refresh any
-    // caches until after the transaction is over, especially given that we are
-    // holding onto a lot of database locks and such right now.
-
-    // Don't build the view inside the transaction either. Unless you like
-    // deadlocks
-    // return LocaleView.fromSupportedLocale(supportedLocale);
-
-    return supportedLocale;
   }
 
   @Request(RequestType.SESSION)
@@ -238,19 +181,9 @@ public class GPRLocalizationService extends net.geoprism.localization.Localizati
 
     LocaleView view = LocaleView.fromJson(json);
 
-    uninstallLocaleInTransaction(view);
+    uninstallLocale(view);
 
     refreshCaches(true);
-  }
-
-  @Transaction
-  private void uninstallLocaleInTransaction(LocaleView view)
-  {
-    com.runwaysdk.localization.LocalizationFacade.uninstall(view.getLocale());
-
-    // Be careful what you put here. We definitely don't want to refresh any
-    // caches until after the transaction is over, especially given that we are
-    // holding onto a lot of database locks and such right now.
   }
 
   @Request(RequestType.SESSION)
