@@ -921,7 +921,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     JsonObject diff = new JsonObject();
     
     VertexServerGeoObject cambodia = (VertexServerGeoObject) FastTestDataset.CAMBODIA.getServerObject();
-    ValueOverTime vot = cambodia.getValuesOverTime(cambodia.getGeometryAttributeName()).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+    ValueOverTime vot = cambodia.getValuesOverTime(DefaultAttribute.GEOMETRY.getName()).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
     
     GeoJsonWriter gw = new GeoJsonWriter();
     String json = gw.write((Geometry) vot.getValue());
@@ -986,7 +986,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     Assert.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
     
     VertexServerGeoObject cambodia = (VertexServerGeoObject) FastTestDataset.CAMBODIA.getServerObject();
-    ValueOverTimeCollection votc = cambodia.getValuesOverTime(cambodia.getGeometryAttributeName());
+    ValueOverTimeCollection votc = cambodia.getValuesOverTime(DefaultAttribute.GEOMETRY.getName());
     
     Assert.assertEquals(1, votc.size());
     

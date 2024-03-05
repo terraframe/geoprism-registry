@@ -19,7 +19,6 @@ import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.graph.InheritedHierarchyAnnotation;
-import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
@@ -180,20 +179,20 @@ public class FastTestDataset extends TestDataSet
     {
       HierarchyTypeBusinessServiceIF hService = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
 
-      hService.addToHierarchy(HIER_ADMIN.getServerObject(), RootGeoObjectType.INSTANCE, COUNTRY.getServerObject());
+      HIER_ADMIN.setRoot(COUNTRY);
       COUNTRY.addChild(PROVINCE, HIER_ADMIN);
       COUNTRY.addChild(PROVINCE_PRIVATE, HIER_ADMIN);
       PROVINCE.addChild(DISTRICT, HIER_ADMIN);
 
-      hService.addToHierarchy(HIER_HEALTH_ADMIN.getServerObject(), RootGeoObjectType.INSTANCE, COUNTRY.getServerObject());
+      HIER_HEALTH_ADMIN.setRoot(COUNTRY);
       COUNTRY.addChild(PROVINCE, HIER_HEALTH_ADMIN);
       PROVINCE.addChild(HOSPITAL, HIER_HEALTH_ADMIN);
       PROVINCE.addChild(DISTRICT, HIER_HEALTH_ADMIN);
 
-      hService.addToHierarchy(HIER_SPLIT_PARENT.getServerObject(), RootGeoObjectType.INSTANCE, COUNTRY.getServerObject());
+      HIER_SPLIT_PARENT.setRoot(COUNTRY);
       COUNTRY.addChild(PROVINCE, HIER_SPLIT_PARENT);
 
-      hService.addToHierarchy(HIER_SPLIT_CHILD.getServerObject(), RootGeoObjectType.INSTANCE, PROVINCE.getServerObject());
+      HIER_SPLIT_CHILD.setRoot(PROVINCE);
       PROVINCE.addChild(DISTRICT, HIER_SPLIT_CHILD);
 
       GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
@@ -275,10 +274,9 @@ public class FastTestDataset extends TestDataSet
     AT_DATE_OF_FORMATION.apply();
     CAMBODIA.setDefaultValue(AT_DATE_OF_FORMATION.getAttributeName(), new Date()); // TODO
 
-    // AT_RELIGION.apply();
-    //
-    // CAMBODIA.setDefaultValue(AT_RELIGION.getAttributeName(),
-    // T_Buddhism.fetchTerm());
+    AT_RELIGION.apply();
+
+    CAMBODIA.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism.fetchTerm());
   }
 
   @Override

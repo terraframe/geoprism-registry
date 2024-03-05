@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
@@ -190,7 +191,7 @@ public class UpdateValueOverTimeView
       return;
     }
 
-    if (cotView.getAttributeName().equals("geometry"))
+    if (cotView.getAttributeName().equals(DefaultAttribute.GEOMETRY.getName()))
     {
       Geometry convertedValue = null;
 

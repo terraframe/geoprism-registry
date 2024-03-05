@@ -45,7 +45,6 @@ import com.runwaysdk.session.Request;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.localization.DefaultLocaleView;
 import net.geoprism.registry.masterlist.TableMetadata;
 import net.geoprism.registry.masterlist.TableMetadata.Attribute;
 import net.geoprism.registry.masterlist.TableMetadata.AttributeGroup;
@@ -55,6 +54,7 @@ import net.geoprism.registry.masterlist.TableMetadata.HolderGroup;
 import net.geoprism.registry.masterlist.TableMetadata.TypeGroup;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.localization.DefaultLocaleView;
 import net.geoprism.registry.service.request.ServiceFactory;
 
 public class PatchListGroupMetadata

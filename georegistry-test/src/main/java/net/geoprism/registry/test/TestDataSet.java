@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -25,7 +24,6 @@ import com.runwaysdk.ClientSession;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
-import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.business.rbac.UserDAOIF;
@@ -85,8 +83,9 @@ import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.GraphRepoServiceIF;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
@@ -469,22 +468,21 @@ abstract public class TestDataSet
         continue;
       }
 
+      GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+
       MdVertexDAOIF mdVertex = got.getMdVertex();
 
       StringBuilder statement = new StringBuilder();
-      statement.append("SELECT FROM " + mdVertex.getDBClassName());
+      statement.append("SELECT uid FROM " + mdVertex.getDBClassName());
 
-      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+      GraphQuery<String> query = new GraphQuery<String>(statement.toString());
 
-      List<VertexObject> vObjects = query.getResults();
+      List<String> uids = query.getResults();
 
-      for (VertexObject vObject : vObjects)
+      for (String uid : uids)
       {
-        VertexServerGeoObject serverGo = new VertexServerGeoObject(got, vObject, new TreeMap<>());
-
-        vObject.delete();
-
-        TestDataSet.deleteGeoEntity(serverGo.getCode());
+        ServerGeoObjectIF geoObject = service.getGeoObject(uid, got.getCode());
+        geoObject.delete();
       }
     }
 
@@ -1046,6 +1044,8 @@ abstract public class TestDataSet
     final String type = AttributeTermType.TYPE;
 
     AttributeTermType att = (AttributeTermType) AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, false);
+    att.setIsChangeOverTime(true);
+    
     if (attrRoot != null)
     {
       att.setRootTerm(attrRoot);
@@ -1077,20 +1077,17 @@ abstract public class TestDataSet
     return new TermConverter(child.getKeyName()).build();
   }
 
-  public static Term createAttributeRootTerm(TestGeoObjectTypeInfo got, TestAttributeTypeInfo attr)
+  public static Term createAttributeRootTerm(TestGeoObjectTypeInfo gTypeInfo, TestAttributeTypeInfo aTypeInfo)
   {
-    // TODO: HEADS UP
-    // MdBusiness mdBiz = got.getServerObject().getMdBusiness();
-    //
-    // Classifier mdBizClassy =
-    // TermConverter.buildIfNotExistdMdBusinessClassifier(mdBiz);
-    //
-    // Classifier classifier = TermConverter.buildIfNotExistAttribute(mdBiz,
-    // attr.getAttributeName(), mdBizClassy);
-    //
-    // return new TermConverter(classifier.getKeyName()).build();
+    ServerGeoObjectType type = gTypeInfo.getServerObject();
 
-    return null;
+    Classifier typeRoot = TermConverter.buildIfNotExistGeoObjectTypeClassifier(type);
+    Classifier attributeRoot = TermConverter.buildIfNotExistAttribute(type, aTypeInfo.getAttributeName(), typeRoot);
+    
+    type.refreshDTO();    
+    type.toDTO();
+
+    return new TermConverter(attributeRoot.getKeyName()).build();
   }
 
   public static void runAsUser(TestUserInfo user, ClientRequestExecutor executor)

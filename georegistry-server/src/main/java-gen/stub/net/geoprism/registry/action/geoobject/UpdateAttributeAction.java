@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action.geoobject;
 
@@ -35,43 +35,39 @@ import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 public class UpdateAttributeAction extends UpdateAttributeActionBase
 {
   private static final long serialVersionUID = -1324656697;
-  
+
   public UpdateAttributeAction()
   {
     super();
   }
-  
+
   @Override
   public void execute()
   {
     GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
 
     ChangeRequest cr = this.getAllRequest().next();
-    
+
     ServerGeoObjectType type = ServerGeoObjectType.get(cr.getGeoObjectTypeCode());
-    
+
     VertexServerGeoObject go = new VertexGeoObjectStrategy(type).getGeoObjectByCode(cr.getGeoObjectCode());
-    
+
     AbstractUpdateAttributeView view = UpdateAttributeViewJsonAdapters.deserialize(this.getJson(), this.getAttributeName(), type);
-    
+
     view.execute(go);
-    
+
     if (!this.getAttributeName().equals(UpdateAttributeViewJsonAdapters.PARENT_ATTR_NAME))
     {
       String attributeName = this.getAttributeName();
-      if (attributeName.equals("geometry"))
-      {
-        attributeName = go.getGeometryAttributeName();
-      }
-      
+
       ValueOverTimeCollection votc = go.getValuesOverTime(attributeName);
-      
+
       votc.reorder();
-      
+
       service.apply(go, false);
     }
   }
-  
+
   public AbstractUpdateAttributeView getUpdateView()
   {
     return UpdateAttributeViewJsonAdapters.deserialize(this.getJson(), this.getAttributeName(), this.getChangeRequest().getGeoObjectType());
@@ -92,5 +88,5 @@ public class UpdateAttributeAction extends UpdateAttributeActionBase
 
     return (JsonObject) builder.create().toJsonTree(this);
   }
-  
+
 }

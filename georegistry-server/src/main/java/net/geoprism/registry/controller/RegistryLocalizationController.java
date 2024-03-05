@@ -39,7 +39,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import net.geoprism.registry.localization.LocaleView;
+import net.geoprism.registry.model.localization.LocaleView;
 import net.geoprism.registry.service.request.GPRLocalizationService;
 import net.geoprism.registry.service.request.RegistryComponentService;
 import net.geoprism.registry.spring.JsonObjectDeserializer;

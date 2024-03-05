@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
+
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 
@@ -36,7 +38,7 @@ public class UpdateChangeOverTimeAttributeView extends AbstractUpdateAttributeVi
   @Override
   public void execute(VertexServerGeoObject go)
   {
-    String attributeName = this.getAttributeNameGeomAccounting(go);
+    String attributeName = this.getAttributeName();
     
     // This list is intentionally NOT a ValueOverTimeCollection. The reason for this is because we
     // DON'T want any of the reordering or splitting logic to happen until AFTER we have applied
@@ -53,19 +55,7 @@ public class UpdateChangeOverTimeAttributeView extends AbstractUpdateAttributeVi
     
     this.validateValuesOverTime(newVotc);
     
-    go.getVertex().getGraphObjectDAO().getAttribute(attributeName).setValuesOverTime(newVotc);
-  }
-  
-  public String getAttributeNameGeomAccounting(VertexServerGeoObject go)
-  {
-    String attributeName = this.getAttributeName();
-    
-    if (attributeName.equals("geometry"))
-    {
-      attributeName = go.getGeometryAttributeName();
-    }
-    
-    return attributeName;
+    go.setValuesOverTime(attributeName, newVotc);
   }
   
   public void validateValuesOverTime(ValueOverTimeCollection votc)
