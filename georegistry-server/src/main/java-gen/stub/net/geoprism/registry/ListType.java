@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
@@ -45,7 +46,9 @@ import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.constants.Constants;
 import com.runwaysdk.constants.MdAttributeDateTimeUtil;
+import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
@@ -56,17 +59,20 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OR;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.configuration.GeoprismProperties;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
+import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.etl.ListTypeJobQuery;
 import net.geoprism.registry.graph.AttributeBooleanType;
+import net.geoprism.registry.graph.AttributeClassificationType;
 import net.geoprism.registry.graph.AttributeDateType;
 import net.geoprism.registry.graph.AttributeTermType;
 import net.geoprism.registry.graph.AttributeType;
+import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
@@ -76,6 +82,7 @@ import net.geoprism.registry.query.graph.BasicVertexRestriction;
 import net.geoprism.registry.query.graph.CompositeRestriction;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
+import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.service.request.LocaleSerializer;
@@ -321,8 +328,7 @@ public abstract class ListType extends ListTypeBase
     String typeCode = object.get(ListType.TYPE_CODE).getAsString();
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-    // TODO: HEADS UP
-    // this.setUniversal(type.getUniversal());
+    this.setGeoObjectType(type.getType());
     RegistryLocalizedValueConverter.populate(this.getDisplayLabel(), LocalizedValue.fromJSON(object.get(ListType.DISPLAYLABEL).getAsJsonObject()));
     RegistryLocalizedValueConverter.populate(this.getDescription(), LocalizedValue.fromJSON(object.get(ListType.DESCRIPTION).getAsJsonObject()));
     this.setCode(object.get(ListType.CODE).getAsString());
@@ -407,7 +413,7 @@ public abstract class ListType extends ListTypeBase
     Locale locale = Session.getCurrentLocale();
     LocaleSerializer serializer = new LocaleSerializer(locale);
 
-    ServerGeoObjectType type = this.getGeoObjectType();
+    ServerGeoObjectType type = this.getServerGeoObjectType();
     ServerGeoObjectType superType = type.getSuperType();
     ServerOrganization org = type.getOrganization();
 
@@ -554,12 +560,9 @@ public abstract class ListType extends ListTypeBase
     return ListTypeEntry.create(this, forDate, metadata);
   }
 
-  public ServerGeoObjectType getGeoObjectType()
+  public ServerGeoObjectType getServerGeoObjectType()
   {
-    // TODO: HEADS UP
-    // return ServerGeoObjectType.get(this.getUniversal());
-
-    return null;
+    return ServerGeoObjectType.get(this.getGeoObjectType().getCode());
   }
 
   public void enforceActorHasPermission(Operation op)
@@ -583,12 +586,12 @@ public abstract class ListType extends ListTypeBase
 
   public boolean doesActorHaveWritePermission()
   {
-    return doesActorHaveWritePermissions(this.getGeoObjectType());
+    return doesActorHaveWritePermissions(this.getServerGeoObjectType());
   }
 
   public boolean doesActorHaveExploratoryPermission()
   {
-    ServerGeoObjectType type = this.getGeoObjectType();
+    ServerGeoObjectType type = this.getServerGeoObjectType();
 
     if (new RolePermissionService().isRC(type.getOrganization().getCode(), type))
     {
@@ -600,7 +603,7 @@ public abstract class ListType extends ListTypeBase
 
   public boolean doesActorHaveReadPermission()
   {
-    ServerGeoObjectType type = this.getGeoObjectType();
+    ServerGeoObjectType type = this.getServerGeoObjectType();
 
     return ServiceFactory.getGeoObjectPermissionService().canRead(type.getOrganization().getCode(), type);
   }
@@ -610,7 +613,7 @@ public abstract class ListType extends ListTypeBase
     boolean isValid = true;
 
     JsonArray hierarchies = this.getHierarchiesAsJson();
-    ServerGeoObjectType masterlistType = this.getGeoObjectType();
+    ServerGeoObjectType masterlistType = this.getServerGeoObjectType();
 
     for (int i = 0; i < hierarchies.size(); i++)
     {
@@ -651,7 +654,7 @@ public abstract class ListType extends ListTypeBase
     boolean isValid = true;
 
     JsonArray hierarchies = this.getHierarchiesAsJson();
-    ServerGeoObjectType masterlistType = this.getGeoObjectType();
+    ServerGeoObjectType masterlistType = this.getServerGeoObjectType();
 
     for (int i = 0; i < hierarchies.size(); i++)
     {
@@ -783,36 +786,27 @@ public abstract class ListType extends ListTypeBase
         {
           String code = filter.get("value").getAsString();
 
-          Classifier classifier = ( (AttributeTermType) attributeType ).getRootTerm();
-          // Term root = ( (AttributeTermType) attributeType ).getRootTerm();
-          // String parent =
-          // TermConverter.buildClassifierKeyFromTermCode(root.getCode());
-          //
-          // String classifierKey = Classifier.buildKey(parent, code);
-          // Classifier classifier = Classifier.getByKey(classifierKey);
+          Classifier root = ( (AttributeTermType) attributeType ).getRootTerm();
+          String parent = TermConverter.buildClassifierKeyFromTermCode(root.getKey());
+
+          String classifierKey = Classifier.buildKey(parent, code);
+          Classifier classifier = Classifier.getByKey(classifierKey);
 
           restriction.add(new AttributeValueRestriction(mdAttribute, operation, classifier.getOid(), forDate));
         }
-        // TODO: HEADS UP
-        // else if (attributeType instanceof AttributeClassificationType)
-        // {
-        // JsonObject object = filter.get("value").getAsJsonObject();
-        // Term term = Term.fromJSON(object);
-        // MdClassificationDAOIF mdClassification = (
-        // (MdAttributeClassificationDAOIF) mdAttribute
-        // ).getMdClassificationDAOIF();
-        // ClassificationType classificationType = new
-        // ClassificationType(mdClassification);
-        //
-        // ClassificationBusinessServiceIF service =
-        // ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
-        //
-        // Classification classification = service.get(classificationType,
-        // term.getCode());
-        //
-        // restriction.add(new AttributeValueRestriction(mdAttribute, operation,
-        // classification.getVertex().getRID(), forDate));
-        // }
+        else if (attributeType instanceof AttributeClassificationType)
+        {
+          JsonObject object = filter.get("value").getAsJsonObject();
+          Term term = Term.fromJSON(object);
+          MdClassificationDAOIF mdClassification = ( (MdAttributeClassificationDAOIF) mdAttribute ).getMdClassificationDAOIF();
+          ClassificationType classificationType = new ClassificationType(mdClassification);
+
+          ClassificationBusinessServiceIF service = ServiceFactory.getBean(ClassificationBusinessServiceIF.class);
+
+          Classification classification = service.get(classificationType, term.getCode());
+
+          restriction.add(new AttributeValueRestriction(mdAttribute, operation, classification.getVertex().getRID(), forDate));
+        }
         else
         {
           String value = filter.get("value").getAsString();
@@ -883,10 +877,10 @@ public abstract class ListType extends ListTypeBase
   }
 
   @Transaction
-  public static void deleteAll(Universal universal)
+  public static void deleteAll(ServerGeoObjectType type)
   {
     ListTypeQuery query = new ListTypeQuery(new QueryFactory());
-    query.WHERE(query.getUniversal().EQ(universal));
+    query.WHERE(query.getGeoObjectType().EQ(type.getOid()));
 
     List<? extends ListType> lists = query.getIterator().getAll();
 
@@ -970,43 +964,40 @@ public abstract class ListType extends ListTypeBase
     ServerOrganization org = type.getOrganization();
 
     final JsonArray lists = new JsonArray();
-    // TODO: HEADS UP
-    // ListTypeQuery query = new ListTypeQuery(new QueryFactory());
-    // query.WHERE(query.getUniversal().EQ(type.getUniversal()));
-    //
-    //
-    // try (OIterator<? extends ListType> it = query.getIterator())
-    // {
-    // it.getAll().stream().sorted((a, b) -> {
-    //
-    // int compareTo = a.getType().compareTo(b.getType());
-    //
-    // if (compareTo == 0)
-    // {
-    // return
-    // a.getDisplayLabel().getValue().compareTo(b.getDisplayLabel().getValue());
-    // }
-    //
-    // return compareTo;
-    // }).filter(f -> {
-    // // TODO Make visible if the type has a public version???
-    // // return isMember;
-    //
-    // return true;
-    // }).forEach(list -> {
-    // // JsonObject object = new JsonObject();
-    // // object.addProperty("label", list.getDisplayLabel().getValue());
-    // // object.addProperty("oid", list.getOid());
-    // // object.addProperty("createDate",
-    // // format.format(list.getCreateDate()));
-    // // object.addProperty("lasteUpdateDate",
-    // // format.format(list.getLastUpdateDate()));
-    // // object.addProperty("write", list.doesActorHaveWritePermission());
-    // // object.addProperty("read", list.doesActorHaveReadPermission());
-    // //
-    // lists.add(list.toJSON());
-    // });
-    // }
+    ListTypeQuery query = new ListTypeQuery(new QueryFactory());
+    query.WHERE(query.getGeoObjectType().EQ(type.getOid()));
+
+    try (OIterator<? extends ListType> it = query.getIterator())
+    {
+      it.getAll().stream().sorted((a, b) -> {
+
+        int compareTo = a.getType().compareTo(b.getType());
+
+        if (compareTo == 0)
+        {
+          return a.getDisplayLabel().getValue().compareTo(b.getDisplayLabel().getValue());
+        }
+
+        return compareTo;
+      }).filter(f -> {
+        // TODO Make visible if the type has a public version???
+        // return isMember;
+
+        return true;
+      }).forEach(list -> {
+        // JsonObject object = new JsonObject();
+        // object.addProperty("label", list.getDisplayLabel().getValue());
+        // object.addProperty("oid", list.getOid());
+        // object.addProperty("createDate",
+        // format.format(list.getCreateDate()));
+        // object.addProperty("lasteUpdateDate",
+        // format.format(list.getLastUpdateDate()));
+        // object.addProperty("write", list.doesActorHaveWritePermission());
+        // object.addProperty("read", list.doesActorHaveReadPermission());
+        //
+        lists.add(list.toJSON());
+      });
+    }
 
     JsonObject object = new JsonObject();
     object.addProperty("orgCode", org.getCode());
@@ -1053,16 +1044,13 @@ public abstract class ListType extends ListTypeBase
 
   public static List<ListType> getForType(ServerGeoObjectType type)
   {
-    // TODO: HEADS UP
-    //
-    // ListTypeQuery query = new ListTypeQuery(new QueryFactory());
-    // query.WHERE(query.getUniversal().EQ(type.getUniversal()));
-    //
-    // try (OIterator<? extends ListType> it = query.getIterator())
-    // {
-    // return new LinkedList<ListType>(it.getAll());
-    // }
-    return new LinkedList<>();
+    ListTypeQuery query = new ListTypeQuery(new QueryFactory());
+    query.WHERE(query.getGeoObjectType().EQ(type.getOid()));
+
+    try (OIterator<? extends ListType> it = query.getIterator())
+    {
+      return new LinkedList<ListType>(it.getAll());
+    }
   }
 
   public static void createMdAttribute(ServerGeoObjectType type, AttributeType attributeType)

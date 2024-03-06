@@ -75,7 +75,7 @@ public class ListCurationJob extends ListCurationJobBase
   private JobHistoryRecord startInTrans(ListTypeVersion version)
   {
     final ListType listType = version.getListType();
-    final ServerGeoObjectType type = listType.getGeoObjectType();
+    final ServerGeoObjectType type = listType.getServerGeoObjectType();
     final Organization org = listType.getOrganization();
 
     RolePermissionService permissions = ServiceFactory.getBean(RolePermissionService.class);

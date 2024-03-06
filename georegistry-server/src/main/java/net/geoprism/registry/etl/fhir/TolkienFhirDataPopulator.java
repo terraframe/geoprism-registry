@@ -84,7 +84,7 @@ public class TolkienFhirDataPopulator extends AbstractFhirDataPopulator implemen
   {
     super.populate(row, facility);
 
-    ServerGeoObjectType type = this.getList().getGeoObjectType();
+    ServerGeoObjectType type = this.getList().getServerGeoObjectType();
     String label = type.getLabel().getValue();
     String system = this.getContext().getSystem();
 

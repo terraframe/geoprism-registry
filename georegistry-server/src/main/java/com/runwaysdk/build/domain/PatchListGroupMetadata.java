@@ -88,7 +88,7 @@ public class PatchListGroupMetadata
   public void patch(ListTypeVersion version, LocalizedValueStoreStoreValue defaultLocaleLabel, Collection<SupportedLocaleIF> locales)
   {
     ListType listType = version.getListType();
-    ServerGeoObjectType type = listType.getGeoObjectType();
+    ServerGeoObjectType type = listType.getServerGeoObjectType();
     Collection<AttributeType> attributes = type.toDTO().getAttributeMap().values();
 
     TableMetadata metadata = new TableMetadata(version.getMdBusiness(), type);

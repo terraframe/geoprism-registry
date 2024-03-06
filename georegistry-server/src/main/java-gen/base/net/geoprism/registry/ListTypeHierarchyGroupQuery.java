@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -2087388731)
+@com.runwaysdk.business.ClassSignature(hash = 1420792915)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -56,43 +38,23 @@ public  class ListTypeHierarchyGroupQuery extends net.geoprism.registry.ListType
   {
     return net.geoprism.registry.ListTypeHierarchyGroup.CLASS;
   }
-  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy()
+  public com.runwaysdk.query.SelectableUUID getGraphHierarchy()
   {
-    return getHierarchy(null);
+    return getGraphHierarchy(null);
 
   }
  
-  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy(String alias)
+  public com.runwaysdk.query.SelectableUUID getGraphHierarchy(String alias)
   {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.ListTypeHierarchyGroup.HIERARCHY);
-
-    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.ListTypeHierarchyGroup.HIERARCHY, mdAttributeIF, this, alias, null);
+    return (com.runwaysdk.query.SelectableUUID)this.getComponentQuery().get(net.geoprism.registry.ListTypeHierarchyGroup.GRAPHHIERARCHY, alias, null);
 
   }
  
-  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableUUID getGraphHierarchy(String alias, String displayLabel)
   {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.ListTypeHierarchyGroup.HIERARCHY);
-
-    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.ListTypeHierarchyGroup.HIERARCHY, mdAttributeIF, this, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableUUID)this.getComponentQuery().get(net.geoprism.registry.ListTypeHierarchyGroup.GRAPHHIERARCHY, alias, displayLabel);
 
   }
-  protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
-  {
-    String name = mdAttributeIF.definesAttribute();
-    
-    if (name.equals(net.geoprism.registry.ListTypeHierarchyGroup.HIERARCHY)) 
-    {
-       return new net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else 
-    {
-      return super.referenceFactory(mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-  }
-
   /**  
    * Returns an iterator of Business objects that match the query criteria specified
    * on this query object. 
@@ -125,9 +87,9 @@ public  class ListTypeHierarchyGroupQuery extends net.geoprism.registry.ListType
   public interface ListTypeHierarchyGroupQueryReferenceIF extends net.geoprism.registry.ListTypeGroupQuery.ListTypeGroupQueryReferenceIF
   {
 
-    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy();
-    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy(String alias);
-    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableUUID getGraphHierarchy();
+    public com.runwaysdk.query.SelectableUUID getGraphHierarchy(String alias);
+    public com.runwaysdk.query.SelectableUUID getGraphHierarchy(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.ListTypeHierarchyGroup listTypeHierarchyGroup);
 
@@ -163,37 +125,23 @@ public  class ListTypeHierarchyGroupQuery extends net.geoprism.registry.ListType
       return this.NE(listTypeHierarchyGroup.getOid());
     }
 
-  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy()
+  public com.runwaysdk.query.SelectableUUID getGraphHierarchy()
   {
-    return getHierarchy(null);
+    return getGraphHierarchy(null);
 
   }
  
-  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy(String alias)
+  public com.runwaysdk.query.SelectableUUID getGraphHierarchy(String alias)
   {
-    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.get(net.geoprism.registry.ListTypeHierarchyGroup.HIERARCHY, alias, null);
+    return (com.runwaysdk.query.SelectableUUID)this.get(net.geoprism.registry.ListTypeHierarchyGroup.GRAPHHIERARCHY, alias, null);
 
   }
  
-  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableUUID getGraphHierarchy(String alias, String displayLabel)
   {
-    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.get(net.geoprism.registry.ListTypeHierarchyGroup.HIERARCHY,  alias, displayLabel);
+    return (com.runwaysdk.query.SelectableUUID)this.get(net.geoprism.registry.ListTypeHierarchyGroup.GRAPHHIERARCHY, alias, displayLabel);
 
   }
-  protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
-  {
-    String name = mdAttributeIF.definesAttribute();
-    
-    if (name.equals(net.geoprism.registry.ListTypeHierarchyGroup.HIERARCHY)) 
-    {
-       return new net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else 
-    {
-      return super.referenceFactory(mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-  }
-
   }
 
 /**
@@ -203,9 +151,9 @@ public  class ListTypeHierarchyGroupQuery extends net.geoprism.registry.ListType
   public interface ListTypeHierarchyGroupQueryMultiReferenceIF extends net.geoprism.registry.ListTypeGroupQuery.ListTypeGroupQueryMultiReferenceIF
   {
 
-    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy();
-    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy(String alias);
-    public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableUUID getGraphHierarchy();
+    public com.runwaysdk.query.SelectableUUID getGraphHierarchy(String alias);
+    public com.runwaysdk.query.SelectableUUID getGraphHierarchy(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.ListTypeHierarchyGroup ... listTypeHierarchyGroup);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.ListTypeHierarchyGroup ... listTypeHierarchyGroup);
@@ -290,36 +238,22 @@ public  class ListTypeHierarchyGroupQuery extends net.geoprism.registry.ListType
 
       return this.containsExactly(itemIdArray);
   }
-  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy()
+  public com.runwaysdk.query.SelectableUUID getGraphHierarchy()
   {
-    return getHierarchy(null);
+    return getGraphHierarchy(null);
 
   }
  
-  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy(String alias)
+  public com.runwaysdk.query.SelectableUUID getGraphHierarchy(String alias)
   {
-    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.get(net.geoprism.registry.ListTypeHierarchyGroup.HIERARCHY, alias, null);
+    return (com.runwaysdk.query.SelectableUUID)this.get(net.geoprism.registry.ListTypeHierarchyGroup.GRAPHHIERARCHY, alias, null);
 
   }
  
-  public net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF getHierarchy(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableUUID getGraphHierarchy(String alias, String displayLabel)
   {
-    return (net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReferenceIF)this.get(net.geoprism.registry.ListTypeHierarchyGroup.HIERARCHY,  alias, displayLabel);
+    return (com.runwaysdk.query.SelectableUUID)this.get(net.geoprism.registry.ListTypeHierarchyGroup.GRAPHHIERARCHY, alias, displayLabel);
 
   }
-  protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
-  {
-    String name = mdAttributeIF.definesAttribute();
-    
-    if (name.equals(net.geoprism.registry.ListTypeHierarchyGroup.HIERARCHY)) 
-    {
-       return new net.geoprism.registry.HierarchicalRelationshipTypeQuery.HierarchicalRelationshipTypeQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else 
-    {
-      return super.referenceFactory(mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-  }
-
   }
 }

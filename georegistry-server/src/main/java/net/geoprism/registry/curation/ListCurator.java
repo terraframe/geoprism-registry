@@ -51,7 +51,7 @@ public class ListCurator
   public void run()
   {
     final ListType masterlist = version.getListType();
-    final ServerGeoObjectType type = masterlist.getGeoObjectType();
+    final ServerGeoObjectType type = masterlist.getServerGeoObjectType();
     // final MdBusinessDAO mdBusiness =
     // MdBusinessDAO.get(version.getMdBusinessOid()).getBusinessDAO();
 

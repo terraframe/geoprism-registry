@@ -1,29 +1,11 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1250897842)
+@com.runwaysdk.business.ClassSignature(hash = -1375851748)
 public abstract class ListTypeHierarchyGroupDTOBase extends net.geoprism.registry.ListTypeGroupDTO
 {
   public final static String CLASS = "net.geoprism.registry.ListTypeHierarchyGroup";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1250897842;
+  private static final long serialVersionUID = -1375851748;
   
   protected ListTypeHierarchyGroupDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -46,56 +28,7 @@ public abstract class ListTypeHierarchyGroupDTOBase extends net.geoprism.registr
     return CLASS;
   }
   
-  public static final java.lang.String HIERARCHY = "hierarchy";
-  public net.geoprism.registry.HierarchicalRelationshipTypeDTO getHierarchy()
-  {
-    if(getValue(HIERARCHY) == null || getValue(HIERARCHY).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return net.geoprism.registry.HierarchicalRelationshipTypeDTO.get(getRequest(), getValue(HIERARCHY));
-    }
-  }
-  
-  public String getHierarchyOid()
-  {
-    return getValue(HIERARCHY);
-  }
-  
-  public void setHierarchy(net.geoprism.registry.HierarchicalRelationshipTypeDTO value)
-  {
-    if(value == null)
-    {
-      setValue(HIERARCHY, "");
-    }
-    else
-    {
-      setValue(HIERARCHY, value.getOid());
-    }
-  }
-  
-  public boolean isHierarchyWritable()
-  {
-    return isWritable(HIERARCHY);
-  }
-  
-  public boolean isHierarchyReadable()
-  {
-    return isReadable(HIERARCHY);
-  }
-  
-  public boolean isHierarchyModified()
-  {
-    return isModified(HIERARCHY);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getHierarchyMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(HIERARCHY).getAttributeMdDTO();
-  }
-  
+  public static java.lang.String GRAPHHIERARCHY = "graphHierarchy";
   public static net.geoprism.registry.ListTypeHierarchyGroupDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)
   {
     com.runwaysdk.business.EntityDTO dto = (com.runwaysdk.business.EntityDTO)clientRequest.get(oid);

@@ -61,7 +61,7 @@ public class CurationService
   public JsonObject getListCurationInfo(ListTypeVersion version)
   {
     final ListType listType = version.getListType();
-    final ServerGeoObjectType serverGOT = listType.getGeoObjectType();
+    final ServerGeoObjectType serverGOT = listType.getServerGeoObjectType();
     final String orgCode = listType.getOrganization().getCode();
 
     this.checkPermissions(orgCode, serverGOT);
@@ -99,7 +99,7 @@ public class CurationService
     final ListType listType = version.getListType();
     final ListCurationJob job = (ListCurationJob) hist.getAllJob().getAll().get(0);
     final GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
-    final ServerGeoObjectType serverGOT = listType.getGeoObjectType();
+    final ServerGeoObjectType serverGOT = listType.getServerGeoObjectType();
     final String orgCode = listType.getOrganization().getCode();
 
     this.checkPermissions(orgCode, serverGOT);
@@ -117,7 +117,7 @@ public class CurationService
     final ListCurationHistory hist = ListCurationHistory.get(historyId);
     final ListTypeVersion version = hist.getVersion();
     final ListType listType = version.getListType();
-    final ServerGeoObjectType serverGOT = listType.getGeoObjectType();
+    final ServerGeoObjectType serverGOT = listType.getServerGeoObjectType();
     final String orgCode = listType.getOrganization().getCode();
 
     this.checkPermissions(orgCode, serverGOT);
@@ -148,7 +148,7 @@ public class CurationService
   {
     final ListTypeVersion version = ListTypeVersion.get(listTypeVersionId);
     final ListType listType = version.getListType();
-    final ServerGeoObjectType serverGOT = listType.getGeoObjectType();
+    final ServerGeoObjectType serverGOT = listType.getServerGeoObjectType();
     final String orgCode = listType.getOrganization().getCode();
 
     this.checkPermissions(orgCode, serverGOT);

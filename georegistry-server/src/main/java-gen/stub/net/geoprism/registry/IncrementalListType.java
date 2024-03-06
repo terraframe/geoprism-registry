@@ -281,7 +281,7 @@ public class IncrementalListType extends IncrementalListTypeBase
       throw new InvalidMasterListException();
     }
 
-    final ServerGeoObjectType objectType = this.getGeoObjectType();
+    final ServerGeoObjectType objectType = this.getServerGeoObjectType();
     Pair<Date, Date> range = this.getDateRange(objectType);
 
     if (metadata == null)

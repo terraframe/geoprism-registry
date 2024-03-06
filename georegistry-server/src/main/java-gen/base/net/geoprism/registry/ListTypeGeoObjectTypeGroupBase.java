@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1419453990)
+@com.runwaysdk.business.ClassSignature(hash = 749315200)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -29,14 +11,42 @@ package net.geoprism.registry;
 public abstract class ListTypeGeoObjectTypeGroupBase extends net.geoprism.registry.ListTypeGroup
 {
   public final static String CLASS = "net.geoprism.registry.ListTypeGeoObjectTypeGroup";
-  public static final java.lang.String LEVEL = "level";
-  public static final java.lang.String UNIVERSAL = "universal";
+  public final static java.lang.String GEOOBJECTTYPE = "geoObjectType";
+  public final static java.lang.String LEVEL = "level";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = -1419453990;
+  private static final long serialVersionUID = 749315200;
   
   public ListTypeGeoObjectTypeGroupBase()
   {
     super();
+  }
+  
+  public net.geoprism.registry.graph.GeoObjectType getGeoObjectType()
+  {
+    return (net.geoprism.registry.graph.GeoObjectType)com.runwaysdk.business.graph.VertexObject.get("net.geoprism.registry.graph.GeoObjectType", getValue(GEOOBJECTTYPE));
+  }
+  
+  public void validateGeoObjectType()
+  {
+    this.validateAttribute(GEOOBJECTTYPE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeGraphReferenceDAOIF getGeoObjectTypeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeGeoObjectTypeGroup.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeGraphReferenceDAOIF)mdClassIF.definesAttribute(GEOOBJECTTYPE);
+  }
+  
+  public void setGeoObjectType(net.geoprism.registry.graph.GeoObjectType value)
+  {
+    if(value == null)
+    {
+      setValue(GEOOBJECTTYPE, "");
+    }
+    else
+    {
+      setValue(GEOOBJECTTYPE, value.getOid());
+    }
   }
   
   public Integer getLevel()
@@ -64,58 +74,6 @@ public abstract class ListTypeGeoObjectTypeGroupBase extends net.geoprism.regist
     else
     {
       setValue(LEVEL, java.lang.Integer.toString(value));
-    }
-  }
-  
-  public com.runwaysdk.system.gis.geo.Universal getUniversal()
-  {
-    if (getValue(UNIVERSAL).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return com.runwaysdk.system.gis.geo.Universal.get(getValue(UNIVERSAL));
-    }
-  }
-  
-  public String getUniversalOid()
-  {
-    return getValue(UNIVERSAL);
-  }
-  
-  public void validateUniversal()
-  {
-    this.validateAttribute(UNIVERSAL);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getUniversalMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeGeoObjectTypeGroup.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(UNIVERSAL);
-  }
-  
-  public void setUniversal(com.runwaysdk.system.gis.geo.Universal value)
-  {
-    if(value == null)
-    {
-      setValue(UNIVERSAL, "");
-    }
-    else
-    {
-      setValue(UNIVERSAL, value.getOid());
-    }
-  }
-  
-  public void setUniversalId(java.lang.String oid)
-  {
-    if(oid == null)
-    {
-      setValue(UNIVERSAL, "");
-    }
-    else
-    {
-      setValue(UNIVERSAL, oid);
     }
   }
   

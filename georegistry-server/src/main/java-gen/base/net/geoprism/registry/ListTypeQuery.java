@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1773319556)
+@com.runwaysdk.business.ClassSignature(hash = -1671210524)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -197,6 +179,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getFilterJson(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.FILTERJSON, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableUUID getGeoObjectType()
+  {
+    return getGeoObjectType(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableUUID getGeoObjectType(String alias)
+  {
+    return (com.runwaysdk.query.SelectableUUID)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOOBJECTTYPE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableUUID getGeoObjectType(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableUUID)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOOBJECTTYPE, alias, displayLabel);
 
   }
   public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints()
@@ -1186,29 +1185,6 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.TYPE, alias, displayLabel);
 
   }
-  public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal()
-  {
-    return getUniversal(null);
-
-  }
- 
-  public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal(String alias)
-  {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.ListType.UNIVERSAL);
-
-    return (com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.ListType.UNIVERSAL, mdAttributeIF, this, alias, null);
-
-  }
- 
-  public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal(String alias, String displayLabel)
-  {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.ListType.UNIVERSAL);
-
-    return (com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.ListType.UNIVERSAL, mdAttributeIF, this, alias, displayLabel);
-
-  }
   public com.runwaysdk.query.SelectableBoolean getValid()
   {
     return getValid(null);
@@ -1253,10 +1229,6 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     else if (name.equals(net.geoprism.registry.ListType.OWNER)) 
     {
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else if (name.equals(net.geoprism.registry.ListType.UNIVERSAL)) 
-    {
-       return new com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {
@@ -1401,6 +1373,9 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getFilterJson();
     public com.runwaysdk.query.SelectableChar getFilterJson(String alias);
     public com.runwaysdk.query.SelectableChar getFilterJson(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableUUID getGeoObjectType();
+    public com.runwaysdk.query.SelectableUUID getGeoObjectType(String alias);
+    public com.runwaysdk.query.SelectableUUID getGeoObjectType(String alias, String displayLabel);
     public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints();
     public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints(String alias);
     public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints(String alias, String displayLabel);
@@ -1554,9 +1529,6 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
-    public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal();
-    public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal(String alias);
-    public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableBoolean getValid();
     public com.runwaysdk.query.SelectableBoolean getValid(String alias);
     public com.runwaysdk.query.SelectableBoolean getValid(String alias, String displayLabel);
@@ -1712,6 +1684,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getFilterJson(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.FILTERJSON, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableUUID getGeoObjectType()
+  {
+    return getGeoObjectType(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableUUID getGeoObjectType(String alias)
+  {
+    return (com.runwaysdk.query.SelectableUUID)this.get(net.geoprism.registry.ListType.GEOOBJECTTYPE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableUUID getGeoObjectType(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableUUID)this.get(net.geoprism.registry.ListType.GEOOBJECTTYPE, alias, displayLabel);
 
   }
   public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints()
@@ -2581,23 +2570,6 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.TYPE, alias, displayLabel);
 
   }
-  public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal()
-  {
-    return getUniversal(null);
-
-  }
- 
-  public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal(String alias)
-  {
-    return (com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF)this.get(net.geoprism.registry.ListType.UNIVERSAL, alias, null);
-
-  }
- 
-  public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF)this.get(net.geoprism.registry.ListType.UNIVERSAL,  alias, displayLabel);
-
-  }
   public com.runwaysdk.query.SelectableBoolean getValid()
   {
     return getValid(null);
@@ -2642,10 +2614,6 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     else if (name.equals(net.geoprism.registry.ListType.OWNER)) 
     {
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else if (name.equals(net.geoprism.registry.ListType.UNIVERSAL)) 
-    {
-       return new com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {
@@ -2767,6 +2735,9 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getFilterJson();
     public com.runwaysdk.query.SelectableChar getFilterJson(String alias);
     public com.runwaysdk.query.SelectableChar getFilterJson(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableUUID getGeoObjectType();
+    public com.runwaysdk.query.SelectableUUID getGeoObjectType(String alias);
+    public com.runwaysdk.query.SelectableUUID getGeoObjectType(String alias, String displayLabel);
     public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints();
     public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints(String alias);
     public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints(String alias, String displayLabel);
@@ -2920,9 +2891,6 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
-    public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal();
-    public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal(String alias);
-    public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableBoolean getValid();
     public com.runwaysdk.query.SelectableBoolean getValid(String alias);
     public com.runwaysdk.query.SelectableBoolean getValid(String alias, String displayLabel);
@@ -3129,6 +3097,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.FILTERJSON, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableUUID getGeoObjectType()
+  {
+    return getGeoObjectType(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableUUID getGeoObjectType(String alias)
+  {
+    return (com.runwaysdk.query.SelectableUUID)this.get(net.geoprism.registry.ListType.GEOOBJECTTYPE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableUUID getGeoObjectType(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableUUID)this.get(net.geoprism.registry.ListType.GEOOBJECTTYPE, alias, displayLabel);
+
+  }
   public net.geoprism.registry.ListTypeGeospatialAccessConstraintsQuery.ListTypeGeospatialAccessConstraintsQueryStructIF getGeospatialAccessConstraints()
   {
     return getGeospatialAccessConstraints(null);
@@ -3996,23 +3981,6 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.TYPE, alias, displayLabel);
 
   }
-  public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal()
-  {
-    return getUniversal(null);
-
-  }
- 
-  public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal(String alias)
-  {
-    return (com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF)this.get(net.geoprism.registry.ListType.UNIVERSAL, alias, null);
-
-  }
- 
-  public com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF getUniversal(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReferenceIF)this.get(net.geoprism.registry.ListType.UNIVERSAL,  alias, displayLabel);
-
-  }
   public com.runwaysdk.query.SelectableBoolean getValid()
   {
     return getValid(null);
@@ -4057,10 +4025,6 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     else if (name.equals(net.geoprism.registry.ListType.OWNER)) 
     {
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else if (name.equals(net.geoprism.registry.ListType.UNIVERSAL)) 
-    {
-       return new com.runwaysdk.system.gis.geo.UniversalQuery.UniversalQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {

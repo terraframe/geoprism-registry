@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -82,7 +82,7 @@ public class ListTypeGeoObjectTypeGroup extends ListTypeGeoObjectTypeGroupBase
     {
       return column;
     }
-    
+
     return null;
   }
 
@@ -90,8 +90,7 @@ public class ListTypeGeoObjectTypeGroup extends ListTypeGeoObjectTypeGroupBase
   {
     ListTypeGeoObjectTypeGroup group = new ListTypeGeoObjectTypeGroup();
     group.setVersion(version);
-    // TODO: HEADS UP
-//    group.setUniversal(type.getUniversal());
+    group.setGeoObjectType(type.getType());
     group.setLevel(level);
     group.setParent(parent);
 
@@ -107,8 +106,7 @@ public class ListTypeGeoObjectTypeGroup extends ListTypeGeoObjectTypeGroupBase
     ListTypeGeoObjectTypeGroupQuery query = new ListTypeGeoObjectTypeGroupQuery(new QueryFactory());
     query.WHERE(query.getVersion().EQ(version));
     query.AND(query.getParent().EQ((String) null));
-    // TODO: HEADS UP
-//    query.AND(query.getUniversal().EQ(type.getUniversal()));
+    query.AND(query.getGeoObjectType().EQ(type.getOid()));
 
     try (OIterator<? extends ListTypeGeoObjectTypeGroup> it = query.getIterator())
     {

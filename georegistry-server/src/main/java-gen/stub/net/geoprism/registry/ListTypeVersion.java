@@ -241,9 +241,9 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   {
     int count = 0;
 
-    MdBusiness mdBusiness = this.getListType().getUniversal().getMdBusiness();
+    String tableName = this.getListType().getServerGeoObjectType().getDBClassName();
 
-    String name = PREFIX + count + mdBusiness.getTableName();
+    String name = PREFIX + count + tableName;
 
     if (name.length() > 25)
     {
@@ -254,7 +254,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       count++;
 
-      name = PREFIX + count + mdBusiness.getTableName();
+      name = PREFIX + count + tableName;
 
       if (name.length() > 25)
       {
@@ -598,7 +598,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     Collection<SupportedLocaleIF> locales = LocalizationFacade.getSupportedLocales();
 
-    ServerGeoObjectType type = masterlist.getGeoObjectType();
+    ServerGeoObjectType type = masterlist.getServerGeoObjectType();
 
     TableMetadata metadata = new TableMetadata(mdBusiness, type);
 
@@ -865,8 +865,6 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     final File file = new File(directory, filename);
 
-    List<ListColumn> columns = this.getAttributeColumns();
-
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
 
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> this.isValid(mdAttribute)).collect(Collectors.toList());
@@ -956,14 +954,14 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         statusDefaultLocale.delete();
       }
 
-      ServerGeoObjectType type = masterlist.getGeoObjectType();
+      ServerGeoObjectType type = masterlist.getServerGeoObjectType();
 
       Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
 
       // Add the type ancestor fields
       GeoObjectTypeBusinessServiceIF typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
       Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
-      Collection<AttributeType> attributes = type.getAttributeMap().values().stream().map(t -> t.toDTO()).collect(Collectors.toList());
+      Collection<AttributeType> attributes = type.toDTO().getAttributeMap().values();
       Set<ServerHierarchyType> hierarchiesOfSubTypes = typeService.getHierarchiesOfSubTypes(type);
 
       // ServerGeoObjectService service = new ServerGeoObjectService();
@@ -1247,7 +1245,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
       // Add the type ancestor fields
       GeoObjectTypeBusinessServiceIF typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
-      ServerGeoObjectType type = masterlist.getGeoObjectType();
+      ServerGeoObjectType type = masterlist.getServerGeoObjectType();
       Set<ServerHierarchyType> hierarchiesOfSubTypes = typeService.getHierarchiesOfSubTypes(type);
       Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
       Collection<AttributeType> attributes = type.toDTO().getAttributeMap().values();
@@ -1290,7 +1288,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
       // Add the type ancestor fields
       GeoObjectTypeBusinessServiceIF typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
-      ServerGeoObjectType type = masterlist.getGeoObjectType();
+      ServerGeoObjectType type = masterlist.getServerGeoObjectType();
       Set<ServerHierarchyType> hierarchiesOfSubTypes = typeService.getHierarchiesOfSubTypes(type);
       Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
       Collection<AttributeType> attributes = type.toDTO().getAttributeMap().values();
@@ -1342,7 +1340,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
       // Add the type ancestor fields
       GeoObjectTypeBusinessServiceIF typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
-      ServerGeoObjectType type = masterlist.getGeoObjectType();
+      ServerGeoObjectType type = masterlist.getServerGeoObjectType();
       Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
       Set<ServerHierarchyType> hierarchiesOfSubTypes = typeService.getHierarchiesOfSubTypes(type);
       Collection<AttributeType> attributes = type.toDTO().getAttributeMap().values();
@@ -1425,7 +1423,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     final File directory = masterlist.getShapefileDirectory();
     final File file = new File(directory, filename);
 
-    ServerGeoObjectType type = masterlist.getGeoObjectType();
+    ServerGeoObjectType type = masterlist.getServerGeoObjectType();
 
     GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
     boolean isMember = permissions.isMemberOrSRA(masterlist.getOrganization());
@@ -1998,7 +1996,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       version.parse(metadata);
     }
 
-    ServerGeoObjectType type = listType.getGeoObjectType();
+    ServerGeoObjectType type = listType.getServerGeoObjectType();
 
     if (type.getIsPrivate() && ( version.getListVisibility().equals(ListType.PUBLIC) || version.getGeospatialVisibility().equals(ListType.PUBLIC) ))
     {

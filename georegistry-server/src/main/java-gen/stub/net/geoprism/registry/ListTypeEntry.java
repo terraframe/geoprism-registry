@@ -80,7 +80,7 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
   {
     ListType listType = this.getListType();
 
-    ServerGeoObjectType type = listType.getGeoObjectType();
+    ServerGeoObjectType type = listType.getServerGeoObjectType();
     ServerOrganization organization = type.getOrganization();
 
     JsonObject object = new JsonObject();

@@ -1,29 +1,11 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1812953946)
+@com.runwaysdk.business.ClassSignature(hash = -1493277184)
 public abstract class ListTypeGeoObjectTypeGroupDTOBase extends net.geoprism.registry.ListTypeGroupDTO
 {
   public final static String CLASS = "net.geoprism.registry.ListTypeGeoObjectTypeGroup";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 1812953946;
+  private static final long serialVersionUID = -1493277184;
   
   protected ListTypeGeoObjectTypeGroupDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -46,8 +28,8 @@ public abstract class ListTypeGeoObjectTypeGroupDTOBase extends net.geoprism.reg
     return CLASS;
   }
   
-  public static final java.lang.String LEVEL = "level";
-  public static final java.lang.String UNIVERSAL = "universal";
+  public static java.lang.String GEOOBJECTTYPE = "geoObjectType";
+  public static java.lang.String LEVEL = "level";
   public Integer getLevel()
   {
     return com.runwaysdk.constants.MdAttributeIntegerUtil.getTypeSafeValue(getValue(LEVEL));
@@ -83,55 +65,6 @@ public abstract class ListTypeGeoObjectTypeGroupDTOBase extends net.geoprism.reg
   public final com.runwaysdk.transport.metadata.AttributeNumberMdDTO getLevelMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeNumberMdDTO) getAttributeDTO(LEVEL).getAttributeMdDTO();
-  }
-  
-  public com.runwaysdk.system.gis.geo.UniversalDTO getUniversal()
-  {
-    if(getValue(UNIVERSAL) == null || getValue(UNIVERSAL).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return com.runwaysdk.system.gis.geo.UniversalDTO.get(getRequest(), getValue(UNIVERSAL));
-    }
-  }
-  
-  public String getUniversalOid()
-  {
-    return getValue(UNIVERSAL);
-  }
-  
-  public void setUniversal(com.runwaysdk.system.gis.geo.UniversalDTO value)
-  {
-    if(value == null)
-    {
-      setValue(UNIVERSAL, "");
-    }
-    else
-    {
-      setValue(UNIVERSAL, value.getOid());
-    }
-  }
-  
-  public boolean isUniversalWritable()
-  {
-    return isWritable(UNIVERSAL);
-  }
-  
-  public boolean isUniversalReadable()
-  {
-    return isReadable(UNIVERSAL);
-  }
-  
-  public boolean isUniversalModified()
-  {
-    return isModified(UNIVERSAL);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getUniversalMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(UNIVERSAL).getAttributeMdDTO();
   }
   
   public static net.geoprism.registry.ListTypeGeoObjectTypeGroupDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)
