@@ -1,10 +1,12 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
+<!-- 
     <delete>
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListType.universal" />    
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListTypeHierarchyGroup.hierarchy" />    
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListTypeGeoObjectTypeGroup.universal" />    
     </delete>
+ -->  
     <update>
       <mdBusiness name="net.geoprism.registry.ListType">
         <create>
@@ -103,13 +105,13 @@
           <mdBusinessPermission type="net.geoprism.registry.graph.AttributeGeometryValue">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributePointValue">
+          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeMultiPointValue">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributePolygonValue">
+          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeMultiPolygonValue">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeLineValue">
+          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeMultiLineValue">
             <operation name="ALL" />
           </mdBusinessPermission>
           <mdBusinessPermission type="net.geoprism.registry.graph.AttributeShapeValue">
@@ -218,15 +220,15 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributePointValue">
+          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeMultiPointValue">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributePolygonValue">
+          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeMultiPolygonValue">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeLineValue">
+          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeMultiLineValue">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
@@ -339,15 +341,15 @@
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributePointValue">
+          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeMultiPointValue">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributePolygonValue">
+          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeMultiPolygonValue">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeLineValue">
+          <mdBusinessPermission type="net.geoprism.registry.graph.AttributeMultiLineValue">
             <operation name="READ" />
             <operation name="READ_ALL_ATTRIBUTES" />
           </mdBusinessPermission>
@@ -368,5 +370,11 @@
     </permissions>    
   </doIt>
   <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListType.geoObjectType" />    
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListTypeHierarchyGroup.graphHierarchy" />    
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListTypeGeoObjectTypeGroup.geoObjectType" />    
+    </delete>
+  
   </undoIt>
 </version>

@@ -98,6 +98,7 @@ public class RegistryVersionTest extends FastDatasetTest implements InstanceTest
    * that the operation is ignored.
    */
   @Test
+  @Request
   public void testInsertDuplicateBetween() throws ParseException
   {
     final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
