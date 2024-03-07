@@ -183,7 +183,7 @@ public class PatchListGroupMetadata
       {
         String hCode = hierarchy.get("code").getAsString();
 
-        ServerHierarchyType hierarchyType = ServiceFactory.getMetadataCache().getHierachyType(hCode).get();
+        ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
 
         HierarchyGroup hierarchyGroup = metadata.addRootHierarchyGroup(hierarchyType);
 

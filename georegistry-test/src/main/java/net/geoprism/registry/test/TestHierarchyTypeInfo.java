@@ -3,14 +3,13 @@
  */
 package net.geoprism.registry.test;
 
-import java.util.Optional;
-
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
 import net.geoprism.registry.graph.HierarchicalRelationshipType;
 import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -85,23 +84,7 @@ public class TestHierarchyTypeInfo
 
   public ServerHierarchyType getServerObject(boolean forceFetch)
   {
-    if (this.serverObj != null && !forceFetch)
-    {
-      return this.serverObj;
-    }
-
-    Optional<ServerHierarchyType> hierarchyType = ServiceFactory.getMetadataCache().getHierachyType(code);
-
-    if (hierarchyType.isPresent())
-    {
-      if (this.doesMdTermRelationshipExist())
-      {
-        this.serverObj = ServerHierarchyType.get(getCode());
-        return this.serverObj;
-      }
-    }
-
-    return null;
+    return ServerHierarchyType.get(code, false);
   }
 
   public Boolean doesMdTermRelationshipExist()
@@ -146,7 +129,15 @@ public class TestHierarchyTypeInfo
   public void setRoot(TestGeoObjectTypeInfo type)
   {
     HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
-    service.addToHierarchy(this.serverObj, RootGeoObjectType.INSTANCE, type.getServerObject());
+
+    try
+    {
+      service.addToHierarchy(this.serverObj, RootGeoObjectType.INSTANCE, type.getServerObject());
+    }
+    catch (GeoObjectTypeAlreadyInHierarchyException e)
+    {
+      // IGNORE
+    }
   }
 
   @Request

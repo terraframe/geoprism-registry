@@ -15,6 +15,7 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.Universal;
 
+import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
@@ -200,11 +201,16 @@ public class TestGeoObjectTypeInfo
 
     HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
 
-    service.addToHierarchy(hierarchy.getServerObject(), this.getServerObject(), child.getServerObject());
-    // this.getServerObject().add(child.getServerObject(),
-    // hierarchy.getServerObject());
-    // return child.getUniversal().addLink(universal,
-    // hierarchy.getServerObject());
+    try
+    {
+
+      service.addToHierarchy(hierarchy.getServerObject(), this.getServerObject(), child.getServerObject());
+    }
+    catch (GeoObjectTypeAlreadyInHierarchyException e)
+    {
+      // IGNORE - This can happen on the FastTestDataset because its not cleaned
+      // up after running
+    }
   }
 
   public void assertEquals(GeoObjectType got)

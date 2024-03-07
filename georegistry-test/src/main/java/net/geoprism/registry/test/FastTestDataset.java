@@ -177,8 +177,6 @@ public class FastTestDataset extends TestDataSet
 
     try
     {
-      HierarchyTypeBusinessServiceIF hService = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
-
       HIER_ADMIN.setRoot(COUNTRY);
       COUNTRY.addChild(PROVINCE, HIER_ADMIN);
       COUNTRY.addChild(PROVINCE_PRIVATE, HIER_ADMIN);

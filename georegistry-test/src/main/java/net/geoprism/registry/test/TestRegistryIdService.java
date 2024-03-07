@@ -26,8 +26,6 @@ public class TestRegistryIdService implements AdapterIdServiceIF
   {
     this.cache = new HashSet<String>(100);
     this.lock = new Object();
-    
-    this.populate(1000);
   }
 
   @Override
@@ -59,19 +57,17 @@ public class TestRegistryIdService implements AdapterIdServiceIF
   {
     synchronized (lock)
     {
-      if (this.cache.size() > 0)
+      if (this.cache.size() == 0)
       {
-        Iterator<String> it = this.cache.iterator();
-
-        String id = it.next();
-        it.remove();
-
-        return id;
+        this.populate(10);
       }
-      else
-      {
-        throw new EmptyIdCacheException();
-      }
+
+      Iterator<String> it = this.cache.iterator();
+
+      String id = it.next();
+      it.remove();
+
+      return id;
     }
   }
 

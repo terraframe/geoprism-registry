@@ -89,7 +89,7 @@ public class AttributeClassificationTest extends FastDatasetTest implements Inst
     root.setDisplayLabel(new LocalizedValue("Test Classification"));
     this.cService.apply(root, null);
 
-    testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
+    testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, true);
     testClassification.setClassificationType(type.getCode());
     testClassification.setRootTerm(root.toTerm());
 

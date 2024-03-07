@@ -619,11 +619,11 @@ public abstract class ListType extends ListTypeBase
     {
       JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
       String hCode = hierarchy.get("code").getAsString();
-      Optional<ServerHierarchyType> ht = ServiceFactory.getMetadataCache().getHierachyType(hCode);
+      ServerHierarchyType hType = ServerHierarchyType.get(hCode, false);
 
-      if (ht.isPresent())
+      if (hType != null)
       {
-        ServerHierarchyType actualHierarchy = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).findHierarchy(masterlistType, ht.get(), type);
+        ServerHierarchyType actualHierarchy = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class).findHierarchy(masterlistType, hType, type);
 
         if (hCode.equals(hierarchyType.getCode()) || actualHierarchy.getCode().equals(hierarchyType.getCode()))
         {
@@ -661,9 +661,9 @@ public abstract class ListType extends ListTypeBase
       JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
       String hCode = hierarchy.get("code").getAsString();
 
-      Optional<ServerHierarchyType> ht = ServiceFactory.getMetadataCache().getHierachyType(hCode);
+      ServerHierarchyType hType = ServerHierarchyType.get(hCode, false);
 
-      if (ht.isPresent())
+      if (hType != null)
       {
         List<String> pCodes = this.getParentCodes(hierarchy).stream().map(p -> p.getFirst()).collect(Collectors.toList());
 

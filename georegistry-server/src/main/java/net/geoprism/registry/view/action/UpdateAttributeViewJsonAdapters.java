@@ -175,7 +175,7 @@ public class UpdateAttributeViewJsonAdapters
 
       VertexServerGeoObject newParent = src.getNewValueAsGO();
 
-      ServerHierarchyType sht = ServiceFactory.getMetadataCache().getHierachyType(updateParentView.getHierarchyCode()).get();
+      ServerHierarchyType sht = ServerHierarchyType.get(updateParentView.getHierarchyCode());
 
       // ServerParentTreeNodeOverTime parents;
       // ServerParentTreeNode tnChild;
