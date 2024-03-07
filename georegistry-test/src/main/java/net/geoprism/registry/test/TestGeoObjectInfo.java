@@ -334,7 +334,7 @@ public class TestGeoObjectInfo
 
       if (tnParent == null)
       {
-        Assert.fail("The ParentTreeNode did not contain a parent that we expected to find.");
+        Assert.fail("The ParentTreeNode did not contain a parent [" + expectedParent.getCode() + "] that we expected to find.");
       }
     }
   }
