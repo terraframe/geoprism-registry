@@ -248,7 +248,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
         try
         {
-          client.createGeoObject(TEST_GO.newGeoObject(ServiceFactory.getAdapter()).toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+          client.createGeoObject(TEST_GO.newGeoObject(client.getAdapter()).toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
           Assert.fail();
         }
@@ -317,7 +317,7 @@ public class GeoObjectServiceTest extends FastDatasetTest implements InstanceTes
 
         try
         {
-          client.createGeoObject(TEST_GO_PRIVATE.newGeoObject(ServiceFactory.getAdapter()).toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
+          client.createGeoObject(TEST_GO_PRIVATE.newGeoObject(client.getAdapter()).toJSON().toString(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
 
           Assert.fail();
         }

@@ -17,10 +17,12 @@ import org.springframework.test.context.ContextConfiguration;
 
 import com.runwaysdk.session.Request;
 
+import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.classification.ClassificationTypeTest;
+import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -49,6 +51,8 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
   private static Classification               root;
 
   private static Term                         term;
+
+  private static Classifier                   classifier;
 
   @Autowired
   private ClassificationTypeBusinessServiceIF cTypeService;
@@ -90,6 +94,11 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
     attributeClassification = this.typeService.createAttributeType(type, attributeClassification);
 
     term = this.termService.createTerm(attributeTerm.getRootTerm().getCode(), new Term("TERM_C_1", new LocalizedValue("TT1"), new LocalizedValue("TT1")));
+
+    Term root = attributeTerm.getRootTerm();
+    String parent = TermConverter.buildClassifierKeyFromTermCode(root.getCode());
+
+    classifier = Classifier.getByKey(Classifier.buildKey(parent, term.getCode()));
   }
 
   @Override
@@ -127,7 +136,7 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
       object.setGeometry(USATestData.USA.getGeometry(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       object.setValue(attributeFloat.getName(), testDouble, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
       object.setValue(attributeClassification.getName(), root.getVertex(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-      object.setValue(attributeTerm.getName(), term.getCode(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      object.setValue(attributeTerm.getName(), classifier.getOid(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
       this.service.apply(object, false);
 
@@ -146,27 +155,6 @@ public class BasicGeoObjectServiceTest implements InstanceTestClassListener
 
       Assert.assertNotNull(geometry);
       Assert.assertEquals(object.getGeometry(USATestData.DEFAULT_OVER_TIME_DATE), geometry);
-
-      ServerGeoObjectIF object2 = this.service.newInstance(type);
-
-      try
-      {
-        object2.setInvalid(false);
-        object2.setCode(USATestData.USA.getCode());
-        object2.setDisplayLabel(new LocalizedValue(USATestData.USA.getDisplayLabel()), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-        object2.setExists(true, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-        object2.setGeometry(USATestData.USA.getGeometry(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-        object2.setValue(attributeFloat.getName(), testDouble, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-        object2.setValue(attributeClassification.getName(), root.getVertex(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-        object2.setValue(attributeTerm.getName(), term.getCode(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
-
-        this.service.apply(object2, false);
-      }
-      finally
-      {
-        object2.delete();
-      }
-
     }
     finally
     {

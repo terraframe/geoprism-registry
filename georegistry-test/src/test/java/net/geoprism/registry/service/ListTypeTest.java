@@ -60,7 +60,6 @@ import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ListTypeService;
-import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
@@ -131,8 +130,6 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     testTerm = (AttributeTermType) this.typeService.createAttributeType(got, testTerm);
 
     USATestData.COLORADO.setDefaultValue(testClassification.getName(), CODE);
-
-    ServiceFactory.getMetadataCache().addGeoObjectType(got);
   }
 
   @Override

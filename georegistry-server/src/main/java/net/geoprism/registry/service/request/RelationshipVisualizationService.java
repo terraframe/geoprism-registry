@@ -122,7 +122,7 @@ public class RelationshipVisualizationService
     // 1. Build a list of all related objects
     if (VertexView.ObjectType.GEOOBJECT.equals(sourceView.getObjectType()))
     {
-      final ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(sourceView.getTypeCode()).get();
+      final ServerGeoObjectType type = ServerGeoObjectType.get(sourceView.getTypeCode());
 
       if (this.typePermissions.canRead(type.getOrganization().getCode(), type, type.getIsPrivate()))
       {
@@ -222,7 +222,7 @@ public class RelationshipVisualizationService
 
     if (VertexView.ObjectType.GEOOBJECT.equals(sourceView.getObjectType()))
     {
-      final ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(sourceView.getTypeCode()).get();
+      final ServerGeoObjectType type = ServerGeoObjectType.get(sourceView.getTypeCode());
 
       if (objectPermissions.canRead(type.getOrganization().getCode(), type))
       {

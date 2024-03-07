@@ -137,7 +137,7 @@ public class GeoObjectOverTimeServiceTest extends FastDatasetTest implements Ins
 
         try
         {
-          client.createGeoObjectOverTime(TEST_GO.newGeoObjectOverTime(ServiceFactory.getAdapter()).toJSON().toString());
+          client.createGeoObjectOverTime(TEST_GO.newGeoObjectOverTime(client.getAdapter()).toJSON().toString());
 
           Assert.fail();
         }

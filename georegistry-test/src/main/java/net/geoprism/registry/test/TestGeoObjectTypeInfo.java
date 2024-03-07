@@ -5,7 +5,6 @@ package net.geoprism.registry.test;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -15,9 +14,7 @@ import org.junit.Assert;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.Universal;
-import com.runwaysdk.system.metadata.MdClass;
 
-import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
@@ -38,8 +35,6 @@ public class TestGeoObjectTypeInfo
   private boolean                     isLeaf;
 
   private List<TestGeoObjectTypeInfo> children;
-
-  private ServerGeoObjectType         serverObject;
 
   private TestOrganizationInfo        organization;
 
@@ -82,7 +77,7 @@ public class TestGeoObjectTypeInfo
   {
     LocalizedValue label = new LocalizedValue(genKey);
     label.setValue(LocalizedValue.DEFAULT_LOCALE, genKey);
-    
+
     this.code = genKey;
     this.displayLabel = label;
     this.description = label;
@@ -170,36 +165,7 @@ public class TestGeoObjectTypeInfo
 
   public ServerGeoObjectType getServerObject(boolean forceFetch)
   {
-    if (this.serverObject != null && !forceFetch)
-    {
-      return this.serverObject;
-    }
-    else
-    {
-      Optional<ServerGeoObjectType> got = ServiceFactory.getMetadataCache().getGeoObjectType(code);
-
-      if (got.isPresent())
-      {
-        this.serverObject = got.get();
-
-        return this.serverObject;
-      }
-      else
-      {
-        net.geoprism.registry.graph.GeoObjectType type = net.geoprism.registry.graph.GeoObjectType.getByCode(code);
-
-        if (type == null)
-        {
-          return null;
-        }
-
-        this.serverObject = new ServerGeoObjectType(type);
-
-        ServiceFactory.getMetadataCache().addGeoObjectType(this.serverObject);
-
-        return this.serverObject;
-      }
-    }
+    return ServerGeoObjectType.get(code, true);
   }
 
   public GeoObjectType fetchDTO()
@@ -260,9 +226,6 @@ public class TestGeoObjectTypeInfo
   public void apply()
   {
     applyInTrans();
-
-    // If this did not error out then add to the cache
-    ServiceFactory.getMetadataCache().addGeoObjectType(this.serverObject);
   }
 
   @Transaction
@@ -277,16 +240,18 @@ public class TestGeoObjectTypeInfo
 
     GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
 
-    this.serverObject = service.create(got);
+    ServerGeoObjectType type = service.create(got);
 
-    this.setUid(this.serverObject.getOid());
+    this.setUid(type.getOid());
   }
 
   public GeoObjectType toDTO()
   {
+    TestRegistryAdapter adapter = ServiceFactory.getBean(TestRegistryAdapter.class);
+
     String organizationCode = this.getOrganization().getCode();
 
-    GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), true, organizationCode, ServiceFactory.getAdapter());
+    GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), true, organizationCode, adapter);
     got.setIsAbstract(this.isAbstract);
     got.setIsPrivate(this.isPrivate);
 
@@ -301,8 +266,6 @@ public class TestGeoObjectTypeInfo
   public void delete()
   {
     deleteInTrans();
-
-    this.serverObject = null;
   }
 
   @Transaction
@@ -348,16 +311,9 @@ public class TestGeoObjectTypeInfo
 
   public boolean isPersisted()
   {
-    Boolean exists = ServiceFactory.getMetadataCache().getGeoObjectType(code).isPresent();
+    ServerGeoObjectType type = ServerGeoObjectType.get(code);
 
-    if (exists)
-    {
-      MdClass universal = TestDataSet.getMdClassIfExist(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE, this.code);
-
-      exists = universal != null;
-    }
-
-    return exists;
+    return type.getType().isAppliedToDb();
   }
 
   @Request

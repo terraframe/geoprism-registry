@@ -19,7 +19,6 @@
 package net.geoprism.registry.service.request;
 
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -64,11 +63,11 @@ public class LocaleSerializer extends DefaultSerializer implements CustomSeriali
   @Override
   public void configure(GeoObjectType type, JsonObject json)
   {
-    Optional<ServerGeoObjectType> optional = ServiceFactory.getMetadataCache().getGeoObjectType(type.getCode());
+    ServerGeoObjectType sType = ServerGeoObjectType.get(type.getCode(), true);
 
-    if (optional.isPresent())
+    if (type != null)
     {
-      Set<RepoPermissionActionIF> perms = ServiceFactory.getGeoObjectTypePermissionService().getPermissions(optional.get());
+      Set<RepoPermissionActionIF> perms = ServiceFactory.getGeoObjectTypePermissionService().getPermissions(sType);
 
       JsonArray jaPerms = new JsonArray();
       for (RepoPermissionActionIF perm : perms)

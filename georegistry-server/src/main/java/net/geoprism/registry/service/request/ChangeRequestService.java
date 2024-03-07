@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -263,7 +262,7 @@ public class ChangeRequestService
 
     for (ChangeRequest cr : list)
     {
-      if (!ServiceFactory.getMetadataCache().getGeoObjectType(cr.getGeoObjectTypeCode()).isPresent())
+      if (ServerGeoObjectType.get(oid, true) != null)
       {
         cr.lock();
         cr.clearApprovalStatus();
@@ -423,11 +422,11 @@ public class ChangeRequestService
 
       // If they have permission to an abstract parent type, then they also have
       // permission to all its children.
-      Optional<ServerGeoObjectType> op = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode);
+      ServerGeoObjectType type = ServerGeoObjectType.get(gotCode, true);
 
-      if (op.isPresent() && op.get().getIsAbstract())
+      if (type != null && type.getIsAbstract())
       {
-        List<ServerGeoObjectType> subTypes = this.typeService.getSubtypes(op.get());
+        List<ServerGeoObjectType> subTypes = this.typeService.getSubtypes(type);
 
         for (ServerGeoObjectType subType : subTypes)
         {

@@ -26,6 +26,8 @@ public class TestRegistryIdService implements AdapterIdServiceIF
   {
     this.cache = new HashSet<String>(100);
     this.lock = new Object();
+    
+    this.populate(1000);
   }
 
   @Override

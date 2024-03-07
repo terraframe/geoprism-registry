@@ -42,6 +42,7 @@ import com.runwaysdk.util.IDGenerator;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.request.ServiceFactory;
 
 public class EdgeJsonImporter
@@ -130,7 +131,7 @@ public class EdgeJsonImporter
   
   private Object getOrFetchRid(String code, String typeCode)
   {
-    String typeDbClassName = ServiceFactory.getMetadataCache().getGeoObjectType(typeCode).get().getMdVertex().getDBClassName();
+    String typeDbClassName = ServerGeoObjectType.get(typeCode).getDBClassName();
     
     Object rid = this.goRidCache.get(typeCode + "$#!" + code);
     

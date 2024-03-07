@@ -589,7 +589,7 @@ public class ListTypeService
 
       for (String gotCode : entry.getValue())
       {
-        ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode).get();
+        ServerGeoObjectType type = ServerGeoObjectType.get(gotCode);
 
         JsonObject joType = new JsonObject();
 

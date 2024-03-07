@@ -4,10 +4,9 @@
 package net.geoprism.registry.test;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
-import org.commongeoregistry.adapter.metadata.MetadataCache;
 import org.springframework.stereotype.Service;
 
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.cache.ServerAdapterCache;
 
 @Service
 public class TestRegistryAdapter extends RegistryAdapter
@@ -16,14 +15,6 @@ public class TestRegistryAdapter extends RegistryAdapter
 
   public TestRegistryAdapter()
   {
-    super(new TestRegistryIdService());
+    super(new TestRegistryIdService(), new ServerAdapterCache());
   }
-  
-  @Override
-  public MetadataCache getMetadataCache()
-  {
-    return ServiceFactory.getAdapter().getMetadataCache();
-  }
-  
-  
 }

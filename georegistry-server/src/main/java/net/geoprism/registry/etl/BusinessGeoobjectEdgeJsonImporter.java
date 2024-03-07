@@ -40,6 +40,7 @@ import com.runwaysdk.util.IDGenerator;
 
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
 
@@ -89,7 +90,7 @@ public class BusinessGeoobjectEdgeJsonImporter
 
         BusinessType targetType = this.typeService.getByCode(targetTypeCode);
 
-        String sourceDbClassName = ServiceFactory.getMetadataCache().getGeoObjectType(sourceTypeCode).get().getMdVertex().getDBClassName();
+        String sourceDbClassName = ServerGeoObjectType.get(sourceTypeCode).getDBClassName();
         String targetDbClassName = targetType.getMdVertexDAO().getDBClassName();
 
         Object parentRid = getOrFetchRid(sourceCode, sourceDbClassName);

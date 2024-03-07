@@ -310,11 +310,11 @@ public class ETLService
 
       // If they have permission to an abstract parent type, then they also have
       // permission to all its children.
-      Optional<ServerGeoObjectType> op = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode);
+      ServerGeoObjectType type = ServerGeoObjectType.get(gotCode, true);
 
-      if (op.isPresent() && op.get().getIsAbstract())
+      if (type != null && type.getIsAbstract())
       {
-        List<ServerGeoObjectType> subTypes = this.typeService.getSubtypes(op.get());
+        List<ServerGeoObjectType> subTypes = this.typeService.getSubtypes(type);
 
         for (ServerGeoObjectType subType : subTypes)
         {

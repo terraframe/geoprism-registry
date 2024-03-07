@@ -134,6 +134,8 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
     {
       SchedulerManager.start();
     }
+
+    ServiceFactory.getMetadataCache().getAllGeoObjectTypes().forEach(t -> t.markAsDirty());
   }
 
   @Override

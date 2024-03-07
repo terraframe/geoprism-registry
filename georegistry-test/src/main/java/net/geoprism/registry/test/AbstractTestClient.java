@@ -29,7 +29,7 @@ public class AbstractTestClient
 
   @Autowired
   protected TestRegistryAdapter adapter;
-  
+
   public TestRegistryAdapter getAdapter()
   {
     return adapter;

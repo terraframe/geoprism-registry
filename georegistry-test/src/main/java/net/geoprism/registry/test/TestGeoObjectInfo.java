@@ -345,7 +345,9 @@ public class TestGeoObjectInfo
    */
   public void assertEquals(GeoObjectOverTime geoObj)
   {
-    Assert.assertEquals(geoObj.toJSON().toString(), GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
+    TestRegistryAdapter adapter = ServiceFactory.getBean(TestRegistryAdapter.class);
+
+    Assert.assertEquals(geoObj.toJSON().toString(), GeoObjectOverTime.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
     // Assert.assertEquals(this.getRegistryId(), geoObj.getUid());
     Assert.assertEquals(this.getCode(), geoObj.getCode());
     Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoObj.getGeometry(date).toText()));
@@ -361,7 +363,9 @@ public class TestGeoObjectInfo
    */
   public void assertEquals(GeoObject geoObj)
   {
-    Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(ServiceFactory.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
+    TestRegistryAdapter adapter = ServiceFactory.getBean(TestRegistryAdapter.class);
+
+    Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
     // Assert.assertEquals(this.getRegistryId(), geoObj.getUid());
     Assert.assertEquals(this.getCode(), geoObj.getCode());
     Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoObj.getGeometry().toText()));
@@ -457,13 +461,14 @@ public class TestGeoObjectInfo
   private ServerGeoObjectIF applyInTrans(Date date)
   {
     GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
+    TestRegistryAdapter adapter = ServiceFactory.getBean(TestRegistryAdapter.class);
 
     if (date == null)
     {
-      return service.apply(this.newGeoObject(ServiceFactory.getAdapter()), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, this.isNew, false);
+      return service.apply(this.newGeoObject(adapter), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, this.isNew, false);
     }
 
-    return service.apply(this.newGeoObjectOverTime(ServiceFactory.getAdapter()), this.isNew, false);
+    return service.apply(this.newGeoObjectOverTime(adapter), this.isNew, false);
   }
 
   /**

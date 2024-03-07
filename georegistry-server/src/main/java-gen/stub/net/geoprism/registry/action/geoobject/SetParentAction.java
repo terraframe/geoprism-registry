@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action.geoobject;
 
@@ -44,25 +44,25 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime.ServerParentTreeN
 
 public class SetParentAction extends SetParentActionBase
 {
-  private static final long            serialVersionUID           = 876924243;
-  
-  private static final Logger logger = LoggerFactory.getLogger(RemoveChildAction.class);
+  private static final long   serialVersionUID = 876924243;
+
+  private static final Logger logger           = LoggerFactory.getLogger(RemoveChildAction.class);
 
   public SetParentAction()
   {
     super();
   }
-  
+
   public static class ReferencesGOTGeoObjectNullDeserializer extends ServerParentTreeNodeOverTimeDeserializer
   {
     public ReferencesGOTGeoObjectNullDeserializer(ServerGeoObjectType type)
     {
       super(type);
     }
-    
+
     @Override
     protected ServerGeoObjectIF deserializeGeoObject(JsonObject go, String goTypeCode, final JsonDeserializationContext context)
-    {      
+    {
       return null;
     }
   }
@@ -82,9 +82,9 @@ public class SetParentAction extends SetParentActionBase
   @Override
   public void apply()
   {
-    // Important to remember that the child may or may not exist at this point (so we can't fetch it from the DB here)
-    
-    ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(this.getChildTypeCode()).get();
+    // Important to remember that the child may or may not exist at this point
+    // (so we can't fetch it from the DB here)
+    final ServerGeoObjectType type = ServerGeoObjectType.get(this.getChildTypeCode());
 
     ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, this.getJson());
 
@@ -106,12 +106,10 @@ public class SetParentAction extends SetParentActionBase
   public void buildFromJson(JSONObject joAction)
   {
     super.buildFromJson(joAction);
-    
+
     Set<ChangeRequestPermissionAction> perms = ServiceFactory.getBean(ChangeRequestPermissionService.class).getPermissions(this.getAllRequest().next());
 
-    if (perms.containsAll(Arrays.asList(
-        ChangeRequestPermissionAction.WRITE_DETAILS
-      )))
+    if (perms.containsAll(Arrays.asList(ChangeRequestPermissionAction.WRITE_DETAILS)))
     {
       this.setChildTypeCode(joAction.getString(SetParentAction.CHILDTYPECODE));
       this.setChildCode(joAction.getString(SetParentAction.CHILDCODE));

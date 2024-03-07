@@ -34,7 +34,6 @@ import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.service.request.GeoObjectTypeRestrictionUtil;
-import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.view.HistoricalRow;
 import net.geoprism.registry.view.Page;
 
@@ -54,7 +53,7 @@ public class GPRTransitionEventBusinessService extends TransitionEventBusinessSe
   @Override
   public boolean readOnly(TransitionEvent tran)
   {
-    ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(tran.getBeforeTypeCode()).get();
+    ServerGeoObjectType type = ServerGeoObjectType.get(tran.getBeforeTypeCode());
 
     final String orgCode = tran.getBeforeTypeOrgCode();
 

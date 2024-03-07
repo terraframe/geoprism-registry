@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -51,7 +50,6 @@ import org.xml.sax.SAXException;
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.dataaccess.transaction.TransactionState;
 import com.runwaysdk.resource.ApplicationResource;
 
 import net.geoprism.ontology.Classifier;
@@ -59,6 +57,7 @@ import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.cache.TransactionCacheFacade;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerElement;
@@ -76,8 +75,6 @@ import net.geoprism.registry.service.request.ServiceFactory;
 public class XMLImporter
 {
   private RegistryAdapter                           adapter;
-
-  private Map<String, ServerElement>                cache;
 
   private GeoObjectTypeBusinessServiceIF            typeService;
 
@@ -99,14 +96,11 @@ public class XMLImporter
     this.bEdgeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
 
     this.adapter = ServiceFactory.getAdapter();
-    this.cache = new HashMap<String, ServerElement>();
   }
 
   @Transaction
   public List<ServerElement> importXMLDefinitions(ServerOrganization organization, ApplicationResource resource)
   {
-    TransactionState state = TransactionState.getCurrentTransactionState();
-    state.putTransactionObject("transaction-state", this.cache);
 
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
 
@@ -147,7 +141,8 @@ public class XMLImporter
 
         ServerHierarchyType type = createServerHierarchyType(organization, elem);
         list.add(type);
-        this.cache.put(type.getCode(), type);
+
+        TransactionCacheFacade.put(type);
 
         this.addChildren(type, RootGeoObjectType.INSTANCE, elem);
       }
@@ -172,7 +167,8 @@ public class XMLImporter
 
         BusinessEdgeType type = createBusinessEdgeType(organization, elem);
         list.add(type);
-        this.cache.put(type.getCode(), type);
+
+        TransactionCacheFacade.put(type);
       }
     }
 
@@ -237,7 +233,8 @@ public class XMLImporter
 
         ServerGeoObjectType type = createServerGeoObjectType(organization, elem);
         list.add(type);
-        this.cache.put(type.getCode(), type);
+
+        TransactionCacheFacade.put(type);
 
         this.addAttributes(elem, type);
 
@@ -265,7 +262,7 @@ public class XMLImporter
         BusinessType type = createBusinessType(organization, elem);
         list.add(type);
 
-        this.cache.put(type.getCode(), type);
+        TransactionCacheFacade.put(type);
 
         this.addAttributes(elem, type);
 
@@ -301,7 +298,8 @@ public class XMLImporter
         ServerGeoObjectType result = this.typeService.create(type);
 
         list.add(result);
-        this.cache.put(code, result);
+
+        TransactionCacheFacade.put(result);
       }
     }
 
@@ -380,23 +378,23 @@ public class XMLImporter
   private void addAttributes(Element root, BusinessType type)
   {
     NodeList attributeList = root.getElementsByTagName("attributes");
-    
+
     if (attributeList.getLength() > 0)
     {
       NodeList nList = attributeList.item(0).getChildNodes();
-      
+
       for (int i = 0; i < nList.getLength(); i++)
       {
         Node nNode = nList.item(i);
-        
+
         if (nNode.getNodeType() == Node.ELEMENT_NODE)
         {
           Element elem = (Element) nNode;
-          
+
           String code = elem.getAttribute("code");
           LocalizedValue label = this.getLabel(elem);
           LocalizedValue description = this.getDescription(elem);
-          
+
           if (elem.getTagName().equals("text"))
           {
             this.bTypeService.createAttributeType(type, new AttributeCharacterType(code, label, description, false, false, false));
@@ -414,7 +412,7 @@ public class XMLImporter
             AttributeFloatType attributeType = new AttributeFloatType(code, label, description, false, false, false);
             attributeType.setPrecision(this.getPrecision(elem));
             attributeType.setScale(this.getScale(elem));
-            
+
             this.bTypeService.createAttributeType(type, attributeType);
           }
           else if (elem.getTagName().equals("date"))
@@ -425,54 +423,54 @@ public class XMLImporter
           {
             AttributeTermType attributeType = new AttributeTermType(code, label, description, false, false, false);
             attributeType = (AttributeTermType) this.bTypeService.createAttributeType(type, attributeType);
-            
+
             Term rootTerm = attributeType.getRootTerm();
-            
+
             this.createTermOptions(elem, rootTerm);
           }
           else if (elem.getTagName().equals("classification"))
           {
             String rootCode = elem.getAttribute("root");
             String classificationType = elem.getAttribute("classificationType");
-            
+
             AttributeClassificationType attributeType = new AttributeClassificationType(code, label, description, false, false, false);
             attributeType.setRootTerm(new Term(rootCode, new LocalizedValue(""), new LocalizedValue("")));
             attributeType.setClassificationType(classificationType);
-            
+
             attributeType = (AttributeClassificationType) this.bTypeService.createAttributeType(type, attributeType);
           }
         }
       }
     }
   }
-  
+
   private void createTermOptions(Element attributeNode, Term root)
   {
     NodeList attributeList = attributeNode.getElementsByTagName("option");
-    
+
     for (int i = 0; i < attributeList.getLength(); i++)
     {
       Node nNode = attributeList.item(i);
-      
+
       if (nNode.getNodeType() == Node.ELEMENT_NODE)
       {
         Element elem = (Element) nNode;
-        
+
         String code = elem.getAttribute("code");
         LocalizedValue label = this.getLabel(elem);
         LocalizedValue description = this.getDescription(elem);
-        
+
         Term term = new Term(code, label, description);
-        
+
         Classifier classifier = TermConverter.createClassifierFromTerm(root.getCode(), term);
-        
+
         TermConverter termBuilder = new TermConverter(classifier.getKeyName());
-        
+
         termBuilder.build();
       }
     }
   }
-  
+
   private void addChildren(ServerHierarchyType hierarchy, ServerGeoObjectType parent, Element root)
   {
     NodeList childNodes = root.getChildNodes();

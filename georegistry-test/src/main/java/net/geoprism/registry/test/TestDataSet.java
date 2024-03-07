@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,6 +35,8 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ValueObject;
+import com.runwaysdk.dataaccess.graph.GraphDBService;
+import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -297,8 +300,6 @@ abstract public class TestDataSet
     setUpOrgsInTrans();
     setUpMetadataInTrans();
 
-    service.refreshMetadataCache();
-
     setUpClassRelationships();
 
     service.refreshMetadataCache();
@@ -468,22 +469,18 @@ abstract public class TestDataSet
         continue;
       }
 
-      GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
-
+      // THIS circumvents the abstraction for better performance
       MdVertexDAOIF mdVertex = got.getMdVertex();
 
       StringBuilder statement = new StringBuilder();
-      statement.append("SELECT uid FROM " + mdVertex.getDBClassName());
+      statement.append("DELETE VERTEX FROM (");
+      statement.append(" TRAVERSE out('" + "', '" + "') FROM " + mdVertex.getDBClassName());
+      statement.append(")");
 
-      GraphQuery<String> query = new GraphQuery<String>(statement.toString());
+      GraphDBService db = GraphDBService.getInstance();
+      GraphRequest request = db.getGraphDBRequest();
 
-      List<String> uids = query.getResults();
-
-      for (String uid : uids)
-      {
-        ServerGeoObjectIF geoObject = service.getGeoObject(uid, got.getCode());
-        geoObject.delete();
-      }
+      db.command(request, statement.toString(), new HashMap<>());
     }
 
     for (TestGeoObjectInfo go : this.getManagedGeoObjects())
@@ -1045,7 +1042,7 @@ abstract public class TestDataSet
 
     AttributeTermType att = (AttributeTermType) AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, false);
     att.setIsChangeOverTime(true);
-    
+
     if (attrRoot != null)
     {
       att.setRootTerm(attrRoot);
@@ -1083,8 +1080,8 @@ abstract public class TestDataSet
 
     Classifier typeRoot = TermConverter.buildIfNotExistGeoObjectTypeClassifier(type);
     Classifier attributeRoot = TermConverter.buildIfNotExistAttribute(type, aTypeInfo.getAttributeName(), typeRoot);
-    
-    type.refreshDTO();    
+
+    type.refreshDTO();
     type.toDTO();
 
     return new TermConverter(attributeRoot.getKeyName()).build();
