@@ -26,13 +26,13 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.SynchronizationConfigQuery;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.graph.HierarchicalRelationshipType;
 import net.geoprism.registry.model.ServerHierarchyType;
 
 public class SynchronizationConfigPatch
@@ -71,12 +71,12 @@ public class SynchronizationConfigPatch
           JsonObject json = config.getConfigurationJson();
           ServerHierarchyType hierarchy = null;
           
-          MdTermRelationship universalRelationship = config.getHierarchy();
+          HierarchicalRelationshipType hType = config.getGraphHierarchy();
 
-          if (universalRelationship != null)
+          if (hType != null)
           {
-            // TODO: HEADS UP
-//            hierarchy = ServerHierarchyType.get(universalRelationship);
+            // Get the cached version
+            hierarchy = ServerHierarchyType.get(hType.getCode());
           }
           else if (json.has("hierarchy"))
           {

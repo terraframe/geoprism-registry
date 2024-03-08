@@ -4,6 +4,7 @@
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListType.universal" />    
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListTypeHierarchyGroup.hierarchy" />    
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListTypeGeoObjectTypeGroup.universal" />    
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.SynchronizationConfig.hierarchy" />     
     </delete>
     <update>
       <mdBusiness name="net.geoprism.registry.ListType">
@@ -17,7 +18,7 @@
       <mdBusiness name="net.geoprism.registry.ListTypeHierarchyGroup" extends="net.geoprism.registry.ListTypeGroup" label="List Type Hierarchy Group" generateController="false" cacheAlgorithm="nothing">
         <create>
           <attributes>
-            <graphReference name="graphHierarchy" type="net.geoprism.registry.graph.HierarchicalRelationshipType" required="true" label="Geo Object Type" />
+            <graphReference name="graphHierarchy" type="net.geoprism.registry.graph.HierarchicalRelationshipType" required="true" label="Hierarchy Type" />
           </attributes>
         </create>
       </mdBusiness>        
@@ -29,6 +30,14 @@
         </create>
       </mdBusiness>        
       
+
+      <mdBusiness name="net.geoprism.registry.SynchronizationConfig">
+        <create>
+          <attributes>
+            <graphReference name="graphHierarchy" type="net.geoprism.registry.graph.HierarchicalRelationshipType" required="false" label="Hierarchy Type" />
+          </attributes>
+        </create>
+      </mdBusiness>   
       
     </update>    
     <permissions>
@@ -372,6 +381,7 @@
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListType.geoObjectType" />    
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListTypeHierarchyGroup.graphHierarchy" />    
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListTypeGeoObjectTypeGroup.geoObjectType" />    
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.SynchronizationConfig.graphHierarchy" />    
     </delete>
   
   </undoIt>

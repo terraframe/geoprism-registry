@@ -110,8 +110,7 @@ public class FhirOauthImportTest extends FastDatasetTest implements InstanceTest
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(fhirExportJsonConfig);
     config.setOrganization(org);
-    // TODO: HEADS UP
-//    config.setHierarchy(ht.getMdTermRelationship());
+    config.setGraphHierarchy(ht.getObject());
     config.setSystem(system.getOid());
     config.getLabel().setValue("FHIR Import Test");
     config.setIsImport(true);

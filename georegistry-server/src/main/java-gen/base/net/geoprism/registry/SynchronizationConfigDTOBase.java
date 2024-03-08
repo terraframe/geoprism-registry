@@ -1,28 +1,11 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1080004984)
+@com.runwaysdk.business.ClassSignature(hash = -1905951303)
 public abstract class SynchronizationConfigDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.SynchronizationConfig";
-  private static final long serialVersionUID = -1080004984;
+  @SuppressWarnings("unused")
+  private static final long serialVersionUID = -1905951303;
   
   protected SynchronizationConfigDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -45,25 +28,25 @@ public abstract class SynchronizationConfigDTOBase extends com.runwaysdk.busines
     return CLASS;
   }
   
-  public static final java.lang.String CONFIGURATION = "configuration";
-  public static final java.lang.String CREATEDATE = "createDate";
-  public static final java.lang.String CREATEDBY = "createdBy";
-  public static final java.lang.String ENTITYDOMAIN = "entityDomain";
-  public static final java.lang.String HIERARCHY = "hierarchy";
-  public static final java.lang.String ISIMPORT = "isImport";
-  public static final java.lang.String KEYNAME = "keyName";
-  public static final java.lang.String LABEL = "label";
-  public static final java.lang.String LASTSYNCHDATE = "lastSynchDate";
-  public static final java.lang.String LASTUPDATEDATE = "lastUpdateDate";
-  public static final java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
-  public static final java.lang.String LOCKEDBY = "lockedBy";
-  public static final java.lang.String OID = "oid";
-  public static final java.lang.String ORGANIZATION = "organization";
-  public static final java.lang.String OWNER = "owner";
-  public static final java.lang.String SEQ = "seq";
-  public static final java.lang.String SITEMASTER = "siteMaster";
-  public static final java.lang.String SYSTEM = "system";
-  public static final java.lang.String TYPE = "type";
+  public static java.lang.String CONFIGURATION = "configuration";
+  public static java.lang.String CREATEDATE = "createDate";
+  public static java.lang.String CREATEDBY = "createdBy";
+  public static java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static java.lang.String GRAPHHIERARCHY = "graphHierarchy";
+  public static java.lang.String ISIMPORT = "isImport";
+  public static java.lang.String KEYNAME = "keyName";
+  public static java.lang.String LABEL = "label";
+  public static java.lang.String LASTSYNCHDATE = "lastSynchDate";
+  public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
+  public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
+  public static java.lang.String LOCKEDBY = "lockedBy";
+  public static java.lang.String OID = "oid";
+  public static java.lang.String ORGANIZATION = "organization";
+  public static java.lang.String OWNER = "owner";
+  public static java.lang.String SEQ = "seq";
+  public static java.lang.String SITEMASTER = "siteMaster";
+  public static java.lang.String SYSTEM = "system";
+  public static java.lang.String TYPE = "type";
   public String getConfiguration()
   {
     return getValue(CONFIGURATION);
@@ -210,55 +193,6 @@ public abstract class SynchronizationConfigDTOBase extends com.runwaysdk.busines
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getEntityDomainMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(ENTITYDOMAIN).getAttributeMdDTO();
-  }
-  
-  public com.runwaysdk.system.metadata.MdTermRelationshipDTO getHierarchy()
-  {
-    if(getValue(HIERARCHY) == null || getValue(HIERARCHY).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return com.runwaysdk.system.metadata.MdTermRelationshipDTO.get(getRequest(), getValue(HIERARCHY));
-    }
-  }
-  
-  public String getHierarchyOid()
-  {
-    return getValue(HIERARCHY);
-  }
-  
-  public void setHierarchy(com.runwaysdk.system.metadata.MdTermRelationshipDTO value)
-  {
-    if(value == null)
-    {
-      setValue(HIERARCHY, "");
-    }
-    else
-    {
-      setValue(HIERARCHY, value.getOid());
-    }
-  }
-  
-  public boolean isHierarchyWritable()
-  {
-    return isWritable(HIERARCHY);
-  }
-  
-  public boolean isHierarchyReadable()
-  {
-    return isReadable(HIERARCHY);
-  }
-  
-  public boolean isHierarchyModified()
-  {
-    return isModified(HIERARCHY);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getHierarchyMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(HIERARCHY).getAttributeMdDTO();
   }
   
   public Boolean getIsImport()

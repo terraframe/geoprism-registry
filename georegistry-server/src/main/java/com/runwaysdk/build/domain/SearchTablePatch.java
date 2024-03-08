@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package com.runwaysdk.build.domain;
 
@@ -23,6 +23,7 @@ import java.util.List;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
@@ -51,34 +52,43 @@ public class SearchTablePatch
   @Transaction
   public void createRecords(SearchService service)
   {
-    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS);
-
-    long pageSize = 1000;
-    long skip = 0;
-
-    int count = 0;
-
-    do
+    try
     {
-      // The geometries are not used so we don't need to include them they query 
-      StringBuilder builder = new StringBuilder();
-      builder.append("TRAVERSE out('" + EdgeConstant.HAS_VALUE.getDBClassName() + "') FROM (");
-      builder.append(" SELECT FROM " + mdVertex.getDBClassName());
-      builder.append(" ORDER BY oid");
-      builder.append(" SKIP " + skip + " LIMIT " + pageSize);
-      builder.append(")");
 
-      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(builder.toString());
+      MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS);
 
-      List<ServerGeoObjectIF> results = VertexServerGeoObject.processTraverseResults(query.getResults(), null);
+      long pageSize = 1000;
+      long skip = 0;
 
-      for (ServerGeoObjectIF result : results)
+      int count = 0;
+
+      do
       {
-        service.insert(result, true);
-      }
+        // The geometries are not used so we don't need to include them they
+        // query
+        StringBuilder builder = new StringBuilder();
+        builder.append("TRAVERSE out('" + EdgeConstant.HAS_VALUE.getDBClassName() + "') FROM (");
+        builder.append(" SELECT FROM " + mdVertex.getDBClassName());
+        builder.append(" ORDER BY oid");
+        builder.append(" SKIP " + skip + " LIMIT " + pageSize);
+        builder.append(")");
 
-      skip += pageSize;
-      count = results.size();
-    } while (count > 0);
+        GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(builder.toString());
+
+        List<ServerGeoObjectIF> results = VertexServerGeoObject.processTraverseResults(query.getResults(), null);
+
+        for (ServerGeoObjectIF result : results)
+        {
+          service.insert(result, true);
+        }
+
+        skip += pageSize;
+        count = results.size();
+      } while (count > 0);
+    }
+    catch (DataNotFoundException e)
+    {
+      // Ignore
+    }
   }
 }
