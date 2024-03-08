@@ -1,12 +1,10 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
-<!-- 
     <delete>
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListType.universal" />    
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListTypeHierarchyGroup.hierarchy" />    
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListTypeGeoObjectTypeGroup.universal" />    
     </delete>
- -->  
     <update>
       <mdBusiness name="net.geoprism.registry.ListType">
         <create>

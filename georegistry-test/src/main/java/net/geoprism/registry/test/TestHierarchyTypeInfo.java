@@ -26,8 +26,6 @@ public class TestHierarchyTypeInfo
 
   private TestOrganizationInfo org;
 
-  private ServerHierarchyType  serverObj;
-
   public TestHierarchyTypeInfo(String genKey, TestOrganizationInfo org)
   {
     initialize(genKey, org);
@@ -119,10 +117,7 @@ public class TestHierarchyTypeInfo
 
     HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
 
-    this.serverObj = service.createHierarchyType(dto);
-
-    // The transaction did not error out, so it is safe to put into the cache.
-    ServiceFactory.getMetadataCache().addHierarchyType(this.serverObj);
+    service.createHierarchyType(dto);
   }
 
   @Request
@@ -132,7 +127,7 @@ public class TestHierarchyTypeInfo
 
     try
     {
-      service.addToHierarchy(this.serverObj, RootGeoObjectType.INSTANCE, type.getServerObject());
+      service.addToHierarchy(this.getServerObject(), RootGeoObjectType.INSTANCE, type.getServerObject());
     }
     catch (GeoObjectTypeAlreadyInHierarchyException e)
     {
@@ -144,7 +139,7 @@ public class TestHierarchyTypeInfo
   public void removeRoot(TestGeoObjectTypeInfo type)
   {
     HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
-    service.removeChild(this.serverObj, RootGeoObjectType.INSTANCE, type.getServerObject(), true);
+    service.removeChild(this.getServerObject(), RootGeoObjectType.INSTANCE, type.getServerObject(), true);
   }
 
   @Request
@@ -163,7 +158,5 @@ public class TestHierarchyTypeInfo
       HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
       service.delete(serverHOT);
     }
-
-    this.serverObj = null;
   }
 }

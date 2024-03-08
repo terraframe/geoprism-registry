@@ -453,7 +453,7 @@ public class TestGeoObjectInfo
     this.registryId = localServerGO.getUid();
 
     this.isNew = false;
-    
+
     return localServerGO;
   }
 
@@ -527,9 +527,9 @@ public class TestGeoObjectInfo
     if (serverGOTT != null)
     {
       GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
-      
+
       ServerGeoObjectIF vertex = service.getGeoObjectByCode(this.getCode(), serverGOTT, false);
-      
+
       if (vertex != null)
       {
         vertex.delete();
@@ -589,7 +589,11 @@ public class TestGeoObjectInfo
 
     final Geometry geometry = this.getGeometry();
 
-    geoObj.setGeometry(geometry, date, TestDataSet.DEFAULT_END_TIME_DATE);
+    if (geometry != null)
+    {
+      geoObj.setGeometry(geometry, date, TestDataSet.DEFAULT_END_TIME_DATE);
+    }
+
     geoObj.setCode(this.getCode());
     geoObj.setDisplayLabel(label, date, TestDataSet.DEFAULT_END_TIME_DATE);
 
@@ -602,7 +606,12 @@ public class TestGeoObjectInfo
 
     for (String attrName : this.defaultValues.keySet())
     {
-      geoObj.setValue(attrName, this.defaultValues.get(attrName), date, TestDataSet.DEFAULT_END_TIME_DATE);
+      Object value = this.defaultValues.get(attrName);
+
+      if (value != null)
+      {
+        geoObj.setValue(attrName, value, date, TestDataSet.DEFAULT_END_TIME_DATE);
+      }
     }
   }
 

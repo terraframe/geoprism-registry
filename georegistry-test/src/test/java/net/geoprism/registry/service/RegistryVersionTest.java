@@ -22,6 +22,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.FastDatasetTest;
@@ -156,7 +157,7 @@ public class RegistryVersionTest extends FastDatasetTest implements InstanceTest
     
     // Initial Setup : Create a VOT with a large date range
     VertexServerGeoObject serverObj = (VertexServerGeoObject) FastTestDataset.PROV_CENTRAL.getServerObject();
-    serverObj.getValuesOverTime(attributeName).clear();
+    serverObj.setValuesOverTime(attributeName, new ValueOverTimeCollection());
     serverObj.setValue(attributeName, value, dateFormat.parse("1990-01-01"), dateFormat.parse("1990-02-01"));
     goService.apply(serverObj, false);
     Assert.assertEquals(1, FastTestDataset.PROV_CENTRAL.getServerObject().getValuesOverTime(attributeName).size());
@@ -226,14 +227,15 @@ public class RegistryVersionTest extends FastDatasetTest implements InstanceTest
 //  }
 //  
   @Request
-  @SuppressWarnings("unchecked")
   private void addVersionData(TestGeoObjectInfo geoObj) throws ParseException
   {
     SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
     dateFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
     
     ServerGeoObjectIF serverObj = geoObj.getServerObject();
-    serverObj.getValuesOverTime(DefaultAttribute.EXISTS.getName()).clear();
+    
+    // Clear the existing values
+    serverObj.setValuesOverTime(DefaultAttribute.EXISTS.getName(), new ValueOverTimeCollection());
     
     serverObj.setExists(Boolean.FALSE, dateFormat.parse("01-01-1990"), dateFormat.parse("01-31-1990"));
     Assert.assertEquals(Boolean.FALSE, serverObj.getExists(dateFormat.parse("01-01-1990")));
