@@ -19,7 +19,6 @@
 package com.runwaysdk.build.domain;
 
 import java.util.List;
-import java.util.TreeMap;
 
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
@@ -28,7 +27,8 @@ import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.graph.GeoVertex;
-import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.EdgeConstant;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.request.SearchService;
 
@@ -60,21 +60,21 @@ public class SearchTablePatch
 
     do
     {
+      // The geometries are not used so we don't need to include them they query 
       StringBuilder builder = new StringBuilder();
-      builder.append("SELECT FROM " + mdVertex.getDBClassName());
+      builder.append("TRAVERSE out('" + EdgeConstant.HAS_VALUE.getDBClassName() + "') FROM (");
+      builder.append(" SELECT FROM " + mdVertex.getDBClassName());
       builder.append(" ORDER BY oid");
       builder.append(" SKIP " + skip + " LIMIT " + pageSize);
+      builder.append(")");
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(builder.toString());
 
-      List<VertexObject> results = query.getResults();
+      List<ServerGeoObjectIF> results = VertexServerGeoObject.processTraverseResults(query.getResults(), null);
 
-      for (VertexObject result : results)
+      for (ServerGeoObjectIF result : results)
       {
-        ServerGeoObjectType type = ServerGeoObjectType.get((MdVertexDAOIF) result.getMdClass());
-
-        // TODO: HEADS UP
-//        service.insert(new VertexServerGeoObject(type, result, new TreeMap<>()), true);
+        service.insert(result, true);
       }
 
       skip += pageSize;

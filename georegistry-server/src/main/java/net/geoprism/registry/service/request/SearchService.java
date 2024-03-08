@@ -258,7 +258,7 @@ public class SearchService
   }
 
   // @Transaction
-  public void insert(VertexServerGeoObject object, boolean isNew)
+  public void insert(ServerGeoObjectIF object, boolean isNew)
   {
     if (!isNew)
     {
