@@ -26,12 +26,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.BidiMap;
@@ -90,10 +88,13 @@ import net.geoprism.registry.etl.export.dhis2.MultipleLevelOneOrgUnitException;
 import net.geoprism.registry.etl.export.dhis2.NoParentException;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.model.EdgeConstant;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.query.graph.helper.WhereCriteriaBuilder;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.GeoObjectBusinessService;
 import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
@@ -214,7 +215,7 @@ public class DHIS2SynchronizationManager
 
         while (skip < count)
         {
-          List<VertexServerGeoObject> objects = this.query(level.getGeoObjectType(), skip, pageSize);
+          List<ServerGeoObjectIF> objects = this.query(level.getGeoObjectType(), skip, pageSize);
 
           JsonObject metadataPayload = new JsonObject();
 
@@ -223,11 +224,11 @@ public class DHIS2SynchronizationManager
           try
           {
             // Add OrganisationUnits
-            for (VertexServerGeoObject go : objects)
+            for (ServerGeoObjectIF go : objects)
             {
               try
               {
-                this.exportGeoObject(metadataPayload, dhis2Config, level, levels, go);
+                this.exportGeoObject(metadataPayload, dhis2Config, level, levels, (VertexServerGeoObject) go);
               }
               catch (Throwable t)
               {
@@ -726,11 +727,10 @@ public class DHIS2SynchronizationManager
 
     if (!this.dhis2Config.getSyncNonExistent())
     {
-      where.AND("exists_cot CONTAINS (value=true AND :date BETWEEN startDate AND endDate )");
+      where.AND("invalid=false");
+      where.AND("last(out('has_value')[attributeName = 'exists'][:date BETWEEN startDate AND endDate]).value = true");
       params.put("date", date);
     }
-
-    where.AND("invalid=false");
 
     builder.append(where.getSQL());
   }
@@ -749,7 +749,7 @@ public class DHIS2SynchronizationManager
     return new GraphQuery<Long>(statement.toString(), params).getSingleResult();
   }
 
-  private List<VertexServerGeoObject> query(ServerGeoObjectType got, long skip, long pageSize)
+  private List<ServerGeoObjectIF> query(ServerGeoObjectType got, long skip, long pageSize)
   {
     final Map<String, Object> params = new HashMap<String, Object>();
 
@@ -757,25 +757,17 @@ public class DHIS2SynchronizationManager
     MdAttributeDAOIF mdAttribute = MdAttributeDAO.getByKey(GeoVertex.CLASS + "." + GeoVertex.LASTUPDATEDATE);
 
     StringBuilder statement = new StringBuilder();
+    statement.append("TRAVERSE out('" + EdgeConstant.HAS_VALUE.getDBClassName() + "', '" + EdgeConstant.HAS_GEOMETRY.getDBClassName() + "') FROM (");
     statement.append("SELECT FROM " + mdVertex.getDBClassName());
     this.addWhereCriteria(statement, params);
     statement.append(" ORDER BY " + mdAttribute.getColumnName() + ", oid ASC");
     statement.append(" SKIP " + skip + " LIMIT " + pageSize);
+    statement.append(")");
 
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString(), params);
 
-    List<VertexObject> vObjects = query.getResults();
-
-    List<VertexServerGeoObject> response = new LinkedList<VertexServerGeoObject>();
-
-    for (VertexObject vObject : vObjects)
-    {
-      VertexServerGeoObject vSGO = new VertexServerGeoObject(got, vObject, new TreeMap<>());
-      vSGO.setDate(dhis2Config.getDate());
-
-      response.add(vSGO);
-    }
-
-    return response;
+    List<VertexObject> vertexes = query.getResults();
+    
+    return GeoObjectBusinessService.constructGeoObjectsFromQueryResults(vertexes, dhis2Config.getDate());
   }
 }
