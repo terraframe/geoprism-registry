@@ -1040,8 +1040,7 @@ abstract public class TestDataSet
 
     final String type = AttributeTermType.TYPE;
 
-    AttributeTermType att = (AttributeTermType) AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, false);
-    att.setIsChangeOverTime(true);
+    AttributeTermType att = (AttributeTermType) AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, true);
 
     if (attrRoot != null)
     {

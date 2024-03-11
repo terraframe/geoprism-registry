@@ -43,16 +43,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.JsonAdapter;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.dataaccess.MdAttributeEmbeddedDAOIF;
-import com.runwaysdk.dataaccess.MdEmbeddedGraphClassDAOIF;
-import com.runwaysdk.dataaccess.graph.EmbeddedGraphObjectDAO;
-import com.runwaysdk.dataaccess.graph.GraphObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.AttributeGraphRef;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.localization.LocalizationFacade;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryJsonTimeFormatter;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
@@ -205,15 +200,6 @@ public class UpdateValueOverTimeView
         catch (ParseException e)
         {
           throw new RuntimeException(e);
-        }
-
-        if (!go.isValidGeometry(convertedValue))
-        {
-          GeometryTypeException ex = new GeometryTypeException();
-          ex.setActualType(convertedValue.getGeometryType());
-          ex.setExpectedType(go.getType().getGeometryType().name());
-
-          throw ex;
         }
       }
 

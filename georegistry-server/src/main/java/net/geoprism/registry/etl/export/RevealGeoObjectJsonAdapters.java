@@ -39,6 +39,7 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
 
 public class RevealGeoObjectJsonAdapters
@@ -59,9 +60,12 @@ public class RevealGeoObjectJsonAdapters
 
     private GPRGeoObjectBusinessServiceIF  objectService;
 
+    private HierarchyTypeBusinessServiceIF hierarchyService;
+
     public RevealSerializer(ServerGeoObjectType got, ServerHierarchyType hierarchyType, Boolean includeLevel, ExternalSystem externalSystem)
     {
       this.typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
+      this.hierarchyService = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
       this.objectService = ServiceFactory.getBean(GPRGeoObjectBusinessServiceIF.class);
 
       this.got = got;
@@ -171,13 +175,7 @@ public class RevealGeoObjectJsonAdapters
       {
         return;
       }
-
-      // TODO: HEADS UP
-//      if (got.getUniversal().getParents(hierarchyType.getUniversalType()).getAll().size() > 1)
-//      {
-//        throw new UnsupportedOperationException("Multiple GeoObjectType parents not supported when 'includeLevel' is specified.");
-//      }
-
+      
       List<ServerGeoObjectType> ancestors = this.typeService.getTypeAncestors(got, this.hierarchyType, true);
 
       this.depth = ancestors.size();

@@ -31,11 +31,11 @@ public class TermReferenceProblem extends TermReferenceProblemBase
     super();
   }
   
-  public TermReferenceProblem(String label, String parentCode, String mdAttributeId, String attributeCode, String attributeLabel)
+  public TermReferenceProblem(String label, String parentCode, String typeCode, String attributeCode, String attributeLabel)
   {
     this.setLabel(label);
-    this.setMdAttributeId(mdAttributeId);
     this.setParentCode(parentCode);
+    this.setGeoObjectTypeCode(typeCode);
     this.setAttributeCode(attributeCode);
     this.setAttributeLabel(attributeLabel);
   }
@@ -48,7 +48,7 @@ public class TermReferenceProblem extends TermReferenceProblemBase
   @Override
   protected String buildKey()
   {
-    return this.getValidationProblemType() + "-" + this.getHistoryOid() + "-" + this.getMdAttributeOid() + "-" + this.getLabel();
+    return this.getValidationProblemType() + "-" + this.getHistoryOid() + "-" + this.getGeoObjectTypeCode() + "-" + this.getAttributeCode() + "-" + this.getLabel();
   }
 
   @Override
@@ -58,7 +58,7 @@ public class TermReferenceProblem extends TermReferenceProblemBase
     
     object.addProperty("label", this.getLabel());
     object.addProperty("parentCode", this.getParentCode());
-    object.addProperty("mdAttributeId", this.getMdAttributeOid());
+    object.addProperty("typeCode", this.getGeoObjectTypeCode());
     object.addProperty("attributeCode", this.getAttributeCode());
     object.addProperty("attributeLabel", this.getAttributeLabel());
 

@@ -4,7 +4,8 @@
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListType.universal" />    
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListTypeHierarchyGroup.hierarchy" />    
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListTypeGeoObjectTypeGroup.universal" />    
-      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.SynchronizationConfig.hierarchy" />     
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.SynchronizationConfig.hierarchy" />    
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.etl.TermReferenceProblem.mdAttribute" />    
     </delete>
     <update>
       <mdBusiness name="net.geoprism.registry.ListType">
@@ -38,6 +39,15 @@
           </attributes>
         </create>
       </mdBusiness>   
+      
+      <mdBusiness name="net.geoprism.registry.etl.TermReferenceProblem">
+        <create>
+          <attributes>
+            <text name="geoObjectTypeCode" label="Geo-Object Type Code" />
+          </attributes>
+        </create>
+      </mdBusiness>
+      
       
     </update>    
     <permissions>
@@ -382,6 +392,7 @@
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListTypeHierarchyGroup.graphHierarchy" />    
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.ListTypeGeoObjectTypeGroup.geoObjectType" />    
       <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.SynchronizationConfig.graphHierarchy" />    
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.etl.TermReferenceProblem.geoObjectTypeCode" />    
     </delete>
   
   </undoIt>

@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 2028446909)
+@com.runwaysdk.business.ClassSignature(hash = -1338937270)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -90,6 +72,23 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.ATTRIBUTELABEL, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
+  {
+    return getGeoObjectTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.GEOOBJECTTYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.GEOOBJECTTYPECODE, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getLabel()
   {
     return getLabel(null);
@@ -105,29 +104,6 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
   public com.runwaysdk.query.SelectableChar getLabel(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.LABEL, alias, displayLabel);
-
-  }
-  public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute()
-  {
-    return getMdAttribute(null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute(String alias)
-  {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.etl.TermReferenceProblem.MDATTRIBUTE);
-
-    return (com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.etl.TermReferenceProblem.MDATTRIBUTE, mdAttributeIF, this, alias, null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute(String alias, String displayLabel)
-  {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.etl.TermReferenceProblem.MDATTRIBUTE);
-
-    return (com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.etl.TermReferenceProblem.MDATTRIBUTE, mdAttributeIF, this, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getParentCode()
@@ -147,20 +123,23 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.PARENTCODE, alias, displayLabel);
 
   }
-  protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
+  public com.runwaysdk.query.SelectableChar getTypeCode()
   {
-    String name = mdAttributeIF.definesAttribute();
-    
-    if (name.equals(net.geoprism.registry.etl.TermReferenceProblem.MDATTRIBUTE)) 
-    {
-       return new com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else 
-    {
-      return super.referenceFactory(mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-  }
+    return getTypeCode(null);
 
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.TYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.TYPECODE, alias, displayLabel);
+
+  }
   /**  
    * Returns an iterator of Business objects that match the query criteria specified
    * on this query object. 
@@ -199,15 +178,18 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     public com.runwaysdk.query.SelectableChar getAttributeLabel();
     public com.runwaysdk.query.SelectableChar getAttributeLabel(String alias);
     public com.runwaysdk.query.SelectableChar getAttributeLabel(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode();
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias);
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getLabel();
     public com.runwaysdk.query.SelectableChar getLabel(String alias);
     public com.runwaysdk.query.SelectableChar getLabel(String alias, String displayLabel);
-    public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute();
-    public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute(String alias);
-    public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getParentCode();
     public com.runwaysdk.query.SelectableChar getParentCode(String alias);
     public com.runwaysdk.query.SelectableChar getParentCode(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getTypeCode();
+    public com.runwaysdk.query.SelectableChar getTypeCode(String alias);
+    public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.etl.TermReferenceProblem termReferenceProblem);
 
@@ -277,6 +259,23 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.ATTRIBUTELABEL, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
+  {
+    return getGeoObjectTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.GEOOBJECTTYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.GEOOBJECTTYPECODE, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getLabel()
   {
     return getLabel(null);
@@ -292,23 +291,6 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
   public com.runwaysdk.query.SelectableChar getLabel(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.LABEL, alias, displayLabel);
-
-  }
-  public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute()
-  {
-    return getMdAttribute(null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute(String alias)
-  {
-    return (com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF)this.get(net.geoprism.registry.etl.TermReferenceProblem.MDATTRIBUTE, alias, null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF)this.get(net.geoprism.registry.etl.TermReferenceProblem.MDATTRIBUTE,  alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getParentCode()
@@ -328,20 +310,23 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.PARENTCODE, alias, displayLabel);
 
   }
-  protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
+  public com.runwaysdk.query.SelectableChar getTypeCode()
   {
-    String name = mdAttributeIF.definesAttribute();
-    
-    if (name.equals(net.geoprism.registry.etl.TermReferenceProblem.MDATTRIBUTE)) 
-    {
-       return new com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else 
-    {
-      return super.referenceFactory(mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-  }
+    return getTypeCode(null);
 
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.TYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.TYPECODE, alias, displayLabel);
+
+  }
   }
 
 /**
@@ -357,15 +342,18 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     public com.runwaysdk.query.SelectableChar getAttributeLabel();
     public com.runwaysdk.query.SelectableChar getAttributeLabel(String alias);
     public com.runwaysdk.query.SelectableChar getAttributeLabel(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode();
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias);
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getLabel();
     public com.runwaysdk.query.SelectableChar getLabel(String alias);
     public com.runwaysdk.query.SelectableChar getLabel(String alias, String displayLabel);
-    public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute();
-    public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute(String alias);
-    public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getParentCode();
     public com.runwaysdk.query.SelectableChar getParentCode(String alias);
     public com.runwaysdk.query.SelectableChar getParentCode(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getTypeCode();
+    public com.runwaysdk.query.SelectableChar getTypeCode(String alias);
+    public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.etl.TermReferenceProblem ... termReferenceProblem);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.etl.TermReferenceProblem ... termReferenceProblem);
@@ -484,6 +472,23 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.ATTRIBUTELABEL, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
+  {
+    return getGeoObjectTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.GEOOBJECTTYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.GEOOBJECTTYPECODE, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getLabel()
   {
     return getLabel(null);
@@ -499,23 +504,6 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
   public com.runwaysdk.query.SelectableChar getLabel(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.LABEL, alias, displayLabel);
-
-  }
-  public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute()
-  {
-    return getMdAttribute(null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute(String alias)
-  {
-    return (com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF)this.get(net.geoprism.registry.etl.TermReferenceProblem.MDATTRIBUTE, alias, null);
-
-  }
- 
-  public com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF getMdAttribute(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReferenceIF)this.get(net.geoprism.registry.etl.TermReferenceProblem.MDATTRIBUTE,  alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getParentCode()
@@ -535,19 +523,22 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.PARENTCODE, alias, displayLabel);
 
   }
-  protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
+  public com.runwaysdk.query.SelectableChar getTypeCode()
   {
-    String name = mdAttributeIF.definesAttribute();
-    
-    if (name.equals(net.geoprism.registry.etl.TermReferenceProblem.MDATTRIBUTE)) 
-    {
-       return new com.runwaysdk.system.metadata.MdAttributeTermQuery.MdAttributeTermQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else 
-    {
-      return super.referenceFactory(mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-  }
+    return getTypeCode(null);
 
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.TYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.TYPECODE, alias, displayLabel);
+
+  }
   }
 }

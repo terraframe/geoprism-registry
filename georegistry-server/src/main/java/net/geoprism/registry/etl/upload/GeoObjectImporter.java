@@ -38,6 +38,8 @@ import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.locationtech.jts.geom.Geometry;
@@ -51,22 +53,30 @@ import com.orientechnologies.common.io.OIOException;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
+import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
+import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.graph.attributes.AttributeClassification;
+import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestState;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
+import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.etl.InvalidExternalIdException;
 import net.geoprism.registry.etl.ParentReferenceProblem;
 import net.geoprism.registry.etl.RowValidationProblem;
+import net.geoprism.registry.etl.TermReferenceProblem;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.AttributeCharacterType;
 import net.geoprism.registry.graph.AttributeClassificationType;
@@ -86,6 +96,7 @@ import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.SridException;
+import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -1225,49 +1236,34 @@ public class GeoObjectImporter implements ObjectImporterIF
   {
     if (!this.configuration.isExclusion(attributeName, value.toString()))
     {
-      // TODO: HEADS UP
-      // try
-      // {
-      // ServerGeoObjectType type = this.configuration.getType();
-      // MdBusinessDAOIF mdBusiness = type.getMdBusinessDAO();
-      // MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF)
-      // mdBusiness.definesAttribute(attributeName);
-      //
-      // if (mdAttribute == null && type.getSuperType() != null)
-      // {
-      // mdAttribute = (MdAttributeTermDAOIF)
-      // type.getSuperType().getMdBusinessDAO().definesAttribute(attributeName);
-      // }
-      //
-      // Classifier classifier =
-      // Classifier.findMatchingTerm(value.toString().trim(), mdAttribute);
-      //
-      // if (classifier == null)
-      // {
-      // Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
-      //
-      // TermReferenceProblem trp = new TermReferenceProblem(value.toString(),
-      // rootTerm.getCode(), mdAttribute.getOid(), attributeName,
-      // attributeType.getLabel().getValue());
-      // trp.addAffectedRowNumber(feature.getRowNumber());
-      // trp.setHistoryId(this.configuration.getHistoryId());
-      //
-      // this.progressListener.addReferenceProblem(trp);
-      // }
-      // else
-      // {
-      // entity.setValue(attributeName, classifier.getOid(), startDate,
-      // endDate);
-      // }
-      // }
-      // catch (UnknownTermException e)
-      // {
-      // TermValueException ex = new TermValueException();
-      // ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
-      // ex.setCode(e.getCode());
-      //
-      // throw e;
-      // }
+      try
+      {
+        AttributeTermType attributeTermType = (AttributeTermType) attributeType;
+        Classifier classifier = Classifier.findMatchingTerm(value.toString().trim(), attributeTermType.getRootTermOid());
+
+        if (classifier == null)
+        {
+          Classifier rootTerm = attributeTermType.getRootTerm();
+
+          TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getClassifierId(), entity.getType().getCode(), attributeName, attributeType.getLocalizedLabel().getValue());
+          trp.addAffectedRowNumber(feature.getRowNumber());
+          trp.setHistoryId(this.configuration.getHistoryId());
+
+          this.progressListener.addReferenceProblem(trp);
+        }
+        else
+        {
+          entity.setValue(attributeName, classifier.getOid(), startDate, endDate);
+        }
+      }
+      catch (UnknownTermException e)
+      {
+        TermValueException ex = new TermValueException();
+        ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
+        ex.setCode(e.getCode());
+
+        throw e;
+      }
     }
   }
 
@@ -1275,105 +1271,54 @@ public class GeoObjectImporter implements ObjectImporterIF
   {
     if (!this.configuration.isExclusion(attributeName, value.toString()))
     {
-      // TODO: HEADS UP
-      // try
-      // {
-      // ServerGeoObjectType type = this.configuration.getType();
-      // MdBusinessDAOIF mdBusiness = type.getMdBusinessDAO();
-      // MdAttributeClassificationDAOIF mdAttribute =
-      // (MdAttributeClassificationDAOIF)
-      // mdBusiness.definesAttribute(attributeName);
-      //
-      // if (mdAttribute == null && type.getSuperType() != null)
-      // {
-      // mdAttribute = (MdAttributeClassificationDAOIF)
-      // type.getSuperType().getMdBusinessDAO().definesAttribute(attributeName);
-      // }
-      //
-      // if (mdAttribute == null)
-      // {
-      // throw new ProgrammingErrorException("Unable to find mdAttribute: " +
-      // attributeName);
-      // }
-      //
-      // VertexObject classifier =
-      // this.classifierCache.getClassifier(mdAttribute.getMdClassificationDAOIF().definesType(),
-      // value.toString().trim());
-      //
-      // if (classifier == null)
-      // {
-      // classifier =
-      // AbstractClassification.findMatchingClassification(value.toString().trim(),
-      // mdAttribute);
-      //
-      // if (classifier != null)
-      // {
-      // this.classifierCache.putClassifier(mdAttribute.getMdClassificationDAOIF().definesType(),
-      // classifier.getObjectValue("code"), classifier);
-      // }
-      // }
-      //
-      // if (classifier == null)
-      // {
-      // throw new UnknownTermException(value.toString().trim(), attributeType);
-      // // Term rootClassification = ( (AttributeClassificationType)
-      // // attributeType ).getRootTerm();
-      // //
-      // // TermReferenceProblem trp = new
-      // // TermReferenceProblem(value.toString(),
-      // // rootClassification.getCode(), mdAttribute.getOid(), attributeName,
-      // // attributeType.getLabel().getValue());
-      // // trp.addAffectedRowNumber(this.progressListener.getWorkProgress() +
-      // // 1);
-      // // trp.setHistoryId(this.configuration.getHistoryId());
-      // //
-      // // this.progressListener.addReferenceProblem(trp);
-      // }
-      // else
-      // {
-      // AttributeClassification attrClass = ( (AttributeClassification) (
-      // (VertexServerGeoObject) entity
-      // ).getVertex().getGraphObjectDAO().getAttribute(attributeName) );
-      // Boolean validationResult =
-      // this.classifierCache.getClassifierAttributeValidation(mdAttribute.getOid(),
-      // classifier);
-      //
-      // if (validationResult == null)
-      // {
-      // validationResult = attrClass.validateRid(classifier.getRID(), false);
-      //
-      // this.classifierCache.putClassifierAttributeValidation(mdAttribute.getOid(),
-      // classifier, validationResult);
-      // }
-      //
-      // if (Boolean.TRUE.equals(validationResult))
-      // {
-      // attrClass.setSkipValidation(true);
-      //
-      // try
-      // {
-      // attrClass.setValue(classifier, startDate, endDate);
-      // }
-      // finally
-      // {
-      // attrClass.setSkipValidation(false);
-      // }
-      // }
-      // else
-      // {
-      // throw new ClassificationValidationException("Value must be a child of
-      // the attribute root");
-      // }
-      // }
-      // }
-      // catch (UnknownTermException e)
-      // {
-      // TermValueException ex = new TermValueException();
-      // ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
-      // ex.setCode(e.getCode());
-      //
-      // throw e;
-      // }
+      try
+      {
+        AttributeClassificationType attr = (AttributeClassificationType) attributeType;
+
+        MdClassificationDAOIF mdClassification = (MdClassificationDAOIF) MdClassificationDAO.get(attr.getMdClassificationOid());
+        MdAttributeClassificationDAOIF mdAttribute = attr.getMdAttributeClassification();
+
+        VertexObject classifier = this.classifierCache.getClassifier(mdClassification.definesType(), value.toString().trim());
+
+        if (classifier == null)
+        {
+
+          classifier = AbstractClassification.findMatchingClassification(value.toString().trim(), mdAttribute);
+
+          if (classifier != null)
+          {
+            this.classifierCache.putClassifier(mdAttribute.getMdClassificationDAOIF().definesType(), classifier.getObjectValue("code"), classifier);
+          }
+        }
+
+        if (classifier == null)
+        {
+          GeoObjectType dto = entity.getType().toDTO();
+
+          throw new UnknownTermException(value.toString().trim(), dto.getAttribute(attributeName).get());
+        }
+        else
+        {
+          Boolean validationResult = this.classifierCache.getClassifierAttributeValidation(mdAttribute.getOid(), classifier);
+
+          if (validationResult == null)
+          {
+            validationResult = AttributeClassification.validateRid(mdAttribute, classifier.getRID(), false);
+
+            this.classifierCache.putClassifierAttributeValidation(mdAttribute.getOid(), classifier, validationResult);
+          }
+          
+          entity.setValue(attributeName, classifier.getOid(), startDate, endDate, !validationResult);
+        }
+      }
+      catch (UnknownTermException e)
+      {
+        TermValueException ex = new TermValueException();
+        ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
+        ex.setCode(e.getCode());
+
+        throw e;
+      }
     }
   }
 

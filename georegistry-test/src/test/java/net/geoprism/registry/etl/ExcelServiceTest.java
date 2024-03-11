@@ -38,11 +38,14 @@ import org.junit.runner.RunWith;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
@@ -75,10 +78,12 @@ import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
+import net.geoprism.registry.model.EdgeConstant;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
@@ -345,7 +350,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     Double lon = Double.valueOf(1.134232);
 
     GeometryFactory factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
-    Point expected = new Point(new CoordinateSequence2D(lon, lat), factory);
+    MultiPoint expected = factory.createMultiPoint(new Point[] { new Point(new CoordinateSequence2D(lon, lat), factory) });
 
     Assert.assertEquals(expected, geometry);
   }
@@ -534,9 +539,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     ServerGeoObjectType type = USATestData.DISTRICT.getServerObject();
 
-    // Ensure the geo objects were not created
-    ServerGeoObjectQuery query = this.objectService.createQuery(type, config.getStartDate());
-    List<ServerGeoObjectIF> objects = query.getResults();
+    List<ServerGeoObjectIF> objects = getObjects(type, config.getStartDate());
 
     GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, hierarchyType, objects, USATestData.DEFAULT_OVER_TIME_DATE);
     Workbook workbook = exporter.createWorkbook();
@@ -564,17 +567,17 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
       calendar.set(2018, Calendar.FEBRUARY, 12, 0, 0, 0);
 
       GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
-      Point point = geometryFactory.createPoint(new Coordinate(-104.991531, 39.742043));
+      MultiPoint point = geometryFactory.createMultiPoint(new Point[] { geometryFactory.createPoint(new Coordinate(-104.991531, 39.742043)) });
 
       ServerGeoObjectIF geoObj = this.objectService.newInstance(USATestData.DISTRICT.getServerObject());
       geoObj.setCode("00");
       geoObj.setDisplayLabel(new LocalizedValue("Test Label"));
       geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
       geoObj.setGeometry(point);
-      geoObj.setValue(testTerm.getName(), classy.getOid());
-      geoObj.setValue(testInteger.getName(), 23L);
-      geoObj.setValue(testDate.getName(), calendar.getTime());
-      geoObj.setValue(testBoolean.getName(), true);
+      geoObj.setValue(testTerm.getName(), classy.getOid(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      geoObj.setValue(testInteger.getName(), 23L, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      geoObj.setValue(testDate.getName(), calendar.getTime(), USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
+      geoObj.setValue(testBoolean.getName(), true, USATestData.DEFAULT_OVER_TIME_DATE, USATestData.DEFAULT_END_TIME_DATE);
 
       this.objectService.apply(geoObj, false);
 
@@ -588,8 +591,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
       ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
       // Ensure the geo objects were not created
-      ServerGeoObjectQuery query = this.objectService.createQuery(type, null);
-      List<ServerGeoObjectIF> objects = query.getResults();
+      List<ServerGeoObjectIF> objects = getObjects(type, USATestData.DEFAULT_OVER_TIME_DATE);
 
       GeoObjectExcelExporter exporter = new GeoObjectExcelExporter(type, hierarchyType, objects, USATestData.DEFAULT_OVER_TIME_DATE);
       InputStream export = exporter.export();
@@ -1029,5 +1031,20 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
     result.put(ImportConfiguration.IMPORT_STRATEGY, strategy);
 
     return result;
+  }
+
+  protected List<ServerGeoObjectIF> getObjects(ServerGeoObjectType type, Date date)
+  {
+    // Ensure the geo objects were not created
+    StringBuilder statement = new StringBuilder();
+    statement.append("TRAVERSE out('" + EdgeConstant.HAS_VALUE.getDBClassName() + "', '" + EdgeConstant.HAS_GEOMETRY.getDBClassName() + "') FROM (");
+    statement.append(" SELECT FROM " + type.getDBClassName());
+    statement.append(" WHERE out('" + EdgeConstant.HAS_VALUE.getDBClassName() + "')[attributeName = 'exists' AND value = true AND :date BETWEEN startDate AND endDate].size() > 0");
+    statement.append(")");
+
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+    query.setParameter("date", date);
+
+    return VertexServerGeoObject.processTraverseResults(query.getResults(), date);
   }
 }

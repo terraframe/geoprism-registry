@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -658120492)
+@com.runwaysdk.business.ClassSignature(hash = 353905299)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -29,12 +11,14 @@ package net.geoprism.registry.etl;
 public abstract class TermReferenceProblemBase extends net.geoprism.registry.etl.ValidationProblem
 {
   public final static String CLASS = "net.geoprism.registry.etl.TermReferenceProblem";
-  public static final java.lang.String ATTRIBUTECODE = "attributeCode";
-  public static final java.lang.String ATTRIBUTELABEL = "attributeLabel";
-  public static final java.lang.String LABEL = "label";
-  public static final java.lang.String MDATTRIBUTE = "mdAttribute";
-  public static final java.lang.String PARENTCODE = "parentCode";
-  private static final long serialVersionUID = -658120492;
+  public final static java.lang.String ATTRIBUTECODE = "attributeCode";
+  public final static java.lang.String ATTRIBUTELABEL = "attributeLabel";
+  public final static java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
+  public final static java.lang.String LABEL = "label";
+  public final static java.lang.String PARENTCODE = "parentCode";
+  public final static java.lang.String TYPECODE = "typeCode";
+  @SuppressWarnings("unused")
+  private static final long serialVersionUID = 353905299;
   
   public TermReferenceProblemBase()
   {
@@ -97,6 +81,34 @@ public abstract class TermReferenceProblemBase extends net.geoprism.registry.etl
     }
   }
   
+  public String getGeoObjectTypeCode()
+  {
+    return getValue(GEOOBJECTTYPECODE);
+  }
+  
+  public void validateGeoObjectTypeCode()
+  {
+    this.validateAttribute(GEOOBJECTTYPECODE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeoObjectTypeCodeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.TermReferenceProblem.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOOBJECTTYPECODE);
+  }
+  
+  public void setGeoObjectTypeCode(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOOBJECTTYPECODE, "");
+    }
+    else
+    {
+      setValue(GEOOBJECTTYPECODE, value);
+    }
+  }
+  
   public String getLabel()
   {
     return getValue(LABEL);
@@ -122,58 +134,6 @@ public abstract class TermReferenceProblemBase extends net.geoprism.registry.etl
     else
     {
       setValue(LABEL, value);
-    }
-  }
-  
-  public com.runwaysdk.system.metadata.MdAttributeTerm getMdAttribute()
-  {
-    if (getValue(MDATTRIBUTE).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return com.runwaysdk.system.metadata.MdAttributeTerm.get(getValue(MDATTRIBUTE));
-    }
-  }
-  
-  public String getMdAttributeOid()
-  {
-    return getValue(MDATTRIBUTE);
-  }
-  
-  public void validateMdAttribute()
-  {
-    this.validateAttribute(MDATTRIBUTE);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getMdAttributeMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.TermReferenceProblem.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(MDATTRIBUTE);
-  }
-  
-  public void setMdAttribute(com.runwaysdk.system.metadata.MdAttributeTerm value)
-  {
-    if(value == null)
-    {
-      setValue(MDATTRIBUTE, "");
-    }
-    else
-    {
-      setValue(MDATTRIBUTE, value.getOid());
-    }
-  }
-  
-  public void setMdAttributeId(java.lang.String oid)
-  {
-    if(oid == null)
-    {
-      setValue(MDATTRIBUTE, "");
-    }
-    else
-    {
-      setValue(MDATTRIBUTE, oid);
     }
   }
   
@@ -205,16 +165,37 @@ public abstract class TermReferenceProblemBase extends net.geoprism.registry.etl
     }
   }
   
+  public String getTypeCode()
+  {
+    return getValue(TYPECODE);
+  }
+  
+  public void validateTypeCode()
+  {
+    this.validateAttribute(TYPECODE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getTypeCodeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.TermReferenceProblem.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(TYPECODE);
+  }
+  
+  public void setTypeCode(String value)
+  {
+    if(value == null)
+    {
+      setValue(TYPECODE, "");
+    }
+    else
+    {
+      setValue(TYPECODE, value);
+    }
+  }
+  
   protected String getDeclaredType()
   {
     return CLASS;
-  }
-  
-  public static TermReferenceProblemQuery getAllInstances(String sortAttribute, Boolean ascending, Integer pageSize, Integer pageNumber)
-  {
-    TermReferenceProblemQuery query = new TermReferenceProblemQuery(new com.runwaysdk.query.QueryFactory());
-    com.runwaysdk.business.Entity.getAllInstances(query, sortAttribute, ascending, pageSize, pageNumber);
-    return query;
   }
   
   public static TermReferenceProblem get(String oid)
