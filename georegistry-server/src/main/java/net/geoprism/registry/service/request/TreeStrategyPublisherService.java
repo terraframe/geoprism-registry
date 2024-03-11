@@ -197,7 +197,7 @@ public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherS
     long startTime = System.currentTimeMillis();
     GeoObjectTypeSnapshot graphVertex = this.tSnapshotService.get(state.version, snapshot.node.getType().getCode());
     MdVertex mdVertex = graphVertex.getGraphMdVertex();
-
+    
     VertexObject vertex = null;
 
     if (!state.uids.contains(snapshot.node.getUid()))

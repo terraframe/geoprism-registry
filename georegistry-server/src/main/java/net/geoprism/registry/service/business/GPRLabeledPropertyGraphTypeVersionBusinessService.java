@@ -2,9 +2,21 @@ package net.geoprism.registry.service.business;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
+import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -16,22 +28,27 @@ import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
+import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
+import com.runwaysdk.constants.MdAttributeDoubleInfo;
 import com.runwaysdk.constants.UserInfo;
 import com.runwaysdk.constants.graph.MdEdgeInfo;
 import com.runwaysdk.constants.graph.MdVertexInfo;
-import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
-import com.runwaysdk.dataaccess.MdVertexDAOIF;
-import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
-import com.runwaysdk.dataaccess.metadata.MdAttributeTermDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.gis.dataaccess.MdAttributeGeometryDAOIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.metadata.MdAttributeBoolean;
+import com.runwaysdk.system.metadata.MdAttributeCharacter;
+import com.runwaysdk.system.metadata.MdAttributeClassification;
+import com.runwaysdk.system.metadata.MdAttributeConcrete;
+import com.runwaysdk.system.metadata.MdAttributeDateTime;
+import com.runwaysdk.system.metadata.MdAttributeDouble;
+import com.runwaysdk.system.metadata.MdAttributeLocalCharacterEmbedded;
+import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
 import com.runwaysdk.system.scheduler.AllJobStatus;
@@ -51,6 +68,9 @@ import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.lpg.StrategyConfiguration;
 import net.geoprism.registry.lpg.TreeStrategyConfiguration;
+import net.geoprism.registry.model.Classification;
+import net.geoprism.registry.model.ClassificationType;
+import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.request.TreeStrategyPublisherService;
@@ -88,6 +108,12 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
   @Autowired
   private GeoObjectTypeBusinessServiceIF         typeService;
 
+  @Autowired
+  private ClassificationTypeBusinessServiceIF         cTypeService;
+  
+  @Autowired
+  private ClassificationBusinessServiceIF         cService;
+  
   @Autowired
   private TreeStrategyPublisherService           publisherService;
 
@@ -269,35 +295,101 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
     List<String> existingAttributes = mdVertexDAO.getAllDefinedMdAttributes().stream().map(attribute -> attribute.definesAttribute()).collect(Collectors.toList());
 
-    MdVertexDAOIF sourceMdVertex = type.getMdVertex();
-
-    List<? extends MdAttributeDAOIF> attributes = sourceMdVertex.getAllDefinedMdAttributes();
-
-    attributes.forEach(attribute -> {
-      String attributeName = attribute.definesAttribute();
-      if (!attribute.isSystem() && ! ( attribute instanceof MdAttributeGeometryDAOIF ) && !existingAttributes.contains(attributeName))
+    GeoObjectType dto = type.toDTO();
+    Map<String, net.geoprism.registry.graph.AttributeType> attributes = type.getAttributeMap();
+    
+    attributes.forEach((attributeName, attribute) -> {
+      if (! ( attribute instanceof net.geoprism.registry.graph.AttributeGeometryType )
+          && ! ( attribute instanceof net.geoprism.registry.graph.AttributeTermType )
+          && !existingAttributes.contains(attributeName))
       {
-        MdAttributeDAO mdAttribute = (MdAttributeDAO) attribute.copy();
+        AttributeType attributeType = dto.getAttribute(attributeName).get();
+        
+        MdAttributeConcrete mdAttribute = null;
+
+        if (attributeType.getType().equals(AttributeCharacterType.TYPE))
+        {
+          mdAttribute = new MdAttributeCharacter();
+          MdAttributeCharacter mdAttributeCharacter = (MdAttributeCharacter) mdAttribute;
+          mdAttributeCharacter.setDatabaseSize(MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
+        }
+        else if (attributeType.getType().equals(AttributeDateType.TYPE))
+        {
+          mdAttribute = new MdAttributeDateTime();
+        }
+        else if (attributeType.getType().equals(AttributeIntegerType.TYPE))
+        {
+          mdAttribute = new MdAttributeLong();
+        }
+        else if (attributeType.getType().equals(AttributeFloatType.TYPE))
+        {
+          AttributeFloatType attributeFloatType = (AttributeFloatType) attributeType;
+
+          mdAttribute = new MdAttributeDouble();
+          mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, Integer.toString(attributeFloatType.getPrecision()));
+          mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, Integer.toString(attributeFloatType.getScale()));
+        }
+//        else if (attributeType.getType().equals(AttributeTermType.TYPE))
+//        {
+//          mdAttribute = new MdAttributeTerm();
+//          MdAttributeTerm mdAttributeTerm = (MdAttributeTerm) mdAttribute;
+//
+//          MdBusiness classifierMdBusiness = MdBusiness.getMdBusiness(Classifier.CLASS);
+//          mdAttributeTerm.setMdBusiness(classifierMdBusiness);
+//        }
+        else if (attributeType.getType().equals(AttributeClassificationType.TYPE))
+        {
+          AttributeClassificationType attributeClassificationType = (AttributeClassificationType) attributeType;
+          String classificationTypeCode = attributeClassificationType.getClassificationType();
+
+          ClassificationType classificationType = this.cTypeService.getByCode(classificationTypeCode);
+
+          mdAttribute = new MdAttributeClassification();
+          MdAttributeClassification mdAttributeTerm = (MdAttributeClassification) mdAttribute;
+          mdAttributeTerm.setReferenceMdClassification(classificationType.getMdClassificationObject());
+
+          Term root = attributeClassificationType.getRootTerm();
+
+          if (root != null)
+          {
+            Classification classification = this.cService.get(classificationType, root.getCode());
+
+            if (classification == null)
+            {
+              net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+              ex.setTypeLabel(classificationType.getDisplayLabel().getValue());
+              ex.setDataIdentifier(root.getCode());
+              ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+
+              throw ex;
+            }
+
+            mdAttributeTerm.setValue(MdAttributeClassification.ROOT, classification.getOid());
+          }
+        }
+        else if (attributeType.getType().equals(AttributeBooleanType.TYPE))
+        {
+          mdAttribute = new MdAttributeBoolean();
+        }
+        else if (attributeType.getType().equals(AttributeLocalType.TYPE))
+        {
+          mdAttribute = new MdAttributeLocalCharacterEmbedded();
+        }
+        else
+        {
+          throw new UnsupportedOperationException();
+        }
+
+        mdAttribute.setAttributeName(attributeType.getName());
+        
+        RegistryLocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+        RegistryLocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
+
         mdAttribute.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdVertexDAO.getOid());
         mdAttribute.apply();
-
-        if (attribute instanceof MdAttributeTermDAO)
-        {
-          // TODO: HEADS UP
-//          MdAttributeTermDAO targetAttribute = (MdAttributeTermDAO) mdAttribute;
-//
-//          // Roots are defined on the MdBusiness of the ServerGeoObjectType not
-//          // the MdVertex
-//          List<RelationshipDAOIF> roots = ( (MdAttributeTermDAOIF) sourceMdBusiness.definesAttribute(attribute.definesAttribute()) ).getAllAttributeRoots();
-//
-//          roots.forEach(relationship -> {
-//            BusinessDAO term = (BusinessDAO) relationship.getChild();
-//            Boolean selectable = Boolean.valueOf(relationship.getValue(MdAttributeTermInfo.SELECTABLE));
-//            targetAttribute.addAttributeRoot(term, selectable);
-//          });
-        }
       }
     });
+    
     MdVertex graphMdVertex = (MdVertex) BusinessFacade.get(mdVertexDAO);
 
     GeoObjectTypeSnapshot snapshot = new GeoObjectTypeSnapshot();

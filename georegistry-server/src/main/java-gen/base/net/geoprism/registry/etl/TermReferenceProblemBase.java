@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 353905299)
+@com.runwaysdk.business.ClassSignature(hash = 24184602)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -16,9 +16,8 @@ public abstract class TermReferenceProblemBase extends net.geoprism.registry.etl
   public final static java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
   public final static java.lang.String LABEL = "label";
   public final static java.lang.String PARENTCODE = "parentCode";
-  public final static java.lang.String TYPECODE = "typeCode";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 353905299;
+  private static final long serialVersionUID = 24184602;
   
   public TermReferenceProblemBase()
   {
@@ -162,34 +161,6 @@ public abstract class TermReferenceProblemBase extends net.geoprism.registry.etl
     else
     {
       setValue(PARENTCODE, value);
-    }
-  }
-  
-  public String getTypeCode()
-  {
-    return getValue(TYPECODE);
-  }
-  
-  public void validateTypeCode()
-  {
-    this.validateAttribute(TYPECODE);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getTypeCodeMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.TermReferenceProblem.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(TYPECODE);
-  }
-  
-  public void setTypeCode(String value)
-  {
-    if(value == null)
-    {
-      setValue(TYPECODE, "");
-    }
-    else
-    {
-      setValue(TYPECODE, value);
     }
   }
   

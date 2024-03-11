@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -1338937270)
+@com.runwaysdk.business.ClassSignature(hash = 153128721)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -123,23 +123,6 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.PARENTCODE, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableChar getTypeCode()
-  {
-    return getTypeCode(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getTypeCode(String alias)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.TYPECODE, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.TYPECODE, alias, displayLabel);
-
-  }
   /**  
    * Returns an iterator of Business objects that match the query criteria specified
    * on this query object. 
@@ -187,9 +170,6 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     public com.runwaysdk.query.SelectableChar getParentCode();
     public com.runwaysdk.query.SelectableChar getParentCode(String alias);
     public com.runwaysdk.query.SelectableChar getParentCode(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableChar getTypeCode();
-    public com.runwaysdk.query.SelectableChar getTypeCode(String alias);
-    public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.etl.TermReferenceProblem termReferenceProblem);
 
@@ -310,23 +290,6 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.PARENTCODE, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableChar getTypeCode()
-  {
-    return getTypeCode(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getTypeCode(String alias)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.TYPECODE, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.TYPECODE, alias, displayLabel);
-
-  }
   }
 
 /**
@@ -351,9 +314,6 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     public com.runwaysdk.query.SelectableChar getParentCode();
     public com.runwaysdk.query.SelectableChar getParentCode(String alias);
     public com.runwaysdk.query.SelectableChar getParentCode(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableChar getTypeCode();
-    public com.runwaysdk.query.SelectableChar getTypeCode(String alias);
-    public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.etl.TermReferenceProblem ... termReferenceProblem);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.etl.TermReferenceProblem ... termReferenceProblem);
@@ -521,23 +481,6 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
   public com.runwaysdk.query.SelectableChar getParentCode(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.PARENTCODE, alias, displayLabel);
-
-  }
-  public com.runwaysdk.query.SelectableChar getTypeCode()
-  {
-    return getTypeCode(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getTypeCode(String alias)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.TYPECODE, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableChar getTypeCode(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.TYPECODE, alias, displayLabel);
 
   }
   }

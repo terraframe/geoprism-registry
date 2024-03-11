@@ -492,6 +492,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
         if (code.equals(USATestData.COLORADO.getCode()))
         {
+          Assert.assertNotNull(child.getObjectValue(DefaultAttribute.GEOMETRY.getName()));
           Assert.assertNotNull(child.getObjectValue(testClassification.getName()));
         }
       });
