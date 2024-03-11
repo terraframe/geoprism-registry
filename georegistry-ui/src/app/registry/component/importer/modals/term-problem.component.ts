@@ -47,7 +47,7 @@ export class TermProblemComponent implements OnInit {
 
     constructor( private service: IOService ) {
         this.dataSource = Observable.create(( observer: any ) => {
-            this.service.getTermSuggestions( this.problem.mdAttributeId, this.termLabel, '20' ).then( results => {
+            this.service.getTermSuggestions( this.problem.typeCode, this.problem.attributeCode, this.termLabel, 20 ).then( results => {
                 observer.next( results );
             } );
         } );

@@ -45,7 +45,7 @@ export class Term {
 export class TermProblem {
     label: string;
     parentCode: string;
-    mdAttributeId: string;
+    typeCode: string;
     attributeCode: string;
     attributeLabel: string;
     action: any;

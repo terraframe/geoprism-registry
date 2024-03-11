@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -23,7 +23,6 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.hibernate.validator.constraints.NotEmpty;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,14 +33,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.runwaysdk.business.ValueObjectDTO;
-import com.runwaysdk.business.ValueQueryDTO;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
 
 import net.geoprism.ontology.ClassifierDTO;
-import net.geoprism.registry.service.request.ClassifierServiceIF;
+import net.geoprism.registry.service.request.GPRClassifierService;
 
 @RestController
 @Validated
@@ -51,12 +48,12 @@ public class TermController extends RunwaySpringController
   {
     @NotEmpty
     private String synonymId;
-    
+
     public String getSynonymId()
     {
       return synonymId;
     }
-    
+
     public void setSynonymId(String synonymId)
     {
       this.synonymId = synonymId;
@@ -91,11 +88,11 @@ public class TermController extends RunwaySpringController
       this.label = label;
     }
   }
-  
-  @Autowired
-  protected ClassifierServiceIF classifierService;
 
-  public static final String API_PATH = "term";
+  @Autowired
+  protected GPRClassifierService classifierService;
+
+  public static final String     API_PATH = "term";
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseEntity<String> createClassifierSynonym(@Valid @RequestBody ClassifierSynonymBody body)
@@ -116,32 +113,15 @@ public class TermController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/getClassifierSuggestions")
-  public ResponseEntity<String> getClassifierSuggestions(
-      @NotEmpty @RequestParam String mdAttributeId, 
-      @RequestParam(required = false) String text,
-      @RequestParam(required = false) Integer limit) 
+  public ResponseEntity<String> getClassifierSuggestions(@NotEmpty @RequestParam String typeCode, @NotEmpty @RequestParam String attributeCode, @RequestParam(required = false) String text, @RequestParam(required = false) Integer limit)
   {
-    JSONArray response = new JSONArray();
+    List<JSONObject> results = this.classifierService.getClassifierSuggestions(this.getSessionId(), typeCode, attributeCode, text, limit);
 
-    ValueQueryDTO query = ClassifierDTO.getClassifierSuggestions(this.getClientRequest(), mdAttributeId, text, limit);
-    List<ValueObjectDTO> results = query.getResultSet();
-
-    for (ValueObjectDTO result : results)
-    {
-      JSONObject object = new JSONObject();
-      object.put("label", result.getValue(ClassifierDTO.DISPLAYLABEL));
-      object.put("value", result.getValue(ClassifierDTO.OID));
-
-      response.put(object);
-    }
-
-    return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
+    return new ResponseEntity<String>(results.toString(), HttpStatus.OK);
   }
 
   @GetMapping(API_PATH + "/validateCategoryName")
-  public ResponseEntity<Void> validateCategoryName(
-      @NotEmpty @RequestParam String name, 
-      @NotEmpty @RequestParam String oid)
+  public ResponseEntity<Void> validateCategoryName(@NotEmpty @RequestParam String name, @NotEmpty @RequestParam String oid)
   {
     ClassifierDTO.validateCategoryName(this.getClientRequest(), name, oid);
 

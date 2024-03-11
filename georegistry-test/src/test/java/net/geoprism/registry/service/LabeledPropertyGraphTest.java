@@ -154,14 +154,14 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     root.setDisplayLabel(new LocalizedValue("Test Classification"));
     this.cService.apply(root, null);
 
-    testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
+    testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, true);
     testClassification.setClassificationType(type.getCode());
     testClassification.setRootTerm(root.toTerm());
 
     ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.STATE.getCode());
     testClassification = (AttributeClassificationType) this.oTypeService.createAttributeType(got, testClassification.toJSON().toString());
 
-    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
+    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, true);
     testTerm = (AttributeTermType) this.oTypeService.createAttributeType(got, testTerm.toJSON().toString());
 
     Term term = new Term("TERM_1", new LocalizedValue("Term 1"), new LocalizedValue("Term 1"));

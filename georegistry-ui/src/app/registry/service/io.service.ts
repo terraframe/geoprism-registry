@@ -172,9 +172,10 @@ export class IOService {
             .toPromise();
     }
 
-    getTermSuggestions(mdAttributeId: string, text: string, limit: string): Promise<{ text: string, data: any }[]> {
+    getTermSuggestions(typeCode: string, attributeCode: string, text: string, limit: number): Promise<{ text: string, data: any }[]> {
         let params: HttpParams = new HttpParams();
-        params = params.set("mdAttributeId", mdAttributeId);
+        params = params.set("typeCode", typeCode);
+        params = params.set("attributeCode", attributeCode);
         params = params.set("text", text);
         params = params.set("limit", limit);
 
