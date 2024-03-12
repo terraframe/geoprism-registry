@@ -389,7 +389,7 @@ public class BusinessTypeTest extends FastDatasetTest implements InstanceTestCla
           JsonObject current = orgs.get(i).getAsJsonObject();
           String currentCode = current.get("code").getAsString();
 
-          if (currentCode.equals(currentCode))
+          if (currentCode.equals(orgCode))
           {
             org = current;
           }
