@@ -86,7 +86,7 @@ public class ExternalSystemTest extends FastDatasetTest implements InstanceTestC
     String expected = "EXTERNAL ID";
 
     ServerGeoObjectIF serverGO = FastTestDataset.PROV_CENTRAL.getServerObject();
-    
+
     this.objectService.createExternalId(serverGO, system, expected, ImportStrategy.NEW_ONLY);
 
     String actual = this.objectService.getExternalId(serverGO, system);
@@ -112,7 +112,7 @@ public class ExternalSystemTest extends FastDatasetTest implements InstanceTestC
     this.objectService.createExternalId(serverGO, system, externalId, ImportStrategy.NEW_ONLY);
 
     VertexGeoObjectQuery query = new VertexGeoObjectQuery(FastTestDataset.PROVINCE.getServerObject(), new Date());
-    query.setRestriction(new ServerExternalIdRestriction(system, externalId));
+    query.setRestriction(new ServerExternalIdRestriction(FastTestDataset.PROVINCE.getServerObject(), system, externalId));
 
     ServerGeoObjectIF result = query.getSingleResult();
 

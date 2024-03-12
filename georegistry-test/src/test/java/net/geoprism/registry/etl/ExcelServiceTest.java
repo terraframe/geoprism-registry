@@ -412,7 +412,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     // Ensure the geo objects were not created
     ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.DISTRICT.getServerObject(), config.getStartDate());
-    query.setRestriction(new ServerCodeRestriction("0001"));
+    query.setRestriction(new ServerCodeRestriction(USATestData.DISTRICT.getServerObject(), "0001"));
 
     Assert.assertNull(query.getSingleResult());
   }
@@ -444,7 +444,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     // Ensure the geo objects were not created
     ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.DISTRICT.getServerObject(), config.getStartDate());
-    query.setRestriction(new ServerCodeRestriction("0001"));
+    query.setRestriction(new ServerCodeRestriction(USATestData.DISTRICT.getServerObject(), "0001"));
 
     Assert.assertNull(query.getSingleResult());
   }
@@ -753,7 +753,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     // Ensure the geo objects were not created
     ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.DISTRICT.getServerObject(), config.getStartDate());
-    query.setRestriction(new ServerCodeRestriction("0001"));
+    query.setRestriction(new ServerCodeRestriction(USATestData.DISTRICT.getServerObject(), "0001"));
 
     Assert.assertNull(query.getSingleResult());
   }
@@ -790,7 +790,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     // Ensure the geo objects were not created
     ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.DISTRICT.getServerObject(), config.getStartDate());
-    query.setRestriction(new ServerCodeRestriction("0001"));
+    query.setRestriction(new ServerCodeRestriction(USATestData.DISTRICT.getServerObject(), "0001"));
 
     Assert.assertNull(query.getSingleResult());
   }
@@ -905,7 +905,7 @@ public class ExcelServiceTest extends USADatasetTest implements InstanceTestClas
 
     // Ensure the geo objects were not created
     ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.DISTRICT.getServerObject(), config.getStartDate());
-    query.setRestriction(new ServerCodeRestriction("0001"));
+    query.setRestriction(new ServerCodeRestriction(USATestData.DISTRICT.getServerObject(), "0001"));
 
     Assert.assertNull(query.getSingleResult());
   }

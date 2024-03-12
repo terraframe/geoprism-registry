@@ -620,7 +620,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
       data.setParentBuilder(builder);
 
       this.bObjectService.apply(businessObject);
-      
+
       this.bObjectService.addGeoObject(businessObject, geoObject);
 
       imported = true;
@@ -759,11 +759,11 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
         if (ms.equals(ParentMatchStrategy.CODE))
         {
-          query.setRestriction(new ServerCodeRestriction(label.toString()));
+          query.setRestriction(new ServerCodeRestriction(location.getType(), label.toString()));
         }
         else if (ms.equals(ParentMatchStrategy.EXTERNAL))
         {
-          query.setRestriction(new ServerExternalIdRestriction(this.getConfiguration().getExternalSystem(), label.toString()));
+          query.setRestriction(new ServerExternalIdRestriction(location.getType(), this.getConfiguration().getExternalSystem(), label.toString()));
         }
         else if (ms.equals(ParentMatchStrategy.DHIS2_PATH))
         {
@@ -788,7 +788,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
             throw ex;
           }
 
-          query.setRestriction(new ServerExternalIdRestriction(this.getConfiguration().getExternalSystem(), dhis2Parent));
+          query.setRestriction(new ServerExternalIdRestriction(location.getType(), this.getConfiguration().getExternalSystem(), dhis2Parent));
         }
         else
         {

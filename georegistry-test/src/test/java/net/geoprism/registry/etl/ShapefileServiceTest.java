@@ -665,6 +665,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     final GeoObjectImportConfiguration test = new GeoObjectImportConfiguration();
     test.fromJSON(hist.getConfigJson(), false);
+    
 
     // TODO
     // Assert.assertEquals(config.getParentLookupType(),
@@ -676,7 +677,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     // Ensure the geo objects were not created
     ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
-    query.setRestriction(new ServerCodeRestriction("01"));
+    query.setRestriction(new ServerCodeRestriction(USATestData.STATE.getServerObject(), "01"));
 
     Assert.assertNull(query.getSingleResult());
   }
@@ -709,7 +710,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     // Ensure the geo objects were not created
     ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
-    query.setRestriction(new ServerCodeRestriction("01"));
+    query.setRestriction(new ServerCodeRestriction(USATestData.STATE.getServerObject(), "01"));
 
     Assert.assertNull(query.getSingleResult());
   }
@@ -745,7 +746,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     // Ensure the geo objects were not created
     ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
-    query.setRestriction(new ServerCodeRestriction("01"));
+    query.setRestriction(new ServerCodeRestriction(USATestData.STATE.getServerObject(), "01"));
 
     Assert.assertNull(query.getSingleResult());
   }
@@ -829,7 +830,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     // Ensure the geo objects were not created
     ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
-    query.setRestriction(new ServerCodeRestriction("01"));
+    query.setRestriction(new ServerCodeRestriction(USATestData.STATE.getServerObject(), "01"));
 
     Assert.assertNull(query.getSingleResult());
   }
@@ -967,7 +968,7 @@ public class ShapefileServiceTest extends USADatasetTest implements InstanceTest
 
     // Ensure the geo objects were not created
     ServerGeoObjectQuery query = this.objectService.createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
-    query.setRestriction(new ServerCodeRestriction("01"));
+    query.setRestriction(new ServerCodeRestriction(USATestData.STATE.getServerObject(), "01"));
 
     Assert.assertNull(query.getSingleResult());
 

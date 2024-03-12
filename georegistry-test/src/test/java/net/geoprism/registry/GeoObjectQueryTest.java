@@ -20,7 +20,6 @@ import net.geoprism.registry.graph.GeoVertexSynonym;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.query.ServerCodeRestriction;
-import net.geoprism.registry.query.ServerLookupRestriction;
 import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.test.USATestData;
@@ -94,7 +93,7 @@ public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestCl
     ServerGeoObjectType type = USATestData.STATE.getServerObject();
 
     VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, null);
-    query.setRestriction(new ServerCodeRestriction(USATestData.COLORADO.getCode()));
+    query.setRestriction(new ServerCodeRestriction(type, USATestData.COLORADO.getCode()));
 
     ServerGeoObjectIF result = query.getSingleResult();
 
@@ -111,7 +110,7 @@ public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestCl
   {
     ServerGeoObjectType type = USATestData.DISTRICT.getServerObject();
     VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, null);
-    query.setRestriction(new ServerCodeRestriction(USATestData.CO_D_ONE.getCode()));
+    query.setRestriction(new ServerCodeRestriction(type, USATestData.CO_D_ONE.getCode()));
 
     ServerGeoObjectIF result = query.getSingleResult();
 
@@ -189,38 +188,32 @@ public class GeoObjectQueryTest extends USADatasetTest implements InstanceTestCl
 
   @Test
   @Request
-  public void testLookupRestriction()
+  public void testTreeSynonymRestrictionByCodeWithAncestor()
   {
-    ServerGeoObjectType type = USATestData.STATE.getServerObject();
-
-    ServerLookupRestriction restriction = new ServerLookupRestriction("Co", USATestData.COLORADO.getDate(), USATestData.USA.getCode(), USATestData.HIER_ADMIN.getServerObject());
+    ServerGeoObjectType type = USATestData.DISTRICT.getServerObject();
 
     VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, null);
-    query.setRestriction(restriction);
+    query.setRestriction(new ServerSynonymRestriction(USATestData.CO_D_ONE.getCode(), USATestData.CO_D_ONE.getDate(), USATestData.USA.getServerObject(), USATestData.HIER_ADMIN.getServerObject()));
 
     ServerGeoObjectIF result = query.getSingleResult();
 
-    Assert.assertEquals(USATestData.COLORADO.getCode(), result.getCode());
+    Assert.assertEquals(USATestData.CO_D_ONE.getCode(), result.getCode());
     Assert.assertNotNull(result.getGeometry());
-    Assert.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
-
+    Assert.assertEquals(USATestData.CO_D_ONE.getDisplayLabel(), result.getDisplayLabel().getValue());
     Assert.assertEquals(true, result.getExists());
   }
 
   @Test
   @Request
-  public void testFailLookupRestriction()
+  public void testTreeSynonymRestrictionByCodeWithBadAncestor()
   {
-    ServerGeoObjectType type = USATestData.STATE.getServerObject();
-
-    ServerLookupRestriction restriction = new ServerLookupRestriction(USATestData.CANADA.getCode(), USATestData.CANADA.getDate());
+    ServerGeoObjectType type = USATestData.DISTRICT.getServerObject();
 
     VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, null);
-    query.setRestriction(restriction);
+    query.setRestriction(new ServerSynonymRestriction(USATestData.CO_D_ONE.getCode(), USATestData.CO_D_ONE.getDate(), USATestData.CANADA.getServerObject(), USATestData.HIER_ADMIN.getServerObject()));
 
     ServerGeoObjectIF result = query.getSingleResult();
 
     Assert.assertNull(result);
   }
-
 }

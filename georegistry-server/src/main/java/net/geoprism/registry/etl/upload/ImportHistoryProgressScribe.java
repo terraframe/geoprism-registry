@@ -420,7 +420,7 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
     {
       this.history.appLock();
       this.history.setImportedRecords(this.importedRecords);
-      this.history.setWorkProgress(this.completedRows.last().end);
+      this.history.setWorkProgress(this.completedRows.size() > 0 ? this.completedRows.last().end : 0);
       this.history.setCompletedRowsJson(Range.serialize(this.completedRows));
       this.history.apply();
     }

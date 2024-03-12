@@ -25,15 +25,18 @@ import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class VertexExternalIdRestriction extends AbstractVertexRestriction implements VertexGeoObjectRestriction
 {
+  private ServerGeoObjectType type;
   private ExternalSystem system;
 
   private String         externalId;
 
-  public VertexExternalIdRestriction(ExternalSystem system, String externalId)
+  public VertexExternalIdRestriction(ServerGeoObjectType type, ExternalSystem system, String externalId)
   {
+    this.type = type;    
     this.system = system;
     this.externalId = externalId;
   }
@@ -42,10 +45,15 @@ public class VertexExternalIdRestriction extends AbstractVertexRestriction imple
   public void restrict(StringBuilder statement, Map<String, Object> parameters)
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
-    statement.append("}.inE('" + mdEdge.getDBClassName() + "'){where: (id = :id AND out = :out)");
-
-    parameters.put("out", this.system.getRID());
+    
+    statement.append("( SELECT expand(in) FROM (");
+    statement.append("  SELECT expand(outE('" + mdEdge.getDBClassName() + "')[id = :id]) FROM :system");
+    statement.append("))");
+    statement.append("WHERE @class = :class ");
+    
+    parameters.put("system", this.system.getRID());
     parameters.put("id", this.externalId);
+    parameters.put("class", this.type.getDBClassName());
   }
 
 }

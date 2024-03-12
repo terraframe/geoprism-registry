@@ -724,63 +724,22 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
   @Request
   private void checkMdBusinessAttributes(String code)
   {
-    Universal universal = Universal.getByKey(code);
-    MdBusiness mdBusiness = universal.getMdBusiness();
-
-    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
+    ServerGeoObjectType mdBusinessDAOIF = ServerGeoObjectType.get(code);
     // For debugging
     // mdBusinessDAOIF.getAllDefinedMdAttributes().forEach(a ->
-    // System.out.println(a.definesAttribute() +" "+a.getType()));
+    // System.out.println(a.getAttribute() +" "+a.getType()));
 
     // DefaultAttribute.UID - Defined on the MdBusiness and the values are from
     // the {@code GeoObject#OID};
-    try
-    {
-      mdBusinessDAOIF.definesAttribute(DefaultAttribute.UID.getName());
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("Attribute that implements GeoObject.UID does not exist. It should be defined on the business class");
-    }
+    Assert.assertTrue(mdBusinessDAOIF.getAttribute(DefaultAttribute.UID.getName()).isPresent());
 
     // DefaultAttribute.CODE - defined by GeoEntity geoId
-    try
-    {
-      mdBusinessDAOIF.definesAttribute(DefaultAttribute.CODE.getName());
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("Attribute that implements GeoObjectType.CODE does not exist.It should be defined on the business class");
-    }
+    Assert.assertTrue(mdBusinessDAOIF.getAttribute(DefaultAttribute.CODE.getName()).isPresent());
 
     // DefaultAttribute.CREATED_DATE - The create data on the GeoObject?
-    try
-    {
-      mdBusinessDAOIF.definesAttribute(MdBusinessInfo.CREATE_DATE);
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("Attribute that implements GeoObjectType.CREATED_DATE does not exist.It should be defined on the business class");
-    }
+    Assert.assertTrue(mdBusinessDAOIF.getAttribute(MdBusinessInfo.CREATE_DATE).isPresent());
 
     // DefaultAttribute.UPDATED_DATE - The update data on the GeoObject?
-    try
-    {
-      mdBusinessDAOIF.definesAttribute(MdBusinessInfo.LAST_UPDATE_DATE);
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("Attribute that implements GeoObjectType.LAST_UPDATE_DATE does not exist.It should be defined on the business class");
-    }
-
-    // DefaultAttribute.STATUS
-    try
-    {
-      mdBusinessDAOIF.definesAttribute(MdBusinessInfo.LAST_UPDATE_DATE);
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("Attribute that implements GeoObjectType.LAST_UPDATE_DATE does not exist.It should be defined on the business class");
-    }
+    Assert.assertTrue(mdBusinessDAOIF.getAttribute(MdBusinessInfo.LAST_UPDATE_DATE).isPresent());
   }
 }
