@@ -61,6 +61,13 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.MultiLineString;
+import org.locationtech.jts.geom.MultiPoint;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.slf4j.Logger;
@@ -71,19 +78,12 @@ import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.MultiLineString;
-import org.locationtech.jts.geom.MultiPoint;
-import org.locationtech.jts.geom.MultiPolygon;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.geom.Polygon;
 
 import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.query.graph.VertexSelectGeoObjectQuery;
 
 public class GeoObjectAtTimeShapefileExporter
@@ -262,18 +262,18 @@ public class GeoObjectAtTimeShapefileExporter
 
     List<SimpleFeature> features = new ArrayList<SimpleFeature>();
     SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
-    VertexServerGeoObject prev = null;
+    ServerGeoObjectIF prev = null;
 
     do
     {
       final VertexSelectGeoObjectQuery query = new VertexSelectGeoObjectQuery(type, this.date, prev);
       query.setLimit(BLOCK_SIZE);
 
-      final List<VertexServerGeoObject> objects = query.getResults();
+      final List<ServerGeoObjectIF> objects = query.getResults();
 
       prev = null;
 
-      for (VertexServerGeoObject object : objects)
+      for (ServerGeoObjectIF object : objects)
       {
         if (!object.getInvalid())
         {
