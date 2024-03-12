@@ -26,10 +26,8 @@ import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
-import com.runwaysdk.gis.constants.MdGeoVertexInfo;
-import com.runwaysdk.gis.dataaccess.MdGeoVertexDAOIF;
-import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdBusiness;
@@ -40,7 +38,6 @@ import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
-import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.roles.CreateGeoObjectTypePermissionException;
@@ -133,7 +130,6 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
 
     GeoObjectType returned = client.createGeoObjectType(gtJSON);
 
-    checkMdBusinessAttributes(TEST_GOT.getCode());
     checkMdGraphAttributes(TEST_GOT.getCode());
 
     TEST_GOT.assertEquals(returned);
@@ -667,28 +663,14 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
   @Request
   private void checkMdGraphAttributes(String code)
   {
-    MdGeoVertexDAOIF mdGraphClassDAOIF = (MdGeoVertexDAOIF) MdGeoVertexDAO.get(MdGeoVertexInfo.CLASS, GeoVertexType.buildMdGeoVertexKey(code));
-
-    // DefaultAttribute.UID - Defined on the MdBusiness and the values are from
-    // the {@code GeoObject#OID};
-    try
-    {
-      mdGraphClassDAOIF.definesAttribute(DefaultAttribute.UID.getName());
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("Attribute that implements GeoObject.UID does not exist. It should be defined on the business class");
-    }
+    ServerGeoObjectType type = ServerGeoObjectType.get(code);
+    
+    Assert.assertTrue(type.getAttribute(DefaultAttribute.UID.getName()).isPresent());
 
     // DefaultAttribute.CODE - defined by GeoEntity geoId
-    try
-    {
-      mdGraphClassDAOIF.definesAttribute(DefaultAttribute.CODE.getName());
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("Attribute that implements GeoObjectType.CODE does not exist.It should be defined on the business class");
-    }
+    Assert.assertTrue(type.getAttribute(DefaultAttribute.CODE.getName()).isPresent());
+    
+    MdVertexDAOIF mdGraphClassDAOIF = type.getMdVertex();
 
     // DefaultAttribute.CREATED_DATE - The create data on the GeoObject?
     try
@@ -709,37 +691,5 @@ public class GeoObjectTypeServiceTest extends FastDatasetTest implements Instanc
     {
       Assert.fail("Attribute that implements GeoObjectType.LAST_UPDATE_DATE does not exist.It should be defined on the business class");
     }
-
-    // DefaultAttribute.STATUS
-    try
-    {
-      mdGraphClassDAOIF.definesAttribute(MdBusinessInfo.LAST_UPDATE_DATE);
-    }
-    catch (DataNotFoundException e)
-    {
-      Assert.fail("Attribute that implements GeoObjectType.LAST_UPDATE_DATE does not exist.It should be defined on the business class");
-    }
-  }
-
-  @Request
-  private void checkMdBusinessAttributes(String code)
-  {
-    ServerGeoObjectType mdBusinessDAOIF = ServerGeoObjectType.get(code);
-    // For debugging
-    // mdBusinessDAOIF.getAllDefinedMdAttributes().forEach(a ->
-    // System.out.println(a.getAttribute() +" "+a.getType()));
-
-    // DefaultAttribute.UID - Defined on the MdBusiness and the values are from
-    // the {@code GeoObject#OID};
-    Assert.assertTrue(mdBusinessDAOIF.getAttribute(DefaultAttribute.UID.getName()).isPresent());
-
-    // DefaultAttribute.CODE - defined by GeoEntity geoId
-    Assert.assertTrue(mdBusinessDAOIF.getAttribute(DefaultAttribute.CODE.getName()).isPresent());
-
-    // DefaultAttribute.CREATED_DATE - The create data on the GeoObject?
-    Assert.assertTrue(mdBusinessDAOIF.getAttribute(MdBusinessInfo.CREATE_DATE).isPresent());
-
-    // DefaultAttribute.UPDATED_DATE - The update data on the GeoObject?
-    Assert.assertTrue(mdBusinessDAOIF.getAttribute(MdBusinessInfo.LAST_UPDATE_DATE).isPresent());
   }
 }

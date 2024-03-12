@@ -54,12 +54,12 @@ import net.geoprism.registry.view.Page;
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
 public class TransitionEventTest extends FastDatasetTest implements InstanceTestClassListener
-{ 
+{
   @Autowired
   private GPRTransitionEventBusinessService traneService;
-  
+
   @Autowired
-  private TransitionBusinessServiceIF tranService;
+  private TransitionBusinessServiceIF       tranService;
 
   @Before
   public void setUp()
@@ -392,10 +392,10 @@ public class TransitionEventTest extends FastDatasetTest implements InstanceTest
       Assert.assertEquals("Test", result.getDescription().getValue());
       Assert.assertEquals(event.getBeforeTypeCode(), result.getBeforeType());
       Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), result.getBeforeCode());
-      Assert.assertEquals(FastTestDataset.CAMBODIA.getDisplayLabel(), result.getBeforeLabel().getValue());
+      Assert.assertEquals(FastTestDataset.CAMBODIA.getDisplayLabel(), result.getBeforeLabel());
       Assert.assertEquals(event.getAfterTypeCode(), result.getAfterType());
       Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.getAfterCode());
-      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.getAfterLabel().getValue());
+      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.getAfterLabel());
     }
     finally
     {

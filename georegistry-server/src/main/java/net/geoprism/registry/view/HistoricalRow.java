@@ -66,13 +66,13 @@ public class HistoricalRow implements JsonSerializable
 
   private String             beforeCode;
 
-  private LocalizedValue     beforeLabel;
+  private String             beforeLabel;
 
   private String             afterType;
 
   private String             afterCode;
 
-  private LocalizedValue     afterLabel;
+  private String             afterLabel;
 
   public Long getEventId()
   {
@@ -124,12 +124,12 @@ public class HistoricalRow implements JsonSerializable
     this.beforeCode = beforeCode;
   }
 
-  public LocalizedValue getBeforeLabel()
+  public String getBeforeLabel()
   {
     return beforeLabel;
   }
 
-  public void setBeforeLabel(LocalizedValue beforeLabel)
+  public void setBeforeLabel(String beforeLabel)
   {
     this.beforeLabel = beforeLabel;
   }
@@ -154,12 +154,12 @@ public class HistoricalRow implements JsonSerializable
     this.afterCode = afterCode;
   }
 
-  public LocalizedValue getAfterLabel()
+  public String getAfterLabel()
   {
     return afterLabel;
   }
 
-  public void setAfterLabel(LocalizedValue afterLabel)
+  public void setAfterLabel(String afterLabel)
   {
     this.afterLabel = afterLabel;
   }
@@ -216,22 +216,13 @@ public class HistoricalRow implements JsonSerializable
     ret.setEventDate(eventDate);
     ret.setEventType((String) row.get(EVENT_TYPE));
     ret.setDescription(RegistryLocalizedValueConverter.convert((Map<String, Object>) row.get(DESCRIPTION)));
-    ret.setBeforeLabel(parseLabel(row, eventDate, BEFORE_LABEL));
+    ret.setBeforeLabel((String) row.get(BEFORE_LABEL));
     ret.setBeforeCode((String) row.get(BEFORE_CODE));
     ret.setBeforeType((String) row.get(BEFORE_TYPE));
-    ret.setAfterLabel(parseLabel(row, eventDate, AFTER_LABEL));
+    ret.setAfterLabel((String) row.get(AFTER_LABEL));
     ret.setAfterCode((String) row.get(AFTER_CODE));
     ret.setAfterType((String) row.get(AFTER_TYPE));
 
     return ret;
   }
-
-  @SuppressWarnings("unchecked")
-  private static LocalizedValue parseLabel(Map<String, Object> row, Date date, String attributeName)
-  {
-    List<Map<String, Object>> labels = (List<Map<String, Object>>) row.get(attributeName);
-
-    return RegistryLocalizedValueConverter.convert(labels, date);
-  }
-
 }

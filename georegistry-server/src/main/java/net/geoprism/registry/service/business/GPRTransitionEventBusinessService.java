@@ -9,10 +9,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.DateFormatter;
@@ -201,6 +205,25 @@ public class GPRTransitionEventBusinessService extends TransitionEventBusinessSe
 
     List<String> codes = types.stream().map(t -> t.getCode()).distinct().collect(Collectors.toList());
 
+    // SELECT
+    // event.eventId AS eventId,
+    // event.eventDate AS eventDate,
+    // transitionType AS eventType,
+    // event.description AS description,
+    // event.beforeTypeCode AS beforeType,
+    // source.code AS beforeCode,
+    // COALESCE($sourceLabel.defaultLocale) AS beforeLabel,
+    // event.afterTypeCode AS afterType,
+    // target.code AS afterCode,
+    // COALESCE($targetLabel.defaultLocale) AS afterLabel
+    // FROM transition
+    // LET $sourceLabel = last(source.out('has_value')[attributeName =
+    // 'displayLabel' AND $current.event.eventDate BETWEEN startDate AND
+    // endDate]),
+    // $targetLabel = last(target.out('has_value')[attributeName =
+    // 'displayLabel' AND $current.event.eventDate BETWEEN startDate AND
+    // endDate])
+
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT " + eventAttribute.getColumnName() + "." + eventId.getColumnName() + " AS " + HistoricalRow.EVENT_ID);
     statement.append(", " + eventAttribute.getColumnName() + "." + eventDate.getColumnName() + " AS " + HistoricalRow.EVENT_DATE);
@@ -208,11 +231,13 @@ public class GPRTransitionEventBusinessService extends TransitionEventBusinessSe
     statement.append(", " + eventAttribute.getColumnName() + "." + description.getColumnName() + " AS " + HistoricalRow.DESCRIPTION);
     statement.append(", " + eventAttribute.getColumnName() + "." + beforeTypeCode.getColumnName() + " AS " + HistoricalRow.BEFORE_TYPE);
     statement.append(", " + sourceAttribute.getColumnName() + ".code AS " + HistoricalRow.BEFORE_CODE);
-    statement.append(", " + sourceAttribute.getColumnName() + ".displayLabel_cot AS " + HistoricalRow.BEFORE_LABEL);
+    statement.append(", " + this.coalesce("$sourceLabel") + " AS " + HistoricalRow.BEFORE_LABEL);
     statement.append(", " + eventAttribute.getColumnName() + "." + afterTypeCode.getColumnName() + " AS " + HistoricalRow.AFTER_TYPE);
     statement.append(", " + targetAttribute.getColumnName() + ".code AS " + HistoricalRow.AFTER_CODE);
-    statement.append(", " + targetAttribute.getColumnName() + ".displayLabel_cot AS " + HistoricalRow.AFTER_LABEL);
+    statement.append(", " + this.coalesce("$targetLabel") + " AS " + HistoricalRow.AFTER_LABEL);
     statement.append(" FROM " + transitionVertex.getDBClassName());
+    statement.append(" LET $sourceLabel = last(" + sourceAttribute.getColumnName() + ".out('has_value')[attributeName = 'displayLabel' AND $current.event.eventDate BETWEEN startDate AND endDate]), ");
+    statement.append("  $targetLabel = last(" + targetAttribute.getColumnName() + ".out('has_value')[attributeName = 'displayLabel' AND $current.event.eventDate BETWEEN startDate AND endDate]) ");
     statement.append(" WHERE ( " + eventAttribute.getColumnName() + "." + beforeTypeCode.getColumnName() + " IN :typeCode");
     statement.append(" OR " + eventAttribute.getColumnName() + "." + afterTypeCode.getColumnName() + " IN :typeCode )");
     statement.append(" AND " + eventAttribute.getColumnName() + "." + eventDate.getColumnName() + " BETWEEN :startDate AND :endDate");
@@ -236,6 +261,24 @@ public class GPRTransitionEventBusinessService extends TransitionEventBusinessSe
     List<HistoricalRow> results = query.getRawResults().stream().map(list -> HistoricalRow.parse(list)).collect(Collectors.toList());
 
     return new Page<HistoricalRow>(count, pageNumber, pageSize, results);
+  }
+
+  private String coalesce(String prefix)
+  {
+    StringBuilder statement = new StringBuilder();
+    statement.append("COALESCE(");
+    statement.append(prefix + "." + LocalizedValue.DEFAULT_LOCALE);
+
+    Set<Locale> locales = LocalizationFacade.getInstalledLocales();
+
+    for (Locale locale : locales)
+    {
+      statement.append(", " + prefix + "." + locale.toString());
+    }
+
+    statement.append(")");
+
+    return statement.toString();
   }
 
   public InputStream exportToExcel(ServerGeoObjectType type, Date startDate, Date endDate) throws IOException

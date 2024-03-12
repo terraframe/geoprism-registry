@@ -155,10 +155,10 @@ public class HistoricalReportExcelExporter
     row.createCell(col++).setCellValue(result.getDescription().getValue());
     row.createCell(col++).setCellValue(result.getBeforeType());
     row.createCell(col++).setCellValue(result.getBeforeCode());
-    row.createCell(col++).setCellValue(result.getBeforeLabel().getValue());
+    row.createCell(col++).setCellValue(result.getBeforeLabel());
     row.createCell(col++).setCellValue(result.getAfterType());
     row.createCell(col++).setCellValue(result.getAfterCode());
-    row.createCell(col++).setCellValue(result.getAfterLabel().getValue());
+    row.createCell(col++).setCellValue(result.getAfterLabel());
 
   }
 
