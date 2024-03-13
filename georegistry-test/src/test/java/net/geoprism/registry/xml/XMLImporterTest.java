@@ -4,7 +4,6 @@
 package net.geoprism.registry.xml;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
 
@@ -115,7 +115,7 @@ public class XMLImporterTest implements InstanceTestClassListener
 
   @Request
   @Test
-  public void testImportAndExport() throws IOException
+  public void testImportAndExport() throws Exception
   {
     // ServerOrganization organization = new ServerOrganization();
     // organization.setCode("TEST_ORG");
@@ -278,18 +278,23 @@ public class XMLImporterTest implements InstanceTestClassListener
       }
       finally
       {
-        Collections.reverse(results);
-
-        for (ServerElement result : results)
-        {
-          graphRepo.deleteObject(result);
-        }
+        deleteObjects(results);
       }
     }
     finally
     {
-      serverOrg.delete();
+      this.orgService.delete(serverOrg);
     }
+  }
 
+  @Transaction
+  protected void deleteObjects(List<ServerElement> results) throws InterruptedException
+  {
+    Collections.reverse(results);
+
+    for (ServerElement result : results)
+    {
+      graphRepo.deleteObject(result);
+    }
   }
 }
