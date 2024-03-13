@@ -49,11 +49,15 @@ public class SupportedLocaleInstallAndRefreshDeadlockTest extends FastDatasetTes
   }
 
   @Request
-  public static void cleanupLocale()
+  public void cleanupLocale()
   {
-    if (LocalizationFacade.getInstalledLocales().contains(testLocale))
+    if (testLocale != null && LocalizationFacade.getInstalledLocales().contains(testLocale))
     {
-      LocalizationFacade.uninstall(testLocale);
+      LocaleView lv = new LocaleView();
+      lv.setLocale(testLocale);
+      lv.setLabel(new LocalizedValue("Test Locale"));
+
+      this.service.uninstallLocale(lv);
     }
   }
 
