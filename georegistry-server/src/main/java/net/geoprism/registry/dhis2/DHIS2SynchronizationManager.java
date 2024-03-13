@@ -727,10 +727,10 @@ public class DHIS2SynchronizationManager
 
     if (!this.dhis2Config.getSyncNonExistent())
     {
-      where.AND("invalid=false");
       where.AND("last(out('has_value')[attributeName = 'exists'][:date BETWEEN startDate AND endDate]).value = true");
       params.put("date", date);
     }
+    where.AND("invalid=false");
 
     builder.append(where.getSQL());
   }
