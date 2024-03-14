@@ -768,6 +768,6 @@ public class DHIS2SynchronizationManager
 
     List<VertexObject> vertexes = query.getResults();
     
-    return GeoObjectBusinessService.constructGeoObjectsFromQueryResults(vertexes, dhis2Config.getDate());
+    return VertexServerGeoObject.processTraverseResults(vertexes, dhis2Config.getDate());
   }
 }
