@@ -57,6 +57,8 @@ import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.DHIS2Locale;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
+import net.geoprism.localization.LocalizationService;
+import net.geoprism.localization.LocalizationServiceIF;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
@@ -88,7 +90,9 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.model.localization.LocaleView;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.request.GPRLocalizationService;
 import net.geoprism.registry.service.request.SynchronizationConfigService;
 import net.geoprism.registry.test.AllAttributesDataset;
 import net.geoprism.registry.test.FastTestDataset;
@@ -129,9 +133,13 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
   private TestRegistryClient             client;
 
   @Autowired
+  private GPRLocalizationService         localizationService;
+
+  @Autowired
   private GPRGeoObjectBusinessServiceIF  objectService;
 
   @Override
+  @Request
   public void beforeClassSetup() throws Exception
   {
     TestDataSet.deleteExternalSystems("DHIS2ExportTest");
@@ -142,7 +150,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     fastTestData = FastTestDataset.newTestData();
     fastTestData.setUpMetadata();
 
-    LocalizationFacade.install(Locale.CANADA);
+    this.localizationService.installLocale(LocaleView.fromLocale(Locale.CANADA));
 
     if (!SchedulerManager.initialized())
     {
@@ -151,9 +159,10 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
   }
 
   @Override
+  @Request
   public void afterClassSetup() throws Exception
   {
-    LocalizationFacade.uninstall(Locale.CANADA);
+    this.localizationService.uninstallLocale(LocaleView.fromLocale(Locale.CANADA));
 
     testData.tearDownMetadata();
     fastTestData.tearDownMetadata();
@@ -194,7 +203,9 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
 
     if (!StringUtils.isEmpty(canadaLabel))
     {
-      Assert.assertFalse(StringUtils.isEmpty(GO_NO_DEFAULT_LOCALE.getServerObject().getDisplayLabel().getValue(Locale.CANADA.toString())));
+      String value = GO_NO_DEFAULT_LOCALE.getServerObject().getDisplayLabel().getValue(Locale.CANADA.toString());
+
+      Assert.assertFalse(StringUtils.isEmpty(value));
     }
 
     AllAttributesDataset.GO_ALL.addChild(GO_NO_DEFAULT_LOCALE, AllAttributesDataset.HIER);
@@ -648,7 +659,7 @@ public class DHIS2ServiceTest implements InstanceTestClassListener
     GO_NO_PARENT.apply();
     GO_NO_PARENT2.apply();
     GO_NO_PARENT3.apply();
-    
+
     this.objectService.createExternalId(AllAttributesDataset.GO_ALL.getServerObject(), system, DHIS2TestService.SIERRA_LEONE_ID, ImportStrategy.NEW_ONLY);
     this.objectService.createExternalId(AllAttributesDataset.GO_BOOL.getServerObject(), system, DHIS2TestService.BO_ID, ImportStrategy.NEW_ONLY);
 

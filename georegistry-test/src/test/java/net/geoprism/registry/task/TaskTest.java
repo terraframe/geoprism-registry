@@ -45,6 +45,8 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.model.localization.LocaleView;
+import net.geoprism.registry.service.request.GPRLocalizationService;
 import net.geoprism.registry.service.request.TaskService;
 import net.geoprism.registry.task.Task.TaskStatus;
 import net.geoprism.registry.task.Task.TaskTypeIF;
@@ -67,6 +69,9 @@ public class TaskTest implements InstanceTestClassListener
 
   @Autowired
   public TaskService               service;
+
+  @Autowired
+  public GPRLocalizationService    localizationService;
 
   public static enum TestTaskType implements TaskTypeIF {
     TestGeoObjectSplitOrphanedChildren("tasks.test.geoObjectSplitOrphanedChildren.title", "tasks.test.geoObjectSplitOrphanedChildren.template");
@@ -101,7 +106,7 @@ public class TaskTest implements InstanceTestClassListener
       this.templateKey = msgKey;
     }
   }
-  
+
   @Override
   @Request
   public void beforeClassSetup() throws Exception
@@ -110,17 +115,17 @@ public class TaskTest implements InstanceTestClassListener
 
     if (!installed.contains(Locale.CHINESE))
     {
-      LocalizationFacade.install(Locale.CHINESE);
+      this.localizationService.installLocale(LocaleView.fromLocale(Locale.CHINESE));
     }
 
     if (!installed.contains(Locale.KOREAN))
     {
-      LocalizationFacade.install(Locale.KOREAN);
+      this.localizationService.installLocale(LocaleView.fromLocale(Locale.KOREAN));
     }
 
     if (!installed.contains(Locale.CANADA))
     {
-      LocalizationFacade.install(Locale.CANADA);
+      this.localizationService.installLocale(LocaleView.fromLocale(Locale.CANADA));
     }
 
     USER_SRA.apply();
@@ -132,9 +137,22 @@ public class TaskTest implements InstanceTestClassListener
   {
     USER_SRA.delete();
 
-    LocalizationFacade.uninstall(Locale.CHINESE);
-    LocalizationFacade.uninstall(Locale.KOREAN);
-    LocalizationFacade.uninstall(Locale.CANADA);
+    Collection<Locale> installed = LocalizationFacade.getInstalledLocales();
+
+    if (installed.contains(Locale.CHINESE))
+    {
+      this.localizationService.uninstallLocale(LocaleView.fromLocale(Locale.CHINESE));
+    }
+
+    if (installed.contains(Locale.KOREAN))
+    {
+      this.localizationService.uninstallLocale(LocaleView.fromLocale(Locale.KOREAN));
+    }
+
+    if (installed.contains(Locale.CANADA))
+    {
+      this.localizationService.uninstallLocale(LocaleView.fromLocale(Locale.CANADA));
+    }
   }
 
   @Request

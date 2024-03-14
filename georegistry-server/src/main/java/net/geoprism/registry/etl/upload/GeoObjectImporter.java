@@ -350,35 +350,35 @@ public class GeoObjectImporter implements ObjectImporterIF
       /*
        * 1. Check for location problems
        */
-      if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
-      {
-        // Skip location synonym check
-      }
-      else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
-      {
-        this.getParent(row);
-      }
-
-      /*
-       * 2. Check for serialization and term problems
-       */
-      String code = this.getCode(row);
-
-      ServerGeoObjectIF entity;
-
-      if (code == null || code.length() <= 0)
-      {
-        RequiredMappingException ex = new RequiredMappingException();
-        ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
-        throw ex;
-      }
-
-      entity = service.newInstance(this.configuration.getType());
-      entity.setCode(code);
-      entity.setInvalid(false);
-
       try
       {
+        if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
+        {
+          // Skip location synonym check
+        }
+        else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
+        {
+          this.getParent(row);
+        }
+
+        /*
+         * 2. Check for serialization and term problems
+         */
+        String code = this.getCode(row);
+
+        ServerGeoObjectIF entity;
+
+        if (code == null || code.length() <= 0)
+        {
+          RequiredMappingException ex = new RequiredMappingException();
+          ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+          throw ex;
+        }
+
+        entity = service.newInstance(this.configuration.getType());
+        entity.setCode(code);
+        entity.setInvalid(false);
+
         LocalizedValue entityName = this.getName(row);
         if (entityName != null && this.hasValue(entityName))
         {
@@ -1307,7 +1307,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
             this.classifierCache.putClassifierAttributeValidation(mdAttribute.getOid(), classifier, validationResult);
           }
-          
+
           entity.setValue(attributeName, classifier.getOid(), startDate, endDate, !validationResult);
         }
       }
