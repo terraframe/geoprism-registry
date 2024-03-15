@@ -27,6 +27,7 @@ import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.graph.orientdb.ResultSetRawConverter;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
@@ -251,14 +252,14 @@ public class GPRTransitionEventBusinessService extends TransitionEventBusinessSe
       statement.append(" SKIP " + ( ( pageNumber - 1 ) * pageSize ) + " LIMIT " + pageSize);
     }
 
-    GraphQuery<Map<String, Object>> query = new GraphQuery<Map<String, Object>>(statement.toString());
+    GraphQuery<Map<String, Object>> query = new GraphQuery<Map<String, Object>>(statement.toString(), null, new ResultSetRawConverter());
     query.setParameter("typeCode", codes);
     query.setParameter("startDate", startDate);
     query.setParameter("endDate", endDate);
 
     Long count = getCount(type, startDate, endDate);
 
-    List<HistoricalRow> results = query.getRawResults().stream().map(list -> HistoricalRow.parse(list)).collect(Collectors.toList());
+    List<HistoricalRow> results = query.getResults().stream().map(list -> HistoricalRow.parse(list)).collect(Collectors.toList());
 
     return new Page<HistoricalRow>(count, pageNumber, pageSize, results);
   }
