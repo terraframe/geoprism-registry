@@ -218,7 +218,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
     createTestChangeRequest(CreateGeoObjectAction.CLASS);
     createTestChangeRequest(UpdateAttributeAction.CLASS);
 
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC };
 
     for (TestUserInfo user : allowedUsers)
     {
@@ -235,7 +235,7 @@ public class ChangeRequestServiceTest extends FastDatasetTest implements Instanc
       }
     }
 
-    TestUserInfo[] disAllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC };
+    TestUserInfo[] disAllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC };
 
     for (TestUserInfo user : disAllowedUsers)
     {
