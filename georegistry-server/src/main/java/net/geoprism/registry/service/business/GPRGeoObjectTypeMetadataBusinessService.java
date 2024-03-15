@@ -27,7 +27,7 @@ public class GPRGeoObjectTypeMetadataBusinessService extends GeoObjectTypeMetada
   @Override
   public void apply(GeoObjectTypeMetadata gotm)
   {
-    // TODO: HEADS UP
+    // TODO: HEADS UP - Remove this entire class
 //    if (!gotm.isNew() && gotm.isModified(GeoObjectTypeMetadata.ISPRIVATE))
 //    {
 //      final ServerGeoObjectType type = gotm.getServerType();

@@ -406,8 +406,7 @@ public class RemoteDHIS2APITest implements InstanceTestClassListener
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(dhis2JsonConfig);
     config.setOrganization(org);
-    // TODO: HEADS UP
-//    config.setHierarchy(ht.getMdTermRelationship());
+    config.setGraphHierarchy(ht.getObject());
     config.setSystem(system.getOid());
     config.getLabel().setValue("DHIS2 Export Test");
     config.apply();

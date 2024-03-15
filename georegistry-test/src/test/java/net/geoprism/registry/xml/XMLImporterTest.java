@@ -287,7 +287,6 @@ public class XMLImporterTest implements InstanceTestClassListener
     }
   }
 
-  @Transaction
   protected void deleteObjects(List<ServerElement> results) throws InterruptedException
   {
     Collections.reverse(results);

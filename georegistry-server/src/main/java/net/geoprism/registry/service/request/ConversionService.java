@@ -73,7 +73,6 @@ public class ConversionService
       return null;
     }
 
-    // TODO: HEADS UP
 //    return ServiceFactory.getMetadataCache().getTerm(code).get();
     return null;
   }
