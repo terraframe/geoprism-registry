@@ -262,7 +262,7 @@ public class ChangeRequestService
 
     for (ChangeRequest cr : list)
     {
-      if (ServerGeoObjectType.get(oid, true) != null)
+      if (ServerGeoObjectType.get(cr.getGeoObjectTypeCode(), true) != null)
       {
         cr.lock();
         cr.clearApprovalStatus();
