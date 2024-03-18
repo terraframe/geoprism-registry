@@ -47,6 +47,7 @@ import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceI
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.service.request.GraphRepoServiceIF;
+import net.geoprism.registry.service.request.ServiceFactory;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
@@ -124,6 +125,8 @@ public class XMLImporterTest implements InstanceTestClassListener
 
     OrganizationDTO org = new OrganizationDTO("TEST_ORG", new LocalizedValue("Test Org"), new LocalizedValue(""), true, null, new LocalizedValue(""));
     ServerOrganization serverOrg = orgService.create(org);
+    
+    ServiceFactory.getMetadataCache().addOrganization(serverOrg);
 
     try (InputStream istream = this.getClass().getResourceAsStream("/xml/test-domain.xml"))
     {
@@ -284,6 +287,8 @@ public class XMLImporterTest implements InstanceTestClassListener
     finally
     {
       this.orgService.delete(serverOrg);
+
+      ServiceFactory.getMetadataCache().removeOrganization(serverOrg.getCode());
     }
   }
 
