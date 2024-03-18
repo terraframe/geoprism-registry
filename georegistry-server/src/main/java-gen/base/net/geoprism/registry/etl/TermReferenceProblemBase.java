@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 24184602)
+@com.runwaysdk.business.ClassSignature(hash = -929549234)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -13,11 +13,12 @@ public abstract class TermReferenceProblemBase extends net.geoprism.registry.etl
   public final static String CLASS = "net.geoprism.registry.etl.TermReferenceProblem";
   public final static java.lang.String ATTRIBUTECODE = "attributeCode";
   public final static java.lang.String ATTRIBUTELABEL = "attributeLabel";
-  public final static java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
+  public final static java.lang.String IMPORTTYPE = "importType";
   public final static java.lang.String LABEL = "label";
+  public final static java.lang.String OBJECTTYPECODE = "objectTypeCode";
   public final static java.lang.String PARENTCODE = "parentCode";
   @SuppressWarnings("unused")
-  private static final long serialVersionUID = 24184602;
+  private static final long serialVersionUID = -929549234;
   
   public TermReferenceProblemBase()
   {
@@ -80,31 +81,31 @@ public abstract class TermReferenceProblemBase extends net.geoprism.registry.etl
     }
   }
   
-  public String getGeoObjectTypeCode()
+  public String getImportType()
   {
-    return getValue(GEOOBJECTTYPECODE);
+    return getValue(IMPORTTYPE);
   }
   
-  public void validateGeoObjectTypeCode()
+  public void validateImportType()
   {
-    this.validateAttribute(GEOOBJECTTYPECODE);
+    this.validateAttribute(IMPORTTYPE);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeoObjectTypeCodeMd()
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getImportTypeMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.TermReferenceProblem.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOOBJECTTYPECODE);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(IMPORTTYPE);
   }
   
-  public void setGeoObjectTypeCode(String value)
+  public void setImportType(String value)
   {
     if(value == null)
     {
-      setValue(GEOOBJECTTYPECODE, "");
+      setValue(IMPORTTYPE, "");
     }
     else
     {
-      setValue(GEOOBJECTTYPECODE, value);
+      setValue(IMPORTTYPE, value);
     }
   }
   
@@ -133,6 +134,34 @@ public abstract class TermReferenceProblemBase extends net.geoprism.registry.etl
     else
     {
       setValue(LABEL, value);
+    }
+  }
+  
+  public String getObjectTypeCode()
+  {
+    return getValue(OBJECTTYPECODE);
+  }
+  
+  public void validateObjectTypeCode()
+  {
+    this.validateAttribute(OBJECTTYPECODE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getObjectTypeCodeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.TermReferenceProblem.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(OBJECTTYPECODE);
+  }
+  
+  public void setObjectTypeCode(String value)
+  {
+    if(value == null)
+    {
+      setValue(OBJECTTYPECODE, "");
+    }
+    else
+    {
+      setValue(OBJECTTYPECODE, value);
     }
   }
   

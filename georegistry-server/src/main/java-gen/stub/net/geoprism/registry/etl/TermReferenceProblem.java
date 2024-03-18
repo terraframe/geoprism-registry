@@ -35,7 +35,7 @@ public class TermReferenceProblem extends TermReferenceProblemBase
   {
     this.setLabel(label);
     this.setParentCode(parentCode);
-    this.setGeoObjectTypeCode(typeCode);
+    this.setObjectTypeCode(typeCode);
     this.setAttributeCode(attributeCode);
     this.setAttributeLabel(attributeLabel);
   }
@@ -48,7 +48,7 @@ public class TermReferenceProblem extends TermReferenceProblemBase
   @Override
   protected String buildKey()
   {
-    return this.getValidationProblemType() + "-" + this.getHistoryOid() + "-" + this.getGeoObjectTypeCode() + "-" + this.getAttributeCode() + "-" + this.getLabel();
+    return this.getValidationProblemType() + "-" + this.getHistoryOid() + "-" + this.getObjectTypeCode() + "-" + this.getAttributeCode() + "-" + this.getLabel();
   }
 
   @Override
@@ -56,9 +56,10 @@ public class TermReferenceProblem extends TermReferenceProblemBase
   {
     JsonObject object = super.toJSON();
     
+    object.addProperty("importType", this.getImportType());
     object.addProperty("label", this.getLabel());
     object.addProperty("parentCode", this.getParentCode());
-    object.addProperty("typeCode", this.getGeoObjectTypeCode());
+    object.addProperty("typeCode", this.getObjectTypeCode());
     object.addProperty("attributeCode", this.getAttributeCode());
     object.addProperty("attributeLabel", this.getAttributeLabel());
 

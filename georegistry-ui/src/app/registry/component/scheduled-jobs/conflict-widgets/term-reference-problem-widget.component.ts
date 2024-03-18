@@ -64,7 +64,7 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
 
     getTypeAheadObservable(conflict: any): Observable<any> {
         return new Observable((observer: any) => {
-            this.iService.getTermSuggestions(conflict.typeCode, conflict.attributeCode, this.searchLabel, 20).then(results => {
+            this.iService.getTermSuggestions(conflict.importType, conflict.typeCode, conflict.attributeCode, this.searchLabel, 20).then(results => {
                 observer.next(results);
             });
         });

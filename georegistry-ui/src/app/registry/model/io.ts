@@ -45,6 +45,7 @@ export class Term {
 export class TermProblem {
     label: string;
     parentCode: string;
+    importType: string;
     typeCode: string;
     attributeCode: string;
     attributeLabel: string;

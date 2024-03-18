@@ -113,9 +113,9 @@ public class TermController extends RunwaySpringController
   }
 
   @GetMapping(API_PATH + "/getClassifierSuggestions")
-  public ResponseEntity<String> getClassifierSuggestions(@NotEmpty @RequestParam String typeCode, @NotEmpty @RequestParam String attributeCode, @RequestParam(required = false) String text, @RequestParam(required = false) Integer limit)
+  public ResponseEntity<String> getClassifierSuggestions(@NotEmpty @RequestParam String importType, @NotEmpty @RequestParam String typeCode, @NotEmpty @RequestParam String attributeCode, @RequestParam(required = false) String text, @RequestParam(required = false) Integer limit)
   {
-    List<JSONObject> results = this.classifierService.getClassifierSuggestions(this.getSessionId(), typeCode, attributeCode, text, limit);
+    List<JSONObject> results = this.classifierService.getClassifierSuggestions(this.getSessionId(), importType, typeCode, attributeCode, text, limit);
 
     return new ResponseEntity<String>(results.toString(), HttpStatus.OK);
   }

@@ -23,9 +23,11 @@ public class GPRClassifierService extends ClassifierService
   private GPRClassifierBusinessService service;
 
   @Request(RequestType.SESSION)
-  public List<JSONObject> getClassifierSuggestions(String sessionId, String typeCode, String attributeCode, String text, Integer limit)
+  public List<JSONObject> getClassifierSuggestions(String sessionId, String importType, String typeCode, String attributeCode, String text, Integer limit)
   {
-    List<ValueObject> suggestions = this.service.getClassifierSuggestions(typeCode, attributeCode, text, limit);
+    List<ValueObject> suggestions = importType.equals("BUSINESS") ? 
+        this.service.getBusinessClassifierSuggestions(typeCode, attributeCode, text, limit)
+        : this.service.getGeoObjectClassifierSuggestions(typeCode, attributeCode, text, limit);
 
     return suggestions.stream().map(result -> {
       JSONObject object = new JSONObject();

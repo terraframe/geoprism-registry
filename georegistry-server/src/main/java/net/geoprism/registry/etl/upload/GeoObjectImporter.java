@@ -1246,6 +1246,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           Classifier rootTerm = attributeTermType.getRootTerm();
 
           TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getClassifierId(), entity.getType().getCode(), attributeName, attributeType.getLocalizedLabel().getValue());
+          trp.setImportType("GEOOBJECT");
           trp.addAffectedRowNumber(feature.getRowNumber());
           trp.setHistoryId(this.configuration.getHistoryId());
 

@@ -172,8 +172,9 @@ export class IOService {
             .toPromise();
     }
 
-    getTermSuggestions(typeCode: string, attributeCode: string, text: string, limit: number): Promise<{ text: string, data: any }[]> {
+    getTermSuggestions(importType: string, typeCode: string, attributeCode: string, text: string, limit: number): Promise<{ text: string, data: any }[]> {
         let params: HttpParams = new HttpParams();
+        params = params.set("importType", importType);
         params = params.set("typeCode", typeCode);
         params = params.set("attributeCode", attributeCode);
         params = params.set("text", text);

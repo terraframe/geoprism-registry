@@ -43,7 +43,8 @@
       <mdBusiness name="net.geoprism.registry.etl.TermReferenceProblem">
         <create>
           <attributes>
-            <text name="geoObjectTypeCode" label="Geo-Object Type Code" />
+            <text name="importType" label="Import Type" />
+            <text name="objectTypeCode" label="Object Type Code" />
           </attributes>
         </create>
       </mdBusiness>

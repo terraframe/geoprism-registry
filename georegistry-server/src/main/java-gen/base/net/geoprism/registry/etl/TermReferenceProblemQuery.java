@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 153128721)
+@com.runwaysdk.business.ClassSignature(hash = 955505591)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -72,21 +72,21 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.ATTRIBUTELABEL, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
+  public com.runwaysdk.query.SelectableChar getImportType()
   {
-    return getGeoObjectTypeCode(null);
+    return getImportType(null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias)
+  public com.runwaysdk.query.SelectableChar getImportType(String alias)
   {
-    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.GEOOBJECTTYPECODE, alias, null);
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.IMPORTTYPE, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableChar getImportType(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.GEOOBJECTTYPECODE, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.IMPORTTYPE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getLabel()
@@ -104,6 +104,23 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
   public com.runwaysdk.query.SelectableChar getLabel(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.LABEL, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getObjectTypeCode()
+  {
+    return getObjectTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getObjectTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.OBJECTTYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getObjectTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.TermReferenceProblem.OBJECTTYPECODE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getParentCode()
@@ -161,12 +178,15 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     public com.runwaysdk.query.SelectableChar getAttributeLabel();
     public com.runwaysdk.query.SelectableChar getAttributeLabel(String alias);
     public com.runwaysdk.query.SelectableChar getAttributeLabel(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode();
-    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias);
-    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getImportType();
+    public com.runwaysdk.query.SelectableChar getImportType(String alias);
+    public com.runwaysdk.query.SelectableChar getImportType(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getLabel();
     public com.runwaysdk.query.SelectableChar getLabel(String alias);
     public com.runwaysdk.query.SelectableChar getLabel(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getObjectTypeCode();
+    public com.runwaysdk.query.SelectableChar getObjectTypeCode(String alias);
+    public com.runwaysdk.query.SelectableChar getObjectTypeCode(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getParentCode();
     public com.runwaysdk.query.SelectableChar getParentCode(String alias);
     public com.runwaysdk.query.SelectableChar getParentCode(String alias, String displayLabel);
@@ -239,21 +259,21 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.ATTRIBUTELABEL, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
+  public com.runwaysdk.query.SelectableChar getImportType()
   {
-    return getGeoObjectTypeCode(null);
+    return getImportType(null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias)
+  public com.runwaysdk.query.SelectableChar getImportType(String alias)
   {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.GEOOBJECTTYPECODE, alias, null);
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.IMPORTTYPE, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableChar getImportType(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.GEOOBJECTTYPECODE, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.IMPORTTYPE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getLabel()
@@ -271,6 +291,23 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
   public com.runwaysdk.query.SelectableChar getLabel(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.LABEL, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getObjectTypeCode()
+  {
+    return getObjectTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getObjectTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.OBJECTTYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getObjectTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.OBJECTTYPECODE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getParentCode()
@@ -305,12 +342,15 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     public com.runwaysdk.query.SelectableChar getAttributeLabel();
     public com.runwaysdk.query.SelectableChar getAttributeLabel(String alias);
     public com.runwaysdk.query.SelectableChar getAttributeLabel(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode();
-    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias);
-    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getImportType();
+    public com.runwaysdk.query.SelectableChar getImportType(String alias);
+    public com.runwaysdk.query.SelectableChar getImportType(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getLabel();
     public com.runwaysdk.query.SelectableChar getLabel(String alias);
     public com.runwaysdk.query.SelectableChar getLabel(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getObjectTypeCode();
+    public com.runwaysdk.query.SelectableChar getObjectTypeCode(String alias);
+    public com.runwaysdk.query.SelectableChar getObjectTypeCode(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getParentCode();
     public com.runwaysdk.query.SelectableChar getParentCode(String alias);
     public com.runwaysdk.query.SelectableChar getParentCode(String alias, String displayLabel);
@@ -432,21 +472,21 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.ATTRIBUTELABEL, alias, displayLabel);
 
   }
-  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
+  public com.runwaysdk.query.SelectableChar getImportType()
   {
-    return getGeoObjectTypeCode(null);
+    return getImportType(null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias)
+  public com.runwaysdk.query.SelectableChar getImportType(String alias)
   {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.GEOOBJECTTYPECODE, alias, null);
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.IMPORTTYPE, alias, null);
 
   }
  
-  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
+  public com.runwaysdk.query.SelectableChar getImportType(String alias, String displayLabel)
   {
-    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.GEOOBJECTTYPECODE, alias, displayLabel);
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.IMPORTTYPE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getLabel()
@@ -464,6 +504,23 @@ public  class TermReferenceProblemQuery extends net.geoprism.registry.etl.Valida
   public com.runwaysdk.query.SelectableChar getLabel(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.LABEL, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getObjectTypeCode()
+  {
+    return getObjectTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getObjectTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.OBJECTTYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getObjectTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.TermReferenceProblem.OBJECTTYPECODE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getParentCode()

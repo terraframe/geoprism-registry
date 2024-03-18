@@ -905,7 +905,8 @@ public class BusinessObjectImporter implements ObjectImporterIF
         {
           Term rootTerm = ( (AttributeTermType) attributeType ).getRootTerm();
 
-          TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
+          TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootTerm.getCode(), type.getCode(), attributeName, attributeType.getLabel().getValue());
+          trp.setImportType("BUSINESS");
           trp.addAffectedRowNumber(row.getRowNumber());
           trp.setHistoryId(this.configuration.getHistoryId());
 
