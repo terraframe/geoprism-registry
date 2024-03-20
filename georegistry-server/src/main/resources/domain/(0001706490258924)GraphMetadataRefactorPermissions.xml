@@ -141,6 +141,9 @@
           <mdBusinessPermission type="net.geoprism.registry.graph.HasGeometry">
             <operation name="ALL" />
           </mdBusinessPermission>
+          <mdBusinessPermission type="com.runwaysdk.system.metadata.VertexInheritance">
+            <operation name="ALL" />
+          </mdBusinessPermission>                  
         </grant>
       </role>
       
