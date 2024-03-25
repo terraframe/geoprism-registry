@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -38,6 +38,7 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
 
+import net.geoprism.registry.tile.PostgisVectorTileBuilder;
 import net.geoprism.registry.tile.PublisherUtil;
 import net.geoprism.registry.tile.VectorTileBuilder;
 
@@ -87,14 +88,19 @@ public class ListTileCache extends ListTileCacheBase
         {
           return cached;
         }
-
-        Envelope envelope = PublisherUtil.getEnvelope(x, y, zoom);
-        Envelope bounds = PublisherUtil.getTileBounds(envelope);
+//
+//        Envelope envelope = PublisherUtil.getEnvelope(x, y, zoom);
+//        Envelope bounds = PublisherUtil.getTileBounds(envelope);
+//
+//        ListTypeVersion version = ListTypeVersion.get(this.versionId);
+//
+//        VectorTileBuilder builder = new VectorTileBuilder(version);
+//        byte[] tile = builder.writeVectorTiles(envelope, bounds);
         
         ListTypeVersion version = ListTypeVersion.get(this.versionId);
-
-        VectorTileBuilder builder = new VectorTileBuilder(version);
-        byte[] tile = builder.writeVectorTiles(envelope, bounds);
+        
+        PostgisVectorTileBuilder builder = new PostgisVectorTileBuilder(version);
+        byte[] tile = builder.write(zoom, x, y);
 
         this.populateTile(state, tile);
 
