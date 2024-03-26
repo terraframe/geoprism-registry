@@ -43,8 +43,8 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
-import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.JsonWrapper;
 

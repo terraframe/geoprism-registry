@@ -23,7 +23,6 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.service.request.ServiceFactory;
 
 public class ConversionService
 {

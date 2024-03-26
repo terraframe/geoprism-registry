@@ -36,7 +36,7 @@ import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.roles.DeleteGeoObjectPermissionException;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 @Service
 @Primary

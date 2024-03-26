@@ -43,7 +43,7 @@ import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.action.tree.AddChildAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.view.action.AbstractUpdateAttributeView;

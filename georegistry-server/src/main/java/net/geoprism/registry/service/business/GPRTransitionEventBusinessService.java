@@ -38,7 +38,6 @@ import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.permission.RolePermissionService;
-import net.geoprism.registry.service.request.GeoObjectTypeRestrictionUtil;
 import net.geoprism.registry.view.HistoricalRow;
 import net.geoprism.registry.view.Page;
 

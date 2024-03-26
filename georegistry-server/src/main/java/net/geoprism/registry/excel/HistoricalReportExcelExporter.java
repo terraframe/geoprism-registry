@@ -43,7 +43,7 @@ import com.runwaysdk.localization.LocalizationFacade;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.GPRTransitionEventBusinessService;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.HistoricalRow;
 import net.geoprism.registry.view.Page;
 

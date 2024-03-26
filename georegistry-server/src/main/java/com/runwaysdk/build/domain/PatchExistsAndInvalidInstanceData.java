@@ -19,26 +19,9 @@
 package com.runwaysdk.build.domain;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.runwaysdk.business.graph.GraphQuery;
-import com.runwaysdk.business.graph.VertexObject;
-import com.runwaysdk.dataaccess.MdGraphClassDAOIF;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
-import com.runwaysdk.session.Request;
-import com.runwaysdk.system.gis.geo.Universal;
-
-import net.geoprism.registry.graph.GeoVertex;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
 
 public class PatchExistsAndInvalidInstanceData
 {

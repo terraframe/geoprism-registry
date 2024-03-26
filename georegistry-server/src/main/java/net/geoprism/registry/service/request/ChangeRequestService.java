@@ -536,26 +536,4 @@ public class ChangeRequestService
 
     return requestId;
   }
-
-  @Transaction
-  public void markAllAsInvalid(ServerGeoObjectType type)
-  {
-    String reason = LocalizationFacade.localize("changeRequest.invalidate.deleteReferencedGeoObjectType");
-
-    ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
-
-    crq.WHERE(crq.getApprovalStatus().containsExactly(AllGovernanceStatus.PENDING));
-
-    try (OIterator<? extends ChangeRequest> it = crq.getIterator())
-    {
-      for (ChangeRequest cr : it)
-      {
-        if (cr.getGeoObjectTypeCode().equals(type.getCode()))
-        {
-          cr.invalidate(reason);
-        }
-      }
-    }
-  }
-
 }

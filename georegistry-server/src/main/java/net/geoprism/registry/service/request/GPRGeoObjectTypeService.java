@@ -12,6 +12,7 @@ import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.model.ServerOrganization;
+import net.geoprism.registry.service.business.GraphRepoServiceIF;
 import net.geoprism.registry.service.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.ws.GlobalNotificationMessage;

@@ -44,7 +44,7 @@ import net.geoprism.registry.graph.HierarchicalRelationshipType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.Page;
 
 @Service

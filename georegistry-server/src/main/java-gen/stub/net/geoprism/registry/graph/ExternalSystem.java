@@ -40,7 +40,7 @@ import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.JsonSerializable;

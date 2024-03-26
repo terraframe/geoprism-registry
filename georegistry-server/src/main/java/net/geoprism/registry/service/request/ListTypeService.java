@@ -67,6 +67,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;

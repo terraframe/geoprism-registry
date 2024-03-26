@@ -43,7 +43,6 @@ import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.request.ServiceFactory;
 
 public class EdgeJsonImporter
 {

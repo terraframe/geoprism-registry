@@ -41,7 +41,7 @@ import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.service.permission.GPRGeoObjectPermissionService;
 import net.geoprism.registry.service.permission.GeoObjectPermissionServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
 {

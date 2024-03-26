@@ -45,7 +45,7 @@ import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerOrganization;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.JsonSerializable;

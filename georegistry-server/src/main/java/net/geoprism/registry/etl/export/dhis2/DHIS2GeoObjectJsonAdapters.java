@@ -66,7 +66,7 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class DHIS2GeoObjectJsonAdapters
 {

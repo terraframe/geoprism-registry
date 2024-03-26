@@ -41,7 +41,7 @@ import org.springframework.web.servlet.view.JstlView;
 import net.geoprism.EncodingFilter;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.SessionFilter;
-import net.geoprism.spring.JsonExceptionHandler;
+import net.geoprism.spring.web.JsonExceptionHandler;
 
 @Configuration
 @EnableWebMvc

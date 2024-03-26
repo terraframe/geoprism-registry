@@ -55,7 +55,6 @@ import net.geoprism.registry.masterlist.TableMetadata.TypeGroup;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.localization.DefaultLocaleView;
-import net.geoprism.registry.service.request.ServiceFactory;
 
 public class PatchListGroupMetadata
 {

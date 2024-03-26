@@ -19,7 +19,7 @@ import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class TestGeoObjectTypeInfo
 {

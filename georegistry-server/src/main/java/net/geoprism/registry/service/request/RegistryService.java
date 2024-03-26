@@ -70,6 +70,7 @@ import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 @Service
 public class RegistryService implements RegistryServiceIF

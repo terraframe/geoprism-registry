@@ -88,7 +88,7 @@ import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.request.ETLService;
 import net.geoprism.registry.service.request.RegistryComponentService;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.request.ShapefileService;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestAttributeTermTypeInfo;

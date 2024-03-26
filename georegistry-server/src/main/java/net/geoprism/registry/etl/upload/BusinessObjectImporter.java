@@ -94,7 +94,7 @@ import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class BusinessObjectImporter implements ObjectImporterIF

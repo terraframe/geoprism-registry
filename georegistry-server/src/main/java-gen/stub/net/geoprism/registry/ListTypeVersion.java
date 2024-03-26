@@ -173,7 +173,7 @@ import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.request.CurationService;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;

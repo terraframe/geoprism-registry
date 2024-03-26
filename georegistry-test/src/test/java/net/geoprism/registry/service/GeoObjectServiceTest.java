@@ -35,7 +35,7 @@ import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;

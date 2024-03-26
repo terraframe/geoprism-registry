@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -83,6 +82,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.ClassifierBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;

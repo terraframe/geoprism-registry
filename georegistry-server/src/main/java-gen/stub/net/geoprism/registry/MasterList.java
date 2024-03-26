@@ -63,7 +63,7 @@ import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.service.request.LocaleSerializer;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;

@@ -57,7 +57,7 @@ import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.RolePermissionService;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class XMLExporter
 {

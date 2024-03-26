@@ -40,7 +40,7 @@ import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class RevealGeoObjectJsonAdapters
 {

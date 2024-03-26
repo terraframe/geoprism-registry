@@ -20,7 +20,6 @@ package net.geoprism.registry.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -69,8 +68,8 @@ import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
 
 public class XMLImporter
 {

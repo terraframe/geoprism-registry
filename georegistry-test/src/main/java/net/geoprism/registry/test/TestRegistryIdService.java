@@ -14,7 +14,7 @@ import org.commongeoregistry.adapter.id.EmptyIdCacheException;
 
 import com.runwaysdk.session.Request;
 
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class TestRegistryIdService implements AdapterIdServiceIF
 {

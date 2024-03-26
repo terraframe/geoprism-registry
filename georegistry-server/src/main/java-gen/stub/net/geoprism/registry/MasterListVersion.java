@@ -149,7 +149,7 @@ import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
 
 public class MasterListVersion extends MasterListVersionBase implements TableEntity

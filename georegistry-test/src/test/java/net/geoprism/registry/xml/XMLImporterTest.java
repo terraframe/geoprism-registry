@@ -47,7 +47,7 @@ import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceI
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
 import net.geoprism.registry.service.request.GraphRepoServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)

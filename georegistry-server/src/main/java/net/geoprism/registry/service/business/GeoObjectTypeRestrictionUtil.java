@@ -16,11 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.service.request;
+package net.geoprism.registry.service.business;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -33,7 +32,6 @@ import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.RolePermissionService;
 
 /**
@@ -76,7 +74,7 @@ public class GeoObjectTypeRestrictionUtil
       return "";
     }
 
-    final List<String> privateTypes = ServiceFactory.getMetadataCache().getAllGeoObjectTypes().stream().filter(type -> type.getIsPrivate()).map(type -> "'" + type.getCode() + "'").collect(Collectors.toList());
+    final List<String> privateTypes = ServerGeoObjectType.getAll().stream().filter(type -> type.getIsPrivate()).map(type -> "'" + type.getCode() + "'").collect(Collectors.toList());
 
     StringBuilder builder = new StringBuilder();
 

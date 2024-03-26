@@ -15,6 +15,9 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.metadata.MdVertex;
@@ -22,8 +25,10 @@ import com.runwaysdk.system.metadata.MdVertex;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.action.AllGovernanceStatus;
+import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.request.ChangeRequestService;
 import net.geoprism.registry.service.request.SearchService;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
@@ -36,9 +41,6 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
 {
   @Autowired
   private GPROrganizationBusinessService gprOrgService;
-
-  @Autowired
-  private ChangeRequestService           changeService;
 
   @Override
   protected void delete(ServerGeoObjectType type)
@@ -60,7 +62,7 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
 
     new SearchService().clear(type.getCode());
 
-    changeService.markAllAsInvalid(type);
+    this.markAllAsInvalid(type);
   }
 
   @Override
@@ -294,4 +296,27 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
       this.assignAllPermissions(mdGeoVertexDAO, raRole);
     }
   }
+  
+  @Transaction
+  public void markAllAsInvalid(ServerGeoObjectType type)
+  {
+    String reason = LocalizationFacade.localize("changeRequest.invalidate.deleteReferencedGeoObjectType");
+
+    ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
+
+    crq.WHERE(crq.getApprovalStatus().containsExactly(AllGovernanceStatus.PENDING));
+
+    try (OIterator<? extends ChangeRequest> it = crq.getIterator())
+    {
+      for (ChangeRequest cr : it)
+      {
+        if (cr.getGeoObjectTypeCode().equals(type.getCode()))
+        {
+          cr.invalidate(reason);
+        }
+      }
+    }
+  }
+
+
 }

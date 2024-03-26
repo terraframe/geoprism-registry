@@ -34,7 +34,7 @@ import com.runwaysdk.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 
 public class DHIS2OrgUnitGroupAttributeMapping extends DHIS2AttributeMapping

@@ -73,7 +73,6 @@ import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.request.TreeStrategyPublisherService;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;

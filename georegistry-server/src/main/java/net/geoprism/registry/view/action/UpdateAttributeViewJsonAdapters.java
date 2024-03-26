@@ -45,7 +45,7 @@ import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class UpdateAttributeViewJsonAdapters

@@ -59,7 +59,7 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.RolePermissionService;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class GeoObjectImportConfiguration extends ImportConfiguration
 {

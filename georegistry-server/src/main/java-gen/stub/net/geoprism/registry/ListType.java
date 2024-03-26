@@ -87,7 +87,7 @@ import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.service.request.LocaleSerializer;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public abstract class ListType extends ListTypeBase
 {

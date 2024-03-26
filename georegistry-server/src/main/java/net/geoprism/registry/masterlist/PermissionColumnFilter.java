@@ -25,7 +25,7 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeAttribute;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class PermissionColumnFilter implements ColumnFilter
 {

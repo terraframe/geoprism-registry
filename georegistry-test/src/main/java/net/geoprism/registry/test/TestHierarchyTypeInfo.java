@@ -14,7 +14,7 @@ import net.geoprism.registry.graph.HierarchicalRelationshipType;
 import net.geoprism.registry.model.RootGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class TestHierarchyTypeInfo
 {

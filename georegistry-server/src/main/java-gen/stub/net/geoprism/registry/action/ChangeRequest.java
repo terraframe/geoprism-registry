@@ -65,7 +65,7 @@ import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRGeoObjectTypeBusinessService;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.request.EmailServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 
 public class ChangeRequest extends ChangeRequestBase implements JsonSerializable

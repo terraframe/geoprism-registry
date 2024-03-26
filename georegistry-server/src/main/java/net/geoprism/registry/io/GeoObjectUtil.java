@@ -32,7 +32,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class GeoObjectUtil
 {

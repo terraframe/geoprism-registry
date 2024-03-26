@@ -16,7 +16,7 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class TestOrganizationInfo
 {

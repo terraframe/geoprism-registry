@@ -30,6 +30,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 import net.geoprism.registry.view.action.AbstractUpdateAttributeView;

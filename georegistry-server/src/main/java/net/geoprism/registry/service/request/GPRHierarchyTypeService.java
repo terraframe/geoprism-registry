@@ -16,6 +16,7 @@ import com.runwaysdk.session.Session;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.service.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.service.permission.RolePermissionService;
@@ -27,11 +28,15 @@ public class GPRHierarchyTypeService extends HierarchyTypeService implements Hie
   @Autowired
   private RolePermissionService permissions;
 
+  @Autowired
+  private HierarchyTypePermissionServiceIF hierarchyPermissions;
+  
+  @Autowired
+  private GeoObjectTypePermissionServiceIF typePermissions;
+  
   @Request(RequestType.SESSION)
   public JsonArray getHierarchyGroupedTypes(String sessionId)
   {
-    final HierarchyTypePermissionServiceIF hierarchyPermissions = ServiceFactory.getHierarchyPermissionService();
-    final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
     final boolean isSRA = permissions.isSRA();
 
     JsonArray allHiers = new JsonArray();

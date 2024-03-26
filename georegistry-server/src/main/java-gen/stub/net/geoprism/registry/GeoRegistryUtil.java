@@ -56,7 +56,7 @@ import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
 import net.geoprism.registry.xml.XMLImporter;

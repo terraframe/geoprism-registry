@@ -21,7 +21,7 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import net.geoprism.registry.graph.InheritedHierarchyAnnotation;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 /**
  * The purpose of this dataset is to provide very basic data which provides for

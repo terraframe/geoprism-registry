@@ -25,7 +25,7 @@ import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class BusinessObjectCache
 {

@@ -48,7 +48,7 @@ import net.geoprism.registry.cache.ServerMetadataCache;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.business.GPRGeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRHierarchyTypeBusinessService;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService;

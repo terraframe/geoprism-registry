@@ -44,7 +44,7 @@ import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class BusinessEdgeJsonImporter
 {

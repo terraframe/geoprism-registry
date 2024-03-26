@@ -57,7 +57,7 @@ import net.geoprism.registry.io.ParentMatchStrategy;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
-import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.service.business.ServiceFactory;
 
 public class BusinessObjectImportConfiguration extends ImportConfiguration
 {

@@ -15,6 +15,7 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.registry.service.business.CacheProviderIF;
 import net.geoprism.registry.service.business.GPROrganizationBusinessService;
 
 @Service
