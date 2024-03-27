@@ -46,6 +46,7 @@ import net.geoprism.registry.curation.ListCurationHistory;
 import net.geoprism.registry.curation.ListCurationJob;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.business.GeoObjectEditorBusinessService;
 import net.geoprism.registry.service.permission.RolePermissionService;
 import net.geoprism.registry.view.Page;
 
@@ -53,10 +54,10 @@ import net.geoprism.registry.view.Page;
 public class CurationService
 {
   @Autowired
-  private RolePermissionService    permissions;
+  private RolePermissionService          permissions;
 
   @Autowired
-  private GeoObjectEditorServiceIF service;
+  private GeoObjectEditorBusinessService service;
 
   public JsonObject getListCurationInfo(ListTypeVersion version)
   {
@@ -231,7 +232,7 @@ public class CurationService
       String geoObjectTypeCode = config.get("typeCode").getAsString();
       String actions = config.get("actions").getAsJsonArray().toString();
 
-      this.service.updateGeoObjectInTrans(geoObjectCode, geoObjectTypeCode, actions, version.getOid(), null);
+      this.service.updateGeoObject(geoObjectCode, geoObjectTypeCode, actions, version.getOid(), null);
 
       // err.appLock();
       // err.setResolution(resolution);

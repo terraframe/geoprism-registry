@@ -67,6 +67,7 @@ import com.runwaysdk.session.RequestState;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
+import com.runwaysdk.session.SessionIF;
 import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.data.importer.FeatureRow;
@@ -126,12 +127,16 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     private String     sessionId;
 
-    public Task(FeatureRow row, Action action, String sessionId)
+    public Task(FeatureRow row, Action action, SessionIF session)
     {
       super();
       this.row = row;
       this.action = action;
-      this.sessionId = sessionId;
+
+      if (session != null)
+      {
+        this.sessionId = session.getOid();
+      }
     }
 
     @Override
@@ -139,7 +144,14 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       try
       {
-        runInRequest(sessionId);
+        if (sessionId != null)
+        {
+          executeWithSession(sessionId);
+        }
+        else
+        {
+          executeAsSystem();
+        }
       }
       catch (InterruptedException e)
       {
@@ -148,8 +160,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
     }
 
-    @Request(RequestType.SESSION)
-    public void runInRequest(String sessionId) throws InterruptedException
+    protected void execute() throws InterruptedException
     {
       if (action.equals(Action.VALIDATE))
       {
@@ -161,6 +172,17 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
     }
 
+    @Request(RequestType.SESSION)
+    public void executeWithSession(String sessionId) throws InterruptedException
+    {
+      execute();
+    }
+
+    @Request
+    public void executeAsSystem() throws InterruptedException
+    {
+      execute();
+    }
   }
 
   private static class RowData
@@ -328,7 +350,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   public void validateRow(FeatureRow row) throws InterruptedException
   {
-    this.blockingQueue.put(new Task(row, Action.VALIDATE, Session.getCurrentSession().getOid()));
+    this.blockingQueue.put(new Task(row, Action.VALIDATE, Session.getCurrentSession()));
   }
 
   @Transaction
@@ -476,7 +498,7 @@ public class GeoObjectImporter implements ObjectImporterIF
   {
     if (!this.progressListener.isComplete(row.getRowNumber()))
     {
-      this.blockingQueue.put(new Task(row, Action.IMPORT, Session.getCurrentSession().getOid()));
+      this.blockingQueue.put(new Task(row, Action.IMPORT, Session.getCurrentSession()));
     }
   }
 

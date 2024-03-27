@@ -38,7 +38,6 @@ import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.query.AttributeLocal;
 import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
@@ -62,6 +61,7 @@ import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.action.InvalidChangeRequestException;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.business.GeoObjectEditorBusinessService;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService;
 import net.geoprism.registry.service.permission.ChangeRequestPermissionService.ChangeRequestPermissionAction;
@@ -77,7 +77,7 @@ public class ChangeRequestService
   public GeoObjectTypeBusinessServiceIF typeService;
 
   @Autowired
-  public GeoObjectEditorServiceIF       editorService;
+  public GeoObjectEditorBusinessService editorService;
 
   @Request(RequestType.SESSION)
   public void reject(String sessionId, String request)

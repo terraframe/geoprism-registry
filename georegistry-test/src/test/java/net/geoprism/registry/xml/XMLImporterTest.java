@@ -21,7 +21,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
 
@@ -44,9 +43,9 @@ import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.GraphRepoServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.OrganizationBusinessServiceIF;
-import net.geoprism.registry.service.request.GraphRepoServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
 @ContextConfiguration(classes = { TestConfig.class })
