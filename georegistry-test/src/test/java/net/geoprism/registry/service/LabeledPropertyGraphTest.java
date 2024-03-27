@@ -648,7 +648,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   }
 
   @Request
-  private static void waitUntilPublished(String oid)
+  public static void waitUntilPublished(String oid)
   {
     List<? extends JobHistory> histories = null;
     int waitTime = 0;
