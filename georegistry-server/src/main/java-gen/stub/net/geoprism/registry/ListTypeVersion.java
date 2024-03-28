@@ -168,10 +168,10 @@ import net.geoprism.registry.query.graph.BasicVertexQuery;
 import net.geoprism.registry.query.graph.BasicVertexRestriction;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.CurationBusinessService;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.permission.GPROrganizationPermissionService;
-import net.geoprism.registry.service.request.CurationService;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
@@ -1495,7 +1495,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     if (this.getWorking() && masterlist.doesActorHaveWritePermission())
     {
-      object.add("curation", ServiceFactory.getBean(CurationService.class).getListCurationInfo(this));
+      object.add("curation", ServiceFactory.getBean(CurationBusinessService.class).getListCurationInfo(this));
     }
     else
     {

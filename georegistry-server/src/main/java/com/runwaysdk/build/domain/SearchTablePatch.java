@@ -20,7 +20,7 @@ package com.runwaysdk.build.domain;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
@@ -37,11 +37,9 @@ import net.geoprism.registry.service.business.SearchService;
 
 public class SearchTablePatch
 {
-  @Autowired
-  private SearchService service;
 
   @Transaction
-  private void doIt()
+  private void doIt(SearchService service)
   {
     service.createSearchTable();
 
@@ -93,7 +91,13 @@ public class SearchTablePatch
 
   public static void main(String[] args)
   {
-    new SearchTablePatch().doIt();
+    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext("net.geoprism.spring.core", "net.geoprism.registry.service.business", "net.geoprism.registry.service.permission"))
+    {
+      SearchService service = context.getBean(SearchService.class);
+
+      new SearchTablePatch().doIt(service);
+    }
+
   }
 
 }
