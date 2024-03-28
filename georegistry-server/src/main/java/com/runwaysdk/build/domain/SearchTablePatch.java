@@ -20,6 +20,8 @@ package com.runwaysdk.build.domain;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
@@ -31,19 +33,16 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.EdgeConstant;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.request.SearchService;
+import net.geoprism.registry.service.business.SearchService;
 
 public class SearchTablePatch
 {
-  public static void main(String[] args)
-  {
-    new SearchTablePatch().doIt();
-  }
+  @Autowired
+  private SearchService service;
 
   @Transaction
   private void doIt()
   {
-    SearchService service = new SearchService();
     service.createSearchTable();
 
     createRecords(service);
@@ -91,4 +90,10 @@ public class SearchTablePatch
       // Ignore
     }
   }
+
+  public static void main(String[] args)
+  {
+    new SearchTablePatch().doIt();
+  }
+
 }

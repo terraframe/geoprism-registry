@@ -44,6 +44,7 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.SearchService;
 import net.geoprism.registry.service.business.ServiceFactory;
 import net.geoprism.registry.service.permission.GPRGeoObjectPermissionService;
 import net.geoprism.registry.view.LocationInformation;
@@ -66,10 +67,13 @@ public class LocationService
   @Autowired
   private GPRGeoObjectPermissionService  permissions;
 
+  @Autowired
+  private SearchService                  searchService;
+
   @Request(RequestType.SESSION)
   public List<GeoObject> search(String sessionId, String text, Date date)
   {
-    List<ServerGeoObjectIF> results = new SearchService().search(text, date, 20L);
+    List<ServerGeoObjectIF> results = searchService.search(text, date, 20L);
 
     return results.stream().collect(() -> new LinkedList<GeoObject>(), (list, element) -> {
       ServerGeoObjectType type = element.getType();
@@ -85,7 +89,7 @@ public class LocationService
   @Request(RequestType.SESSION)
   public List<JsonObject> labels(String sessionId, String text, Date date)
   {
-    return new SearchService().labels(text, date, 20L);
+    return searchService.labels(text, date, 20L);
   }
 
   @Request(RequestType.SESSION)
