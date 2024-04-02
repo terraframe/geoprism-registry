@@ -99,6 +99,7 @@ export class LoginComponent implements OnInit {
 
   onSubmit(): void {
     this.service.login(this.username, this.password).then(response => {
+      // We mush reload the geo object type cache
 
       this.hService.applications().then(applications => {
         if (applications.length == 1) {

@@ -17,13 +17,14 @@
 /// License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Injectable } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
 import { CookieService } from "ngx-cookie-service";
 import { User } from "@shared/model/user";
 import { RoleBuilder, RegistryRole, RegistryRoleType } from "@shared/model/core";
+import { EventService, ISessionListener } from "./event.service";
 
 @Injectable()
-export class AuthService {
+export class AuthService implements ISessionListener, OnDestroy {
 
     private user: User = {
         loggedIn: false,
@@ -34,7 +35,7 @@ export class AuthService {
         installedLocales: []
     };
 
-    constructor(private service: CookieService) {
+    constructor(private service: CookieService, private eventService: EventService) {
         let cookie = service.get("user");
 
         if (this.service.check("user") && cookie != null && cookie.length > 0) {
@@ -43,6 +44,12 @@ export class AuthService {
 
             this.buildFromCookieJson(cookieDataJSON);
         }
+
+        eventService.registerSessionListener(this);
+    }
+
+    ngOnDestroy(): void {
+        this.eventService.deregisterSessionListener(this);
     }
 
     buildFromCookieJson(cookieDataJSON: any) {
@@ -69,19 +76,6 @@ export class AuthService {
 
     isLoggedIn(): boolean {
         return this.user.loggedIn;
-    }
-
-    afterLogIn(logInResponse: any): void {
-        localStorage.clear();
-
-        this.buildFromCookieJson(JSON.parse(this.service.get("user")));
-
-    }
-
-    afterLogOut(): void {
-        this.user = null;
-        sessionStorage.removeItem("locales");
-        localStorage.clear();
     }
 
 
@@ -329,5 +323,18 @@ export class AuthService {
             version: "0",
             installedLocales: []
         };
+    }
+
+    onLogin(): void {
+        localStorage.clear();
+
+        this.buildFromCookieJson(JSON.parse(this.service.get("user")));
+    }
+
+    onLogout(): void {
+        this.user = null;
+
+        sessionStorage.removeItem("locales");
+        localStorage.clear();
     }
 }

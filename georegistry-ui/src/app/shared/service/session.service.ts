@@ -25,7 +25,6 @@ import { finalize } from "rxjs/operators";
 
 import { EventService } from "./event.service";
 
-import { AuthService } from "./auth.service";
 import { User } from "@shared/model/user";
 
 import { environment } from 'src/environments/environment';
@@ -34,7 +33,7 @@ import { environment } from 'src/environments/environment';
 export class SessionService {
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private service: EventService, private http: HttpClient, private authService: AuthService) { }
+    constructor(private service: EventService, private http: HttpClient) { }
 
     login(username: string, password: string): Promise<any> {
         let headers = new HttpHeaders({
@@ -50,7 +49,7 @@ export class SessionService {
             }))
             .toPromise()
             .then((logInResponse: any) => {
-                this.authService.afterLogIn(logInResponse);
+                this.service.onLogin();
 
                 return logInResponse;
             });
@@ -70,7 +69,7 @@ export class SessionService {
             }))
             .toPromise()
             .then((response: any) => {
-                this.authService.afterLogOut();
+                this.service.onLogout();
 
                 return response;
             });

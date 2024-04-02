@@ -309,7 +309,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 ]
             },
             attributionControl: false,
-            bounds: this.configuration.getDefaultMapBounds()
+            bounds: this.configuration.getDefaultMapBounds(),
         };
 
         if (this.state.bounds != null && this.state.bounds.length > 0) {

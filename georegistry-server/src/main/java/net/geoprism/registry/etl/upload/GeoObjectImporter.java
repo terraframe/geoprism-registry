@@ -73,6 +73,7 @@ import com.runwaysdk.system.AbstractClassification;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.GeometrySizeException;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.etl.InvalidExternalIdException;
 import net.geoprism.registry.etl.ParentReferenceProblem;
@@ -456,7 +457,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
         }
       }
-      catch (IgnoreRowException e)
+      catch (IgnoreRowException | GeometrySizeException e)
       {
         // Do nothing
       }
