@@ -41,7 +41,7 @@ import { Router, ActivatedRoute } from "@angular/router";
 import { LngLatBounds } from "maplibre-gl";
 import { ObjectReference, RelatedType, Relationship, TreeData, Vertex } from "@registry/model/graph";
 import { LocationManagerState } from "../location-manager/location-manager.component";
-import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE } from "@registry/service/layer-data-source";
+import { Layer, RelationshipVisualizionDataSource, RelationshipVisualizionLayer, RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE, ListVectorLayer } from "@registry/service/layer-data-source";
 
 import { calculateTextWidth } from "@registry/component/hierarchy/d3/svg-util";
 
@@ -284,7 +284,11 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
 
     private addLayers(relatedTypes: RelatedType[]) {
         if (this.relationship.type === "BUSINESS" || (this.state.objectType === "BUSINESS" && this.relationship.type !== "GEOOBJECT")) {
-            let layers: Layer[] = this.geomService.getLayers().filter(layer => layer.getPinned() || layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE);
+            let layers: Layer[] = this.geomService.getLayers().filter(layer => {
+                return layer.getPinned()
+                    || (layer instanceof ListVectorLayer)
+                    || layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE
+            });
             this.geomService.setLayers(layers);
             return;
         }
@@ -296,10 +300,17 @@ export class RelationshipVisualizerComponent implements OnInit, OnDestroy {
         let dataSource = new RelationshipVisualizionDataSource(this.vizService, this.geomService, this.relationship.type, this.relationship.code, sourceObject, bounds, this.state.date);
 
         // Remove any existing layer from map that is graph related that isn't part of this new data
-        layers = layers.filter(layer => layer.getPinned() ||
-            layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE ||
-            ((layer.dataSource as RelationshipVisualizionDataSource).getRelationshipCode() === this.relationship.code && (layer.dataSource as RelationshipVisualizionDataSource).getRelationshipType() === this.relationship.type &&
-                (relatedTypes.map(relatedType => relatedType.code).indexOf((layer as RelationshipVisualizionLayer).getRelatedTypeFilter()) !== -1)));
+        layers = layers.filter(layer => {
+            // Always keep list layers
+            if (layer instanceof ListVectorLayer) return true;
+
+            if (layer.getPinned()) return true;
+
+            if (layer.dataSource.getDataSourceType() !== RELATIONSHIP_VISUALIZER_DATASOURCE_TYPE) return true;
+
+            return ((layer.dataSource as RelationshipVisualizionDataSource).getRelationshipCode() === this.relationship.code && (layer.dataSource as RelationshipVisualizionDataSource).getRelationshipType() === this.relationship.type &&
+                (relatedTypes.map(relatedType => relatedType.code).indexOf((layer as RelationshipVisualizionLayer).getRelatedTypeFilter()) !== -1));
+        });
 
         // If the type is already rendered at a specific position in the layer stack, we want to preserve that positioning and overwrite any layer currently in that position
         let existingRelatedTypes: { [key: string]: { index: number, layer: Layer } } = {};
