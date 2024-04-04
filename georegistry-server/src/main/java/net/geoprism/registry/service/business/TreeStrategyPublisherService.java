@@ -211,7 +211,6 @@ public class TreeStrategyPublisherService extends AbstractGraphVersionPublisherS
 
       if (children.size() > 0)
       {
-
         for (ServerChildTreeNode childNode : children)
         {
           ServerGeoObjectIF child = childNode.getGeoObject();

@@ -29,15 +29,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.runwaysdk.dataaccess.MdClassDAOIF;
-import com.runwaysdk.dataaccess.MdGraphClassDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.graph.GeoObjectTypeSnapshot;
-import net.geoprism.graph.HierarchyTypeSnapshot;
+import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
-import net.geoprism.registry.model.EdgeConstant;
 
 @Service
 public class LabeledPropertyGraphRDFExporterService
@@ -82,8 +80,8 @@ public class LabeledPropertyGraphRDFExporterService
 
   private long generateStatements(Map<String, TypeSnapshotCacheObject> cache, LabeledPropertyGraphTypeVersion version, Long skip, Integer blockSize)
   {
-    HierarchyTypeSnapshot hierarchy = this.versionService.getHierarchies(version).get(0);
-    MdEdge mdEdge = hierarchy.getGraphMdEdge();
+    GraphTypeSnapshot snapshot = this.versionService.getGraphSnapshots(version).get(0);
+    MdEdge mdEdge = snapshot.getGraphMdEdge();
     
     GeoObjectTypeSnapshot rootType = this.versionService.getRootType(version);
     MdVertex mdVertex = rootType.getGraphMdVertex();
