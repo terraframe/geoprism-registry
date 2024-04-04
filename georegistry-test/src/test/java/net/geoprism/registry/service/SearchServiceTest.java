@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonObject;
@@ -22,7 +23,7 @@ import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.service.request.SearchService;
+import net.geoprism.registry.service.business.SearchService;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 
@@ -30,23 +31,25 @@ import net.geoprism.registry.test.TestGeoObjectInfo;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class SearchServiceTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  public static final TestGeoObjectInfo BELIZE_CITY = new TestGeoObjectInfo("Belize Ci't/=&y*)(0$#-@!\"}{][.,;:", "BelizeCity", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
-  
-//  public static final TestGeoObjectInfo HALF_LIFE = new TestGeoObjectInfo("Half-Life", "HalfLife", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
-//  public static final TestGeoObjectInfo HALFLIFE = new TestGeoObjectInfo("HalfLife", "HalfLifeNoDash", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
-  
+  public static final TestGeoObjectInfo BELIZE_CITY      = new TestGeoObjectInfo("Belize Ci't/=&y*)(0$#-@!\"}{][.,;:", "BelizeCity", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
+
   public static final TestGeoObjectInfo EXACT_MATCH_TEST = new TestGeoObjectInfo("Exact-Term(Test) Match Test", "ExactMatchTest", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
+
   public static final TestGeoObjectInfo EXACT_MATCH_FAIL = new TestGeoObjectInfo("Exact-Term(Test) Match Fail", "ExactMatchFail", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
+
   public static final TestGeoObjectInfo EXACT_WRONG_FAIL = new TestGeoObjectInfo("Exact-Term(Test) Wrong Fail", "ExactWrongFail", FastTestDataset.COUNTRY, FastTestDataset.WKT_DEFAULT_MULTIPOLYGON, true, true);
+
+  @Autowired
+  private SearchService                 service;
 
   @Before
   public void setUp()
   {
     testData.setUpInstanceData();
-    
+
     BELIZE_CITY.apply();
-//    HALF_LIFE.apply();
-//    HALFLIFE.apply();
+    // HALF_LIFE.apply();
+    // HALFLIFE.apply();
     EXACT_MATCH_TEST.apply();
     EXACT_MATCH_FAIL.apply();
     EXACT_WRONG_FAIL.apply();
@@ -58,22 +61,22 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
   public void tearDown()
   {
     testData.logOut();
-    
+
     BELIZE_CITY.delete();
-//    HALF_LIFE.delete();
-//    HALFLIFE.delete();
+    // HALF_LIFE.delete();
+    // HALFLIFE.delete();
     EXACT_MATCH_TEST.delete();
     EXACT_MATCH_FAIL.delete();
     EXACT_WRONG_FAIL.delete();
 
     testData.tearDownInstanceData();
   }
-  
+
   @Test
   @Request
   public void testSearchTable()
   {
-    SearchService service = new SearchService();
+
     service.clear();
     service.deleteSearchTable();
     service.createSearchTable();
@@ -98,7 +101,7 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
   @Request
   public void testWhitespace()
   {
-    SearchService service = new SearchService();
+
     service.clear();
     service.deleteSearchTable();
     service.createSearchTable();
@@ -123,7 +126,7 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
   @Request
   public void testSpecialCharacters()
   {
-    SearchService service = new SearchService();
+
     service.clear();
     service.deleteSearchTable();
     service.createSearchTable();
@@ -131,11 +134,13 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
     new SearchTablePatch().createRecords(service);
 
     Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
-    
-    // These tests were removed because dashes are not escaping properly and we did a little bit of a hack so it doesn't query exactly as expected
-//    assertFound(service.search("Half-", date, 10L), HALF_LIFE);
-//    assertFound(service.search(HALF_LIFE.getDisplayLabel(), date, 10L), HALF_LIFE);
-    
+
+    // These tests were removed because dashes are not escaping properly and we
+    // did a little bit of a hack so it doesn't query exactly as expected
+    // assertFound(service.search("Half-", date, 10L), HALF_LIFE);
+    // assertFound(service.search(HALF_LIFE.getDisplayLabel(), date, 10L),
+    // HALF_LIFE);
+
     assertFound(service.search("Bel", date, 10L), BELIZE_CITY);
     assertFound(service.search("Belize", date, 10L), BELIZE_CITY);
     assertFound(service.search("Belize ", date, 10L), BELIZE_CITY);
@@ -164,7 +169,7 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
     assertFound(service.search("Belize Ci't/=&y*)(0$#-@!\"}{][.,;:", date, 10L), BELIZE_CITY);
     assertFound(service.search(BELIZE_CITY.getDisplayLabel(), date, 10L), BELIZE_CITY);
   }
-  
+
   private void assertFound(List<ServerGeoObjectIF> results, TestGeoObjectInfo go)
   {
     Assert.assertEquals(1, results.size());
@@ -173,12 +178,12 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
 
     Assert.assertEquals(result.getCode(), go.getCode());
   }
-  
+
   @Test
   @Request
   public void testSearchExactMatch()
   {
-    SearchService service = new SearchService();
+
     service.clear();
     service.deleteSearchTable();
     service.createSearchTable();
@@ -189,11 +194,11 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
 
     List<ServerGeoObjectIF> results = service.search("Exact-Term(Test)", date, 10L);
     Assert.assertEquals(3, results.size());
-    
+
     results = service.search("Exact-Term(Test) Match", date, 10L);
     Assert.assertEquals(3, results.size());
     Assert.assertEquals(EXACT_WRONG_FAIL.getCode(), results.get(2).getCode());
-    
+
     results = service.search("Exact-Term(Test) Match Test", date, 10L);
     Assert.assertEquals(3, results.size());
     Assert.assertEquals(EXACT_MATCH_TEST.getCode(), results.get(0).getCode());
@@ -205,7 +210,7 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
   @Request
   public void testSearchNull()
   {
-    SearchService service = new SearchService();
+
     service.clear();
     service.deleteSearchTable();
     service.createSearchTable();
@@ -218,12 +223,12 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
 
     Assert.assertTrue(results.size() > 0);
   }
-  
+
   @Test
   @Request
   public void testSearchLabels()
   {
-    SearchService service = new SearchService();
+
     service.clear();
     service.deleteSearchTable();
     service.createSearchTable();
@@ -240,6 +245,5 @@ public class SearchServiceTest extends FastDatasetTest implements InstanceTestCl
 
     Assert.assertEquals(result.get("code").getAsString(), FastTestDataset.CAMBODIA.getCode());
   }
-
 
 }

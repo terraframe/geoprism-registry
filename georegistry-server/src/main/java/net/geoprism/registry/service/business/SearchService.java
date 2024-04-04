@@ -4,33 +4,33 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.service.request;
+package net.geoprism.registry.service.business;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.ComponentIF;
@@ -60,31 +60,38 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.etl.GeoObjectCache;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.model.EdgeConstant;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.permission.GPRGeoObjectPermissionService;
 import net.geoprism.registry.service.permission.RolePermissionService;
+import net.geoprism.registry.service.request.GPRLocalizationService;
 
+@Service
 public class SearchService
 {
-  public static final String PACKAGE       = "net.geoprism.registry.search";
+  public static final String            PACKAGE       = "net.geoprism.registry.search";
 
-  public static final String VERTEX_PREFIX = "Search";
+  public static final String            VERTEX_PREFIX = "Search";
 
-  public static final String EDGE_PREFIX   = "SearchLink";
+  public static final String            EDGE_PREFIX   = "SearchLink";
 
-  public static final String LABEL         = "label";
+  public static final String            LABEL         = "label";
 
-  public static final String VERTEX_TYPE   = "vertexType";
+  public static final String            VERTEX_TYPE   = "vertexType";
 
-  public static final String CODE          = "code";
+  public static final String            CODE          = "code";
 
-  public static final String START_DATE    = "startDate";
+  public static final String            START_DATE    = "startDate";
 
-  public static final String END_DATE      = "endDate";
+  public static final String            END_DATE      = "endDate";
+
+  @Autowired
+  private RolePermissionService         rolePermissions;
+
+  @Autowired
+  private GPRGeoObjectPermissionService objectPermissions;
 
   @Transaction
   public void createSearchTable()
@@ -304,21 +311,20 @@ public class SearchService
     }
 
   }
-  
+
   private String escapeText(String text)
   {
     String regex = "([-/+\\!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
     text = text.replaceAll(regex, "\\\\\\\\$1").trim();
-    text = text.replaceAll("\\'", "\\\\'"); // Apostrophe needs double backslash in orient sql
-    
+    text = text.replaceAll("\\'", "\\\\'"); // Apostrophe needs double backslash
+                                            // in orient sql
+
     return text;
   }
 
   public List<ServerGeoObjectIF> search(String text, Date date, Long limit)
   {
     String suffix = this.getSuffix();
-
-    RolePermissionService service = new RolePermissionService();
 
     MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(PACKAGE + "." + VERTEX_PREFIX + suffix);
     MdAttributeDAOIF code = mdVertex.definesAttribute(CODE);
@@ -332,14 +338,18 @@ public class SearchService
     String indexName = className + "." + attributeName;
 
     StringBuilder statement = new StringBuilder();
+    statement.append("TRAVERSE out('" + EdgeConstant.HAS_VALUE.getDBClassName() + "', '" + EdgeConstant.HAS_GEOMETRY.getDBClassName() + "') FROM (");
     statement.append("SELECT EXPAND(out('" + mdEdge.getDBClassName() + "'))");
     statement.append(" FROM " + mdVertex.getDBClassName());
 
     if (text != null)
     {
-      text = text.replace("-", " "); // I realize this is a total hack. But I think there might be some bug in OrientDB where its not escaping dashes properly
+      text = text.replace("-", " "); // I realize this is a total hack. But I
+                                     // think there might be some bug in
+                                     // OrientDB where its not escaping dashes
+                                     // properly
       String escapedText = escapeText(text);
-      
+
       String[] escapedTokens = StringUtils.split(escapedText, " ");
       String term;
       if (escapedTokens.length == 1)
@@ -364,7 +374,7 @@ public class SearchService
       statement.append(" AND :date BETWEEN " + startDate.getColumnName() + " AND " + endDate.getColumnName());
     }
 
-    if (!service.isSRA() && service.hasSessionUser())
+    if (!rolePermissions.isSRA() && rolePermissions.hasSessionUser())
     {
       statement.append(" AND " + vertexType.getColumnName() + " IN ( :vertexTypes )");
     }
@@ -375,8 +385,8 @@ public class SearchService
     {
       statement.append(" LIMIT " + limit);
     }
+    statement.append(") ");
 
-    List<ServerGeoObjectIF> list = new LinkedList<ServerGeoObjectIF>();
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
 
     if (text != null)
@@ -389,42 +399,23 @@ public class SearchService
       query.setParameter("date", date);
     }
 
-    if (!service.isSRA() && service.hasSessionUser())
+    if (!rolePermissions.isSRA() && rolePermissions.hasSessionUser())
     {
-      List<String> vertexTypes = new GPRGeoObjectPermissionService().getMandateTypes(service.getOrganization());
+      List<String> vertexTypes = objectPermissions.getMandateTypes(rolePermissions.getOrganization());
       query.setParameter("vertexTypes", vertexTypes);
     }
 
-    List<VertexObject> results = query.getResults();
+    List<VertexServerGeoObject> results = VertexServerGeoObject.processTraverseResults(query.getResults(), date);
 
-    Set<String> codeSet = new HashSet<String>();
-
-    for (VertexObject result : results)
-    {
-      MdVertexDAOIF mdVertexType = (MdVertexDAOIF) result.getMdClass();
-      ServerGeoObjectType type = ServerGeoObjectType.get(mdVertexType);
-
-      VertexServerGeoObject vsgo = new VertexServerGeoObject(type, result, new TreeMap<>(), date);
-
-      // Due to the way we add multiple records (for different locales) for
-      // Geo-Objects we may have duplicates. Remove them now as it will be
-      // confusing to the end user.
-      String key = type.getCode() + GeoObjectCache.SEPARATOR + vsgo.getCode();
-      if (!codeSet.contains(key))
-      {
-        list.add(vsgo);
-        codeSet.add(key);
-      }
-    }
-
-    return list;
+    // Due to the way we add multiple records (for different locales) for
+    // Geo-Objects we may have duplicates. Remove them now as it will be
+    // confusing to the end user.
+    return results.stream().distinct().collect(Collectors.toList());
   }
 
   public List<JsonObject> labels(String text, Date date, Long limit)
   {
     String suffix = this.getSuffix();
-
-    RolePermissionService service = new RolePermissionService();
 
     MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(PACKAGE + "." + VERTEX_PREFIX + suffix);
     MdAttributeDAOIF code = mdVertex.definesAttribute(CODE);
@@ -442,7 +433,10 @@ public class SearchService
 
     if (text != null)
     {
-      text = text.replace("-", " "); // I realize this is a total hack. But I think there might be some bug in OrientDB where its not escaping dashes properly
+      text = text.replace("-", " "); // I realize this is a total hack. But I
+                                     // think there might be some bug in
+                                     // OrientDB where its not escaping dashes
+                                     // properly
       String escapedText = escapeText(text);
 
       String[] escapedTokens = StringUtils.split(escapedText, " ");
@@ -469,7 +463,7 @@ public class SearchService
       statement.append(" AND :date BETWEEN " + startDate.getColumnName() + " AND " + endDate.getColumnName());
     }
 
-    if (!service.isSRA() && service.hasSessionUser())
+    if (!rolePermissions.isSRA() && rolePermissions.hasSessionUser())
     {
       statement.append(" AND " + vertexType.getColumnName() + " IN ( :vertexTypes )");
     }
@@ -493,9 +487,9 @@ public class SearchService
       query.setParameter("date", date);
     }
 
-    if (!service.isSRA() && service.hasSessionUser())
+    if (!rolePermissions.isSRA() && rolePermissions.hasSessionUser())
     {
-      List<String> vertexTypes = new GPRGeoObjectPermissionService().getMandateTypes(service.getOrganization());
+      List<String> vertexTypes = objectPermissions.getMandateTypes(rolePermissions.getOrganization());
       query.setParameter("vertexTypes", vertexTypes);
     }
 

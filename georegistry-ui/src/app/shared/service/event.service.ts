@@ -24,23 +24,30 @@ export interface IEventListener {
     complete(): void;
 }
 
+export interface ISessionListener {
+    onLogin(): void;
+    onLogout(): void;
+}
+
 @Injectable()
 export class EventService {
 
-    private listeners: IEventListener[] = [];
+    private eventListeners: IEventListener[] = [];
+
+    private sessionListeners: ISessionListener[] = [];
 
     public registerListener(listener: IEventListener): void {
-        this.listeners.push(listener);
+        this.eventListeners.push(listener);
     }
 
     public deregisterListener(listener: IEventListener): boolean {
-        let indexOfItem = this.listeners.indexOf(listener);
+        let indexOfItem = this.eventListeners.indexOf(listener);
 
         if (indexOfItem === -1) {
             return false;
         }
 
-        this.listeners.splice(indexOfItem, 1);
+        this.eventListeners.splice(indexOfItem, 1);
 
         return true;
     }
@@ -48,7 +55,7 @@ export class EventService {
     public start(): void {
 
         setTimeout(() => {
-            for (const listener of this.listeners) {
+            for (const listener of this.eventListeners) {
                 listener.start();
             }
         }, 1);
@@ -56,9 +63,43 @@ export class EventService {
 
     public complete(): void {
         setTimeout(() => {
-            for (const listener of this.listeners) {
+            for (const listener of this.eventListeners) {
                 listener.complete();
             }
         }, 1);
     }
+
+    public registerSessionListener(listener: ISessionListener): void {
+        this.sessionListeners.push(listener);
+    }
+
+    public deregisterSessionListener(listener: ISessionListener): boolean {
+        let indexOfItem = this.sessionListeners.indexOf(listener);
+
+        if (indexOfItem === -1) {
+            return false;
+        }
+
+        this.sessionListeners.splice(indexOfItem, 1);
+
+        return true;
+    }
+
+    public onLogin(): void {
+
+        setTimeout(() => {
+            for (const listener of this.sessionListeners) {
+                listener.onLogin();
+            }
+        }, 1);
+    }
+
+    public onLogout(): void {
+        setTimeout(() => {
+            for (const listener of this.sessionListeners) {
+                listener.onLogout();
+            }
+        }, 1);
+    }
+
 }

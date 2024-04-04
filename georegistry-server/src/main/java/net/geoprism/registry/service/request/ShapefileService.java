@@ -18,238 +18,36 @@
  */
 package net.geoprism.registry.service.request;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeDateType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.shapefile.ShapefileDataStore;
-import org.geotools.referencing.CRS;
-import org.json.JSONArray;
 import org.json.JSONObject;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
-import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.runwaysdk.RunwayException;
-import com.runwaysdk.business.SmartException;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
-import com.runwaysdk.session.Session;
-import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.InvalidProjectionException;
-import net.geoprism.registry.UnableToReadProjectionException;
-import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
-import net.geoprism.registry.etl.ObjectImporterFactory;
-import net.geoprism.registry.etl.ShapefileFormatException;
-import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.etl.upload.ShapefileImporter;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.io.ImportAttributeSerializer;
-import net.geoprism.registry.io.PostalCodeFactory;
-import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.business.ShapefileBusinessService;
 
 @Service
 public class ShapefileService
 {
+  @Autowired
+  private ShapefileBusinessService service;
+  
   @Request(RequestType.SESSION)
   public JSONObject getShapefileConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
   {
-    return this.getShapefileConfigurationInReq(type, startDate, endDate, fileName, fileStream, strategy, copyBlank, false);
-  }
-
-  public JSONObject getShapefileConfigurationInReq(String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank, boolean ignoreProjection)
-  {
-    // Save the file to the file system
-    try
-    {
-      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(type);
-
-      VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
-
-      try (CloseableFile dbf = ShapefileImporter.getShapefileFromResource(vf, "dbf"))
-      {
-        SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-        format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-        JSONObject object = new JSONObject();
-        object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
-        object.put(GeoObjectImportConfiguration.SHEET, this.getSheetInformation(dbf, ignoreProjection));
-        object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
-        object.put(ImportConfiguration.FILE_NAME, fileName);
-        object.put(GeoObjectImportConfiguration.HAS_POSTAL_CODE, PostalCodeFactory.isAvailable(geoObjectType));
-        object.put(ImportConfiguration.IMPORT_STRATEGY, strategy.name());
-        object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.SHAPEFILE.name());
-        object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
-        object.put(ImportConfiguration.COPY_BLANK, copyBlank);
-        object.put(ImportConfiguration.IGNORE_PROJECTION, ignoreProjection);
-
-        if (startDate != null)
-        {
-          object.put(GeoObjectImportConfiguration.START_DATE, format.format(startDate));
-        }
-
-        if (endDate != null)
-        {
-          object.put(GeoObjectImportConfiguration.END_DATE, format.format(endDate));
-        }
-
-        return object;
-      }
-    }
-    catch (RunwayException | SmartException e)
-    {
-      throw e;
-    }
-    catch (Exception e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
-  }
-
-  private JSONObject getType(ServerGeoObjectType geoObjectType)
-  {
-    JSONObject type = new JSONObject(geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, geoObjectType.toDTO())).toString());
-    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
-
-    for (int i = 0; i < attributes.length(); i++)
-    {
-      JSONObject attribute = attributes.getJSONObject(i);
-      String attributeType = attribute.getString(AttributeType.JSON_TYPE);
-
-      attribute.put(GeoObjectImportConfiguration.BASE_TYPE, GeoObjectImportConfiguration.getBaseType(attributeType));
-    }
-
-    return type;
-  }
-
-  private JSONObject getSheetInformation(File dbf, boolean ignoreProjection)
-  {
-    try
-    {
-      ShapefileDataStore store = new ShapefileDataStore(dbf.toURI().toURL());
-
-      try
-      {
-        String[] typeNames = store.getTypeNames();
-
-        if (typeNames.length > 0)
-        {
-          String typeName = typeNames[0];
-
-          FeatureSource<SimpleFeatureType, SimpleFeature> source = store.getFeatureSource(typeName);
-
-          SimpleFeatureType schema = source.getSchema();
-
-          if (!ignoreProjection)
-          {
-            CoordinateReferenceSystem sourceCRS = schema.getCoordinateReferenceSystem();
-
-            if (sourceCRS != null)
-            {
-              try
-              {
-
-                String code = CRS.lookupIdentifier(sourceCRS, true);
-
-                if (!code.equalsIgnoreCase("EPSG:4326"))
-                {
-                  throw new InvalidProjectionException();
-                }
-              }
-              catch (FactoryException e)
-              {
-                throw new UnableToReadProjectionException();
-              }
-            }
-            else
-            {
-              throw new UnableToReadProjectionException();
-            }
-          }
-
-          List<AttributeDescriptor> descriptors = schema.getAttributeDescriptors();
-
-          JSONObject attributes = new JSONObject();
-          attributes.put(AttributeBooleanType.TYPE, new JSONArray());
-          attributes.put(GeoObjectImportConfiguration.TEXT, new JSONArray());
-          attributes.put(GeoObjectImportConfiguration.NUMERIC, new JSONArray());
-          attributes.put(AttributeDateType.TYPE, new JSONArray());
-
-          for (AttributeDescriptor descriptor : descriptors)
-          {
-            if (! ( descriptor instanceof GeometryDescriptor ))
-            {
-              String name = descriptor.getName().getLocalPart();
-              String baseType = GeoObjectImportConfiguration.getBaseType(descriptor.getType());
-
-              attributes.getJSONArray(baseType).put(name);
-
-              if (baseType.equals(GeoObjectImportConfiguration.NUMERIC))
-              {
-                attributes.getJSONArray(GeoObjectImportConfiguration.TEXT).put(name);
-              }
-            }
-          }
-
-          JSONObject sheet = new JSONObject();
-          sheet.put("name", typeName);
-          sheet.put("attributes", attributes);
-
-          return sheet;
-        }
-        else
-        {
-          // TODO Change exception type
-          throw new ProgrammingErrorException("Shapefile does not contain any types");
-        }
-      }
-      finally
-      {
-        store.dispose();
-      }
-    }
-    catch (RuntimeException e)
-    {
-      Throwable cause = e.getCause();
-
-      if (cause instanceof IOException)
-      {
-        throw new ShapefileFormatException(e);
-      }
-
-      throw e;
-    }
-    catch (Exception e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
+    return this.service.getShapefileConfiguration(type, startDate, endDate, fileName, fileStream, strategy, copyBlank, false);
   }
 
   @Request(RequestType.SESSION)
   public void cancelImport(String sessionId, String json)
   {
-    ImportConfiguration config = ImportConfiguration.build(json);
-
-    String id = config.getVaultFileId();
-
-    VaultFile.get(id).delete();
+    this.service.cancelImport(json);
   }
 
   @Request(RequestType.SESSION)

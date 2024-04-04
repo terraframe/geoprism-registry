@@ -126,15 +126,7 @@ export class LocationManagerStateService {
         if (objectFilter != null) {
             layer.setObjectFilter(objectFilter.uid);
         }
-
-        // Remove any existing List layer(s)
-        layers = layers.filter(l =>
-            !(l.dataSource instanceof ListVectorLayerDataSource) ||
-            l.getKey() === layer.getKey() ||
-            ((l as ListVectorLayer).getObjectFilter() == null && (l.dataSource as ListVectorLayerDataSource).getVersionId() === version.oid) ||
-            l.getPinned()
-        );
-
+        
         // Remove search layer
         layers = layers.filter(layer => layer.getPinned() || (!(layer.dataSource instanceof SearchLayerDataSource) && !(layer.dataSource instanceof RelationshipVisualizionDataSource)));
 

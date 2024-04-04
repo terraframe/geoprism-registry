@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.commongeoregistry.adapter.dataaccess.AlternateId;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
@@ -44,12 +45,14 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
-import net.geoprism.registry.service.request.SearchService;
 
 @Service
 @Primary
 public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implements GPRGeoObjectBusinessServiceIF
 {
+  @Autowired
+  private SearchService searchService;
+
   @Override
   public JsonObject getAll(String gotCode, String hierarchyCode, Date since, Boolean includeLevel, String format, String externalSystemId, Integer pageNumber, Integer pageSize)
   {
@@ -115,11 +118,11 @@ public class GPRGeoObjectBusinessService extends GeoObjectBusinessService implem
 
     if (!sgo.getInvalid())
     {
-      new SearchService().insert((VertexServerGeoObject) sgo, isNew);
+      this.searchService.insert((VertexServerGeoObject) sgo, isNew);
     }
     else if (!isNew)
     {
-      new SearchService().remove(sgo.getCode());
+      this.searchService.remove(sgo.getCode());
     }
   }
 

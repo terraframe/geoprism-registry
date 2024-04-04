@@ -29,7 +29,6 @@ import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.request.SearchService;
 import net.geoprism.registry.service.request.SerializedListTypeCache;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
@@ -41,6 +40,9 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
 {
   @Autowired
   private GPROrganizationBusinessService gprOrgService;
+
+  @Autowired
+  private SearchService                  searchService;
 
   @Override
   protected void delete(ServerGeoObjectType type)
@@ -60,7 +62,7 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
 
     ListType.markAllAsInvalid(null, type);
 
-    new SearchService().clear(type.getCode());
+    this.searchService.clear(type.getCode());
 
     this.markAllAsInvalid(type);
   }
@@ -296,7 +298,7 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
       this.assignAllPermissions(mdGeoVertexDAO, raRole);
     }
   }
-  
+
   @Transaction
   public void markAllAsInvalid(ServerGeoObjectType type)
   {
@@ -317,6 +319,5 @@ public class GPRGeoObjectTypeBusinessService extends GeoObjectTypeBusinessServic
       }
     }
   }
-
 
 }

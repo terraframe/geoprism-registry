@@ -93,6 +93,8 @@ public class XMLImporter
     this.hierarchyService = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
     this.bTypeService = ServiceFactory.getBean(BusinessTypeBusinessServiceIF.class);
     this.bEdgeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
+    this.dagService = ServiceFactory.getBean(DirectedAcyclicGraphTypeBusinessServiceIF.class);
+    this.undirectedService = ServiceFactory.getBean(UndirectedGraphTypeBusinessServiceIF.class);
 
     this.adapter = ServiceFactory.getAdapter();
   }

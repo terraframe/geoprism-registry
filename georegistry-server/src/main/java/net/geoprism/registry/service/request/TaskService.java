@@ -41,6 +41,8 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.RolesQuery;
 
 import net.geoprism.rbac.RoleConstants;
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.service.business.ETLBusinessService;
 import net.geoprism.registry.task.Task;
 import net.geoprism.registry.task.Task.TaskStatus;
 import net.geoprism.registry.task.TaskHasRoleQuery;
@@ -128,8 +130,8 @@ public class TaskService
         jo.addProperty("msg", vo.getValue("msg"));
         jo.addProperty("title", vo.getValue("title"));
         jo.addProperty("status", vo.getValue("status"));
-        jo.addProperty("createDate", ETLService.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("createDate"))));
-        jo.addProperty("completedDate", vo.getValue("status").equals(TaskStatus.RESOLVED.name()) ? ETLService.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("completedDate"))) : null);
+        jo.addProperty("createDate", GeoRegistryUtil.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("createDate")), false));
+        jo.addProperty("completedDate", vo.getValue("status").equals(TaskStatus.RESOLVED.name()) ? GeoRegistryUtil.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(vo.getValue("completedDate")), false) : null);
 
         return new JsonWrapper(jo);
       }).collect(Collectors.toList());
