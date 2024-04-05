@@ -219,6 +219,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
         GeoObjectTypeSnapshot inGraphVertex = this.tSnapshotService.get(state.version, edge.in.getType().getCode());
         MdVertex publishInMdVertex = inGraphVertex.getGraphMdVertex();
         
+        // TODO : Fetch objects from a cache
         VertexObject publishedIn;
         if (!publishedGOs.contains(edge.in.getRunwayId()))
         {

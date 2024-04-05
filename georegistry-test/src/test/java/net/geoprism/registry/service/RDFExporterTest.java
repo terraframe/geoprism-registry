@@ -5,13 +5,23 @@ package net.geoprism.registry.service;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.system.StreamRDF;
+import org.apache.jena.riot.system.StreamRDFWriter;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -161,7 +171,7 @@ public class RDFExporterTest extends USADatasetTest implements InstanceTestClass
 //    }
   }
 
-//  @Before
+  @Before
   public void setUp()
   {
     cleanUpExtra();
@@ -171,7 +181,7 @@ public class RDFExporterTest extends USADatasetTest implements InstanceTestClass
     testData.logIn(USATestData.USER_NPS_RA);
   }
 
-//  @After
+  @After
   public void tearDown()
   {
     testData.logOut();
@@ -194,25 +204,38 @@ public class RDFExporterTest extends USADatasetTest implements InstanceTestClass
     {
       JenaBridge jena = new JenaBridge(connector);
       
-      Model model = ModelFactory.createDefaultModel();
+//      Model model = ModelFactory.createDefaultModel();
       
-      final String uri = "http://terraframe.com/2024/gpr-rdf/1.0#";
-      final Property pCode = model.createProperty(uri, "code");
+//      final String uri = "http://terraframe.com/2024/gpr-rdf/1.0#";
+//      final Property pCode = model.createProperty(uri, "code");
+//      
+//      Resource cambodia = model.createResource("urn:usace:cambodia");
+//      cambodia.addProperty(pCode, "Cambodia");
+//      
+//      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//      model.write(baos);
       
-      Resource cambodia = model.createResource("urn:usace:cambodia");
-      cambodia.addProperty(pCode, "Cambodia");
+      Path file = Files.createTempFile("jena", ".ttl");
       
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      model.write(baos);
+//      StreamRDFWriter.write(System.out, model.getGraph(), RDFFormat.TURTLE);
       
-      String payload = baos.toString(Charset.forName("UTF-8"));
-      System.out.println(payload);
+      StreamRDF writer = StreamRDFWriter.getWriterStream(Files.newOutputStream(file) , Lang.TURTLE);
+//      StreamRDFOps.graphToStream(model.getGraph(), writer) ;
       
-      jena.put("urn:usace:graphName", model);
+      writer.start();
+      writer.triple(Triple.create(NodeFactory.createURI("urn:usace:cambodia"), NodeFactory.createURI("urn:usace:country#code"), NodeFactory.createLiteral("Cambodia")));
+      writer.finish();
+      
+//      String payload = baos.toString(Charset.forName("UTF-8"));
+//      System.out.println(payload);
+      
+      System.out.println(FileUtils.readFileToString(file.toFile(), "UTF-8"));
+      
+      jena.put("urn:usace:graphName", file.toAbsolutePath().toString());
     }
   }
 
-//  @Test
+  @Test
   @Request
   public void testPublishJob()
   {
