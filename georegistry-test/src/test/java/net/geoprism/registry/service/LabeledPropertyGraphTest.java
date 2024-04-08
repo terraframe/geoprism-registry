@@ -22,9 +22,13 @@ import org.springframework.test.context.ContextConfiguration;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.ComponentInfo;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.constants.graph.MdEdgeInfo;
+import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdEdge;
@@ -36,6 +40,8 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.graph.ChangeFrequency;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
+import net.geoprism.graph.GraphTypeReference;
+import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
 import net.geoprism.graph.IncrementalLabeledPropertyGraphType;
 import net.geoprism.graph.IntervalLabeledPropertyGraphType;
@@ -47,10 +53,12 @@ import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobQuery;
 import net.geoprism.graph.SingleLabeledPropertyGraphType;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.LabeledPropertyGraphTypeBuilder;
 import net.geoprism.registry.LocalRegistryConnectorBuilder;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
 import net.geoprism.registry.USADatasetTest;
@@ -60,12 +68,14 @@ import net.geoprism.registry.lpg.TreeStrategyConfiguration;
 import net.geoprism.registry.lpg.adapter.RegistryConnectorFactory;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
+import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
 import net.geoprism.registry.service.business.ClassificationTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GeoObjectTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphRepoServiceIF;
+import net.geoprism.registry.service.business.GraphTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeSnapshotBusinessServiceIF;
 import net.geoprism.registry.service.business.JsonGraphVersionPublisherService;
 import net.geoprism.registry.service.business.LabeledPropertyGraphJsonExporterService;
@@ -112,6 +122,9 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
   @Autowired
   private HierarchyTypeSnapshotBusinessServiceIF               hierarchyService;
+  
+  @Autowired
+  private GraphTypeSnapshotBusinessServiceIF                   graphSnapshotService;
 
   @Autowired
   private GeoObjectTypeBusinessServiceIF                       oTypeService;
@@ -320,7 +333,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
       Assert.assertEquals(11, vertices.size());
 
-      List<HierarchyTypeSnapshot> edges = this.versionService.getHierarchies(version);
+      List<GraphTypeSnapshot> edges = this.versionService.getGraphSnapshots(version);
 
       Assert.assertEquals(1, edges.size());
     }
@@ -376,6 +389,73 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
     finally
     {
       this.typeService.delete(test1);
+    }
+  }
+  
+  @Test
+  @Request
+  public void testPublishDAG()
+  {
+    MdEdgeDAO mdEdge = MdEdgeDAO.newInstance();
+    mdEdge.setValue(MdEdgeInfo.NAME, "TestDag");
+    mdEdge.setValue(MdEdgeInfo.PACKAGE, "net.geoprism.registry.service.test.TestDag");
+    mdEdge.setStructValue(MdEdgeInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "TestDag for LabeledPropertyGraphTest");
+    mdEdge.setStructValue(MdEdgeInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "TestDag for LabeledPropertyGraphTest");
+    mdEdge.setValue(MdEdgeInfo.PARENT_MD_VERTEX, USATestData.COUNTRY.getServerObject().getMdVertex().getOid());
+    mdEdge.setValue(MdEdgeInfo.CHILD_MD_VERTEX, USATestData.STATE.getServerObject().getMdVertex().getOid());
+    mdEdge.apply();
+    
+    DirectedAcyclicGraphType dagType = new DirectedAcyclicGraphType();
+    dagType.setCode("TestDag");
+    dagType.getDisplayLabel().setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "TestDag");
+    dagType.setMdEdgeId(mdEdge.getOid());
+    dagType.apply();
+    
+    JsonObject json = getJson(dagType, new String[] { USATestData.COUNTRY.getCode(), USATestData.STATE.getCode() }, USATestData.ORG_NPS.getServerObject().getOrganization());
+
+    LabeledPropertyGraphType test1 = this.typeService.apply(json);
+
+    try
+    {
+      USATestData.USA.getServerObject().getVertex().addChild(USATestData.COLORADO.getServerObject().getVertex(), mdEdge).apply();
+      
+      List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
+
+      Assert.assertEquals(1, entries.size());
+
+      LabeledPropertyGraphTypeEntry entry = entries.get(0);
+
+      List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
+
+      Assert.assertEquals(1, versions.size());
+
+      LabeledPropertyGraphTypeVersion version = versions.get(0);
+      this.versionService.publish(version);
+
+      GeoObjectTypeSnapshot graphVertex = this.objectService.get(version, USATestData.COUNTRY.getCode());
+      MdVertex mdVertex = graphVertex.getGraphMdVertex();
+
+//      GraphTypeSnapshot graphEdge = this.graphSnapshotService.get(version, GraphType.getTypeCode(dagType), dagType.getCode());
+
+      GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>("SELECT FROM " + mdVertex.getDbClassName());
+      List<EdgeObject> results = query.getResults();
+
+      Assert.assertEquals(1, results.size());
+
+//      EdgeObject result = results.get(0);
+//      
+//      String codeValue = result.getObjectValue(DefaultAttribute.CODE.getName());
+//      Assert.assertTrue(codeValue.equals(USATestData.USA.getCode()) || codeValue.equals(USATestData.COLORADO.getCode()));
+//
+//      List<VertexObject> children = result.getChildren(graphEdge.getGraphMdEdge().definesType(), VertexObject.class);
+//
+//      Assert.assertEquals(2, children.size());
+    }
+    finally
+    {
+      this.typeService.delete(test1);
+      dagType.delete();
+      mdEdge.delete();
     }
   }
 
@@ -563,7 +643,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
       Assert.assertEquals(11, vertices.size());
 
-      List<HierarchyTypeSnapshot> edges = this.versionService.getHierarchies(version);
+      List<GraphTypeSnapshot> edges = this.versionService.getGraphSnapshots(version);
 
       Assert.assertEquals(1, edges.size());
 
@@ -620,7 +700,7 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
 
           Assert.assertEquals(11, vertices.size());
 
-          List<HierarchyTypeSnapshot> edges = this.versionService.getHierarchies(version);
+          List<GraphTypeSnapshot> edges = this.versionService.getGraphSnapshots(version);
 
           Assert.assertEquals(1, edges.size());
         }
@@ -635,6 +715,18 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
         this.typeService.delete(test1);
       }
     });
+  }
+  
+  @Request
+  public static JsonObject getJson(DirectedAcyclicGraphType dagType, String[] geoObjectTypeCodes, Organization organization)
+  {
+    LabeledPropertyGraphTypeBuilder builder = new LabeledPropertyGraphTypeBuilder();
+    builder.setGraphTypes(new GraphTypeReference[] { new GraphTypeReference(GraphType.getTypeCode(dagType), dagType.getCode()) });
+    builder.setGeoObjectTypeCodes(geoObjectTypeCodes);
+    builder.setStrategyType(LabeledPropertyGraphType.GRAPH);
+    builder.setOrganization(organization);
+
+    return builder.buildJSON();
   }
 
   @Request

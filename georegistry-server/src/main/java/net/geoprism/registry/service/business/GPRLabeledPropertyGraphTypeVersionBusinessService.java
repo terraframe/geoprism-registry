@@ -55,15 +55,20 @@ import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
+import net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshot;
+import net.geoprism.graph.GraphTypeReference;
+import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.HierarchyTypeSnapshot;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeEntry;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJobQuery;
+import net.geoprism.graph.UndirectedGraphTypeSnapshot;
 import net.geoprism.rbac.RoleConstants;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryLocalizedValueConverter;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.lpg.StrategyConfiguration;
@@ -71,6 +76,7 @@ import net.geoprism.registry.lpg.TreeStrategyConfiguration;
 import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.model.ClassificationType;
 import net.geoprism.registry.model.GeoObjectMetadata;
+import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
@@ -100,6 +106,9 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
 
   @Autowired
   private HierarchyTypeSnapshotBusinessServiceIF hSnapshotService;
+  
+  @Autowired
+  private GraphTypeSnapshotBusinessServiceIF     graphSnapshotService;
 
   @Autowired
   private HierarchyTypeBusinessServiceIF         hierarchyService;
@@ -108,13 +117,16 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
   private GeoObjectTypeBusinessServiceIF         typeService;
 
   @Autowired
-  private ClassificationTypeBusinessServiceIF         cTypeService;
+  private ClassificationTypeBusinessServiceIF    cTypeService;
   
   @Autowired
-  private ClassificationBusinessServiceIF         cService;
+  private ClassificationBusinessServiceIF        cService;
   
   @Autowired
-  private TreeStrategyPublisherService           publisherService;
+  private TreeStrategyPublisherService           treePublisherService;
+  
+  @Autowired
+  private GraphPublisherService                  graphPublisherService;
 
   @Override
   @Transaction
@@ -137,7 +149,18 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     LabeledPropertyGraphType type = version.getGraphType();
     StrategyConfiguration configuration = type.toStrategyConfiguration();
 
-    this.publisherService.publish((TreeStrategyConfiguration) configuration, version);
+    if (configuration instanceof TreeStrategyConfiguration)
+    {
+      this.treePublisherService.publish((TreeStrategyConfiguration) configuration, version);
+    }
+    else if (type.getStrategyType().equals(LabeledPropertyGraphType.GRAPH))
+    {
+      this.graphPublisherService.publish(version);
+    }
+    else
+    {
+      throw new UnsupportedOperationException("Unsupported publisher " + (configuration == null ? "null" : configuration.getClass().getName()));
+    }
   }
 
   @Override
@@ -190,47 +213,136 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
   public LabeledPropertyGraphTypeVersion create(LabeledPropertyGraphTypeEntry listEntry, boolean working, int versionNumber)
   {
     LabeledPropertyGraphTypeVersion version = super.create(listEntry, working, versionNumber);
-
-    LabeledPropertyGraphType graphType = version.getGraphType();
-    ServerHierarchyType hierarchy = ServerHierarchyType.get(graphType.getHierarchy());
-
+    
     GeoObjectTypeSnapshot root = this.oSnapshotService.createRoot(version);
 
-    this.create(version, hierarchy, root);
-
-    Stack<StackItem> stack = new Stack<StackItem>();
-
-    this.hierarchyService.getDirectRootNodes(hierarchy).forEach(type -> stack.push(new StackItem(type, root)));
-
-    while (!stack.isEmpty())
+    LabeledPropertyGraphType lpgt = version.getGraphType();
+    List<GraphTypeReference> gtrs = lpgt.getGraphTypeReferences();
+    List<String> goTypeCodes = lpgt.getGeoObjectTypeCodesList();
+    
+    if (goTypeCodes.size() > 0 && gtrs.size() > 0)
     {
-      StackItem item = stack.pop();
-      ServerGeoObjectType type = item.type;
-
-      GeoObjectTypeSnapshot parent = this.create(version, type, root);
-
-      if (type.getIsAbstract())
+      for (GraphTypeReference gtr : gtrs)
       {
-        this.typeService.getSubtypes(type).forEach(subtype -> {
-          this.create(version, subtype, parent);
+        createGraphTypeSnapshot(version, gtr, root);
+        
+        // Loop over types and create snapshots
+        for (String goTypeCode : goTypeCodes)
+        {
+          GeoObjectTypeSnapshot snapshot = this.create(version, ServerGeoObjectType.get(goTypeCode), root);
+          root.addChildSnapshot(snapshot).apply();
+        }
+      }
+    }
+    else if (lpgt.getStrategyType().equals(LabeledPropertyGraphType.TREE))
+    {
+      ServerHierarchyType hierarchy = ServerHierarchyType.get(lpgt.getHierarchy());
+  
+      this.create(version, hierarchy, root);
+  
+      Stack<StackItem> stack = new Stack<StackItem>();
+  
+      this.hierarchyService.getDirectRootNodes(hierarchy).forEach(type -> stack.push(new StackItem(type, root)));
+  
+      while (!stack.isEmpty())
+      {
+        StackItem item = stack.pop();
+        ServerGeoObjectType type = item.type;
+  
+        GeoObjectTypeSnapshot parent = this.create(version, type, root);
+  
+        if (type.getIsAbstract())
+        {
+          this.typeService.getSubtypes(type).forEach(subtype -> {
+            this.create(version, subtype, parent);
+          });
+        }
+  
+        if (item.parent != null)
+        {
+          item.parent.addChildSnapshot(parent).apply();
+        }
+  
+        this.hierarchyService.getChildren(hierarchy, type).forEach(child -> {
+          stack.push(new StackItem(child, parent));
         });
       }
-
-      if (item.parent != null)
-      {
-        item.parent.addChildSnapshot(parent).apply();
-      }
-
-      this.hierarchyService.getChildren(hierarchy, type).forEach(child -> {
-        stack.push(new StackItem(child, parent));
-      });
-
+    }
+    else
+    {
+      throw new UnsupportedOperationException();
     }
 
     return version;
   }
 
-  private String getEdgeName(ServerHierarchyType type)
+  private GraphTypeSnapshot createGraphTypeSnapshot(LabeledPropertyGraphTypeVersion version, GraphTypeReference gtr, GeoObjectTypeSnapshot root)
+  {
+    GraphType graphType = GraphType.resolve(gtr);
+    
+    String viewName = getEdgeName(graphType);
+
+    MdEdgeDAO mdEdgeDAO = MdEdgeDAO.newInstance();
+    mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, RegistryConstants.UNIVERSAL_GRAPH_PACKAGE);
+    mdEdgeDAO.setValue(MdEdgeInfo.NAME, viewName);
+    mdEdgeDAO.setValue(MdEdgeInfo.DB_CLASS_NAME, viewName);
+    mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, root.getGraphMdVertexOid());
+    mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, root.getGraphMdVertexOid());
+    RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DISPLAY_LABEL, graphType.getLabel());
+    RegistryLocalizedValueConverter.populate(mdEdgeDAO, MdEdgeInfo.DESCRIPTION, graphType.getDescriptionLV());
+    mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
+    mdEdgeDAO.apply();
+
+    MdEdge mdEdge = (MdEdge) BusinessFacade.get(mdEdgeDAO);
+
+    this.assignPermissions(mdEdge);
+    
+    GraphTypeSnapshot snapshot;
+    if (gtr.typeCode.equals(GraphTypeSnapshot.DIRECTED_ACYCLIC_GRAPH_TYPE))
+    {
+      DirectedAcyclicGraphTypeSnapshot htsnapshot = new DirectedAcyclicGraphTypeSnapshot();
+      htsnapshot.setVersion(version);
+      htsnapshot.setGraphMdEdge(mdEdge);
+      htsnapshot.setCode(gtr.code);
+      LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
+      LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
+      htsnapshot.apply();
+      
+      snapshot = htsnapshot;
+    }
+    else if (gtr.typeCode.equals(GraphTypeSnapshot.UNDIRECTED_GRAPH_TYPE))
+    {
+      UndirectedGraphTypeSnapshot htsnapshot = new UndirectedGraphTypeSnapshot();
+      htsnapshot.setVersion(version);
+      htsnapshot.setGraphMdEdge(mdEdge);
+      htsnapshot.setCode(gtr.code);
+      LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
+      LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
+      htsnapshot.apply();
+      
+      snapshot = htsnapshot;
+    }
+    else if (gtr.typeCode.equals(GraphTypeSnapshot.HIERARCHY_TYPE))
+    {
+      HierarchyTypeSnapshot htsnapshot = new HierarchyTypeSnapshot();
+      htsnapshot.setVersion(version);
+      htsnapshot.setGraphMdEdge(mdEdge);
+      htsnapshot.setCode(gtr.code);
+      LocalizedValueConverter.populate(htsnapshot.getDisplayLabel(), graphType.getLabel());
+      LocalizedValueConverter.populate(htsnapshot.getDescription(), graphType.getDescriptionLV());
+      htsnapshot.apply();
+      
+      snapshot = htsnapshot;
+    }
+    else
+    {
+      throw new UnsupportedOperationException();
+    }
+    
+    return snapshot;
+  }
+
+  private String getEdgeName(GraphType type)
   {
     MdEdgeDAOIF mdEdge = type.getMdEdgeDAO();
 

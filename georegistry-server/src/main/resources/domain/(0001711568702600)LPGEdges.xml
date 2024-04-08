@@ -1,0 +1,40 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness name="net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot" table="dag_type_snapshot" label="Directed Acyclic Graph Type Snapshot" generateController="false" publish="true">
+        <attributes>
+          <char name="code" label="Code" size="255" required="true" />
+          <localChar name="displayLabel" label="Label" required="true" />
+          <localText name="description"/>
+          <reference name="graphMdEdge" type="com.runwaysdk.system.metadata.MdEdge" required="true" label="MdEdge" />
+          <reference name="version" type="net.geoprism.graph.LabeledPropertyGraphTypeVersion" required="true" label="Version" />
+        </attributes>
+      </mdBusiness>
+      <mdBusiness name="net.geoprism.graph.UndirectedGraphTypeSnapshot" table="undirected_type_snapshot" label="Undirected Graph Type Snapshot" generateController="false" publish="true">
+        <attributes>
+          <char name="code" label="Code" size="255" required="true" />
+          <localChar name="displayLabel" label="Label" required="true" />
+          <localText name="description"/>
+          <reference name="graphMdEdge" type="com.runwaysdk.system.metadata.MdEdge" required="true" label="MdEdge" />
+          <reference name="version" type="net.geoprism.graph.LabeledPropertyGraphTypeVersion" required="true" label="Version" />
+        </attributes>
+      </mdBusiness>
+    </create>
+    <update>
+      <mdBusiness name="net.geoprism.graph.LabeledPropertyGraphType">
+        <create>
+	        <attributes>
+	          <text name="graphTypes" label="GraphTypes" description="An array of typeCode:code pairings referencing one of [DirectedAcyclicGraphType | UndirectedGraphType | HierarchicalRelationshipType]" />
+	          <text name="geoObjectTypeCodes" label="GeoObjectTypeCodes" description="An array of geo-object type codes which are allowed to participate in the graph. Is allowed to be null if there is a hierarchy specified instead." />
+	        </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <!-- <object key="net.geoprism.graph.EdgeTypeSnapshot" type="com.runwaysdk.system.metadata.MdBusiness" /> -->
+      <object key="net.geoprism.graph.LabeledPropertyGraphType.graphTypes" type="com.runwaysdk.system.metadata.MdAttributeText"/>
+    </delete>
+  </undoIt>
+</version>
