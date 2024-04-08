@@ -44,7 +44,17 @@ public class PostgisVectorTileBuilder
   public byte[] write(int zoom, int x, int y)
   {
     StringBuilder statement = new StringBuilder();
-    statement.append("WITH mvtgeom AS (" + "\n");
+
+    // Filter the data to remove entries which have points too close the poles
+    // Those points cannot be transformed
+    statement.append("WITH _fdata AS (" + "\n");
+    statement.append(" SELECT * FROM " + mdBusiness.getTableName() + "\n");
+    statement.append(" WHERE (ST_XMax(geom) BETWEEN -180 AND 180)" + "\n");
+    statement.append(" AND (ST_YMax(geom) BETWEEN -89.9 AND 89.9)" + "\n");
+    statement.append(")," + "\n");
+
+    // Get the properties used in the tile and convert the geometry to its tile format
+    statement.append("mvtgeom AS (" + "\n");
     statement.append(" SELECT " + "\n");
     statement.append("  ge.oid AS " + GeoEntity.OID + "\n");
     statement.append(", ge.uid AS " + DefaultAttribute.UID.getName() + "\n");
@@ -66,9 +76,11 @@ public class PostgisVectorTileBuilder
     statement.append("    , extent => 4096" + "\n");
     statement.append("    , buffer => 64" + "\n");
     statement.append("  ) AS " + GeoserverFacade.GEOM_COLUMN + "\n");
-    statement.append(" FROM " + mdBusiness.getTableName() + " AS ge" + "\n");
+    statement.append(" FROM _fdata AS ge" + "\n");
     statement.append(" WHERE ST_Transform( ge." + column + ", 3857 ) && ST_TileEnvelope(" + zoom + ", " + x + ", " + y + ", margin => (64.0 / 4096))" + "\n");
     statement.append(")" + "\n");
+    
+    // Create the tile layer
     statement.append("SELECT ST_AsMVT(mvtgeom.*, 'context')" + "\n");
     statement.append("FROM mvtgeom;" + "\n");
 

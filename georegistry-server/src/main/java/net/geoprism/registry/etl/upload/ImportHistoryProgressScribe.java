@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -32,9 +32,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.session.CloseableReentrantLock;
+import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.business.SmartExceptionDTO;
+import com.runwaysdk.dataaccess.attributes.entity.AttributeReference;
+import com.runwaysdk.session.CloseableReentrantLock;
 import com.runwaysdk.system.scheduler.JobHistory;
 
 import net.geoprism.registry.etl.ImportError;
@@ -202,27 +204,37 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
 
   }
 
-  private static Logger          logger                    = LoggerFactory.getLogger(ImportHistoryProgressScribe.class);
-
-  public static final Integer    UPDATE_PROGRESS_EVERY_NUM = 10;
+  private static Logger          logger                = LoggerFactory.getLogger(ImportHistoryProgressScribe.class);
 
   private ImportHistory          history;
 
-  private int                    recordedErrors            = 0;
+  // Having a copy of the history oid is a small optimization. Runway
+  // automatically refreshed an object if its used after a transaction it was
+  // involved in completes. Because the import is multi-threaded and each
+  // individual row is imported in a single transaction this ends up causing a
+  // database update the first time a value is retrieved from the history object
+  // in every transaction. We can remove all of that time by holding on to a
+  // copy of the history oid
+  private String                 historyOid;
 
-  private Long                   importedRecords           = Long.valueOf(0);
+  private int                    recordedErrors        = 0;
 
-  private SortedSet<Range>       completedRows             = new TreeSet<>();
+  private Long                   importedRecords       = Long.valueOf(0);
 
-  private Set<ValidationProblem> referenceProblems         = new TreeSet<ValidationProblem>();
+  public Long                    updateRate            = 100L;
 
-  private Set<ValidationProblem> rowValidationProblems     = new TreeSet<ValidationProblem>();
+  private SortedSet<Range>       completedRows         = new TreeSet<>();
 
-  private CloseableReentrantLock lock                      = new CloseableReentrantLock();
+  private Set<ValidationProblem> referenceProblems     = new TreeSet<ValidationProblem>();
+
+  private Set<ValidationProblem> rowValidationProblems = new TreeSet<ValidationProblem>();
+
+  private CloseableReentrantLock lock                  = new CloseableReentrantLock();
 
   public ImportHistoryProgressScribe(ImportHistory history)
   {
     this.history = history;
+    this.historyOid = history.getOid();
     this.importedRecords = history.getImportedRecords();
 
     this.completedRows = Range.parse(history.getCompletedRowsJson());
@@ -233,6 +245,8 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
   {
     try (CloseableReentrantLock lock = this.lock.open())
     {
+      this.updateRate = Math.max( ( workTotal / 100 ), 100);
+
       this.history.appLock();
       this.history.setWorkTotal(workTotal);
       this.history.apply();
@@ -252,7 +266,7 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
 
       // System.out.println(StringUtils.join(completedRows, ", "));
 
-      if (newRowNum % UPDATE_PROGRESS_EVERY_NUM == 0)
+      if (newRowNum % this.updateRate == 0)
       {
         this.history.appLock();
         this.history.setWorkProgress(this.completedRows.last().end);
@@ -268,7 +282,7 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
     try (CloseableReentrantLock lock = this.lock.open())
     {
 
-      if (newImportedRecords % UPDATE_PROGRESS_EVERY_NUM == 0)
+      if (newImportedRecords % updateRate == 0)
       {
         this.history.appLock();
         this.history.setImportedRecords(newImportedRecords);
@@ -318,7 +332,11 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
   public void recordError(Throwable ex, String objectJson, String objectType, long rowNum)
   {
     ImportError error = new ImportError();
-    error.setHistory(this.history);
+
+    // error.setHistoryId(this.historyOid);
+    // This is an optimization to not validate that the history id is a valid
+    // history object. We already know that it is
+    ( (AttributeReference) BusinessFacade.getEntityDAO(error).getAttributeIF(ImportError.HISTORY) ).setValueNoValidation(this.historyOid);
     error.setErrorJson(JobHistory.exceptionToJson(ex).toString());
     error.setObjectJson(objectJson);
     error.setObjectType(objectType);
@@ -328,8 +346,8 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
     this.history.appLock();
     this.history.setErrorCount(this.history.getErrorCount() + 1);
     this.history.apply();
-    
-    if (!(ex instanceof SmartException || ex instanceof SmartExceptionDTO))
+
+    if (! ( ex instanceof SmartException || ex instanceof SmartExceptionDTO ))
     {
       logger.error("Unlocalized exception thrown during import on row [" + rowNum + "] with objectType [" + objectType + "] and objectJson [" + objectJson + "].", ex);
     }
@@ -434,7 +452,7 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
 
       this.importedRecords += 1;
 
-      if (this.importedRecords % UPDATE_PROGRESS_EVERY_NUM == 0)
+      if (this.importedRecords % updateRate == 0)
       {
         this.history.appLock();
         this.history.setImportedRecords(this.importedRecords);

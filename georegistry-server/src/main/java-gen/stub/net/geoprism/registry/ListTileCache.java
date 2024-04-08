@@ -28,6 +28,8 @@ import org.json.JSONObject;
 import org.locationtech.jts.geom.Envelope;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.attributes.AttributeLengthByteException;
+import com.runwaysdk.dataaccess.metadata.MdAttributeBlobDAO;
 import com.runwaysdk.dataaccess.transaction.ThreadTransactionState;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.dataaccess.transaction.TransactionType;
@@ -102,7 +104,10 @@ public class ListTileCache extends ListTileCacheBase
         PostgisVectorTileBuilder builder = new PostgisVectorTileBuilder(version);
         byte[] tile = builder.write(zoom, x, y);
 
-        this.populateTile(state, tile);
+        if (tile.length < MdAttributeBlobDAO.getMaxLength())
+        {
+          this.populateTile(state, tile);
+        }
 
         return tile;
       }
