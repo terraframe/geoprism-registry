@@ -4,22 +4,29 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -30,6 +37,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
@@ -353,6 +362,46 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     XMLImporter xmlImporter = new XMLImporter();
     xmlImporter.importXMLDefinitions(organization, resource);
+  }
+
+  public static void zipDirectory(File sourceFolder, File targetZip)
+  {
+    // Creating a ZipOutputStream by wrapping a FileOutputStream
+    try (FileOutputStream fos = new FileOutputStream(targetZip); ZipOutputStream zos = new ZipOutputStream(fos))
+    {
+      Path sourcePath = sourceFolder.toPath();
+      // Walk the tree structure using WalkFileTree method
+      Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>()
+      {
+        @Override
+        // Before visiting the directory create the directory in zip archive
+        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+        {
+          // Don't create dir for root folder as it is already created with .zip
+          // name
+          if (!sourcePath.equals(dir))
+          {
+            zos.putNextEntry(new ZipEntry(sourcePath.relativize(dir).toString() + "/"));
+            zos.closeEntry();
+          }
+          return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        // For each visited file add it to zip entry
+        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
+        {
+          zos.putNextEntry(new ZipEntry(sourcePath.relativize(file).toString()));
+          Files.copy(file, zos);
+          zos.closeEntry();
+          return FileVisitResult.CONTINUE;
+        }
+      });
+    }
+    catch (IOException e)
+    {
+      throw new RuntimeException(e);
+    }
   }
 
 }

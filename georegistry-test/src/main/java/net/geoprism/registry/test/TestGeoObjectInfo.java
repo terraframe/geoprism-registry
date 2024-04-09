@@ -107,7 +107,7 @@ public class TestGeoObjectInfo
     {
       this.wkt = TestDataSet.WKT_DEFAULT_POLYGON;
     }
-    else if (geom == GeometryType.POINT)
+    else if (geom == GeometryType.MULTIPOINT)
     {
       this.wkt = TestDataSet.WKT_DEFAULT_POINT;
     }

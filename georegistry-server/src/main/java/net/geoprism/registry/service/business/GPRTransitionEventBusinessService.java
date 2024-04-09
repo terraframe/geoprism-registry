@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service.business;
 
@@ -262,6 +262,55 @@ public class GPRTransitionEventBusinessService extends TransitionEventBusinessSe
     HistoricalReportExcelExporter exporter = new HistoricalReportExcelExporter(type, startDate, endDate);
 
     return exporter.export();
+  }
+
+  public Long getCount()
+  {
+    MdVertexDAOIF transitionVertex = MdVertexDAO.getMdVertexDAO(TransitionEvent.CLASS);
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT COUNT(*)");
+    statement.append(" FROM " + transitionVertex.getDBClassName());
+
+    GraphQuery<Long> query = new GraphQuery<Long>(statement.toString());
+
+    return query.getSingleResult();
+  }
+
+  public Page<TransitionEvent> getAll(Integer pageSize, Integer pageNumber)
+  {
+    MdVertexDAOIF transitionVertex = MdVertexDAO.getMdVertexDAO(TransitionEvent.CLASS);
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT FROM " + transitionVertex.getDBClassName());
+    statement.append(" ORDER BY oid");
+
+    if (pageNumber != null && pageSize != null)
+    {
+      statement.append(" SKIP " + ( ( pageNumber - 1 ) * pageSize ) + " LIMIT " + pageSize);
+    }
+
+    GraphQuery<TransitionEvent> query = new GraphQuery<TransitionEvent>(statement.toString());
+    Long count = getCount();
+
+    return new Page<TransitionEvent>(count, pageNumber, pageSize, query.getResults());
+  }
+
+  public void deleteAll()
+  {
+    Page<TransitionEvent> page = this.getAll(1000, 1);
+
+    while (page.getResults().size() > 0)
+    {
+      List<TransitionEvent> results = page.getResults();
+
+      for (TransitionEvent result : results)
+      {
+        this.delete(result);
+      }
+
+      page = this.getAll(1000, 1);
+    }
   }
 
 }

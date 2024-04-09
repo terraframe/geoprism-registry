@@ -36,9 +36,9 @@ public class USATestData extends TestDataSet
 
   public static final TestGeoObjectTypeInfo SCHOOL_ZONE      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "SchoolZone", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public static final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Area", GeometryType.POLYGON, ORG_NPS);
+  public static final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Area", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public static final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "District", GeometryType.POINT, ORG_NPS);
+  public static final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "District", GeometryType.MULTIPOINT, ORG_NPS);
 
   public static final TestGeoObjectTypeInfo HEALTH_FACILITY  = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthFacility", GeometryType.MULTIPOLYGON, ORG_NPS, true);
 
