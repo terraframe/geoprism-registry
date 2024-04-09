@@ -3,22 +3,17 @@
  */
 package net.geoprism.registry.service;
 
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.Charset;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.graph.Triple;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Property;
-import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFWriter;
+import org.apache.jena.sparql.core.Quad;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,10 +30,10 @@ import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeEntry;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
+import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
-import net.geoprism.registry.USADatasetTest;
 import net.geoprism.registry.lpg.jena.JenaBridge;
 import net.geoprism.registry.lpg.jena.JenaConnector;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
@@ -55,12 +50,12 @@ import net.geoprism.registry.service.business.LabeledPropertyGraphTypeBusinessSe
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeEntryBusinessServiceIF;
 import net.geoprism.registry.service.business.LabeledPropertyGraphTypeVersionBusinessServiceIF;
 import net.geoprism.registry.service.request.LabeledPropertyGraphTypeServiceIF;
+import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
-import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
 @RunWith(SpringInstanceTestClassRunner.class)
-public class RDFExporterTest extends USADatasetTest implements InstanceTestClassListener
+public class RDFExporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
   private static String                                        CODE = "Test Term";
 
@@ -178,7 +173,7 @@ public class RDFExporterTest extends USADatasetTest implements InstanceTestClass
 
     testData.setUpInstanceData();
 
-    testData.logIn(USATestData.USER_NPS_RA);
+    testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After
@@ -223,7 +218,8 @@ public class RDFExporterTest extends USADatasetTest implements InstanceTestClass
 //      StreamRDFOps.graphToStream(model.getGraph(), writer) ;
       
       writer.start();
-      writer.triple(Triple.create(NodeFactory.createURI("urn:usace:cambodia"), NodeFactory.createURI("urn:usace:country#code"), NodeFactory.createLiteral("Cambodia")));
+//      writer.triple(Triple.create(NodeFactory.createURI("urn:usace:cambodia"), NodeFactory.createURI("urn:usace:country#code"), NodeFactory.createLiteral("Cambodia")));
+      writer.quad(Quad.create(NodeFactory.createLiteral("LPG-code"), NodeFactory.createURI("urn:usace:cambodia"), NodeFactory.createURI("urn:usace:country#code"), NodeFactory.createLiteral("Cambodia")));
       writer.finish();
       
 //      String payload = baos.toString(Charset.forName("UTF-8"));
@@ -237,9 +233,9 @@ public class RDFExporterTest extends USADatasetTest implements InstanceTestClass
 
   @Test
   @Request
-  public void testPublishJob()
+  public void testPublishJob() throws IOException
   {
-    JsonObject json = LabeledPropertyGraphTest.getJson(USATestData.USA, USATestData.HIER_ADMIN);
+    JsonObject json = LabeledPropertyGraphTest.getJson(FastTestDataset.CAMBODIA, FastTestDataset.HIER_ADMIN);
 
     LabeledPropertyGraphType test1 = this.typeService.apply(json);
 

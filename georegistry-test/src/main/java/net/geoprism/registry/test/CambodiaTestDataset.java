@@ -169,11 +169,13 @@ public class CambodiaTestDataset extends TestDataSet
   @Override
   public void setUpClassRelationships()
   {    
+    HIER_ADMIN.setRoot(GOT_Country);
     GOT_Country.addChild(GOT_Province, HIER_ADMIN);
     GOT_Province.addChild(GOT_District, HIER_ADMIN);
     GOT_District.addChild(GOT_Commune, HIER_ADMIN);
     GOT_Commune.addChild(GOT_Village, HIER_ADMIN);
     
+    HIER_MOH.setRoot(GOT_Country);
     GOT_Country.addChild(GOT_Province, HIER_MOH);
     GOT_Province.addChild(GOT_District, HIER_MOH);
     GOT_District.addChild(GOT_Commune, HIER_MOH);

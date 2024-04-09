@@ -507,6 +507,7 @@ public class GPRLabeledPropertyGraphTypeVersionBusinessService extends LabeledPr
     snapshot.setVersion(version);
     snapshot.setGraphMdVertex(graphMdVertex);
     snapshot.setCode(type.getCode());
+    snapshot.setOrgCode(type.getOrganizationCode());
     snapshot.setGeometryType(type.getGeometryType().name());
     snapshot.setIsAbstract(type.getIsAbstract());
     snapshot.setIsRoot(false);

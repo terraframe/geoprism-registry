@@ -21,6 +21,13 @@
       </mdBusiness>
     </create>
     <update>
+      <mdBusiness name="net.geoprism.graph.GeoObjectTypeSnapshot" label="Geo-Object Type Snapshot" generateController="false" publish="true">
+        <create>
+	        <attributes>
+	          <text name="orgCode" label="Organization Code" required="false" />
+	        </attributes>
+        </create>
+      </mdBusiness>
       <mdBusiness name="net.geoprism.graph.LabeledPropertyGraphType">
         <create>
 	        <attributes>
