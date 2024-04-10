@@ -23,17 +23,13 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFWriter;
 import org.apache.jena.sparql.core.Quad;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,10 +43,10 @@ import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.graph.GeoObjectTypeSnapshot;
 import net.geoprism.graph.GeoObjectTypeSnapshotQuery;
+import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.InvalidMasterListException;
-import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 
@@ -125,7 +121,7 @@ public class LabeledPropertyGraphRDFExporterService
     GeoObjectTypeSnapshot rootType = this.versionService.getRootType(version);
     MdVertex mdVertex = rootType.getGraphMdVertex();
     
-    List<GraphType> graphTypes = version.getGraphType().getGraphTypeReferences().stream().map(ref -> GraphType.resolve(ref)).collect(Collectors.toList());
+    List<GraphTypeSnapshot> graphTypes = versionService.getGraphSnapshots(version);
     
     long startTime = System.currentTimeMillis();
 
@@ -150,11 +146,11 @@ public class LabeledPropertyGraphRDFExporterService
         
         StringBuilder sb = new StringBuilder("SELECT *, @class as clazz");
         
-        for (GraphType graphType : graphTypes)
+        for (GraphTypeSnapshot graphType : graphTypes)
         {
           for (String attr : new String[] { "code", "@class" })
           {
-            final String edge = graphType.getMdEdgeDAO().getDBClassName();
+            final String edge = graphType.getGraphMdEdge().getDbClassName();
             
             sb.append(", first(in('" + edge + "')." + attr + ") as in_" + edge + "_" + attr.replace("@class", "clazz"));
             sb.append(", first(out('" + edge + "')." + attr + ") as out_" + edge + "_" + attr.replace("@class", "clazz"));
@@ -194,12 +190,12 @@ public class LabeledPropertyGraphRDFExporterService
     final GeoObjectTypeSnapshot type = this.gotSnaps.get(valueMap.get("clazz"));
     final String orgCode = type.getOrgCode();
     
-    writer.quad(Quad.create(
-        NodeFactory.createLiteral(version.getGraphType().getCode()),
-        NodeFactory.createURI("urn:" + orgCode + ":" + type.getCode() + "-" + valueMap.get("code")),
-        NodeFactory.createURI("urn:" + orgCode + ":" + type.getCode() + "#code"),
-        NodeFactory.createLiteral((String) valueMap.get("code")))
-    );
+//    writer.quad(Quad.create(
+//        NodeFactory.createLiteral(version.getGraphType().getCode()),
+//        NodeFactory.createURI("urn:" + orgCode + ":" + type.getCode() + "-" + valueMap.get("code")),
+//        NodeFactory.createURI("urn:" + orgCode + ":" + type.getCode() + "#code"),
+//        NodeFactory.createLiteral((String) valueMap.get("code")))
+//    );
     
     type.getAttributeTypes().forEach(attribute -> {
       if (valueMap.containsKey(attribute.getName()))
@@ -273,10 +269,10 @@ public class LabeledPropertyGraphRDFExporterService
 
     });
     
-    List<GraphType> graphTypes = version.getGraphType().getGraphTypeReferences().stream().map(ref -> GraphType.resolve(ref)).collect(Collectors.toList());
-    for (GraphType graphType : graphTypes)
+    List<GraphTypeSnapshot> graphTypes = versionService.getGraphSnapshots(version);
+    for (GraphTypeSnapshot graphType : graphTypes)
     {
-      final String edge = graphType.getMdEdgeDAO().getDBClassName();
+      final String edge = graphType.getGraphMdEdge().getDbClassName();
       
       if (valueMap.containsKey("in_" + edge + "_clazz") && valueMap.get("in_" + edge + "_clazz") != null)
       {
