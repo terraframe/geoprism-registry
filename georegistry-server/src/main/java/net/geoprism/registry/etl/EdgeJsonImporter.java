@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -22,8 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -40,31 +40,29 @@ import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.util.IDGenerator;
 
 import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.cache.Cache;
+import net.geoprism.registry.cache.GeoObjectCache;
+import net.geoprism.registry.cache.LRUCache;
 import net.geoprism.registry.model.GraphType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.request.ServiceFactory;
 
 public class EdgeJsonImporter
 {
-  private static final Logger logger = LoggerFactory.getLogger(EdgeJsonImporter.class);
-  
-  protected GeoObjectCache goCache = new GeoObjectCache();
-  
-  protected Map<String, Object> goRidCache = new LinkedHashMap<String, Object>() {
-    public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
-    {
-      final int cacheSize = 25000;
-      return size() > cacheSize;
-    }
-  };
+  private static final Logger     logger     = LoggerFactory.getLogger(EdgeJsonImporter.class);
 
-  private ApplicationResource resource;
+  protected GeoObjectCache        goCache    = new GeoObjectCache();
 
-  private Date                startDate;
+  protected Cache<String, Object> goRidCache = new LRUCache<String, Object>(1000);
 
-  private Date                endDate;
+  private ApplicationResource     resource;
 
-  private boolean             validate;
+  private Date                    startDate;
+
+  private Date                    endDate;
+
+  private boolean                 validate;
 
   public EdgeJsonImporter(ApplicationResource resource, Date startDate, Date endDate, boolean validate)
   {
@@ -104,21 +102,24 @@ public class EdgeJsonImporter
           String targetCode = joEdge.get("target").getAsString();
           String targetTypeCode = joEdge.get("targetType").getAsString();
 
+          Date startDate = joEdge.has("startDate") ? GeoRegistryUtil.parseDate(joEdge.get("startDate").getAsString()) : this.startDate;
+          Date endDate = joEdge.has("endDate") ? GeoRegistryUtil.parseDate(joEdge.get("endDate").getAsString()) : this.endDate;
+
           if (validate)
           {
             ServerGeoObjectIF source = goCache.getOrFetchByCode(sourceCode, sourceTypeCode);
             ServerGeoObjectIF target = goCache.getOrFetchByCode(targetCode, targetTypeCode);
-  
-            source.addGraphChild(target, graphType, this.startDate, this.endDate, this.validate);
+
+            source.addGraphChild(target, graphType, startDate, endDate, this.validate);
           }
           else
           {
             Object childRid = getOrFetchRid(sourceCode, sourceTypeCode);
             Object parentRid = getOrFetchRid(targetCode, targetTypeCode);
-            
+
             this.newEdge(childRid, parentRid, graphType, startDate, endDate);
           }
-          
+
           if (j % 500 == 0)
           {
             logger.info("Imported record " + j + ".");
@@ -127,41 +128,40 @@ public class EdgeJsonImporter
       }
     }
   }
-  
+
   private Object getOrFetchRid(String code, String typeCode)
   {
     String typeDbClassName = ServiceFactory.getMetadataCache().getGeoObjectType(typeCode).get().getMdVertex().getDBClassName();
-    
-    Object rid = this.goRidCache.get(typeCode + "$#!" + code);
-    
-    if (rid == null)
-    {
+
+    Optional<Object> optional = this.goRidCache.get(typeCode + "$#!" + code);
+
+    return optional.orElseGet(() -> {
       GraphQuery<Object> query = new GraphQuery<Object>("select @rid from " + typeDbClassName + " where code=:code;");
       query.setParameter("code", code);
-      
-      rid = query.getSingleResult();
-      
+
+      Object rid = query.getSingleResult();
+
       if (rid == null)
       {
         throw new DataNotFoundException("Could not find Geo-Object with code " + code + " on table " + typeDbClassName);
       }
-      
+
       this.goRidCache.put(typeCode + "$#!" + code, rid);
-    }
-    
-    return rid;
+
+      return rid;
+    });
   }
-  
+
   public void newEdge(Object childRid, Object parentRid, GraphType type, Date startDate, Date endDate)
   {
     String clazz = type.getMdEdgeDAO().getDBClassName();
-    
+
     String statement = "CREATE EDGE " + clazz + " FROM :childRid TO :parentRid";
     statement += " SET startDate=:startDate, endDate=:endDate, oid=:oid";
-    
+
     GraphDBService service = GraphDBService.getInstance();
     GraphRequest request = service.getGraphDBRequest();
-    
+
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put("oid", IDGenerator.nextID());
     parameters.put("childRid", childRid);

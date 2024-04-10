@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,6 +83,8 @@ public class BackupService implements BackupServiceIF
         exportUndirectedGraphData(directory);
 
         exportBusinessObjectData(directory);
+        
+        // TODO: export business object - geo object edge data
 
         exportBusinessEdgeData(directory);
 
@@ -289,8 +292,9 @@ public class BackupService implements BackupServiceIF
       while (skip < count)
       {
         StringBuilder statement = new StringBuilder();
-        statement.append("SELECT out.uuid AS parentUid, out.@class AS parentClass, in.uuid AS childUid, in.@class AS childClass");
+        statement.append("SELECT out.uuid AS parentUid, out.@class AS parentClass, in.uuid AS childUid, in.@class AS childClass, startDate AS startDate, endDate AS endDate");
         statement.append(" FROM " + type.getMdEdge().getDBClassName());
+        statement.append(" ORDER BY out.@rid, in.@rid");
         statement.append(" SKIP " + skip);
         statement.append(" LIMIT " + pageSize);
 
@@ -303,6 +307,8 @@ public class BackupService implements BackupServiceIF
           String parentClass = (String) result.get("parentClass");
           String childUid = (String) result.get("childUid");
           String childClass = (String) result.get("childClass");
+          Date startDate = (Date) result.get("startDate");
+          Date endDate = (Date) result.get("endDate");
 
           MdVertexDAOIF parentVertex = (MdVertexDAOIF) ObjectCache.getMdClassByTableName(parentClass);
           MdVertexDAOIF childVertex = (MdVertexDAOIF) ObjectCache.getMdClassByTableName(childClass);
@@ -315,6 +321,8 @@ public class BackupService implements BackupServiceIF
           object.addProperty("parentType", parentType.getCode());
           object.addProperty("childUid", childUid);
           object.addProperty("childType", childType.getCode());
+          object.addProperty("startDate", GeoRegistryUtil.formatDate(startDate, false));
+          object.addProperty("endDate", GeoRegistryUtil.formatDate(endDate, false));
 
           gson.toJson(object, writer);
         }
@@ -388,8 +396,9 @@ public class BackupService implements BackupServiceIF
       while (skip < count)
       {
         StringBuilder statement = new StringBuilder();
-        statement.append("SELECT out.code AS sourceCode, out.@class AS sourceClass, in.code AS targetCode, in.@class AS targetClass");
+        statement.append("SELECT out.code AS sourceCode, out.@class AS sourceClass, in.code AS targetCode, in.@class AS targetClass, startDate AS startDate, endDate AS endDate");
         statement.append(" FROM " + mdEdge.getDbClassName());
+        statement.append(" ORDER BY out.@rid, in.@rid");
         statement.append(" SKIP " + skip);
         statement.append(" LIMIT " + pageSize);
 
@@ -402,6 +411,8 @@ public class BackupService implements BackupServiceIF
           String sourceClass = (String) result.get("sourceClass");
           String targetCode = (String) result.get("targetCode");
           String targetClass = (String) result.get("targetClass");
+          Date startDate = (Date) result.get("startDate");
+          Date endDate = (Date) result.get("endDate");
 
           MdVertexDAOIF sourceVertex = (MdVertexDAOIF) ObjectCache.getMdClassByTableName(sourceClass);
           MdVertexDAOIF targetVertex = (MdVertexDAOIF) ObjectCache.getMdClassByTableName(targetClass);
@@ -418,6 +429,8 @@ public class BackupService implements BackupServiceIF
             object.addProperty("sourceType", sourceType.getCode());
             object.addProperty("target", targetCode);
             object.addProperty("targetType", targetType.getCode());
+            object.addProperty("startDate", GeoRegistryUtil.formatDate(startDate, false));
+            object.addProperty("endDate", GeoRegistryUtil.formatDate(endDate, false));
 
             gson.toJson(object, writer);
 

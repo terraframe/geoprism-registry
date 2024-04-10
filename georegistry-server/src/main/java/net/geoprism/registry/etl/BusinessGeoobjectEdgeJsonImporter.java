@@ -40,6 +40,8 @@ import com.runwaysdk.util.IDGenerator;
 
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.cache.BusinessObjectCache;
+import net.geoprism.registry.cache.GeoObjectCache;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
 

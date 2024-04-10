@@ -38,7 +38,7 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
 
-public class TestGeoObjectInfo
+public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 {
   private String                  code;
 
@@ -53,8 +53,6 @@ public class TestGeoObjectInfo
   private List<TestGeoObjectInfo> children;
 
   private List<TestGeoObjectInfo> parents;
-
-  private ServerGeoObjectIF       serverGO;
 
   private Boolean                 exists;
 
@@ -100,7 +98,7 @@ public class TestGeoObjectInfo
     this.defaultValues = new HashMap<String, Object>();
 
     this.registryId = null;
-    this.serverGO = null;
+    this.setCachedObject(null);
 
     GeometryType geom = this.getGeoObjectType().getGeometryType();
     if (geom == GeometryType.POLYGON)
@@ -435,10 +433,10 @@ public class TestGeoObjectInfo
     // {
     GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
 
-    this.serverGO = service.getGeoObjectByCode(this.getCode(), this.getGeoObjectType().getCode(), false);
+    this.setCachedObject(service.getGeoObjectByCode(this.getCode(), this.getGeoObjectType().getCode(), false));
     // }
 
-    return this.serverGO;
+    return this.getCachedObject();
   }
 
   /**
@@ -556,7 +554,7 @@ public class TestGeoObjectInfo
     if (serverGOTT != null)
     {
       VertexObject vertex = VertexServerGeoObject.getVertexByCode(serverGOTT, this.getCode());
-      
+
       if (vertex != null)
       {
         vertex.delete();
@@ -577,7 +575,7 @@ public class TestGeoObjectInfo
     this.isNew = true;
 
     this.registryId = null;
-    this.serverGO = null;
+    this.setCachedObject(null);
   }
 
   /**

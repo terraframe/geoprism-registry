@@ -17,7 +17,7 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
 
-public class TestHierarchyTypeInfo
+public class TestHierarchyTypeInfo extends TestCachedObject<ServerHierarchyType>
 {
   private String               code;
 
@@ -26,8 +26,6 @@ public class TestHierarchyTypeInfo
   private String               oid;
 
   private TestOrganizationInfo org;
-
-  private ServerHierarchyType  serverObj;
 
   public TestHierarchyTypeInfo(String genKey, TestOrganizationInfo org)
   {
@@ -85,9 +83,9 @@ public class TestHierarchyTypeInfo
 
   public ServerHierarchyType getServerObject(boolean forceFetch)
   {
-    if (this.serverObj != null && !forceFetch)
+    if (this.getCachedObject() != null && !forceFetch)
     {
-      return this.serverObj;
+      return this.getCachedObject();
     }
 
     Optional<ServerHierarchyType> hierarchyType = ServiceFactory.getMetadataCache().getHierachyType(code);
@@ -96,8 +94,8 @@ public class TestHierarchyTypeInfo
     {
       if (this.doesMdTermRelationshipExist())
       {
-        this.serverObj = ServerHierarchyType.get(getCode());
-        return this.serverObj;
+        this.setCachedObject(ServerHierarchyType.get(getCode()));
+        return this.getCachedObject();
       }
     }
 
@@ -141,24 +139,24 @@ public class TestHierarchyTypeInfo
 
     HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
 
-    this.serverObj = service.createHierarchyType(dto);
+    this.setCachedObject(service.createHierarchyType(dto));
 
     // The transaction did not error out, so it is safe to put into the cache.
-    ServiceFactory.getMetadataCache().addHierarchyType(this.serverObj, service.toHierarchyType(serverObj));
+    ServiceFactory.getMetadataCache().addHierarchyType(this.getCachedObject(), service.toHierarchyType(getCachedObject()));
   }
 
   @Request
   public void setRoot(TestGeoObjectTypeInfo type)
   {
     HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
-    service.addToHierarchy(this.serverObj, RootGeoObjectType.INSTANCE, type.getServerObject());
+    service.addToHierarchy(this.getCachedObject(), RootGeoObjectType.INSTANCE, type.getServerObject());
   }
 
   @Request
   public void removeRoot(TestGeoObjectTypeInfo type)
   {
     HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
-    service.removeChild(this.serverObj, RootGeoObjectType.INSTANCE, type.getServerObject(), true);
+    service.removeChild(this.getCachedObject(), RootGeoObjectType.INSTANCE, type.getServerObject(), true);
   }
 
   @Request
@@ -178,6 +176,6 @@ public class TestHierarchyTypeInfo
       service.delete(serverHOT);
     }
 
-    this.serverObj = null;
+    this.setCachedObject(null);
   }
 }

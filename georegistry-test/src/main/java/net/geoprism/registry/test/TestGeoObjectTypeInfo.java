@@ -23,7 +23,7 @@ import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
 
-public class TestGeoObjectTypeInfo
+public class TestGeoObjectTypeInfo extends TestCachedObject<ServerGeoObjectType>
 {
   private Universal                   universal;
 
@@ -40,8 +40,6 @@ public class TestGeoObjectTypeInfo
   private boolean                     isLeaf;
 
   private List<TestGeoObjectTypeInfo> children;
-
-  private ServerGeoObjectType         serverObject;
 
   private TestOrganizationInfo        organization;
 
@@ -182,9 +180,9 @@ public class TestGeoObjectTypeInfo
 
   public ServerGeoObjectType getServerObject(boolean forceFetch)
   {
-    if (this.serverObject != null && !forceFetch)
+    if (this.getCachedObject() != null && !forceFetch)
     {
-      return this.serverObject;
+      return this.getCachedObject();
     }
     else
     {
@@ -192,9 +190,9 @@ public class TestGeoObjectTypeInfo
 
       if (got.isPresent())
       {
-        this.serverObject = got.get();
+        this.setCachedObject(got.get());
 
-        return this.serverObject;
+        return this.getCachedObject();
       }
       else
       {
@@ -207,9 +205,9 @@ public class TestGeoObjectTypeInfo
 
         GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
 
-        this.serverObject = service.build(uni);
+        this.setCachedObject(service.build(uni));
 
-        return this.serverObject;
+        return this.getCachedObject();
       }
     }
   }
@@ -274,7 +272,7 @@ public class TestGeoObjectTypeInfo
     applyInTrans();
 
     // If this did not error out then add to the cache
-    ServiceFactory.getMetadataCache().addGeoObjectType(this.serverObject);
+    ServiceFactory.getMetadataCache().addGeoObjectType(this.getCachedObject());
   }
 
   @Transaction
@@ -298,9 +296,9 @@ public class TestGeoObjectTypeInfo
 
     GeoObjectTypeBusinessServiceIF service = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
 
-    this.serverObject = service.create(got);
+    this.setCachedObject(service.create(got));
 
-    universal = this.serverObject.getUniversal();
+    universal = this.getCachedObject().getUniversal();
 
     this.setUid(universal.getOid());
   }
@@ -310,7 +308,7 @@ public class TestGeoObjectTypeInfo
   {
     deleteInTrans();
 
-    this.serverObject = null;
+    this.setCachedObject(null);
   }
 
   @Transaction

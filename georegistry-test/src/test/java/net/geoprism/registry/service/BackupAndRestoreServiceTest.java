@@ -2,6 +2,7 @@ package net.geoprism.registry.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -29,13 +30,18 @@ import net.geoprism.registry.graph.transition.Transition.TransitionImpact;
 import net.geoprism.registry.graph.transition.Transition.TransitionType;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGraphNode;
+import net.geoprism.registry.model.ServerParentGraphNode;
+import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.business.BackupAndRestoreServiceIF;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GPRTransitionEventBusinessService;
+import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.test.USATestData;
@@ -77,6 +83,9 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
   @Autowired
   private BusinessObjectBusinessServiceIF           bObjectService;
+
+  @Autowired
+  private GeoObjectBusinessServiceIF                gObjectService;
 
   @Autowired
   private GPRTransitionEventBusinessService         teService;
@@ -226,6 +235,56 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
         this.backupService.restoreFromBackup(file);
 
+        // Reload all of the cached test objects
+        dagType = DirectedAcyclicGraphType.getByCode(dagType.getCode());
+        ugType = UndirectedGraphType.getByCode(ugType.getCode());
+        bEdgeType = this.bEdgeService.getByCode(bEdgeType.getCode());
+        bType = this.bTypeService.getByCode(bType.getCode());
+
+        testData.clearCachedData();
+
+        ServerGeoObjectIF geoObject = USATestData.COLORADO.getServerObject();
+
+        Assert.assertNotNull(geoObject);
+
+        // Test hierarchy edge data
+        ServerParentTreeNode node = this.gObjectService.getParentGeoObjects(geoObject, USATestData.HIER_ADMIN.getServerObject(), null, false, true, USATestData.DEFAULT_OVER_TIME_DATE);
+
+        Assert.assertNotNull(geoObject.getCode(), node.getGeoObject().getCode());
+
+        List<ServerParentTreeNode> parents = node.getParents();
+
+        Assert.assertEquals(1, parents.size());
+        Assert.assertNotNull(USATestData.USA.getCode(), parents.get(0).getGeoObject().getCode());
+
+        // Test directed graph edges
+        geoObject = USATestData.CANADA.getServerObject();
+
+        ServerParentGraphNode graphNode = geoObject.getGraphParents(dagType, false, USATestData.DEFAULT_OVER_TIME_DATE);
+        List<ServerParentGraphNode> graphParents = graphNode.getParents();
+
+        Assert.assertEquals(1, graphParents.size());
+        Assert.assertNotNull(USATestData.USA.getCode(), parents.get(0).getGeoObject().getCode());
+
+        // Test undirected graph edges
+        graphNode = geoObject.getGraphParents(ugType, false, USATestData.DEFAULT_OVER_TIME_DATE);
+        graphParents = graphNode.getParents();
+
+        Assert.assertEquals(1, graphParents.size());
+        Assert.assertNotNull(USATestData.MEXICO.getCode(), parents.get(0).getGeoObject().getCode());
+
+        // Validate Business Objects were imported
+        boParent = this.bObjectService.getByCode(bType, "BoParent");
+        boChild = this.bObjectService.getByCode(bType, "BoChild");
+
+        Assert.assertNotNull(boParent);
+        Assert.assertNotNull(boChild);
+
+        // Validate Business Edges
+        List<BusinessObject> children = this.bObjectService.getChildren(boParent, bEdgeType);
+
+        Assert.assertEquals(1, children.size());
+        Assert.assertEquals(boChild.getCode(), children.get(0).getCode());
       }
       finally
       {

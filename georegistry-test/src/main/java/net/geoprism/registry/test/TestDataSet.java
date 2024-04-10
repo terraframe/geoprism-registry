@@ -372,6 +372,24 @@ abstract public class TestDataSet
     }
   }
 
+  public void clearCachedData()
+  {
+    for (TestHierarchyTypeInfo ht : managedHierarchyTypeInfos)
+    {
+      ht.clear();
+    }
+
+    for (TestGeoObjectTypeInfo uni : managedGeoObjectTypeInfos)
+    {
+      uni.clear();
+    }
+
+    for (TestGeoObjectInfo geo : managedGeoObjectInfos)
+    {
+      geo.clear();
+    }
+  }
+
   protected void setUpRelationships()
   {
 

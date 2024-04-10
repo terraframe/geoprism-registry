@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Date;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -21,9 +23,25 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
+import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeDateDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeIntDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeNumberDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeTextDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.FileResource;
 
+import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.BusinessType;
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.cache.Cache;
+import net.geoprism.registry.cache.LRUCache;
+import net.geoprism.registry.etl.BusinessEdgeJsonImporter;
+import net.geoprism.registry.etl.EdgeJsonImporter;
+import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -35,6 +53,9 @@ import net.geoprism.registry.xml.XMLImporter;
 @Service
 public class RestoreService implements RestoreServiceIF
 {
+  @Autowired
+  private BusinessObjectBusinessServiceIF           bObjectService;
+
   @Autowired
   private BusinessTypeBusinessServiceIF             bTypeService;
 
@@ -84,6 +105,18 @@ public class RestoreService implements RestoreServiceIF
 
         // 4) Import the hierarchy edges between geo objects
         restoreHierarchyData(directory);
+
+        // 5) Import DAG edges between geo objects
+        restoreDagData(directory);
+
+        // 6) Import Undirected Graph edges between geo objects
+        restoreUndirectedGraphData(directory);
+
+        // 7) Restore the business objects
+        restoreBusinessObjectData(directory);
+
+        // 7) Restore the business edges
+        restoreBusinessEdges(directory);
       }
       finally
       {
@@ -157,6 +190,8 @@ public class RestoreService implements RestoreServiceIF
 
     File[] files = data.listFiles();
 
+    Cache<String, ServerGeoObjectIF> cache = new LRUCache<String, ServerGeoObjectIF>(200);
+
     for (File file : files)
     {
       String name = file.getName();
@@ -182,18 +217,158 @@ public class RestoreService implements RestoreServiceIF
             String parentTypeCode = jObject.get("parentType").getAsString();
             String childUid = jObject.get("childUid").getAsString();
             String childTypeCode = jObject.get("childType").getAsString();
+            Date startDate = GeoRegistryUtil.parseDate(jObject.get("startDate").getAsString());
+            Date endDate = GeoRegistryUtil.parseDate(jObject.get("endDate").getAsString());
 
             ServerGeoObjectType parentType = ServerGeoObjectType.get(parentTypeCode);
             ServerGeoObjectType childType = ServerGeoObjectType.get(childTypeCode);
 
-            ServerGeoObjectIF parent = this.gObjectService.getStrategy(parentType).getGeoObjectByUid(parentUid);
-            ServerGeoObjectIF child = this.gObjectService.getStrategy(childType).getGeoObjectByUid(childUid);
+            if (!cache.has(parentUid))
+            {
+              cache.put(parentUid, this.gObjectService.getStrategy(parentType).getGeoObjectByUid(parentUid));
+            }
 
-            this.gObjectService.addChild(parent, child, hierarchy);
+            if (!cache.has(childUid))
+            {
+              cache.put(childUid, this.gObjectService.getStrategy(childType).getGeoObjectByUid(childUid));
+            }
+
+            ServerGeoObjectIF parent = cache.get(parentUid).orElseThrow(() -> {
+              return new ProgrammingErrorException("Unabled to find a geo object of type [" + parentUid + "] with a uid of [" + parentUid + "]");
+            });
+
+            ServerGeoObjectIF child = cache.get(childUid).orElseThrow(() -> {
+              return new ProgrammingErrorException("Unabled to find a geo object of type [" + childUid + "] with a uid of [" + childUid + "]");
+            });
+
+            this.gObjectService.addChild(parent, child, hierarchy, startDate, endDate);
           }
 
           reader.endArray();
         }
+      }
+    }
+  }
+
+  protected void restoreDagData(File directory) throws IOException
+  {
+    restoreGraphEdges(new File(directory, "dags"));
+  }
+
+  protected void restoreUndirectedGraphData(File directory) throws IOException
+  {
+    restoreGraphEdges(new File(directory, "undirected-graphs"));
+  }
+
+  protected void restoreGraphEdges(File data) throws IOException
+  {
+    File[] files = data.listFiles();
+
+    for (File file : files)
+    {
+      try (FileResource resource = new FileResource(file))
+      {
+        EdgeJsonImporter importer = new EdgeJsonImporter(resource, null, null, false);
+        importer.importData();
+      }
+    }
+  }
+
+  protected void restoreBusinessObjectData(File directory) throws IOException
+  {
+    File subdir = new File(directory, "business-objects");
+
+    File[] files = subdir.listFiles();
+
+    for (File file : files)
+    {
+      String name = file.getName();
+      String baseName = FilenameUtils.getBaseName(name);
+
+      BusinessType type = this.bTypeService.getByCode(baseName);
+
+      try (FileResource resource = new FileResource(file))
+      {
+        try (JsonReader reader = new JsonReader(new FileReader(file)))
+        {
+          reader.setLenient(true);
+
+          Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+          reader.beginArray();
+
+          while (reader.hasNext())
+          {
+            JsonObject jObject = gson.fromJson(reader, JsonObject.class);
+
+            BusinessObject object = this.bObjectService.newInstance(type);
+
+            // TODO: Move parsing from json code into the
+            // BusinessObjectBusinessService
+            object.setCode(jObject.get("code").getAsString());
+
+            JsonObject properties = jObject.get("data").getAsJsonObject();
+
+            List<? extends MdAttributeConcreteDAOIF> mdAttributes = object.getType().getMdVertexDAO().definesAttributes();
+
+            for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
+            {
+              String attributeName = mdAttribute.definesAttribute();
+
+              if (!attributeName.equals(BusinessObject.CODE))
+              {
+                if (properties.has(attributeName))
+                {
+                  if (mdAttribute instanceof MdAttributeTermDAOIF)
+                  {
+                    Classifier classifier = Classifier.get(properties.get(attributeName).getAsString());
+
+                    object.setValue(attributeName, classifier.getOid());
+                  }
+                  else if (mdAttribute instanceof MdAttributeIntDAOIF)
+                  {
+                    object.setValue(attributeName, properties.get(attributeName).getAsNumber().longValue());
+                  }
+                  else if (mdAttribute instanceof MdAttributeNumberDAOIF)
+                  {
+                    object.setValue(attributeName, properties.get(attributeName).getAsNumber());
+                  }
+                  else if (mdAttribute instanceof MdAttributeBooleanDAOIF)
+                  {
+                    object.setValue(attributeName, properties.get(attributeName).getAsBoolean());
+                  }
+                  else if (mdAttribute instanceof MdAttributeTextDAOIF || mdAttribute instanceof MdAttributeCharacterDAOIF)
+                  {
+                    object.setValue(attributeName, properties.get(attributeName).getAsString());
+                  }
+                  else if (mdAttribute instanceof MdAttributeDateDAOIF)
+                  {
+                    object.setValue(attributeName, GeoRegistryUtil.parseDate(jObject.get(attributeName).getAsString()));
+                  }
+                }
+              }
+            }
+
+            this.bObjectService.apply(object);
+          }
+
+          reader.endArray();
+        }
+      }
+    }
+  }
+
+  protected void restoreBusinessEdges(File directory) throws IOException
+  {
+    File subdir = new File(directory, "business-edges");
+    File[] files = subdir.listFiles();
+
+    for (File file : files)
+    {
+      try (FileResource resource = new FileResource(file))
+      {
+        BusinessEdgeJsonImporter importer = new BusinessEdgeJsonImporter(resource, false);
+        importer.importData();
       }
     }
   }
