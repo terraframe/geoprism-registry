@@ -23,6 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.google.gson.JsonObject;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.constants.graph.MdEdgeInfo;
+import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
@@ -30,10 +33,12 @@ import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeEntry;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.graph.PublishLabeledPropertyGraphTypeVersionJob;
+import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.FastDatasetTest;
 import net.geoprism.registry.InstanceTestClassListener;
 import net.geoprism.registry.SpringInstanceTestClassRunner;
 import net.geoprism.registry.TestConfig;
+import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.lpg.jena.JenaBridge;
 import net.geoprism.registry.lpg.jena.JenaConnector;
 import net.geoprism.registry.service.business.ClassificationBusinessServiceIF;
@@ -233,7 +238,7 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
 
   @Test
   @Request
-  public void testPublishJob() throws IOException
+  public void testPublishHierarchy() throws IOException
   {
     JsonObject json = LabeledPropertyGraphTest.getJson(FastTestDataset.CAMBODIA, FastTestDataset.HIER_ADMIN);
 
@@ -268,6 +273,124 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
     finally
     {
       this.typeService.delete(test1);
+    }
+  }
+  
+  @Test
+  @Request
+  public void testPublishUndirected() throws IOException
+  {
+    MdEdgeDAO mdEdge = MdEdgeDAO.newInstance();
+    mdEdge.setValue(MdEdgeInfo.NAME, "TestDag");
+    mdEdge.setValue(MdEdgeInfo.PACKAGE, "net.geoprism.registry.service.test.TestDag");
+    mdEdge.setStructValue(MdEdgeInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "TestDag for LabeledPropertyGraphTest");
+    mdEdge.setStructValue(MdEdgeInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "TestDag for LabeledPropertyGraphTest");
+    mdEdge.setValue(MdEdgeInfo.PARENT_MD_VERTEX, FastTestDataset.COUNTRY.getServerObject().getMdVertex().getOid());
+    mdEdge.setValue(MdEdgeInfo.CHILD_MD_VERTEX, FastTestDataset.PROVINCE.getServerObject().getMdVertex().getOid());
+    mdEdge.apply();
+    
+    UndirectedGraphType graphType = new UndirectedGraphType();
+    graphType.setCode("TestUndirected");
+    graphType.getDisplayLabel().setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "TestDag");
+    graphType.setMdEdgeId(mdEdge.getOid());
+    graphType.apply();
+    
+    JsonObject json = LabeledPropertyGraphTest.getJson(graphType, new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() }, FastTestDataset.ORG_CGOV.getServerObject().getOrganization());
+
+    LabeledPropertyGraphType test1 = this.typeService.apply(json);
+
+    try
+    {
+      FastTestDataset.CAMBODIA.getServerObject().getVertex().addChild(FastTestDataset.PROV_CENTRAL.getServerObject().getVertex(), mdEdge).apply();
+      
+      List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
+
+      Assert.assertEquals(1, entries.size());
+
+      LabeledPropertyGraphTypeEntry entry = entries.get(0);
+
+      List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
+
+      Assert.assertEquals(1, versions.size());
+
+      LabeledPropertyGraphTypeVersion version = versions.get(0);
+
+      PublishLabeledPropertyGraphTypeVersionJob job = new PublishLabeledPropertyGraphTypeVersionJob();
+      // job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+      job.setVersion(version);
+      job.setGraphType(version.getGraphType());
+      job.apply();
+
+      job.start();
+
+      LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
+
+      rdfExporter.export(version, System.out);
+    }
+    finally
+    {
+      this.typeService.delete(test1);
+      graphType.delete();
+      mdEdge.delete();
+    }
+  }
+  
+  @Test
+  @Request
+  public void testPublishDAG() throws IOException
+  {
+    MdEdgeDAO mdEdge = MdEdgeDAO.newInstance();
+    mdEdge.setValue(MdEdgeInfo.NAME, "TestDag");
+    mdEdge.setValue(MdEdgeInfo.PACKAGE, "net.geoprism.registry.service.test.TestDag");
+    mdEdge.setStructValue(MdEdgeInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "TestDag for LabeledPropertyGraphTest");
+    mdEdge.setStructValue(MdEdgeInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "TestDag for LabeledPropertyGraphTest");
+    mdEdge.setValue(MdEdgeInfo.PARENT_MD_VERTEX, FastTestDataset.COUNTRY.getServerObject().getMdVertex().getOid());
+    mdEdge.setValue(MdEdgeInfo.CHILD_MD_VERTEX, FastTestDataset.PROVINCE.getServerObject().getMdVertex().getOid());
+    mdEdge.apply();
+    
+    DirectedAcyclicGraphType dagType = new DirectedAcyclicGraphType();
+    dagType.setCode("TestDag");
+    dagType.getDisplayLabel().setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "TestDag");
+    dagType.setMdEdgeId(mdEdge.getOid());
+    dagType.apply();
+    
+    JsonObject json = LabeledPropertyGraphTest.getJson(dagType, new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() }, FastTestDataset.ORG_CGOV.getServerObject().getOrganization());
+
+    LabeledPropertyGraphType test1 = this.typeService.apply(json);
+
+    try
+    {
+      FastTestDataset.CAMBODIA.getServerObject().getVertex().addChild(FastTestDataset.PROV_CENTRAL.getServerObject().getVertex(), mdEdge).apply();
+      
+      List<LabeledPropertyGraphTypeEntry> entries = this.typeService.getEntries(test1);
+
+      Assert.assertEquals(1, entries.size());
+
+      LabeledPropertyGraphTypeEntry entry = entries.get(0);
+
+      List<LabeledPropertyGraphTypeVersion> versions = this.entryService.getVersions(entry);
+
+      Assert.assertEquals(1, versions.size());
+
+      LabeledPropertyGraphTypeVersion version = versions.get(0);
+
+      PublishLabeledPropertyGraphTypeVersionJob job = new PublishLabeledPropertyGraphTypeVersionJob();
+      // job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+      job.setVersion(version);
+      job.setGraphType(version.getGraphType());
+      job.apply();
+
+      job.start();
+
+      LabeledPropertyGraphTest.waitUntilPublished(version.getOid());
+
+      rdfExporter.export(version, System.out);
+    }
+    finally
+    {
+      this.typeService.delete(test1);
+      dagType.delete();
+      mdEdge.delete();
     }
   }
 }

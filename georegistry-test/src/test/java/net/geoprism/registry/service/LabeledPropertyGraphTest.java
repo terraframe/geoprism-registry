@@ -718,10 +718,10 @@ public class LabeledPropertyGraphTest extends USADatasetTest implements Instance
   }
   
   @Request
-  public static JsonObject getJson(DirectedAcyclicGraphType dagType, String[] geoObjectTypeCodes, Organization organization)
+  public static JsonObject getJson(GraphType graphType, String[] geoObjectTypeCodes, Organization organization)
   {
     LabeledPropertyGraphTypeBuilder builder = new LabeledPropertyGraphTypeBuilder();
-    builder.setGraphTypes(new GraphTypeReference[] { new GraphTypeReference(GraphType.getTypeCode(dagType), dagType.getCode()) });
+    builder.setGraphTypes(new GraphTypeReference[] { new GraphTypeReference(GraphType.getTypeCode(graphType), graphType.getCode()) });
     builder.setGeoObjectTypeCodes(geoObjectTypeCodes);
     builder.setStrategyType(LabeledPropertyGraphType.GRAPH);
     builder.setOrganization(organization);
