@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonWriter;
 import com.runwaysdk.business.graph.GraphQuery;
@@ -83,8 +84,8 @@ public class BackupService implements BackupServiceIF
         exportUndirectedGraphData(directory);
 
         exportBusinessObjectData(directory);
-        
-        // TODO: export business object - geo object edge data
+
+        exportBusinessGeoObjectEdgeData(directory);
 
         exportBusinessEdgeData(directory);
 
@@ -110,46 +111,6 @@ public class BackupService implements BackupServiceIF
     subdirectory.mkdirs();
 
     exportTransitionEvents(subdirectory);
-
-    exportTransitions(subdirectory);
-  }
-
-  protected void exportTransitions(File directory) throws IOException
-  {
-    try (JsonWriter writer = new JsonWriter(new FileWriter(new File(directory, "transitions.json"))))
-    {
-      Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-      writer.beginArray();
-
-      Long count = this.tService.getCount();
-
-      if (count == null)
-      {
-        count = 0L;
-      }
-
-      int pageSize = 1000;
-
-      long skip = 0;
-
-      while (skip < count)
-      {
-        List<Transition> results = this.tService.getAll(pageSize, skip);
-
-        for (Transition result : results)
-        {
-          JsonObject json = result.toJSON();
-          json.addProperty("event", (String) result.getObjectValue(Transition.EVENT));
-
-          gson.toJson(json, writer);
-        }
-
-        skip += pageSize;
-      }
-
-      writer.endArray();
-    }
   }
 
   protected void exportTransitionEvents(File directory) throws IOException
@@ -168,7 +129,17 @@ public class BackupService implements BackupServiceIF
 
         for (TransitionEvent result : results)
         {
-          gson.toJson(result.toJSON(), writer);
+          JsonObject event = this.teService.toJSON(result, true);
+          JsonArray transitions = event.get("transitions").getAsJsonArray();
+
+          for (int i = 0; i < transitions.size(); i++)
+          {
+            JsonObject object = transitions.get(i).getAsJsonObject();
+            object.remove(Transition.OID);
+            object.addProperty("isNew", true);
+          }
+
+          gson.toJson(event, writer);
         }
 
         page = this.teService.getAll(page.getPageSize(), page.getPageNumber() + 1);
@@ -515,6 +486,78 @@ public class BackupService implements BackupServiceIF
     for (BusinessEdgeType type : types)
     {
       exportBusinessEdgeData(data, type);
+    }
+  }
+
+  protected void exportBusinessGeoObjectEdgeData(File directory) throws IOException
+  {
+    File data = new File(directory, "business-geoobject-edges");
+    data.mkdirs();
+
+    List<BusinessType> types = this.bTypeService.getAll();
+
+    for (BusinessType type : types)
+    {
+      exportBusinessGeoObjectEdgeData(data, type);
+    }
+  }
+
+  private void exportBusinessGeoObjectEdgeData(File directory, BusinessType type) throws IOException
+  {
+    try (JsonWriter writer = new JsonWriter(new FileWriter(new File(directory, type.getCode() + ".json"))))
+    {
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+      writer.beginArray();
+
+      MdEdge mdEdge = type.getMdEdge();
+      Long count = new GraphQuery<Long>("SELECT COUNT(*) FROM " + mdEdge.getDbClassName()).getSingleResult();
+
+      if (count == null)
+      {
+        count = 0L;
+      }
+
+      int pageSize = 1000;
+
+      long skip = 0;
+
+      while (skip < count)
+      {
+        StringBuilder statement = new StringBuilder();
+        statement.append("SELECT out.code AS , out.@class AS geoObjectClass, in.code AS businessCode");
+        statement.append(" FROM " + mdEdge.getDbClassName());
+        statement.append(" ORDER BY out.code, in.code");
+        statement.append(" SKIP " + skip);
+        statement.append(" LIMIT " + pageSize);
+
+        GraphQuery<Map<String, Object>> query = new GraphQuery<Map<String, Object>>(statement.toString());
+        List<Map<String, Object>> results = query.getResults();
+
+        for (Map<String, Object> result : results)
+        {
+          String geoObjectCode = (String) result.get("geoObjectCode");
+          String geoObjectClass = (String) result.get("geoObjectClass");
+          String businessCode = (String) result.get("businessCode");
+          
+          MdVertexDAOIF geoObjectVertex = (MdVertexDAOIF) ObjectCache.getMdClassByTableName(geoObjectClass);
+
+          ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(geoObjectVertex);
+
+
+          JsonObject object = new JsonObject();
+          object.addProperty("geoObjectCode", geoObjectCode);
+          object.addProperty("geoObjectType", geoObjectType.getCode());
+          object.addProperty("businessCode", businessCode);
+          object.addProperty("businessType", type.getCode());
+
+          gson.toJson(object, writer);
+        }
+
+        skip += pageSize;
+      }
+
+      writer.endArray();
     }
   }
 

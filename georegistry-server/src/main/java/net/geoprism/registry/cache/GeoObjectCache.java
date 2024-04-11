@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.cache;
 
+import java.util.Optional;
+
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
@@ -45,22 +47,24 @@ public class GeoObjectCache extends LRUCache<String, ServerGeoObjectIF>
     this.objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
   }
 
+  public Optional<ServerGeoObjectIF> get(String code, String typeCode)
+  {
+    return this.get(typeCode + SEPARATOR + code);
+  }
+
   public ServerGeoObjectIF getByCode(String code, String typeCode)
   {
-    return this.get(typeCode + SEPARATOR + code).orElse(null);
+    return get(code, typeCode).orElse(null);
   }
 
   public ServerGeoObjectIF getOrFetchByCode(String code, String typeCode)
   {
-    ServerGeoObjectIF go = this.getByCode(typeCode, code);
+    return this.get(typeCode, code).orElseGet(() -> {
+      ServerGeoObjectIF object = this.objectService.getGeoObjectByCode(code, typeCode, true);
 
-    if (go == null)
-    {
-      go = this.objectService.getGeoObjectByCode(code, typeCode, true);
+      this.put(typeCode + SEPARATOR + code, object);
 
-      this.put(typeCode + SEPARATOR + code, go);
-    }
-
-    return go;
+      return object;
+    });
   }
 }

@@ -30,16 +30,16 @@ import net.geoprism.registry.graph.transition.Transition.TransitionImpact;
 import net.geoprism.registry.graph.transition.Transition.TransitionType;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.BusinessObject;
-import net.geoprism.registry.model.ServerChildGraphNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGraphNode;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.business.BackupAndRestoreServiceIF;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.DirectedAcyclicGraphTypeBusinessServiceIF;
+import net.geoprism.registry.service.business.GPRTransitionBusinessService;
 import net.geoprism.registry.service.business.GPRTransitionEventBusinessService;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
@@ -89,6 +89,9 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
   @Autowired
   private GPRTransitionEventBusinessService         teService;
+
+  @Autowired
+  private GPRTransitionBusinessService              tService;
 
   @Override
   @Request
@@ -170,6 +173,8 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     this.bObjectService.apply(boChild);
 
     this.bObjectService.addChild(boParent, bEdgeType, boChild);
+
+    this.bObjectService.addGeoObject(boChild, USATestData.COLORADO.getServerObject());
 
     TransitionEvent event = new TransitionEvent();
 
@@ -285,6 +290,22 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
 
         Assert.assertEquals(1, children.size());
         Assert.assertEquals(boChild.getCode(), children.get(0).getCode());
+
+        // Validate Business-GeoObject edges
+        List<VertexServerGeoObject> geoObjects = this.bObjectService.getGeoObjects(boChild);
+
+        Assert.assertEquals(1, geoObjects.size());
+
+        // Validate the transition event
+        List<TransitionEvent> events = this.teService.getAll(USATestData.DISTRICT.getServerObject());
+
+        Assert.assertEquals(1, events.size());
+
+        TransitionEvent test = events.get(0);
+
+        List<Transition> transitions = this.teService.getTransitions(test);
+
+        Assert.assertEquals(1, transitions.size());
       }
       finally
       {
