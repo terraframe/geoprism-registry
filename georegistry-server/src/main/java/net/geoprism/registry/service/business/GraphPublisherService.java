@@ -37,7 +37,6 @@ import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.graph.GeoObjectTypeSnapshot;
@@ -49,7 +48,6 @@ import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.model.EdgeConstant;
 import net.geoprism.registry.model.GraphType;
-import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.service.business.EdgeAndVerticiesResultSetConverter.EdgeAndInOut;
@@ -59,29 +57,6 @@ import net.geoprism.registry.service.business.EdgeAndVerticiesResultSetConverter
 public class GraphPublisherService extends AbstractGraphVersionPublisherService
 {
   private static final Logger logger = LoggerFactory.getLogger(GraphPublisherService.class);
-  
-  private static class Snapshot
-  {
-    private ServerGeoObjectIF node;
-
-    private MdEdge            hierarchy;
-
-    private VertexObject      parent;
-
-    public Snapshot(ServerGeoObjectIF node, MdEdge hierarchy, VertexObject parent)
-    {
-      super();
-      this.node = node;
-      this.hierarchy = hierarchy;
-      this.parent = parent;
-    }
-
-    public Snapshot(ServerGeoObjectIF node)
-    {
-      this(node, null, null);
-    }
-
-  }
 
   private static class TraversalState extends State
   {
