@@ -73,28 +73,38 @@ public class LabeledPropertyGraphRDFExporterService
     
     LabeledPropertyGraphType type = version.getGraphType();
     total = queryTotal(version);
-    ProgressService.put(type.getOid(), new Progress(0L, (long) total, version.getOid()));
+    ProgressService.put(version.getOid(), new Progress(0L, (long) total, version.getOid()));
     
-    logger.info("Begin rdf exporting " + total + " objects");
-    
-    writer = StreamRDFWriter.getWriterStream(os , Lang.TURTLE);
-    
-    final int BLOCK_SIZE = 2000;
-    long skip = 0;
-    long count = 0;
-    
-    writer.start();
-
-    do
+    try
     {
-      count = this.exportVersion(version, skip, BLOCK_SIZE);
-
-      skip += BLOCK_SIZE;
-    } while (count > 0);
-    
-    writer.finish();
-    
-    logger.info("Finished rdf exporting: " + ( ( System.currentTimeMillis() - startTime ) / 1000 ) + " sec");
+      logger.info("Begin rdf exporting " + total + " objects");
+      
+      writer = StreamRDFWriter.getWriterStream(os , Lang.TURTLE);
+      
+      final int BLOCK_SIZE = 2000;
+      long skip = 0;
+      long count = 0;
+      
+      writer.start();
+  
+      do
+      {
+        count = this.exportVersion(version, skip, BLOCK_SIZE);
+  
+        skip += BLOCK_SIZE;
+      } while (count > 0);
+      
+      logger.info("Finished rdf exporting: " + ( ( System.currentTimeMillis() - startTime ) / 1000 ) + " sec");
+    }
+    finally
+    {
+      if (writer != null)
+      {
+        writer.finish();
+      }
+      
+      ProgressService.remove(version.getOid());
+    }
   }
   
   private long exportVersion(LabeledPropertyGraphTypeVersion version, Long skip, Integer blockSize)
@@ -106,46 +116,39 @@ public class LabeledPropertyGraphRDFExporterService
 
     long count = 0;
 
+    LabeledPropertyGraphType type = version.getGraphType();
+
     try
     {
-      LabeledPropertyGraphType type = version.getGraphType();
-
-      try
+      if (!type.isValid())
       {
-        if (!type.isValid())
+        throw new InvalidMasterListException();
+      }
+      
+      StringBuilder sb = new StringBuilder("SELECT *, @class as clazz");
+      
+      for (GraphTypeSnapshot graphType : graphTypes)
+      {
+        for (String attr : new String[] { "code", "@class" })
         {
-          throw new InvalidMasterListException();
-        }
-        
-        StringBuilder sb = new StringBuilder("SELECT *, @class as clazz");
-        
-        for (GraphTypeSnapshot graphType : graphTypes)
-        {
-          for (String attr : new String[] { "code", "@class" })
-          {
-            final String edge = graphType.getGraphMdEdge().getDbClassName();
-            
-            sb.append(", first(in('" + edge + "')." + attr + ") as in_" + edge + "_" + attr.replace("@class", "clazz"));
-            sb.append(", first(out('" + edge + "')." + attr + ") as out_" + edge + "_" + attr.replace("@class", "clazz"));
-          }
-        }
-        
-        sb.append(" FROM " + mdVertex.getDbClassName());
-        sb.append(" ORDER BY oid SKIP " + skip + " LIMIT " + blockSize);
-        
-        List<Map<String,Object>> vertexes = new GraphQuery<Map<String,Object>>(sb.toString()).getResults();
-        
-        for (Map<String,Object> valueMap : vertexes)
-        {
-          exportGeoObject(version, valueMap);
+          final String edge = graphType.getGraphMdEdge().getDbClassName();
           
-          count++;
-          ProgressService.put(type.getOid(), new Progress(count, total, version.getOid()));
+          sb.append(", first(in('" + edge + "')." + attr + ") as in_" + edge + "_" + attr.replace("@class", "clazz"));
+          sb.append(", first(out('" + edge + "')." + attr + ") as out_" + edge + "_" + attr.replace("@class", "clazz"));
         }
       }
-      finally
+      
+      sb.append(" FROM " + mdVertex.getDbClassName());
+      sb.append(" ORDER BY oid SKIP " + skip + " LIMIT " + blockSize);
+      
+      List<Map<String,Object>> vertexes = new GraphQuery<Map<String,Object>>(sb.toString()).getResults();
+      
+      for (Map<String,Object> valueMap : vertexes)
       {
-        ProgressService.remove(type.getOid());
+        exportGeoObject(version, valueMap);
+        
+        count++;
+        ProgressService.put(version.getOid(), new Progress(count, total, version.getOid()));
       }
     }
     finally

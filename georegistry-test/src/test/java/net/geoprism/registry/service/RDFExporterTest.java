@@ -62,52 +62,11 @@ import net.geoprism.registry.test.TestDataSet;
 @RunWith(SpringInstanceTestClassRunner.class)
 public class RDFExporterTest extends FastDatasetTest implements InstanceTestClassListener
 {
-  private static String                                        CODE = "Test Term";
-
-//  private static ClassificationType                            type;
-
-//  private static AttributeTermType                             testTerm;
-//
-//  private static AttributeClassificationType                   testClassification;
-
-  @Autowired
-  private LabeledPropertyGraphTypeServiceIF                    service;
-
-  @Autowired
-  private LabeledPropertyGraphTypeVersionBusinessServiceIF     versionService;
-
   @Autowired
   private LabeledPropertyGraphTypeBusinessServiceIF            typeService;
 
   @Autowired
   private LabeledPropertyGraphTypeEntryBusinessServiceIF       entryService;
-
-  @Autowired
-  private LabeledPropertyGraphSynchronizationBusinessServiceIF synchronizationService;
-
-  @Autowired
-  private GeoObjectTypeSnapshotBusinessServiceIF               objectService;
-
-  @Autowired
-  private HierarchyTypeSnapshotBusinessServiceIF               hierarchyService;
-
-  @Autowired
-  private GeoObjectTypeBusinessServiceIF                       oTypeService;
-
-  @Autowired
-  private GraphRepoServiceIF                                   repoService;
-
-  @Autowired
-  private JsonGraphVersionPublisherService                     publisherService;
-
-  @Autowired
-  private LabeledPropertyGraphJsonExporterService              exporterService;
-
-  @Autowired
-  private ClassificationTypeBusinessServiceIF                  cTypeService;
-
-  @Autowired
-  private ClassificationBusinessServiceIF                      cService;
   
   @Autowired
   private LabeledPropertyGraphRDFExporterService               rdfExporter;
@@ -117,60 +76,12 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
   {
     super.beforeClassSetup();
 
-    setUpInReq();
-
     if (!SchedulerManager.initialized())
     {
       SchedulerManager.start();
     }
   }
-
-  @Request
-  private void setUpInReq()
-  {
-//    type = this.cTypeService.apply(ClassificationTypeTest.createMock());
-
-//    Classification root = this.cService.newInstance(type);
-//    root.setCode(CODE);
-//    root.setDisplayLabel(new LocalizedValue("Test Classification"));
-//    this.cService.apply(root, null);
-
-//    testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, true);
-//    testClassification.setClassificationType(type.getCode());
-//    testClassification.setRootTerm(root.toTerm());
-//
-//    ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.STATE.getCode());
-//    testClassification = (AttributeClassificationType) this.oTypeService.createAttributeType(got, testClassification.toJSON().toString());
-//
-//    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, true);
-//    testTerm = (AttributeTermType) this.oTypeService.createAttributeType(got, testTerm.toJSON().toString());
-//
-//    Term term = new Term("TERM_1", new LocalizedValue("Term 1"), new LocalizedValue("Term 1"));
-//
-//    Classifier classifier = TermConverter.createClassifierFromTerm(testTerm.getRootTerm().getCode(), term);
-//    term = TermConverter.buildTermFromClassifier(classifier);
-
-//    USATestData.COLORADO.setDefaultValue(testClassification.getName(), CODE);
-//    USATestData.COLORADO.setDefaultValue(testTerm.getName(), term);
-
-//    this.repoService.refreshMetadataCache();
-  }
-
-  @Override
-  @Request
-  public void afterClassSetup() throws Exception
-  {
-    super.afterClassSetup();
-
-//    USATestData.COLORADO.removeDefaultValue(testClassification.getName());
-//    USATestData.COLORADO.removeDefaultValue(testTerm.getName());
-//
-//    if (type != null)
-//    {
-//      this.cTypeService.delete(type);
-//    }
-  }
-
+  
   @Before
   public void setUp()
   {
@@ -197,38 +108,21 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
     TestDataSet.deleteAllListData();
   }
   
-  @Test
+//  @Test
   public void testPublishJena() throws Exception
   {
     try (JenaConnector connector = new JenaConnector("http://localhost:3030/ds/data"))
     {
       JenaBridge jena = new JenaBridge(connector);
       
-//      Model model = ModelFactory.createDefaultModel();
-      
-//      final String uri = "http://terraframe.com/2024/gpr-rdf/1.0#";
-//      final Property pCode = model.createProperty(uri, "code");
-//      
-//      Resource cambodia = model.createResource("urn:usace:cambodia");
-//      cambodia.addProperty(pCode, "Cambodia");
-//      
-//      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//      model.write(baos);
-      
       Path file = Files.createTempFile("jena", ".ttl");
       
-//      StreamRDFWriter.write(System.out, model.getGraph(), RDFFormat.TURTLE);
-      
       StreamRDF writer = StreamRDFWriter.getWriterStream(Files.newOutputStream(file) , Lang.TURTLE);
-//      StreamRDFOps.graphToStream(model.getGraph(), writer) ;
       
       writer.start();
 //      writer.triple(Triple.create(NodeFactory.createURI("urn:usace:cambodia"), NodeFactory.createURI("urn:usace:country#code"), NodeFactory.createLiteral("Cambodia")));
       writer.quad(Quad.create(NodeFactory.createLiteral("LPG-code"), NodeFactory.createURI("urn:usace:cambodia"), NodeFactory.createURI("urn:usace:country#code"), NodeFactory.createLiteral("Cambodia")));
       writer.finish();
-      
-//      String payload = baos.toString(Charset.forName("UTF-8"));
-//      System.out.println(payload);
       
       System.out.println(FileUtils.readFileToString(file.toFile(), "UTF-8"));
       
@@ -259,7 +153,6 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
       LabeledPropertyGraphTypeVersion version = versions.get(0);
 
       PublishLabeledPropertyGraphTypeVersionJob job = new PublishLabeledPropertyGraphTypeVersionJob();
-      // job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
       job.setVersion(version);
       job.setGraphType(version.getGraphType());
       job.apply();
@@ -316,7 +209,6 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
       LabeledPropertyGraphTypeVersion version = versions.get(0);
 
       PublishLabeledPropertyGraphTypeVersionJob job = new PublishLabeledPropertyGraphTypeVersionJob();
-      // job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
       job.setVersion(version);
       job.setGraphType(version.getGraphType());
       job.apply();
@@ -375,7 +267,6 @@ public class RDFExporterTest extends FastDatasetTest implements InstanceTestClas
       LabeledPropertyGraphTypeVersion version = versions.get(0);
 
       PublishLabeledPropertyGraphTypeVersionJob job = new PublishLabeledPropertyGraphTypeVersionJob();
-      // job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
       job.setVersion(version);
       job.setGraphType(version.getGraphType());
       job.apply();

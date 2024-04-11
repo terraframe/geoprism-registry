@@ -25,6 +25,7 @@ import com.orientechnologies.orient.core.exception.OConcurrentModificationExcept
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 
@@ -471,7 +472,7 @@ public class BusinessObjectImporterTest extends FastDatasetTest implements Insta
 
   private JSONObject getTestConfiguration(InputStream istream, ImportStrategy strategy)
   {
-    JSONObject result = this.excelService.getBusinessTypeConfiguration(type.getCode(), TestDataSet.DEFAULT_END_TIME_DATE, "business-spreadsheet.xlsx", istream, strategy, false);
+    JSONObject result = this.excelService.getBusinessTypeConfiguration(Session.getCurrentSession().getOid(), type.getCode(), TestDataSet.DEFAULT_END_TIME_DATE, "business-spreadsheet.xlsx", istream, strategy, false);
     JSONObject type = result.getJSONObject(BusinessObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(BusinessType.JSON_ATTRIBUTES);
 
