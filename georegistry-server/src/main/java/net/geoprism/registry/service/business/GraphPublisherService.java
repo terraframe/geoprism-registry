@@ -198,6 +198,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
         {
           publishedIn = super.publish(state, publishInMdVertex, this.objectService.toGeoObject(edge.in, version.getForDate()));
           publishedGOs.add(edge.in.getRunwayId());
+          state.cache.put(edge.in.getUid(), publishedIn);
         }
         else
         {
@@ -212,6 +213,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
         {
           publishedOut = super.publish(state, publishOutMdVertex, this.objectService.toGeoObject(edge.out, version.getForDate()));
           publishedGOs.add(edge.out.getRunwayId());
+          state.cache.put(edge.out.getUid(), publishedOut);
         }
         else
         {
