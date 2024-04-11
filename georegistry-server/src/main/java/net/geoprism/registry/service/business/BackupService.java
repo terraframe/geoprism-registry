@@ -525,7 +525,7 @@ public class BackupService implements BackupServiceIF
       while (skip < count)
       {
         StringBuilder statement = new StringBuilder();
-        statement.append("SELECT out.code AS , out.@class AS geoObjectClass, in.code AS businessCode");
+        statement.append("SELECT out.code AS geoObjectCode, out.@class AS geoObjectClass, in.code AS businessCode");
         statement.append(" FROM " + mdEdge.getDbClassName());
         statement.append(" ORDER BY out.code, in.code");
         statement.append(" SKIP " + skip);
