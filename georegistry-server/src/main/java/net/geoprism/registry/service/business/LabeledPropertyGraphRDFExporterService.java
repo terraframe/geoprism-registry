@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.riot.Lang;
@@ -38,6 +39,7 @@ import org.springframework.stereotype.Service;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.system.metadata.MdEdge;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.graph.GeoObjectTypeSnapshot;
@@ -52,18 +54,36 @@ import net.geoprism.registry.progress.ProgressService;
 @Service
 public class LabeledPropertyGraphRDFExporterService
 {
+  public static final long BLOCK_SIZE = 1000;
+  
+  
   private Logger logger = LoggerFactory.getLogger(LabeledPropertyGraphRDFExporterService.class);
   
   private StreamRDF writer;
   
-  private List<GraphTypeSnapshot> graphTypes;
+  private List<CachedGraphTypeSnapshot> graphTypes;
   
   private Map<String, GeoObjectTypeSnapshot> gotSnaps;
   
   private long total;
+  
+  private String quadGraphName;
 
   @Autowired
   private LabeledPropertyGraphTypeVersionBusinessServiceIF versionService;
+  
+  public static class CachedGraphTypeSnapshot
+  {
+    public GraphTypeSnapshot graphType;
+    
+    public MdEdge graphMdEdge;
+    
+    public CachedGraphTypeSnapshot(GraphTypeSnapshot graphType)
+    {
+      this.graphType = graphType;
+      this.graphMdEdge = this.graphType.getGraphMdEdge();
+    }
+  }
 
   public void export(LabeledPropertyGraphTypeVersion version, OutputStream os)
   {
@@ -71,7 +91,6 @@ public class LabeledPropertyGraphRDFExporterService
     
     cacheMetadata(version);
     
-    LabeledPropertyGraphType type = version.getGraphType();
     total = queryTotal(version);
     ProgressService.put(version.getOid(), new Progress(0L, (long) total, version.getOid()));
     
@@ -81,7 +100,6 @@ public class LabeledPropertyGraphRDFExporterService
       
       writer = StreamRDFWriter.getWriterStream(os , Lang.TURTLE);
       
-      final int BLOCK_SIZE = 10;
       long skip = 0;
       long count = 0;
       
@@ -89,7 +107,7 @@ public class LabeledPropertyGraphRDFExporterService
   
       do
       {
-        count = this.exportVersion(version, skip, BLOCK_SIZE);
+        count = this.exportVersion(version, skip);
   
         skip += BLOCK_SIZE;
       } while (count > 0);
@@ -107,7 +125,7 @@ public class LabeledPropertyGraphRDFExporterService
     }
   }
   
-  private long exportVersion(LabeledPropertyGraphTypeVersion version, Long skip, Integer blockSize)
+  private long exportVersion(LabeledPropertyGraphTypeVersion version, Long skip)
   {
     GeoObjectTypeSnapshot rootType = this.versionService.getRootType(version);
     MdVertex mdVertex = rootType.getGraphMdVertex();
@@ -125,15 +143,15 @@ public class LabeledPropertyGraphRDFExporterService
         throw new InvalidMasterListException();
       }
       
-      logger.info("Exporting block " + skip + " through " + (skip + blockSize));
+      logger.info("Exporting block " + skip + " through " + (skip + BLOCK_SIZE));
       
       StringBuilder sb = new StringBuilder("SELECT *, @class as clazz");
       
-      for (GraphTypeSnapshot graphType : graphTypes)
+      for (CachedGraphTypeSnapshot graphType : graphTypes)
       {
         for (String attr : new String[] { "code", "@class" })
         {
-          final String edge = graphType.getGraphMdEdge().getDbClassName();
+          final String edge = graphType.graphMdEdge.getDbClassName();
           
           sb.append(", first(in('" + edge + "')." + attr + ") as in_" + edge + "_" + attr.replace("@class", "clazz"));
           sb.append(", first(out('" + edge + "')." + attr + ") as out_" + edge + "_" + attr.replace("@class", "clazz"));
@@ -141,7 +159,7 @@ public class LabeledPropertyGraphRDFExporterService
       }
       
       sb.append(" FROM " + mdVertex.getDbClassName());
-      sb.append(" ORDER BY oid SKIP " + skip + " LIMIT " + blockSize);
+      sb.append(" ORDER BY oid SKIP " + skip + " LIMIT " + BLOCK_SIZE);
       
       List<Map<String,Object>> vertexes = new GraphQuery<Map<String,Object>>(sb.toString()).getResults();
       
@@ -188,7 +206,7 @@ public class LabeledPropertyGraphRDFExporterService
         if (literal != null)
         {
           writer.quad(Quad.create(
-              NodeFactory.createLiteral(buildQuadGraphName(version)),
+              NodeFactory.createLiteral(quadGraphName),
               NodeFactory.createURI("urn:" + orgCode + ":" + type.getCode() + "-" + valueMap.get("code")),
               NodeFactory.createURI("urn:" + orgCode + ":" + type.getCode() + "#" + attribute.getName()),
               NodeFactory.createLiteral(literal))
@@ -198,9 +216,9 @@ public class LabeledPropertyGraphRDFExporterService
 
     });
     
-    for (GraphTypeSnapshot graphType : graphTypes)
+    for (CachedGraphTypeSnapshot graphType : graphTypes)
     {
-      final String edge = graphType.getGraphMdEdge().getDbClassName();
+      final String edge = graphType.graphMdEdge.getDbClassName();
       
       if (valueMap.containsKey("in_" + edge + "_clazz") && valueMap.get("in_" + edge + "_clazz") != null)
       {
@@ -209,9 +227,9 @@ public class LabeledPropertyGraphRDFExporterService
         final String literal = "urn:" + inType.getOrgCode() + ":" + inType.getCode() + "-" + valueMap.get("in_" + edge + "_code");
         
         writer.quad(Quad.create(
-            NodeFactory.createLiteral(buildQuadGraphName(version)),
+            NodeFactory.createLiteral(quadGraphName),
             NodeFactory.createURI("urn:" + orgCode + ":" + type.getCode() + "-" + valueMap.get("code")),
-            NodeFactory.createURI("urn:" + orgCode + ":" + graphType.getCode()),
+            NodeFactory.createURI("urn:" + orgCode + ":" + graphType.graphType.getCode()),
             NodeFactory.createLiteral(literal))
         );
       }
@@ -223,9 +241,9 @@ public class LabeledPropertyGraphRDFExporterService
         final String literal = "urn:" + outType.getOrgCode() + ":" + outType.getCode() + "-" + valueMap.get("out_" + edge + "_code");
         
         writer.quad(Quad.create(
-            NodeFactory.createLiteral(buildQuadGraphName(version)),
+            NodeFactory.createLiteral(quadGraphName),
             NodeFactory.createURI("urn:" + orgCode + ":" + type.getCode() + "-" + valueMap.get("code")),
-            NodeFactory.createURI("urn:" + orgCode + ":" + graphType.getCode()),
+            NodeFactory.createURI("urn:" + orgCode + ":" + graphType.graphType.getCode()),
             NodeFactory.createLiteral(literal))
         );
       }
@@ -252,7 +270,9 @@ public class LabeledPropertyGraphRDFExporterService
       gotSnaps.put(snapshot.getGraphMdVertex().getDbClassName(), snapshot);
     }
     
-    graphTypes = versionService.getGraphSnapshots(version);
+    graphTypes = versionService.getGraphSnapshots(version).stream().map(s -> new CachedGraphTypeSnapshot(s)).collect(Collectors.toList());
+    
+    quadGraphName = buildQuadGraphName(version);
   }
 
   private long queryTotal(LabeledPropertyGraphTypeVersion version)
