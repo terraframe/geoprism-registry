@@ -81,7 +81,7 @@ public class LabeledPropertyGraphRDFExporterService
       
       writer = StreamRDFWriter.getWriterStream(os , Lang.TURTLE);
       
-      final int BLOCK_SIZE = 2000;
+      final int BLOCK_SIZE = 10;
       long skip = 0;
       long count = 0;
       
@@ -124,6 +124,8 @@ public class LabeledPropertyGraphRDFExporterService
       {
         throw new InvalidMasterListException();
       }
+      
+      logger.info("Exporting block " + skip + " through " + (skip + blockSize));
       
       StringBuilder sb = new StringBuilder("SELECT *, @class as clazz");
       

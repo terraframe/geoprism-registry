@@ -19,12 +19,15 @@
 package net.geoprism.registry.service.business;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +40,11 @@ import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.graph.GeoObjectTypeSnapshot;
+import net.geoprism.graph.GeoObjectTypeSnapshotQuery;
 import net.geoprism.graph.GraphTypeReference;
 import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.LabeledPropertyGraphSynchronization;
@@ -57,6 +62,10 @@ import net.geoprism.registry.service.business.EdgeAndVerticiesResultSetConverter
 public class GraphPublisherService extends AbstractGraphVersionPublisherService
 {
   private static final Logger logger = LoggerFactory.getLogger(GraphPublisherService.class);
+  
+  private Map<String, GeoObjectTypeSnapshot> gotSnaps;
+  
+  private Set<String> allAttributeColumns;
 
   private static class TraversalState extends State
   {
@@ -90,6 +99,7 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   public void publish(LabeledPropertyGraphTypeVersion version)
   {
     TraversalState state = new TraversalState(null, version);
+    cacheMetadata(version);
 
     long startTime = System.currentTimeMillis();
 
@@ -157,21 +167,27 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
   {
     List<EdgeAndInOut> edges = new ArrayList<EdgeAndInOut>();
     
-    final long pageSize = 5000;  
+    final long pageSize = 10;  
     long skip = 0;
     Set<String> publishedGOs = new HashSet<String>();
     
+    long total = queryTotal(graphType);
+    logger.info("Beginning publishing " + total + " records of graphType " + graphType.getMdEdgeDAO().getDBClassName());
     
+    final String inAttrs = StringUtils.join(allAttributeColumns.stream().map(c -> EdgeAndVerticiesResultSetConverter.IN_ATTR_PREFIX + "." + c).collect(Collectors.toList()), ", ");
+    final String outAttrs = StringUtils.join(allAttributeColumns.stream().map(c -> EdgeAndVerticiesResultSetConverter.OUT_ATTR_PREFIX + "." + c).collect(Collectors.toList()), ", ");
     
     while (skip == 0 || edges.size() > 0)
     {
+      logger.info("Publishing block " + skip + " through " + (skip + pageSize) + " of total " + total);
+      
       final String valueEdges = "'" + EdgeConstant.HAS_VALUE.getDBClassName() + "', '" + EdgeConstant.HAS_GEOMETRY.getDBClassName() + "'";
       
       StringBuilder sb = new StringBuilder("SELECT edgeOid, edgeClass, ");
       sb.append(EdgeAndVerticiesResultSetConverter.vertexColumns(EdgeAndVerticiesResultSetConverter.VERTEX_IN_PREFIX));
       sb.append(", " + EdgeAndVerticiesResultSetConverter.vertexColumns(EdgeAndVerticiesResultSetConverter.VERTEX_OUT_PREFIX));
-      sb.append(", " + EdgeAndVerticiesResultSetConverter.attributeColumns(EdgeAndVerticiesResultSetConverter.IN_ATTR_PREFIX));
-      sb.append(", " + EdgeAndVerticiesResultSetConverter.attributeColumns(EdgeAndVerticiesResultSetConverter.OUT_ATTR_PREFIX));
+      sb.append(", " + inAttrs);
+      sb.append(", " + outAttrs);
       sb.append(" FROM (");
       sb.append("  SELECT expand(d) FROM (");
       sb.append("    SELECT unionAll( $b, $c ) as d");
@@ -190,34 +206,34 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       
       for (EdgeAndInOut edge : edges)
       {
-        GeoObjectTypeSnapshot inGraphVertex = this.tSnapshotService.get(state.version, edge.in.getType().getCode());
+        GeoObjectTypeSnapshot inGraphVertex = this.gotSnaps.get(edge.in.getType().getCode());
         MdVertex publishInMdVertex = inGraphVertex.getGraphMdVertex();
         
         VertexObject publishedIn;
-        if (!publishedGOs.contains(edge.in.getRunwayId()))
+        if (!publishedGOs.contains(edge.in.getUid()))
         {
-          publishedIn = super.publish(state, publishInMdVertex, this.objectService.toGeoObject(edge.in, version.getForDate()));
-          publishedGOs.add(edge.in.getRunwayId());
+          publishedIn = super.publish(state, publishInMdVertex, this.objectService.toGeoObject(edge.in, version.getForDate(), false));
+          publishedGOs.add(edge.in.getUid());
           state.cache.put(edge.in.getUid(), publishedIn);
         }
         else
         {
-          publishedIn = get(state, publishInMdVertex, edge.in.getUid());
+          publishedIn = getVertex(state, publishInMdVertex, edge.in.getUid());
         }
         
-        GeoObjectTypeSnapshot outGraphVertex = this.tSnapshotService.get(state.version, edge.out.getType().getCode());
+        GeoObjectTypeSnapshot outGraphVertex = this.gotSnaps.get(edge.out.getType().getCode());
         MdVertex publishOutMdVertex = outGraphVertex.getGraphMdVertex();
         
         VertexObject publishedOut;
-        if (!publishedGOs.contains(edge.out.getRunwayId()))
+        if (!publishedGOs.contains(edge.out.getUid()))
         {
-          publishedOut = super.publish(state, publishOutMdVertex, this.objectService.toGeoObject(edge.out, version.getForDate()));
-          publishedGOs.add(edge.out.getRunwayId());
+          publishedOut = super.publish(state, publishOutMdVertex, this.objectService.toGeoObject(edge.out, version.getForDate(), false));
+          publishedGOs.add(edge.out.getUid());
           state.cache.put(edge.out.getUid(), publishedOut);
         }
         else
         {
-          publishedOut = get(state, publishOutMdVertex, edge.out.getUid());
+          publishedOut = getVertex(state, publishOutMdVertex, edge.out.getUid());
         }
         
         publishedOut.addChild(publishedIn, graphSnapshot.getGraphMdEdge().definesType()).apply();
@@ -227,7 +243,29 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
     }
   }
   
-  private VertexObject get(TraversalState state, MdVertex mdVertex, String uid)
+  private long queryTotal(GraphType graphType)
+  {
+    final String sql = "SELECT COUNT(*) FROM " + graphType.getMdEdgeDAO().getDBClassName();
+    
+    return new GraphQuery<Long>(sql).getSingleResult();
+  }
+  
+  private void cacheMetadata(LabeledPropertyGraphTypeVersion version)
+  {
+    gotSnaps = new HashMap<String, GeoObjectTypeSnapshot>();
+    
+    GeoObjectTypeSnapshotQuery query = new GeoObjectTypeSnapshotQuery(new QueryFactory());
+    query.WHERE(query.getVersion().EQ(version));
+
+    for (GeoObjectTypeSnapshot snapshot : query.getIterator().getAll())
+    {
+      gotSnaps.put(snapshot.getCode(), snapshot);
+    }
+    
+    allAttributeColumns = EdgeAndVerticiesResultSetConverter.allAttributeColumns();
+  }
+  
+  private VertexObject getVertex(TraversalState state, MdVertex mdVertex, String uid)
   {
     if (state.cache.containsKey(uid))
     {
@@ -246,6 +284,11 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       query.setParameter("uid", uid);
   
       VertexObject result = query.getSingleResult();
+      
+      if (result == null)
+      {
+        throw new RuntimeException("Query returned null which is not allowed. " + statement.toString());
+      }
       
       state.cache.put(uid, result);
       
