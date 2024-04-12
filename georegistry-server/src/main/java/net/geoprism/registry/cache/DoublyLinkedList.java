@@ -27,14 +27,14 @@ public class DoublyLinkedList<T>
       return new LinkedListNode<T>(null);
     }
 
-    detach(node);
+    remove(node);
 
     push(newValue);
 
     return head;
   }
 
-  private void detach(LinkedListNode<T> node)
+  public void remove(LinkedListNode<T> node)
   {
     LinkedListNode<T> prev = node.getPrev();
     LinkedListNode<T> next = node.getNext();
@@ -53,6 +53,16 @@ public class DoublyLinkedList<T>
     {
       prev.setNext(next);
       next.setPrev(prev);
+    }
+
+    if (head == node)
+    {
+      this.head = next;
+    }
+    
+    if (tail == node)
+    {
+      this.tail = prev;
     }
   }
 

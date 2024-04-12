@@ -59,7 +59,7 @@ public class GeoObjectCache extends LRUCache<String, ServerGeoObjectIF>
 
   public ServerGeoObjectIF getOrFetchByCode(String code, String typeCode)
   {
-    return this.get(typeCode, code).orElseGet(() -> {
+    return this.get(code, typeCode).orElseGet(() -> {
       ServerGeoObjectIF object = this.objectService.getGeoObjectByCode(code, typeCode, true);
 
       this.put(typeCode + SEPARATOR + code, object);

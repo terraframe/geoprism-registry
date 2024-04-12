@@ -23,6 +23,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
+import com.orientechnologies.common.io.OIOException;
+import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -110,7 +112,7 @@ public class RestoreService implements RestoreServiceIF
         restoreBusinessEdges(directory);
 
         // 9) Restore the geo-object to business object edges
-        restoreBusinessEdges(directory);
+        restoreBusinessGeoObjectEdgeData(directory);
 
         // 10) Restore transition events
         restoreTransitionEvents(directory);
@@ -241,7 +243,7 @@ public class RestoreService implements RestoreServiceIF
               ServerGeoObjectIF child = cache.get(childUid).orElseGet(() -> {
                 ServerGeoObjectIF object = this.gObjectService.getStrategy(childType).getGeoObjectByUid(childUid);
 
-                cache.put(parentUid, object);
+                cache.put(childUid, object);
 
                 return object;
               });
@@ -427,10 +429,30 @@ public class RestoreService implements RestoreServiceIF
               String geoObjectType = jObject.get("geoObjectType").getAsString();
               String businessCode = jObject.get("businessCode").getAsString();
 
-              ServerGeoObjectIF geoObject = geoObjectCache.getOrFetchByCode(geoObjectCode, geoObjectType);
-              BusinessObject businessObject = businessObjectCache.getByCode(businessCode, type.getCode());
+              
+              for (int i = 0; i < 10; i++)
+              {
+                try
+                {
+                  ServerGeoObjectIF geoObject = geoObjectCache.getOrFetchByCode(geoObjectCode, geoObjectType);
+                  BusinessObject businessObject = businessObjectCache.getOrFetchByCode(businessCode, type);
 
-              this.bObjectService.addGeoObject(businessObject, geoObject);
+                  this.bObjectService.addGeoObject(businessObject, geoObject);
+
+                  break;
+                }
+                catch (ProgrammingErrorException e)
+                {
+                  if (! ( ( e.getCause() instanceof OConcurrentModificationException ) || ( e.getCause() instanceof OIOException ) ))
+                  {
+                    throw e;
+                  }
+                  
+                  geoObjectCache.remove(geoObjectCode);
+                  businessObjectCache.remove(businessCode);
+                }
+              }
+
             }
 
             reader.endArray();

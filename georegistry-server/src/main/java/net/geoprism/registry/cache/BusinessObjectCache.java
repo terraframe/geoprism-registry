@@ -18,8 +18,11 @@
  */
 package net.geoprism.registry.cache;
 
+import java.util.Optional;
+
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
@@ -50,6 +53,11 @@ public class BusinessObjectCache extends LRUCache<String, BusinessObject>
     this.objectService = ServiceFactory.getBean(BusinessObjectBusinessServiceIF.class);
   }
 
+  public Optional<BusinessObject> get(String code, String typeCode)
+  {
+    return this.get(typeCode + SEPARATOR + code);
+  }
+
   public BusinessObject getByCode(String code, String typeCode)
   {
     return this.get(typeCode + SEPARATOR + code).orElse(null);
@@ -57,16 +65,26 @@ public class BusinessObjectCache extends LRUCache<String, BusinessObject>
 
   public BusinessObject getOrFetchByCode(String code, String typeCode)
   {
-    BusinessObject go = this.getByCode(code, typeCode);
-
-    if (go == null)
-    {
+    return this.get(typeCode, code).orElseGet(() -> {
       BusinessType businessType = this.typeService.getByCode(typeCode);
-      go = this.objectService.getByCode(businessType, code);
 
-      this.put(typeCode + SEPARATOR + code, go);
-    }
+      BusinessObject object = this.objectService.getByCode(businessType, code);
 
-    return go;
+      this.put(typeCode + SEPARATOR + code, object);
+
+      return object;
+    });
+  }
+
+  public BusinessObject getOrFetchByCode(String code, BusinessType type)
+  {
+    return this.get(type.getCode(), code).orElseGet(() -> {
+
+      BusinessObject object = this.objectService.getByCode(type, code);
+
+      this.put(type.getCode() + SEPARATOR + code, object);
+
+      return object;
+    });
   }
 }

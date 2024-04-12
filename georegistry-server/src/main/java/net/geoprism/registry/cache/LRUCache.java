@@ -151,4 +151,24 @@ public class LRUCache<K, V> implements Cache<K, V>
     }
   }
 
+  public void remove(K key)
+  {
+    this.lock.writeLock().lock();
+    try
+    {
+      LinkedListNode<CacheElement<K, V>> entry = this.linkedListNodeMap.get(key);
+
+      if (entry != null)
+      {
+        this.doublyLinkedList.remove(entry);
+        this.linkedListNodeMap.remove(key);
+      }
+    }
+    finally
+    {
+      this.lock.writeLock().unlock();
+    }
+
+  }
+
 }
