@@ -137,7 +137,7 @@ public class XMLImporterTest implements InstanceTestClassListener
     {
       XMLImporter xmlImporter = new XMLImporter();
 
-      List<ServerElement> results = xmlImporter.importXMLDefinitions(serverOrg, new StreamResource(istream, "test-domain.xml"));
+      List<ServerElement> results = xmlImporter.importXMLDefinitions(new StreamResource(istream, "test-domain.xml"), serverOrg);
 
       try
       {

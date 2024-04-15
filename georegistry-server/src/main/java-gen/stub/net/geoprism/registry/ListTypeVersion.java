@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -296,7 +296,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       return false;
     }
-    
+
     if (attributeType.getName().equals(DefaultAttribute.ALT_IDS.getName()))
     {
       return false;
@@ -1134,7 +1134,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     Set<Entry<ServerHierarchyType, List<ServerGeoObjectType>>> entries = ancestorMap.entrySet();
     GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
-    
+
     for (Entry<ServerHierarchyType, List<ServerGeoObjectType>> entry : entries)
     {
       ServerHierarchyType hierarchy = entry.getKey();
@@ -1384,12 +1384,12 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     this.setValue(prefix + "TelephoneNumber", object.get("telephoneNumber").getAsString());
     this.setValue(prefix + "Email", object.get("email").getAsString());
 
-    if (!object.get("originator").isJsonNull())
+    if (object.has("originator") && !object.get("originator").isJsonNull())
     {
       this.setValue(prefix + "Originator", object.get("originator").getAsString());
     }
 
-    if (!object.get("collectionDate").isJsonNull())
+    if (object.has("collectionDate") && !object.get("collectionDate").isJsonNull())
     {
       SimpleDateFormat formatter = new SimpleDateFormat(Constants.DATETIME_FORMAT);
       Date collectionDate = GeoRegistryUtil.parseDate(object.get("collectionDate").getAsString());
@@ -1426,7 +1426,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     final File file = new File(directory, filename);
 
     ServerGeoObjectType type = masterlist.getGeoObjectType();
-    
+
     GPROrganizationPermissionService permissions = ServiceFactory.getBean(GPROrganizationPermissionService.class);
     boolean isMember = permissions.isMemberOrSRA(masterlist.getOrganization());
 
@@ -1469,7 +1469,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     if (type.getIsAbstract())
     {
       JsonArray jSubtypes = new JsonArray();
-      
+
       GeoObjectTypeBusinessServiceIF typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
 
       List<ServerGeoObjectType> subtypes = typeService.getSubtypes(type);
@@ -1565,7 +1565,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       Set<String> attributeIds = new TreeSet<String>();
 
       final PermissionColumnFilter filter = new PermissionColumnFilter(this);
-      
+
       List<ListTypeGroup> groups = ListTypeGroup.getRoots(this);
       columns.addAll(groups.stream().map(group -> group.toColumn(filter)).filter(column -> column != null && filter.isValid(column)).collect(Collectors.toList()));
       columns.forEach(column -> attributeIds.addAll(column.getColumnsIds()));
@@ -1868,7 +1868,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   public JsonObject record(String uid)
   {
     GeoObjectBusinessServiceIF objectService = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
-    
+
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
@@ -1908,7 +1908,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     record.addProperty("version", this.getOid());
     record.addProperty("edit", this.getWorking() && listType.doesActorHaveExploratoryPermission() && !UserInfo.isPublicUser());
     record.add("typeLabel", RegistryLocalizedValueConverter.convertNoAutoCoalesce(listType.getDisplayLabel()).toJSON());
-    
+
     record.add("attributes", this.getAttributesAsJson());
 
     if (!UserInfo.isPublicUser())

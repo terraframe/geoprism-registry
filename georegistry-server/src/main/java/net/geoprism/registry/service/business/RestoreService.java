@@ -34,11 +34,13 @@ import com.runwaysdk.dataaccess.MdAttributeNumberDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTextDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.resource.FileResource;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.ListType;
 import net.geoprism.registry.cache.BusinessObjectCache;
 import net.geoprism.registry.cache.Cache;
 import net.geoprism.registry.cache.GeoObjectCache;
@@ -90,9 +92,6 @@ public class RestoreService implements RestoreServiceIF
         // 1) Restore the metadata
         restoreMetadata(directory);
 
-        // 2) Refresh the metadata cache
-        this.repoService.refreshMetadataCache();
-
         // 3) Import the geo object instance data
         restoreGeoObjectData(directory);
 
@@ -116,6 +115,9 @@ public class RestoreService implements RestoreServiceIF
 
         // 10) Restore transition events
         restoreTransitionEvents(directory);
+
+        // 11) Restore List Type definition
+        restoreListTypeData(directory);
       }
       finally
       {
@@ -128,27 +130,28 @@ public class RestoreService implements RestoreServiceIF
     }
   }
 
+  @Transaction
   protected void restoreMetadata(File directory)
   {
-    File metadata = new File(directory, "metadata");
+    File subdir = new File(directory, "metadata");
 
-    File[] files = metadata.listFiles();
+    File[] files = subdir.listFiles();
 
     if (files != null)
     {
+      List<ServerOrganization> organizations = ServerOrganization.getOrganizations();
 
       for (File file : files)
       {
-        String name = file.getName();
-        String baseName = FilenameUtils.getBaseName(name);
-
-        ServerOrganization organization = ServerOrganization.getByCode(baseName);
+        System.out.println("Importing file: " + file.getAbsolutePath());
 
         try (FileResource resource = new FileResource(file))
         {
           XMLImporter importer = new XMLImporter();
-          importer.importXMLDefinitions(organization, resource);
+          importer.importXMLDefinitions(resource, organizations);
         }
+
+        this.repoService.refreshMetadataCache();
       }
     }
   }
@@ -429,7 +432,6 @@ public class RestoreService implements RestoreServiceIF
               String geoObjectType = jObject.get("geoObjectType").getAsString();
               String businessCode = jObject.get("businessCode").getAsString();
 
-              
               for (int i = 0; i < 10; i++)
               {
                 try
@@ -447,7 +449,7 @@ public class RestoreService implements RestoreServiceIF
                   {
                     throw e;
                   }
-                  
+
                   geoObjectCache.remove(geoObjectCode);
                   businessObjectCache.remove(businessCode);
                 }
@@ -489,6 +491,33 @@ public class RestoreService implements RestoreServiceIF
           }
 
           reader.endArray();
+        }
+      }
+    }
+  }
+
+  private void restoreListTypeData(File directory) throws IOException
+  {
+    File subdirectory = new File(directory, "list-type");
+    subdirectory.mkdirs();
+
+    File[] files = subdirectory.listFiles();
+
+    if (files != null)
+    {
+      for (File file : files)
+      {
+        try (FileResource resource = new FileResource(file))
+        {
+          try (JsonReader reader = new JsonReader(new FileReader(file)))
+          {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+            JsonObject jObject = gson.fromJson(reader, JsonObject.class);
+            jObject.remove(ListType.OID);
+
+            ListType.apply(jObject);
+          }
         }
       }
     }

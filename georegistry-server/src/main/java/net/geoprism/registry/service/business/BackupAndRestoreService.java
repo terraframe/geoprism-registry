@@ -1,14 +1,22 @@
 package net.geoprism.registry.service.business;
 
 import java.io.File;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
+
 import net.geoprism.registry.DirectedAcyclicGraphType;
+import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.UndirectedGraphType;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.permission.RolePermissionService;
+import net.geoprism.registry.service.request.GraphRepoServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
 
 @Service
@@ -44,6 +52,9 @@ public class BackupAndRestoreService implements BackupAndRestoreServiceIF
   @Autowired
   private HierarchyTypeBusinessServiceIF            hTypeService;
 
+  @Autowired
+  private GraphRepoServiceIF                        repoService;
+
   @Override
   public void createBackup(File zipfile)
   {
@@ -61,6 +72,12 @@ public class BackupAndRestoreService implements BackupAndRestoreServiceIF
     if (!permissions.isSRA())
     {
       throw new UnsupportedOperationException("Only an SRA can create a data dump");
+    }
+
+    // Delete all list types
+    try (OIterator<? extends ListType> it = new ListTypeQuery(new QueryFactory()).getIterator())
+    {
+      it.getAll().forEach(list -> list.delete(false));
     }
 
     this.teService.deleteAll();
@@ -85,8 +102,15 @@ public class BackupAndRestoreService implements BackupAndRestoreServiceIF
       this.hTypeService.delete(type);
     });
 
+    this.repoService.refreshMetadataCache();
+
     ServiceFactory.getMetadataCache().getAllGeoObjectTypeCodes().forEach(code -> {
-      this.gTypeService.deleteGeoObjectType(code);
+      ServerGeoObjectType type = ServerGeoObjectType.get(code, true);
+
+      if (type != null)
+      {
+        this.gTypeService.deleteGeoObjectType(code);
+      }
     });
   }
 

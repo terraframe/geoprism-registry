@@ -353,7 +353,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     ServerOrganization organization = ServerOrganization.getByCode(orgCode);
 
     XMLImporter xmlImporter = new XMLImporter();
-    xmlImporter.importXMLDefinitions(organization, new StreamResource(istream, "domain.xml"));
+    xmlImporter.importXMLDefinitions(new StreamResource(istream, "domain.xml"), organization);
   }
 
   public static void importTypes(String orgCode, ApplicationResource resource)
@@ -361,7 +361,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     ServerOrganization organization = ServerOrganization.getByCode(orgCode);
 
     XMLImporter xmlImporter = new XMLImporter();
-    xmlImporter.importXMLDefinitions(organization, resource);
+    xmlImporter.importXMLDefinitions(resource, organization);
   }
 
   public static void zipDirectory(File sourceFolder, File targetZip)

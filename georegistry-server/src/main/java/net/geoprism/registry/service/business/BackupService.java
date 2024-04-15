@@ -24,12 +24,16 @@ import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.cache.ObjectCache;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdEdge;
 
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DirectedAcyclicGraphType;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.UndirectedGraphType;
 import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.graph.transition.TransitionEvent;
@@ -61,9 +65,6 @@ public class BackupService implements BackupServiceIF
   @Autowired
   private GPRTransitionEventBusinessService teService;
 
-  @Autowired
-  private GPRTransitionBusinessService      tService;
-
   @Override
   public void createBackup(File zipfile)
   {
@@ -91,6 +92,8 @@ public class BackupService implements BackupServiceIF
 
         exportHistoricalEventData(directory);
 
+        exportListTypeData(directory);
+
         GeoRegistryUtil.zipDirectory(directory, zipfile);
       }
       finally
@@ -103,6 +106,29 @@ public class BackupService implements BackupServiceIF
       throw new ProgrammingErrorException(e);
     }
 
+  }
+
+  private void exportListTypeData(File directory) throws IOException
+  {
+    File subdirectory = new File(directory, "list-type");
+    subdirectory.mkdirs();
+
+    ListTypeQuery query = new ListTypeQuery(new QueryFactory());
+
+    try (OIterator<? extends ListType> it = query.getIterator())
+    {
+      List<? extends ListType> listTypes = it.getAll();
+
+      for (ListType listType : listTypes)
+      {
+        try (JsonWriter writer = new JsonWriter(new FileWriter(new File(subdirectory, listType.getCode() + ".json"))))
+        {
+          Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+          gson.toJson(listType.toJSON(false), writer);
+        }
+      }
+    }
   }
 
   private void exportHistoricalEventData(File directory) throws IOException
@@ -151,23 +177,14 @@ public class BackupService implements BackupServiceIF
 
   protected void exportMetadata(File directory)
   {
-    File metadata = new File(directory, "metadata");
-    metadata.mkdirs();
+    File subdir = new File(directory, "metadata");
+    subdir.mkdirs();
 
     List<ServerOrganization> organizations = ServerOrganization.getOrganizations();
 
-    int i = 0;
-
-    // Export the metadata definitions for each organization
-    for (ServerOrganization organization : organizations)
-    {
-      XMLExporter exporter = new XMLExporter(organization, ( i == 0 ));
-      exporter.build();
-
-      exporter.write(new File(metadata, organization.getCode() + ".xml"));
-
-      i++;
-    }
+    XMLExporter exporter = new XMLExporter(organizations);
+    exporter.build();
+    exporter.write(new File(subdir, "metadata.xml"));
   }
 
   protected void exportGeoObjectData(File directory) throws IOException
@@ -539,11 +556,10 @@ public class BackupService implements BackupServiceIF
           String geoObjectCode = (String) result.get("geoObjectCode");
           String geoObjectClass = (String) result.get("geoObjectClass");
           String businessCode = (String) result.get("businessCode");
-          
+
           MdVertexDAOIF geoObjectVertex = (MdVertexDAOIF) ObjectCache.getMdClassByTableName(geoObjectClass);
 
           ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(geoObjectVertex);
-
 
           JsonObject object = new JsonObject();
           object.addProperty("geoObjectCode", geoObjectCode);
