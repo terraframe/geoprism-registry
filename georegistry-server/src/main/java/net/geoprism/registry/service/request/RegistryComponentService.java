@@ -148,9 +148,9 @@ public class RegistryComponentService
     return this.typeService.createGeoObjectType(sessionId, gtJSON);
   }
 
-  public void importTypes(String sessionId, String orgCode, InputStream istream)
+  public void importTypes(String sessionId, String orgCodes, InputStream istream)
   {
-    this.typeService.importTypes(sessionId, orgCode, istream);
+    this.typeService.importTypes(sessionId, orgCodes, istream);
   }
 
   public InputStream exportTypes(String sessionId, String code)

@@ -45,6 +45,7 @@ import { LocaleView } from '@core/model/core';
 import { ConfigurationService } from '@core/service/configuration.service';
 import { OrganizationHierarchyModalComponent } from './organization/organization-hierarchy-modal.component';
 import { ImportOrganizationModalComponent } from './organization/import-organization-modal.component';
+import { RestoreModalComponent } from './backup-restore/restore-modal.component';
 
 @Component({
 	selector: 'settings',
@@ -397,7 +398,7 @@ export class SettingsComponent implements OnInit {
 
 		this.bsModalRef.content.onConfirm.subscribe(() => {
 			this.onOrgPageChange(this.oPage.pageNumber);
-			
+
 			this.orgService.getOrganizations().then(organizations => {
 				this.organizations = organizations;
 			});
@@ -419,6 +420,40 @@ export class SettingsComponent implements OnInit {
 			});
 		});
 	}
+
+	onBackup() {
+		window.location.href = environment.apiUrl + "/api/admin/backup";
+	}
+
+	onDeleteData() {
+		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+		this.bsModalRef.content.message = this.localizeService.decode("settings.delete.data.confirm");
+		this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
+		this.bsModalRef.content.type = ModalTypes.danger;
+
+		this.bsModalRef.content.onConfirm.subscribe(data => {
+			this.settingsService.deleteData().then(() => {
+				// Alert about completion
+				alert("Data has been deleted")
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+		});
+	}
+
+
+	onRestore(): void {
+		this.modalService.show(RestoreModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+	}
+
 
 	/* ERROR HANDLING LOGIC */
 

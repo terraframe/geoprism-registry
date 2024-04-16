@@ -1,6 +1,7 @@
 package net.geoprism.registry.service;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -34,7 +35,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentGraphNode;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.service.business.BackupAndRestoreServiceIF;
+import net.geoprism.registry.service.business.BackupAndRestoreBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
@@ -44,6 +45,7 @@ import net.geoprism.registry.service.business.GPRTransitionEventBusinessService;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessServiceIF;
 import net.geoprism.registry.service.request.ServiceFactory;
+import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
 @ContextConfiguration(classes = { TestConfig.class })
@@ -67,7 +69,7 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
   private static Transition                         transition;
 
   @Autowired
-  private BackupAndRestoreServiceIF                 backupService;
+  private BackupAndRestoreBusinessServiceIF         backupService;
 
   @Autowired
   private UndirectedGraphTypeBusinessServiceIF      ugTypeService;
@@ -221,100 +223,101 @@ public class BackupAndRestoreServiceTest extends USADatasetTest
     testData.tearDownInstanceData();
   }
 
-  @Request
   @Test
   public void testImportAndExport() throws IOException
   {
+    File file = File.createTempFile("gpr-dump", ".zip");
+
     try
     {
+      TestDataSet.executeRequestAsUser(USATestData.USER_ADMIN, () -> {
+        try
+        {
 
-      File file = File.createTempFile("gpr-dump", ".zip");
+          this.backupService.createBackup(file);
 
-      try
-      {
-        this.backupService.createBackup(file);
+          Assert.assertTrue(file.exists());
 
-        Assert.assertTrue(file.exists());
+          this.backupService.deleteData();
 
-        this.backupService.deleteData();
+          this.backupService.restoreFromBackup(new FileInputStream(file));
 
-        this.backupService.restoreFromBackup(file);
+          // Reload all of the cached test objects
+          dagType = DirectedAcyclicGraphType.getByCode(dagType.getCode());
+          ugType = UndirectedGraphType.getByCode(ugType.getCode());
+          bEdgeType = this.bEdgeService.getByCode(bEdgeType.getCode());
+          bType = this.bTypeService.getByCode(bType.getCode());
 
-        // Reload all of the cached test objects
-        dagType = DirectedAcyclicGraphType.getByCode(dagType.getCode());
-        ugType = UndirectedGraphType.getByCode(ugType.getCode());
-        bEdgeType = this.bEdgeService.getByCode(bEdgeType.getCode());
-        bType = this.bTypeService.getByCode(bType.getCode());
+          testData.clearCachedData();
 
-        testData.clearCachedData();
+          ServerGeoObjectIF geoObject = USATestData.COLORADO.getServerObject();
 
-        ServerGeoObjectIF geoObject = USATestData.COLORADO.getServerObject();
+          Assert.assertNotNull(geoObject);
 
-        Assert.assertNotNull(geoObject);
+          // Test hierarchy edge data
+          ServerParentTreeNode node = this.gObjectService.getParentGeoObjects(geoObject, USATestData.HIER_ADMIN.getServerObject(), null, false, true, USATestData.DEFAULT_OVER_TIME_DATE);
 
-        // Test hierarchy edge data
-        ServerParentTreeNode node = this.gObjectService.getParentGeoObjects(geoObject, USATestData.HIER_ADMIN.getServerObject(), null, false, true, USATestData.DEFAULT_OVER_TIME_DATE);
+          Assert.assertNotNull(geoObject.getCode(), node.getGeoObject().getCode());
 
-        Assert.assertNotNull(geoObject.getCode(), node.getGeoObject().getCode());
+          List<ServerParentTreeNode> parents = node.getParents();
 
-        List<ServerParentTreeNode> parents = node.getParents();
+          Assert.assertEquals(1, parents.size());
+          Assert.assertNotNull(USATestData.USA.getCode(), parents.get(0).getGeoObject().getCode());
 
-        Assert.assertEquals(1, parents.size());
-        Assert.assertNotNull(USATestData.USA.getCode(), parents.get(0).getGeoObject().getCode());
+          // Test directed graph edges
+          geoObject = USATestData.CANADA.getServerObject();
 
-        // Test directed graph edges
-        geoObject = USATestData.CANADA.getServerObject();
+          ServerParentGraphNode graphNode = geoObject.getGraphParents(dagType, false, USATestData.DEFAULT_OVER_TIME_DATE);
+          List<ServerParentGraphNode> graphParents = graphNode.getParents();
 
-        ServerParentGraphNode graphNode = geoObject.getGraphParents(dagType, false, USATestData.DEFAULT_OVER_TIME_DATE);
-        List<ServerParentGraphNode> graphParents = graphNode.getParents();
+          Assert.assertEquals(1, graphParents.size());
+          Assert.assertNotNull(USATestData.USA.getCode(), parents.get(0).getGeoObject().getCode());
 
-        Assert.assertEquals(1, graphParents.size());
-        Assert.assertNotNull(USATestData.USA.getCode(), parents.get(0).getGeoObject().getCode());
+          // Test undirected graph edges
+          graphNode = geoObject.getGraphParents(ugType, false, USATestData.DEFAULT_OVER_TIME_DATE);
+          graphParents = graphNode.getParents();
 
-        // Test undirected graph edges
-        graphNode = geoObject.getGraphParents(ugType, false, USATestData.DEFAULT_OVER_TIME_DATE);
-        graphParents = graphNode.getParents();
+          Assert.assertEquals(1, graphParents.size());
+          Assert.assertNotNull(USATestData.MEXICO.getCode(), parents.get(0).getGeoObject().getCode());
 
-        Assert.assertEquals(1, graphParents.size());
-        Assert.assertNotNull(USATestData.MEXICO.getCode(), parents.get(0).getGeoObject().getCode());
+          // Validate Business Objects were imported
+          boParent = this.bObjectService.getByCode(bType, "BoParent");
+          boChild = this.bObjectService.getByCode(bType, "BoChild");
 
-        // Validate Business Objects were imported
-        boParent = this.bObjectService.getByCode(bType, "BoParent");
-        boChild = this.bObjectService.getByCode(bType, "BoChild");
+          Assert.assertNotNull(boParent);
+          Assert.assertNotNull(boChild);
 
-        Assert.assertNotNull(boParent);
-        Assert.assertNotNull(boChild);
+          // Validate Business Edges
+          List<BusinessObject> children = this.bObjectService.getChildren(boParent, bEdgeType);
 
-        // Validate Business Edges
-        List<BusinessObject> children = this.bObjectService.getChildren(boParent, bEdgeType);
+          Assert.assertEquals(1, children.size());
+          Assert.assertEquals(boChild.getCode(), children.get(0).getCode());
 
-        Assert.assertEquals(1, children.size());
-        Assert.assertEquals(boChild.getCode(), children.get(0).getCode());
+          // Validate Business-GeoObject edges
+          List<VertexServerGeoObject> geoObjects = this.bObjectService.getGeoObjects(boChild);
 
-        // Validate Business-GeoObject edges
-        List<VertexServerGeoObject> geoObjects = this.bObjectService.getGeoObjects(boChild);
+          Assert.assertEquals(1, geoObjects.size());
 
-        Assert.assertEquals(1, geoObjects.size());
+          // Validate the transition event
+          List<TransitionEvent> events = this.teService.getAll(USATestData.DISTRICT.getServerObject());
 
-        // Validate the transition event
-        List<TransitionEvent> events = this.teService.getAll(USATestData.DISTRICT.getServerObject());
+          Assert.assertEquals(1, events.size());
 
-        Assert.assertEquals(1, events.size());
+          TransitionEvent test = events.get(0);
 
-        TransitionEvent test = events.get(0);
+          List<Transition> transitions = this.teService.getTransitions(test);
 
-        List<Transition> transitions = this.teService.getTransitions(test);
-
-        Assert.assertEquals(1, transitions.size());
-      }
-      finally
-      {
-        FileUtils.deleteQuietly(file);
-      }
+          Assert.assertEquals(1, transitions.size());
+        }
+        finally
+        {
+          ServiceFactory.getGraphRepoService().refreshMetadataCache();
+        }
+      });
     }
     finally
     {
-      ServiceFactory.getGraphRepoService().refreshMetadataCache();
+      FileUtils.deleteQuietly(file);
     }
   }
 

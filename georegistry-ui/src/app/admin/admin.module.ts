@@ -57,6 +57,7 @@ import { TreeModule } from '@circlon/angular-tree-component';
 import { OrganizationHierarchyModalComponent } from './component/organization/organization-hierarchy-modal.component';
 import { ContextMenuModule } from '@perfectmemory/ngx-contextmenu';
 import { ImportOrganizationModalComponent } from './component/organization/import-organization-modal.component';
+import { RestoreModalComponent } from './component/backup-restore/restore-modal.component';
 
 @NgModule({
 	imports: [
@@ -89,7 +90,8 @@ import { ImportOrganizationModalComponent } from './component/organization/impor
 		ImportLocalizationModalComponent,
 		LocalizationFeedbackModalComponent,
 		OrganizationHierarchyModalComponent,
-		ImportOrganizationModalComponent
+		ImportOrganizationModalComponent,
+		RestoreModalComponent
 	],
 	exports: [
 		SystemLogoComponent,
@@ -113,7 +115,8 @@ import { ImportOrganizationModalComponent } from './component/organization/impor
 		ImportLocalizationModalComponent,
 		LocalizationFeedbackModalComponent,
 		OrganizationHierarchyModalComponent,
-		ImportOrganizationModalComponent
+		ImportOrganizationModalComponent,
+		RestoreModalComponent
 	]
 })
 

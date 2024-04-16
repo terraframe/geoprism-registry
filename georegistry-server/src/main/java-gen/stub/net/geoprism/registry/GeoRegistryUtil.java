@@ -34,6 +34,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
@@ -43,6 +44,8 @@ import java.util.zip.ZipOutputStream;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.rbac.Authenticate;
@@ -72,11 +75,14 @@ import net.geoprism.registry.xml.XMLImporter;
 
 public class GeoRegistryUtil extends GeoRegistryUtilBase
 {
-  private static final long    serialVersionUID  = 2034796376;
+  private static final long               serialVersionUID  = 2034796376;
 
-  public static final TimeZone SYSTEM_TIMEZONE   = TimeZone.getTimeZone("UTC");
+  public static final TimeZone            SYSTEM_TIMEZONE   = TimeZone.getTimeZone("UTC");
 
-  public static final String   LOCAL_DATE_FORMAT = "yyyy-MM-dd";
+  public static final String              LOCAL_DATE_FORMAT = "yyyy-MM-dd";
+
+  // Work around for authenticated methods with complex attributes
+  private static List<ServerOrganization> organizations;
 
   public GeoRegistryUtil()
   {
@@ -348,12 +354,20 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   }
 
   @Authenticate
-  public static void importTypes(String orgCode, InputStream istream)
+  public static void importTypes(String json, InputStream istream)
   {
-    ServerOrganization organization = ServerOrganization.getByCode(orgCode);
+    JsonArray orgCodes = JsonParser.parseString(json).getAsJsonArray();
+    List<ServerOrganization> organizations = new LinkedList<>();
+
+    for (int i = 0; i < orgCodes.size(); i++)
+    {
+      String orgCode = orgCodes.get(i).getAsString();
+
+      organizations.add(ServerOrganization.getByCode(orgCode));
+    }
 
     XMLImporter xmlImporter = new XMLImporter();
-    xmlImporter.importXMLDefinitions(new StreamResource(istream, "domain.xml"), organization);
+    xmlImporter.importXMLDefinitions(new StreamResource(istream, "domain.xml"), organizations);
   }
 
   public static void importTypes(String orgCode, ApplicationResource resource)

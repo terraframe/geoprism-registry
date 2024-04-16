@@ -1,6 +1,6 @@
-package net.geoprism.registry.service.business;
+package net.geoprism.registry.service.request;
 
-import java.io.File;
+import java.io.InputStream;
 
 import org.springframework.stereotype.Component;
 
@@ -13,13 +13,13 @@ public interface BackupAndRestoreServiceIF
    * 
    * @param zipfile
    */
-  void createBackup(File zipfile);
+  public InputStream backup(String sessionId);
 
   /**
    * Deletes the data in the system
    */
-  void deleteData();
+  public void deleteData(String sessionId);
 
-  void restoreFromBackup(File zipfile);
+  public void restore(String sessionId, InputStream istream);
 
 }

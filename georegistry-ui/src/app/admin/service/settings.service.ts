@@ -18,7 +18,7 @@
 ///
 
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 
 import { finalize } from "rxjs/operators";
 
@@ -30,13 +30,14 @@ import { User } from "@admin/model/account";
 
 import { environment } from 'src/environments/environment';
 import { LocaleView } from "@core/model/core";
+import { firstValueFrom } from "rxjs";
 
 export class SettingsInitView {
 
-  organizations: Organization[];
-  locales: LocaleView[];
-  externalSystems: PageResult<ExternalSystem>;
-  sras: PageResult<User>;
+    organizations: Organization[];
+    locales: LocaleView[];
+    externalSystems: PageResult<ExternalSystem>;
+    sras: PageResult<User>;
 
 }
 
@@ -48,12 +49,26 @@ export class SettingsService {
     getInitView(): Promise<SettingsInitView> {
         this.eventService.start();
 
-        return this.http
+        return firstValueFrom( this.http
             .get<SettingsInitView>(environment.apiUrl + "/api/cgr/init-settings")
             .pipe(finalize(() => {
                 this.eventService.complete();
-            }))
-            .toPromise();
+            })));
+    }
+
+    deleteData(): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return firstValueFrom(this.http
+            .post<void>(environment.apiUrl + "/api/admin/delete-data", JSON.stringify({}), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            })));
+
     }
 
 }

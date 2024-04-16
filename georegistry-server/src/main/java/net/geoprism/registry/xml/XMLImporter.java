@@ -629,8 +629,6 @@ public class XMLImporter
 
       ServiceFactory.getHierarchyPermissionService().enforceCanCreate(organization.getCode());
 
-      System.out.println("Creating Hiearchy Type: " + dto.getCode());
-
       ServerHierarchyType type = this.hierarchyService.createHierarchyType(dto);
 
       this.cache.put(type.getCode(), type);
@@ -688,8 +686,6 @@ public class XMLImporter
       dto.setIsAbstract(isAbstract);
 
       ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(organization.getCode(), dto.getIsPrivate());
-
-      System.out.println("Creating Type: " + dto.getCode());
 
       ServerGeoObjectType type = this.typeService.create(dto);
 

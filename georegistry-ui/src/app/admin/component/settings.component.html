@@ -104,8 +104,10 @@
                         <localize key="settings.organizations.heading"></localize>
 
                         <span style="float: right;">
-                            <a class="fa fa-upload" (click)="onUploadHierarchy()" [title]="'organization.manager.upload.button' | localize"></a>
-                            <a class="fa fa-sitemap" (click)="onManageHierarchy()" [title]="'organization.manager.manage.button' | localize"></a>
+                            <a class="fa fa-upload" (click)="onUploadHierarchy()"
+                                [title]="'organization.manager.upload.button' | localize"></a>
+                            <a class="fa fa-sitemap" (click)="onManageHierarchy()"
+                                [title]="'organization.manager.manage.button' | localize"></a>
                         </span>
                     </h3>
 
@@ -375,6 +377,34 @@
                     </div>
                 </div>
             </div>
+
+            <div *ngIf="isSRA" class="row">
+                <div class="col-md-12">
+                    <loading-bar></loading-bar>
+
+                    <h3>
+                        <localize key="settings.backup.title"></localize>
+                    </h3>
+
+                    <div class="content-wrapper">
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <input class="btn btn-primary" type="submit" (click)="onBackup()"
+                                    [value]="'settings.backup.button' | localize">
+
+                                <input class="btn btn-primary" type="submit" (click)="onDeleteData()"
+                                    [value]="'settings.delete.data.button' | localize">
+
+                                <input class="btn btn-primary" type="submit" (click)="onRestore()"
+                                    [value]="'settings.restore.button' | localize">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
 
         </div>
     </div>

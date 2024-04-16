@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import com.orientechnologies.common.io.OIOException;
@@ -36,6 +38,7 @@ import com.runwaysdk.dataaccess.MdAttributeTextDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.resource.FileResource;
+import com.runwaysdk.session.Session;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.BusinessType;
@@ -54,6 +57,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerOrganization;
 import net.geoprism.registry.service.request.GraphRepoServiceIF;
+import net.geoprism.registry.service.request.SerializedListTypeCache;
 import net.geoprism.registry.service.request.ServiceFactory;
 import net.geoprism.registry.xml.XMLImporter;
 
@@ -79,7 +83,7 @@ public class RestoreService implements RestoreServiceIF
   private GraphRepoServiceIF               repoService;
 
   @Override
-  public void restoreFromBackup(File zipfile)
+  public void restoreFromBackup(InputStream istream)
   {
     try
     {
@@ -87,10 +91,13 @@ public class RestoreService implements RestoreServiceIF
 
       try
       {
-        unzipFileToFolder(zipfile, directory);
+        unzipFileToFolder(istream, directory);
 
         // 1) Restore the metadata
         restoreMetadata(directory);
+
+        // 2) Refresh permission
+        ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
         // 3) Import the geo object instance data
         restoreGeoObjectData(directory);
@@ -131,7 +138,7 @@ public class RestoreService implements RestoreServiceIF
   }
 
   @Transaction
-  protected void restoreMetadata(File directory)
+  protected void restoreMetadata(File directory) throws IOException
   {
     File subdir = new File(directory, "metadata");
 
@@ -141,17 +148,22 @@ public class RestoreService implements RestoreServiceIF
     {
       List<ServerOrganization> organizations = ServerOrganization.getOrganizations();
 
+      JsonArray orgCodes = organizations.stream().map(org -> org.getCode()).collect(() -> new JsonArray(), (array, element) -> array.add(element), (listA, listB) -> {
+      });
+
       for (File file : files)
       {
-        System.out.println("Importing file: " + file.getAbsolutePath());
-
         try (FileResource resource = new FileResource(file))
         {
-          XMLImporter importer = new XMLImporter();
-          importer.importXMLDefinitions(resource, organizations);
-        }
+          try (InputStream istream = resource.openNewStream())
+          {
+            GeoRegistryUtil.importTypes(orgCodes.toString(), istream);
 
-        this.repoService.refreshMetadataCache();
+            this.repoService.refreshMetadataCache();
+
+            SerializedListTypeCache.getInstance().clear();
+          }
+        }
       }
     }
   }
@@ -525,9 +537,17 @@ public class RestoreService implements RestoreServiceIF
 
   protected void unzipFileToFolder(File zipfile, File directory) throws IOException, FileNotFoundException
   {
+    try (FileInputStream istream = new FileInputStream(zipfile))
+    {
+      unzipFileToFolder(istream, directory);
+    }
+  }
+
+  protected void unzipFileToFolder(InputStream istream, File directory) throws IOException
+  {
     byte[] buffer = new byte[1024];
 
-    try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipfile)))
+    try (ZipInputStream zis = new ZipInputStream(istream))
     {
       ZipEntry zipEntry = zis.getNextEntry();
 

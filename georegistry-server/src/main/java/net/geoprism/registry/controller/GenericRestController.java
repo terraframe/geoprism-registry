@@ -123,7 +123,10 @@ public class GenericRestController extends RunwaySpringController
   {
     try (InputStream istream = body.file.getInputStream())
     {
-      service.importTypes(this.getSessionId(), body.orgCode, istream);
+      JsonArray array = new JsonArray();
+      array.add(body.orgCode);
+      
+      service.importTypes(this.getSessionId(), array.toString(), istream);
 
       return new ResponseEntity<Void>(HttpStatus.OK);
     }
