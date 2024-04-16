@@ -135,3 +135,7 @@ label.settings > span > i.fa.fa-cog {
     color: orange;
 }
 
+.multiselect-listitem-selected {
+  background-color: lightblue
+}
+

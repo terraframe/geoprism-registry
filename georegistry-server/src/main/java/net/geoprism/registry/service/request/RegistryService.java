@@ -83,6 +83,9 @@ public class RegistryService implements RegistryServiceIF
 
   @Autowired
   private HierarchyTypeServiceIF         hTypeService;
+  
+  @Autowired
+  private GraphTypeServiceIF             graphTypeService;
 
   @Autowired
   private OrganizationServiceIF          orgService;
@@ -190,7 +193,7 @@ public class RegistryService implements RegistryServiceIF
 
   @Override
   @Request(RequestType.SESSION)
-  public JsonObject initHierarchyManager(String sessionId, Boolean publicOnly)
+  public JsonObject initHierarchyManager(String sessionId, Boolean publicOnly, Boolean includeGraphTypes)
   {
     final JsonArray types = new JsonArray();
     final JsonArray hierarchies = new JsonArray();
@@ -248,10 +251,20 @@ public class RegistryService implements RegistryServiceIF
         organizations.add(dto.toJSON(serializer));
       }
     }
-
+    
     JsonObject response = new JsonObject();
     response.add("types", types);
     response.add("hierarchies", hierarchies);
+    
+    if (Boolean.TRUE.equals(includeGraphTypes))
+    {
+      final JsonArray graphTypes = new JsonArray();
+      
+      graphTypeService.getGraphTypes(sessionId, null).forEach(t -> graphTypes.add(t.toJSON()));
+      
+      response.add("graphTypes", graphTypes);
+    }
+
     response.add("organizations", organizations);
     response.add("locales", this.getLocales(sessionId));
 

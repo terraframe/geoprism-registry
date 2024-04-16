@@ -68,9 +68,9 @@ public class RegistryComponentService
     return registryService.oauthGetPublic(sessionId, id);
   }
 
-  public JsonObject initHierarchyManager(String sessionId, Boolean publicOnly)
+  public JsonObject initHierarchyManager(String sessionId, Boolean publicOnly, Boolean includeGraphTypes)
   {
-    return registryService.initHierarchyManager(sessionId, publicOnly);
+    return registryService.initHierarchyManager(sessionId, publicOnly, includeGraphTypes);
   }
 
   public GeoObject getGeoObject(String sessionId, String uid, String geoObjectTypeCode, Date date)

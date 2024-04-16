@@ -69,6 +69,8 @@ export class LabeledPropertyGraphType {
     strategyType?: string;
     strategyConfiguration?: any;
     graphType: string;
+    graphTypes?: string;
+    geoObjectTypeCodes?: string;
 
     // Attributes for the subtypes
     validOn?: string;

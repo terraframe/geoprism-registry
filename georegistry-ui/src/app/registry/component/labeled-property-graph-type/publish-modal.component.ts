@@ -30,7 +30,7 @@ import { ErrorHandler } from "@shared/component";
 import { LocalizationService } from "@shared/service/localization.service";
 import { LabeledPropertyGraphType } from "@registry/model/labeled-property-graph-type";
 import { LabeledPropertyGraphTypeService } from "@registry/service/labeled-property-graph-type.service";
-import { GeoObjectType } from "@registry/model/registry";
+import { GeoObjectType, GraphType } from "@registry/model/registry";
 import Utils from "@registry/utility/Utils";
 import { PRESENT } from "@shared/model/date";
 import { HierarchyNode, HierarchyType } from "@registry/model/hierarchy";
@@ -51,7 +51,7 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
 
     types: GeoObjectType[] = [];
     hierarchies: HierarchyType[] = [];
-    objectTypes: GeoObjectType[] = [];
+    graphTypes: GraphType[] = [];
 
     tab: string = "LIST";
 
@@ -91,9 +91,10 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
 
         this.onChange = onChange;
 
-        this.registryService.init().then(response => {
+        this.registryService.init(false, true).then(response => {
             this.hierarchies = response.hierarchies;
-            this.objectTypes = response.types;
+            this.types = response.types;
+            this.graphTypes = response.graphTypes;
 
             if (type == null) {
                 this.isNew = true;
@@ -104,7 +105,7 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
                     description: this.lService.create(),
                     code: "graph_" + Math.floor(Math.random() * 999999),
                     hierarchy: '',
-                    strategyType: "TREE",
+                    strategyType: "",
                     strategyConfiguration: {
                         code: null,
                         typeCode: null
@@ -126,6 +127,81 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
 
         });
     }
+
+    buildGraphTypeButtonLabel(): string {
+      let codes: string[] = [];
+      let sep = "$@~";
+      let agtr: string[] = (this.type.graphTypes == null || this.type.graphTypes.length == 0) ? [] : JSON.parse(this.type.graphTypes);
+      
+      for (let i = 0; i < agtr.length; ++i)
+      {
+        let typeCode = agtr[i].split(sep)[0];
+        let code = agtr[i].split(sep)[1];
+        
+        codes.push(code);
+      }
+      
+      if (codes == null || codes.length == 0) {
+        // return this.lService.decode("sync.dhis2.orgUnit.noneSelected");
+        return "Assign Graph Types"; // TODO LOCALIZE
+      } else if (codes.length > 2) {
+        return this.lService.decode("sync.dhis2.orgUnit.multipleSelected");
+      } else {
+        return codes.join(", ");
+      }
+    }
+    
+    clickGraphTypeOption($event, graphType) {
+      let agtr: string[] = (this.type.graphTypes == null || this.type.graphTypes.length == 0) ? [] : JSON.parse(this.type.graphTypes);
+      let key = graphType.typeCode + "$@~" + graphType.code;
+      
+      if (agtr.indexOf(key) == -1)
+      {
+        agtr.push(key);
+      }
+      else
+      {
+        agtr.splice(agtr.indexOf(key));
+      }
+
+      this.type.graphTypes = JSON.stringify(agtr);
+
+      console.log(this.type.graphTypes);
+      
+      $event.stopPropagation();
+    }
+
+    buildGeoObjectTypeButtonLabel(): string {
+        let typeCodes: string[] = (this.type.geoObjectTypeCodes == null || this.type.geoObjectTypeCodes.length == 0) ? [] : JSON.parse(this.type.geoObjectTypeCodes);
+        
+        if (typeCodes == null || typeCodes.length == 0) {
+          // return this.lService.decode("sync.dhis2.orgUnit.noneSelected");
+          return "Assign Types"; // TODO LOCALIZE
+        } else if (typeCodes.length > 2) {
+          return this.lService.decode("sync.dhis2.orgUnit.multipleSelected");
+        } else {
+          return typeCodes.join(", ");
+        }
+      }
+      
+      clickGeoObjectTypeOption($event, geoObjectType: GeoObjectType) {
+        let typeCodes: string[] = (this.type.geoObjectTypeCodes == null || this.type.geoObjectTypeCodes.length == 0) ? [] : JSON.parse(this.type.geoObjectTypeCodes);
+        
+        if (typeCodes.indexOf(geoObjectType.code) == -1)
+        {
+            typeCodes.push(geoObjectType.code);
+        }
+        else
+        {
+            typeCodes.splice(typeCodes.indexOf(geoObjectType.code));
+        }
+  
+        this.type.geoObjectTypeCodes = JSON.stringify(typeCodes);
+  
+        console.log(this.type.geoObjectTypeCodes);
+        
+        $event.stopPropagation();
+      }
 
     getIsDisabled(event): boolean {
         let elClasses = event.target.classList;
@@ -162,7 +238,7 @@ export class LabeledPropertyGraphTypePublishModalComponent implements OnInit {
     }
 
     processNode(types: GeoObjectType[], node: HierarchyNode): void {
-        const type = this.objectTypes.find(t => t.code == node.geoObjectType);
+        const type = this.types.find(t => t.code == node.geoObjectType);
 
         types.push(type);
 

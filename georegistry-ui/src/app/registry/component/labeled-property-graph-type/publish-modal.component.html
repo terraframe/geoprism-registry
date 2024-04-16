@@ -236,6 +236,29 @@
                 <div class="row-holder">
                     <div class="label-holder">
                         <label>
+                            Strategy Type
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <div class="row" *ngIf="!(readonly || !isNew)">
+                            <div class="col-md-12">
+
+                                <select class="select-area" name="strategyType" [(ngModel)]="type.strategyType"
+                                    [disabled]="readonly || !isNew" required>
+                                    <option></option>
+                                    <ng-container>
+                                        <option value="TREE">Hierarchy Tree</option>
+                                        <option value="GRAPH">Graph</option>
+                                    </ng-container>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div *ngIf="type.strategyType == 'TREE'" class="row-holder">
+                    <div class="label-holder">
+                        <label>
                             <localize key="lpg.hierarchy"></localize>
                         </label>
                     </div>
@@ -256,7 +279,7 @@
                         </div>
                     </div>
                 </div>
-
+                
                 <ng-container *ngIf="type.hierarchy.length > 0">
                     <div class="row-holder">
                         <div class="label-holder">
@@ -294,6 +317,64 @@
                         </div>
                     </div>
                 </ng-container>
+                
+                <div *ngIf="type.strategyType == 'GRAPH'" class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            Graph Types <!--TODO LOCALIZE-->
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <div class="row" *ngIf="!(readonly || !isNew)">
+                            <div class="col-md-12">
+
+                                <!-- Custom Multi-Select widget built ontop of Bootstrap Dropdown component
+                                    - ngx-bootstrap-multiselect was investigated as a potential solution and found to have lots of styling issues and as such was intentionally decided against.                      
+                                -->
+                                <div class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="true" container="#select-root">
+                                <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+                                    {{buildGraphTypeButtonLabel()}} <span class="caret"></span>
+                                </button>
+                                <ul id="dropdown-triggers-manual" *dropdownMenu class="dropdown-menu orgUnit-ul"
+                                    role="menu" aria-labelledby="button-triggers-manual">
+                                    <li *ngFor="let graphType of graphTypes" (click)="clickGraphTypeOption($event, graphType)" role="menuitem" [ngClass]="{'multiselect-listitem-selected': (type.graphTypes != null && type.graphTypes.indexOf(graphType.code) !== -1)}">
+                                    <a class="dropdown-item">{{graphType.code}}</a>
+                                    </li>
+                                </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="type.strategyType == 'GRAPH'" class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            Geo-Object Types <!--TODO LOCALIZE-->
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <div class="row" *ngIf="!(readonly || !isNew)">
+                            <div class="col-md-12">
+
+                                <!-- Custom Multi-Select widget built ontop of Bootstrap Dropdown component
+                                    - ngx-bootstrap-multiselect was investigated as a potential solution and found to have lots of styling issues and as such was intentionally decided against.                      
+                                -->
+                                <div class="btn-group" dropdown #dropdown="bs-dropdown" [autoClose]="true" container="#select-root">
+                                <button dropdownToggle type="button" class="btn btn-primary dropdown-toggle">
+                                    {{buildGeoObjectTypeButtonLabel()}} <span class="caret"></span>
+                                </button>
+                                <ul id="dropdown-triggers-manual" *dropdownMenu class="dropdown-menu orgUnit-ul"
+                                    role="menu" aria-labelledby="button-triggers-manual">
+                                    <li *ngFor="let geoObjectType of types" (click)="clickGeoObjectTypeOption($event, geoObjectType)" role="menuitem" [ngClass]="{'multiselect-listitem-selected': (type.geoObjectTypeCodes != null && type.geoObjectTypeCodes.indexOf(geoObjectType.code) !== -1)}">
+                                        <a class="dropdown-item">{{geoObjectType.code}}</a>
+                                    </li>
+                                </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="row-holder">
                     <div class="label-holder"></div>
