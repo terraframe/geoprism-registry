@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.service.business;
 
 import java.util.Arrays;
@@ -10,6 +28,10 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.Roles;
 
@@ -34,7 +56,7 @@ public class GPRTransitionBusinessService extends TransitionBusinessService impl
 
     Task.removeTasks(tran.getOid());
   }
-  
+
   @Override
   @Transaction
   public void apply(Transition tran, TransitionEvent event, int order, VertexServerGeoObject source, VertexServerGeoObject target)
@@ -51,7 +73,7 @@ public class GPRTransitionBusinessService extends TransitionBusinessService impl
       this.createTask(tran, source, target, event.getEventDate());
     }
   }
-  
+
   public void createTask(Transition tran, VertexServerGeoObject source, VertexServerGeoObject target, Date eventDate)
   {
     LocalizedValue dateValue = RegistryLocalizedValueConverter.convert(eventDate);
@@ -72,7 +94,7 @@ public class GPRTransitionBusinessService extends TransitionBusinessService impl
 
         for (ServerGeoObjectType child : children)
         {
-          List<Roles> roles = Arrays.asList(new String[] { ((GPRGeoObjectTypeBusinessService)gotServ).getMaintainerRoleName(child), ((GPRGeoObjectTypeBusinessService) gotServ).getAdminRoleName(child) }).stream().distinct().map(name -> Roles.findRoleByName(name)).collect(Collectors.toList());
+          List<Roles> roles = Arrays.asList(new String[] { ( (GPRGeoObjectTypeBusinessService) gotServ ).getMaintainerRoleName(child), ( (GPRGeoObjectTypeBusinessService) gotServ ).getAdminRoleName(child) }).stream().distinct().map(name -> Roles.findRoleByName(name)).collect(Collectors.toList());
 
           HashMap<String, LocalizedValue> values = new HashMap<String, LocalizedValue>();
           values.put("1", source.getDisplayLabel());
@@ -99,4 +121,38 @@ public class GPRTransitionBusinessService extends TransitionBusinessService impl
       }
     }
   }
+
+  public Long getCount()
+  {
+    MdVertexDAOIF transitionVertex = MdVertexDAO.getMdVertexDAO(Transition.CLASS);
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT COUNT(*)");
+    statement.append(" FROM " + transitionVertex.getDBClassName());
+
+    GraphQuery<Long> query = new GraphQuery<Long>(statement.toString());
+
+    return query.getSingleResult();
+  }
+
+  public List<Transition> getAll(Integer limit, Long skip)
+  {
+    MdVertexDAOIF transitionVertex = MdVertexDAO.getMdVertexDAO(Transition.CLASS);
+    MdAttributeDAOIF eventAttribute = transitionVertex.definesAttribute(Transition.EVENT);
+    MdAttributeDAOIF sourceAttribute = transitionVertex.definesAttribute(Transition.SOURCE);
+    MdAttributeDAOIF targetAttribute = transitionVertex.definesAttribute(Transition.TARGET);
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT FROM " + transitionVertex.getDBClassName());
+    statement.append(" ORDER BY " + eventAttribute.getColumnName() + " DESC");
+    statement.append(", " + sourceAttribute.getColumnName() + ".code");
+    statement.append(", " + targetAttribute.getColumnName() + ".code");
+    statement.append(", oid");
+    statement.append(" SKIP " + skip + " LIMIT " + limit);
+
+    GraphQuery<Transition> query = new GraphQuery<Transition>(statement.toString());
+
+    return query.getResults();
+  }
+
 }

@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.resource.CloseableFile;
 
 import net.geoprism.configuration.GeoprismProperties;
+import net.geoprism.registry.GeoRegistryUtil;
 
 /**
  * This class is responsible for extracting a DHIS2 plugin zip (created from the
@@ -99,7 +100,7 @@ public class DHIS2PluginZipManager
 
       try (CloseableFile directory = extractAndReplace())
       {
-        zipDirectory(directory, pluginZip);
+        GeoRegistryUtil.zipDirectory(directory, pluginZip);
       }
 
       return pluginZip;
@@ -175,44 +176,4 @@ public class DHIS2PluginZipManager
     return directory;
   }
 
-  private void zipDirectory(File sourceFolder, File zip)
-  {
-    // Creating a ZipOutputStream by wrapping a FileOutputStream
-    try (FileOutputStream fos = new FileOutputStream(zip); ZipOutputStream zos = new ZipOutputStream(fos))
-    {
-      Path sourcePath = sourceFolder.toPath();
-      // Walk the tree structure using WalkFileTree method
-      Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>()
-      {
-        @Override
-        // Before visiting the directory create the directory in zip archive
-        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
-        {
-          // Don't create dir for root folder as it is already created with .zip
-          // name
-          if (!sourcePath.equals(dir))
-          {
-            zos.putNextEntry(new ZipEntry(sourcePath.relativize(dir).toString() + "/"));
-            zos.closeEntry();
-          }
-          return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        // For each visited file add it to zip entry
-        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
-        {
-          zos.putNextEntry(new ZipEntry(sourcePath.relativize(file).toString()));
-          Files.copy(file, zos);
-          zos.closeEntry();
-          return FileVisitResult.CONTINUE;
-        }
-      });
-    }
-    catch (IOException e)
-    {
-      logger.error("Error occurred while zipping directory [" + sourceFolder.getAbsolutePath() + "].", e);
-      throw new RuntimeException(e);
-    }
-  }
 }

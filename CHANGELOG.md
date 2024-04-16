@@ -2,6 +2,21 @@
 # Release Notes
 
 
+## [1.4.0](https://github.com/terraframe/geoprism-registry/releases/tag/1.4.0) (2024-01-05)
+
+### Features
+
+ - **lists** show row count on table  ([#144](https://github.com/terraframe/geoprism-registry/issues/144)) ([2f9fe](https://github.com/terraframe/geoprism-registry/commit/2f9fe3dc6099b6fd3b25052ce710d889a166e7fc))
+ - support for organizational hierarchies   ([3a096](https://github.com/terraframe/geoprism-registry/commit/3a096420be54d85b7e5359a423129cb24110056c))
+ - ability to publish empty frequest lists   ([099e7](https://github.com/terraframe/geoprism-registry/commit/099e7532df923d63375c0132cdf6ad88770ebacf))
+
+### Bug Fixes
+
+   - **geoobject** latest label not fetching when date is null  ([#925](https://github.com/terraframe/geoprism-registry/issues/925)) ([4663c](https://github.com/terraframe/geoprism-registry/commit/4663ca198d5da0a0210eeac7fbe9e709ab1c2d69))
+   - **docker** database not building on clean install   ([08f2d](https://github.com/terraframe/geoprism-registry/commit/08f2dc9ac5ad321e490404af109c2dcd50879b9a))
+
+
+
 ## [1.3.1](https://github.com/terraframe/geoprism-registry/releases/tag/1.3.1) (2023-09-07)
 
 ### Features

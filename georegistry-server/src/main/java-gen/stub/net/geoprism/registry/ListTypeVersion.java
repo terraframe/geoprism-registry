@@ -1382,12 +1382,12 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     this.setValue(prefix + "TelephoneNumber", object.get("telephoneNumber").getAsString());
     this.setValue(prefix + "Email", object.get("email").getAsString());
 
-    if (!object.get("originator").isJsonNull())
+    if (object.has("originator") && !object.get("originator").isJsonNull())
     {
       this.setValue(prefix + "Originator", object.get("originator").getAsString());
     }
 
-    if (!object.get("collectionDate").isJsonNull())
+    if (object.has("collectionDate") && !object.get("collectionDate").isJsonNull())
     {
       SimpleDateFormat formatter = new SimpleDateFormat(Constants.DATETIME_FORMAT);
       Date collectionDate = GeoRegistryUtil.parseDate(object.get("collectionDate").getAsString());

@@ -21,7 +21,7 @@ import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
-public class TestGeoObjectTypeInfo
+public class TestGeoObjectTypeInfo extends TestCachedObject<ServerGeoObjectType>
 {
   private String                      code;
 
@@ -166,7 +166,14 @@ public class TestGeoObjectTypeInfo
 
   public ServerGeoObjectType getServerObject(boolean forceFetch)
   {
-    return ServerGeoObjectType.get(code, true);
+    if (this.getCachedObject() != null && !forceFetch)
+    {
+      return this.getCachedObject();
+    }
+
+    this.setCachedObject(ServerGeoObjectType.get(code, true));
+
+    return this.getCachedObject();
   }
 
   public GeoObjectType fetchDTO()
@@ -272,6 +279,8 @@ public class TestGeoObjectTypeInfo
   public void delete()
   {
     deleteInTrans();
+
+    this.setCachedObject(null);
   }
 
   @Transaction

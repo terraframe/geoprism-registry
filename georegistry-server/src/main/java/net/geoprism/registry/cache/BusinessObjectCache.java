@@ -16,10 +16,9 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl;
+package net.geoprism.registry.cache;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Optional;
 
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.model.BusinessObject;
@@ -27,7 +26,7 @@ import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
-public class BusinessObjectCache
+public class BusinessObjectCache extends LRUCache<String, BusinessObject>
 {
   public static final String                SEPARATOR = "$@~";
 
@@ -35,55 +34,56 @@ public class BusinessObjectCache
 
   protected BusinessObjectBusinessServiceIF objectService;
 
-  protected Map<String, BusinessObject>     cache;
+  public BusinessObjectCache()
+  {
+    this(10000);
+  }
 
   public BusinessObjectCache(int cacheSize)
   {
-    this.init(cacheSize);
+    super(cacheSize);
+
+    this.init();
   }
 
-  public BusinessObjectCache()
+  private void init()
   {
-    this.init(10000);
-  }
-
-  @SuppressWarnings("serial")
-  private void init(int cacheSize)
-  {
-    this.cache = new LinkedHashMap<String, BusinessObject>(cacheSize + 1, .75F, true)
-    {
-      public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
-      {
-        return size() > cacheSize;
-      }
-    };
-
     this.typeService = ServiceFactory.getBean(BusinessTypeBusinessServiceIF.class);
     this.objectService = ServiceFactory.getBean(BusinessObjectBusinessServiceIF.class);
   }
 
-  public long getSize()
+  public Optional<BusinessObject> get(String code, String typeCode)
   {
-    return this.cache.size();
+    return this.get(typeCode + SEPARATOR + code);
   }
 
   public BusinessObject getByCode(String code, String typeCode)
   {
-    return this.cache.get(typeCode + SEPARATOR + code);
+    return this.get(typeCode + SEPARATOR + code).orElse(null);
   }
 
   public BusinessObject getOrFetchByCode(String code, String typeCode)
   {
-    BusinessObject go = this.cache.get(typeCode + SEPARATOR + code);
-
-    if (go == null)
-    {
+    return this.get(typeCode, code).orElseGet(() -> {
       BusinessType businessType = this.typeService.getByCode(typeCode);
-      go = this.objectService.getByCode(businessType, code);
 
-      this.cache.put(typeCode + SEPARATOR + code, go);
-    }
+      BusinessObject object = this.objectService.getByCode(businessType, code);
 
-    return go;
+      this.put(typeCode + SEPARATOR + code, object);
+
+      return object;
+    });
+  }
+
+  public BusinessObject getOrFetchByCode(String code, BusinessType type)
+  {
+    return this.get(type.getCode(), code).orElseGet(() -> {
+
+      BusinessObject object = this.objectService.getByCode(type, code);
+
+      this.put(type.getCode() + SEPARATOR + code, object);
+
+      return object;
+    });
   }
 }

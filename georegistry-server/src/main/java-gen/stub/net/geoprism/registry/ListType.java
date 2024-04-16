@@ -160,20 +160,29 @@ public abstract class ListType extends ListTypeBase
   }
 
   @Override
-  @Transaction
   public void delete()
   {
-    // Validate there are no public versions
-    ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
-    query.WHERE(query.getListType().EQ(this));
-    query.AND(query.getWorking().EQ(false));
-    query.AND(OR.get(query.getListVisibility().EQ(ListType.PUBLIC), query.getGeospatialVisibility().EQ(ListType.PUBLIC)));
+    delete(true);
+  }
 
-    long count = query.getCount();
-
-    if (count > 0)
+  @Transaction
+  public void delete(boolean validate)
+  {
+    if (validate)
     {
-      throw new CannotDeletePublicListTypeException();
+
+      // Validate there are no public versions
+      ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
+      query.WHERE(query.getListType().EQ(this));
+      query.AND(query.getWorking().EQ(false));
+      query.AND(OR.get(query.getListVisibility().EQ(ListType.PUBLIC), query.getGeospatialVisibility().EQ(ListType.PUBLIC)));
+
+      long count = query.getCount();
+
+      if (count > 0)
+      {
+        throw new CannotDeletePublicListTypeException();
+      }
     }
 
     // Delete all jobs

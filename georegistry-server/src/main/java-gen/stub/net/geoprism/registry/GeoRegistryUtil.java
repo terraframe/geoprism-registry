@@ -18,8 +18,15 @@
  */
 package net.geoprism.registry;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -27,13 +34,18 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.rbac.Authenticate;
@@ -63,11 +75,14 @@ import net.geoprism.registry.xml.XMLImporter;
 
 public class GeoRegistryUtil extends GeoRegistryUtilBase
 {
-  private static final long    serialVersionUID  = 2034796376;
+  private static final long               serialVersionUID  = 2034796376;
 
-  public static final TimeZone SYSTEM_TIMEZONE   = TimeZone.getTimeZone("UTC");
+  public static final TimeZone            SYSTEM_TIMEZONE   = TimeZone.getTimeZone("UTC");
 
-  public static final String   LOCAL_DATE_FORMAT = "yyyy-MM-dd";
+  public static final String              LOCAL_DATE_FORMAT = "yyyy-MM-dd";
+
+  // Work around for authenticated methods with complex attributes
+  private static List<ServerOrganization> organizations;
 
   public GeoRegistryUtil()
   {
@@ -339,12 +354,20 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   }
 
   @Authenticate
-  public static void importTypes(String orgCode, InputStream istream)
+  public static void importTypes(String json, InputStream istream)
   {
-    ServerOrganization organization = ServerOrganization.getByCode(orgCode);
+    JsonArray orgCodes = JsonParser.parseString(json).getAsJsonArray();
+    List<ServerOrganization> organizations = new LinkedList<>();
+
+    for (int i = 0; i < orgCodes.size(); i++)
+    {
+      String orgCode = orgCodes.get(i).getAsString();
+
+      organizations.add(ServerOrganization.getByCode(orgCode));
+    }
 
     XMLImporter xmlImporter = new XMLImporter();
-    xmlImporter.importXMLDefinitions(organization, new StreamResource(istream, "domain.xml"));
+    xmlImporter.importXMLDefinitions(new StreamResource(istream, "domain.xml"), organizations);
   }
 
   public static void importTypes(String orgCode, ApplicationResource resource)
@@ -352,7 +375,47 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     ServerOrganization organization = ServerOrganization.getByCode(orgCode);
 
     XMLImporter xmlImporter = new XMLImporter();
-    xmlImporter.importXMLDefinitions(organization, resource);
+    xmlImporter.importXMLDefinitions(resource, organization);
+  }
+
+  public static void zipDirectory(File sourceFolder, File targetZip)
+  {
+    // Creating a ZipOutputStream by wrapping a FileOutputStream
+    try (FileOutputStream fos = new FileOutputStream(targetZip); ZipOutputStream zos = new ZipOutputStream(fos))
+    {
+      Path sourcePath = sourceFolder.toPath();
+      // Walk the tree structure using WalkFileTree method
+      Files.walkFileTree(sourcePath, new SimpleFileVisitor<Path>()
+      {
+        @Override
+        // Before visiting the directory create the directory in zip archive
+        public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException
+        {
+          // Don't create dir for root folder as it is already created with .zip
+          // name
+          if (!sourcePath.equals(dir))
+          {
+            zos.putNextEntry(new ZipEntry(sourcePath.relativize(dir).toString() + "/"));
+            zos.closeEntry();
+          }
+          return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        // For each visited file add it to zip entry
+        public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException
+        {
+          zos.putNextEntry(new ZipEntry(sourcePath.relativize(file).toString()));
+          Files.copy(file, zos);
+          zos.closeEntry();
+          return FileVisitResult.CONTINUE;
+        }
+      });
+    }
+    catch (IOException e)
+    {
+      throw new RuntimeException(e);
+    }
   }
 
 }
