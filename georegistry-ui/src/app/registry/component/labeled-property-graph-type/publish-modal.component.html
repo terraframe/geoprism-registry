@@ -236,11 +236,11 @@
                 <div class="row-holder">
                     <div class="label-holder">
                         <label>
-                            Strategy Type
+                            <localize key="lpg.strategyType"></localize>
                         </label>
                     </div>
                     <div class="holder">
-                        <div class="row" *ngIf="!(readonly || !isNew)">
+                        <div class="row">
                             <div class="col-md-12">
 
                                 <select class="select-area" name="strategyType" [(ngModel)]="type.strategyType"
@@ -263,7 +263,7 @@
                         </label>
                     </div>
                     <div class="holder">
-                        <div class="row" *ngIf="!(readonly || !isNew)">
+                        <div class="row">
                             <div class="col-md-12">
 
                                 <select class="select-area" name="hierarchy" [(ngModel)]="type.hierarchy"
@@ -321,7 +321,31 @@
                 <div *ngIf="type.strategyType == 'GRAPH'" class="row-holder">
                     <div class="label-holder">
                         <label>
-                            Graph Types <!--TODO LOCALIZE-->
+                            <localize key="lpg.organization"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <div class="row">
+                            <div class="col-md-12">
+
+                                <select class="select-area" name="hierarchy" [(ngModel)]="type.organization"
+                                    [disabled]="readonly || !isNew" required>
+                                    <option></option>
+                                    <ng-container *ngFor="let o of organizations">
+                                        <option [value]="o.code">
+                                            {{o.label.localizedValue}}
+                                        </option>
+                                    </ng-container>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div *ngIf="type.strategyType == 'GRAPH'" class="row-holder">
+                    <div class="label-holder">
+                        <label>
+                            <localize key="lpg.graphTypes"></localize>
                         </label>
                     </div>
                     <div class="holder">
@@ -338,11 +362,14 @@
                                 <ul id="dropdown-triggers-manual" *dropdownMenu class="dropdown-menu orgUnit-ul"
                                     role="menu" aria-labelledby="button-triggers-manual">
                                     <li *ngFor="let graphType of graphTypes" (click)="clickGraphTypeOption($event, graphType)" role="menuitem" [ngClass]="{'multiselect-listitem-selected': (type.graphTypes != null && type.graphTypes.indexOf(graphType.code) !== -1)}">
-                                    <a class="dropdown-item">{{graphType.code}}</a>
+                                      <a class="dropdown-item">{{graphType.code}}</a>
                                     </li>
                                 </ul>
                                 </div>
                             </div>
+                        </div>
+                        <div class="row" *ngIf="readonly || !isNew">
+                          <div class="col-md-12" style="line-height: 41px;"> {{buildGraphTypeButtonLabel(true)}} </div>
                         </div>
                     </div>
                 </div>
@@ -350,7 +377,7 @@
                 <div *ngIf="type.strategyType == 'GRAPH'" class="row-holder">
                     <div class="label-holder">
                         <label>
-                            Geo-Object Types <!--TODO LOCALIZE-->
+                            <localize key="lpg.geoObjectTypes"></localize>
                         </label>
                     </div>
                     <div class="holder">
@@ -373,6 +400,9 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row" *ngIf="readonly || !isNew">
+		                      <div class="col-md-12" style="line-height: 41px;"> {{buildGeoObjectTypeButtonLabel(true)}} </div>
+		                    </div>
                     </div>
                 </div>
 

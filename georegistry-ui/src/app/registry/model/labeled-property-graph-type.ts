@@ -71,6 +71,7 @@ export class LabeledPropertyGraphType {
     graphType: string;
     graphTypes?: string;
     geoObjectTypeCodes?: string;
+    organization?: string;
 
     // Attributes for the subtypes
     validOn?: string;

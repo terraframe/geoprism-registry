@@ -1,5 +1,49 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.assignGraphTypes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.assignGraphTypes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Assign Graph Types" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.assignGeoObjectTypes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.assignGeoObjectTypes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Assign Geo-Object Types" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.strategyType">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.strategyType" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Strategy Type" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.organization">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.organization" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Organization" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.graphTypes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.graphTypes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Graph Types" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="lpg.geoObjectTypes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="lpg.geoObjectTypes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo-Object Types" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
     <create>
       <mdBusiness name="net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot" table="dag_type_snapshot" label="Directed Acyclic Graph Type Snapshot" generateController="false" publish="true">
         <attributes>
@@ -37,6 +81,18 @@
         </create>
       </mdBusiness>
     </update>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.graph.DirectedAcyclicGraphTypeSnapshot">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.graph.UndirectedGraphTypeSnapshot">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
   </doIt>
   <undoIt>
     <delete>

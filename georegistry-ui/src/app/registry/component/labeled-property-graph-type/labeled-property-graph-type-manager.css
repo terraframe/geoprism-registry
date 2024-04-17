@@ -139,3 +139,7 @@ label.settings > span > i.fa.fa-cog {
   background-color: lightblue
 }
 
+.dropdown-menu {
+	max-height: 200px;
+}
+
