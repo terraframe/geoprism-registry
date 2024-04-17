@@ -87,7 +87,7 @@ public class TestHierarchyTypeInfo extends TestCachedObject<ServerHierarchyType>
       return this.getCachedObject();
     }
 
-    this.setCachedObject(ServerHierarchyType.get(getCode()));
+    this.setCachedObject(ServerHierarchyType.get(getCode(), false));
 
     return this.getCachedObject();
   }

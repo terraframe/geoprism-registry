@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import net.geoprism.registry.service.business.GraphRepoServiceIF;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
@@ -90,6 +91,10 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
   @Autowired
   private ClassificationBusinessServiceIF     cService;
 
+  @Autowired
+  private GraphRepoServiceIF repService;
+
+
   @Override
   public void beforeClassSetup() throws Exception
   {
@@ -130,6 +135,8 @@ public class ListTypeTest extends USADatasetTest implements InstanceTestClassLis
     testTerm = (AttributeTermType) this.typeService.createAttributeType(got, testTerm);
 
     USATestData.COLORADO.setDefaultValue(testClassification.getName(), CODE);
+
+    this.repService.refreshMetadataCache();
   }
 
   @Override

@@ -279,7 +279,7 @@ public class BackupService implements BackupServiceIF
       while (skip < count)
       {
         StringBuilder statement = new StringBuilder();
-        statement.append("SELECT out.uuid AS parentUid, out.@class AS parentClass, in.uuid AS childUid, in.@class AS childClass, startDate AS startDate, endDate AS endDate");
+        statement.append("SELECT out.uid AS parentUid, out.@class AS parentClass, in.uid AS childUid, in.@class AS childClass, startDate AS startDate, endDate AS endDate");
         statement.append(" FROM " + type.getMdEdgeDAO().getDBClassName());
         statement.append(" ORDER BY out.@rid, in.@rid");
         statement.append(" SKIP " + skip);
