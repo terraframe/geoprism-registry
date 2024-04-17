@@ -4,49 +4,63 @@
 
 -->
 <CGR xsi:noNamespaceSchemaLocation="classpath:xsd/cgr.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <type code="TEST_VILLAGE" label="Test Village" description="Test Village Description" visibility="PUBLIC" geometryType="POINT" isGeometryEditable="false">
-    <attributes>
-      <text code="TEST_TEXT" label="Test Text" description="Test Text Description" />
-      <boolean code="TEST_BOOLEAN" label="Test Boolean" description="Test Boolean Description" />
-      <integer code="TEST_INTEGER" label="Test Integer" description="Test Integer Description" />
-      <decimal code="TEST_DECIMAL" label="Test Decimal" description="Test Decimal Description" precision="10" scale="2" />
-      <integer code="TEST_DATE" label="Test Date" description="Test Date Description" />
-      <term code="TEST_TERM" label="Test Term" description="Test Term Description">
-        <option code="TERM_1" label="Term 1" description="Term 1 Description" />
-        <option code="TERM_2" label="Term 2" description="Term 2 Description" />
-        <option code="TERM_3" label="Term 3" description="Term 3 Description" />
-      </term>
-      <classification code="TEST_CLASSIFICATION" label="Test Classification" description="Test Text Classification" classificationType="TEST_PROG" root="Test_Classification" />
-    </attributes>
-    <group-item code="TEST_GI" label="Test GI" description="Test GI" />
-  </type>
-  <type code="TEST_DISTRICT" label="Test District" description="Test District" visibility="PUBLIC" geometryType="POINT" isGeometryEditable="false">
-  </type>
-  <hierarchy code="TEST_HIERARCHY" label="Test Hierarchy" description="Test Hierarchy Description" progress="Test Progress" disclaimer="Test Disclaimer" accessConstraints="Test Access Constraints" useConstraints="Test Use Constraints" acknowledgement="Test Acknowledgement">
-    <child code="TEST_DISTRICT">
-      <child code="TEST_VILLAGE" />
-    </child>
-  </hierarchy>
-  
-  <business-type code="BUSINESS_POP" label="Business Pop" description="Business Pop Description" labelAttribute="TEST_TEXT">
-    <attributes>
-      <text code="TEST_TEXT" label="Test Text" description="Test Text Description" />
-      <boolean code="TEST_BOOLEAN" label="Test Boolean" description="Test Boolean Description" />
-      <integer code="TEST_INTEGER" label="Test Integer" description="Test Integer Description" />
-      <decimal code="TEST_DECIMAL" label="Test Decimal" description="Test Decimal Description" precision="10" scale="2" />
-      <date code="TEST_DATE" label="Test Date" description="Test Date Description" />
-      <term code="TEST_TERM" label="Test Term" description="Test Term Description">
-        <option code="BT_TERM_1" label="Term 1" description="Term 1 Description" />
-        <option code="BT_TERM_2" label="Term 2" description="Term 2 Description" />
-        <option code="BT_TERM_3" label="Term 3" description="Term 3 Description" />
-      </term>
-      <classification code="TEST_CLASSIFICATION" label="Test Classification" description="Test Text Classification" classificationType="TEST_PROG" root="Test_Classification" />
-    </attributes>
-  </business-type>
-  <business-type code="BUSINESS_CHILD" label="Business Child" description="Business Child">
-  </business-type>
-  
-  <business-edge code="BUS_EDGE" label="Business Edge" description="Business Edge" parentTypeCode="BUSINESS_POP" childTypeCode="BUSINESS_CHILD">
-  </business-edge>
-  
+    <organization code="TEST_ORG">
+        <type code="TEST_VILLAGE" label="Test Village" description="Test Village Description" visibility="PUBLIC"
+              geometryType="POINT" isGeometryEditable="false">
+            <attributes>
+                <text code="TEST_TEXT" label="Test Text" description="Test Text Description"/>
+                <boolean code="TEST_BOOLEAN" label="Test Boolean" description="Test Boolean Description"/>
+                <integer code="TEST_INTEGER" label="Test Integer" description="Test Integer Description"/>
+                <decimal code="TEST_DECIMAL" label="Test Decimal" description="Test Decimal Description" precision="10"
+                         scale="2"/>
+                <integer code="TEST_DATE" label="Test Date" description="Test Date Description"/>
+                <term code="TEST_TERM" label="Test Term" description="Test Term Description">
+                    <option code="TERM_1" label="Term 1" description="Term 1 Description"/>
+                    <option code="TERM_2" label="Term 2" description="Term 2 Description"/>
+                    <option code="TERM_3" label="Term 3" description="Term 3 Description"/>
+                </term>
+                <classification code="TEST_CLASSIFICATION" label="Test Classification"
+                                description="Test Text Classification" classificationType="TEST_PROG"
+                                root="Test_Classification"/>
+            </attributes>
+            <group-item code="TEST_GI" label="Test GI" description="Test GI"/>
+        </type>
+        <type code="TEST_DISTRICT" label="Test District" description="Test District" visibility="PUBLIC"
+              geometryType="POINT" isGeometryEditable="false">
+        </type>
+        <hierarchy code="TEST_HIERARCHY" label="Test Hierarchy" description="Test Hierarchy Description"
+                   progress="Test Progress" disclaimer="Test Disclaimer" accessConstraints="Test Access Constraints"
+                   useConstraints="Test Use Constraints" acknowledgement="Test Acknowledgement">
+            <child code="TEST_DISTRICT">
+                <child code="TEST_VILLAGE"/>
+            </child>
+        </hierarchy>
+
+        <business-type code="BUSINESS_POP" label="Business Pop" description="Business Pop Description"
+                       labelAttribute="TEST_TEXT">
+            <attributes>
+                <text code="TEST_TEXT" label="Test Text" description="Test Text Description"/>
+                <boolean code="TEST_BOOLEAN" label="Test Boolean" description="Test Boolean Description"/>
+                <integer code="TEST_INTEGER" label="Test Integer" description="Test Integer Description"/>
+                <decimal code="TEST_DECIMAL" label="Test Decimal" description="Test Decimal Description" precision="10"
+                         scale="2"/>
+                <date code="TEST_DATE" label="Test Date" description="Test Date Description"/>
+                <term code="TEST_TERM" label="Test Term" description="Test Term Description">
+                    <option code="BT_TERM_1" label="Term 1" description="Term 1 Description"/>
+                    <option code="BT_TERM_2" label="Term 2" description="Term 2 Description"/>
+                    <option code="BT_TERM_3" label="Term 3" description="Term 3 Description"/>
+                </term>
+                <classification code="TEST_CLASSIFICATION" label="Test Classification"
+                                description="Test Text Classification" classificationType="TEST_PROG"
+                                root="Test_Classification"/>
+            </attributes>
+        </business-type>
+        <business-type code="BUSINESS_CHILD" label="Business Child" description="Business Child">
+        </business-type>
+
+        <business-edge code="BUS_EDGE" label="Business Edge" description="Business Edge" parentTypeCode="BUSINESS_POP"
+                       childTypeCode="BUSINESS_CHILD">
+        </business-edge>
+    </organization>
+
 </CGR>

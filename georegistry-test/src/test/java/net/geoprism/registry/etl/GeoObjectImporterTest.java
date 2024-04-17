@@ -79,6 +79,10 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
   @Autowired
   private ETLService                 etlService;
 
+  @Autowired
+  private ExcelService                 service;
+
+
   @Override
   public void beforeClassSetup() throws Exception
   {
@@ -243,7 +247,6 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     Assert.assertNotNull(istream);
 
-    ExcelService service = new ExcelService();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
@@ -300,7 +303,6 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     Assert.assertNotNull(istream);
 
-    ExcelService service = new ExcelService();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.UPDATE_ONLY);
@@ -357,7 +359,6 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     Assert.assertNotNull(istream);
 
-    ExcelService service = new ExcelService();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
@@ -403,7 +404,6 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     Assert.assertNotNull(istream);
 
-    ExcelService service = new ExcelService();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
@@ -467,7 +467,6 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     Assert.assertNotNull(istream);
 
-    ExcelService service = new ExcelService();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
@@ -565,7 +564,6 @@ public class GeoObjectImporterTest extends USADatasetTest implements InstanceTes
 
     Assert.assertNotNull(istream);
 
-    ExcelService service = new ExcelService();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
