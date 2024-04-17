@@ -233,37 +233,40 @@ public class GraphPublisherService extends AbstractGraphVersionPublisherService
       
       for (EdgeAndInOut edge : edges)
       {
-        CachedGOTSnapshot inGotCached = this.gotSnaps.get(edge.in.getType().getCode());
-        MdVertex publishInMdVertex = inGotCached.graphMdVertex;
-        
-        VertexObject publishedIn;
-        if (!publishedGOs.contains(edge.in.getUid()))
+        if (this.gotSnaps.containsKey(edge.in.getType().getCode()) && this.gotSnaps.containsKey(edge.out.getType().getCode()))
         {
-          publishedIn = super.publish(state, publishInMdVertex, this.objectService.toGeoObject(edge.in, version.getForDate(), false));
-          publishedGOs.add(edge.in.getUid());
-          state.cache.put(edge.in.getUid(), publishedIn);
+          CachedGOTSnapshot inGotCached = this.gotSnaps.get(edge.in.getType().getCode());
+          MdVertex publishInMdVertex = inGotCached.graphMdVertex;
+          
+          VertexObject publishedIn;
+          if (!publishedGOs.contains(edge.in.getUid()))
+          {
+            publishedIn = super.publish(state, publishInMdVertex, this.objectService.toGeoObject(edge.in, version.getForDate(), false));
+            publishedGOs.add(edge.in.getUid());
+            state.cache.put(edge.in.getUid(), publishedIn);
+          }
+          else
+          {
+            publishedIn = getVertex(state, publishInMdVertex, edge.in.getUid());
+          }
+          
+          CachedGOTSnapshot outGotCached = this.gotSnaps.get(edge.out.getType().getCode());
+          MdVertex publishOutMdVertex = outGotCached.graphMdVertex;
+          
+          VertexObject publishedOut;
+          if (!publishedGOs.contains(edge.out.getUid()))
+          {
+            publishedOut = super.publish(state, publishOutMdVertex, this.objectService.toGeoObject(edge.out, version.getForDate(), false));
+            publishedGOs.add(edge.out.getUid());
+            state.cache.put(edge.out.getUid(), publishedOut);
+          }
+          else
+          {
+            publishedOut = getVertex(state, publishOutMdVertex, edge.out.getUid());
+          }
+          
+          publishedOut.addChild(publishedIn, graphMdEdge.definesType()).apply();
         }
-        else
-        {
-          publishedIn = getVertex(state, publishInMdVertex, edge.in.getUid());
-        }
-        
-        CachedGOTSnapshot outGotCached = this.gotSnaps.get(edge.out.getType().getCode());
-        MdVertex publishOutMdVertex = outGotCached.graphMdVertex;
-        
-        VertexObject publishedOut;
-        if (!publishedGOs.contains(edge.out.getUid()))
-        {
-          publishedOut = super.publish(state, publishOutMdVertex, this.objectService.toGeoObject(edge.out, version.getForDate(), false));
-          publishedGOs.add(edge.out.getUid());
-          state.cache.put(edge.out.getUid(), publishedOut);
-        }
-        else
-        {
-          publishedOut = getVertex(state, publishOutMdVertex, edge.out.getUid());
-        }
-        
-        publishedOut.addChild(publishedIn, graphMdEdge.definesType()).apply();
       }
       
       skip += BLOCK_SIZE;

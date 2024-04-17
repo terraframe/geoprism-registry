@@ -130,6 +130,12 @@ export interface AttributedType {
     attributes?: Array<AttributeType>;
 }
 
+export class GraphType {
+  code: string;
+  label: LocalizedValue;
+  description?: LocalizedValue;
+}
+
 export class GeoObjectType implements AttributedType {
     code: string;
     label: LocalizedValue;

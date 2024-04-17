@@ -24,7 +24,7 @@ import { finalize } from "rxjs/operators";
 
 import {
     GeoObject, GeoObjectType, AttributeType, Term, ParentTreeNode,
-    ChildTreeNode, GeoObjectOverTime, HierarchyOverTime, ScheduledJob
+    ChildTreeNode, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, GraphType
 } from "@registry/model/registry";
 
 import { HierarchyType } from "@registry/model/hierarchy";
@@ -51,15 +51,19 @@ export class RegistryService implements AttributeTypeService {
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    init(publicOnly?: boolean): Promise<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }> {
+    init(publicOnly?: boolean, includeGraphTypes: boolean = false): Promise<{ types: GeoObjectType[], graphTypes?: GraphType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }> {
         let params: HttpParams = new HttpParams();
 
         if (publicOnly) {
             params = params.set("publicOnly", publicOnly);
         }
+        if (includeGraphTypes)
+        {
+          params = params.set("includeGraphTypes", includeGraphTypes);
+        }
 
         return firstValueFrom(
-            this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }>(environment.apiUrl + "/api/cgr/init", { params: params })
+            this.http.get<{ types: GeoObjectType[], graphTypes?: GraphType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }>(environment.apiUrl + "/api/cgr/init", { params: params })
         );
     }
 

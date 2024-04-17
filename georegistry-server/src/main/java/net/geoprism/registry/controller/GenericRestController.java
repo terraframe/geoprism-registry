@@ -152,9 +152,9 @@ public class GenericRestController extends RunwaySpringController
    * @return
    */
   @GetMapping(RegistryConstants.CONTROLLER_ROOT + "cgr/init")
-  public ResponseEntity<String> init(@RequestParam(defaultValue = "false", required = false) Boolean publicOnly)
+  public ResponseEntity<String> init(@RequestParam(defaultValue = "false", required = false) Boolean publicOnly, @RequestParam(defaultValue = "false", required = false) Boolean includeGraphTypes)
   {
-    JsonObject response = this.service.initHierarchyManager(this.getSessionId(), publicOnly);
+    JsonObject response = this.service.initHierarchyManager(this.getSessionId(), publicOnly, includeGraphTypes);
     return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
   }
 

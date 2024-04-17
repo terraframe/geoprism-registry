@@ -38,7 +38,7 @@ public interface RegistryServiceIF
 
   String oauthGetPublic(String sessionId, String id);
 
-  JsonObject initHierarchyManager(String sessionId, Boolean publicOnly);
+  JsonObject initHierarchyManager(String sessionId, Boolean publicOnly, Boolean includeGraphTypes);
 
   List<CGRApplication> getApplications(String sessionId);
 
