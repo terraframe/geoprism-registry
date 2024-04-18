@@ -6,3 +6,4 @@
 /session
 /vault/
 /${project.basedir}/
+/overlays/

@@ -20,8 +20,8 @@
 -->
 <div>
 	<p-table #dt [columns]="setup.columns" [value]="page.resultSet" [autoLayout]="true" [scrollable]="false"
-		[resizableColumns]="true" sortMode="multiple" styleClass="p-datatable-gridlines" [lazy]="true"
-		(onLazyLoad)="onPageChange($event)" [paginator]="true" [totalRecords]="page.count" [rows]="page.pageSize"
+		[resizableColumns]="true" sortMode="multiple" styleClass="p-datatable-gridlines" [lazy]="true" [currentPageReportTemplate]="'generic.table.pageReport' | localize"
+		(onLazyLoad)="onPageChange($event)" [paginator]="true" [showCurrentPageReport]="true" [totalRecords]="page.count" [rows]="page.pageSize" [rowsPerPageOptions]="[10,25,50,100,500]"
 		[loading]="loading" [multiSortMeta]="config.sort != null ? config.sort : []" (onFilter)="handleFilter($event)">
 
 		<ng-template pTemplate="colgroup" let-columns>

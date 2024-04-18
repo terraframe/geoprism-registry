@@ -31,7 +31,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.GeoObjectBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
-public class TestGeoObjectInfo
+public class TestGeoObjectInfo extends TestCachedObject<ServerGeoObjectIF>
 {
   private String                  code;
 
@@ -46,8 +46,6 @@ public class TestGeoObjectInfo
   private List<TestGeoObjectInfo> children;
 
   private List<TestGeoObjectInfo> parents;
-
-  private ServerGeoObjectIF       serverGO;
 
   private Boolean                 exists;
 
@@ -93,12 +91,16 @@ public class TestGeoObjectInfo
     this.defaultValues = new HashMap<String, Object>();
 
     this.registryId = null;
-    this.serverGO = null;
+    this.setCachedObject(null);
 
     GeometryType geom = this.getGeoObjectType().getGeometryType();
     if (geom == GeometryType.MULTIPOINT)
     {
       this.wkt = TestDataSet.WKT_DEFAULT_MULTIPOINT;
+    }
+    else if (geom == GeometryType.POINT)
+    {
+      this.wkt = TestDataSet.WKT_DEFAULT_POINT;
     }
     else if (geom == GeometryType.MULTIPOLYGON)
     {
@@ -428,10 +430,10 @@ public class TestGeoObjectInfo
     // {
     GeoObjectBusinessServiceIF service = ServiceFactory.getBean(GeoObjectBusinessServiceIF.class);
 
-    this.serverGO = service.getGeoObjectByCode(this.getCode(), this.getGeoObjectType().getCode(), false);
+    this.setCachedObject(service.getGeoObjectByCode(this.getCode(), this.getGeoObjectType().getCode(), false));
     // }
 
-    return this.serverGO;
+    return this.getCachedObject();
   }
 
   /**
@@ -550,7 +552,7 @@ public class TestGeoObjectInfo
     this.isNew = true;
 
     this.registryId = null;
-    this.serverGO = null;
+    this.setCachedObject(null);
   }
 
   /**

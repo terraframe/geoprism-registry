@@ -16,7 +16,7 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.business.HierarchyTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.ServiceFactory;
 
-public class TestHierarchyTypeInfo
+public class TestHierarchyTypeInfo extends TestCachedObject<ServerHierarchyType>
 {
   private String               code;
 
@@ -82,7 +82,14 @@ public class TestHierarchyTypeInfo
 
   public ServerHierarchyType getServerObject(boolean forceFetch)
   {
-    return ServerHierarchyType.get(code, false);
+    if (this.getCachedObject() != null && !forceFetch)
+    {
+      return this.getCachedObject();
+    }
+
+    this.setCachedObject(ServerHierarchyType.get(getCode(), false));
+
+    return this.getCachedObject();
   }
 
   public Boolean doesMdTermRelationshipExist()
@@ -117,7 +124,7 @@ public class TestHierarchyTypeInfo
 
     HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
 
-    service.createHierarchyType(dto);
+    this.setCachedObject(service.createHierarchyType(dto));
   }
 
   @Request
@@ -139,7 +146,7 @@ public class TestHierarchyTypeInfo
   public void removeRoot(TestGeoObjectTypeInfo type)
   {
     HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
-    service.removeChild(this.getServerObject(), RootGeoObjectType.INSTANCE, type.getServerObject(), true);
+    service.removeChild(this.getCachedObject(), RootGeoObjectType.INSTANCE, type.getServerObject(), true);
   }
 
   @Request
@@ -158,5 +165,7 @@ public class TestHierarchyTypeInfo
       HierarchyTypeBusinessServiceIF service = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
       service.delete(serverHOT);
     }
+
+    this.setCachedObject(null);
   }
 }

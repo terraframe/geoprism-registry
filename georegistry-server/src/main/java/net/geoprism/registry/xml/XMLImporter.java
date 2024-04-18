@@ -20,8 +20,13 @@ package net.geoprism.registry.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.BiConsumer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -73,6 +78,14 @@ import net.geoprism.registry.service.business.UndirectedGraphTypeBusinessService
 
 public class XMLImporter
 {
+  private static final String                       GEO_OBECT_TYPE_PREFIX     = "#g_";
+
+  private static final String                       HIERARCHY_TYPE_PREFIX     = "#h_";
+
+  private static final String                       BUSINESS_TYPE_PREFIX      = "#h_";
+
+  private static final String                       BUSINESS_EDGE_TYPE_PREFIX = "#h_";
+
   private RegistryAdapter                           adapter;
 
   private GeoObjectTypeBusinessServiceIF            typeService;
@@ -87,6 +100,10 @@ public class XMLImporter
 
   private UndirectedGraphTypeBusinessServiceIF      undirectedService;
 
+  private Set<String>                               importedTypes;
+
+  private Document                                  doc;
+
   public XMLImporter()
   {
     this.typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
@@ -97,10 +114,17 @@ public class XMLImporter
     this.undirectedService = ServiceFactory.getBean(UndirectedGraphTypeBusinessServiceIF.class);
 
     this.adapter = ServiceFactory.getAdapter();
+    this.importedTypes = new TreeSet<String>();
   }
 
   @Transaction
-  public List<ServerElement> importXMLDefinitions(ServerOrganization organization, ApplicationResource resource)
+  public List<ServerElement> importXMLDefinitions(ApplicationResource resource, ServerOrganization... organizations)
+  {
+    return this.importXMLDefinitions(resource, Arrays.asList(organizations));
+  }
+
+  @Transaction
+  public List<ServerElement> importXMLDefinitions(ApplicationResource resource, List<ServerOrganization> organizations)
   {
 
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
@@ -109,14 +133,30 @@ public class XMLImporter
     {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       DocumentBuilder dBuilder = factory.newDocumentBuilder();
-      Document doc = dBuilder.parse(istream);
+      this.doc = dBuilder.parse(istream);
 
-      list.addAll(this.createTypes(organization, doc));
-      list.addAll(this.createHierarchies(organization, doc));
+      NodeList nList = doc.getElementsByTagName("organization");
+
+      for (int i = 0; i < nList.getLength(); i++)
+      {
+        Node nNode = nList.item(i);
+
+        if (nNode.getNodeType() == Node.ELEMENT_NODE)
+        {
+          Element elem = (Element) nNode;
+          String code = elem.getAttribute("code");
+
+          organizations.stream().filter(org -> org.getCode().equals(code)).forEach(organization -> {
+            list.addAll(this.createTypes(organization, elem));
+            list.addAll(this.createHierarchies(organization, elem));
+            list.addAll(this.createBusinessTypes(organization, elem));
+            list.addAll(this.createBusinessEdgeTypes(organization, elem));
+          });
+        }
+      }
+
       list.addAll(this.createDirectedAcyclicGraphTypes(doc));
       list.addAll(this.createUndirectedGraphTypes(doc));
-      list.addAll(this.createBusinessTypes(organization, doc));
-      list.addAll(this.createBusinessEdgeTypes(organization, doc));
     }
     catch (ParserConfigurationException | IOException | SAXException e)
     {
@@ -126,11 +166,11 @@ public class XMLImporter
     return list;
   }
 
-  private List<ServerElement> createHierarchies(ServerOrganization organization, Document doc)
+  private List<ServerElement> createHierarchies(ServerOrganization organization, Element parent)
   {
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
 
-    NodeList nList = doc.getElementsByTagName("hierarchy");
+    NodeList nList = parent.getElementsByTagName("hierarchy");
 
     for (int i = 0; i < nList.getLength(); i++)
     {
@@ -140,23 +180,20 @@ public class XMLImporter
       {
         Element elem = (Element) nNode;
 
-        ServerHierarchyType type = createServerHierarchyType(organization, elem);
-        list.add(type);
-
-        TransactionCacheFacade.put(type);
-
-        this.addChildren(type, RootGeoObjectType.INSTANCE, elem);
+        createServerHierarchyType(organization, elem).ifPresent(type -> {
+          list.add(type);
+        });
       }
     }
 
     return list;
   }
 
-  private List<ServerElement> createBusinessEdgeTypes(ServerOrganization organization, Document doc)
+  private List<ServerElement> createBusinessEdgeTypes(ServerOrganization organization, Element parent)
   {
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
 
-    NodeList nList = doc.getElementsByTagName("business-edge");
+    NodeList nList = parent.getElementsByTagName("business-edge");
 
     for (int i = 0; i < nList.getLength(); i++)
     {
@@ -166,10 +203,9 @@ public class XMLImporter
       {
         Element elem = (Element) nNode;
 
-        BusinessEdgeType type = createBusinessEdgeType(organization, elem);
-        list.add(type);
-
-        TransactionCacheFacade.put(type);
+        createBusinessEdgeType(organization, elem).ifPresent(type -> {
+          list.add(type);
+        });
       }
     }
 
@@ -218,39 +254,32 @@ public class XMLImporter
     return list;
   }
 
-  private List<ServerElement> createTypes(ServerOrganization organization, Document doc)
+  private List<ServerElement> createTypes(ServerOrganization organization, Element parent)
   {
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
 
-    NodeList nList = doc.getElementsByTagName("type");
+    NodeList nodes = parent.getElementsByTagName("type");
 
-    for (int i = 0; i < nList.getLength(); i++)
+    for (int i = 0; i < nodes.getLength(); i++)
     {
-      Node nNode = nList.item(i);
+      Node node = nodes.item(i);
 
-      if (nNode.getNodeType() == Node.ELEMENT_NODE)
+      if (node.getNodeType() == Node.ELEMENT_NODE)
       {
-        Element elem = (Element) nNode;
+        Element elem = (Element) node;
 
-        ServerGeoObjectType type = createServerGeoObjectType(organization, elem);
-        list.add(type);
-
-        TransactionCacheFacade.put(type);
-
-        this.addAttributes(elem, type);
-
-        list.addAll(this.addGroupItems(elem, type));
+        list.addAll(this.createServerGeoObjectType(organization, elem));
       }
     }
 
     return list;
   }
 
-  private List<ServerElement> createBusinessTypes(ServerOrganization organization, Document doc)
+  private List<ServerElement> createBusinessTypes(ServerOrganization organization, Element parent)
   {
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
 
-    NodeList nList = doc.getElementsByTagName("business-type");
+    NodeList nList = parent.getElementsByTagName("business-type");
 
     for (int i = 0; i < nList.getLength(); i++)
     {
@@ -260,14 +289,9 @@ public class XMLImporter
       {
         Element elem = (Element) nNode;
 
-        BusinessType type = createBusinessType(organization, elem);
-        list.add(type);
-
-        TransactionCacheFacade.put(type);
-
-        this.addAttributes(elem, type);
-
-        this.updateBusinessType(type, elem);
+        createBusinessType(organization, elem).ifPresent(type -> {
+          list.add(type);
+        });
       }
     }
 
@@ -301,6 +325,8 @@ public class XMLImporter
         list.add(result);
 
         TransactionCacheFacade.put(result);
+
+        this.importedTypes.add(GEO_OBECT_TYPE_PREFIX + code);
       }
     }
 
@@ -486,6 +512,12 @@ public class XMLImporter
 
         String code = elem.getAttribute("code");
 
+        if (!this.importedTypes.contains(GEO_OBECT_TYPE_PREFIX + code))
+        {
+          // Handle imported missing geo object type
+          findAndCreateGeoObjectType(code);
+        }
+
         ServerGeoObjectType child = ServerGeoObjectType.get(code);
 
         this.hierarchyService.addToHierarchy(hierarchy, parent, child);
@@ -493,12 +525,53 @@ public class XMLImporter
         if (root.hasAttribute("extends"))
         {
           String inheritedHierarchyCode = root.getAttribute("extends");
+
+          if (!this.importedTypes.contains(HIERARCHY_TYPE_PREFIX + inheritedHierarchyCode))
+          {
+            // Handle imported missing hierarchy type
+            findAndCreateHierarchyType(inheritedHierarchyCode);
+          }
+
           ServerHierarchyType inheritedHierarchy = ServerHierarchyType.get(inheritedHierarchyCode);
 
           this.typeService.setInheritedHierarchy(child, hierarchy, inheritedHierarchy);
         }
 
         this.addChildren(hierarchy, child, elem);
+      }
+    }
+
+  }
+
+  protected void findAndCreateGeoObjectType(String code)
+  {
+    findAndExecute(code, "type", (organization, element) -> {
+      this.createServerGeoObjectType(organization, element);
+    });
+  }
+
+  protected void findAndCreateHierarchyType(String code)
+  {
+    findAndExecute(code, "hierarchy", (organization, element) -> {
+      this.createServerHierarchyType(organization, element);
+    });
+  }
+
+  protected void findAndExecute(String code, String tagName, BiConsumer<ServerOrganization, Element> consumer)
+  {
+    System.out.println("Searching [" + tagName + "] for " + code);
+
+    NodeList elements = this.doc.getElementsByTagName(tagName);
+
+    for (int i = 0; i < elements.getLength(); i++)
+    {
+      Element element = (Element) elements.item(i);
+
+      if (code.equals(element.getAttribute("code")))
+      {
+        Element orgNode = (Element) element.getParentNode();
+
+        consumer.accept(ServerOrganization.getByCode(orgNode.getAttribute("code")), element);
       }
     }
   }
@@ -525,76 +598,131 @@ public class XMLImporter
     return type;
   }
 
-  private ServerHierarchyType createServerHierarchyType(ServerOrganization organization, Element elem)
+  private Optional<ServerHierarchyType> createServerHierarchyType(ServerOrganization organization, Element elem)
   {
     String code = elem.getAttribute("code");
-    LocalizedValue label = this.getLabel(elem);
-    LocalizedValue description = this.getDescription(elem);
-    String progress = elem.getAttribute("progress");
-    String disclaimer = elem.getAttribute("disclaimer");
-    String accessConstraints = elem.getAttribute("accessConstraints");
-    String useConstraints = elem.getAttribute("useConstraints");
-    String acknowledgement = elem.getAttribute("acknowledgement");
 
-    HierarchyType type = new HierarchyType(code, label, description, organization.getCode());
-    type.setProgress(progress);
-    type.setDisclaimer(disclaimer);
-    type.setAccessConstraints(accessConstraints);
-    type.setUseConstraints(useConstraints);
-    type.setAcknowledgement(acknowledgement);
+    if (!this.importedTypes.contains(HIERARCHY_TYPE_PREFIX + code))
+    {
+      LocalizedValue label = this.getLabel(elem);
+      LocalizedValue description = this.getDescription(elem);
+      String progress = elem.getAttribute("progress");
+      String disclaimer = elem.getAttribute("disclaimer");
+      String accessConstraints = elem.getAttribute("accessConstraints");
+      String useConstraints = elem.getAttribute("useConstraints");
+      String acknowledgement = elem.getAttribute("acknowledgement");
 
-    ServiceFactory.getHierarchyPermissionService().enforceCanCreate(organization.getCode());
+      HierarchyType dto = new HierarchyType(code, label, description, organization.getCode());
+      dto.setProgress(progress);
+      dto.setDisclaimer(disclaimer);
+      dto.setAccessConstraints(accessConstraints);
+      dto.setUseConstraints(useConstraints);
+      dto.setAcknowledgement(acknowledgement);
 
-    return this.hierarchyService.createHierarchyType(type);
+      ServiceFactory.getHierarchyPermissionService().enforceCanCreate(organization.getCode());
+
+      ServerHierarchyType type = this.hierarchyService.createHierarchyType(dto);
+
+      TransactionCacheFacade.put(type);
+      this.importedTypes.add(HIERARCHY_TYPE_PREFIX + type.getCode());
+
+      this.addChildren(type, RootGeoObjectType.INSTANCE, elem);
+
+      return Optional.of(type);
+    }
+
+    return Optional.empty();
   }
 
-  private BusinessEdgeType createBusinessEdgeType(ServerOrganization organization, Element elem)
+  private Optional<BusinessEdgeType> createBusinessEdgeType(ServerOrganization organization, Element elem)
   {
     String code = elem.getAttribute("code");
-    LocalizedValue label = this.getLabel(elem);
-    LocalizedValue description = this.getDescription(elem);
-    String parentTypeCode = elem.getAttribute("parentTypeCode");
-    String childTypeCode = elem.getAttribute("childTypeCode");
 
-    BusinessEdgeType type = this.bEdgeService.create(organization.getCode(), code, label, description, parentTypeCode, childTypeCode);
+    if (!this.importedTypes.contains(BUSINESS_TYPE_PREFIX + code))
+    {
+      LocalizedValue label = this.getLabel(elem);
+      LocalizedValue description = this.getDescription(elem);
+      String parentTypeCode = elem.getAttribute("parentTypeCode");
+      String childTypeCode = elem.getAttribute("childTypeCode");
 
-    ServiceFactory.getHierarchyPermissionService().enforceCanCreate(organization.getCode());
+      ServiceFactory.getHierarchyPermissionService().enforceCanCreate(organization.getCode());
 
-    return type;
+      BusinessEdgeType type = this.bEdgeService.create(organization.getCode(), code, label, description, parentTypeCode, childTypeCode);
+
+      TransactionCacheFacade.put(type);
+      this.importedTypes.add(BUSINESS_EDGE_TYPE_PREFIX + type.getCode());
+
+      return Optional.of(type);
+    }
+
+    return Optional.empty();
   }
 
-  private ServerGeoObjectType createServerGeoObjectType(ServerOrganization organization, Element elem)
+  private List<ServerElement> createServerGeoObjectType(ServerOrganization organization, Element elem)
   {
+    List<ServerElement> list = new LinkedList<ServerElement>();
+
     String code = elem.getAttribute("code");
-    LocalizedValue label = this.getLabel(elem);
-    LocalizedValue description = this.getDescription(elem);
-    String visibility = elem.getAttribute("visibility");
-    GeometryType geometryType = this.getGeometryType(elem);
-    boolean isGeometryEditable = this.getIsGeometryEditable(elem);
-    boolean isAbstract = this.getIsGroup(elem) || ( elem.getElementsByTagName("group-item").getLength() > 0 );
 
-    GeoObjectType type = new GeoObjectType(code, geometryType, label, description, isGeometryEditable, organization.getCode(), adapter);
-    type.setIsPrivate(this.getIsPrivate(visibility));
-    type.setIsAbstract(isAbstract);
+    if (!this.importedTypes.contains(GEO_OBECT_TYPE_PREFIX + code))
+    {
+      LocalizedValue label = this.getLabel(elem);
+      LocalizedValue description = this.getDescription(elem);
+      String visibility = elem.getAttribute("visibility");
+      GeometryType geometryType = this.getGeometryType(elem);
+      boolean isGeometryEditable = this.getIsGeometryEditable(elem);
+      boolean isAbstract = this.getIsGroup(elem) || ( elem.getElementsByTagName("group-item").getLength() > 0 );
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(organization.getCode(), type.getIsPrivate());
+      GeoObjectType dto = new GeoObjectType(code, geometryType, label, description, isGeometryEditable, organization.getCode(), adapter);
+      dto.setIsPrivate(this.getIsPrivate(visibility));
+      dto.setIsAbstract(isAbstract);
 
-    return this.typeService.create(type);
+      ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(organization.getCode(), dto.getIsPrivate());
+
+      ServerGeoObjectType type = this.typeService.create(dto);
+
+      TransactionCacheFacade.put(type);
+
+      this.importedTypes.add(GEO_OBECT_TYPE_PREFIX + type.getCode());
+
+      this.addAttributes(elem, type);
+
+      list.add(type);
+      list.addAll(this.addGroupItems(elem, type));
+    }
+
+    return list;
   }
 
-  private BusinessType createBusinessType(ServerOrganization organization, Element elem)
+  private Optional<BusinessType> createBusinessType(ServerOrganization organization, Element elem)
   {
     String code = elem.getAttribute("code");
-    LocalizedValue label = this.getLabel(elem);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(organization.getCode(), false);
+    if (!this.importedTypes.contains(BUSINESS_TYPE_PREFIX + code))
+    {
+      LocalizedValue label = this.getLabel(elem);
 
-    JsonObject object = new JsonObject();
-    object.addProperty(BusinessType.CODE, code);
-    object.addProperty(BusinessType.ORGANIZATION, organization.getCode());
-    object.add(BusinessType.DISPLAYLABEL, label.toJSON());
+      ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(organization.getCode(), false);
 
-    return this.bTypeService.apply(object);
+      JsonObject object = new JsonObject();
+      object.addProperty(BusinessType.CODE, code);
+      object.addProperty(BusinessType.ORGANIZATION, organization.getCode());
+      object.add(BusinessType.DISPLAYLABEL, label.toJSON());
+
+      BusinessType type = this.bTypeService.apply(object);
+
+      TransactionCacheFacade.put(type);
+
+      this.importedTypes.add(BUSINESS_TYPE_PREFIX + type.getCode());
+
+      this.addAttributes(elem, type);
+
+      this.updateBusinessType(type, elem);
+
+      return Optional.of(type);
+    }
+
+    return Optional.empty();
   }
 
   private void updateBusinessType(BusinessType type, Element elem)

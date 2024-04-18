@@ -112,6 +112,10 @@ abstract public class TestDataSet
 
   public static final String                 WKT_DEFAULT_MULTIPOINT          = "MULTIPOINT ((110 80),(120 70))";
 
+  public static final String                 WKT_DEFAULT_POLYGON             = "MULTIPOLYGON (((30 10, 40 40, 20 40, 10 20, 30 10)))";
+
+  public static final String                 WKT_DEFAULT_POINT               = "MULTIPOINT((110 80))";
+
   public static final String                 WKT_DEFAULT_MULTIPOLYGON        = "MULTIPOLYGON (((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))";
 
   public static final String                 WKT_POLYGON_2                   = "MULTIPOLYGON(((1 1,10 1,10 10,1 10,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))";
@@ -362,6 +366,24 @@ abstract public class TestDataSet
     for (TestGeoObjectInfo geo : managedGeoObjectInfos)
     {
       geo.apply();
+    }
+  }
+
+  public void clearCachedData()
+  {
+    for (TestHierarchyTypeInfo ht : managedHierarchyTypeInfos)
+    {
+      ht.clear();
+    }
+
+    for (TestGeoObjectTypeInfo uni : managedGeoObjectTypeInfos)
+    {
+      uni.clear();
+    }
+
+    for (TestGeoObjectInfo geo : managedGeoObjectInfos)
+    {
+      geo.clear();
     }
   }
 

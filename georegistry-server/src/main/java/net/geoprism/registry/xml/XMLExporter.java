@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2022 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.xml;
 
 import java.io.File;
@@ -22,6 +40,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
@@ -73,7 +92,7 @@ public class XMLExporter
    */
   private Element                           root;
 
-  private ServerOrganization                orginzation;
+  private List<ServerOrganization>          organizations;
 
   private Set<String>                       businessEdgeTypes;
 
@@ -90,14 +109,19 @@ public class XMLExporter
    * element, and parses the <code>schema</code>.
    * 
    */
-  public XMLExporter(ServerOrganization orginzation)
+  public XMLExporter(ServerOrganization... organizations)
+  {
+    this(Arrays.asList(organizations));
+  }
+
+  public XMLExporter(List<ServerOrganization> organizations)
   {
     this.typeService = ServiceFactory.getBean(GeoObjectTypeBusinessServiceIF.class);
     this.hierarchyService = ServiceFactory.getBean(HierarchyTypeBusinessServiceIF.class);
     this.bTypeService = ServiceFactory.getBean(BusinessTypeBusinessServiceIF.class);
     this.bEdgeService = ServiceFactory.getBean(BusinessEdgeTypeBusinessServiceIF.class);
 
-    this.orginzation = orginzation;
+    this.organizations = organizations;
     this.businessEdgeTypes = new TreeSet<>();
 
     try
@@ -129,26 +153,10 @@ public class XMLExporter
 
   public void build()
   {
-    ServerMetadataCache cache = ServiceFactory.getMetadataCache();
-    List<ServerGeoObjectType> types = cache.getAllGeoObjectTypes();
-
-    types.stream().filter(type -> type.getOrganizationCode().equals(this.orginzation.getCode())).forEach(type -> {
-      this.exportType(type);
-    });
-
-    List<ServerHierarchyType> hierarchies = cache.getAllHierarchyTypes();
-
-    hierarchies.stream().filter(type -> type.getOrganizationCode().equals(this.orginzation.getCode())).forEach(type -> {
-      this.exportHierarchy(type);
-    });
-
-    this.bTypeService.getForOrganization(this.orginzation).forEach(type -> {
-      this.exportBusinessType(type);
-    });
-
-    this.businessEdgeTypes.stream().map(code -> this.bEdgeService.getByCode(code)).forEach(type -> {
-      this.exportBusinessEdgeType(type);
-    });
+    for (ServerOrganization organization : organizations)
+    {
+      exportOrganization(organization);
+    }
 
     if (new RolePermissionService().isSRA())
     {
@@ -160,6 +168,37 @@ public class XMLExporter
         this.exportDAG(type);
       });
     }
+  }
+
+  protected void exportOrganization(ServerOrganization organization)
+  {
+    this.businessEdgeTypes.clear();
+
+    Element element = document.createElement("organization");
+    element.setAttribute("code", organization.getCode());
+
+    ServerMetadataCache cache = ServiceFactory.getMetadataCache();
+    List<ServerGeoObjectType> types = cache.getAllGeoObjectTypes();
+
+    types.stream().filter(type -> type.getOrganizationCode().equals(organization.getCode())).forEach(type -> {
+      this.exportType(element, type);
+    });
+
+    List<ServerHierarchyType> hierarchies = cache.getAllHierarchyTypes();
+
+    hierarchies.stream().filter(type -> type.getOrganizationCode().equals(organization.getCode())).forEach(type -> {
+      this.exportHierarchy(element, type);
+    });
+
+    this.bTypeService.getForOrganization(organization).forEach(type -> {
+      this.exportBusinessType(element, type);
+    });
+
+    this.businessEdgeTypes.stream().map(code -> this.bEdgeService.getByCode(code)).forEach(type -> {
+      this.exportBusinessEdgeType(element, type);
+    });
+
+    this.root.appendChild(element);
   }
 
   private void exportUndirectedGraphType(UndirectedGraphType type)
@@ -180,7 +219,7 @@ public class XMLExporter
     this.root.appendChild(element);
   }
 
-  private void exportBusinessType(BusinessType type)
+  private void exportBusinessType(Element parent, BusinessType type)
   {
     Element element = document.createElement("business-type");
     element.setAttribute("code", type.getCode());
@@ -193,14 +232,14 @@ public class XMLExporter
       element.setAttribute("labelAttribute", labelAttribute.getAttributeName());
     }
 
-    this.root.appendChild(element);
+    parent.appendChild(element);
 
     this.bTypeService.getEdgeTypes(type).forEach(edgeType -> {
       this.businessEdgeTypes.add(edgeType.getCode());
     });
   }
 
-  private void exportBusinessEdgeType(BusinessEdgeType type)
+  private void exportBusinessEdgeType(Element parent, BusinessEdgeType type)
   {
     Element element = document.createElement("business-edge");
     element.setAttribute("code", type.getCode());
@@ -210,10 +249,10 @@ public class XMLExporter
     element.setAttribute("parentTypeCode", this.bEdgeService.getParent(type).getCode());
     element.setAttribute("childTypeCode", this.bEdgeService.getChild(type).getCode());
 
-    this.root.appendChild(element);
+    parent.appendChild(element);
   }
 
-  private void exportHierarchy(ServerHierarchyType type)
+  private void exportHierarchy(Element parent, ServerHierarchyType type)
   {
     Element element = document.createElement("hierarchy");
     element.setAttribute("code", type.getCode());
@@ -238,28 +277,32 @@ public class XMLExporter
       }
     }
 
-    rootTypes.forEach(node -> {
-      Element child = this.exportChild(node);
+    List<ServerGeoObjectType> nodes = this.hierarchyService.getDirectRootNodes(type);
+
+    nodes.forEach(node -> {
+      Element child = this.exportChild(type, node);
 
       element.appendChild(child);
     });
 
-    this.root.appendChild(element);
+    parent.appendChild(element);
   }
 
-  private Element exportChild(HierarchyNode node)
+  private Element exportChild(ServerHierarchyType type, ServerGeoObjectType node)
   {
     Element element = document.createElement("child");
-    element.setAttribute("code", node.getGeoObjectType().getCode());
+    element.setAttribute("code", node.getCode());
 
-    node.getChildren().forEach(child -> {
-      element.appendChild(this.exportChild(child));
+    List<ServerGeoObjectType> children = this.hierarchyService.getChildren(type, node);
+
+    children.forEach(child -> {
+      element.appendChild(this.exportChild(type, child));
     });
 
     return element;
   }
 
-  private void exportType(ServerGeoObjectType type)
+  private void exportType(Element parent, ServerGeoObjectType type)
   {
     ServerGeoObjectType superType = type.getSuperType();
 
@@ -300,7 +343,7 @@ public class XMLExporter
 
       }
 
-      this.root.appendChild(element);
+      parent.appendChild(element);
     }
   }
 
@@ -378,7 +421,7 @@ public class XMLExporter
       attribute.setAttribute("classificationType", type.getClassificationType());
     }
 
-    attribute.setAttribute("name", attributeType.getName());
+    attribute.setAttribute("code", attributeType.getName());
     attribute.setAttribute("label", attributeType.getLabel().getValue());
     attribute.setAttribute("description", attributeType.getDescription().getValue());
 

@@ -21,8 +21,8 @@ package net.geoprism.registry.etl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -41,6 +41,9 @@ import com.runwaysdk.util.IDGenerator;
 import net.geoprism.registry.BusinessEdgeType;
 import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.cache.BusinessObjectCache;
+import net.geoprism.registry.cache.Cache;
+import net.geoprism.registry.cache.LRUCache;
 import net.geoprism.registry.model.BusinessObject;
 import net.geoprism.registry.service.business.BusinessEdgeTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.BusinessObjectBusinessServiceIF;
@@ -52,14 +55,7 @@ public class BusinessEdgeJsonImporter
 
   protected BusinessObjectCache             goCache    = new BusinessObjectCache();
 
-  protected Map<String, Object>             goRidCache = new LinkedHashMap<String, Object>()
-                                                       {
-                                                         public boolean removeEldestEntry(@SuppressWarnings("rawtypes") Map.Entry eldest)
-                                                         {
-                                                           final int cacheSize = 10000;
-                                                           return size() > cacheSize;
-                                                         }
-                                                       };
+  protected Cache<String, Object>           goRidCache = new LRUCache<String, Object>(1000);
 
   private ApplicationResource               resource;
 
@@ -134,14 +130,13 @@ public class BusinessEdgeJsonImporter
   {
     String typeDbClassName = businessType.getMdVertexDAO().getDBClassName();
 
-    Object rid = this.goRidCache.get(businessType.getCode() + "$#!" + code);
+    Optional<Object> optional = this.goRidCache.get(businessType.getCode() + "$#!" + code);
 
-    if (rid == null)
-    {
+    return optional.orElseGet(() -> {
       GraphQuery<Object> query = new GraphQuery<Object>("select @rid from " + typeDbClassName + " where code=:code;");
       query.setParameter("code", code);
 
-      rid = query.getSingleResult();
+      Object rid = query.getSingleResult();
 
       if (rid == null)
       {
@@ -149,9 +144,9 @@ public class BusinessEdgeJsonImporter
       }
 
       this.goRidCache.put(businessType.getCode() + "$#!" + code, rid);
-    }
 
-    return rid;
+      return rid;
+    });
   }
 
   public void newEdge(Object childRid, Object parentRid, BusinessEdgeType type)
