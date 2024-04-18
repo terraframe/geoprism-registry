@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
 
+import net.geoprism.registry.graph.GeoVertex;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 
 import com.runwaysdk.business.graph.EdgeObject;
@@ -30,7 +31,6 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
-import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexComponent;

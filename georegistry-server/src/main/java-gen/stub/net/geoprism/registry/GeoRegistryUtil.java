@@ -366,7 +366,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
       organizations.add(ServerOrganization.getByCode(orgCode));
     }
 
-    XMLImporter xmlImporter = new XMLImporter();
+    XMLImporter xmlImporter = new XMLImporter(false);
     xmlImporter.importXMLDefinitions(new StreamResource(istream, "domain.xml"), organizations);
   }
 

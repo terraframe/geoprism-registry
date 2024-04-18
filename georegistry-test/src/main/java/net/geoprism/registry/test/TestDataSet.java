@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import net.geoprism.registry.graph.GeoVertex;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
@@ -85,7 +86,6 @@ import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.ExternalSystem;
-import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.business.GeoObjectTypeBusinessServiceIF;
 import net.geoprism.registry.service.business.GraphRepoServiceIF;
