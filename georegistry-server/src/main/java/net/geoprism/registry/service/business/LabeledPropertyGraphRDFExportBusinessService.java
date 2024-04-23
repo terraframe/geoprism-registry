@@ -52,12 +52,12 @@ import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 
 @Service
-public class LabeledPropertyGraphRDFExporterService
+public class LabeledPropertyGraphRDFExportBusinessService
 {
   public static final long BLOCK_SIZE = 1000;
   
   
-  private Logger logger = LoggerFactory.getLogger(LabeledPropertyGraphRDFExporterService.class);
+  private Logger logger = LoggerFactory.getLogger(LabeledPropertyGraphRDFExportBusinessService.class);
   
   private StreamRDF writer;
   

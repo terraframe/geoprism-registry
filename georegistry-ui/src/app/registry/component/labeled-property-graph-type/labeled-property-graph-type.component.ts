@@ -24,6 +24,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { Subscription } from "rxjs";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 import { WebSockets } from "@shared/component/web-sockets/web-sockets";
+import { environment } from 'src/environments/environment';
 
 import { ConfirmModalComponent } from "@shared/component";
 import { DateService, LocalizationService, ProgressService } from "@shared/service";
@@ -138,6 +139,10 @@ export class LabeledPropertyGraphTypeComponent implements OnInit, OnDestroy {
             ignoreBackdropClick: true
         });
         this.bsModalRef.content.init(null, type);
+    }
+    
+    onExportRDF(entry, version): void {
+        window.location.href = environment.apiUrl + "api/rdf/export?versionId=" + version.oid;
     }
 
     onDelete(entry: LabeledPropertyGraphTypeEntry, version: LabeledPropertyGraphTypeVersion): void {

@@ -32,6 +32,10 @@
             </span>
         </div>
         <div class="col-md-5" style="text-align: right;">
+            <button type="submit" (click)="onExportRDF(entry, version)"
+                class="btn btn-primary" role="button">
+                <localize key="lpg.version.exportRdf"></localize>
+            </button>
             <button type="submit" (click)="onDelete(entry, version)"
                 class="btn btn-danger" role="button">
                 <localize key="modal.button.delete"></localize>
