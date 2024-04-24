@@ -30,6 +30,7 @@ import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.system.StreamRDF;
 import org.apache.jena.riot.system.StreamRDFWriter;
 import org.apache.jena.sparql.core.Quad;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,7 @@ import net.geoprism.graph.GraphTypeSnapshot;
 import net.geoprism.graph.LabeledPropertyGraphType;
 import net.geoprism.graph.LabeledPropertyGraphTypeVersion;
 import net.geoprism.registry.InvalidMasterListException;
+import net.geoprism.registry.model.Classification;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 
@@ -71,6 +73,9 @@ public class LabeledPropertyGraphRDFExportBusinessService
 
   @Autowired
   private LabeledPropertyGraphTypeVersionBusinessServiceIF versionService;
+  
+  @Autowired
+  protected ClassificationBusinessServiceIF classificationService;
   
   public static class CachedGraphTypeSnapshot
   {
@@ -158,6 +163,13 @@ public class LabeledPropertyGraphRDFExportBusinessService
         }
       }
       
+      for (GeoObjectTypeSnapshot got : gotSnaps.values())
+      {
+        got.getAttributeTypes().stream().filter(t -> t instanceof AttributeClassificationType).forEach(attribute -> {
+          sb.append(", " + attribute.getName() + ".displayLabel.defaultLocale as " + attribute.getName() + "_l");
+        });
+      }
+      
       sb.append(" FROM " + mdVertex.getDbClassName());
       sb.append(" ORDER BY oid SKIP " + skip + " LIMIT " + BLOCK_SIZE);
       
@@ -195,6 +207,17 @@ public class LabeledPropertyGraphRDFExportBusinessService
           Map<String,String> value = (Map<String,String>) valueMap.get(attribute.getName());
           
           literal = value.get(MdAttributeLocalInfo.DEFAULT_LOCALE);
+        }
+        else if (attribute instanceof AttributeClassificationType)
+        {
+          String value = (String) valueMap.get(attribute.getName() + "_l");
+
+          if (value != null)
+          {
+            Classification classification = this.classificationService.get((AttributeClassificationType) attribute, value);
+
+            literal = classification.getDisplayLabel().getValue();
+          }
         }
         else
         {
