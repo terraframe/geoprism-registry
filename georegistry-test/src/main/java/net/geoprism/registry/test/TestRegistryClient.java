@@ -221,7 +221,7 @@ public class TestRegistryClient extends AbstractTestClient
 
   public JsonObject hierarchyManagerInit()
   {
-    return JsonParser.parseString(responseToString(this.restController.init(false))).getAsJsonObject();
+    return JsonParser.parseString(responseToString(this.restController.init(false, false))).getAsJsonObject();
   }
 
   public JsonArray getHierarchiesForGeoObjectOverTime(String code, String typeCode)
